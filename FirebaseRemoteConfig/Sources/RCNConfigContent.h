@@ -39,6 +39,8 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 @property(nonatomic, readonly, copy) NSDictionary *activeConfig;
 /// Local default config that is provided by external users;
 @property(nonatomic, readonly, copy) NSDictionary *defaultConfig;
+/// Active Rollout metadata that is currently used.
+@property(nonatomic, readonly, copy) NSArray<NSDictionary *> *activeRolloutMetadata;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -65,8 +67,8 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 /// Gets the active config and Personalization metadata.
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace;
 
-/// Sets the fetched rollout metadata to active and return the active rollout metadata.
-- (NSArray<NSDictionary *> *)activateRolloutMetadata;
+/// Sets the fetched rollout metadata to active.
+- (void)activateRolloutMetadata;
 
 /// Returns the updated parameters between fetched and active config.
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace;

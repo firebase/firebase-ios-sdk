@@ -334,10 +334,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // Update last active template version number in setting and userDefaults.
     [strongSelf->_settings updateLastActiveTemplateVersion];
     // Update activeRolloutMetadata
-    NSArray<NSDictionary *> *activeRolloutMetadata =
-        [strongSelf->_configContent activateRolloutMetadata];
-    [self notifyRolloutsStateChange:activeRolloutMetadata
-                      versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+    [strongSelf->_configContent activateRolloutMetadata];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
+                        versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+    });
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
@@ -634,10 +635,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     notification.userInfo[RolloutsStateDidChangeNotificationName];
                 [subscriber rolloutsStateDidChange:rolloutsState];
               }];
-  // Pass active rollout metadata stored in persistence while app launched.
-  NSArray<NSDictionary *> *activeRolloutMetadata = self->_configContent.activateRolloutMetadata;
-  [self notifyRolloutsStateChange:activeRolloutMetadata
-                    versionNumber:self->_settings.lastActiveTemplateVersion];
+  // Pass active rollout metadata stored in persistence while app launched unless this is the first
+  // launch without any fetch and activate.
+  NSString *activeVersionNumber = self->_settings.lastActiveTemplateVersion;
+  NSArray<NSDictionary *> *activeRolloutMetadata = self->_configContent.activeRolloutMetadata;
+  [self notifyRolloutsStateChange:activeRolloutMetadata versionNumber:activeVersionNumber];
 }
 
 - (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata

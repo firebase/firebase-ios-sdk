@@ -183,20 +183,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                 existingReportManager:_existingReportManager
                                                      analyticsManager:_analyticsManager];
 
-    // RemoteConfig subscription should be made after session report directory created.
-    if (remoteConfig) {
-      FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
-
-      FIRCLSRolloutsPersistenceManager *persistenceManager =
-          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager];
-      _remoteConfigManager =
-          [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
-                                              persistenceDelegate:persistenceManager];
-
-      // TODO(themisw): Import "firebase" from the interop in the future.
-        [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
-    }
-
     _didPreviouslyCrash = [_fileManager didCrashOnPreviousExecution];
     // Process did crash during previous execution
     if (_didPreviouslyCrash) {
@@ -217,8 +203,21 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     }] catch:^void(NSError *error) {
       FIRCLSErrorLog(@"Crash reporting failed to initialize with error: %@", error);
     }];
-  }
 
+    // RemoteConfig subscription should be made after session report directory created.
+    if (remoteConfig) {
+      FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
+
+      FIRCLSRolloutsPersistenceManager *persistenceManager =
+          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager];
+      _remoteConfigManager =
+          [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
+                                              persistenceDelegate:persistenceManager];
+
+      // TODO(themisw): Import "firebase" from the interop in the future.
+          [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
+    }
+  }
   return self;
 }
 

@@ -502,8 +502,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                                   rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  NSArray<NSDictionary *> *result = [_configContent activateRolloutMetadata];
-  XCTAssertEqualObjects(rolloutMetadata, result);
+  [_configContent activateRolloutMetadata];
+  XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
   FIRRemoteConfigValue *rcValue =
       [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
@@ -548,8 +548,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  NSArray<NSDictionary *> *result = [_configContent activateRolloutMetadata];
-  XCTAssertEqualObjects(rolloutMetadata, result);
+  [_configContent activateRolloutMetadata];
+  XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
   FIRRemoteConfigValue *rcValue =
       [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
@@ -585,8 +585,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                                   rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  NSArray<NSDictionary *> *result = [_configContent activateRolloutMetadata];
-  XCTAssertEqualObjects(rolloutMetadata, result);
+  [_configContent activateRolloutMetadata];
+  XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
   FIRRemoteConfigValue *rcValue =
       [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
@@ -604,11 +604,11 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   [_configContent updateConfigContentWithResponse:updateFetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-  NSArray<NSDictionary *> *activeRollout = [_configContent activateRolloutMetadata];
+  [_configContent activateRolloutMetadata];
 
   XCTAssertTrue([update updatedKeys].count == 1);
   XCTAssertTrue([[update updatedKeys] containsObject:key]);
-  XCTAssertTrue(activeRollout.count == 0);
+  XCTAssertTrue(_configContent.activeRolloutMetadata.count == 0);
 }
 
 - (void)testConfigUpdate_valueSourceChanged_returnsKey {
