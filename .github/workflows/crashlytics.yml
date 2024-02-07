@@ -47,8 +47,7 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} \
-         ${{ matrix.tests }}
+        command: scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.tests }}
 
   spm:
     # Don't run on private repo unless it is a PR.
