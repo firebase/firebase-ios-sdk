@@ -48,8 +48,6 @@ NSString *const kFIRAppCheckAppNameNotificationKey = @"FIRAppCheckAppNameNotific
 
 static id<FIRAppCheckProviderFactory> _providerFactory;
 
-static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
-
 @interface FIRAppCheck () <FIRAppCheckInterop, GACAppCheckTokenDelegate>
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
 
