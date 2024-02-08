@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '10.21.0'
+  s.version          = '10.22.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -29,7 +29,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.source_files = [

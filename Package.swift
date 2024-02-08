@@ -1,4 +1,4 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.21.0"
+let firebaseVersion = "10.22.0"
 
 let package = Package(
   name: "Firebase",
@@ -310,8 +310,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.20.0/FirebaseAnalytics.zip",
-      checksum: "169e9983be26e31bff373ea3ae5b56559a49f6bf14986f8813be5af03c00b251"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.21.0/FirebaseAnalytics.zip",
+      checksum: "4d2c6daf6fd6f4d9e3071ed0051d4651648f44a01712a5949a36f169b1a2bd61"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -1319,7 +1319,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.20.0")
+  return .package(url: appMeasurementURL, exact: "10.21.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1488,8 +1488,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.20.0/FirebaseFirestoreInternal.zip",
-        checksum: "7fe8f913d35e257979eddc8e2df0fedd3b89735c7030494307079747f03279c7"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/10.21.0/FirebaseFirestoreInternal.zip",
+        checksum: "50d864ef4e7e090ea1388926674d7095ae5a83ac429f788c3d6e3497e7a5b175"
       )
     }
   }()

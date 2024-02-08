@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '10.21.0'
+  s.version          = '10.22.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.source_files = [

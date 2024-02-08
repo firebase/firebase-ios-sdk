@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '10.21.0'
+  s.version          = '10.22.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -31,7 +31,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   source = 'FirebaseAuth/Sources/'

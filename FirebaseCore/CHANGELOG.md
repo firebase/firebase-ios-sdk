@@ -1,3 +1,11 @@
+# Unreleased
+- [Swift Package Manager] Firebase now enforces a Swift 5.7.1 minimum version,
+  which is aligned with the Xcode 14.1 minimum. (#12350)
+
+# Firebase 10.21.0
+- Firebase now requires at least CocoaPods version 1.12.0 to enable privacy
+  manifest support.
+
 # Firebase 10.20.0
 - The following change only applies to those using a binary distribution of
   a Firebase SDK(s): In preparation for supporting Privacy Manifests, each

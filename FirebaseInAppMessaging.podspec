@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '10.21.0-beta'
+  s.version          = '10.22.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -22,7 +22,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
