@@ -213,9 +213,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       _remoteConfigManager =
           [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
                                               persistenceDelegate:persistenceManager];
-
-      // TODO(themisw): Import "firebase" from the interop in the future.
-          [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
+          [remoteConfig registerRolloutsStateSubscriber:self for:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform];
     }
   }
   return self;

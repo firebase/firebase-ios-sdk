@@ -32,6 +32,7 @@
 
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseRemoteConfigInterop;
 
 @protocol FIRRolloutsStateSubscriber;
 
@@ -149,6 +150,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSString *_fullyQualifiedNamespace;
   RCNConfigSettings *_settings;
   dispatch_queue_t _queue;
+  NSString *_nameSpaceGoogleMobilePlatform;
 }
 @end
 
@@ -184,6 +186,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
   _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
   _configRealtime = [[NSMutableArray alloc] initWithCapacity:3];
+  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform;
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -208,7 +211,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _nameSpaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -609,7 +612,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _nameSpaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -722,7 +725,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _nameSpaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -926,7 +929,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _nameSpaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:

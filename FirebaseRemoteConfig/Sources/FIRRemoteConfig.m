@@ -81,8 +81,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     *RCInstances;
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithApp:(FIRApp *_Nonnull)firebaseApp {
-  return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform
-                                                   app:firebaseApp];
+  return [FIRRemoteConfig
+      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform
+                               app:firebaseApp];
 }
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *_Nonnull)firebaseNamespace {
@@ -118,8 +119,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                        @"initializer in SwiftUI."];
   }
 
-  return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform
-                                                   app:[FIRApp defaultApp]];
+  return [FIRRemoteConfig
+      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform
+                               app:[FIRApp defaultApp]];
 }
 
 /// Singleton instance of serial queue for queuing all incoming RC calls.
@@ -342,7 +344,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-    if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+    if ([namespace isEqualToString:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform]) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self notifyConfigHasActivated];
       });

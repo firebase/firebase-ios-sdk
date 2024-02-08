@@ -25,6 +25,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+@import FirebaseRemoteConfigInterop;
 
 #ifdef RCN_STAGING_SERVER
 static NSString *const kServerURLDomain =
@@ -572,7 +573,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         // Update experiments only for 3p namespace
         NSString *namespace = [strongSelf->_FIRNamespace
             substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-        if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+        if ([namespace
+                isEqualToString:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform]) {
           [strongSelf->_experiment updateExperimentsWithResponse:
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }

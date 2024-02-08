@@ -24,6 +24,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+@import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigContent (Testing)
 - (BOOL)checkAndWaitForInitialDatabaseLoad;
@@ -62,6 +63,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSTimeInterval _expectationTimeout;
   RCNConfigContent *_configContent;
   NSString *namespaceApp1, *namespaceApp2;
+  NSString *_nameSpaceGoogleMobilePlatform;
 }
 @end
 
@@ -70,11 +72,12 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 - (void)setUp {
   [super setUp];
   _expectationTimeout = 1.0;
+  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform;
 
   namespaceApp1 = [NSString
-      stringWithFormat:@"%@:%@", FIRNamespaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
+      stringWithFormat:@"%@:%@", _nameSpaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
   namespaceApp2 = [NSString
-      stringWithFormat:@"%@:%@", FIRNamespaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
+      stringWithFormat:@"%@:%@", _nameSpaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
 
   _configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
 
@@ -129,14 +132,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSDictionary *entries = @{@"key1" : @"value1", @"key2" : @"value2"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:FIRNamespaceGoogleMobilePlatform];
+                                     forNamespace:_nameSpaceGoogleMobilePlatform];
 
   NSDictionary *fetchedConfig = _configContent.fetchedConfig;
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key1"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key1"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key1"] stringValue],
                         @"value1");
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"]);
+  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
 }
 
@@ -147,20 +150,20 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSDictionary *entries = @{@"key1" : @"value1"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:FIRNamespaceGoogleMobilePlatform];
+                                     forNamespace:_nameSpaceGoogleMobilePlatform];
   configToSet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"UPDATE", @"state", nil];
   entries = @{@"key2" : @"value2", @"key3" : @"value3"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:FIRNamespaceGoogleMobilePlatform];
+                                     forNamespace:_nameSpaceGoogleMobilePlatform];
 
   NSDictionary *fetchedConfig = _configContent.fetchedConfig;
-  XCTAssertNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key1"]);
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"] stringValue],
+  XCTAssertNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"]);
+  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key3"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key3"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key3"]);
+  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key3"] stringValue],
                         @"value3");
 }
 
