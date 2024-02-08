@@ -60,9 +60,9 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
 class MockEventSource : public core::QueryEventSource {
  public:
   MOCK_METHOD1(SetCallback, void(core::SyncEngineCallback*));
-  MOCK_METHOD1(Listen, model::TargetId(core::Query));
+  MOCK_METHOD2(Listen, model::TargetId(core::Query, bool));
   MOCK_METHOD1(ListenToRemoteStore, void(core::Query));
-  MOCK_METHOD1(StopListening, void(const core::Query&));
+  MOCK_METHOD2(StopListening, void(const core::Query&, bool));
   MOCK_METHOD1(StopListeningToRemoteStore, void(const core::Query&));
 };
 
@@ -75,14 +75,14 @@ TEST(EventManagerTest, HandlesManyListnersPerQuery) {
   EXPECT_CALL(mock_event_source, SetCallback(_));
   EventManager event_manager(&mock_event_source);
 
-  EXPECT_CALL(mock_event_source, Listen(query));
+  EXPECT_CALL(mock_event_source, Listen(query, true));
   event_manager.AddQueryListener(listener1);
 
   // Expecting no activity from mock_event_source.
   event_manager.AddQueryListener(listener2);
   event_manager.RemoveQueryListener(listener2);
 
-  EXPECT_CALL(mock_event_source, StopListening(query));
+  EXPECT_CALL(mock_event_source, StopListening(query, true));
   event_manager.RemoveQueryListener(listener1);
 }
 
@@ -93,7 +93,7 @@ TEST(EventManagerTest, HandlesUnlistenOnUnknownListenerGracefully) {
   MockEventSource mock_event_source;
   EventManager event_manager(&mock_event_source);
 
-  EXPECT_CALL(mock_event_source, StopListening(_)).Times(0);
+  EXPECT_CALL(mock_event_source, StopListening(_, true)).Times(0);
   event_manager.RemoveQueryListener(listener);
 }
 
@@ -130,10 +130,10 @@ TEST(EventManagerTest, NotifiesListenersInTheRightOrder) {
   MockEventSource mock_event_source;
   EventManager event_manager(&mock_event_source);
 
-  EXPECT_CALL(mock_event_source, Listen(query1));
+  EXPECT_CALL(mock_event_source, Listen(query1, true));
   event_manager.AddQueryListener(listener1);
 
-  EXPECT_CALL(mock_event_source, Listen(query2));
+  EXPECT_CALL(mock_event_source, Listen(query2, true));
   event_manager.AddQueryListener(listener2);
 
   event_manager.AddQueryListener(listener3);

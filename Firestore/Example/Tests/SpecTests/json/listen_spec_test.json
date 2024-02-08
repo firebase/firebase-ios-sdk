@@ -13270,7 +13270,10 @@
     "describeName": "Listens:",
     "itName": "Secondary client advances query state with global snapshot from primary",
     "tags": [
-      "multi-client"
+      "multi-client",
+      "no-web",
+      "no-ios",
+      "no-android"
     ],
     "config": {
       "numClients": 2,

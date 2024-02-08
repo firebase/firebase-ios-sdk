@@ -148,7 +148,7 @@ typedef std::
  * @param query A valid query to execute against the backend.
  * @return The target ID assigned by the system to track the query.
  */
-- (model::TargetId)addUserListenerWithQuery:(core::Query)query;
+- (model::TargetId)addUserListenerWithQuery:(core::Query)query options:(core::ListenOptions)options;
 
 /**
  * Removes a listener from the FSTSyncEngine as if the user had removed a listener corresponding

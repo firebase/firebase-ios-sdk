@@ -20,7 +20,6 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
@@ -28,6 +27,7 @@
 #import "Firestore/Source/API/FIRFirestoreSource+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
+#import "Firestore/Source/API/converters.h"
 
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
@@ -216,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
                                                      listener:(FIRDocumentSnapshotBlock)listener {
-    ListenOptions listenOptions =
+  ListenOptions listenOptions =
       ListenOptions::FromOptions(options.includeMetadataChanges, MakeListenSource(options.source));
   return [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
 }

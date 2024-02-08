@@ -476,10 +476,9 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (TargetId)addUserListenerWithQuery:(Query)query {
+- (TargetId)addUserListenerWithQuery:(Query)query options:(ListenOptions)options {
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
-  ListenOptions options = ListenOptions::FromIncludeMetadataChanges(true);
   auto listener = QueryListener::Create(
       query, options, [self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
         FSTQueryEvent *event = [[FSTQueryEvent alloc] init];

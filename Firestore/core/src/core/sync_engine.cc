@@ -104,7 +104,7 @@ void SyncEngine::AssertCallbackExists(absl::string_view source) {
               "Tried to call '%s' before callback was registered.", source);
 }
 
-TargetId SyncEngine::Listen(Query query) {
+TargetId SyncEngine::Listen(Query query, bool shouldListenToRemote) {
   AssertCallbackExists("Listen");
 
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
@@ -121,7 +121,9 @@ TargetId SyncEngine::Listen(Query query) {
   snapshots.push_back(std::move(view_snapshot));
   sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
 
-  remote_store_->Listen(std::move(target_data));
+  if (shouldListenToRemote) {
+    remote_store_->Listen(std::move(target_data));
+  }
   return target_id;
 }
 
@@ -164,10 +166,12 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
 void SyncEngine::ListenToRemoteStore(Query query) {
   AssertCallbackExists("ListenToRemoteStore");
   TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
-  remote_store_->Listen(std::move(target_data));;
+  remote_store_->Listen(std::move(target_data));
+  ;
 }
 
-void SyncEngine::StopListening(const Query& query) {
+void SyncEngine::StopListening(const Query& query,
+                               bool shouldUnlistenToRemote) {
   AssertCallbackExists("StopListening");
 
   auto query_view = query_views_by_query_[query];
@@ -182,7 +186,9 @@ void SyncEngine::StopListening(const Query& query) {
 
   if (queries.empty()) {
     local_store_->ReleaseTarget(target_id);
-    remote_store_->StopListening(target_id);
+    if (shouldUnlistenToRemote) {
+      remote_store_->StopListening(target_id);
+    }
     RemoveAndCleanupTarget(target_id, Status::OK());
   }
 }

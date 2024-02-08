@@ -23,7 +23,6 @@
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
 
-#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -38,6 +37,7 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
+#import "Firestore/Source/API/converters.h"
 
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/api/query_listener_registration.h"

@@ -23,13 +23,13 @@
 #include <vector>
 
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "absl/types/optional.h"
-#include "Firestore/core/src/core/query_listener.h"
 
 namespace firebase {
 namespace firestore {

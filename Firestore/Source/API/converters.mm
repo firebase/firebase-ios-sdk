@@ -62,7 +62,7 @@ FIRDocumentReference* MakeFIRDocumentReference(const model::DocumentKey& key,
   return [[FIRDocumentReference alloc] initWithKey:key firestore:std::move(firestore)];
 }
 
-ListenSource MakeListenSource( const FIRListenSource& source) {
+ListenSource MakeListenSource(const FIRListenSource& source) {
   switch (source) {
     case FIRListenSourceDefault:
       return ListenSource::Default;
