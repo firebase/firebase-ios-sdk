@@ -147,6 +147,52 @@ using firebase::firestore::util::MakeString;
   [registration remove];
 }
 
+- (void)testLoadWithDocumentsWhileListeningToCache {
+  [self writeDocumentRef:[self.db documentWithPath:@"coll-1/a"] data:@{@"bar" : @"newValueA"}];
+  [self writeDocumentRef:[self.db documentWithPath:@"coll-1/b"] data:@{@"bar" : @"newValueB"}];
+
+  // Finishing receiving backend event.
+  FIRCollectionReference* collection = [self.db collectionWithPath:@"coll-1"];
+  FIRSnapshotListenOptions* options = [[FIRSnapshotListenOptions alloc] init];
+  options = [options optionsWithSource:FIRListenSourceCache];
+  id<FIRListenerRegistration> registration =
+      [collection addSnapshotListenerWithOptions:options
+                                        listener:self.eventAccumulator.valueEventHandler];
+  [self.eventAccumulator awaitRemoteEvent];
+
+  // We should see no more snapshots from loading the bundle, because the data there is older.
+  [self.eventAccumulator assertNoAdditionalEvents];
+
+  auto bundle = [self defaultBundle];
+  NSMutableArray* progresses = [[NSMutableArray alloc] init];
+  __block FIRLoadBundleTaskProgress* result;
+  XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
+  FIRLoadBundleTask* task =
+      [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+               completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
+                 result = progress;
+                 XCTAssertNil(error);
+                 [expectation fulfill];
+               }];
+  [task addObserver:^(FIRLoadBundleTaskProgress* progress) {
+    [progresses addObject:progress];
+  }];
+
+  [self awaitExpectation:expectation];
+
+  XCTAssertEqual(4ul, progresses.count);
+  [self verifyProgress:progresses[0] hasLoadedDocument:0];
+  [self verifyProgress:progresses[1] hasLoadedDocument:1];
+  [self verifyProgress:progresses[2] hasLoadedDocument:2];
+  [self verifySuccessProgress:progresses[3]];
+  XCTAssertEqualObjects(progresses[3], result);
+
+  [self verifyNamedQuery:@"limit" hasResult:@[ @{@"bar" : @"newValueB"} ]];
+  [self verifyNamedQuery:@"limit-to-last" hasResult:@[ @{@"bar" : @"newValueA"} ]];
+
+  [registration remove];
+}
+
 - (void)testLoadDocumentsWithProgressUpdates {
   NSMutableArray* progresses = [[NSMutableArray alloc] init];
   auto bundle = [self defaultBundle];
