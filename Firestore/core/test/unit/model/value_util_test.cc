@@ -545,6 +545,12 @@ TEST_F(ValueUtilTest, DeepClone) {
   VerifyDeepClone(Map("a", Array("b", Map("c", GeoPoint(30, 60)))));
 }
 
+TEST_F(ValueUtilTest, CompareMapsWithDifferentKeyOrders) {
+  auto left = Map("a", 3, "b", 5);
+  auto right = Map("b", 5, "a", 3);
+  EXPECT_EQ(model::Compare(*left, *right), ComparisonResult::Same);
+}
+
 }  // namespace
 
 }  // namespace model
