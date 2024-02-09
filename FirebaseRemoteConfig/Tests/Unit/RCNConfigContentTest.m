@@ -63,7 +63,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSTimeInterval _expectationTimeout;
   RCNConfigContent *_configContent;
   NSString *namespaceApp1, *namespaceApp2;
-  NSString *_nameSpaceGoogleMobilePlatform;
+  NSString *_namespaceGoogleMobilePlatform;
 }
 @end
 
@@ -72,12 +72,12 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 - (void)setUp {
   [super setUp];
   _expectationTimeout = 1.0;
-  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
+  _namespaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
 
   namespaceApp1 = [NSString
-      stringWithFormat:@"%@:%@", _nameSpaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
+      stringWithFormat:@"%@:%@", _namespaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
   namespaceApp2 = [NSString
-      stringWithFormat:@"%@:%@", _nameSpaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
+      stringWithFormat:@"%@:%@", _namespaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
 
   _configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
 
@@ -132,14 +132,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSDictionary *entries = @{@"key1" : @"value1", @"key2" : @"value2"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:_nameSpaceGoogleMobilePlatform];
+                                     forNamespace:_namespaceGoogleMobilePlatform];
 
   NSDictionary *fetchedConfig = _configContent.fetchedConfig;
-  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key1"]);
-  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key1"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"] stringValue],
                         @"value1");
-  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"]);
-  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
 }
 
@@ -150,20 +150,20 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSDictionary *entries = @{@"key1" : @"value1"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:_nameSpaceGoogleMobilePlatform];
+                                     forNamespace:_namespaceGoogleMobilePlatform];
   configToSet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"UPDATE", @"state", nil];
   entries = @{@"key2" : @"value2", @"key3" : @"value3"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:_nameSpaceGoogleMobilePlatform];
+                                     forNamespace:_namespaceGoogleMobilePlatform];
 
   NSDictionary *fetchedConfig = _configContent.fetchedConfig;
-  XCTAssertNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key1"]);
-  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"]);
-  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key2"] stringValue],
+  XCTAssertNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
-  XCTAssertNotNil(fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key3"]);
-  XCTAssertEqualObjects([fetchedConfig[_nameSpaceGoogleMobilePlatform][@"key3"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key3"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key3"] stringValue],
                         @"value3");
 }
 
