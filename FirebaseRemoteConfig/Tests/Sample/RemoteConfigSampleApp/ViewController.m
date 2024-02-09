@@ -82,7 +82,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 
   // TODO(mandard): Add support for deleting and adding namespaces in the app.
   self.namespacePickerData =
-      [[NSArray alloc] initWithObjects:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform,
+      [[NSArray alloc] initWithObjects:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform,
                                        FIRPerfNamespace, nil];
   self.appPickerData =
       [[NSArray alloc] initWithObjects:FIRDefaultFIRAppName, FIRSecondFIRAppName, nil];
@@ -94,7 +94,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         self.RCInstances[namespaceString] = [[NSMutableDictionary alloc] init];
       }
       if ([namespaceString
-              isEqualToString:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform] &&
+              isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform] &&
           [appString isEqualToString:FIRDefaultFIRAppName]) {
         self.RCInstances[namespaceString][appString] = [FIRRemoteConfig remoteConfig];
       } else {
@@ -123,27 +123,27 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
   [alert addAction:defaultAction];
 
   // Add realtime listener for firebase namespace
-  [self.RCInstances[FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform]
-                   [FIRDefaultFIRAppName] addOnConfigUpdateListener:^(
-                                              FIRRemoteConfigUpdate *_Nullable update,
-                                              NSError *_Nullable error) {
-    if (error != nil) {
-      [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Realtime Error: %@",
-                                                                       error.localizedDescription]];
-    } else {
-      [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
-      if (update != nil) {
-        /// UI popup that lets user know that fetch included realtime_test_key in updatedKeys.
-        if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
-          [self presentViewController:alert animated:YES completion:nil];
+  [self.RCInstances[FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
+      addOnConfigUpdateListener:^(FIRRemoteConfigUpdate *_Nullable update,
+                                  NSError *_Nullable error) {
+        if (error != nil) {
+          [[FRCLog sharedInstance]
+              logToConsole:[NSString
+                               stringWithFormat:@"Realtime Error: %@", error.localizedDescription]];
+        } else {
+          [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
+          if (update != nil) {
+            /// UI popup that lets user know that fetch included realtime_test_key in updatedKeys.
+            if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
+              [self presentViewController:alert animated:YES completion:nil];
+            }
+            NSString *updatedParams = [update updatedKeys];
+            [[FRCLog sharedInstance]
+                logToConsole:[NSString stringWithFormat:[updatedParams description]]];
+            [self apply];
+          }
         }
-        NSString *updatedParams = [update updatedKeys];
-        [[FRCLog sharedInstance]
-            logToConsole:[NSString stringWithFormat:[updatedParams description]]];
-        [self apply];
-      }
-    }
-  }];
+      }];
   [[FRCLog sharedInstance] logToConsole:@"RC instances inited"];
 
   self.namespacePicker.dataSource = self;

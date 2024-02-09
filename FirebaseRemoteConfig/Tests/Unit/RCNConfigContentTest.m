@@ -72,7 +72,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 - (void)setUp {
   [super setUp];
   _expectationTimeout = 1.0;
-  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform;
+  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
 
   namespaceApp1 = [NSString
       stringWithFormat:@"%@:%@", _nameSpaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
@@ -505,7 +505,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                                   rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  [_configContent activateRolloutMetadata];
+  [_configContent activateRolloutMetadata:nil];
   XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
   FIRRemoteConfigValue *rcValue =
       [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
@@ -551,7 +551,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                  rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  [_configContent activateRolloutMetadata];
+  [_configContent activateRolloutMetadata:nil];
   XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
   FIRRemoteConfigValue *rcValue =
       [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
@@ -588,7 +588,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                                   rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  [_configContent activateRolloutMetadata];
+  [_configContent activateRolloutMetadata:nil];
   XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
   FIRRemoteConfigValue *rcValue =
       [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
@@ -607,7 +607,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   [_configContent updateConfigContentWithResponse:updateFetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
-  [_configContent activateRolloutMetadata];
+  [_configContent activateRolloutMetadata:nil];
 
   XCTAssertTrue([update updatedKeys].count == 1);
   XCTAssertTrue([[update updatedKeys] containsObject:key]);

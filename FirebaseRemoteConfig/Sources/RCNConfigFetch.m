@@ -573,8 +573,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         // Update experiments only for 3p namespace
         NSString *namespace = [strongSelf->_FIRNamespace
             substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-        if ([namespace
-                isEqualToString:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform]) {
+        if ([namespace isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform]) {
           [strongSelf->_experiment updateExperimentsWithResponse:
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }

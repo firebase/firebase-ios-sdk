@@ -14,8 +14,8 @@
 
 import Foundation
 
-@objc(FIRRemoteConfigConstants3P)
-public final class RemoteConfigConstants3P: NSObject {
+@objc(FIRRemoteConfigConstants)
+public final class RemoteConfigConstants: NSObject {
   @objc(FIRNamespaceGoogleMobilePlatform) public static let NamespaceGoogleMobilePlatform =
     "firebase"
 }

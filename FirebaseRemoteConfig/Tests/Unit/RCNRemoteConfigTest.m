@@ -186,7 +186,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
   _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
   _configRealtime = [[NSMutableArray alloc] initWithCapacity:3];
-  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform;
+  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {

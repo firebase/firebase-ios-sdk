@@ -82,7 +82,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithApp:(FIRApp *_Nonnull)firebaseApp {
   return [FIRRemoteConfig
-      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform
+      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
                                app:firebaseApp];
 }
 
@@ -120,7 +120,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   }
 
   return [FIRRemoteConfig
-      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform
+      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
                                app:[FIRApp defaultApp]];
 }
 
@@ -336,15 +336,17 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // Update last active template version number in setting and userDefaults.
     [strongSelf->_settings updateLastActiveTemplateVersion];
     // Update activeRolloutMetadata
-    [strongSelf->_configContent activateRolloutMetadata];
-    // dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
-                      versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
-    // });
+    [strongSelf->_configContent activateRolloutMetadata:^(BOOL success) {
+      if (success) {
+        [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
+                          versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+      }
+    }];
+
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-    if ([namespace isEqualToString:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform]) {
+    if ([namespace isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform]) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self notifyConfigHasActivated];
       });
@@ -638,9 +640,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                 [subscriber rolloutsStateDidChange:rolloutsState];
               }];
   // Send active rollout metadata stored in persistence while app launched if there is activeConfig
-  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+  NSString *fullyQualifiedNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   NSDictionary<NSString *, NSDictionary *> *activeConfig = self->_configContent.activeConfig;
-  if (activeConfig[FQNamespace].count > 0) {
+  if (activeConfig[fullyQualifiedNamespace] && activeConfig[fullyQualifiedNamespace].count > 0) {
     [self notifyRolloutsStateChange:self->_configContent.activeRolloutMetadata
                       versionNumber:self->_settings.lastActiveTemplateVersion];
   }
@@ -648,6 +650,22 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 - (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata
                     versionNumber:(NSString *)versionNumber {
+  NSArray<FIRRolloutAssignment *> *rolloutsAssignments =
+      [self rolloutsAssignmentsWith:rolloutMetadata versionNumber:versionNumber];
+  FIRRolloutsState *rolloutsState =
+      [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
+  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",
+              @"Send rollouts state notification with name %@ to RemoteConfigInterop.",
+              RolloutsStateDidChangeNotificationName);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:RolloutsStateDidChangeNotificationName
+                    object:self
+                  userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
+}
+
+- (NSArray<FIRRolloutAssignment *> *)rolloutsAssignmentsWith:
+                                         (NSArray<NSDictionary *> *)rolloutMetadata
+                                               versionNumber:(NSString *)versionNumber {
   NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
   NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   for (NSDictionary *metadata in rolloutMetadata) {
@@ -657,25 +675,21 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     if (rolloutId && variantID && affectedParameterKeys) {
       for (NSString *key in affectedParameterKeys) {
         FIRRemoteConfigValue *value = self->_configContent.activeConfig[FQNamespace][key];
-        if (value) {
-          FIRRolloutAssignment *assignment =
-              [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
-                                                    variantId:variantID
-                                              templateVersion:[versionNumber longLongValue]
-                                                 parameterKey:key
-                                               parameterValue:value.stringValue];
-          [rolloutsAssignments addObject:assignment];
+        if (!value) {
+          value = [[FIRRemoteConfigValue alloc]
+              initWithData:[NSData data]
+                    source:(FIRRemoteConfigSource)FIRRemoteConfigSourceStatic];
         }
+        FIRRolloutAssignment *assignment =
+            [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
+                                                  variantId:variantID
+                                            templateVersion:[versionNumber longLongValue]
+                                               parameterKey:key
+                                             parameterValue:value.stringValue];
+        [rolloutsAssignments addObject:assignment];
       }
     }
   }
-  FIRRolloutsState *rolloutsState =
-      [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Send notification to Interop.");
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:RolloutsStateDidChangeNotificationName
-                    object:self
-                  userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
+  return rolloutsAssignments;
 }
-
 @end

@@ -213,7 +213,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       _remoteConfigManager =
           [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
                                               persistenceDelegate:persistenceManager];
-          [remoteConfig registerRolloutsStateSubscriber:self for:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform];
+          [remoteConfig registerRolloutsStateSubscriber:self for:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform];
     }
   }
   return self;

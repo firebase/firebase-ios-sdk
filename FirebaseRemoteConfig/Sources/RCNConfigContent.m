@@ -291,11 +291,13 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                        fromSource:RCNDBSourceActive];
 }
 
-- (void)activateRolloutMetadata {
+- (void)activateRolloutMetadata:(void (^)(BOOL success))completionHandler {
   _activeRolloutMetadata = _fetchedRolloutMetadata;
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
                                           value:_activeRolloutMetadata
-                              completionHandler:nil];
+                              completionHandler:^(BOOL success, NSDictionary *result) {
+                                completionHandler(success);
+                              }];
 }
 
 #pragma mark State handling

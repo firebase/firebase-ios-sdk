@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
+// #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 
 typedef NS_ENUM(NSInteger, RCNDBSource) {
   RCNDBSourceActive,
@@ -67,8 +68,8 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 /// Gets the active config and Personalization metadata.
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace;
 
-/// Sets the fetched rollout metadata to active.
-- (void)activateRolloutMetadata;
+/// Sets the fetched rollout metadata to active with a success completion handler.
+- (void)activateRolloutMetadata:(void (^)(BOOL success))completionHandler;
 
 /// Returns the updated parameters between fetched and active config.
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace;

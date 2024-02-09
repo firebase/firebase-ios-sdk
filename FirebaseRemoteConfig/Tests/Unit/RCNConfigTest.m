@@ -68,7 +68,7 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
                                                          experiment:_experiment
                                                               queue:_queue];
   _configFetch = OCMPartialMock(fetcher);
-  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform;
+  _nameSpaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
   // Fake a response with a default namespace and a custom namespace.
   NSDictionary *namespaceToConfig = @{
     _nameSpaceGoogleMobilePlatform : @{@"key1" : @"value1", @"key2" : @"value2"},

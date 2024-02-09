@@ -137,7 +137,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
         ;
         break;
       case RCNTestRCInstanceDefault:

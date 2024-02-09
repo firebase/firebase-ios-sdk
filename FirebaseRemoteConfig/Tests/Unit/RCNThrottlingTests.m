@@ -56,7 +56,7 @@
   _configContentMock = OCMClassMock([RCNConfigContent class]);
   _settings = [[RCNConfigSettings alloc]
       initWithDatabaseManager:DBManager
-                    namespace:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform
+                    namespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
                           app:[FIRApp defaultApp]];
   _experimentMock = OCMClassMock([RCNConfigExperiment class]);
   dispatch_queue_t _queue = dispatch_queue_create(
@@ -68,7 +68,7 @@
              settings:_settings
            experiment:_experimentMock
                 queue:_queue
-            namespace:FIRRemoteConfigConstants3P.FIRNamespaceGoogleMobilePlatform
+            namespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
                   app:[FIRApp defaultApp]];
 }
 
