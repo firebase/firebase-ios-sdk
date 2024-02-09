@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
+
 # 10.21.0
 - Add an error when trying to build Firestore's binary SPM distribution for
   visionOS (#12279). See Firestore's 10.12.0 release note for a supported
