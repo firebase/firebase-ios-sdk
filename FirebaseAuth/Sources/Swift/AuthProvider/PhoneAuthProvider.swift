@@ -478,7 +478,7 @@ import Foundation
     private let callbackScheme: String
     private let usingClientIDScheme: Bool
 
-    private init(auth: Auth) {
+    init(auth: Auth) {
       self.auth = auth
       if let clientID = auth.app?.options.clientID {
         let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
