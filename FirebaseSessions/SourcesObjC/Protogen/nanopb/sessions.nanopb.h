@@ -157,6 +157,7 @@ typedef struct _firebase_appquality_sessions_AppleApplicationInfo {
 typedef struct _firebase_appquality_sessions_SessionInfo {
     pb_bytes_array_t *session_id;
     pb_bytes_array_t *firebase_installation_id;
+    pb_bytes_array_t *firebase_authentication_token;
     int64_t event_timestamp_us;
     firebase_appquality_sessions_DataCollectionStatus data_collection_status;
     pb_bytes_array_t *first_session_id;

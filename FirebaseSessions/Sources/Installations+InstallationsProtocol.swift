@@ -16,18 +16,21 @@
 import Foundation
 
 @_implementationOnly import FirebaseInstallations
-
+/// Return a tuple: (installationID, authenticationToken) for success result
 protocol InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void)
+  func installationID(completion: @escaping (Result<(String, String), Error>) -> Void)
 }
 
 extension Installations: InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
-        completion(.success(installationID))
-      } else if let error = error {
-        completion(.failure(error))
+  func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
+    authToken { [weak self] (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
+
+      self?.installationID { (installationID: String?, error: Error?) in
+        if let installationID = installationID {
+          completion(.success((installationID, authTokenResult?.authToken ?? "")))
+        } else if let error = error {
+          completion(.failure(error))
+        }
       }
     }
   }
