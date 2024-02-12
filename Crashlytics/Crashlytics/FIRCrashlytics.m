@@ -171,19 +171,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       [sessions registerWithSubscriber:self];
     }
 
-    if (remoteConfig) {
-      FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
-
-      FIRCLSRolloutsPersistenceManager *persistenceManager =
-          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager];
-      _remoteConfigManager =
-          [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
-                                              persistenceDelegate:persistenceManager];
-
-      // TODO(themisw): Import "firebase" from the interop in the future.
-      [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
-    }
-
     _reportUploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
 
     _existingReportManager =
@@ -216,8 +203,19 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     }] catch:^void(NSError *error) {
       FIRCLSErrorLog(@"Crash reporting failed to initialize with error: %@", error);
     }];
-  }
 
+    // RemoteConfig subscription should be made after session report directory created.
+    if (remoteConfig) {
+      FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
+
+      FIRCLSRolloutsPersistenceManager *persistenceManager =
+          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager];
+      _remoteConfigManager =
+          [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
+                                              persistenceDelegate:persistenceManager];
+          [remoteConfig registerRolloutsStateSubscriber:self for:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform];
+    }
+  }
   return self;
 }
 
