@@ -226,38 +226,31 @@ ComparisonResult CompareArrays(const google_firestore_v1_Value& left,
                        right.array_value.values_count);
 }
 
-ComparisonResult CompareMaps(const google_firestore_v1_Value& left,
-                             const google_firestore_v1_Value& right) {
-  HARD_ASSERT(left.which_value_type == google_firestore_v1_Value_map_value_tag,
-              "In function CompareMaps(), left side value is not a map");
-  HARD_ASSERT(right.which_value_type == google_firestore_v1_Value_map_value_tag,
-              "In function CompareMaps(), right side value is not a map");
-
+ComparisonResult CompareMaps(const google_firestore_v1_MapValue& left,
+                             const google_firestore_v1_MapValue& right) {
   // Sort the given MapValues
-  auto left_copy = DeepClone(left);
-  auto right_copy = DeepClone(right);
-  SortFields(*left_copy);
-  SortFields(*right_copy);
-  google_firestore_v1_MapValue left_map = left_copy->map_value;
-  google_firestore_v1_MapValue right_map = right_copy->map_value;
+  auto left_map = DeepClone(left);
+  auto right_map = DeepClone(right);
+  SortFields(*left_map);
+  SortFields(*right_map);
 
-  for (pb_size_t i = 0; i < left_map.fields_count && i < right_map.fields_count;
-       ++i) {
-    ComparisonResult key_cmp =
-        util::Compare(nanopb::MakeStringView(left_map.fields[i].key),
-                      nanopb::MakeStringView(right_map.fields[i].key));
+  for (pb_size_t i = 0;
+       i < left_map->fields_count && i < right_map->fields_count; ++i) {
+    const ComparisonResult key_cmp =
+        util::Compare(nanopb::MakeStringView(left_map->fields[i].key),
+                      nanopb::MakeStringView(right_map->fields[i].key));
     if (key_cmp != ComparisonResult::Same) {
       return key_cmp;
     }
 
-    ComparisonResult value_cmp =
-        Compare(left_map.fields[i].value, right_map.fields[i].value);
+    const ComparisonResult value_cmp =
+        Compare(left_map->fields[i].value, right_map->fields[i].value);
     if (value_cmp != ComparisonResult::Same) {
       return value_cmp;
     }
   }
 
-  return util::Compare(left_map.fields_count, right_map.fields_count);
+  return util::Compare(left_map->fields_count, right_map->fields_count);
 }
 
 ComparisonResult Compare(const google_firestore_v1_Value& left,
@@ -302,7 +295,7 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
       return CompareArrays(left, right);
 
     case TypeOrder::kMap:
-      return CompareMaps(left, right);
+      return CompareMaps(left.map_value, right.map_value);
 
     case TypeOrder::kMaxValue:
       return util::ComparisonResult::Same;
@@ -377,29 +370,12 @@ bool ArrayEquals(const google_firestore_v1_ArrayValue& left,
   return true;
 }
 
-bool ObjectEquals(const google_firestore_v1_MapValue& left,
-                  const google_firestore_v1_MapValue& right) {
+bool MapValueEquals(const google_firestore_v1_MapValue& left,
+                    const google_firestore_v1_MapValue& right) {
   if (left.fields_count != right.fields_count) {
     return false;
   }
-  // Sort the given MapValues
-  auto left_copy = DeepClone(left);
-  auto right_copy = DeepClone(right);
-  SortFields(*left_copy);
-  SortFields(*right_copy);
-
-  for (size_t i = 0; i < right_copy->fields_count; ++i) {
-    if (nanopb::MakeStringView(left_copy->fields[i].key) !=
-        nanopb::MakeStringView(right_copy->fields[i].key)) {
-      return false;
-    }
-
-    if (left_copy->fields[i].value != right_copy->fields[i].value) {
-      return false;
-    }
-  }
-
-  return true;
+  return CompareMaps(left, right) == ComparisonResult::Same;
 }
 
 bool Equals(const google_firestore_v1_Value& lhs,
@@ -450,10 +426,10 @@ bool Equals(const google_firestore_v1_Value& lhs,
       return ArrayEquals(lhs.array_value, rhs.array_value);
 
     case TypeOrder::kMap:
-      return ObjectEquals(lhs.map_value, rhs.map_value);
+      return MapValueEquals(lhs.map_value, rhs.map_value);
 
     case TypeOrder::kMaxValue:
-      return ObjectEquals(lhs.map_value, rhs.map_value);
+      return MapValueEquals(lhs.map_value, rhs.map_value);
 
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
@@ -808,27 +784,11 @@ Message<google_firestore_v1_Value> DeepClone(
       break;
 
     case google_firestore_v1_Value_array_value_tag:
-      target->array_value.values_count = source.array_value.values_count;
-      target->array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(
-          source.array_value.values_count);
-      for (pb_size_t i = 0; i < source.array_value.values_count; ++i) {
-        target->array_value.values[i] =
-            *DeepClone(source.array_value.values[i]).release();
-      }
+      target->array_value = *DeepClone(source.array_value).release();
       break;
 
     case google_firestore_v1_Value_map_value_tag:
-      target->map_value.fields_count = source.map_value.fields_count;
-      target->map_value.fields =
-          nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
-              source.map_value.fields_count);
-      for (pb_size_t i = 0; i < source.map_value.fields_count; ++i) {
-        target->map_value.fields[i].key =
-            nanopb::MakeBytesArray(source.map_value.fields[i].key->bytes,
-                                   source.map_value.fields[i].key->size);
-        target->map_value.fields[i].value =
-            *DeepClone(source.map_value.fields[i].value).release();
-      }
+      target->map_value = *DeepClone(source.map_value).release();
       break;
   }
   return target;
