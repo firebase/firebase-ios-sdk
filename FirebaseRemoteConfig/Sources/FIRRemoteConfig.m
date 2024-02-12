@@ -391,6 +391,16 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   return fullyQualifiedNamespace;
 }
 
+- (FIRRemoteConfigValue *)defaultValueForNameSpace:(NSString *)namespace key:(NSString *)key {
+  FIRRemoteConfigValue *value = self->_configContent.defaultConfig[namespace][key];
+  if (!value) {
+    value = [[FIRRemoteConfigValue alloc]
+        initWithData:[NSData data]
+              source:(FIRRemoteConfigSource)FIRRemoteConfigSourceStatic];
+  }
+  return value;
+}
+
 #pragma mark - Get Config Result
 
 - (FIRRemoteConfigValue *)objectForKeyedSubscript:(NSString *)key {
@@ -439,16 +449,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                                                   source:FIRRemoteConfigSourceStatic];
     }
   });
-  return value;
-}
-
-- (FIRRemoteConfigValue *)defaultValueForNameSpace:(NSString *)namespace key:(NSString *)key {
-  FIRRemoteConfigValue *value = self->_configContent.defaultConfig[namespace][key];
-  if (!value) {
-    value = [[FIRRemoteConfigValue alloc]
-        initWithData:[NSData data]
-              source:(FIRRemoteConfigSource)FIRRemoteConfigSourceStatic];
-  }
   return value;
 }
 
