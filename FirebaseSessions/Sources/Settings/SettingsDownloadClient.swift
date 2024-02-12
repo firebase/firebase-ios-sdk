@@ -53,8 +53,8 @@ class SettingsDownloader: SettingsDownloadClient {
 
     installations.installationID { result in
       switch result {
-      case let .success(fiid):
-        let request = self.buildRequest(url: validURL, fiid: fiid)
+      case let .success(installationsInfo):
+        let request = self.buildRequest(url: validURL, fiid: installationsInfo.0)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
           if let data = data {
             if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {

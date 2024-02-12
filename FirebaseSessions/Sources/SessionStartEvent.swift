@@ -104,6 +104,12 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     nanopb_free(oldID)
   }
 
+  func setAuthenticationToken(authenticationToken: String) {
+    let oldToken = proto.session_data.firebase_authentication_token
+    proto.session_data.firebase_authentication_token = makeProtoString(authenticationToken)
+    nanopb_free(oldToken)
+  }
+
   func setSamplingRate(samplingRate: Double) {
     proto.session_data.data_collection_status.session_sampling_rate = samplingRate
   }

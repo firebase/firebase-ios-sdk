@@ -21,9 +21,17 @@
 @property(nonatomic, copy) NSString *installationID;
 @property(nonatomic, strong) NSError *error;
 
+// the init function is not public for the token result, use as a placeholder to mock the token
+// completion block
+@property(nonatomic, strong) FIRInstallationsAuthTokenResult *tokenResult;
+
 @end
 
 @implementation FIRMockInstallationsImpl
+
+- (void)authTokenWithCompletion:(FIRInstallationsTokenHandler)completion {
+  completion(self.tokenResult, self.error);
+}
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion {
   completion(self.installationID, self.error);
