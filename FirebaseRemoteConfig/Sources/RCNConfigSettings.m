@@ -293,6 +293,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     [self updateLastFetchTimeInterval:[[NSDate date] timeIntervalSince1970]];
     // Note: We expect the googleAppID to always be available.
     _deviceContext = FIRRemoteConfigDeviceContextWithProjectIdentifier(_googleAppID);
+    _lastFetchedTemplateVersion = templateVersion;
     [_userDefaultsManager setLastFetchedTemplateVersion:templateVersion];
   }
 
