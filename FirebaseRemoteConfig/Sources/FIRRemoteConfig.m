@@ -45,8 +45,8 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 /// Notification when config is successfully activated
 const NSNotificationName FIRRemoteConfigActivateNotification =
     @"FIRRemoteConfigActivateNotification";
-static NSNotificationName RolloutsStateDidChangeNotificationName =
-    @"RolloutsStateDidChangeNotification";
+static NSNotificationName FIRRolloutsStateDidChangeNotificationName =
+    @"FIRRolloutsStateDidChangeNotification";
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -631,12 +631,12 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber {
   [[NSNotificationCenter defaultCenter]
-      addObserverForName:RolloutsStateDidChangeNotificationName
+      addObserverForName:FIRRolloutsStateDidChangeNotificationName
                   object:self
                    queue:nil
               usingBlock:^(NSNotification *_Nonnull notification) {
                 FIRRolloutsState *rolloutsState =
-                    notification.userInfo[RolloutsStateDidChangeNotificationName];
+                    notification.userInfo[FIRRolloutsStateDidChangeNotificationName];
                 [subscriber rolloutsStateDidChange:rolloutsState];
               }];
   // Send active rollout metadata stored in persistence while app launched if there is activeConfig
@@ -656,11 +656,11 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",
               @"Send rollouts state notification with name %@ to RemoteConfigInterop.",
-              RolloutsStateDidChangeNotificationName);
+              FIRRolloutsStateDidChangeNotificationName);
   [[NSNotificationCenter defaultCenter]
-      postNotificationName:RolloutsStateDidChangeNotificationName
+      postNotificationName:FIRRolloutsStateDidChangeNotificationName
                     object:self
-                  userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
+                  userInfo:@{FIRRolloutsStateDidChangeNotificationName : rolloutsState}];
 }
 
 - (NSArray<FIRRolloutAssignment *> *)rolloutsAssignmentsWith:
