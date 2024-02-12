@@ -416,13 +416,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                    config:[self->_configContent getConfigAndMetadataForNamespace:FQNamespace]];
       return;
     }
-    value = self->_configContent.defaultConfig[FQNamespace][key];
-    if (value) {
-      return;
-    }
-
-    value = [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
-                                                source:FIRRemoteConfigSourceStatic];
+    value = [self defaultValueForNameSpace:FQNamespace key:key];
   });
   return value;
 }
@@ -445,6 +439,16 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                                                   source:FIRRemoteConfigSourceStatic];
     }
   });
+  return value;
+}
+
+- (FIRRemoteConfigValue *)defaultValueForNameSpace:(NSString *)namespace key:(NSString *)key {
+  FIRRemoteConfigValue *value = self->_configContent.defaultConfig[namespace][key];
+  if (!value) {
+    value = [[FIRRemoteConfigValue alloc]
+        initWithData:[NSData data]
+              source:(FIRRemoteConfigSource)FIRRemoteConfigSourceStatic];
+  }
   return value;
 }
 
@@ -676,9 +680,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       for (NSString *key in affectedParameterKeys) {
         FIRRemoteConfigValue *value = self->_configContent.activeConfig[FQNamespace][key];
         if (!value) {
-          value = [[FIRRemoteConfigValue alloc]
-              initWithData:[NSData data]
-                    source:(FIRRemoteConfigSource)FIRRemoteConfigSourceStatic];
+          value = [self defaultValueForNameSpace:FQNamespace key:key];
         }
         FIRRolloutAssignment *assignment =
             [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
