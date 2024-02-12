@@ -391,7 +391,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   return fullyQualifiedNamespace;
 }
 
-- (FIRRemoteConfigValue *)defaultValueForNameSpace:(NSString *)namespace key:(NSString *)key {
+- (FIRRemoteConfigValue *)defaultValueForFullyQualifiedNamespace:(NSString *)namespace
+                                                             key:(NSString *)key {
   FIRRemoteConfigValue *value = self->_configContent.defaultConfig[namespace][key];
   if (!value) {
     value = [[FIRRemoteConfigValue alloc]
@@ -426,7 +427,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                    config:[self->_configContent getConfigAndMetadataForNamespace:FQNamespace]];
       return;
     }
-    value = [self defaultValueForNameSpace:FQNamespace key:key];
+    value = [self defaultValueForFullyQualifiedNamespace:FQNamespace key:key];
   });
   return value;
 }
@@ -680,7 +681,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       for (NSString *key in affectedParameterKeys) {
         FIRRemoteConfigValue *value = self->_configContent.activeConfig[FQNamespace][key];
         if (!value) {
-          value = [self defaultValueForNameSpace:FQNamespace key:key];
+          value = [self defaultValueForFullyQualifiedNamespace:FQNamespace key:key];
         }
         FIRRolloutAssignment *assignment =
             [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
