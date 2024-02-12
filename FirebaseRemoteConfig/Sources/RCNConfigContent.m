@@ -291,12 +291,13 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                        fromSource:RCNDBSourceActive];
 }
 
-- (NSArray<NSDictionary *> *)activateRolloutMetadata {
+- (void)activateRolloutMetadata:(void (^)(BOOL success))completionHandler {
   _activeRolloutMetadata = _fetchedRolloutMetadata;
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
                                           value:_activeRolloutMetadata
-                              completionHandler:nil];
-  return _activeRolloutMetadata;
+                              completionHandler:^(BOOL success, NSDictionary *result) {
+                                completionHandler(success);
+                              }];
 }
 
 #pragma mark State handling
@@ -364,7 +365,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
 - (void)handleUpdateRolloutFetchedMetadata:(NSArray<NSDictionary *> *)metadata {
   if (!metadata) {
-    return;
+    metadata = [[NSArray alloc] init];
   }
   _fetchedRolloutMetadata = metadata;
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
@@ -397,6 +398,11 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 - (NSDictionary *)activePersonalization {
   [self checkAndWaitForInitialDatabaseLoad];
   return _activePersonalization;
+}
+
+- (NSArray<NSDictionary *> *)activeRolloutMetadata {
+  [self checkAndWaitForInitialDatabaseLoad];
+  return _activeRolloutMetadata;
 }
 
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace {

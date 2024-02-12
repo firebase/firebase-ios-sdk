@@ -25,6 +25,7 @@
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseRemoteConfigInterop;
 
 @interface RCNThrottlingTests : XCTestCase {
   RCNConfigContent *_configContentMock;
@@ -53,20 +54,22 @@
   RCNConfigDBManager *DBManager = [[RCNConfigDBManager alloc] init];
 
   _configContentMock = OCMClassMock([RCNConfigContent class]);
-  _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:DBManager
-                                                       namespace:FIRNamespaceGoogleMobilePlatform
-                                                             app:[FIRApp defaultApp]];
+  _settings = [[RCNConfigSettings alloc]
+      initWithDatabaseManager:DBManager
+                    namespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
+                          app:[FIRApp defaultApp]];
   _experimentMock = OCMClassMock([RCNConfigExperiment class]);
   dispatch_queue_t _queue = dispatch_queue_create(
       "com.google.GoogleConfigService.FIRRemoteConfigTest", DISPATCH_QUEUE_SERIAL);
 
-  _configFetch = [[RCNConfigFetch alloc] initWithContent:_configContentMock
-                                               DBManager:DBManager
-                                                settings:_settings
-                                              experiment:_experimentMock
-                                                   queue:_queue
-                                               namespace:FIRNamespaceGoogleMobilePlatform
-                                                     app:[FIRApp defaultApp]];
+  _configFetch = [[RCNConfigFetch alloc]
+      initWithContent:_configContentMock
+            DBManager:DBManager
+             settings:_settings
+           experiment:_experimentMock
+                queue:_queue
+            namespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
+                  app:[FIRApp defaultApp]];
 }
 
 - (void)mockFetchResponseWithStatusCode:(NSInteger)statusCode {
