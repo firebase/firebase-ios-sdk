@@ -36,6 +36,10 @@ Pod::Spec.new do |s|
     'Interop/Analytics/Public/*.h',
   ]
 
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'Crashlytics/Resources/PrivacyInfo.xcprivacy'
+  }
+
   s.public_header_files = [
     'Crashlytics/Crashlytics/Public/FirebaseCrashlytics/*.h'
   ]
