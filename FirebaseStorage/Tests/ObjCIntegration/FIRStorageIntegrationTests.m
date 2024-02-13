@@ -14,9 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
 @import FirebaseStorage;
-
-#import <FirebaseAuth/FirebaseAuth.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -54,8 +53,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
  * You can define these access rights in the Firebase Console of your project.
  */
 
-NSString *const kTestUser = KUSER_NAME;
-NSString *const kTestPassword = KPASSWORD;
+NSString *const kTestUser = @"foo";
+NSString *const kTestPassword = @"goo";
 
 @interface FIRStorageIntegrationTests : XCTestCase
 

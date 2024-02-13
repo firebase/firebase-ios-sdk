@@ -28,7 +28,6 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseInAppMessaging', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebasePerformance', :path => '../../'
-  pod 'FirebaseStorage', :path => '../../'
   pod 'FirebaseMLModelDownloader', :path => '../../'
   pod 'Firebase', :path => '../../'
 end
@@ -44,5 +43,5 @@ target 'ClientApp-CocoaPods-iOS13' do
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseInAppMessaging', :path => '../../'
   pod 'FirebaseInAppMessagingSwift', :path => '../../' # Requires iOS 13.0+
-
+  pod 'FirebaseStorage', :path => '../../'
 end
