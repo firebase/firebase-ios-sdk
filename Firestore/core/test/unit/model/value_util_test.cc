@@ -545,6 +545,24 @@ TEST_F(ValueUtilTest, DeepClone) {
   VerifyDeepClone(Map("a", Array("b", Map("c", GeoPoint(30, 60)))));
 }
 
+TEST_F(ValueUtilTest, CompareMaps) {
+  auto left_1 = Map("a", 7, "b", 0);
+  auto right_1 = Map("a", 7, "b", 0);
+  EXPECT_EQ(model::Compare(*left_1, *right_1), ComparisonResult::Same);
+
+  auto left_2 = Map("a", 3, "b", 5);
+  auto right_2 = Map("b", 5, "a", 3);
+  EXPECT_EQ(model::Compare(*left_2, *right_2), ComparisonResult::Same);
+
+  auto left_3 = Map("a", 8, "b", 10, "c", 5);
+  auto right_3 = Map("a", 8, "b", 10);
+  EXPECT_EQ(model::Compare(*left_3, *right_3), ComparisonResult::Descending);
+
+  auto left_4 = Map("a", 7, "b", 0);
+  auto right_4 = Map("a", 7, "b", 10);
+  EXPECT_EQ(model::Compare(*left_4, *right_4), ComparisonResult::Ascending);
+}
+
 }  // namespace
 
 }  // namespace model
