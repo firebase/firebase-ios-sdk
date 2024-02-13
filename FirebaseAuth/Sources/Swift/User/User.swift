@@ -1010,15 +1010,12 @@ extension User: NSSecureCoding {}
         guard let requestConfiguration = self.auth?.requestConfiguration else {
           fatalError("Auth Internal Error: Unexpected nil requestConfiguration.")
         }
-        guard let uid = self.uid else {
-          fatalError("Auth Internal Error: uid is nil.")
-        }
-        let request = DeleteAccountRequest(localID: uid, accessToken: accessToken,
+        let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
         Task {
           do {
             let _ = try await AuthBackend.call(with: request)
-            try self.auth?.signOutByForce(withUserID: uid)
+            try self.auth?.signOutByForce(withUserID: self.uid)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
@@ -1174,7 +1171,7 @@ extension User: NSSecureCoding {}
   }
 
   /// The provider's user ID for the user.
-  @objc open var uid: String?
+  @objc open var uid: String
 
   /// The name of the user.
   @objc open var displayName: String?
@@ -1783,9 +1780,6 @@ extension User: NSSecureCoding {}
   /// Signs out this user if the user or the token is invalid.
   /// - Parameter error: The error from the server.
   private func signOutIfTokenIsInvalid(withError error: Error) {
-    guard let uid else {
-      return
-    }
     let code = (error as NSError).code
     if code == AuthErrorCode.userNotFound.rawValue ||
       code == AuthErrorCode.userDisabled.rawValue ||
