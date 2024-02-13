@@ -31,3 +31,4 @@
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #endif
+#import "FirebaseStorage/FirebaseStorage.h"
