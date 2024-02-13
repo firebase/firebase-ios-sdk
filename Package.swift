@@ -1427,6 +1427,7 @@ func firestoreTargets() -> [Target] {
           "core/include/",
           "core/src",
         ],
+        resources: [.process("Resources/PrivacyInfo.xcprivacy")],
         publicHeadersPath: "Source/Public",
         cSettings: [
           .headerSearchPath("../"),
