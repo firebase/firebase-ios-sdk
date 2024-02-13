@@ -32,8 +32,10 @@
 
   #if __has_include(<FirebaseAuth/FirebaseAuth.h>)
     #import <FirebaseAuth/FirebaseAuth.h>
-    #import <FirebaseAuthInterop/FIRAuthInterop.h>
-    #import <FirebaseAuth/FirebaseAuth-Swift.h>
+    #if __has_include("FirebaseFunctions-umbrella.h")
+      #import <FirebaseAuthInterop/FIRAuthInterop.h>
+      #import <FirebaseAuth/FirebaseAuth-Swift.h>
+    #endif
   #endif
 
   #if __has_include(<FirebaseCrashlytics/FirebaseCrashlytics.h>)
