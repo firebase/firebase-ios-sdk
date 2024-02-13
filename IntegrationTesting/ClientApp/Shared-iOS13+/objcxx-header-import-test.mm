@@ -32,5 +32,6 @@
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #endif
 
-// Can't find in C++ 
-//#import "FirebaseStorage/FirebaseStorage.h"
+#ifdef COCOAPODS
+#import "FirebaseStorage/FirebaseStorage.h"
+#endif

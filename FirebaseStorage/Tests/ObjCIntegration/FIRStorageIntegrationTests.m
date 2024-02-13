@@ -53,8 +53,8 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 60;
  * You can define these access rights in the Firebase Console of your project.
  */
 
-NSString *const kTestUser = @"foo";
-NSString *const kTestPassword = @"goo";
+NSString *const kTestUser = KUSER_NAME;
+NSString *const kTestPassword = KPASSWORD;
 
 @interface FIRStorageIntegrationTests : XCTestCase
 

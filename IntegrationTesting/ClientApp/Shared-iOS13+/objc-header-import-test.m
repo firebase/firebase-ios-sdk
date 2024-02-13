@@ -31,4 +31,6 @@
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #endif
+#ifdef COCOAPODS
 #import "FirebaseStorage/FirebaseStorage.h"
+#endif
