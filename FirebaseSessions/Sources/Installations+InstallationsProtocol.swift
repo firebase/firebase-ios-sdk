@@ -16,22 +16,49 @@
 import Foundation
 
 @_implementationOnly import FirebaseInstallations
-/// Return a tuple: (installationID, authenticationToken) for success result
 protocol InstallationsProtocol {
+  /// Override Installation function for testing
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
+
+  /// Override Installation function for testing
+  func installationID(completion: @escaping (String?, Error?) -> Void)
+
+  /// Return a tuple: (installationID, authenticationToken) for success result
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void)
 }
 
-extension Installations: InstallationsProtocol {
+extension InstallationsProtocol {
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
-    authToken { [weak self] (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
+    var authTokenComplete = ""
+    var intallationComplete: String?
+    var errorComplete: Error?
 
-      self?.installationID { (installationID: String?, error: Error?) in
+    let workingQueue = DispatchQueue(label: "com.google.firebase.session.getIntallation")
+
+    workingQueue.async {
+      authToken { (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
+        authTokenComplete = authTokenResult?.authToken ?? ""
+      }
+    }
+
+    workingQueue.async {
+      installationID { (installationID: String?, error: Error?) in
         if let installationID = installationID {
-          completion(.success((installationID, authTokenResult?.authToken ?? "")))
+          intallationComplete = installationID
         } else if let error = error {
-          completion(.failure(error))
+          errorComplete = error
         }
+      }
+    }
+
+    workingQueue.sync(flags: DispatchWorkItemFlags.barrier) {
+      if let installationID = intallationComplete {
+        completion(.success((installationID, authTokenComplete)))
+      } else if let error = errorComplete {
+        completion(.failure(error))
       }
     }
   }
 }
+
+extension Installations: InstallationsProtocol {}
