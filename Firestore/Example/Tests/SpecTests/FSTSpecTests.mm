@@ -394,7 +394,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   if (optionsSpec != nil) {
     ListenSource source =
         [optionsSpec[@"source"] intValue] == 1 ? ListenSource::Cache : ListenSource::Default;
-    // TODO: extract include_metadata_changes if it exists in optionsSpec
+    // include_metadata_changes are default to true in spec tests
     options = ListenOptions::FromOptions(true, source);
   }
 

@@ -167,7 +167,6 @@ void SyncEngine::ListenToRemoteStore(Query query) {
   AssertCallbackExists("ListenToRemoteStore");
   TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
   remote_store_->Listen(std::move(target_data));
-  ;
 }
 
 void SyncEngine::StopListening(const Query& query,

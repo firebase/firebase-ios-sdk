@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_LISTEN_OPTIONS_H_
 #define FIRESTORE_CORE_SRC_CORE_LISTEN_OPTIONS_H_
 
+#include <utility>
 #include "Firestore/core/src/api/listen_source.h"
 namespace firebase {
 namespace firestore {
