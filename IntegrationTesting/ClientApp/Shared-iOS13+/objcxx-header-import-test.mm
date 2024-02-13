@@ -33,5 +33,5 @@
 #endif
 
 #ifdef COCOAPODS
-#import "FirebaseStorage/FirebaseStorage.h"
+#import "FirebaseStorage/FIRStorageTypedefs.h"
 #endif
