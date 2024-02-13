@@ -17,6 +17,8 @@ import Foundation
 
 @_implementationOnly import FirebaseInstallations
 protocol InstallationsProtocol {
+  var installationsWaitTimeInSecond: Int { get }
+
   /// Override Installation function for testing
   func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
 
@@ -28,30 +30,42 @@ protocol InstallationsProtocol {
 }
 
 extension InstallationsProtocol {
+  var installationsWaitTimeInSecond: Int {
+    return 10
+  }
+
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
     var authTokenComplete = ""
     var intallationComplete: String?
     var errorComplete: Error?
 
-    let workingQueue = DispatchQueue(label: "com.google.firebase.session.getIntallation")
+    let workingGroup = DispatchGroup()
 
-    workingQueue.async {
-      authToken { (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
-        authTokenComplete = authTokenResult?.authToken ?? ""
-      }
+    workingGroup.enter()
+    authToken { (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
+      authTokenComplete = authTokenResult?.authToken ?? ""
+      workingGroup.leave()
     }
 
-    workingQueue.async {
-      installationID { (installationID: String?, error: Error?) in
-        if let installationID = installationID {
-          intallationComplete = installationID
-        } else if let error = error {
-          errorComplete = error
-        }
+    workingGroup.enter()
+    installationID { (installationID: String?, error: Error?) in
+      if let installationID = installationID {
+        intallationComplete = installationID
+      } else if let error = error {
+        errorComplete = error
       }
+      workingGroup.leave()
     }
 
-    workingQueue.sync(flags: DispatchWorkItemFlags.barrier) {
+    // adding timeout for 10 seconds
+    let result = workingGroup
+      .wait(timeout: .now() + DispatchTimeInterval.seconds(installationsWaitTimeInSecond))
+
+    switch result {
+    case .timedOut:
+      completion(.failure(FirebaseSessionsError.SessionInstallationsTimeOutError))
+      return
+    default:
       if let installationID = intallationComplete {
         completion(.success((installationID, authTokenComplete)))
       } else if let error = errorComplete {

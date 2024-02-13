@@ -26,7 +26,7 @@
 @property(nonatomic, strong) FIRInstallationsAuthTokenResult *tokenResult;
 
 @property(nonatomic) BOOL authTokenFinished;
-@property(nonatomic) BOOL intallationIDFinished;
+@property(nonatomic) BOOL installationIDFinished;
 
 @end
 
@@ -38,7 +38,7 @@
 }
 
 - (void)installationIDWithCompletion:(FIRInstallationsIDHandler)completion {
-  self.intallationIDFinished = true;
+  self.installationIDFinished = true;
   completion(self.installationID, self.error);
 }
 
@@ -55,7 +55,7 @@
   mock.installationID = [installationID copy];
   mock.error = nil;
   mock.authTokenFinished = false;
-  mock.intallationIDFinished = false;
+  mock.installationIDFinished = false;
   self = (id)mock;
   return self;
 }
@@ -65,7 +65,7 @@
   mock.installationID = nil;
   mock.error = error;
   mock.authTokenFinished = false;
-  mock.intallationIDFinished = false;
+  mock.installationIDFinished = false;
   self = (id)mock;
   return self;
 }
