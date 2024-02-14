@@ -306,8 +306,8 @@ import FirebaseCore
 
   private static func initFetcherServiceForApp(_ app: FirebaseApp,
                                                _ bucket: String,
-                                               _ auth: AuthInterop,
-                                               _ appCheck: AppCheckInterop)
+                                               _ auth: AuthInterop?,
+                                               _ appCheck: AppCheckInterop?)
     -> GTMSessionFetcherService {
     objc_sync_enter(fetcherServiceLock)
     defer { objc_sync_exit(fetcherServiceLock) }
@@ -334,8 +334,8 @@ import FirebaseCore
     return fetcherService!
   }
 
-  private let auth: AuthInterop
-  private let appCheck: AppCheckInterop
+  private let auth: AuthInterop?
+  private let appCheck: AppCheckInterop?
   private let storageBucket: String
   private var usesEmulator: Bool = false
   var host: String
