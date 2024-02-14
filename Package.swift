@@ -1,4 +1,4 @@
-// swift-tools-version:5.7.1
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -189,7 +189,7 @@ let package = Package(
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
     .package(
       url: "https://github.com/google/generative-ai-swift.git",
-      revision: "efcee26db89d1948ebd581b3097c94186d615282"
+      revision: "4fe215743fd02c8182efdcfff5e7571873d2c158"
     ),
   ],
   targets: [
@@ -1365,7 +1365,10 @@ let package = Package(
         "FirebaseCoreExtension",
         .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseVertexAI/Sources",
+      swiftSettings: [
+        .enableExperimentalFeature("AccessLevelOnImport"),
+      ]
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
