@@ -85,7 +85,7 @@ typedef struct _google_crashlytics_Report {
 #define google_crashlytics_Report_installation_uuid_tag 5
 #define google_crashlytics_Report_firebase_installation_id_tag 16
 #define google_crashlytics_Report_app_quality_session_id_tag 17
-#define google_crashlytics_Report_firebase_authentication_token 18
+#define google_crashlytics_Report_firebase_authentication_token 19
 #define google_crashlytics_Report_build_version_tag 6
 #define google_crashlytics_Report_display_version_tag 7
 #define google_crashlytics_Report_apple_payload_tag 10

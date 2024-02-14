@@ -157,11 +157,11 @@ typedef struct _firebase_appquality_sessions_AppleApplicationInfo {
 typedef struct _firebase_appquality_sessions_SessionInfo {
     pb_bytes_array_t *session_id;
     pb_bytes_array_t *firebase_installation_id;
-    pb_bytes_array_t *firebase_authentication_token;
     int64_t event_timestamp_us;
     firebase_appquality_sessions_DataCollectionStatus data_collection_status;
     pb_bytes_array_t *first_session_id;
     int32_t session_index;
+    pb_bytes_array_t *firebase_authentication_token;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_SessionInfo) */
 } firebase_appquality_sessions_SessionInfo;
 
@@ -225,6 +225,7 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 #define firebase_appquality_sessions_SessionInfo_firebase_installation_id_tag 3
 #define firebase_appquality_sessions_SessionInfo_event_timestamp_us_tag 4
 #define firebase_appquality_sessions_SessionInfo_data_collection_status_tag 6
+#define firebase_appquality_sessions_SessionInfo_firebase_authentication_token_tag 9
 #define firebase_appquality_sessions_ApplicationInfo_android_app_info_tag 5
 #define firebase_appquality_sessions_ApplicationInfo_apple_app_info_tag 6
 #define firebase_appquality_sessions_ApplicationInfo_app_id_tag 1
@@ -241,7 +242,7 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t firebase_appquality_sessions_SessionEvent_fields[4];
 extern const pb_field_t firebase_appquality_sessions_NetworkConnectionInfo_fields[3];
-extern const pb_field_t firebase_appquality_sessions_SessionInfo_fields[7];
+extern const pb_field_t firebase_appquality_sessions_SessionInfo_fields[8];
 extern const pb_field_t firebase_appquality_sessions_DataCollectionStatus_fields[4];
 extern const pb_field_t firebase_appquality_sessions_ApplicationInfo_fields[10];
 extern const pb_field_t firebase_appquality_sessions_AndroidApplicationInfo_fields[3];

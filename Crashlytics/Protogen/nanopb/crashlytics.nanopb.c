@@ -36,7 +36,7 @@ const pb_field_t google_crashlytics_Report_fields[11] = {
     PB_FIELD( 10, MESSAGE , SINGULAR, STATIC  , OTHER, google_crashlytics_Report, apple_payload, display_version, &google_crashlytics_FilesPayload_fields),
     PB_FIELD( 16, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, firebase_installation_id, apple_payload, 0),
     PB_FIELD( 17, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, app_quality_session_id, firebase_installation_id, 0),
-    PB_FIELD( 18, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, firebase_authentication_token, app_quality_session_id, 0),
+    PB_FIELD( 19, BYTES   , SINGULAR, POINTER , OTHER, google_crashlytics_Report, firebase_authentication_token, app_quality_session_id, 0),
     PB_LAST_FIELD
 };
 
