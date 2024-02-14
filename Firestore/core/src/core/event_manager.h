@@ -112,6 +112,20 @@ class EventManager : public SyncEngineCallback {
     absl::optional<ViewSnapshot> snapshot_;
   };
 
+  enum ListenerSetupAction {
+    InitializeLocalListenAndRequireWatchConnection = 0,
+    InitializeLocalListenOnly = 1,
+    RequireWatchConnectionOnly = 2,
+    NoSetupActionRequired = 3
+  };
+
+  enum ListenerRemovalAction {
+    TerminateLocalListenAndRequireWatchDisconnection = 0,
+    TerminateLocalListenOnly = 1,
+    RequireWatchDisconnectionOnly = 2,
+    NoRemovalActionRequired = 3
+  };
+
   QueryEventSource* query_event_source_ = nullptr;
   model::OnlineState online_state_ = model::OnlineState::Unknown;
   std::unordered_map<core::Query, QueryListenersInfo> queries_;

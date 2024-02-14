@@ -37,12 +37,24 @@ EventManager::EventManager(QueryEventSource* query_event_source)
 model::TargetId EventManager::AddQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const Query& query = listener->query();
+  ListenerSetupAction listenerAction =
+      ListenerSetupAction::NoSetupActionRequired;
 
   auto inserted = queries_.emplace(query, QueryListenersInfo{});
   bool first_listen = inserted.second;
   QueryListenersInfo& query_info = inserted.first->second;
-  bool first_listen_to_remote_store =
-      !query_info.has_remote_listeners() && listener->listens_to_remote_store();
+
+  if (first_listen) {
+    listenerAction = listener->listens_to_remote_store()
+                         ? ListenerSetupAction::
+                               InitializeLocalListenAndRequireWatchConnection
+                         : ListenerSetupAction::InitializeLocalListenOnly;
+  } else if (!query_info.has_remote_listeners() &&
+             listener->listens_to_remote_store()) {
+    // Query has been listening to local cache, and tries to add a new listener
+    // sourced from watch.
+    listenerAction = ListenerSetupAction::RequireWatchConnectionOnly;
+  }
 
   query_info.listeners.push_back(listener);
 
@@ -58,11 +70,20 @@ model::TargetId EventManager::AddQueryListener(
     }
   }
 
-  if (first_listen) {
-    query_info.target_id =
-        query_event_source_->Listen(query, first_listen_to_remote_store);
-  } else if (first_listen_to_remote_store) {
-    query_event_source_->ListenToRemoteStore(query);
+  switch (listenerAction) {
+    case ListenerSetupAction::InitializeLocalListenAndRequireWatchConnection:
+      query_info.target_id =
+          query_event_source_->Listen(query, /** enableRemoteListen= */ true);
+      break;
+    case ListenerSetupAction::InitializeLocalListenOnly:
+      query_info.target_id =
+          query_event_source_->Listen(query, /** enableRemoteListen= */ false);
+      break;
+    case ListenerSetupAction::RequireWatchConnectionOnly:
+      query_event_source_->ListenToRemoteStore(query);
+      break;
+    default:
+      break;
   }
   return query_info.target_id;
 }
@@ -70,23 +91,41 @@ model::TargetId EventManager::AddQueryListener(
 void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const Query& query = listener->query();
-  bool last_listen = false;
-  bool last_listen_to_remote_store = false;
+  ListenerRemovalAction listenerAction =
+      ListenerRemovalAction::NoRemovalActionRequired;
 
   auto found_iter = queries_.find(query);
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
     query_info.Erase(listener);
-    last_listen = query_info.listeners.empty();
-    last_listen_to_remote_store = !query_info.has_remote_listeners() &&
-                                  listener->listens_to_remote_store();
+
+    if (query_info.listeners.empty()) {
+      listenerAction =
+          listener->listens_to_remote_store()
+              ? ListenerRemovalAction::
+                    TerminateLocalListenAndRequireWatchDisconnection
+              : ListenerRemovalAction::TerminateLocalListenOnly;
+    } else if (!query_info.has_remote_listeners() &&
+               listener->listens_to_remote_store()) {
+      // The removed listener is the last one that sourced from watch.
+      listenerAction = ListenerRemovalAction::RequireWatchDisconnectionOnly;
+    }
   }
 
-  if (last_listen) {
-    queries_.erase(found_iter);
-    query_event_source_->StopListening(query, last_listen_to_remote_store);
-  } else if (last_listen_to_remote_store) {
-    query_event_source_->StopListeningToRemoteStore(query);
+  switch (listenerAction) {
+    case ListenerRemovalAction::
+        TerminateLocalListenAndRequireWatchDisconnection:
+      queries_.erase(found_iter);
+      return query_event_source_->StopListening(
+          query, /** disableRemoteListen= */ true);
+    case ListenerRemovalAction::TerminateLocalListenOnly:
+      queries_.erase(found_iter);
+      return query_event_source_->StopListening(
+          query, /** disableRemoteListen= */ true);
+    case ListenerRemovalAction::RequireWatchDisconnectionOnly:
+      return query_event_source_->StopListeningToRemoteStore(query);
+    default:
+      return;
   }
 }
 

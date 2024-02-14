@@ -586,7 +586,6 @@
     ]
   },
   "Documents are cleared when listen is removed.": {
-    "comment": "",
     "describeName": "Listens source options:",
     "itName": "Documents are cleared when listen is removed.",
     "tags": [
@@ -1134,28 +1133,6 @@
             "rejectedDocs": [
             ]
           }
-        }
-      },
-      {
-        "watchEntity": {
-          "docs": [
-            {
-              "createTime": 0,
-              "key": "collection/a",
-              "value": null,
-              "version": 2000
-            }
-          ],
-          "targets": [
-            2
-          ]
-        }
-      },
-      {
-        "watchSnapshot": {
-          "targetIds": [
-          ],
-          "version": 2000
         }
       }
     ]
@@ -4860,9 +4837,9 @@
       }
     ]
   },
-  "Query is executed by primary client even if it only includes listeners sourced from cache": {
+  "Query is executed by primary client even if primary client only has listeners sourced from cache": {
     "describeName": "Listens source options:",
-    "itName": "Query is executed by primary client even if it only includes listeners sourced from cache",
+    "itName": "Query is executed by primary client even if primary client only has listeners sourced from cache",
     "tags": [
       "multi-client"
     ],
