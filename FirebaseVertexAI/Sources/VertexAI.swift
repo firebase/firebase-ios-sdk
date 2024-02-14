@@ -14,12 +14,16 @@
 
 import Foundation
 
-import FirebaseAppCheckInterop
-import FirebaseCore
-import GoogleGenerativeAI
+public import FirebaseCore
+public import class GoogleGenerativeAI.Chat
+public import protocol GoogleGenerativeAI.PartsRepresentable
+public import struct GoogleGenerativeAI.GenerateContentResponse
+public import struct GoogleGenerativeAI.ModelContent
 
-// Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreExtension
+import FirebaseAppCheckInterop
+
+private import GoogleGenerativeAI
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 @objc(FIRVertexAI)
@@ -40,9 +44,20 @@ open class VertexAI: NSObject {
     return provider.vertexAI(location: location, modelResourceName: modelResourceName)
   }
 
-  public func generateContentStream(prompt: String) async
-    -> AsyncThrowingStream<GenerateContentResponse, Error> {
-    return model.generateContentStream(prompt)
+  public func generateContentStream(_ parts: GoogleGenerativeAI
+    .PartsRepresentable...)
+    -> AsyncThrowingStream<GoogleGenerativeAI.GenerateContentResponse, Error> {
+    return model.generateContentStream([GoogleGenerativeAI.ModelContent(parts: parts)])
+  }
+
+  public func generateContentStream(_ content: [GoogleGenerativeAI.ModelContent])
+    -> AsyncThrowingStream<GoogleGenerativeAI.GenerateContentResponse, Error> {
+    return model.generateContentStream(content)
+  }
+
+  public func startChat(history: [GoogleGenerativeAI.ModelContent] = []) -> GoogleGenerativeAI
+    .Chat {
+    return model.startChat(history: history)
   }
 
   // MARK: - Private
