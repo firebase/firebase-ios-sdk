@@ -380,6 +380,10 @@ struct FrameworkBuilder {
       }
       umbrellaHeader = umbrellaHeaderURL.lastPathComponent
     }
+    // Add an Info.plist. Required by Carthage and SPM binary xcframeworks.
+    CarthageUtils.generatePlistContents(forName: frameworkName,
+                                        withVersion: podInfo.version,
+                                        to: frameworkDir)
 
     // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
 
@@ -590,8 +594,8 @@ struct FrameworkBuilder {
   /// Groups slices for each platform into a minimal set of frameworks.
   /// - Parameter withName: The framework name.
   /// - Parameter isCarthage: Name the temp directory differently for Carthage.
-  /// - Parameter fromFolder: The almost complete framework folder. Includes
-  /// Headers, and Resources.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
+  /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func groupFrameworks(withName framework: String,
@@ -680,6 +684,15 @@ struct FrameworkBuilder {
           at: headersSrc,
           to: platformFrameworkDir.appendingPathComponent("Headers")
         )
+      } catch {
+        fatalError("Could not create framework directory needed to build \(framework): \(error)")
+      }
+
+      // Info.plist from `fromFolder`
+      do {
+        let infoPlistSrc = fromFolder.appendingPathComponent("Info.plist").resolvingSymlinksInPath()
+        let infoPlistDst = platformFrameworkDir.appendingPathComponent("Info.plist")
+        try fileManager.copyItem(at: infoPlistSrc, to: infoPlistDst)
       } catch {
         fatalError("Could not create framework directory needed to build \(framework): \(error)")
       }
