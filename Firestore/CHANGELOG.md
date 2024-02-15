@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Enable snapshot listeners to source from local cache. (#12370)
+- [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
 
 # 10.21.0
 - Add an error when trying to build Firestore's binary SPM distribution for

@@ -109,19 +109,22 @@ void SortFields(google_firestore_v1_ArrayValue& value) {
   }
 }
 
+void SortFields(google_firestore_v1_MapValue& value) {
+  std::sort(value.fields, value.fields + value.fields_count,
+            [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
+               const google_firestore_v1_MapValue_FieldsEntry& rhs) {
+              return nanopb::MakeStringView(lhs.key) <
+                     nanopb::MakeStringView(rhs.key);
+            });
+
+  for (pb_size_t i = 0; i < value.fields_count; ++i) {
+    SortFields(value.fields[i].value);
+  }
+}
+
 void SortFields(google_firestore_v1_Value& value) {
   if (IsMap(value)) {
-    google_firestore_v1_MapValue& map_value = value.map_value;
-    std::sort(map_value.fields, map_value.fields + map_value.fields_count,
-              [](const google_firestore_v1_MapValue_FieldsEntry& lhs,
-                 const google_firestore_v1_MapValue_FieldsEntry& rhs) {
-                return nanopb::MakeStringView(lhs.key) <
-                       nanopb::MakeStringView(rhs.key);
-              });
-
-    for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
-      SortFields(map_value.fields[i].value);
-    }
+    SortFields(value.map_value);
   } else if (IsArray(value)) {
     SortFields(value.array_value);
   }
@@ -223,30 +226,31 @@ ComparisonResult CompareArrays(const google_firestore_v1_Value& left,
                        right.array_value.values_count);
 }
 
-ComparisonResult CompareObjects(const google_firestore_v1_Value& left,
-                                const google_firestore_v1_Value& right) {
-  google_firestore_v1_MapValue left_map = left.map_value;
-  google_firestore_v1_MapValue right_map = right.map_value;
+ComparisonResult CompareMaps(const google_firestore_v1_MapValue& left,
+                             const google_firestore_v1_MapValue& right) {
+  // Sort the given MapValues
+  auto left_map = DeepClone(left);
+  auto right_map = DeepClone(right);
+  SortFields(*left_map);
+  SortFields(*right_map);
 
-  // Porting Note: MapValues in iOS are always kept in sorted order. We
-  // therefore do no need to sort them before comparing.
-  for (pb_size_t i = 0; i < left_map.fields_count && i < right_map.fields_count;
-       ++i) {
-    ComparisonResult key_cmp =
-        util::Compare(nanopb::MakeStringView(left_map.fields[i].key),
-                      nanopb::MakeStringView(right_map.fields[i].key));
+  for (pb_size_t i = 0;
+       i < left_map->fields_count && i < right_map->fields_count; ++i) {
+    const ComparisonResult key_cmp =
+        util::Compare(nanopb::MakeStringView(left_map->fields[i].key),
+                      nanopb::MakeStringView(right_map->fields[i].key));
     if (key_cmp != ComparisonResult::Same) {
       return key_cmp;
     }
 
-    ComparisonResult value_cmp =
-        Compare(left_map.fields[i].value, right.map_value.fields[i].value);
+    const ComparisonResult value_cmp =
+        Compare(left_map->fields[i].value, right_map->fields[i].value);
     if (value_cmp != ComparisonResult::Same) {
       return value_cmp;
     }
   }
 
-  return util::Compare(left_map.fields_count, right_map.fields_count);
+  return util::Compare(left_map->fields_count, right_map->fields_count);
 }
 
 ComparisonResult Compare(const google_firestore_v1_Value& left,
@@ -291,7 +295,7 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
       return CompareArrays(left, right);
 
     case TypeOrder::kMap:
-      return CompareObjects(left, right);
+      return CompareMaps(left.map_value, right.map_value);
 
     case TypeOrder::kMaxValue:
       return util::ComparisonResult::Same;
@@ -366,26 +370,12 @@ bool ArrayEquals(const google_firestore_v1_ArrayValue& left,
   return true;
 }
 
-bool ObjectEquals(const google_firestore_v1_MapValue& left,
-                  const google_firestore_v1_MapValue& right) {
+bool MapValueEquals(const google_firestore_v1_MapValue& left,
+                    const google_firestore_v1_MapValue& right) {
   if (left.fields_count != right.fields_count) {
     return false;
   }
-
-  // Porting Note: MapValues in iOS are always kept in sorted order. We
-  // therefore do no need to sort them before comparing.
-  for (size_t i = 0; i < right.fields_count; ++i) {
-    if (nanopb::MakeStringView(left.fields[i].key) !=
-        nanopb::MakeStringView(right.fields[i].key)) {
-      return false;
-    }
-
-    if (left.fields[i].value != right.fields[i].value) {
-      return false;
-    }
-  }
-
-  return true;
+  return CompareMaps(left, right) == ComparisonResult::Same;
 }
 
 bool Equals(const google_firestore_v1_Value& lhs,
@@ -436,10 +426,10 @@ bool Equals(const google_firestore_v1_Value& lhs,
       return ArrayEquals(lhs.array_value, rhs.array_value);
 
     case TypeOrder::kMap:
-      return ObjectEquals(lhs.map_value, rhs.map_value);
+      return MapValueEquals(lhs.map_value, rhs.map_value);
 
     case TypeOrder::kMaxValue:
-      return ObjectEquals(lhs.map_value, rhs.map_value);
+      return MapValueEquals(lhs.map_value, rhs.map_value);
 
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
@@ -794,27 +784,11 @@ Message<google_firestore_v1_Value> DeepClone(
       break;
 
     case google_firestore_v1_Value_array_value_tag:
-      target->array_value.values_count = source.array_value.values_count;
-      target->array_value.values = nanopb::MakeArray<google_firestore_v1_Value>(
-          source.array_value.values_count);
-      for (pb_size_t i = 0; i < source.array_value.values_count; ++i) {
-        target->array_value.values[i] =
-            *DeepClone(source.array_value.values[i]).release();
-      }
+      target->array_value = *DeepClone(source.array_value).release();
       break;
 
     case google_firestore_v1_Value_map_value_tag:
-      target->map_value.fields_count = source.map_value.fields_count;
-      target->map_value.fields =
-          nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
-              source.map_value.fields_count);
-      for (pb_size_t i = 0; i < source.map_value.fields_count; ++i) {
-        target->map_value.fields[i].key =
-            nanopb::MakeBytesArray(source.map_value.fields[i].key->bytes,
-                                   source.map_value.fields[i].key->size);
-        target->map_value.fields[i].value =
-            *DeepClone(source.map_value.fields[i].value).release();
-      }
+      target->map_value = *DeepClone(source.map_value).release();
       break;
   }
   return target;
@@ -828,6 +802,20 @@ Message<google_firestore_v1_ArrayValue> DeepClone(
       nanopb::MakeArray<google_firestore_v1_Value>(source.values_count);
   for (pb_size_t i = 0; i < source.values_count; ++i) {
     target->values[i] = *DeepClone(source.values[i]).release();
+  }
+  return target;
+}
+
+Message<google_firestore_v1_MapValue> DeepClone(
+    const google_firestore_v1_MapValue& source) {
+  Message<google_firestore_v1_MapValue> target{source};
+  target->fields_count = source.fields_count;
+  target->fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(
+      source.fields_count);
+  for (pb_size_t i = 0; i < source.fields_count; ++i) {
+    target->fields[i].key = nanopb::MakeBytesArray(source.fields[i].key->bytes,
+                                                   source.fields[i].key->size);
+    target->fields[i].value = *DeepClone(source.fields[i].value).release();
   }
   return target;
 }

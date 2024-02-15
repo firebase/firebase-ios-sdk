@@ -44,10 +44,13 @@ jobs:
       run: scripts/configure_test_keychain.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Build and test
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} \
-         ${{ matrix.tests }}
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} ${{ matrix.tests }}
 
   integration-tests:
     # Don't run on private repo unless it is a PR.
@@ -55,7 +58,7 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -82,9 +85,15 @@ jobs:
           FirebaseAuth/Tests/Sample/Sample/Sample.entitlements "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
           FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift "$plist_secret"
-
-    - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS)
 
   spm:
     # Don't run on private repo unless it is a PR.
@@ -110,8 +119,13 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} ${{ matrix.test }}
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} ${{ matrix.test }}
 
   catalyst:
     # Don't run on private repo unless it is a PR.
@@ -125,9 +139,13 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      # Only build the unit tests on Catalyst. Their keychain reliance causes several failures.
-      run: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/test_catalyst.sh FirebaseAuth build FirebaseAuth-Unit-unit
 
   quickstart:
     # Don't run on private repo unless it is a PR.
@@ -194,5 +212,10 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
-    - name: PodLibLint Auth Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
