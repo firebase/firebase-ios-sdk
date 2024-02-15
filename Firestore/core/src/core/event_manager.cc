@@ -41,10 +41,9 @@ model::TargetId EventManager::AddQueryListener(
       ListenerSetupAction::NoSetupActionRequired;
 
   auto inserted = queries_.emplace(query, QueryListenersInfo{});
-  bool first_listen = inserted.second;
   QueryListenersInfo& query_info = inserted.first->second;
 
-  if (first_listen) {
+  if (inserted.second) {
     listenerAction = listener->listens_to_remote_store()
                          ? ListenerSetupAction::
                                InitializeLocalListenAndRequireWatchConnection
@@ -121,7 +120,7 @@ void EventManager::RemoveQueryListener(
     case ListenerRemovalAction::TerminateLocalListenOnly:
       queries_.erase(found_iter);
       return query_event_source_->StopListening(
-          query, /** disableRemoteListen= */ true);
+          query, /** disableRemoteListen= */ false);
     case ListenerRemovalAction::RequireWatchDisconnectionOnly:
       return query_event_source_->StopListeningToRemoteStore(query);
     default:

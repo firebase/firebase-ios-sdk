@@ -41,19 +41,17 @@
 }
 
 - (void)testCanRaiseSnapshotFromCacheForQuery {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a"}}];
 
   [self readDocumentSetForRef:collRef];  // populate the cache.
 
   FIRSnapshotListenOptions *options = [self optionsWithSourceFromCache];
   id<FIRListenerRegistration> registration =
-      [query addSnapshotListenerWithOptions:options
-                                   listener:self.eventAccumulator.valueEventHandler];
+      [collRef addSnapshotListenerWithOptions:options
+                                     listener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a"} ]));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   [self.eventAccumulator assertNoAdditionalEvents];
@@ -62,7 +60,7 @@
 
 - (void)testCanRaiseSnapshotFromCacheForDocumentReference {
   FIRDocumentReference *docRef = [self documentRef];
-  [docRef setData:@{@"k" : @"a", @"sort" : @0}];
+  [docRef setData:@{@"k" : @"a"}];
 
   [self readDocumentForRef:docRef];  // populate the cache.
 
@@ -72,7 +70,7 @@
                                     listener:self.eventAccumulator.valueEventHandler];
 
   FIRDocumentSnapshot *docSnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(docSnap.data, (@{@"k" : @"a", @"sort" : @0L}));
+  XCTAssertEqualObjects(docSnap.data, (@{@"k" : @"a"}));
   XCTAssertEqual(docSnap.metadata.isFromCache, YES);
 
   [self.eventAccumulator assertNoAdditionalEvents];
@@ -80,19 +78,17 @@
 }
 
 - (void)testListenToCacheShouldNotBeAffectedByOnlineStatusChange {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a"}}];
 
   [self readDocumentSetForRef:collRef];  // populate the cache.
 
   FIRSnapshotListenOptions *options = [self optionsWithSourceFromCacheAndIncludeMetadataChanges];
   id<FIRListenerRegistration> registration =
-      [query addSnapshotListenerWithOptions:options
-                                   listener:self.eventAccumulator.valueEventHandler];
+      [collRef addSnapshotListenerWithOptions:options
+                                     listener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a"} ]));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   [self disableNetwork];
@@ -103,12 +99,14 @@
 }
 
 - (void)testMultipleListenersSourcedFromCacheCanWorkIndependently {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
-
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
   [self readDocumentSetForRef:collRef];  // populate the cache.
+
+  FIRQuery *query = [[collRef queryWhereField:@"sort"
+                                isGreaterThan:@0] queryOrderedByField:@"sort"];
 
   FIRSnapshotListenOptions *options = [self optionsWithSourceFromCache];
   id<FIRListenerRegistration> registration1 =
@@ -119,34 +117,36 @@
                                    listener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  NSArray *expected = @[ @{@"k" : @"b", @"sort" : @1L} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
   querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   // Do a local mutation
-  [self addDocumentRef:collRef data:@{@"k" : @"b", @"sort" : @1}];
+  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @2}];
 
   querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap),
-                        (@[ @{@"k" : @"a", @"sort" : @0L}, @{@"k" : @"b", @"sort" : @1L} ]));
+  expected = @[ @{@"k" : @"b", @"sort" : @1L}, @{@"k" : @"c", @"sort" : @2L} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
+
   querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap),
-                        (@[ @{@"k" : @"a", @"sort" : @0L}, @{@"k" : @"b", @"sort" : @1L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   // Detach one listener, and do a local mutation. The other listener
   // should not be affected.
   [registration1 remove];
-  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @2}];
+  [self addDocumentRef:collRef data:@{@"k" : @"d", @"sort" : @3}];
 
   querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(
-      FIRQuerySnapshotGetData(querySnap), (@[
-        @{@"k" : @"a", @"sort" : @0L}, @{@"k" : @"b", @"sort" : @1L}, @{@"k" : @"c", @"sort" : @2L}
-      ]));
+  expected = @[
+    @{@"k" : @"b", @"sort" : @1L}, @{@"k" : @"c", @"sort" : @2L}, @{@"k" : @"d", @"sort" : @3L}
+  ];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   [self.eventAccumulator assertNoAdditionalEvents];
@@ -167,11 +167,11 @@
   }];
 
   [self readDocumentSetForRef:collRef];  // populate the cache.
-  FIRSnapshotListenOptions *options = [self optionsWithSourceFromCache];
 
   // Setup a `limit` query.
   FIRQuery *limit = [[collRef queryOrderedByField:@"sort" descending:NO] queryLimitedTo:2];
   FSTEventAccumulator *limitAccumulator = [FSTEventAccumulator accumulatorForTest:self];
+  FIRSnapshotListenOptions *options = [self optionsWithSourceFromCache];
   id<FIRListenerRegistration> limitRegistration =
       [limit addSnapshotListenerWithOptions:options listener:limitAccumulator.valueEventHandler];
 
@@ -191,7 +191,7 @@
   expected = @[ @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"a", @"sort" : @0} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
 
-  // Unlisten then re-listen to the limit query.
+  // Un-listen then re-listen to the limit query.
   [limitRegistration remove];
   limitRegistration = [limit addSnapshotListenerWithOptions:options
                                                    listener:limitAccumulator.valueEventHandler];
@@ -213,7 +213,7 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), expected);
   XCTAssertEqual(snapshot.metadata.hasPendingWrites, YES);
 
-  // Unlisten to limitToLast, update a doc, then relisten to limitToLast
+  // Un-listen to limitToLast, update a doc, then re-listen to limitToLast
   [limitToLastRegistration remove];
   [self updateDocumentRef:[collRef documentWithPath:@"a"] data:@{@"k" : @"a", @"sort" : @-2}];
   limitToLastRegistration =
@@ -234,16 +234,19 @@
 }
 
 - (void)testCanListenToDefaultSourceFirstAndThenCache {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
+  FIRQuery *query = [[collRef queryWhereField:@"sort"
+                       isGreaterThanOrEqualTo:@1] queryOrderedByField:@"sort"];
 
   // Listen to the query with default options, which will also populates the cache
   FSTEventAccumulator *defaultAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> defaultRegistration =
       [query addSnapshotListener:defaultAccumulator.valueEventHandler];
   FIRQuerySnapshot *querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
   // Listen to the same query from cache
@@ -252,7 +255,7 @@
   id<FIRListenerRegistration> cacheRegistration =
       [query addSnapshotListenerWithOptions:options listener:cacheAccumulator.valueEventHandler];
   querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
   // The metadata is sync with server due to the default listener
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
@@ -263,9 +266,12 @@
 }
 
 - (void)testCanListenToCacheSourceFirstAndThenDefault {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
+  FIRQuery *query = [[collRef queryWhereField:@"sort" isNotEqualTo:@0] queryOrderedByField:@"sort"];
+
   // Listen to the cache
   FSTEventAccumulator *cacheAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   FIRSnapshotListenOptions *options = [self optionsWithSourceFromCache];
@@ -281,12 +287,12 @@
   id<FIRListenerRegistration> defaultRegistration =
       [query addSnapshotListener:defaultAccumulator.valueEventHandler];
   querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
   // Default listener updates the cache, whish triggers cache listener to raise snapshot.
   querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
   // The metadata is sync with server due to the default listener
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
@@ -297,27 +303,29 @@
 }
 
 - (void)testWillNotGetMetadataOnlyUpdatesIfListeningToCacheOnly {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
 
   [self readDocumentSetForRef:collRef];  // populate the cache.
 
+  FIRQuery *query = [[collRef queryWhereField:@"sort" isNotEqualTo:@0] queryOrderedByField:@"sort"];
   FIRSnapshotListenOptions *options = [self optionsWithSourceFromCacheAndIncludeMetadataChanges];
   id<FIRListenerRegistration> registration =
       [query addSnapshotListenerWithOptions:options
                                    listener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   // Do a local mutation
-  [self addDocumentRef:collRef data:@{@"k" : @"b", @"sort" : @1}];
+  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @2}];
 
   querySnap = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap),
-                        (@[ @{@"k" : @"a", @"sort" : @0L}, @{@"k" : @"b", @"sort" : @1L} ]));
+                        (@[ @{@"k" : @"b", @"sort" : @1L}, @{@"k" : @"c", @"sort" : @2L} ]));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
   XCTAssertEqual(querySnap.metadata.hasPendingWrites, YES);
 
@@ -328,11 +336,13 @@
 }
 
 - (void)testWillHaveSynceMetadataUpdatesWhenListeningToBothCacheAndDefaultSource {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
-
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
   [self readDocumentSetForRef:collRef];  // populate the cache.
+
+  FIRQuery *query = [[collRef queryWhereField:@"sort" isNotEqualTo:@0] queryOrderedByField:@"sort"];
 
   // Listen to the cache
   FSTEventAccumulator *cacheAccumulator = [FSTEventAccumulator accumulatorForTest:self];
@@ -340,7 +350,8 @@
   id<FIRListenerRegistration> cacheRegistration =
       [query addSnapshotListenerWithOptions:options listener:cacheAccumulator.valueEventHandler];
   FIRQuerySnapshot *querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  NSArray *expected = @[ @{@"k" : @"b", @"sort" : @1L} ];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
 
   // Listen to the same query from server
@@ -349,7 +360,7 @@
       [query addSnapshotListenerWithIncludeMetadataChanges:YES
                                                   listener:defaultAccumulator.valueEventHandler];
   querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
   // First snapshot will be raised from cache.
   XCTAssertEqual(querySnap.metadata.isFromCache, YES);
   querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
@@ -363,10 +374,10 @@
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
   // Do a local mutation
-  [self addDocumentRef:collRef data:@{@"k" : @"b", @"sort" : @1}];
+  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @2}];
 
   // snapshot gets triggered by local mutation
-  NSArray *expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
+  expected = @[ @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @2} ];
   querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), expected);
   XCTAssertEqual(querySnap.metadata.hasPendingWrites, YES);
@@ -391,9 +402,11 @@
 }
 
 - (void)testCanUnlistenToDefaultSourceWhileStillListeningToCache {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
+  FIRQuery *query = [[collRef queryWhereField:@"sort" isNotEqualTo:@0] queryOrderedByField:@"sort"];
 
   // Listen to the query with both source options
   FSTEventAccumulator *defaultAccumulator = [FSTEventAccumulator accumulatorForTest:self];
@@ -410,21 +423,23 @@
   [defaultRegistration remove];
 
   // Add a document and verify listener to cache works as expected
-  [self addDocumentRef:collRef data:@{@"k" : @"b", @"sort" : @-1}];
+  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @-1}];
   [defaultAccumulator assertNoAdditionalEvents];
 
   FIRQuerySnapshot *querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap),
-                        (@[ @{@"k" : @"b", @"sort" : @-1L}, @{@"k" : @"a", @"sort" : @0L} ]));
+                        (@[ @{@"k" : @"c", @"sort" : @-1L}, @{@"k" : @"b", @"sort" : @1L} ]));
 
   [cacheAccumulator assertNoAdditionalEvents];
   [cacheRegistration remove];
 }
 
 - (void)testCanUnlistenToCacheSourceWhileStillListeningToServer {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
+  FIRQuery *query = [[collRef queryWhereField:@"sort" isNotEqualTo:@0] queryOrderedByField:@"sort"];
 
   // Listen to the query with both source options
   FSTEventAccumulator *defaultAccumulator = [FSTEventAccumulator accumulatorForTest:self];
@@ -441,28 +456,33 @@
   [cacheRegistration remove];
 
   // Add a document and verify listener to server works as expected.
-  [self addDocumentRef:collRef data:@{@"k" : @"b", @"sort" : @-1}];
+  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @-1}];
   [cacheAccumulator assertNoAdditionalEvents];
 
   FIRQuerySnapshot *querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap),
-                        (@[ @{@"k" : @"b", @"sort" : @-1L}, @{@"k" : @"a", @"sort" : @0L} ]));
+                        (@[ @{@"k" : @"c", @"sort" : @-1L}, @{@"k" : @"b", @"sort" : @1L} ]));
 
   [defaultAccumulator assertNoAdditionalEvents];
   [defaultRegistration remove];
 }
 
 - (void)testCanListenUnlistenRelistenToSameQueryWithDifferentSourceOptions {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
+  FIRQuery *query = [[collRef queryWhereField:@"sort"
+                                isGreaterThan:@0] queryOrderedByField:@"sort"];
 
   // Listen to the query with default options, which will also populates the cache
   FSTEventAccumulator *defaultAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> defaultRegistration =
       [query addSnapshotListener:defaultAccumulator.valueEventHandler];
   FIRQuerySnapshot *querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  NSArray *expected = @[ @{@"k" : @"b", @"sort" : @1L} ];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
 
   // Listen to the same query from cache
   FSTEventAccumulator *cacheAccumulator = [FSTEventAccumulator accumulatorForTest:self];
@@ -470,14 +490,14 @@
   id<FIRListenerRegistration> cacheRegistration =
       [query addSnapshotListenerWithOptions:options listener:cacheAccumulator.valueEventHandler];
   querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (expected));
 
   // Un-listen to the default listener, add a doc and re-listen.
   [defaultRegistration remove];
-  [self addDocumentRef:collRef data:@{@"k" : @"b", @"sort" : @1}];
-  NSArray *expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
+  [self addDocumentRef:collRef data:@{@"k" : @"c", @"sort" : @2}];
 
   querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @2} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), expected);
 
   defaultRegistration = [query addSnapshotListener:defaultAccumulator.valueEventHandler];
@@ -486,10 +506,10 @@
 
   // Un-listen to cache, update a doc, then re-listen to cache.
   [cacheRegistration remove];
-  [self updateDocumentRef:[collRef documentWithPath:@"a"] data:@{@"k" : @"a", @"sort" : @2}];
-  expected = @[ @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"a", @"sort" : @2} ];
+  [self updateDocumentRef:[collRef documentWithPath:@"b"] data:@{@"k" : @"b", @"sort" : @3}];
 
   querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
+  expected = @[ @{@"k" : @"c", @"sort" : @2}, @{@"k" : @"b", @"sort" : @3} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), expected);
 
   cacheRegistration = [query addSnapshotListenerWithOptions:options
@@ -504,8 +524,10 @@
 }
 
 - (void)testCanListenToCompositeIndexQueriesFromCache {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
   [self readDocumentSetForRef:collRef];  // populate the cache.
 
   FIRQuery *query = [[collRef queryWhereField:@"k" isLessThanOrEqualTo:@"a"] queryWhereField:@"sort"
@@ -570,16 +592,19 @@
 }
 
 - (void)testSharesServerSideUpdatesWhenListeningToBothCacheAndDefault {
-  FIRCollectionReference *collRef =
-      [self collectionRefWithDocuments:@{@"a" : @{@"k" : @"a", @"sort" : @0}}];
-  FIRQuery *query = [collRef queryOrderedByField:@"sort"];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @"a", @"sort" : @0},
+    @"b" : @{@"k" : @"b", @"sort" : @1}
+  }];
+  FIRQuery *query = [[collRef queryWhereField:@"sort"
+                                isGreaterThan:@0] queryOrderedByField:@"sort"];
 
   // Listen to the query with default options, which will also populates the cache
   FSTEventAccumulator *defaultAccumulator = [FSTEventAccumulator accumulatorForTest:self];
   id<FIRListenerRegistration> defaultRegistration =
       [query addSnapshotListener:defaultAccumulator.valueEventHandler];
   FIRQuerySnapshot *querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
 
   // Listen to the same query from cache
   FSTEventAccumulator *cacheAccumulator = [FSTEventAccumulator accumulatorForTest:self];
@@ -587,14 +612,14 @@
   id<FIRListenerRegistration> cacheRegistration =
       [query addSnapshotListenerWithOptions:options listener:cacheAccumulator.valueEventHandler];
   querySnap = [cacheAccumulator awaitEventWithName:@"Snapshot"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"a", @"sort" : @0L} ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), (@[ @{@"k" : @"b", @"sort" : @1L} ]));
 
   // Use a transaction to mock server side updates
   FIRDocumentReference *docRef = [collRef documentWithAutoID];
   // Use a transaction to perform a write without triggering any local events.
   [docRef.firestore
       runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **) {
-        [transaction setData:@{@"k" : @"b", @"sort" : @1} forDocument:docRef];
+        [transaction setData:@{@"k" : @"c", @"sort" : @2} forDocument:docRef];
         return nil;
       }
                    completion:^(id, NSError *){
@@ -602,7 +627,7 @@
 
   // Default listener receives the server update
   querySnap = [defaultAccumulator awaitEventWithName:@"Snapshot"];
-  NSArray *expected = @[ @{@"k" : @"a", @"sort" : @0}, @{@"k" : @"b", @"sort" : @1} ];
+  NSArray *expected = @[ @{@"k" : @"b", @"sort" : @1}, @{@"k" : @"c", @"sort" : @2} ];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), expected);
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
