@@ -1,3 +1,6 @@
+# 10.22.0
+- [fixed] Fixed an `objc_retain` crash. (#12393)
+
 # 10.17.0
 - [deprecated] All of the public API from `FirebaseInAppMessagingSwift` can now
   be accessed through the `FirebaseInAppMessaging` module. Therefore,
