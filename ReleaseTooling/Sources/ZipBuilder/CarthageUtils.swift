@@ -241,6 +241,9 @@ extension CarthageUtils {
     } catch {
       fatalError("Couldn't copy dummy library for Firebase framework in Carthage. \(error)")
     }
+
+    // Write the Info.plist.
+    generatePlistContents(forName: "Firebase", withVersion: version, to: frameworkDir)
   }
 
   static func generatePlistContents(forName name: String,
