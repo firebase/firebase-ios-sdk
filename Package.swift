@@ -249,7 +249,7 @@ let package = Package(
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Internal/Sources",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")]
     ),
     .testTarget(
       name: "FirebaseCoreInternalTests",
@@ -1003,7 +1003,7 @@ let package = Package(
         "FirebaseSharedSwift",
       ],
       path: "FirebaseRemoteConfig/Swift",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")]
     ),
     .target(
       name: "FirebaseRemoteConfigSwift",
@@ -1477,7 +1477,7 @@ func firestoreTargets() -> [Target] {
         sources: [
           "Swift/Source/",
         ],
-        resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+        resources: [.process("Resources/PrivacyInfo.xcprivacy")]
       ),
     ]
   }
