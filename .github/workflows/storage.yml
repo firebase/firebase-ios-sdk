@@ -112,13 +112,15 @@ jobs:
   quickstart:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    # TODO: See #12399 and restore Objective-C testing for Xcode 15 if GHA is fixed.
     strategy:
       matrix:
         swift: [swift, ""]
         include:
           - os: macos-12
             xcode: Xcode_14.2
-          - os: macos-13
+          - swift: swift
+            os: macos-13
             xcode: Xcode_15.2
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
