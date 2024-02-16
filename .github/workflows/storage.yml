@@ -115,10 +115,12 @@ jobs:
     # TODO: See #12399 and restore Objective-C testing for Xcode 15 if GHA is fixed.
     strategy:
       matrix:
-        swift: [swift, ""]
         include:
           - os: macos-12
             xcode: Xcode_14.2
+          - swift: swift
+            os: macos-13
+            xcode: Xcode_15.2
           - swift: swift
             os: macos-13
             xcode: Xcode_15.2
