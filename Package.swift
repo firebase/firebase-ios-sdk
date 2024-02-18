@@ -1430,7 +1430,6 @@ func firestoreTargets() -> [Target] {
           "core/include/",
           "core/src",
         ],
-        resources: [.process("Resources/PrivacyInfo.xcprivacy")],
         publicHeadersPath: "Source/Public",
         cSettings: [
           .headerSearchPath("../"),
@@ -1477,7 +1476,7 @@ func firestoreTargets() -> [Target] {
         sources: [
           "Swift/Source/",
         ],
-        resources: [.process("Resources/PrivacyInfo.xcprivacy")]
+        resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")]
       ),
     ]
   }
@@ -1525,6 +1524,7 @@ func firestoreTargets() -> [Target] {
         "FirebaseSharedSwift",
       ],
       path: "Firestore/Swift/Source",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
