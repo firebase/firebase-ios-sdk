@@ -48,11 +48,11 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
       ss.user_target_xcconfig = {
-        'HEADER_SEARCH_PATHS' => "$(inherited) \"" + ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] + "/CoreOnly/Sources\""
+        'HEADER_SEARCH_PATHS' => "" + ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] + "/CoreOnly/Sources\""
       }
     else
       ss.user_target_xcconfig = {
-        'HEADER_SEARCH_PATHS' => "$(inherited) ${PODS_ROOT}/Firebase/CoreOnly/Sources"
+        'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/Firebase/CoreOnly/Sources"
       }
     end
     ss.ios.deployment_target = '10.0'
