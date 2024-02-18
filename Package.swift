@@ -503,7 +503,6 @@ let package = Package(
                      .product(name: "FBLPromises", package: "Promises"),
                      .product(name: "nanopb", package: "nanopb")],
       path: "Crashlytics",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       exclude: [
         "run",
         "CHANGELOG.md",
@@ -522,6 +521,7 @@ let package = Package(
         "Shared/",
         "third_party/libunwind/dwarf.h",
       ],
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Crashlytics/Public",
       cSettings: [
         .headerSearchPath(".."),
