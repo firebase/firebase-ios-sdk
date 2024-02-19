@@ -482,7 +482,19 @@ struct ZipBuilder {
             // Move all the bundles in the frameworks out to a common "Resources" directory to
             // match the existing Zip structure.
             let resourcesDir = productPath.appendingPathComponent("Resources")
-            try fileManager.moveItem(at: xcResourceDir, to: resourcesDir)
+            do {
+              try fileManager.moveItem(at: xcResourceDir, to: resourcesDir)
+            } catch {
+              // Couldn't copy directory because a directory with the same name
+              // already exists. Instead, copy each resource in the current
+              // directory to the existing Resources directory.
+              let resourcesDirectories = try fileManager.contentsOfDirectory(atPath: resourcesDir.path)
+              try resourcesDirectories.forEach { resourceDir in
+                let srcResourceDir = xcResourceDir.appendingPathComponent(resourceDir)
+                let dstResourceDir = resourcesDir.appendingPathComponent(resourceDir)
+                try fileManager.moveItem(at: srcResourceDir, to: dstResourceDir)
+              }
+            }
 
           } else {
             let xcContents = try fileManager.contentsOfDirectory(atPath: xcPath.path)
