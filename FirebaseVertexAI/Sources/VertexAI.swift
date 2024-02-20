@@ -20,8 +20,8 @@ public import protocol GoogleGenerativeAI.PartsRepresentable
 public import struct GoogleGenerativeAI.GenerateContentResponse
 public import struct GoogleGenerativeAI.ModelContent
 
-import FirebaseCoreExtension
 import FirebaseAppCheckInterop
+import FirebaseCoreExtension
 
 private import GoogleGenerativeAI
 
@@ -72,11 +72,13 @@ open class VertexAI: NSObject {
   private let modelResouceName: String
 
   lazy var model: GenerativeModel = {
-    let options = RequestOptions(hooks: [
-      setVertexAIEndpoint,
-      addAccessTokenHeader,
-      addAppCheckHeader,
-    ])
+    let options = RequestOptions(
+      endpoint: "\(location)-aiplatform.googleapis.com",
+      hooks: [
+        addAccessTokenHeader,
+        addAppCheckHeader,
+      ]
+    )
     return GenerativeModel(
       name: modelResouceName,
       apiKey: app.options.apiKey!,
@@ -107,27 +109,6 @@ open class VertexAI: NSObject {
   }
 
   // MARK: Request Hooks
-
-  /// Replace the Labs endpoint with a Vertex AI endpoint in the provided request.
-  ///
-  /// This is temporary workaround until the Google Generative AI SDK supports setting an endpoint.
-  ///
-  /// - Parameter request: The `URLRequest` to modify with a Vertex AI hostname.
-  func setVertexAIEndpoint(request: inout URLRequest) {
-    guard let requestURL = request.url else {
-      return
-    }
-    guard var urlComponents = URLComponents(url: requestURL, resolvingAgainstBaseURL: false) else {
-      return
-    }
-    urlComponents.host = "\(location)-aiplatform.googleapis.com"
-
-    guard let componentsURL = urlComponents.url else {
-      return
-    }
-
-    request.url = componentsURL
-  }
 
   /// Add a Google Cloud access token in an Authorization header in the provided request.
   ///

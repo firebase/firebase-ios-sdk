@@ -189,7 +189,7 @@ let package = Package(
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
     .package(
       url: "https://github.com/google/generative-ai-swift.git",
-      revision: "4fe215743fd02c8182efdcfff5e7571873d2c158"
+      revision: "46e56ae138f152528b7b50520a22777f3d8adb18"
     ),
   ],
   targets: [
