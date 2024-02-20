@@ -33,7 +33,6 @@
 #endif
 #ifdef COCOAPODS
 #import "FirebaseStorage/FIRStorageTypedefs.h"
-#endif
 
 @interface TestImports : NSObject
 @end
@@ -43,3 +42,4 @@
   return [FIRAuth auth];
 }
 @end
+#endif
