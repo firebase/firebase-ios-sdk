@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAppCheckInterop
+import FirebaseCore
 import Foundation
 
-public import FirebaseCore
-
-import FirebaseAppCheckInterop
-import FirebaseCoreExtension
+// Avoids exposing internal FirebaseCore APIs to Swift users.
+@_implementationOnly import FirebaseCoreExtension
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 @objc(FIRVertexAIProvider)
