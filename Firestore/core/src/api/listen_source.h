@@ -22,8 +22,8 @@ namespace firestore {
 namespace api {
 
 /**
- * An enum that configures the source of snapshot listeners listening to. By
- * providing a source enum, listener raises snapshot from local cache changes
+ * An enum that configures the source of snapshot listeners listens to. By
+ * providing a source enum, snapshot events triggered by local cache changes
  * only, or from both local cache and watch changes(which is the default).
  *
  * See `FIRFirestoreListenSource` for more details.

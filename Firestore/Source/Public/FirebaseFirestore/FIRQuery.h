@@ -107,8 +107,8 @@ NS_SWIFT_NAME(Query)
 
 /**
  * Attaches a listener for `QuerySnapshot` events.
- * @param options Sets snapshot listen options, including whether metadata-only changes should
- *     trigger snapshot events, the source that listens to, the executor to use to call the
+ * @param options Sets snapshot listener options, including whether metadata-only changes should
+ *     trigger snapshot events, the source to listen to, the executor to use to call the
  *     listener, or the activity to scope the listener to.
  * @param listener The listener to attach.
  *

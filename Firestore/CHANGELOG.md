@@ -1,5 +1,5 @@
 # Unreleased
-- [feature] Enable snapshot listeners to source from local cache. (#12370)
+- [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
 - [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
 
 # 10.21.0

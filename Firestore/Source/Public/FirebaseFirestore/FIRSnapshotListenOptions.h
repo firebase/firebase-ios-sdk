@@ -18,20 +18,64 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * The source that snapshot listener retrieves data from.
+ */
 typedef NS_ENUM(NSUInteger, FIRListenSource) {
+  /**
+   * The default behavior. The listener attempts to return initial snapshot from cache and retrieve
+   * up-to-date snapshots from the Firestore server. Snapshot events will be triggered on local
+   * mutations and server side updates.
+   */
   FIRListenSourceDefault,
+  /**
+   * The listener retrieves data and listens to updates from the local Firestore cache only. If the
+   * cache is empty, an empty snapshot will be returned. Snapshot events will be triggered on cache
+   * updates, like local mutations or load bundles.
+   *
+   * Note that the data might be stale if the cache hasn't synchronized with recent server-side
+   * changes.
+   */
   FIRListenSourceCache
 } NS_SWIFT_NAME(ListenSource);
 
+/**
+ * Options to configure the behavior of `Firestore.addSnapshotListenerWithOptions()`. Instances
+ * of this class control settings like whether metadata-only changes trigger events and the
+ * preferred data source.
+ */
 NS_SWIFT_NAME(SnapshotListenOptions)
 @interface FIRSnapshotListenOptions : NSObject
 
+/** The source that snapshot listener retrieves data from. */
 @property(nonatomic, readonly) FIRListenSource source;
+/** Indicates whether metadata-only changes should trigger snapshot events. */
 @property(nonatomic, readonly) BOOL includeMetadataChanges;
 
+/**
+ * Creates and returns a new `SnapshotListenOptions` object with all properties initialized to their
+ * default values.
+ *
+ * @return The created `SnapshotListenOptions` object.
+ */
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
+/**
+ * Creates and returns a new `SnapshotListenOptions` object with with all properties of the current
+ * `SnapshotListenOptions` object and the new configuration of whether metadata-only changes should
+ * trigger snapshot events.
+ *
+ * @return The created `SnapshotListenOptions` object.
+ */
 - (FIRSnapshotListenOptions *)optionsWithIncludeMetadataChanges:(BOOL)includeMetadataChanges;
+
+/**
+ * Creates and returns a new `SnapshotListenOptions` object with with all properties of the current
+ * `SnapshotListenOptions` object and the new configuration of the source that snapshot listener
+ * listens to.
+ *
+ * @return The created `SnapshotListenOptions` object.
+ */
 - (FIRSnapshotListenOptions *)optionsWithSource:(FIRListenSource)source;
 
 @end

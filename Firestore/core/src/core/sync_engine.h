@@ -70,20 +70,32 @@ class QueryEventSource {
 
   /**
    * Initiates a new listen. The LocalStore will be queried for initial data
-   * and the listen will be sent to the `RemoteStore` to get remote data. The
-   * registered SyncEngineCallback will be notified of resulting view
+   * and the listen will be sent to the RemoteStore if the query is listening to
+   * watch. The registered SyncEngineCallback will be notified of resulting view
    * snapshots and/or listen errors.
    *
    * @return the target ID assigned to the query.
    */
-  virtual model::TargetId Listen(Query query, bool shouldListenToRemote) = 0;
+  virtual model::TargetId Listen(Query query, bool should_listen_to_remote) = 0;
 
+  /**
+   * Sends the listen to the RemoteStore to get remote data. Invoked when a
+   * Query starts listening to the remote store, while already listening to the
+   * cache.
+   */
   virtual void ListenToRemoteStore(Query query) = 0;
 
-  /** Stops listening to a query previously listened to via `Listen`. */
+  /**
+   * Stops listening to a query previously listened to via `Listen`. Un-listen
+   * to remote store if there is a watch connection established and stayed open.
+   */
   virtual void StopListening(const Query& query,
-                             bool shouldUnlistenToRemote) = 0;
+                             bool should_unlisten_to_remote) = 0;
 
+  /**
+   * Stops listening to a query from watch. Invoked when a Query stops listening
+   * to the remote store, while still listening to the cache.
+   */
   virtual void StopListeningToRemoteStore(const Query& query) = 0;
 };
 
@@ -113,10 +125,10 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     sync_engine_callback_ = callback;
   }
   model::TargetId Listen(Query query,
-                         bool shouldListenToRemote = true) override;
+                         bool should_listen_to_remote = true) override;
   void ListenToRemoteStore(Query query) override;
   void StopListening(const Query& query,
-                     bool shouldUnlistenToRemote = true) override;
+                     bool should_unlisten_to_remote = true) override;
   void StopListeningToRemoteStore(const Query& query) override;
 
   /**

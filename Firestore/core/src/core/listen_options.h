@@ -56,7 +56,7 @@ class ListenOptions {
    *     documents changes.
    * @param wait_for_sync_when_online Wait for a sync with the server when
    *     online, but still raise events while offline.
-   * @param source sets the source snapshot listeners listen to.
+   * @param source sets the source a snapshot listener listens to.
    */
   ListenOptions(bool include_query_metadata_changes,
                 bool include_document_metadata_changes,
@@ -94,7 +94,7 @@ class ListenOptions {
   }
 
   /**
-   * Creates a ListenOptions which sets the source snapshot listeners listen to.
+   * Creates a ListenOptions which sets the source snapshot listener listens to.
    */
   static ListenOptions FromOptions(bool include_metadata_changes,
                                    ListenSource source) {
