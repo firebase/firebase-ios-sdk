@@ -14,16 +14,12 @@
 
 import Foundation
 
-public import FirebaseCore
-public import class GoogleGenerativeAI.Chat
-public import protocol GoogleGenerativeAI.PartsRepresentable
-public import struct GoogleGenerativeAI.GenerateContentResponse
-public import struct GoogleGenerativeAI.ModelContent
-
 import FirebaseAppCheckInterop
-import FirebaseCoreExtension
+import FirebaseCore
+import GoogleGenerativeAI
 
-private import GoogleGenerativeAI
+// Avoids exposing internal FirebaseCore APIs to Swift users.
+@_implementationOnly import FirebaseCoreExtension
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 @objc(FIRVertexAI)
