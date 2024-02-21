@@ -18,11 +18,12 @@
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager
 #import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
-#endif  // Cocoapod
+#endif  // CocoaPods
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
 @property(nonatomic, readonly) FIRCLSFileManager *fileManager;
@@ -57,5 +58,9 @@
     NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
     [rolloutsFile writeData:newLineData];
   });
+}
+
+- (void)debugLog:(NSString *_Nonnull)messages {
+  FIRCLSDebugLog(messages);
 }
 @end
