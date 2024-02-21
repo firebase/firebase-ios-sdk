@@ -279,7 +279,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
 
   // Create new report and copy into it the current state of custom keys and log and the sdk.log,
   // binary_images.clsrecord, and metadata.clsrecord files.
-  // also copy rollouts.clsrecord if applicable.
+  // Also copy rollouts.clsrecord if applicable.
   NSError *error = nil;
   BOOL copied = [fileManager.underlyingFileManager copyItemAtPath:currentReportPath
                                                            toPath:newReportPath
