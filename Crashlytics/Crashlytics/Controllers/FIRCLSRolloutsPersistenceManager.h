@@ -16,7 +16,7 @@
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager
 #import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
-#endif  // Cocoapod
+#endif  // CocoaPods
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
 
@@ -26,4 +26,5 @@
 
 - (void)updateRolloutsStateToPersistenceWithRollouts:(NSData *_Nonnull)rollouts
                                             reportID:(NSString *_Nonnull)reportID;
+- (void)debugLog:(NSString *_Nonnull)messages;
 @end

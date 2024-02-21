@@ -17,6 +17,7 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseAppCheck', :path => '../../'
   pod 'FirebaseRemoteConfig', :path => '../../'
   pod 'FirebaseRemoteConfigSwift', :path => '../../'
+  pod 'FirebaseRemoteConfigInterop', :path => '../../'
   pod 'FirebaseAppDistribution', :path => '../../'
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCrashlytics', :path => '../../'
