@@ -14,9 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
 @import FirebaseStorage;
-
-#import <FirebaseAuth/FirebaseAuth.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 

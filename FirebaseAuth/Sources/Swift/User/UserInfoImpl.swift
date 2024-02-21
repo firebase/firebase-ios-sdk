@@ -23,12 +23,13 @@ extension UserInfoImpl: NSSecureCoding {}
   /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
-    guard let providerID = providerUserInfo.providerID else {
+    guard let providerID = providerUserInfo.providerID,
+          let uid = providerUserInfo.federatedID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?
-      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
+      fatalError("Missing providerID or uid from GetAccountInfoResponseProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
-                        userID: providerUserInfo.federatedID,
+                        userID: uid,
                         displayName: providerUserInfo.displayName,
                         photoURL: providerUserInfo.photoURL,
                         email: providerUserInfo.email,
@@ -43,7 +44,7 @@ extension UserInfoImpl: NSSecureCoding {}
   /// - Parameter email: The user's email address.
   /// - Parameter phoneNumber: The user's phone number.
   private init(withProviderID providerID: String,
-               userID: String?,
+               userID: String,
                displayName: String?,
                photoURL: URL?,
                email: String?,
@@ -57,7 +58,7 @@ extension UserInfoImpl: NSSecureCoding {}
   }
 
   var providerID: String
-  var uid: String?
+  var uid: String
   var displayName: String?
   var photoURL: URL?
   var email: String?
@@ -86,15 +87,17 @@ extension UserInfoImpl: NSSecureCoding {}
   }
 
   required convenience init?(coder: NSCoder) {
-    guard let providerID = coder.decodeObject(of: [NSString.self],
-                                              forKey: UserInfoImpl.kProviderIDCodingKey) as? String
+    guard let providerID = coder.decodeObject(
+      of: [NSString.self],
+      forKey: UserInfoImpl.kProviderIDCodingKey
+    ) as? String,
+      let userID = coder.decodeObject(
+        of: [NSString.self],
+        forKey: UserInfoImpl.kUserIDCodingKey
+      ) as? String
     else {
       return nil
     }
-    let uid = coder.decodeObject(
-      of: [NSString.self],
-      forKey: UserInfoImpl.kUserIDCodingKey
-    ) as? String
     let displayName = coder.decodeObject(
       of: [NSString.self],
       forKey: UserInfoImpl.kDisplayNameCodingKey
@@ -112,7 +115,7 @@ extension UserInfoImpl: NSSecureCoding {}
       forKey: UserInfoImpl.kPhoneNumberCodingKey
     ) as? String
     self.init(withProviderID: providerID,
-              userID: uid,
+              userID: userID,
               displayName: displayName,
               photoURL: photoURL,
               email: email,

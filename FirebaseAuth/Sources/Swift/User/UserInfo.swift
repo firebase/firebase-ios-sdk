@@ -20,7 +20,7 @@ import Foundation
   var providerID: String { get }
 
   /// The provider's user ID for the user.
-  var uid: String? { get }
+  var uid: String { get }
 
   /// The name of the user.
   var displayName: String? { get }

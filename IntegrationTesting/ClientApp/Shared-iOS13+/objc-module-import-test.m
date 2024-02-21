@@ -25,3 +25,4 @@
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
 @import FirebaseInAppMessaging;
 #endif
+@import FirebaseStorage;
