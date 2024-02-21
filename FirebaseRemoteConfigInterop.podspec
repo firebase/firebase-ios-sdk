@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfigInterop'
-  s.version          = '10.20.0'
+  s.version          = '10.23.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Remote Config functionality.'
 
   s.description      = <<-DESC
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   }
 
   s.swift_version = '5.3'
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.social_media_url = 'https://twitter.com/Firebase'
