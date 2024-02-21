@@ -23,7 +23,7 @@
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager
 #import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
-#endif  // Cocoapod
+#endif  // CocoaPods
 
 NSString *reportId = @"1234567";
 

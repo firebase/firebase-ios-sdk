@@ -18,6 +18,7 @@ import Foundation
 @objc(FIRCLSPersistenceLog)
 public protocol CrashlyticsPersistenceLog {
   func updateRolloutsStateToPersistence(rollouts: Data, reportID: String)
+  func debugLog(message: String)
 }
 
 @objc(FIRCLSRemoteConfigManager)
@@ -49,7 +50,7 @@ public class CrashlyticsRemoteConfigManager: NSObject {
     _rolloutAssignment = normalizeRolloutAssignment(assignments: Array(rolloutsState.assignments))
     lock.unlock()
 
-    // writring to persistence
+    // Writring to persistence
     if let rolloutsData =
       getRolloutsStateEncodedJsonData() {
       persistenceDelegate.updateRolloutsStateToPersistence(
@@ -60,7 +61,7 @@ public class CrashlyticsRemoteConfigManager: NSObject {
   }
 
   /// Return string format: [{RolloutAssignment1}, {RolloutAssignment2}, {RolloutAssignment3}...]
-  /// This will get insert into each clsrcord for non-fatal events.
+  /// This will get inserted into each clsrcord for non-fatal events.
   /// Return a string type because later `FIRCLSFileWriteStringUnquoted` takes string as input
   @objc public func getRolloutAssignmentsEncodedJsonString() -> String? {
     let encodeData = getRolloutAssignmentsEncodedJsonData()
@@ -68,8 +69,12 @@ public class CrashlyticsRemoteConfigManager: NSObject {
       return String(data: data, encoding: .utf8)
     }
 
-    // TODO(themisw): Hook into core logging functions
-    debugPrint("Failed to serialize rollouts", encodeData ?? "nil")
+    let debugInfo = encodeData?.debugDescription ?? "nil"
+    persistenceDelegate.debugLog(message: String(
+      format: "Failed to serialize rollouts: %@",
+      arguments: [debugInfo]
+    ))
+
     return nil
   }
 }
@@ -78,7 +83,10 @@ private extension CrashlyticsRemoteConfigManager {
   func normalizeRolloutAssignment(assignments: [RolloutAssignment]) -> [RolloutAssignment] {
     var validatedAssignments = assignments
     if assignments.count > CrashlyticsRemoteConfigManager.maxRolloutAssignments {
-      debugPrint("Rollouts excess the maximum number of assignments can pass to Crashlytics")
+      persistenceDelegate
+        .debugLog(
+          message: "Rollouts excess the maximum number of assignments can pass to Crashlytics"
+        )
       validatedAssignments =
         Array(assignments[..<CrashlyticsRemoteConfigManager.maxRolloutAssignments])
     }
