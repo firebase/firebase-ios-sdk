@@ -16,7 +16,9 @@ import Foundation
 
 import FirebaseAppCheckInterop
 import FirebaseCore
-import GoogleGenerativeAI
+
+// Exports the GoogleGenerativeAI module to users of the SDK.
+@_exported import GoogleGenerativeAI
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
@@ -90,11 +92,9 @@ open class VertexAI: NSObject {
 
   lazy var model: GenerativeModel = {
     let options = RequestOptions(
-      endpoint: "\(location)-aiplatform.googleapis.com",
-      hooks: [
-        addAccessTokenHeader,
-        addAppCheckHeader,
-      ]
+      apiVersion: "v2beta",
+      endpoint: "staging-firebaseml.sandbox.googleapis.com",
+      hooks: [addAppCheckHeader]
     )
     return GenerativeModel(
       name: modelResouceName,
@@ -102,8 +102,6 @@ open class VertexAI: NSObject {
       requestOptions: options
     )
   }()
-
-  private static let accessTokenEnvKey = "FIRVertexAIAccessToken"
 
   init(app: FirebaseApp, location: String, modelResourceName: String) {
     self.app = app
@@ -126,29 +124,6 @@ open class VertexAI: NSObject {
   }
 
   // MARK: Request Hooks
-
-  /// Add a Google Cloud access token in an Authorization header in the provided request.
-  ///
-  /// This is a temporary workaround until Vertex AI can be called with an API key.
-  ///
-  /// - Parameter request: The `URLRequest` to modify by adding an access token.
-  func addAccessTokenHeader(request: inout URLRequest) {
-    // Remove the API key header, it is not supported by Vertex AI.
-    if var headers = request.allHTTPHeaderFields {
-      headers.removeValue(forKey: "x-goog-api-key")
-    }
-
-    guard let accessToken = ProcessInfo.processInfo.environment[VertexAI.accessTokenEnvKey] else {
-      print("""
-      Vertex AI requires an Access Token for authorization:
-      1. Get an access token by running `gcloud auth print-access-token`
-      2. Set it in the \(VertexAI.accessTokenEnvKey) environment variable.
-      """)
-      return
-    }
-
-    request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-  }
 
   /// Adds an App Check token to the provided request, if App Check is included in the app.
   ///
