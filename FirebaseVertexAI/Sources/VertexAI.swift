@@ -28,55 +28,21 @@ import FirebaseCore
 open class VertexAI: NSObject {
   // MARK: - Public APIs
 
-  // Option 1: Return `GoogleGenerativeAI.GenerativeModel` instances.
-
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   ///
   /// This instance is configured with the default `FirebaseApp`.
   public static func generativeModel(modelName: String, location: String) -> GoogleGenerativeAI
     .GenerativeModel {
-    return vertexAI(modelName: modelName, location: location).model
+    return generativeModel(app: FirebaseApp.app()!, modelName: modelName, location: location)
   }
 
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   public static func generativeModel(app: FirebaseApp, modelName: String,
                                      location: String) -> GoogleGenerativeAI.GenerativeModel {
-    return vertexAI(app: FirebaseApp.app()!, modelName: modelName, location: location).model
-  }
-
-  // Option 2: Return `VertexAI` instances with a similar API surface to
-  // `GoogleGenerativeAI.GenerativeModel`.
-  // Some types are re-used from the Google AI SDK for requests and responses, e.g.,
-  // `GenerateContentResponse`.
-
-  /// The default `VertexAI` instance.
-  ///
-  /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
-  public static func vertexAI(modelName: String, location: String) -> VertexAI {
-    return vertexAI(app: FirebaseApp.app()!, modelName: modelName, location: location)
-  }
-
-  public static func vertexAI(app: FirebaseApp, modelName: String, location: String) -> VertexAI {
     let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                             in: app.container)
     let modelResourceName = modelResourceName(app: app, modelName: modelName, location: location)
-    return provider.vertexAI(location: location, modelResourceName: modelResourceName)
-  }
-
-  public func generateContentStream(_ parts: GoogleGenerativeAI
-    .PartsRepresentable...)
-    -> AsyncThrowingStream<GoogleGenerativeAI.GenerateContentResponse, Error> {
-    return model.generateContentStream([GoogleGenerativeAI.ModelContent(parts: parts)])
-  }
-
-  public func generateContentStream(_ content: [GoogleGenerativeAI.ModelContent])
-    -> AsyncThrowingStream<GoogleGenerativeAI.GenerateContentResponse, Error> {
-    return model.generateContentStream(content)
-  }
-
-  public func startChat(history: [GoogleGenerativeAI.ModelContent] = []) -> GoogleGenerativeAI
-    .Chat {
-    return model.startChat(history: history)
+    return provider.vertexAI(location: location, modelResourceName: modelResourceName).model
   }
 
   // MARK: - Private
