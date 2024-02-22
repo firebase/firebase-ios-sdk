@@ -472,11 +472,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 
 // Multiple Inequality
 - (void)testMultipleInequalityOnDifferentFields {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @0},
     @"doc2" : @{@"key" : @"b", @"sort" : @3, @"v" : @1},
@@ -540,11 +535,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityOnSpecialValues {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @0},
     @"doc2" : @{@"key" : @"b", @"sort" : @(NAN), @"v" : @1},
@@ -568,11 +558,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityWithArrayMembership {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @[ @0 ]},
     @"doc2" : @{@"key" : @"b", @"sort" : @1, @"v" : @[ @0, @1, @3 ]},
@@ -610,11 +595,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityWithNestedField {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : [self nestedData:400],
     @"doc2" : [self nestedData:200],
@@ -638,11 +618,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityWithCompositeFilters {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @5},
     @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @4},
@@ -715,11 +690,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityFieldsWillBeImplicitlyOrderedLexicographically {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @5},
     @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @4},
@@ -748,11 +718,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityWithMultipleExplicitOrderBy {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @5, @"v" : @0},
     @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @0},
@@ -801,11 +766,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityInAggregateQuery {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @5, @"v" : @0},
     @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @0},
@@ -852,11 +812,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityFieldsWithDocumentKey {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @5},
     @"doc2" : @{@"key" : @"aa", @"sort" : @4},
@@ -892,11 +847,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityReadFromCacheWhenOffline {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @1},
     @"doc2" : @{@"key" : @"aa", @"sort" : @4},
@@ -922,11 +872,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityFromCacheAndFromServer {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
     @"doc2" : @{@"a" : @2, @"b" : @1},
@@ -978,11 +923,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityRejectsIfDocumentKeyIsNotTheLastOrderByField {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRef];
 
   FIRQuery *query = [[collRef queryWhereField:@"key" isNotEqualTo:@42]
@@ -999,11 +939,6 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityRejectsIfDocumentKeyAppearsOnlyInEqualityFilter {
-  // TODO(MIEQ): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because multiple inequality is "
-            "not supported yet.");
-
   FIRCollectionReference *collRef = [self collectionRef];
 
   FIRQuery *query = [[collRef queryWhereField:@"key"
