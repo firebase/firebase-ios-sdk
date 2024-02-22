@@ -39,10 +39,14 @@ open class VertexAI: NSObject {
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   public static func generativeModel(app: FirebaseApp, modelName: String,
                                      location: String) -> GoogleGenerativeAI.GenerativeModel {
-    let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
-                                                            in: app.container)
+    guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
+                                                                  in: app.container) else {
+      fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
+    }
     let modelResourceName = modelResourceName(app: app, modelName: modelName, location: location)
-    return provider.vertexAI(location: location, modelResourceName: modelResourceName).model
+    let vertexAI = provider.vertexAI(location: location, modelResourceName: modelResourceName)
+
+    return vertexAI.model
   }
 
   // MARK: - Private
