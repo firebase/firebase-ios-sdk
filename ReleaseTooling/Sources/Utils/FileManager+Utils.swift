@@ -28,6 +28,9 @@ public extension FileManager {
     /// All folders with a `.bundle` extension.
     case bundles
 
+    /// All folders with a `.bundle` extension excluding privacy manifest bundles.
+    case nonPrivacyBundles
+
     /// A directory with an optional name. If name is `nil`, all directories will be matched.
     case directories(name: String?)
 
@@ -184,6 +187,13 @@ public extension FileManager {
       case .bundles:
         // The only thing of interest is the path extension being ".bundle".
         if fileURL.pathExtension == "bundle" {
+          matches.append(fileURL)
+        }
+      case .nonPrivacyBundles:
+        // The only thing of interest is the path extension being ".bundle", but not a privacy
+        // bundle.
+        if fileURL.pathExtension == "bundle",
+           !fileURL.lastPathComponent.hasSuffix("_Privacy.bundle") {
           matches.append(fileURL)
         }
       case .headers:

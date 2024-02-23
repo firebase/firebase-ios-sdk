@@ -30,7 +30,7 @@ extension ResourcesManager {
   static func directoryContainsResources(_ dir: URL) throws -> Bool {
     // First search for any .bundle files.
     let fileManager = FileManager.default
-    let bundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
+    let bundles = try fileManager.recursivelySearch(for: .nonPrivacyBundles, in: dir)
 
     // Stop searching if there were any bundles found.
     if !bundles.isEmpty { return true }
