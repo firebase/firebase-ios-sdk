@@ -32,7 +32,7 @@ class GrpcClient {
   // projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
   private var connectorName: String = "" // Operation Set Full Qualified Name
 
-  private lazy var client: Google_Firebase_Dataconnect_V1main_DataServiceAsyncClient? = {
+  private lazy var client: Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClient? = {
     do {
       let group = PlatformSupport.makeEventLoopGroup(loopCount: threadPoolSize)
       let channel = try GRPCChannelPool.with(
@@ -43,7 +43,7 @@ class GrpcClient {
         eventLoopGroup: group
       )
       print("Created Channel \(channel)")
-      return Google_Firebase_Dataconnect_V1main_DataServiceAsyncClient(channel: channel)
+      return Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClient(channel: channel)
 
     } catch {
       // TODO: Convert to using logger

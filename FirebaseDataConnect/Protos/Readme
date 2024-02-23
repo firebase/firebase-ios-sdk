@@ -1,0 +1,6 @@
+
+connector_service.proto is adapted from Data Connect server protos.
+third_party/firebase/dataconnect/emulator/server/api/connector_service.proto
+
+The google protos are obtained from https://github.com/googleapis/googleapis/tree/master
+

@@ -9,7 +9,7 @@ sdk_name="FirebaseDataConnect"
 plugin_folder="/Users/aashishp/Code/grpc-swift/.build/release"
 
 
-protoc data_service.proto \
+protoc graphql_error.proto connector_service.proto \
     --proto_path=$sdk_folder/$sdk_name/Protos/ \
     --plugin=$plugin_folder/protoc-gen-swift \
     --swift_opt=Visibility=Public \

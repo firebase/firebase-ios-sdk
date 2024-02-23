@@ -1,0 +1,99 @@
+
+syntax = "proto3";
+
+package google.firebase.dataconnect.emulator;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+import "graphql_error.proto";
+
+// Firebase Data Connect provides means to deploy a set of predefined GraphQL
+// operations (queries and mutations) as a Connector.
+//
+// Firebase developers can build mobile and web apps that uses Connectors
+// to access Data Sources directly. Connectors allow operations without
+// admin credentials and help Firebase customers control the API exposure.
+//
+// Note: `ConnectorService` doesn't check IAM permissions and instead developers
+// must define auth policies on each pre-defined operation to secure this
+// connector. The auth policies typically define rules on the Firebase Auth
+// token.
+service ConnectorService {
+  // Execute a predefined query in a Connector.
+  rpc ExecuteQuery(ExecuteQueryRequest) returns (ExecuteQueryResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name=projects/*/locations/*/services/*/connectors/*}:executeQuery"
+      body: "*"
+    };
+  }
+
+  // Execute a predefined mutation in a Connector.
+  rpc ExecuteMutation(ExecuteMutationRequest)
+      returns (ExecuteMutationResponse) {
+    option (google.api.http) = {
+      post: "/v1/{name=projects/*/locations/*/services/*/connectors/*}:executeMutation"
+      body: "*"
+    };
+  }
+}
+
+// The ExecuteQuery request to Firebase Data Connect.
+message ExecuteQueryRequest {
+  // The resource name of the connector to find the predefined query, in
+  // the format:
+  // ```
+  // projects/{project}/locations/{location}/services/{service}/connectors/{connector}
+  // ```
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The name of the GraphQL operation name.
+  // Required because all Connector operations must be named.
+  // See https://graphql.org/learn/queries/#operation-name.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: Must conform to GraphQL HTTP spec standard. --)
+  string operation_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Values for GraphQL variables provided in this request.
+  google.protobuf.Struct variables = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// The ExecuteMutation request to Firebase Data Connect.
+message ExecuteMutationRequest {
+  // The resource name of the connector to find the predefined mutation, in
+  // the format:
+  // ```
+  // projects/{project}/locations/{location}/services/{service}/connectors/{connector}
+  // ```
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The name of the GraphQL operation name.
+  // Required because all Connector operations must be named.
+  // See https://graphql.org/learn/queries/#operation-name.
+  // (-- api-linter: core::0122::name-suffix=disabled
+  //     aip.dev/not-precedent: Must conform to GraphQL HTTP spec standard. --)
+  string operation_name = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Values for GraphQL variables provided in this request.
+  google.protobuf.Struct variables = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// The ExecuteQuery response from Firebase Data Connect.
+message ExecuteQueryResponse {
+  // The result of executing the requested operation.
+  google.protobuf.Struct data = 1;
+  // Errors of this response.
+  repeated GraphqlError errors = 2;
+}
+
+// The ExecuteMutation response from Firebase Data Connect.
+message ExecuteMutationResponse {
+  // The result of executing the requested operation.
+  google.protobuf.Struct data = 1;
+  // Errors of this response.
+  repeated GraphqlError errors = 2;
+}

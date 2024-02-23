@@ -1,3 +1,5 @@
+// NOTE: This is outtdated. Keeping till new connector_service.proto starts working
+
 // Adapted from http://google3/firebase/firemat/emulator/server/api/data_service.proto;rcl=586381894
 
 // API protos for the Firebase Data Connect Private API DataService.
@@ -8,6 +10,8 @@ package google.firebase.dataconnect.v1main;
 
 import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
+
+
 
 service DataService {
   // REST API for executing a single pre-defined query.
