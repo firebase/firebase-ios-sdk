@@ -224,7 +224,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       guard error == nil else { return self.displayError(error) }
       guard let accessToken = AccessToken.current else { return }
       let credential = FacebookAuthProvider.credential(withAccessToken: accessToken.tokenString)
-      self.signIn(with: credential)
+      self.signin(with: credential)
     }
   }
 
@@ -236,7 +236,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     oauthProvider.getCredentialWith(nil) { credential, error in
       guard error == nil else { return self.displayError(error) }
       guard let credential = credential else { return }
-      self.signIn(with: credential)
+      self.signin(with: credential)
     }
   }
 
@@ -311,7 +311,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     navigationController?.present(navCustomAuthController, animated: true)
   }
 
-  private func appleRawNoncesignin(with credential: AuthCredential) {
+  private func signin(with credential: AuthCredential) {
     AppManager.shared.auth().signIn(with: credential) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.transitionToUserViewController()
