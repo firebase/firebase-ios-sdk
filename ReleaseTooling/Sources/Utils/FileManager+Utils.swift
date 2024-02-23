@@ -193,8 +193,7 @@ public extension FileManager {
         // The only thing of interest is the path extension being ".bundle", but not a privacy
         // bundle.
         if fileURL.pathExtension == "bundle",
-           !fileURL.lastPathComponent.hasSuffix("_Privacy.bundle"),
-           !fileURL.lastPathComponent.hasSuffix("_Privacy.bundle/") {
+           !fileURL.lastPathComponent.hasSuffix("_Privacy.bundle") {
           matches.append(fileURL)
         }
       case .headers:
