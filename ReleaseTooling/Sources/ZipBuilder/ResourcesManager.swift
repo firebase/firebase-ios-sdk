@@ -168,7 +168,7 @@ extension ResourcesManager {
                              to resourceDir: URL,
                              keepOriginal: Bool = false) throws -> [URL] {
     let fileManager = FileManager.default
-    let allBundles = try fileManager.recursivelySearch(for: .bundles, in: dir)
+    let allBundles = try fileManager.recursivelySearch(for: .nonPrivacyBundles, in: dir)
 
     // If no bundles are found, return an empty array since nothing was done (but there wasn't an
     // error).
