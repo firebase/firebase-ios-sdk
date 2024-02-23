@@ -95,32 +95,30 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .customAuthDomain:
       performCustomAuthDomainFlow()
-    
+
     case .getToken:
       getUserTokenResult(force: false)
-    
+
     case .getTokenForceRefresh:
       getUserTokenResult(force: true)
-    
+
     case .addAuthStateChangeListener:
       addAuthStateListener()
-    
+
     case .removeLastAuthStateChangeListener:
       removeAuthStateListener()
-    
+
     case .addIdTokenChangeListener:
       addIDTokenListener()
 
     case .removeLastIdTokenChangeListener:
       removeIDTokenListener()
-      
+
     case .verifyClient:
-      //verifyClient()
+      // verifyClient()
       return
     case .deleteApp:
       deleteApp()
-      
-    
     }
   }
 
@@ -341,19 +339,19 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     prompt.addAction(okAction)
     present(prompt, animated: true)
   }
-  
+
   private func getUserTokenResult(force: Bool) {
     guard let currentUser = Auth.auth().currentUser else {
       print("Error: No user logged in")
       return
     }
-    
+
     currentUser.getIDTokenResult(forcingRefresh: force, completion: { tokenResult, error in
       if let error = error {
         print("Error: Error refreshing token")
         return // Handle error case, returning early
       }
-      
+
       if let tokenResult = tokenResult, let claims = tokenResult.claims as? [String: Any] {
         var message = "Token refresh succeeded\n\n"
         for (key, value) in claims {
@@ -365,18 +363,18 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     })
   }
-  
+
   private func addAuthStateListener() {
     weak var weakSelf = self
     let index = authStateDidChangeListeners.count
     print("Auth State Did Change Listener #\(index) was added.")
-    let handle = Auth.auth().addStateDidChangeListener { [weak weakSelf] (auth, user) in
+    let handle = Auth.auth().addStateDidChangeListener { [weak weakSelf] auth, user in
       guard weakSelf != nil else { return }
       print("Auth State Did Change Listener #\(index) was invoked on user '\(user?.uid ?? "nil")'")
     }
     authStateDidChangeListeners.append(handle)
   }
-  
+
   private func removeAuthStateListener() {
     guard !authStateDidChangeListeners.isEmpty else {
       print("No remaining Auth State Did Change Listeners.")
@@ -388,18 +386,18 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     authStateDidChangeListeners.removeLast()
     print("Auth State Did Change Listener #\(index) was removed.")
   }
-  
+
   private func addIDTokenListener() {
     weak var weakSelf = self
     let index = IDTokenDidChangeListeners.count
     print("ID Token Did Change Listener #\(index) was added.")
-    let handle = Auth.auth().addIDTokenDidChangeListener { [weak weakSelf] (auth, user) in
+    let handle = Auth.auth().addIDTokenDidChangeListener { [weak weakSelf] auth, user in
       guard weakSelf != nil else { return }
       print("ID Token Did Change Listener #\(index) was invoked on user '\(user?.uid ?? "")'.")
     }
     IDTokenDidChangeListeners.append(handle)
   }
-  
+
   func removeIDTokenListener() {
     guard !IDTokenDidChangeListeners.isEmpty else {
       print("No remaining ID Token Did Change Listeners.")
@@ -411,24 +409,24 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     IDTokenDidChangeListeners.removeLast()
     print("ID Token Did Change Listener #\(index) was removed.")
   }
-  
+
 //  func verifyClient() {
 //    AppManager.shared.auth().tokenManager.getTokenInternal { token, error in
 //      guard let token = token else {
 //        print("Verify iOS client failed.", error: error)
 //        return
 //      }
-//      
+//
 //      let request = VerifyClientRequest{appToken: token.string,
 //                                           isSandbox: token.type == .sandbox,
 //                                           requestConfiguration: AppManager.auth.requestConfiguration)
-//      
+//
 //      FIRAuthBackend.verifyClient(request) { response, error in
 //        guard let response = response else {
 //          print("Verify iOS client failed.", error: error)
 //          return
 //        }
-//        
+//
 //        let timeout = response.suggestedTimeOutDate.timeIntervalSinceNow
 //        AppManager.auth.appCredentialManager.didStartVerificationWithReceipt(response.receipt,
 //                                                                             timeout: timeout) { credential in
@@ -436,13 +434,13 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 //            print("Failed to receive remote notification to verify app identity.", error: error)
 //            return
 //          }
-//          
+//
 //          let testPhoneNumber = "+16509964692"
 //          let sendCodeRequest = FIRSendVerificationCodeRequest(phoneNumber: testPhoneNumber,
 //                                                               appCredential: credential,
 //                                                               reCAPTCHAToken: nil,
 //                                                               requestConfiguration: AppManager.auth.requestConfiguration)
-//          
+//
 //          FIRAuthBackend.sendVerificationCode(sendCodeRequest) { _, error in
 //            if let error = error {
 //              print("Verify iOS client failed.", error: error)
@@ -456,7 +454,6 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 //    }
 //  }
 
-
   func deleteApp() {
     AppManager.shared.app.delete { success in
       if success {
@@ -466,7 +463,6 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-
 
   // MARK: - Private Helpers
 

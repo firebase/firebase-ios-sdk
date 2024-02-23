@@ -40,11 +40,11 @@ enum AuthMenu: String {
   case removeLastIdTokenChangeListener
   case verifyClient
   case deleteApp
-  
-    // More intuitively named getter for `rawValue`.
+
+  // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
-  
-    // The UI friendly name of the `AuthMenu`. Used for display.
+
+  // The UI friendly name of the `AuthMenu`. Used for display.
   var name: String {
     switch self {
     case .settings:
@@ -97,9 +97,9 @@ enum AuthMenu: String {
       return "Delete App"
     }
   }
-  
-    // Failable initializer to create an `AuthMenu` from its corresponding `name` value.
-    // - Parameter rawValue: String value representing `AuthMenu`'s name or type.
+
+  // Failable initializer to create an `AuthMenu` from its corresponding `name` value.
+  // - Parameter rawValue: String value representing `AuthMenu`'s name or type.
   init?(rawValue: String) {
     switch rawValue {
     case "Settings":
@@ -155,7 +155,6 @@ enum AuthMenu: String {
     }
   }
 }
-
 
 // MARK: DataSourceProvidable
 
@@ -213,7 +212,7 @@ extension AuthMenu: DataSourceProvidable {
     let item = Item(title: customAuthDomain.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
-  
+
   static var appSection: Section {
     let header = "APP"
     let items: [Item] = [
@@ -224,7 +223,7 @@ extension AuthMenu: DataSourceProvidable {
       Item(title: addIdTokenChangeListener.name),
       Item(title: removeLastIdTokenChangeListener.name),
       Item(title: verifyClient.name),
-      Item(title: deleteApp.name)
+      Item(title: deleteApp.name),
     ]
     return Section(headerDescription: header, items: items)
   }
