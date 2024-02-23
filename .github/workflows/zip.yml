@@ -7,6 +7,8 @@ on:
     - '.github/workflows/zip.yml'
     - 'scripts/build_non_firebase_sdks.sh'
     - 'Gemfile*'
+    # DELETE BEFORE pushing
+    - 'FirebaseCore.podspec'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
