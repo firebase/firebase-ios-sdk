@@ -40,6 +40,15 @@ enum AuthMenu: String {
   case removeLastIdTokenChangeListener
   case verifyClient
   case deleteApp
+  case actionType
+  case continueURL
+  case requestVerifyEmail
+  case requestPasswordReset
+  case resetPassword
+  case checkActionCode
+  case applyActionCode
+  case verifyPasswordResetCode
+  
 
   // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -95,6 +104,22 @@ enum AuthMenu: String {
       return "Verify Client"
     case .deleteApp:
       return "Delete App"
+    case .actionType:
+      return "Action Type"
+    case .continueURL:
+      return "Continue URL"
+    case .requestVerifyEmail:
+      return "Request Verify Email"
+    case .requestPasswordReset:
+      return "Request Password Reset"
+    case .resetPassword:
+      return "Reset Password"
+    case .checkActionCode:
+      return "Check Action Code"
+    case .applyActionCode:
+      return "Apply Action Code"
+    case .verifyPasswordResetCode:
+      return "Verify Password Reset Code"
     }
   }
 
@@ -227,10 +252,25 @@ extension AuthMenu: DataSourceProvidable {
     ]
     return Section(headerDescription: header, items: items)
   }
+  
+  static var oobSection: Section {
+    let header = "OOB"
+    let items: [Item] = [
+      Item(title: AuthMenu.actionType.name),
+      Item(title: AuthMenu.continueURL.name),
+      Item(title: AuthMenu.requestVerifyEmail.name),
+      Item(title: AuthMenu.requestPasswordReset.name),
+      Item(title: AuthMenu.resetPassword.name),
+      Item(title: AuthMenu.checkActionCode.name),
+      Item(title: AuthMenu.applyActionCode.name),
+      Item(title: AuthMenu.verifyPasswordResetCode.name)
+    ]
+    return Section(headerDescription: header, items: items)
+  }
 
   static var sections: [Section] {
     [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection, appSection]
+     customAuthDomainSection, appSection, oobSection]
   }
 
   static var authLinkSections: [Section] {

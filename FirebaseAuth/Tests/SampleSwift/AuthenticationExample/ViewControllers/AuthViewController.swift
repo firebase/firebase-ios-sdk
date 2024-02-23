@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+@testable import FirebaseAuth
 // For Sign in with Facebook
 import FBSDKLoginKit
 import FirebaseAuth
@@ -30,9 +31,14 @@ import CryptoKit
 private let kFacebookAppID = "ENTER APP ID HERE"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
+  enum ActionCodeRequestType {
+    case email
+    case `continue`
+    case inApp
+  }
   var dataSourceProvider: DataSourceProvider<AuthMenu>!
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
-  var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
+  var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = [] 
 
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
@@ -119,6 +125,17 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       return
     case .deleteApp:
       deleteApp()
+      
+    case .actionType:
+      switch self.actionCodeRequestType {
+      case .inApp:
+        self.actionCodeRequestType = .continue
+      case .continue:
+        self.actionCodeRequestType = .email
+      case .email:
+        self.actionCodeRequestType = .inApp
+      }
+      updateTable()
     }
   }
 
