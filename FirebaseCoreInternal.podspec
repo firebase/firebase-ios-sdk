@@ -32,6 +32,10 @@ Pod::Spec.new do |s|
     'FirebaseCore/Internal/Sources/**/*.swift'
   ]
 
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseCore/Internal/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
+
   s.swift_version = '5.3'
 
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'

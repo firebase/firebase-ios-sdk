@@ -43,6 +43,9 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
    'Interop/Analytics/Public/*.h',
    'FirebaseCore/Extension/*.h',
   ]
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseABTesting/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'
   s.pod_target_xcconfig = {

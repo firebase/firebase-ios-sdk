@@ -29,6 +29,9 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/*.h'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseDynamicLinks/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 10.0'
