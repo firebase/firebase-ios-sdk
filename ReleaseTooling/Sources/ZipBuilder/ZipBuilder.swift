@@ -244,12 +244,11 @@ struct ZipBuilder {
             carthageGoogleUtilitiesFrameworks += cdFrameworks
           }
           let fileManager = FileManager.default
-          if let resourceContents {
-            let path = resourceContents.absoluteString
-            if let contents = try? fileManager.contentsOfDirectory(atPath: path),
-               !contents.isEmpty {
-              resources[podName] = resourceContents
-            }
+          if let resourceContents,
+             let contents = try? fileManager.contentsOfDirectory(at: resourceContents,
+                                                                 includingPropertiesForKeys: nil),
+             !contents.isEmpty {
+            resources[podName] = resourceContents
           }
         } else if podsBuilt[podName] == nil {
           // Binary pods need to be collected once, since the platforms should already be merged.
