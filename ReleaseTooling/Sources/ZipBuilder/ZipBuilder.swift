@@ -246,7 +246,8 @@ struct ZipBuilder {
           let fileManager = FileManager.default
           if let resourceContents {
             let path = resourceContents.absoluteString
-            if try! !fileManager.contentsOfDirectory(atPath: path).isEmpty {
+            if let contents = try? fileManager.contentsOfDirectory(atPath: path),
+               !contents.isEmpty {
               resources[podName] = resourceContents
             }
           }
