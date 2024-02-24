@@ -33,8 +33,8 @@ public extension CollectionReference {
     return try await withCheckedThrowingContinuation { continuation in
       var document: DocumentReference?
       document = self.addDocument(data: data) { error in
-        if let err = error {
-          continuation.resume(throwing: err)
+        if let error {
+          continuation.resume(throwing: error)
         } else {
           // Our callbacks guarantee that we either return an error or a document.
           continuation.resume(returning: document!)

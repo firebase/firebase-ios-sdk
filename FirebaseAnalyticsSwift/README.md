@@ -90,11 +90,11 @@ extension View {
     func analyticsScreen(name: String, class screenClass: String? = nil, extraParameters: [String: Any]? = nil) -> some View {
         onAppear {
             var params: [String: Any] = [AnalyticsParameterScreenName: name]
-            if let screenClass = screenClass {
+            if let screenClass {
                 params[AnalyticsParameterScreenClass] = screenClass
             }
-            if let extraParams = extraParameters {
-                params.merge(extraParams) { _, new in new }
+            if let extraParameters {
+                params.merge(extraParameters) { _, new in new }
             }
             Analytics.logEvent(AnalyticsEventScreenView, parameters: params)
         }

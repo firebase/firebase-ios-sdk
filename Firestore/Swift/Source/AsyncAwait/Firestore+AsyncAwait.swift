@@ -31,8 +31,8 @@ public extension Firestore {
   func loadBundle(_ bundleData: Data) async throws -> LoadBundleTaskProgress {
     return try await withCheckedThrowingContinuation { continuation in
       self.loadBundle(bundleData) { progress, error in
-        if let err = error {
-          continuation.resume(throwing: err)
+        if let error {
+          continuation.resume(throwing: error)
         } else {
           // Our callbacks guarantee that we either return an error or a progress event.
           continuation.resume(returning: progress!)
@@ -49,8 +49,8 @@ public extension Firestore {
   func loadBundle(_ bundleStream: InputStream) async throws -> LoadBundleTaskProgress {
     return try await withCheckedThrowingContinuation { continuation in
       self.loadBundle(bundleStream) { progress, error in
-        if let err = error {
-          continuation.resume(throwing: err)
+        if let error {
+          continuation.resume(throwing: error)
         } else {
           // Our callbacks guarantee that we either return an error or a progress event.
           continuation.resume(returning: progress!)
@@ -107,8 +107,8 @@ public extension Firestore {
     // See https://github.com/firebase/firebase-ios-sdk/issues/9426 for more details.
     return try await withCheckedThrowingContinuation { continuation in
       self.runTransaction(updateBlock) { anyValue, error in
-        if let err = error {
-          continuation.resume(throwing: err)
+        if let error {
+          continuation.resume(throwing: error)
         } else {
           continuation.resume(returning: anyValue)
         }

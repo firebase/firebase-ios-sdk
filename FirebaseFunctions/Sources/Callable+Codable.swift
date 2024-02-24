@@ -64,10 +64,10 @@ public struct Callable<Request: Encodable, Response: Decodable> {
 
       callable.call(encoded) { result, error in
         do {
-          if let result = result {
+          if let result {
             let decoded = try decoder.decode(Response.self, from: result.data)
             completion(.success(decoded))
-          } else if let error = error {
+          } else if let error {
             completion(.failure(error))
           } else {
             completion(.failure(CallableError.internalError))

@@ -40,9 +40,9 @@
       var reference: DocumentReference?
       return Future { promise in
         reference = self.addDocument(data: data) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let reference = reference {
+          } else if let reference {
             promise(.success(reference))
           }
         }
@@ -70,9 +70,9 @@
         return Future { promise in
           do {
             try reference = self.addDocument(from: value, encoder: encoder) { error in
-              if let error = error {
+              if let error {
                 promise(.failure(error))
-              } else if let reference = reference {
+              } else if let reference {
                 promise(.success(reference))
               }
             }

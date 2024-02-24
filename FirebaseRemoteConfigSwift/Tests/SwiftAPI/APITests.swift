@@ -21,7 +21,7 @@ class APITests: APITestBase {
   func testFetchThenActivate() {
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
-      if let error = error {
+      if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
@@ -37,7 +37,7 @@ class APITests: APITestBase {
   func testFetchWithExpirationThenActivate() {
     let expectation = self.expectation(description: #function)
     config.fetch(withExpirationDuration: 0) { status, error in
-      if let error = error {
+      if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
@@ -54,7 +54,7 @@ class APITests: APITestBase {
     let expectation = self.expectation(description: #function)
     config.fetchAndActivate { status, error in
       XCTAssertEqual(status, .successFetchedFromRemote)
-      if let error = error {
+      if let error {
         XCTFail("Fetch and Activate Error \(error)")
       }
       XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
@@ -68,7 +68,7 @@ class APITests: APITestBase {
   func testUnchangedActivateWillFlag() {
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
-      if let error = error {
+      if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
@@ -82,7 +82,7 @@ class APITests: APITestBase {
     waitForExpectations()
     let expectation2 = self.expectation(description: #function + "2")
     config.fetch { status, error in
-      if let error = error {
+      if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
@@ -289,7 +289,7 @@ class APITests: APITestBase {
     let kTestTimeout = 10.0
     waitForExpectations(timeout: kTestTimeout,
                         handler: { error in
-                          if let error = error {
+                          if let error {
                             print(error)
                           }
                         })

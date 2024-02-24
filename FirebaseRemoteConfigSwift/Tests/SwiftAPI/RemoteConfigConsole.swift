@@ -46,7 +46,7 @@ class RemoteConfigConsole {
     perform(configRequest: .get) { latestConfigJSON in
       config = latestConfigJSON
     }
-    if let config = config {
+    if let config {
       saveConfig(config)
     }
     return config
@@ -210,8 +210,8 @@ class RemoteConfigConsole {
 
   /// Perform a synchronous sync with remote config console.
   private func syncWithConsole() {
-    if let consoleConfig = activeRemoteConfig {
-      latestConfig = consoleConfig
+    if let activeRemoteConfig {
+      latestConfig = activeRemoteConfig
     } else {
       fatalError("Could not sync with console.")
     }

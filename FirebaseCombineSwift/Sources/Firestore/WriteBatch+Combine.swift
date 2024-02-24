@@ -30,7 +30,7 @@
     func commit() -> Future<Void, Error> {
       Future { promise in
         self.commit { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))

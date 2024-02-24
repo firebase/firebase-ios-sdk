@@ -151,7 +151,7 @@ open class HTTPSCallable: NSObject {
     return try await withCheckedThrowingContinuation { continuation in
       // TODO(bonus): Use task to handle and cancellation.
       self.call(data) { callableResult, error in
-        if let callableResult = callableResult {
+        if let callableResult {
           continuation.resume(returning: callableResult)
         } else {
           continuation.resume(throwing: error!)

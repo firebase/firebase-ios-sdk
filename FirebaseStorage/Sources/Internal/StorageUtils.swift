@@ -38,7 +38,7 @@ class StorageUtils {
     components.host = reference.storage.host
     components.port = reference.storage.port
 
-    if let queryParams = queryParams {
+    if let queryParams {
       var queryItems = [URLQueryItem]()
       for (key, value) in queryParams {
         queryItems.append(URLQueryItem(name: key, value: value))

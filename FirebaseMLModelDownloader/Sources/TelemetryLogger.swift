@@ -63,14 +63,14 @@ extension ModelDownloadLogEvent {
                          downloadFailureStatus: Int64? = 0, modelOptions: ModelOptions) {
     downloadStatus = status
     self.errorCode = errorCode
-    if let roughDuration = roughDownloadDuration {
-      roughDownloadDurationMs = roughDuration
+    if let roughDownloadDuration {
+      roughDownloadDurationMs = roughDownloadDuration
     }
-    if let exactDuration = exactDownloadDuration {
-      exactDownloadDurationMs = exactDuration
+    if let exactDownloadDuration {
+      exactDownloadDurationMs = exactDownloadDuration
     }
-    if let failureStatus = downloadFailureStatus {
-      self.downloadFailureStatus = failureStatus
+    if let downloadFailureStatus {
+      self.downloadFailureStatus = downloadFailureStatus
     }
     options = modelOptions
   }

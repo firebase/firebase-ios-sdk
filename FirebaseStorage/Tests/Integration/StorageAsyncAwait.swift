@@ -413,7 +413,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     let kTestTimeout = 60.0
     waitForExpectations(timeout: kTestTimeout,
                         handler: { error in
-                          if let error = error {
+                          if let error {
                             print(error)
                           }
                         })

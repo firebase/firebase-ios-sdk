@@ -38,7 +38,7 @@ class TestsBase: XCTestCase {
 
     let expectation = self.expectation(description: "Anonymous sign-in finished.")
     auth.signInAnonymously { result, error in
-      if let error = error {
+      if let error {
         print("Anonymous sign in error: \(error)")
       }
       expectation.fulfill()
@@ -59,7 +59,7 @@ class TestsBase: XCTestCase {
     let auth = Auth.auth()
     let expectation = self.expectation(description: "Delete current user finished.")
     auth.currentUser?.delete { error in
-      if let error = error {
+      if let error {
         print("Anonymous sign in error: \(error)")
       }
       expectation.fulfill()

@@ -38,7 +38,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     var tokenError: NSError?
     let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
     let fetchTokenGroup = DispatchGroup()
-    if let auth = auth {
+    if let auth {
       fetchTokenGroup.enter()
       auth.getToken(forcingRefresh: false) { token, error in
         if let error = error as? NSError {
@@ -51,14 +51,14 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
           tokenError = NSError(domain: "FIRStorageErrorDomain",
                                code: StorageErrorCode.unauthenticated.rawValue,
                                userInfo: errorDictionary)
-        } else if let token = token {
+        } else if let token {
           let firebaseToken = "Firebase \(token)"
           request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
         }
         fetchTokenGroup.leave()
       }
     }
-    if let appCheck = appCheck {
+    if let appCheck {
       fetchTokenGroup.enter()
       appCheck.getToken(forcingRefresh: false) { tokenResult in
         request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")

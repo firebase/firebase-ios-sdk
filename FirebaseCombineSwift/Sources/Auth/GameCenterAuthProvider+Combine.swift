@@ -30,9 +30,9 @@
     class func getCredential() -> Future<AuthCredential, Error> {
       Future<AuthCredential, Error> { promise in
         self.getCredential { authCredential, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authCredential = authCredential {
+          } else if let authCredential {
             promise(.success(authCredential))
           }
         }

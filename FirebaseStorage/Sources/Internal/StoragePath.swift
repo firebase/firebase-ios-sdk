@@ -135,7 +135,7 @@ class StoragePath: NSCopying, Equatable {
   init(with bucket: String,
        object: String? = nil) {
     self.bucket = bucket
-    if let object = object {
+    if let object {
       self.object = StoragePath.standardizedPathForString(object)
     } else {
       self.object = nil

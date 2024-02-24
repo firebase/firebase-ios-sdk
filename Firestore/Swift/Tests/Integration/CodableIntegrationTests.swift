@@ -36,18 +36,18 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     switch flavor {
     case .docRef:
-      if let merge = merge {
+      if let merge {
         try doc.setData(from: value, merge: merge, completion: completion)
-      } else if let mergeFields = mergeFields {
+      } else if let mergeFields {
         try doc.setData(from: value, mergeFields: mergeFields, completion: completion)
       } else {
         try doc.setData(from: value, completion: completion)
       }
     case .writeBatch:
-      if let merge = merge {
+      if let merge {
         try doc.firestore.batch().setData(from: value, forDocument: doc, merge: merge)
           .commit(completion: completion)
-      } else if let mergeFields = mergeFields {
+      } else if let mergeFields {
         try doc.firestore.batch().setData(from: value, forDocument: doc, mergeFields: mergeFields)
           .commit(completion: completion)
       } else {
@@ -57,9 +57,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     case .transaction:
       doc.firestore.runTransaction({ transaction, errorPointer -> Any? in
         do {
-          if let merge = merge {
+          if let merge {
             try transaction.setData(from: value, forDocument: doc, merge: merge)
-          } else if let mergeFields = mergeFields {
+          } else if let mergeFields {
             try transaction.setData(from: value, forDocument: doc, mergeFields: mergeFields)
           } else {
             try transaction.setData(from: value, forDocument: doc)

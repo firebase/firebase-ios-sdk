@@ -98,7 +98,7 @@ public struct ServerTimestamp<Value>: Codable
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
-    if let value = value {
+    if let value {
       try container.encode(Value.unwrap(value))
     } else {
       try container.encode(FieldValue.serverTimestamp())
