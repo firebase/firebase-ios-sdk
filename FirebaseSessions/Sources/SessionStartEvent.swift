@@ -91,6 +91,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       proto.application_info.session_sdk_version,
       proto.session_data.session_id,
       proto.session_data.firebase_installation_id,
+      proto.session_data.firebase_authentication_token,
       proto.session_data.first_session_id,
     ]
     for pointer in garbage {
@@ -102,6 +103,12 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     let oldID = proto.session_data.firebase_installation_id
     proto.session_data.firebase_installation_id = makeProtoString(installationId)
     nanopb_free(oldID)
+  }
+
+  func setAuthenticationToken(authenticationToken: String) {
+    let oldToken = proto.session_data.firebase_authentication_token
+    proto.session_data.firebase_authentication_token = makeProtoString(authenticationToken)
+    nanopb_free(oldToken)
   }
 
   func setSamplingRate(samplingRate: Double) {

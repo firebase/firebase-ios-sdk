@@ -66,10 +66,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   sleep(1);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   XCTAssertFalse(didRotate);
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
   XCTAssertNil([_defaults objectForKey:FABInstallationADIDKey]);
@@ -85,10 +88,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
 
   XCTAssertFalse(didRotate);
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
   XCTAssertNil([_defaults objectForKey:FABInstallationADIDKey]);
   XCTAssertEqualObjects(nil, [_defaults objectForKey:FIRCLSInstallationIIDHashKey]);
@@ -135,10 +141,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertTrue(didRotate);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   // Test that the UUID changed.
   XCTAssertNotEqualObjects(model.installID, @"old_uuid");
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
@@ -158,10 +167,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertFalse(didRotate);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   // Test that the UUID changed.
   XCTAssertEqualObjects(model.installID, @"test_uuid");
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
@@ -180,10 +192,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertFalse(didRotate);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   // Test that the UUID did not change. The FIID can be nil if
   // there's no FIID cached, so we can't say whether to regenerate
   XCTAssertEqualObjects(model.installID, @"old_uuid");
@@ -202,10 +217,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertFalse(didRotate);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   // Test that the UUID did not change. The FIID can be nil if
   // there's no FIID cached, so we can't say whether to regenerate
   XCTAssertEqualObjects(model.installID, @"old_uuid");
@@ -226,9 +244,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertFalse(didRotate);
+
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
 
   // Test that the UUID didn't change.
   XCTAssertEqualObjects(model.installID, @"test_uuid");
@@ -248,10 +270,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertFalse(didRotate);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   // Test that the UUID didn't change.
   XCTAssertEqualObjects(model.installID, @"test_uuid");
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
@@ -272,8 +297,9 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertFalse(didRotate);
 
   // Test that the UUID didn't change.
@@ -297,10 +323,13 @@ static NSString *const FIRCLSTestHashOfTestInstanceID =
       [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
   XCTAssertNotNil(model.installID);
 
-  BOOL didRotate = [model regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid){
-  }];
+  BOOL didRotate = [model
+      regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull fiid, NSString *_Nonnull authToken){
+      }];
   XCTAssertTrue(didRotate);
 
+  XCTAssertTrue(iid.authTokenFinished);
+  XCTAssertTrue(iid.installationIDFinished);
   // Test that the UUID change.
   XCTAssertNotEqualObjects(model.installID, @"test_uuid");
   XCTAssertEqualObjects([_defaults objectForKey:FABInstallationUUIDKey], model.installID);
