@@ -2245,15 +2245,6 @@
 			name = admin;
 			sourceTree = "<group>";
 		};
-		475693833C55E80B2C4CA461 /* 3.26.4 */ = {
-			isa = PBXGroup;
-			children = (
-				DBEB6B536E39F1EC1027C339 /* CompilerIdC */,
-				69F99B85B5E15C19EFF6A21F /* CompilerIdCXX */,
-			);
-			name = 3.26.4;
-			sourceTree = "<group>";
-		};
 		543B4F0520A91E4B001F506D /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -2754,13 +2745,6 @@
 			path = rpc;
 			sourceTree = "<group>";
 		};
-		69F99B85B5E15C19EFF6A21F /* CompilerIdCXX */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = CompilerIdCXX;
-			sourceTree = "<group>";
-		};
 		6EA39FDC20FE81DD008D461F /* FuzzingTargets */ = {
 			isa = PBXGroup;
 			children = (
@@ -2918,21 +2902,6 @@
 			path = macOS;
 			sourceTree = "<group>";
 		};
-		DBEB6B536E39F1EC1027C339 /* CompilerIdC */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = CompilerIdC;
-			sourceTree = "<group>";
-		};
-		DC6A402639629C05EF451D8C /* cmake-build-debug */ = {
-			isa = PBXGroup;
-			children = (
-				E3277B52449F042F11FDA06A /* CMakeFiles */,
-			);
-			name = "cmake-build-debug";
-			sourceTree = "<group>";
-		};
 		DE2EF06E1F3D07D7003D0CDC /* Immutable */ = {
 			isa = PBXGroup;
 			children = (
@@ -3060,14 +3029,6 @@
 				5492E06F202154D600B64F25 /* FIRWriteBatchTests.mm */,
 			);
 			path = API;
-			sourceTree = "<group>";
-		};
-		E3277B52449F042F11FDA06A /* CMakeFiles */ = {
-			isa = PBXGroup;
-			children = (
-				475693833C55E80B2C4CA461 /* 3.26.4 */,
-			);
-			name = CMakeFiles;
 			sourceTree = "<group>";
 		};
 		F7BA529161F1713BDF685C65 /* bundle */ = {
