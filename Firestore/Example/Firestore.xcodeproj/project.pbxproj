@@ -2998,7 +2998,6 @@
 			isa = PBXGroup;
 			children = (
 				DE51B1BC1F0D48AC0013853F /* API */,
-				DC6A402639629C05EF451D8C /* cmake-build-debug */,
 				5492E07E202154EC00B64F25 /* FSTDatastoreTests.mm */,
 				5492E07C202154EB00B64F25 /* FSTSmokeTests.mm */,
 				5492E07B202154EB00B64F25 /* FSTTransactionTests.mm */,
