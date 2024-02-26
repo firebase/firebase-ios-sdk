@@ -21,6 +21,8 @@
 
 #import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
 
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
 #import <nanopb/pb_encode.h>
@@ -180,6 +182,24 @@ NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
   } else {
     return nil;
   }
+}
+
+NSData *FIRSESTransportBytes(const void *_Nonnull proto) {
+  pb_field_t *const fields = firebase_appquality_sessions_SessionEvent_fields;
+  NSError *error;
+  NSData *data = FIRSESEncodeProto(fields, proto, &error);
+  if (error != nil) {
+    NSString *errString =
+        [NSString stringWithFormat:@"Session Event failed to encode as proto with error: %@",
+                                   error.debugDescription];
+    FIRLogError(@"FirebaseSessions", @"I-SES000001", error.debugDescription);
+  }
+  if (data == nil) {
+    data = [NSData data];
+    FIRLogError(@"FirebaseSessions", @"I-SES000002",
+                @"Session Event generated nil transportBytes. Returning empty data.");
+  }
+  return data;
 }
 
 NS_ASSUME_NONNULL_END
