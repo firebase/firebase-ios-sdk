@@ -170,64 +170,44 @@ void SyncEngine::ListenToRemoteStore(Query query) {
 }
 
 void SyncEngine::StopListening(const Query& query,
-                               bool should_unlisten_to_remote) {
+                               bool should_stop_remote_listening) {
   AssertCallbackExists("StopListening");
+  StopListeningAndReleaseTarget(query, /** last_listen= */ true,
+                                should_stop_remote_listening);
+}
 
+void SyncEngine::StopListeningToRemoteStoreOnly(const Query& query) {
+  AssertCallbackExists("StopListeningToRemoteStoreOnly");
+  StopListeningAndReleaseTarget(query, /** last_listen= */ false,
+                                /** should_stop_remote_listening= */ true);
+}
+
+void SyncEngine::StopListeningAndReleaseTarget(
+    const Query& query, bool last_listen, bool should_stop_remote_listening) {
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
-  query_views_by_query_.erase(query);
+  if (last_listen) {
+    query_views_by_query_.erase(query);
+  }
 
+  // One target could have multiple queries mapped to it.
   TargetId target_id = query_view->target_id();
   auto& queries = queries_by_target_[target_id];
   queries.erase(std::remove(queries.begin(), queries.end(), query),
                 queries.end());
 
-  if (queries.empty()) {
+  if (!queries.empty()) return;
+
+  if (should_stop_remote_listening) {
+    remote_store_->StopListening(target_id);
+  }
+
+  if (last_listen) {
     local_store_->ReleaseTarget(target_id);
-    if (should_unlisten_to_remote) {
-      remote_store_->StopListening(target_id);
-    }
     RemoveAndCleanupTarget(target_id, Status::OK());
   }
 }
-
-void SyncEngine::StopListeningToRemoteStore(const Query& query) {
-  AssertCallbackExists("stopListeningToRemoteStore");
-
-  auto query_view = query_views_by_query_[query];
-  HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
-
-  TargetId target_id = query_view->target_id();
-  auto& queries = queries_by_target_[target_id];
-  queries.erase(std::remove(queries.begin(), queries.end(), query),
-                queries.end());
-
-  if (queries.empty()) {
-    remote_store_->StopListening(target_id);
-  }
-}
-// void SyncEngine::StopListeningAndReleaseTarget(const Query& query, bool
-// should_stop_listening, bool should_release_target) {
-//
-//   auto query_view = query_views_by_query_[query];
-//   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
-//
-//   query_views_by_query_.erase(query);
-//
-//   TargetId target_id = query_view->target_id();
-//   auto& queries = queries_by_target_[target_id];
-//   queries.erase(std::remove(queries.begin(), queries.end(), query),
-//                 queries.end());
-//
-//   if (queries.empty()) {
-//     local_store_->ReleaseTarget(target_id);
-//     if (should_unlisten_to_remote) {
-//       remote_store_->StopListening(target_id);
-//     }
-//     RemoveAndCleanupTarget(target_id, Status::OK());
-//   }
-// }
 
 void SyncEngine::RemoveAndCleanupTarget(TargetId target_id, Status status) {
   for (const Query& query : queries_by_target_.at(target_id)) {

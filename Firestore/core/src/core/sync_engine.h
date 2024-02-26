@@ -90,13 +90,13 @@ class QueryEventSource {
    * to remote store if there is a watch connection established and stayed open.
    */
   virtual void StopListening(const Query& query,
-                             bool should_unlisten_to_remote) = 0;
+                             bool should_stop_remote_listening) = 0;
 
   /**
    * Stops listening to a query from watch. Invoked when a Query stops listening
    * to the remote store, while still listening to the cache.
    */
-  virtual void StopListeningToRemoteStore(const Query& query) = 0;
+  virtual void StopListeningToRemoteStoreOnly(const Query& query) = 0;
 };
 
 /**
@@ -128,8 +128,8 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
                          bool should_listen_to_remote = true) override;
   void ListenToRemoteStore(Query query) override;
   void StopListening(const Query& query,
-                     bool should_unlisten_to_remote = true) override;
-  void StopListeningToRemoteStore(const Query& query) override;
+                     bool should_stop_remote_listening = true) override;
+  void StopListeningToRemoteStoreOnly(const Query& query) override;
 
   /**
    * Initiates the write of local mutation batch which involves adding the
@@ -265,6 +265,9 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
       nanopb::ByteString resume_token);
 
   void RemoveAndCleanupTarget(model::TargetId target_id, util::Status status);
+  void StopListeningAndReleaseTarget(const Query& query,
+                                     bool should_stop_remote_listening,
+                                     bool last_listen);
 
   void RemoveLimboTarget(const model::DocumentKey& key);
 

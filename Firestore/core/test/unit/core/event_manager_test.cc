@@ -57,13 +57,21 @@ std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
                                NoopViewSnapshotHandler());
 }
 
+std::shared_ptr<QueryListener> NoopQueryCacheListener(core::Query query) {
+  return QueryListener::Create(
+      std::move(query),
+      ListenOptions::FromOptions(/** include_metadata_changes= */ false,
+                                 ListenSource::Cache),
+      NoopViewSnapshotHandler());
+}
+
 class MockEventSource : public core::QueryEventSource {
  public:
   MOCK_METHOD1(SetCallback, void(core::SyncEngineCallback*));
   MOCK_METHOD2(Listen, model::TargetId(core::Query, bool));
   MOCK_METHOD1(ListenToRemoteStore, void(core::Query));
   MOCK_METHOD2(StopListening, void(const core::Query&, bool));
-  MOCK_METHOD1(StopListeningToRemoteStore, void(const core::Query&));
+  MOCK_METHOD1(StopListeningToRemoteStoreOnly, void(const core::Query&));
 };
 
 TEST(EventManagerTest, HandlesManyListnersPerQuery) {
@@ -83,6 +91,26 @@ TEST(EventManagerTest, HandlesManyListnersPerQuery) {
   event_manager.RemoveQueryListener(listener2);
 
   EXPECT_CALL(mock_event_source, StopListening(query, true));
+  event_manager.RemoveQueryListener(listener1);
+}
+
+TEST(EventManagerTest, HandlesManyCacheListnersPerQuery) {
+  core::Query query = Query("foo/bar");
+  auto listener1 = NoopQueryCacheListener(query);
+  auto listener2 = NoopQueryCacheListener(query);
+
+  StrictMock<MockEventSource> mock_event_source;
+  EXPECT_CALL(mock_event_source, SetCallback(_));
+  EventManager event_manager(&mock_event_source);
+
+  EXPECT_CALL(mock_event_source, Listen(query, false));
+  event_manager.AddQueryListener(listener1);
+
+  // Expecting no activity from mock_event_source.
+  event_manager.AddQueryListener(listener2);
+  event_manager.RemoveQueryListener(listener2);
+
+  EXPECT_CALL(mock_event_source, StopListening(query, false));
   event_manager.RemoveQueryListener(listener1);
 }
 
