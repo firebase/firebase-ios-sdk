@@ -151,8 +151,6 @@ endif()
 
 # Force disable Abseil's tests, which don't compile under VS2017.
 set(ABSL_RUN_TESTS OFF CACHE BOOL "Disable Abseil tests" FORCE)
-# Work around a protobuf export issue: https://github.com/protocolbuffers/protobuf/issues/12185#issuecomment-1594685860
-set(ABSL_ENABLE_INSTALL ON)
 
 # libcurl and c-ares conflict in their usage of this variable. Prevent
 # libcurl's setting of this variable from affecting the c-ares build that's
@@ -162,6 +160,10 @@ unset(RANDOM_FILE CACHE)
 set(CARES_INSTALL OFF CACHE BOOL "Disabled")
 
 set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disabled")
+# See https://github.com/protocolbuffers/protobuf/issues/12185#issuecomment-1887892723
+set(protobuf_INSTALL OFF)
+set(utf8_range_ENABLE_INSTALL OFF)
+
 if(IOS OR ANDROID)
   # C-Ares includes a number of example binaries (e.g. `ahost`) that fail to
   # build when compiling for non-host targets.
