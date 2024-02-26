@@ -28,9 +28,6 @@ public extension FileManager {
     /// All folders with a `.bundle` extension.
     case bundles
 
-    /// All folders with a `.bundle` extension excluding privacy manifest bundles.
-    case nonPrivacyBundles
-
     /// A directory with an optional name. If name is `nil`, all directories will be matched.
     case directories(name: String?)
 
@@ -162,7 +159,13 @@ public extension FileManager {
     // Recursively search using the enumerator, adding any matches to the array.
     var matches: [URL] = []
     var foundXcframework = false // Ignore .frameworks after finding an xcframework.
-    while let fileURL = dirEnumerator.nextObject() as? URL {
+    for case let fileURL as URL in dirEnumerator {
+      // Never mess with Privacy.bundles
+      if fileURL.lastPathComponent.hasSuffix("_Privacy.bundle") {
+        dirEnumerator.skipDescendants()
+        continue
+      }
+
       switch type {
       case .allFiles:
         // Skip directories, include everything else.
@@ -187,13 +190,6 @@ public extension FileManager {
       case .bundles:
         // The only thing of interest is the path extension being ".bundle".
         if fileURL.pathExtension == "bundle" {
-          matches.append(fileURL)
-        }
-      case .nonPrivacyBundles:
-        // The only thing of interest is the path extension being ".bundle", but not a privacy
-        // bundle.
-        if fileURL.pathExtension == "bundle",
-           !fileURL.lastPathComponent.hasSuffix("_Privacy.bundle") {
           matches.append(fileURL)
         }
       case .headers:
