@@ -189,10 +189,8 @@ NSData *FIRSESTransportBytes(const void *_Nonnull proto) {
   NSError *error;
   NSData *data = FIRSESEncodeProto(fields, proto, &error);
   if (error != nil) {
-    NSString *errString =
-        [NSString stringWithFormat:@"Session Event failed to encode as proto with error: %@",
-                                   error.debugDescription];
-    FIRLogError(@"FirebaseSessions", @"I-SES000001", error.debugDescription);
+    FIRLogError(@"FirebaseSessions", @"I-SES000001",
+                @"Session Event failed to encode as proto with error: ", error.debugDescription);
   }
   if (data == nil) {
     data = [NSData data];
