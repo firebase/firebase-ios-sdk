@@ -21,7 +21,7 @@
 
 #import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreExtension;
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -185,12 +185,14 @@ NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
 }
 
 NSData *FIRSESTransportBytes(const void *_Nonnull proto) {
-  pb_field_t *const fields = firebase_appquality_sessions_SessionEvent_fields;
+  const pb_field_t *fields = firebase_appquality_sessions_SessionEvent_fields;
   NSError *error;
   NSData *data = FIRSESEncodeProto(fields, proto, &error);
   if (error != nil) {
-    FIRLogError(@"FirebaseSessions", @"I-SES000001",
-                @"Session Event failed to encode as proto with error: ", error.debugDescription);
+    FIRLogError(
+        @"FirebaseSessions", @"I-SES000001", @"%@",
+        [NSString stringWithFormat:@"Session Event failed to encode as proto with error: %@",
+                                   error.debugDescription]);
   }
   if (data == nil) {
     data = [NSData data];
