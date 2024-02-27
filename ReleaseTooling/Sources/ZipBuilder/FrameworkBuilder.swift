@@ -679,7 +679,8 @@ struct FrameworkBuilder {
         let updatedPlistData = try PropertyListSerialization.data(
           fromPropertyList: plistDictionary,
           format: .binary,
-          options: 0)
+          options: 0
+        )
 
         try updatedPlistData.write(to: infoPlistDestination)
       } catch {
