@@ -17,7 +17,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ProtobufCpp'
-  s.version          = '3.11.4'
+  s.version          = '25.0'
   s.summary          = 'Protocol Buffers v.3 runtime library for C++.'
   s.homepage         = 'https://github.com/protocolbuffers/protobuf'
   s.license          = '3-Clause BSD License'
@@ -33,7 +33,8 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.13'
   s.tvos.deployment_target = '12.0'
 
-  s.source_files = 'src/**/*.{h,cc,inc}'
+  s.source_files = 'src/**/*.{h,cc,inc}',
+                   'third_party/utf8_range/*.{h,cc,inc}'
   s.exclude_files = # skip test files. (Yes, the test files are intermixed with
                     # the source. No there doesn't seem to be a common/simple
                     # pattern we could use to exclude them; 'test' appears in
@@ -46,6 +47,8 @@ Pod::Spec.new do |s|
                     'src/**/*[^y]test*.*',
                     'src/**/testing/**',
                     'src/**/mock*',
+                    'src/**/map_probe_benchmark.cc',
+                    'third_party/utf8_range/*_test.{h,cc,inc}',
                     # skip the javascript handling code.
                     'src/**/js/**',
                     # skip the protoc compiler
@@ -53,13 +56,28 @@ Pod::Spec.new do |s|
 
   s.header_mappings_dir = 'src/'
 
+  abseil_version = '~> 1.20240116.1'
+  s.dependency 'abseil/algorithm', abseil_version
+  s.dependency 'abseil/base', abseil_version
+  s.dependency 'abseil/container/btree', abseil_version
+  s.dependency 'abseil/container/flat_hash_map', abseil_version
+  s.dependency 'abseil/container/flat_hash_set', abseil_version
+  s.dependency 'abseil/log', abseil_version
+  s.dependency 'abseil/memory', abseil_version
+  s.dependency 'abseil/meta', abseil_version
+  s.dependency 'abseil/status', abseil_version
+  s.dependency 'abseil/strings/strings', abseil_version
+  s.dependency 'abseil/time', abseil_version
+  s.dependency 'abseil/types', abseil_version
+
   # Set a CPP symbol so the code knows to use framework imports.
   s.pod_target_xcconfig = {
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       'HAVE_PTHREAD=1',
-    'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/ProtobufCpp/src"',
+    'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/ProtobufCpp/src" "${PODS_ROOT}/ProtobufCpp/third_party/utf8_range"',
 
     # Cocoapods flattens header imports, leading to much anguish.  The
     # following two statements work around this.
