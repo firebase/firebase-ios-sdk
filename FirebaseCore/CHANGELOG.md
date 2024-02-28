@@ -11,6 +11,11 @@
 - Fixed validation issues in Xcode 15.3 that affected binary distributions
   including Analytics, Firestore (SwiftPM binary distribution), and the
   Firebase zip distribution. (#12441)
+- [Zip Distribution] The manual integration instructions found in the
+  `Firebase.zip` have been updated for Xcode 15 users. The updated instructions
+  call for embedding SDKs dragged in from the `Firebase.zip`. This will enable
+  Xcode's tooling to detect privacy manifests bundled within the xcframework.
+
 
 # Firebase 10.21.0
 - Firebase now requires at least CocoaPods version 1.12.0 to enable privacy
