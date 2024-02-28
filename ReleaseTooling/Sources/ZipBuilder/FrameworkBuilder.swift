@@ -673,7 +673,20 @@ struct FrameworkBuilder {
         fatalError("Could not copy fat binary to framework directory for \(framework): \(error)")
       }
       do {
-        try fileManager.copyItem(at: infoPlist, to: infoPlistDestination)
+        // The minimum OS version is set to 100.0 to work around b/327020913.
+        // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
+        var plistDictionary = try PropertyListSerialization.propertyList(
+          from: Data(contentsOf: infoPlist), format: nil
+        ) as! [AnyHashable: Any]
+        plistDictionary["MinimumOSVersion"] = "100.0"
+
+        let updatedPlistData = try PropertyListSerialization.data(
+          fromPropertyList: plistDictionary,
+          format: .binary,
+          options: 0
+        )
+
+        try updatedPlistData.write(to: infoPlistDestination)
       } catch {
         // The Catalyst and macos Info.plist's are in another location. Ignore failure.
       }
