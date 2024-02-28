@@ -287,6 +287,8 @@ struct FrameworkBuilder {
       return "grpcpp"
     case "PromisesObjC":
       return "FBLPromises"
+    case "PromisesSwift":
+      return "Promises"
     case "Protobuf":
       return "protobuf"
     default:
