@@ -314,8 +314,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.22.0/FirebaseAnalytics.zip",
-      checksum: "685f19cc58ab447b290c3c8aedf731fa44b3cbbbee8ebb98dcc96a316efc24f0"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.22.0/FirebaseAnalytics-rc1.zip",
+      checksum: "78ce96a59962a8946f5df8dd57c7d0d83fd3cf0e14f3efab65c8c65fbdf03a8a"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",

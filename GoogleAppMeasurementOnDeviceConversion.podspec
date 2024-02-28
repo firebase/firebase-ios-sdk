@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/4d6277bc4a9e003b/GoogleAppMeasurementOnDeviceConversion-10.22.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/a0551aa6065a8330/GoogleAppMeasurementOnDeviceConversion-10.22.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
