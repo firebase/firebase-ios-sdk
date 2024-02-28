@@ -51,7 +51,7 @@ struct ModuleMapBuilder {
         content += """
           link framework "BoringSSL-GRPC"
           link framework "gRPC-Core"
-          link framework "gRPC-C++"
+          link framework "grpcpp"
         """
       }
 
