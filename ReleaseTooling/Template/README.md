@@ -54,7 +54,7 @@ To integrate a Firebase SDK with your app:
 
    c. Double-click the setting, click the '+' button, and add `-ObjC`
 
-10. If using Add the `-lc++` flag to **Other Linker Settings**:
+10. Add the `-lc++` flag to **Other Linker Settings**:
 
    a. In your project settings, open the **Settings** panel for your target.
 
