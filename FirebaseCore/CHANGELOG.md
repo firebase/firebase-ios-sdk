@@ -3,10 +3,6 @@
   which is aligned with the Xcode 14.1 minimum. (#12350)
 - Revert Firebase 10.20.0 change that removed `Info.plist` files from
   static xcframeworks (#12390).
-- [Zip Distribution] Renamed `gRPC-C++.xcframework` to `grpcc.xcframework`,
-  matching the module name, to work around an issue introduced in Xcode 15.3
-  with `+` characters in framework names. (#12437)
-    - Please ensure that `gRPC-C++.xcframework` is removed when upgrading.
 
 # Firebase 10.21.0
 - Firebase now requires at least CocoaPods version 1.12.0 to enable privacy

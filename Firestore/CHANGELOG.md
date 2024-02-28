@@ -1,5 +1,9 @@
 # Unreleased
 - [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
+- [Zip Distribution] Renamed `gRPC-C++.xcframework` to `grpcc.xcframework`,
+  matching the module name, to work around an issue introduced in Xcode 15.3
+  with `+` characters in framework names. (#12437)
+    - Please ensure that `gRPC-C++.xcframework` is removed when upgrading.
 
 # 10.21.0
 - Add an error when trying to build Firestore's binary SPM distribution for
