@@ -99,6 +99,8 @@ if is_platform(:ios)
 
     configure_local_pods()
 
+    pod 'abseil', '~> 1.20240116.1'
+
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
 
