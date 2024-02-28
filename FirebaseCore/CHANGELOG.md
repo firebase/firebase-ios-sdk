@@ -15,15 +15,15 @@
   `Firebase.zip` have been updated for Xcode 15 users. The updated instructions
   call for embedding SDKs dragged in from the `Firebase.zip`. This will enable
   Xcode's tooling to detect privacy manifests bundled within the xcframework.
-- [Zip Distribution] Several frameworks have been renamed to resolve the above
+- [Zip Distribution] Several xcframeworks have been renamed to resolve the above
   Xcode 15.3 validation issues. Please ensure that the following renamed
-  frameworks are removed from your project when upgrading (#12437, #12447):
-    - `abseil.xcframework` to `absl.framework`
-    - `BoringSSL-gRPC.framework` to `openssl_grpc`
-    - `gRPC-Core.framework` to `grpc.framework`
+  xcframeworks are removed from your project when upgrading (#12437, #12447):
+    - `abseil.xcframework` to `absl.xcframework`
+    - `BoringSSL-gRPC.xcframework` to `openssl_grpc.xcframework`
+    - `gRPC-Core.xcframework` to `grpc.xcframework`
     - `gRPC-C++.xcframework` to `grpcc.xcframework`
-    - `leveldb-library.framework` to `leveldb.framework`
-    - `PromisesSwift.framework` to `Promises.framework`
+    - `leveldb-library.xcframework` to `leveldb.xcframework`
+    - `PromisesSwift.xcframework` to `Promises.xcframework`
 
 # Firebase 10.21.0
 - Firebase now requires at least CocoaPods version 1.12.0 to enable privacy
