@@ -3,6 +3,14 @@
   which is aligned with the Xcode 14.1 minimum. (#12350)
 - Revert Firebase 10.20.0 change that removed `Info.plist` files from
   static xcframeworks (#12390).
+- Added privacy manifests for Firebase SDKs named in
+  https://developer.apple.com/support/third-party-SDK-requirements/. Please
+  review https://firebase.google.com/docs/ios/app-store-data-collection for
+  updated guidance on interpreting Firebase's privacy manifests and completing
+  app Privacy Nutrition Labels. (#11490)
+- Fixed validation issues in Xcode 15.3 that affected binary distributions
+  including Analytics, Firestore (SwiftPM binary distribution), and the
+  Firebase zip distribution. (#12441)
 
 # Firebase 10.21.0
 - Firebase now requires at least CocoaPods version 1.12.0 to enable privacy
