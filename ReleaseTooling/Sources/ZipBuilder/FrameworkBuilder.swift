@@ -692,7 +692,7 @@ struct FrameworkBuilder {
 
         let updatedPlistData = try PropertyListSerialization.data(
           fromPropertyList: plistDictionary,
-          format: .binary,
+          format: .xml,
           options: 0
         )
 
