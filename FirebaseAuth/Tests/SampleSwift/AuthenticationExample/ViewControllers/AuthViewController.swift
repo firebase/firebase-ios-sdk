@@ -31,15 +31,21 @@ import CryptoKit
 private let kFacebookAppID = "ENTER APP ID HERE"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
-  enum ActionCodeRequestType {
+  enum ActionCodeRequestType: String {
     case email
     case `continue`
     case inApp
   }
+  //var tableView: UITableView { view as! UITableView }
   var dataSourceProvider: DataSourceProvider<AuthMenu>!
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
   var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = [] 
+  var actionCodeContinueURL: URL?
+  var actionCodeRequestType: ActionCodeRequestType = .inApp
 
+  let spinner = UIActivityIndicatorView(style: .medium)
+  var tableView: UITableView { view as! UITableView }
+  
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
   }
@@ -48,6 +54,52 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     super.viewDidLoad()
     configureNavigationBar()
     configureDataSourceProvider()
+  }
+  
+  private func updateUI() {
+    configureDataSourceProvider()
+    animateUpdates(for: tableView)
+  }
+  
+  private func animateUpdates(for tableView: UITableView) {
+    UIView.transition(with: tableView, duration: 0.2,
+                      options: .transitionCrossDissolve,
+                      animations: { tableView.reloadData() })
+  }
+
+  
+  private func showSpinner() {
+    spinner.center = view.center
+    spinner.startAnimating()
+    view.addSubview(spinner)
+  }
+  
+  private func hideSpinner() {
+    spinner.stopAnimating()
+    spinner.removeFromSuperview()
+  }
+  
+  private func presentEditAuthInfoController(for title: String,
+                                             to saveHandler: @escaping (String) -> Void) {
+    let editController = UIAlertController(
+      title: "Update \(title)",
+      message: nil,
+      preferredStyle: .alert
+    )
+    editController.addTextField { $0.placeholder = "New \(title)" }
+    
+    let saveHandler1: (UIAlertAction) -> Void = { _ in
+      let text = editController.textFields!.first!.text!
+      saveHandler(text)
+    }
+    
+    let cancel: (UIAlertAction) -> Void = { _ in
+      saveHandler("")
+    }
+    
+    editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler1))
+    editController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: cancel))
+    present(editController, animated: true, completion: nil)
   }
 
   // MARK: - DataSourceProviderDelegate
@@ -68,74 +120,86 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .google:
       performGoogleSignInFlow()
-
+      
     case .apple:
       performAppleSignInFlow()
-
+      
     case .facebook:
       performFacebookSignInFlow()
-
+      
     case .twitter, .microsoft, .gitHub, .yahoo:
       performOAuthLoginFlow(for: provider)
-
+      
     case .gameCenter:
       performGameCenterLoginFlow()
-
+      
     case .emailPassword:
       performDemoEmailPasswordLoginFlow()
-
+      
     case .passwordless:
       performPasswordlessLoginFlow()
-
+      
     case .phoneNumber:
       performPhoneNumberLoginFlow()
-
+      
     case .anonymous:
       performAnonymousLoginFlow()
-
+      
     case .custom:
       performCustomAuthLoginFlow()
-
+      
     case .initRecaptcha:
       performInitRecaptcha()
-
+      
     case .customAuthDomain:
       performCustomAuthDomainFlow()
-
+      
     case .getToken:
       getUserTokenResult(force: false)
-
+      
     case .getTokenForceRefresh:
       getUserTokenResult(force: true)
-
+      
     case .addAuthStateChangeListener:
       addAuthStateListener()
-
+      
     case .removeLastAuthStateChangeListener:
       removeAuthStateListener()
-
+      
     case .addIdTokenChangeListener:
       addIDTokenListener()
-
+      
     case .removeLastIdTokenChangeListener:
       removeIDTokenListener()
-
+      
     case .verifyClient:
       verifyClient()
-    
+      
     case .deleteApp:
       deleteApp()
       
     case .actionType:
-      switch self.actionCodeRequestType {
-      case .inApp:
-        self.actionCodeRequestType = .continue
-      case .continue:
-        self.actionCodeRequestType = .email
-      case .email:
-        self.actionCodeRequestType = .inApp
-      }
-      updateTable()
+      toggleActionCodeRequestType()
+      
+    case .continueURL:
+      changeActionCodeContinueURL()
+      
+    case .requestVerifyEmail:
+      requestVerifyEmail()
+      
+    case .requestPasswordReset:
+      return
+    
+    case .resetPassword:
+      return
+    case .checkActionCode:
+      return
+      
+    case .applyActionCode:
+      return
+      
+    case .verifyPasswordResetCode:
+      return
     }
   }
 
@@ -489,12 +553,118 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     })
   }
+  
+  func toggleActionCodeRequestType() {
+    switch actionCodeRequestType {
+    case .inApp:
+      actionCodeRequestType = .continue
+    case .continue:
+      actionCodeRequestType = .email
+    case .email:
+      actionCodeRequestType = .inApp
+    }
+    
+      // Update the table view to reflect the changes
+    configureDataSourceProvider()
+  }
+  
+  func actionCodeRequestTypeString() -> String {
+    switch actionCodeRequestType {
+    case .inApp:
+      return "In-App + Continue URL"
+    case .continue:
+      return "Continue URL"
+    case .email:
+      return "Email Only"
+    }
+  }
+  
+  func changeActionCodeContinueURL() {
+    let prompt = UIAlertController(title: nil, message: "Continue URL:",
+                                   preferredStyle: .alert)
+    prompt.addTextField()
+    let okAction = UIAlertAction(title: "OK", style: .default) { action in
+      let continueUrl = prompt.textFields?[0].text ?? ""
+      self.actionCodeContinueURL = URL(string: continueUrl)
+      //AppManager.shared.auth().customAuthDomain = domain
+      //print("Successfully set auth domain to: \(domain)")
+    }
+    prompt.addAction(okAction)
+    present(prompt, animated: true)
+    self.updateUI()
+  }
+  
+  func requestVerifyEmail() {
+    showSpinner()
+    
+    if actionCodeRequestType == .email {
+      Auth.auth().currentUser?.sendEmailVerification(completion: { [weak self] error in
+        guard let self = self else { return }
+        self.hideSpinner()
+        if let error = error {
+          print("Error sending email verification: \(error.localizedDescription)")
+            // Handle error
+          return
+        }
+        print("Email verification sent successfully.")
+          // Handle success
+      })
+    } else {
+      guard let actionCodeContinueURL = actionCodeContinueURL else {
+        print("Error: Action code continue URL is nil.")
+        return
+      }
+      
+      let actionCodeSettings = ActionCodeSettings()
+      actionCodeSettings.url = actionCodeContinueURL
+      actionCodeSettings.handleCodeInApp = (actionCodeRequestType == .inApp)
+      
+      Auth.auth().currentUser?.sendEmailVerification(with: actionCodeSettings, completion: { [weak self] error in
+        guard let self = self else { return }
+        self.hideSpinner()
+        if let error = error {
+          print("Error sending email verification with action code settings: \(error.localizedDescription)")
+            // Handle error
+          return
+        }
+        print("Email verification sent successfully with action code settings.")
+          // Handle success
+      })
+    }
+  }
+  
+  func requestPasswordReset() {
+    
+  }
+  
+  func checkActionCode() {
+    
+  }
+  
+  func applyActionCode() {
+    
+  }
+  
+  func verifyPasswordResetCode() {
+//    let prompt = UIAlertController(title: nil, message: "Enter OOB Code:",
+//                                   preferredStyle: .alert)
+//    prompt.addTextField()
+//    let okAction = UIAlertAction(title: "OK", style: .default) { action in
+//      let oobCode = prompt.textFields?[0].text ?? ""
+//      //AppManager.shared.auth().customAuthDomain = domain
+//      print("Successfully set auth domain to: \(domain)")
+//    }
+//    prompt.addAction(okAction)
+//    present(prompt, animated: true)
+  }
 
   // MARK: - Private Helpers
 
   private func configureDataSourceProvider() {
-    let tableView = view as! UITableView
-    dataSourceProvider = DataSourceProvider(dataSource: AuthMenu.sections, tableView: tableView)
+    dataSourceProvider = DataSourceProvider(
+      dataSource: AuthMenu.sections,
+      tableView: tableView
+    )
     dataSourceProvider.delegate = self
   }
 

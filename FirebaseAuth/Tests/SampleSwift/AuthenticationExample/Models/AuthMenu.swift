@@ -175,6 +175,22 @@ enum AuthMenu: String {
       self = .verifyClient
     case "Delete App":
       self = .deleteApp
+    case "Action Type":
+      self = .actionType
+    case "Continue URL":
+      self = .continueURL
+    case "Request Verify Email":
+      self = .requestVerifyEmail
+    case "Request Password Reset":
+      self = .requestPasswordReset
+    case "Reset Password":
+      self = .resetPassword
+    case "Check Action Code":
+      self = .checkActionCode
+    case "Apply Action Code":
+      self = .applyActionCode
+    case "Verify Password Reset Code":
+      self = .verifyPasswordResetCode
     default:
       return nil
     }
@@ -256,8 +272,8 @@ extension AuthMenu: DataSourceProvidable {
   static var oobSection: Section {
     let header = "OOB"
     let items: [Item] = [
-      Item(title: AuthMenu.actionType.name),
-      Item(title: AuthMenu.continueURL.name),
+      Item(title: AuthMenu.actionType.name, detailTitle: "In-App + Continue URL", isEditable: true),
+      Item(title: AuthMenu.continueURL.name, detailTitle: "default.url", isEditable: true),
       Item(title: AuthMenu.requestVerifyEmail.name),
       Item(title: AuthMenu.requestPasswordReset.name),
       Item(title: AuthMenu.resetPassword.name),
