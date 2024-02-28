@@ -1,4 +1,4 @@
-# Unreleased
+# 10.22.0
 - [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
 - [Zip Distribution] Renamed `gRPC-C++.xcframework` to `grpcc.xcframework`,
   matching the module name, to work around an issue introduced in Xcode 15.3

@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 10.22.0
 - [Swift Package Manager] Firebase now enforces a Swift 5.7.1 minimum version,
   which is aligned with the Xcode 14.1 minimum. (#12350)
 - Revert Firebase 10.20.0 change that removed `Info.plist` files from
