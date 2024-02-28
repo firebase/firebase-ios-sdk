@@ -328,7 +328,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [iOS]
+        target: [iOS, macOS]
 
     steps:
     - uses: actions/checkout@v4
