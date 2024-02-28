@@ -68,7 +68,7 @@ To integrate a Firebase SDK with your app:
    > ⚠ If prompted with the option to create a corresponding bridging header
    > for the new Swift file, select **Don't create**.
 
-13. You're done! Compile your target and start using Firebase.
+13. You're done! Build your target and start using Firebase.
 
 If you want to add another SDK, repeat the steps above with the xcframeworks for
 the new SDK. You only need to add each framework once, so if you've already
