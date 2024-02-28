@@ -1,4 +1,4 @@
-# Unreleased
+# 10.22.0
 - [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
 
 # 10.21.0
