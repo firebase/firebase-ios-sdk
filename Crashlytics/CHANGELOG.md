@@ -1,5 +1,7 @@
-# Unreleased
+# 10.22.0
+- [fixed] Force validation or rotation of FIDs for FirebaseSessions.
 - [changed] Removed calls to statfs in the Crashlytics SDK to comply with Apple Privacy Manifests. This change removes support for collecting Disk Space Free in Crashlytics reports.
+- [fixed] Fixed FirebaseSessions crash on startup that occurs in release mode in Xcode 15.3 and other build configurations. (#11403)
 
 # 10.16.0
 - [fixed] Fixed a memory leak regression when generating session events (#11725).

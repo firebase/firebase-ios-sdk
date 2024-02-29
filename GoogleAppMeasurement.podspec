@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/a95ed962e7ccb437/GoogleAppMeasurement-10.21.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/a92666f1e01923b8/GoogleAppMeasurement-10.22.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
@@ -32,7 +32,7 @@ Pod::Spec.new do |s|
     s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.11'
     s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.11'
     s.dependency 'GoogleUtilities/Network', '~> 7.11'
-    s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+    s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
 
     s.default_subspecs = 'AdIdSupport'
 

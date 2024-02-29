@@ -36,6 +36,10 @@ Pod::Spec.new do |s|
     'Interop/Analytics/Public/*.h',
   ]
 
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'Crashlytics/Resources/PrivacyInfo.xcprivacy'
+  }
+
   s.public_header_files = [
     'Crashlytics/Crashlytics/Public/FirebaseCrashlytics/*.h'
   ]
@@ -61,7 +65,7 @@ Pod::Spec.new do |s|
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
 
   s.libraries = 'c++', 'z'
   s.ios.frameworks = 'Security', 'SystemConfiguration'
