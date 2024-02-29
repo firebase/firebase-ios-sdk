@@ -285,7 +285,7 @@ struct FrameworkBuilder {
     switch framework {
     case "abseil":
       return "absl"
-    case "BoringSSL-gRPC":
+    case "BoringSSL-GRPC":
       return "openssl_grpc"
     case "gRPC-Core":
       return "grpc"
