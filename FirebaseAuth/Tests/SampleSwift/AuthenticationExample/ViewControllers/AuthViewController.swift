@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+@testable import FirebaseAuth
 
 // For Sign in with Facebook
 import FBSDKLoginKit
-@testable import FirebaseAuth
 // [START auth_import]
 import FirebaseCore
 import GameKit
