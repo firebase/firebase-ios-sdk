@@ -283,10 +283,20 @@ struct FrameworkBuilder {
   /// - Returns: The corresponding framework/module name.
   private static func frameworkBuildName(_ framework: String) -> String {
     switch framework {
+    case "abseil":
+      return "absl"
+    case "BoringSSL-GRPC":
+      return "openssl_grpc"
+    case "gRPC-Core":
+      return "grpc"
     case "gRPC-C++":
       return "grpcpp"
+    case "leveldb-library":
+      return "leveldb"
     case "PromisesObjC":
       return "FBLPromises"
+    case "PromisesSwift":
+      return "Promises"
     case "Protobuf":
       return "protobuf"
     default:
