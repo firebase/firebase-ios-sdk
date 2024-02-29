@@ -569,6 +569,22 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   return doc;
 }
 
+- (void)runTransaction:(FIRFirestore *)db
+                 block:(id _Nullable (^)(FIRTransaction *, NSError **error))block
+            completion:
+                (nullable void (^)(id _Nullable result, NSError *_Nullable error))completion {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"runTransaction"];
+  [db runTransactionWithOptions:nil
+                          block:block
+                     completion:^(id _Nullable result, NSError *_Nullable error) {
+                       if (completion) {
+                         completion(result, error);
+                       }
+                       [expectation fulfill];
+                     }];
+  [self awaitExpectation:expectation];
+}
+
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
   XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
   [ref setData:data merge:YES completion:[self completionForExpectation:expectation]];
