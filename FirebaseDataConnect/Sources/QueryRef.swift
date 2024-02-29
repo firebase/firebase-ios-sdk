@@ -34,17 +34,20 @@ public protocol QueryRef: OperationRef {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class BaseQueryRef<ResultDataType: Codable>: OperationRef {
+public class GenericQueryRef<ResultDataType: Codable>: QueryRef {
   public var request: OperationRequest
 
   private var dataType: ResultDataType.Type
 
   private var grpcClient: GrpcClient
 
-  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  private var listener: (ResultDataType, DataConnectError?) -> Void
+
+  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient, listener: @escaping (ResultDataType, DataConnectError?) -> Void) {
     self.request = request
     self.dataType = dataType
     self.grpcClient = grpcClient
+    self.listener = listener
   }
 
   // This call starts query execution and publishes data to data var
@@ -69,16 +72,32 @@ public class BaseQueryRef<ResultDataType: Codable>: OperationRef {
     return results.data
   }
 
-  // method separated to set the data var out since we have to update Published vars on main thread
-  @MainActor
-  func updateData(data: ResultDataType) {
-    fatalError("This method must be subclassed")
+  func updateData(data: ResultDataType) async {
+    self.listener(data, nil)
   }
 }
 
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class QueryRefObservableObject<ResultDataType: Codable>: BaseQueryRef<ResultDataType>, ObservableObject {
+public class QueryRefObservableObject<ResultDataType: Codable>: QueryRef, ObservableObject {
+
+  public var request: OperationRequest
+
+  private var baseRef: GenericQueryRef<ResultDataType>
+
+  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+    self.request = request
+    baseRef = GenericQueryRef(request: request, dataType: dataType, grpcClient: grpcClient) {[weak self] data, error in
+      guard let self else {
+        return
+      }
+
+      Task {
+
+        await self.updateData(data: data)
+      }
+    }
+  }
 
   // contains published results of the query
   @Published var data: ResultDataType?
@@ -88,22 +107,58 @@ public class QueryRefObservableObject<ResultDataType: Codable>: BaseQueryRef<Res
 
   // this method must be called on main thread since it updates published vars
   @MainActor
-  override func updateData(data: ResultDataType) {
+  func updateData(data: ResultDataType) {
     self.data = data
+  }
+
+  public func subscribe() async throws {
+      try await baseRef.subscribe()
+  }
+
+  public func execute() async throws -> OperationResult<ResultDataType> {
+    let result = try await baseRef.execute()
+    return result
   }
 }
 
 
-@available(macOS 14.0, iOS 17, tvOS 17, watchOS 10, *)
-public class QueryRefObservation<ResultDataType: Codable>: BaseQueryRef<ResultDataType>, ObservableObject {
-  // contains publised results of the query
+@available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
+@Observable
+public class QueryRefObservation<ResultDataType: Codable>: QueryRef {
+
+  public var request: OperationRequest
+
+  private var baseRef: GenericQueryRef<ResultDataType>
+
+  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+    self.request = request
+    baseRef = GenericQueryRef(request: request, dataType: dataType, grpcClient: grpcClient) {[weak self] data, error in
+      Task {
+        await self?.updateData(data: data)
+      }
+    }
+  }
+
+  // contains published results of the query
   var data: ResultDataType?
 
   // last error received. if last fetch was successful, this is cleared
   var lastError: DataConnectError?
 
+  // this method must be called on main thread since it updates published vars
   @MainActor
-  override func updateData(data: ResultDataType) {
+  func updateData(data: ResultDataType) {
     self.data = data
   }
+
+  public func subscribe() async throws {
+      try await baseRef.subscribe()
+  }
+
+  public func execute() async throws -> OperationResult<ResultDataType> {
+    let result = try await baseRef.execute()
+    return result
+  }
+
+
 }
