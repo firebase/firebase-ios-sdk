@@ -33,12 +33,12 @@ std::string StringFormatPieces(
 
   auto pieces_iter = pieces.begin();
   auto pieces_end = pieces.end();
-  auto append_next_piece = [&](std::string* dest) {
+  auto append_next_piece = [&](std::string& dest) {
     if (pieces_iter == pieces_end) {
-      dest->append(kMissing);
+      dest.append(kMissing);
     } else {
       // Pass a piece through
-      dest->append(pieces_iter->data(), pieces_iter->size());
+      dest.append(pieces_iter->data(), pieces_iter->size());
       ++pieces_iter;
     }
   };
@@ -51,7 +51,7 @@ std::string StringFormatPieces(
         break;
 
       case 's': {
-        append_next_piece(&result);
+        append_next_piece(result);
         break;
       }
 
