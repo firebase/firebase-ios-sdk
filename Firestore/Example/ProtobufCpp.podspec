@@ -34,6 +34,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
 
   s.source_files = 'src/**/*.{h,cc,inc}',
+                   # utf8_range is not needed, and is giving out build errors.
                    'third_party/utf8_range/*.{h,cc,inc}'
   s.exclude_files = # skip test files. (Yes, the test files are intermixed with
                     # the source. No there doesn't seem to be a common/simple
@@ -47,8 +48,9 @@ Pod::Spec.new do |s|
                     'src/**/*[^y]test*.*',
                     'src/**/testing/**',
                     'src/**/mock*',
-                    'src/**/map_probe_benchmark.cc',
                     'third_party/utf8_range/*_test.{h,cc,inc}',
+                    # skip benchmark code that failed to compile.
+                    'src/**/map_probe_benchmark.cc',
                     # skip the javascript handling code.
                     'src/**/js/**',
                     # skip the protoc compiler
