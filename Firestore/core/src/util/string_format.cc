@@ -24,8 +24,7 @@ namespace internal {
 static const char* kMissing = "<missing>";
 static const char* kInvalid = "<invalid>";
 
-__attribute__((no_sanitize_address))
-std::string StringFormatPieces(
+__attribute__((no_sanitize_address)) std::string StringFormatPieces(
     const char* format, std::initializer_list<absl::string_view> pieces) {
   std::string result;
 
