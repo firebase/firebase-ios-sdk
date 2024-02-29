@@ -11,11 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 @testable import FirebaseAuth
+
 // For Sign in with Facebook
 import FBSDKLoginKit
-import FirebaseAuth
 // [START auth_import]
 import FirebaseCore
 import GameKit
@@ -29,11 +28,18 @@ import AuthenticationServices
 import CryptoKit
 
 private let kFacebookAppID = "ENTER APP ID HERE"
+private let kContinueUrl = "Enter URL"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
-  var dataSourceProvider: DataSourceProvider<AuthMenu>!
+  // var tableView: UITableView { view as! UITableView }
+  var dataSourceProvider: DataSourceProvider<AuthMenuData>!
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
   var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
+  var actionCodeContinueURL: URL?
+  var actionCodeRequestType: ActionCodeRequestType = .inApp
+
+  let spinner = UIActivityIndicatorView(style: .medium)
+  var tableView: UITableView { view as! UITableView }
 
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
@@ -45,12 +51,30 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     configureDataSourceProvider()
   }
 
+  private func showSpinner() {
+    spinner.center = view.center
+    spinner.startAnimating()
+    view.addSubview(spinner)
+  }
+
+  private func hideSpinner() {
+    spinner.stopAnimating()
+    spinner.removeFromSuperview()
+  }
+
+  private func actionCodeSettings() -> ActionCodeSettings {
+    let settings = ActionCodeSettings()
+    settings.url = actionCodeContinueURL
+    settings.handleCodeInApp = (actionCodeRequestType == .inApp)
+    return settings
+  }
+
   // MARK: - DataSourceProviderDelegate
 
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
 
-    let providerName = item.isEditable ? item.detailTitle! : item.title!
+    let providerName = item.title!
 
     guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
@@ -117,9 +141,33 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .verifyClient:
       verifyClient()
-    
+
     case .deleteApp:
       deleteApp()
+
+    case .actionType:
+      toggleActionCodeRequestType(at: indexPath)
+
+    case .continueURL:
+      changeActionCodeContinueURL(at: indexPath)
+
+    case .requestVerifyEmail:
+      requestVerifyEmail()
+
+    case .requestPasswordReset:
+      requestPasswordReset()
+
+    case .resetPassword:
+      resetPassword()
+
+    case .checkActionCode:
+      checkActionCode()
+
+    case .applyActionCode:
+      applyActionCode()
+
+    case .verifyPasswordResetCode:
+      verifyPasswordResetCode()
     }
   }
 
@@ -329,16 +377,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func performCustomAuthDomainFlow() {
-    let prompt = UIAlertController(title: nil, message: "Enter Custom Auth Domain For Auth:",
-                                   preferredStyle: .alert)
-    prompt.addTextField()
-    let okAction = UIAlertAction(title: "OK", style: .default) { action in
-      let domain = prompt.textFields?[0].text ?? ""
-      AppManager.shared.auth().customAuthDomain = domain
-      print("Successfully set auth domain to: \(domain)")
-    }
-    prompt.addAction(okAction)
-    present(prompt, animated: true)
+    showTextInputPrompt(with: "Enter Custom Auth Domain For Auth: ", completion: { newDomain in
+      AppManager.shared.auth().customAuthDomain = newDomain
+    })
   }
 
   private func getUserTokenResult(force: Bool) {
@@ -399,7 +440,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     IDTokenDidChangeListeners.append(handle)
   }
 
-  func removeIDTokenListener() {
+  private func removeIDTokenListener() {
     guard !IDTokenDidChangeListeners.isEmpty else {
       print("No remaining ID Token Did Change Listeners.")
       return
@@ -411,9 +452,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     print("ID Token Did Change Listener #\(index) was removed.")
   }
 
-  func verifyClient() {
+  private func verifyClient() {
     AppManager.shared.auth().tokenManager.getTokenInternal { token, error in
-      if(token == nil) {
+      if token == nil {
         print("Verify iOS Client failed.")
         return
       }
@@ -422,33 +463,37 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         isSandbox: token?.type == .sandbox,
         requestConfiguration: AppManager.shared.auth().requestConfiguration
       )
-      
+
       Task {
         do {
           let verifyResponse = try await AuthBackend.call(with: request)
-          
+
           guard let receipt = verifyResponse.receipt,
                 let timeoutDate = verifyResponse.suggestedTimeOutDate else {
             print("Internal Auth Error: invalid VerifyClientResponse.")
             return
           }
-          
+
           let timeout = timeoutDate.timeIntervalSinceNow
           do {
-            let credential = await AppManager.shared.auth().appCredentialManager.didStartVerification(withReceipt: receipt, timeout: timeout)
-            
+            let credential = await AppManager.shared.auth().appCredentialManager
+              .didStartVerification(
+                withReceipt: receipt,
+                timeout: timeout
+              )
+
             guard credential.secret != nil else {
               print("Failed to receive remote notification to verify App ID.")
               return
             }
-            
+
             let testPhoneNumber = "+16509964692"
             let request = SendVerificationCodeRequest(
               phoneNumber: testPhoneNumber,
               codeIdentity: CodeIdentity.credential(credential),
               requestConfiguration: AppManager.shared.auth().requestConfiguration
             )
-            
+
             do {
               _ = try await AuthBackend.call(with: request)
               print("Verify iOS client succeeded")
@@ -463,22 +508,258 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
-
-  func deleteApp() {
-    AppManager.shared.app.delete({ success in
+  private func deleteApp() {
+    AppManager.shared.app.delete { success in
       if success {
         print("App deleted successfully.")
       } else {
         print("Failed to delete app.")
       }
+    }
+  }
+
+  private func toggleActionCodeRequestType(at indexPath: IndexPath) {
+    switch actionCodeRequestType {
+    case .inApp:
+      actionCodeRequestType = .continue
+    case .continue:
+      actionCodeRequestType = .email
+    case .email:
+      actionCodeRequestType = .inApp
+    }
+    dataSourceProvider.updateItem(
+      at: indexPath,
+      item: Item(title: AuthMenu.actionType.name, detailTitle: actionCodeRequestType.name)
+    )
+    tableView.reloadData()
+  }
+
+  private func changeActionCodeContinueURL(at indexPath: IndexPath) {
+    showTextInputPrompt(with: "Continue URL:", completion: { newContinueURL in
+      self.actionCodeContinueURL = URL(string: newContinueURL)
+      print("Successfully set Continue URL  to: \(newContinueURL)")
+      self.dataSourceProvider.updateItem(
+        at: indexPath,
+        item: Item(
+          title: AuthMenu.continueURL.name,
+          detailTitle: self.actionCodeContinueURL?.absoluteString,
+          isEditable: true
+        )
+      )
+      self.tableView.reloadData()
     })
+  }
+
+  private func requestVerifyEmail() {
+    showSpinner()
+    let completionHandler: (Error?) -> Void = { [weak self] error in
+      guard let self = self else { return }
+      self.hideSpinner()
+
+      if let error = error {
+        let errorMessage = "Error sending verification email: \(error.localizedDescription)"
+        showAlert(for: errorMessage)
+        print(errorMessage)
+      } else {
+        let successMessage = "Verification email sent successfully!"
+        showAlert(for: successMessage)
+        print(successMessage)
+      }
+    }
+    if actionCodeRequestType == .email {
+      AppManager.shared.auth().currentUser?.sendEmailVerification(completion: completionHandler)
+    } else {
+      if actionCodeContinueURL == nil {
+        print("Error: Action code continue URL is nil.")
+        return
+      }
+      AppManager.shared.auth().currentUser?.sendEmailVerification(
+        with: actionCodeSettings(),
+        completion: completionHandler
+      )
+    }
+  }
+
+  func requestPasswordReset() {
+    showTextInputPrompt(with: "Email:", completion: { email in
+      print("Sending password reset link to: \(email)")
+      self.showSpinner()
+      let completionHandler: (Error?) -> Void = { [weak self] error in
+        guard let self = self else { return }
+        self.hideSpinner()
+        if let error = error {
+          print("Request password reset failed: \(error)")
+          showAlert(for: error.localizedDescription)
+          return
+        }
+        print("Request password reset succeeded.")
+        showAlert(for: "Sent!")
+      }
+      if self.actionCodeRequestType == .email {
+        AppManager.shared.auth().sendPasswordReset(withEmail: email, completion: completionHandler)
+      } else {
+        guard let actionCodeContinueURL = self.actionCodeContinueURL else {
+          print("Error: Action code continue URL is nil.")
+          return
+        }
+        AppManager.shared.auth().sendPasswordReset(
+          withEmail: email,
+          actionCodeSettings: self.actionCodeSettings(),
+          completion: completionHandler
+        )
+      }
+    })
+  }
+
+  private func resetPassword() {
+    showSpinner()
+    let completionHandler: (Error?) -> Void = { [weak self] error in
+      guard let self = self else { return }
+      self.hideSpinner()
+      if let error = error {
+        print("Password reset failed \(error)")
+        showAlert(for: error.localizedDescription)
+        return
+      }
+      print("Password reset succeeded")
+      showAlert(for: "Password reset succeeded!")
+    }
+    showTextInputPrompt(with: "OOB Code:") {
+      code in
+      self.showTextInputPrompt(with: "New Password") {
+        password in
+        AppManager.shared.auth().confirmPasswordReset(
+          withCode: code,
+          newPassword: password,
+          completion: completionHandler
+        )
+      }
+    }
+  }
+
+  private func nameForActionCodeOperation(_ operation: ActionCodeOperation) -> String {
+    switch operation {
+    case .verifyEmail:
+      return "Verify Email"
+    case .recoverEmail:
+      return "Recover Email"
+    case .passwordReset:
+      return "Password Reset"
+    case .emailLink:
+      return "Email Sign-In Link"
+    case .verifyAndChangeEmail:
+      return "Verify Before Change Email"
+    case .revertSecondFactorAddition:
+      return "Revert Second Factor Addition"
+    case .unknown:
+      return "Unknown action"
+    }
+  }
+
+  private func checkActionCode() {
+    showSpinner()
+    let completionHandler: (ActionCodeInfo?, Error?) -> Void = { [weak self] info, error in
+      guard let self = self else { return }
+      self.hideSpinner()
+      if let error = error {
+        print("Check action code failed: \(error)")
+        showAlert(for: error.localizedDescription)
+        return
+      }
+      guard let info = info else { return }
+      print("Check action code succeeded")
+      let email = info.email
+      let previousEmail = info.previousEmail
+      let message = previousEmail != nil ? "\(previousEmail!) -> \(email)" : email
+      let operation = self.nameForActionCodeOperation(info.operation)
+      showAlert(for: operation)
+    }
+    showTextInputPrompt(with: "OOB Code:") {
+      oobCode in
+      AppManager.shared.auth().checkActionCode(oobCode, completion: completionHandler)
+    }
+  }
+
+  private func applyActionCode() {
+    showSpinner()
+    let completionHandler: (Error?) -> Void = { [weak self] error in
+      guard let self = self else { return }
+      self.hideSpinner()
+      if let error = error {
+        print("Apply action code failed \(error)")
+        showAlert(for: error.localizedDescription)
+        return
+      }
+      print("Apply action code succeeded")
+      showAlert(for: "Action code was properly applied")
+    }
+    showTextInputPrompt(with: "OOB Code: ") {
+      oobCode in
+      AppManager.shared.auth().applyActionCode(oobCode, completion: completionHandler)
+    }
+  }
+
+  private func verifyPasswordResetCode() {
+    showSpinner()
+    let completionHandler: (String?, Error?) -> Void = { [weak self] email, error in
+      guard let self = self else { return }
+      self.hideSpinner()
+      if let error = error {
+        print("Verify password reset code failed \(error)")
+        showAlert(for: error.localizedDescription)
+        return
+      }
+      print("Verify password resest code succeeded.")
+      showAlert(for: "Code verified for email: \(email)")
+    }
+    showTextInputPrompt(with: "OOB Code: ") {
+      oobCode in
+      AppManager.shared.auth().verifyPasswordResetCode(oobCode, completion: completionHandler)
+    }
   }
 
   // MARK: - Private Helpers
 
+  private func showTextInputPrompt(with message: String, completion: ((String) -> Void)? = nil) {
+    let editController = UIAlertController(
+      title: message,
+      message: nil,
+      preferredStyle: .alert
+    )
+    editController.addTextField()
+
+    let saveHandler: (UIAlertAction) -> Void = { _ in
+      let text = editController.textFields?.first?.text ?? ""
+      completion?(text)
+      // completion?()
+    }
+
+    let cancelHandler: (UIAlertAction) -> Void = { _ in
+      completion?("")
+      // completion?()
+    }
+
+    editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler))
+    editController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: cancelHandler))
+
+    // Assuming `self` is a view controller
+    present(editController, animated: true, completion: nil)
+  }
+
+  func showAlert(for message: String) {
+    let alertController = UIAlertController(
+      title: message,
+      message: nil,
+      preferredStyle: .alert
+    )
+    alertController.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default))
+  }
+
   private func configureDataSourceProvider() {
-    let tableView = view as! UITableView
-    dataSourceProvider = DataSourceProvider(dataSource: AuthMenu.sections, tableView: tableView)
+    dataSourceProvider = DataSourceProvider(
+      dataSource: AuthMenuData.sections,
+      tableView: tableView
+    )
     dataSourceProvider.delegate = self
   }
 
