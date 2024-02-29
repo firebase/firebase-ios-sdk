@@ -19,9 +19,9 @@
   Xcode 15.3 validation issues. Please ensure that the following renamed
   xcframeworks are removed from your project when upgrading (#12437, #12447):
     - `abseil.xcframework` to `absl.xcframework`
-    - `BoringSSL-gRPC.xcframework` to `openssl_grpc.xcframework`
+    - `BoringSSL-GRPC.xcframework` to `openssl_grpc.xcframework`
     - `gRPC-Core.xcframework` to `grpc.xcframework`
-    - `gRPC-C++.xcframework` to `grpcc.xcframework`
+    - `gRPC-C++.xcframework` to `grpcpp.xcframework`
     - `leveldb-library.xcframework` to `leveldb.xcframework`
     - `PromisesSwift.xcframework` to `Promises.xcframework`
 
