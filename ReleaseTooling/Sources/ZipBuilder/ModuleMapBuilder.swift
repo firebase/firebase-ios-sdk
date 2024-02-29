@@ -49,8 +49,8 @@ struct ModuleMapBuilder {
 
       if module == "FirebaseFirestoreInternal" {
         content += """
-          link framework "BoringSSL-GRPC"
-          link framework "gRPC-Core"
+          link framework "openssl_grpc"
+          link framework "grpc"
           link framework "grpcpp"
         """
       }
