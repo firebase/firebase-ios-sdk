@@ -20,7 +20,7 @@ import NIOPosix
 import SwiftProtobuf
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-class GrpcClient {
+actor GrpcClient {
   private var projectId: String
 
   private let threadPoolSize = 1

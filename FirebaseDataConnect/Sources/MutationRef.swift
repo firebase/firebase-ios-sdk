@@ -27,7 +27,7 @@ public struct MutationRequest: OperationRequest {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class MutationRef<ResultDataType: Codable>: OperationRef {
-  var request: any OperationRequest
+  public var request: any OperationRequest 
 
   var dataType: ResultDataType.Type
 

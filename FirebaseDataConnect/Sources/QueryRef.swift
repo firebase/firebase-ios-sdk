@@ -14,6 +14,8 @@
 
 import Foundation
 
+import Observation
+
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public struct QueryRequest: OperationRequest {
   public var operationName: String
@@ -26,16 +28,16 @@ public struct QueryRequest: OperationRequest {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class QueryRef<ResultDataType: Codable>: OperationRef, ObservableObject {
-  var request: OperationRequest
+public protocol QueryRef: OperationRef {
+  // This call starts query execution and publishes data
+  func subscribe() async throws
+}
+
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+public class BaseQueryRef<ResultDataType: Codable>: OperationRef {
+  public var request: OperationRequest
 
   private var dataType: ResultDataType.Type
-
-  // contains published results of the query
-  @Published var data: ResultDataType?
-
-  // last error received. if last fetch was successful, this is cleared
-  @Published var lastError: DataConnectError?
 
   private var grpcClient: GrpcClient
 
@@ -47,28 +49,61 @@ public class QueryRef<ResultDataType: Codable>: OperationRef, ObservableObject {
 
   // This call starts query execution and publishes data to data var
   // In v0, it simply reloads query results
-  public func startObserving() async throws {
-    try await reloadResults()
+  public func subscribe() async throws {
+    _ = try await reloadResults()
   }
 
   // one-shot execution. It will fetch latest data, update any caches
   // and updates the published data var
   public func execute() async throws -> OperationResult<ResultDataType> {
-    try await reloadResults()
-    return OperationResult(data: data!)
+    let resultData = try await reloadResults()
+    return OperationResult(data: resultData)
   }
 
-  private func reloadResults() async throws {
+  private func reloadResults() async throws -> ResultDataType {
     let results = try await grpcClient.executeQuery(
       request: request as! QueryRequest,
       resultType: ResultDataType.self
     )
     await updateData(data: results.data)
+    return results.data
   }
 
   // method separated to set the data var out since we have to update Published vars on main thread
   @MainActor
-  private func updateData(data: ResultDataType) {
+  func updateData(data: ResultDataType) {
+    fatalError("This method must be subclassed")
+  }
+}
+
+
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+public class QueryRefObservableObject<ResultDataType: Codable>: BaseQueryRef<ResultDataType>, ObservableObject {
+
+  // contains published results of the query
+  @Published var data: ResultDataType?
+
+  // last error received. if last fetch was successful, this is cleared
+  @Published var lastError: DataConnectError?
+
+  // this method must be called on main thread since it updates published vars
+  @MainActor
+  override func updateData(data: ResultDataType) {
+    self.data = data
+  }
+}
+
+
+@available(macOS 14.0, iOS 17, tvOS 17, watchOS 10, *)
+public class QueryRefObservation<ResultDataType: Codable>: BaseQueryRef<ResultDataType>, ObservableObject {
+  // contains publised results of the query
+  var data: ResultDataType?
+
+  // last error received. if last fetch was successful, this is cleared
+  var lastError: DataConnectError?
+
+  @MainActor
+  override func updateData(data: ResultDataType) {
     self.data = data
   }
 }
