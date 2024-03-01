@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
 
   s.source_files = 'src/**/*.{h,cc,inc}',
-                   # utf8_range is not needed, and is giving out build errors.
+                   # utf8_range is needed too, to avoid build errors.
                    'third_party/utf8_range/*.{h,cc,inc}'
   s.exclude_files = # skip test files. (Yes, the test files are intermixed with
                     # the source. No there doesn't seem to be a common/simple
@@ -58,19 +58,7 @@ Pod::Spec.new do |s|
 
   s.header_mappings_dir = 'src/'
 
-  abseil_version = '~> 1.20240116.1'
-  s.dependency 'abseil/algorithm', abseil_version
-  s.dependency 'abseil/base', abseil_version
-  s.dependency 'abseil/container/btree', abseil_version
-  s.dependency 'abseil/container/flat_hash_map', abseil_version
-  s.dependency 'abseil/container/flat_hash_set', abseil_version
-  s.dependency 'abseil/log', abseil_version
-  s.dependency 'abseil/memory', abseil_version
-  s.dependency 'abseil/meta', abseil_version
-  s.dependency 'abseil/status', abseil_version
-  s.dependency 'abseil/strings/strings', abseil_version
-  s.dependency 'abseil/time', abseil_version
-  s.dependency 'abseil/types', abseil_version
+  s.dependency 'abseil', '~> 1.20240116.1'
 
   # Set a CPP symbol so the code knows to use framework imports.
   s.pod_target_xcconfig = {
