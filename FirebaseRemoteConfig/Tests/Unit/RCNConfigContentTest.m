@@ -26,6 +26,9 @@
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 @interface RCNConfigContent (Testing)
+- (NSMutableSet<NSString *> *)
+    getKeysAffectedByChangedExperiments:(NSMutableArray *)activeExperimentPayloads
+              fetchedExperimentPayloads:(NSMutableArray *)experimentPayloads;
 - (BOOL)checkAndWaitForInitialDatabaseLoad;
 @end
 
@@ -349,6 +352,129 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   XCTAssertTrue([update updatedKeys].count == 0);
 }
 
+- (void)testConfigUpdate_noParamChange_butExperimentChange {
+  NSString *namespace = @"test_namespace";
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
+  NSMutableSet<NSString *> *experimentKeys = [[NSMutableSet alloc] init];
+  [experimentKeys addObject:@"key_2"];
+  id configMock = OCMPartialMock(configContent);
+  OCMStub([configMock getKeysAffectedByChangedExperiments:OCMOCK_ANY
+                                fetchedExperimentPayloads:OCMOCK_ANY])
+      .andReturn(experimentKeys);
+
+  // populate fetched config
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{@"key1" : @"value1"} p13nMetadata:nil];
+  [configMock updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  // active config is the same as fetched config
+  FIRRemoteConfigValue *value =
+      [[FIRRemoteConfigValue alloc] initWithData:[@"value1" dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+  NSDictionary *namespaceToConfig = @{namespace : @{@"key1" : value}};
+  [configMock copyFromDictionary:namespaceToConfig
+                        toSource:RCNDBSourceActive
+                    forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [configMock getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:@"key_2"]);
+}
+
+- (void)testExperimentDiff_addedExperiment {
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  NSMutableArray *activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSError *dataError;
+  NSMutableDictionary *payload =
+      [NSJSONSerialization JSONObjectWithData:payloadData1
+                                      options:NSJSONReadingMutableContainers
+                                        error:&dataError];
+  [payload setValue:@"exp_2" forKey:@"experimentId"];
+  NSError *jsonError;
+  NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload
+                                                         options:kNilOptions
+                                                           error:&jsonError];
+  NSMutableArray *experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
+}
+
+- (void)testExperimentDiff_changedExperimentMetadata {
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  NSMutableArray *activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSError *dataError;
+  NSMutableDictionary *payload =
+      [NSJSONSerialization JSONObjectWithData:payloadData1
+                                      options:NSJSONReadingMutableContainers
+                                        error:&dataError];
+  [payload setValue:@"var_2" forKey:@"variantId"];
+  NSError *jsonError;
+  NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload
+                                                         options:kNilOptions
+                                                           error:&jsonError];
+  NSMutableArray *experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
+}
+
+- (void)testExperimentDiff_changedExperimentKeys {
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  NSMutableArray *activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSError *dataError;
+  NSMutableDictionary *payload =
+      [NSJSONSerialization JSONObjectWithData:payloadData1
+                                      options:NSJSONReadingMutableContainers
+                                        error:&dataError];
+  [payload setValue:@[ @"test_key_1", @"test_key_2" ] forKey:@"affectedParameterKeys"];
+  NSError *jsonError;
+  NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload
+                                                         options:kNilOptions
+                                                           error:&jsonError];
+  NSMutableArray *experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_2"]);
+}
+
+- (void)testExperimentDiff_deletedExperiment {
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  NSMutableArray *activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  NSMutableArray *experimentPayloads = [@[] mutableCopy];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
+}
+
+- (void)testExperimentDiff_noChange {
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  NSMutableArray *activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  NSMutableArray *experimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
+  XCTAssertTrue([changedKeys count] == 0);
+}
+
 - (void)testConfigUpdate_paramAdded_returnsNewKey {
   NSString *namespace = @"test_namespace";
   NSString *newParam = @"key2";
@@ -499,6 +625,31 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
     [fetchResponse setValue:metadata forKey:RCNFetchResponseKeyPersonalizationMetadata];
   }
   return fetchResponse;
+}
+
++ (NSData *)payloadDataFromTestFile {
+#if SWIFT_PACKAGE
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif
+  NSString *testJsonDataFilePath = [bundle pathForResource:@"TestABTPayload" ofType:@"txt"];
+  NSError *readTextError = nil;
+  NSString *fileText = [[NSString alloc] initWithContentsOfFile:testJsonDataFilePath
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:&readTextError];
+
+  NSData *fileData = [fileText dataUsingEncoding:kCFStringEncodingUTF8];
+
+  NSError *jsonDictionaryError = nil;
+  NSMutableDictionary *jsonDictionary =
+      [[NSJSONSerialization JSONObjectWithData:fileData
+                                       options:kNilOptions
+                                         error:&jsonDictionaryError] mutableCopy];
+  NSError *jsonDataError = nil;
+  return [NSJSONSerialization dataWithJSONObject:jsonDictionary
+                                         options:kNilOptions
+                                           error:&jsonDataError];
 }
 
 @end
