@@ -32,6 +32,7 @@ public let shared = Manifest(
     Pod("FirebaseMessagingInterop"),
     Pod("FirebaseInstallations"),
     Pod("FirebaseSessions"),
+    Pod("FirebaseRemoteConfigInterop"),
     Pod("GoogleAppMeasurement", isClosedSource: true),
     Pod("GoogleAppMeasurementOnDeviceConversion", isClosedSource: true, platforms: ["ios"]),
     Pod("FirebaseAnalytics", isClosedSource: true, zip: true),
