@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Add support for other Firebase products to integrate with [remote_config].
+
 # 10.17.0
 - [feature] The `FirebaseRemoteConfig` module now contains Firebase Remote
   Config's Swift-only APIs that were previously only available via the
