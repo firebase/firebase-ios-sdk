@@ -152,23 +152,8 @@ struct ErrorDetailsView: View {
             SubtitleMarkdownFormRow(
               title: "Help",
               value: """
-              Please provide a valid value for `API_KEY` in the `GenerativeAI-Info.plist` file.
-              """
-            )
-          }
-
-        case GenerateContentError.unsupportedUserLocation:
-          Section("Error Type") {
-            Text("Unsupported User Location")
-          }
-
-          Section("Details") {
-            SubtitleFormRow(title: "Error description", value: error.localizedDescription)
-            SubtitleMarkdownFormRow(
-              title: "Help",
-              value: """
-              The API is unsupported in your location (country / territory); please see the list of
-              [available regions](https://ai.google.dev/available_regions#available_regions).
+              The `API_KEY` provided in the `GoogleService-Info.plist` file is invalid. Download a
+              new copy of the file from the [Firebase Console](https://console.firebase.google.com).
               """
             )
           }
