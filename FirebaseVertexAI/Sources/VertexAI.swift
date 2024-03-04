@@ -33,7 +33,10 @@ open class VertexAI: NSObject {
   /// This instance is configured with the default `FirebaseApp`.
   public static func generativeModel(modelName: String, location: String) -> GoogleGenerativeAI
     .GenerativeModel {
-    return generativeModel(app: FirebaseApp.app()!, modelName: modelName, location: location)
+    guard let app = FirebaseApp.app() else {
+      fatalError("No instance of the default Firebase app was found.")
+    }
+    return generativeModel(app: app, modelName: modelName, location: location)
   }
 
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
@@ -66,9 +69,12 @@ open class VertexAI: NSObject {
       endpoint: "staging-firebaseml.sandbox.googleapis.com",
       hooks: [addAppCheckHeader]
     )
+    guard let apiKey = app.options.apiKey else {
+      fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
+    }
     return GenerativeModel(
       name: modelResouceName,
-      apiKey: app.options.apiKey!,
+      apiKey: apiKey,
       requestOptions: options
     )
   }()
@@ -86,8 +92,14 @@ open class VertexAI: NSObject {
       return modelName
     }
     guard let projectID = app.options.projectID else {
-      print("The FirebaseApp is missing a project ID.")
-      return modelName
+      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
+    }
+    guard !location.isEmpty else {
+      fatalError("""
+      No location specified; see
+      https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions for a
+      list of available regions.
+      """)
     }
 
     return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
@@ -95,14 +107,14 @@ open class VertexAI: NSObject {
 
   // MARK: Request Hooks
 
-  /// Adds an App Check token to the provided request, if App Check is included in the app.
+  /// Adds an App Check token to the provided request if App Check is included in the app.
   ///
   /// This demonstrates how an App Check token can be added to requests; it is currently ignored by
   /// the backend.
   ///
   /// - Parameter request: The `URLRequest` to modify by adding an App Check token header.
   func addAppCheckHeader(request: inout URLRequest) async {
-    guard let appCheck = appCheck else {
+    guard let appCheck else {
       return
     }
 
