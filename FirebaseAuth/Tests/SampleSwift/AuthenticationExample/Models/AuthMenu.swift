@@ -48,6 +48,9 @@ enum AuthMenu: String {
   case checkActionCode
   case applyActionCode
   case verifyPasswordResetCode
+  case phoneEnroll
+  case totpEnroll
+  case multifactorUnenroll
 
   // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -83,10 +86,13 @@ enum AuthMenu: String {
       return "Anonymous Authentication"
     case .custom:
       return "Custom Auth System"
+    // Recpatcha
     case .initRecaptcha:
       return "Initialize reCAPTCHA Enterprise"
+    // Custom Auth Domain
     case .customAuthDomain:
       return "Set Custom Auth Domain"
+    // App Section
     case .getToken:
       return "Get Token"
     case .getTokenForceRefresh:
@@ -103,6 +109,7 @@ enum AuthMenu: String {
       return "Verify Client"
     case .deleteApp:
       return "Delete App"
+    // OOB
     case .actionType:
       return "Action Type"
     case .continueURL:
@@ -119,6 +126,13 @@ enum AuthMenu: String {
       return "Apply Action Code"
     case .verifyPasswordResetCode:
       return "Verify Password Reset Code"
+    // Multi factor
+    case .phoneEnroll:
+      return "Phone Enroll"
+    case .totpEnroll:
+      return "TOTP Enroll"
+    case .multifactorUnenroll:
+      return "Multifactor unenroll"
     }
   }
 
@@ -190,6 +204,12 @@ enum AuthMenu: String {
       self = .applyActionCode
     case "Verify Password Reset Code":
       self = .verifyPasswordResetCode
+    case "Phone Enroll":
+      self = .phoneEnroll
+    case "TOTP Enroll":
+      self = .totpEnroll
+    case "Multifactor unenroll":
+      self = .multifactorUnenroll
     default:
       return nil
     }
@@ -312,10 +332,20 @@ class AuthMenuData: DataSourceProvidable {
     ]
     return Section(headerDescription: header, items: items)
   }
+  
+  static var multifactorSection: Section {
+    let header = "Multi Factor"
+    let items: [Item] = [
+      Item(title: AuthMenu.phoneEnroll.name),
+      Item(title: AuthMenu.totpEnroll.name),
+      Item(title: AuthMenu.multifactorUnenroll.name)
+    ]
+    return Section(headerDescription: header, items: items)
+  }
 
   static var sections: [Section] =
     [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection, appSection, oobSection]
+     customAuthDomainSection, appSection, oobSection, multifactorSection]
 
   static var authLinkSections: [Section] {
     let allItems = AuthMenuData.sections.flatMap { $0.items }
