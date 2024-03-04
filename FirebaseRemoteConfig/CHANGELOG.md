@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Add support for other Firebase products to integrate with [remote_config].
+- [changed] Add support for other Firebase products to integrate with Remote Config.
 
 # 10.17.0
 - [feature] The `FirebaseRemoteConfig` module now contains Firebase Remote

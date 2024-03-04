@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Added support for [crashlytics] to report information from [remote_config].
+- [changed] Added support for Crashlytics to report information from Remote Config.
 
 # 10.22.0
 - [fixed] Force validation or rotation of FIDs for FirebaseSessions.
