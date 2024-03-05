@@ -29,9 +29,9 @@ typedef NS_ENUM(NSUInteger, FIRListenSource) {
    */
   FIRListenSourceDefault,
   /**
-   * The listener retrieves data and listens to updates from the local Firestore cache only. If the
-   * cache is empty, an empty snapshot will be returned. Snapshot events will be triggered on cache
-   * updates, like local mutations or load bundles.
+   * The listener retrieves data and listens to updates from the local Firestore cache without
+   * attempting to send the query to the server. If some documents gets updated as a result from
+   * other queries, they will be picked up by listeners using Cache.
    *
    * Note that the data might be stale if the cache hasn't synchronized with recent server-side
    * changes.
