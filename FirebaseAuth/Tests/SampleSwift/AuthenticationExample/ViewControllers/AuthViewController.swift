@@ -729,6 +729,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   
   private func phoneEnroll() {
     guard let user = AppManager.shared.auth().currentUser else {
+      showAlert(for: "No user logged in!")
       print("Error: User must be logged in first.")
       return
     }
@@ -737,12 +738,14 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       user.multiFactor.getSessionWithCompletion { session, error in
         guard let session = session else { return }
         guard error == nil else {
+          self.showAlert(for: "Enrollment failed")
           print("Multi factor start enroll failed. Error: \(error!)")
           return
         }
         
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, multiFactorSession: session) { verificationID, error in
           guard error == nil else {
+            self.showAlert(for: "Enrollment failed")
             print("Multi factor start enroll failed. Error: \(error!)")
             return
           }
@@ -754,8 +757,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
             self.showTextInputPrompt(with: "Display Name:") { displayName in
               user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
                 if let error = error {
+                  self.showAlert(for: "Enrollment failed")
                   print("Multi factor finalize enroll failed. Error: \(error)")
                 } else {
+                  self.showAlert(for: "Successfully enrolled: \(displayName)")
                   print("Multi factor finalize enroll succeeded.")
                 }
               }
@@ -775,8 +780,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     user.multiFactor.getSessionWithCompletion { session, error in
       guard let session = session, error == nil else {
         if let error = error {
+          self.showAlert(for: "Enrollment failed")
           print("Multi factor start enroll failed. Error: \(error.localizedDescription)")
         } else {
+          self.showAlert(for: "Enrollment failed")
           print("Multi factor start enroll failed with unknown error.")
         }
         return
@@ -785,14 +792,17 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       TOTPMultiFactorGenerator.generateSecret(with: session) { secret, error in
         guard let secret = secret, error == nil else {
           if let error = error {
+            self.showAlert(for: "Enrollment failed")
             print("Error generating TOTP secret. Error: \(error.localizedDescription)")
           } else {
+            self.showAlert(for: "Enrollment failed")
             print("Error generating TOTP secret.")
           }
           return
         }
         
         guard let accountName = user.email, let issuer = Auth.auth().app?.name else {
+          self.showAlert(for: "Enrollment failed")
           print("Multi factor finalize enroll failed. Could not get account details.")
           return
         }
@@ -801,6 +811,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
           let url = secret.generateQRCodeURL(withAccountName: accountName, issuer: issuer)
           
           guard !url.isEmpty else {
+            self.showAlert(for: "Enrollment failed")
             print("Multi factor finalize enroll failed. Could not generate URL.")
             return
           }
@@ -809,6 +820,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
           
           self.showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:", url: url) { oneTimePassword in
             guard !oneTimePassword.isEmpty else {
+              self.showAlert(for: "Display name must not be empty")
               print("OTP not entered.")
               return
             }
@@ -817,14 +829,17 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
             
             self.showTextInputPrompt(with: "Display Name") { displayName in
               guard !displayName.isEmpty else {
+                self.showAlert(for: "Display name must not be empty")
                 print("Display name not entered.")
                 return
               }
               
               user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
                 if let error = error {
+                  self.showAlert(for: "Enrollment failed")
                   print("Multi factor finalize enroll failed. Error: \(error.localizedDescription)")
                 } else {
+                  self.showAlert(for: "Successfully enrolled: \(displayName)")
                   print("Multi factor finalize enroll succeeded.")
                 }
               }
@@ -866,6 +881,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   
   private func unenrollFactor(with displayName: String) {
     guard let currentUser = Auth.auth().currentUser else {
+      self.showAlert(for: "User must be logged in")
       print("Error: No current user")
       return
     }
@@ -882,8 +898,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     if let factorInfo = factorInfoToUnenroll {
       currentUser.multiFactor.unenroll(withFactorUID: factorInfo.uid) { error in
         if let error = error {
+          self.showAlert(for: "Failed to unenroll factor: \(displayName)")
           print("Multi factor unenroll failed. Error: \(error.localizedDescription)")
         } else {
+          self.showAlert(for: "Successfully unenrolled: \(displayName)")
           print("Multi factor unenroll succeeded.")
         }
       }
