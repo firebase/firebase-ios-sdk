@@ -18,7 +18,6 @@
   // TODO(ncooke3): Figure out why this isn't working on CocoaPods.
   import Firebase
 #endif // !COCOAPODS
-// NOTE(ncooke3): `FirebaseABTesting` is not listed as a library.
 import FirebaseABTesting
 import FirebaseAnalytics
 import FirebaseAppCheck

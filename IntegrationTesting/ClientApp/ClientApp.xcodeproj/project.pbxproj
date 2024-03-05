@@ -60,6 +60,7 @@
 		EAA0A9C82AD84E6A00C28FCD /* swift-import-test.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0A9A82AD84C2A00C28FCD /* swift-import-test.swift */; };
 		EAA0A9C92AD84E7000C28FCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269B729EDF98A00D79E66 /* Assets.xcassets */; };
 		EAA0A9CA2AD84E7000C28FCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B329EDF98800D79E66 /* AppDelegate.swift */; };
+		EAC57E5C2B97A9FD007D9065 /* FirebaseABTesting in Frameworks */ = {isa = PBXBuildFile; productRef = EAC57E5B2B97A9FD007D9065 /* FirebaseABTesting */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -117,6 +118,7 @@
 				EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */,
 				EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				EA7DF5A929EF3327005664A7 /* FirebaseInstallations in Frameworks */,
+				EAC57E5C2B97A9FD007D9065 /* FirebaseABTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +170,7 @@
 				EAA0A9B22AD84E0800C28FCD /* ClientApp-iOS13 */,
 				EA1269B129EDF98800D79E66 /* Products */,
 				413203AEE08A47DF84F65AED /* Pods */,
+				EAC57E5A2B97A9FD007D9065 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -286,6 +289,13 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		EAC57E5A2B97A9FD007D9065 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -330,6 +340,7 @@
 				EA7DF5B429EF3328005664A7 /* FirebaseStorage */,
 				EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */,
 				EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */,
+				EAC57E5B2B97A9FD007D9065 /* FirebaseABTesting */,
 			);
 			productName = ClientApp;
 			productReference = EA1269B029EDF98800D79E66 /* ClientApp.app */;
@@ -1127,6 +1138,10 @@
 		EAA0A9C62AD84E5D00C28FCD /* FirebaseAnalyticsSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalyticsSwift;
+		};
+		EAC57E5B2B97A9FD007D9065 /* FirebaseABTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseABTesting;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
