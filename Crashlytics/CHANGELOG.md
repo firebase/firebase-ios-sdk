@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Updated upload-symbols to 13.7 with VisionPro build phase support. (#12306)
+
 # 10.22.0
 - [fixed] Force validation or rotation of FIDs for FirebaseSessions.
 - [changed] Removed calls to statfs in the Crashlytics SDK to comply with Apple Privacy Manifests. This change removes support for collecting Disk Space Free in Crashlytics reports.
