@@ -19,19 +19,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The source that snapshot listener retrieves data from.
+ * The source the snapshot listener retrieves data from.
  */
 typedef NS_ENUM(NSUInteger, FIRListenSource) {
   /**
    * The default behavior. The listener attempts to return initial snapshot from cache and retrieve
    * up-to-date snapshots from the Firestore server. Snapshot events will be triggered on local
-   * mutations and server side updates.
+   * mutations and server-side updates.
    */
   FIRListenSourceDefault,
   /**
    * The listener retrieves data and listens to updates from the local Firestore cache without
    * attempting to send the query to the server. If some documents gets updated as a result from
-   * other queries, they will be picked up by listeners using Cache.
+   * other queries, they will be picked up by listeners using the cache.
    *
    * Note that the data might be stale if the cache hasn't synchronized with recent server-side
    * changes.
@@ -47,7 +47,7 @@ typedef NS_ENUM(NSUInteger, FIRListenSource) {
 NS_SWIFT_NAME(SnapshotListenOptions)
 @interface FIRSnapshotListenOptions : NSObject
 
-/** The source that snapshot listener retrieves data from. */
+/** The source the snapshot listener retrieves data from. */
 @property(nonatomic, readonly) FIRListenSource source;
 /** Indicates whether metadata-only changes should trigger snapshot events. */
 @property(nonatomic, readonly) BOOL includeMetadataChanges;
@@ -62,8 +62,8 @@ NS_SWIFT_NAME(SnapshotListenOptions)
 
 /**
  * Creates and returns a new `SnapshotListenOptions` object with with all properties of the current
- * `SnapshotListenOptions` object and the new configuration of whether metadata-only changes should
- * trigger snapshot events.
+ * `SnapshotListenOptions` object plus the new property specifying whether metadata-only changes
+ * should trigger snapshot events
  *
  * @return The created `SnapshotListenOptions` object.
  */
@@ -71,8 +71,8 @@ NS_SWIFT_NAME(SnapshotListenOptions)
 
 /**
  * Creates and returns a new `SnapshotListenOptions` object with with all properties of the current
- * `SnapshotListenOptions` object and the new configuration of the source that snapshot listener
- * listens to.
+ * `SnapshotListenOptions` object plus the new property specifying the source that the snapshot
+ * listener listens to.
  *
  * @return The created `SnapshotListenOptions` object.
  */
