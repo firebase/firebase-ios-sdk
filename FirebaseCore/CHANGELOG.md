@@ -1,3 +1,8 @@
+# Firebase 10.22.1
+- Fix app validation issues on Xcode 15.3 for those using the
+  `FirebaseAnalyticsOnDeviceConversion` SDK. This issue was caused by embedding
+  an incomplete `Info.plist` from a dependency of the SDK. (#12441)
+
 # Firebase 10.22.0
 - [Swift Package Manager] Firebase now enforces a Swift 5.7.1 minimum version,
   which is aligned with the Xcode 14.1 minimum. (#12350)
