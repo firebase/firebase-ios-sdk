@@ -60,7 +60,8 @@
   });
 }
 
-- (void)debugLog:(NSString *_Nonnull)messages {
-  FIRCLSDebugLog(messages);
+- (void)debugLogWithMessage:(NSString *_Nonnull)message {
+  FIRCLSDebugLog(message);
 }
+
 @end
