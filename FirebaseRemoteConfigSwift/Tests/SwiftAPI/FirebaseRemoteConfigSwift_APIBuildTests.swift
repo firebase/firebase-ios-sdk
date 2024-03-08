@@ -24,7 +24,7 @@ final class FirebaseRemoteConfigSwift_APIBuildTests: XCTestCase {
     // MARK: - FirebaseRemoteConfig
 
     // TODO(ncooke3): These global constants should be lowercase.
-    let _: String = RemoteConfigConstants.NamespaceGoogleMobilePlatform
+    let _: String = FirebaseRemoteConfig.NamespaceGoogleMobilePlatform
     let _: String = FirebaseRemoteConfig.RemoteConfigThrottledEndTimeInSecondsKey
 
     // TODO(ncooke3): This should probably not be initializable.
