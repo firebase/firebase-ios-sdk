@@ -393,7 +393,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   if (optionsSpec != nil) {
     ListenSource source =
-        [optionsSpec[@"source"] intValue] == 1 ? ListenSource::Cache : ListenSource::Default;
+        [optionsSpec[@"source"] isEqual:@"cache"] ? ListenSource::Cache : ListenSource::Default;
     // include_metadata_changes are default to true in spec tests
     options = ListenOptions::FromOptions(true, source);
   }
