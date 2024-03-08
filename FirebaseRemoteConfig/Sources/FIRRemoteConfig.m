@@ -30,6 +30,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
+@import FirebaseRemoteConfigInterop;
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.
