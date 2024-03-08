@@ -27,6 +27,7 @@ class RemoteConfigConfigMock: RemoteConfigInterop {
 
 class PersistanceManagerMock: CrashlyticsPersistenceLog {
   func updateRolloutsStateToPersistence(rollouts: Data, reportID: String) {}
+  func debugLog(message: String) {}
 }
 
 final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
