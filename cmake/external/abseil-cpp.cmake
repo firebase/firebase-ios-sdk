@@ -33,6 +33,5 @@ ExternalProject_Add(
   TEST_COMMAND ""
   HTTP_HEADER "${EXTERNAL_PROJECT_HTTP_HEADER}"
 
-  # Remove this patch command when gRPC is updated to 20230802.0 or later.
   PATCH_COMMAND patch -Np1 -i ${CMAKE_CURRENT_LIST_DIR}/abseil-cpp.patch.txt
 )
