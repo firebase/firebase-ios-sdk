@@ -26,5 +26,5 @@
 
 - (void)updateRolloutsStateToPersistenceWithRollouts:(NSData *_Nonnull)rollouts
                                             reportID:(NSString *_Nonnull)reportID;
-- (void)debugLog:(NSString *_Nonnull)messages;
+- (void)debugLogWithMessage:(NSString *_Nonnull)message;
 @end
