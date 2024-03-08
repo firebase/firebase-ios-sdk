@@ -1,22 +1,27 @@
 diff --git a/absl/meta/type_traits.h b/absl/meta/type_traits.h
-index d886cb30..9716c7b9 100644
+index d886cb30..de0ebda2 100644
 --- a/absl/meta/type_traits.h
 +++ b/absl/meta/type_traits.h
-@@ -35,6 +35,10 @@
+@@ -35,6 +35,12 @@
  #ifndef ABSL_META_TYPE_TRAITS_H_
  #define ABSL_META_TYPE_TRAITS_H_
  
 +// Added by firestore-ios-sdk/cmake/external/abseil-cpp.patch.txt.
++#if __APPLE__
 +#pragma clang diagnostic push
 +#pragma clang diagnostic ignored "-Wdeprecated"
++#endif  // __APPLE__
 +
  #include <cstddef>
  #include <functional>
  #include <type_traits>
-@@ -794,4 +798,6 @@ using swap_internal::StdSwapIsUnconstrained;
+@@ -794,4 +800,9 @@ using swap_internal::StdSwapIsUnconstrained;
  ABSL_NAMESPACE_END
  }  // namespace absl
  
++// Added by firestore-ios-sdk/cmake/external/abseil-cpp.patch.txt.
++#if __APPLE__
 +#pragma clang diagnostic pop
++#endif  // __APPLE__
 +
  #endif  // ABSL_META_TYPE_TRAITS_H_
