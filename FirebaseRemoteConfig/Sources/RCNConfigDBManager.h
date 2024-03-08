@@ -114,10 +114,10 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Insert rollout metadata in rollout table.
 /// @param key        Key indicating whether rollout metadata is fetched or active and defined in
 /// RCNConfigDefines.h.
-/// @param value      The value that rollout metadata array.
+/// @param metadataList      The metadata info for each rollout entry .
 /// @param handler    The callback.
 - (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
-                                    value:(NSArray<NSDictionary *> *)value
+                                    value:(NSArray<NSDictionary *> *)metadataList
                         completionHandler:(RCNDBCompletion)handler;
 
 /// Clear the record of given namespace and package name
