@@ -77,6 +77,8 @@ jobs:
               # Rebuild on Ruby infrastructure changes.
               - 'Gemfile*'
 
+              - 'Package.swift'
+
   check:
     needs: changes
     # Either a scheduled run from public repo, or a pull request with firestore changes.
