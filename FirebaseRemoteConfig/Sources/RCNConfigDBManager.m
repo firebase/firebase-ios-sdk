@@ -623,10 +623,10 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 }
 
 - (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
-                                    value:(NSArray<NSDictionary *> *)value
+                                    value:(NSArray<NSDictionary *> *)metadataList
                         completionHandler:(RCNDBCompletion)handler {
   dispatch_async(_databaseOperationQueue, ^{
-    BOOL success = [self insertOrUpdateRolloutTableWithKey:key value:value];
+    BOOL success = [self insertOrUpdateRolloutTableWithKey:key value:metadataList];
     if (handler) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         handler(success, nil);
