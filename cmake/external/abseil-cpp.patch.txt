@@ -5,7 +5,7 @@ index d886cb30..c2a2d15e 100644
 @@ -35,6 +35,12 @@
  #ifndef ABSL_META_TYPE_TRAITS_H_
  #define ABSL_META_TYPE_TRAITS_H_
- 
+
 +// Added by firebase-ios-sdk/cmake/external/abseil-cpp.patch.txt
 +#if __clang__
 +#pragma clang diagnostic push
@@ -18,7 +18,7 @@ index d886cb30..c2a2d15e 100644
 @@ -794,4 +800,9 @@ using swap_internal::StdSwapIsUnconstrained;
  ABSL_NAMESPACE_END
  }  // namespace absl
- 
+
 +// Added by firebase-ios-sdk/cmake/external/abseil-cpp.patch.txt
 +#if __clang__
 +#pragma clang diagnostic pop
