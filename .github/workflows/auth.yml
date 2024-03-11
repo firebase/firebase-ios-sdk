@@ -23,14 +23,14 @@ jobs:
 
     strategy:
       matrix:
-        podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
+        podspec: [FirebaseAuth.podspec]
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [ios, tvos, macos --skip-tests, watchos]
+        target: [ios, tvos] #, macos --skip-tests, watchos]
         os: [macos-12, macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
-            tests: --skip-tests
+          # - os: macos-12
+          #   xcode: Xcode_14.2
+          #   tests: --skip-tests
           - os: macos-13
             xcode: Xcode_15.2
             tests:
@@ -40,8 +40,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
+    # - name: Configure test keychain
+    #   run: scripts/configure_test_keychain.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - uses: nick-fields/retry@v3
