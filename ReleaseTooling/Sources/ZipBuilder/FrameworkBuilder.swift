@@ -684,7 +684,8 @@ struct FrameworkBuilder {
           return ["Info.plist"]
         }
       }()
-      let infoPlist = frameworkPath.appendingPathComponents(plistPathComponents).resolvingSymlinksInPath()
+      let infoPlist = frameworkPath.appendingPathComponents(plistPathComponents)
+        .resolvingSymlinksInPath()
       let infoPlistDestination = platformFrameworkDir.appendingPathComponent("Info.plist")
       let fatBinaryDestination = platformFrameworkDir.appendingPathComponent(framework)
       do {
@@ -708,7 +709,9 @@ struct FrameworkBuilder {
 
         try updatedPlistData.write(to: infoPlistDestination)
       } catch {
-        fatalError("Could not copy framework-level plist to framework directory for \(framework): \(error)")
+        fatalError(
+          "Could not copy framework-level plist to framework directory for \(framework): \(error)"
+        )
       }
 
       // Use the appropriate moduleMaps
