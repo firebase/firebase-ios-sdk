@@ -1,3 +1,6 @@
+# Unreleased
+- Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
+
 # Firebase 10.22.1
 - [Swift Package Manager / CocoaPods] Fix app validation issues on Xcode 15.3
   for those using the `FirebaseAnalyticsOnDeviceConversion` SDK. This issue was
