@@ -37,7 +37,7 @@ device, and it is completely free.
 
   base_dir = "FirebaseMessaging/"
   s.source_files = [
-    base_dir + 'Sources/**/*',
+    base_dir + 'Sources/**/*.{c,m,h}',
     base_dir + 'Sources/Protogen/nanopb/*.h',
     base_dir + 'Interop/*.h',
     'Interop/Analytics/Public/*.h',
