@@ -56,6 +56,7 @@ app update.
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 10.23'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
@@ -80,7 +81,8 @@ app update.
         'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNUserDefaultsManagerTests.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h',
-        'FirebaseRemoteConfig/Tests/Unit/RCNInstanceIDTest.m'
+        'FirebaseRemoteConfig/Tests/Unit/RCNInstanceIDTest.m',
+        'FirebaseRemoteConfig/Tests/SwiftUnit/*.swift'
     # Supply plist custom plist testing.
     unit_tests.resources =
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',

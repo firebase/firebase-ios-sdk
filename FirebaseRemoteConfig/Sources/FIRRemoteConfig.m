@@ -45,6 +45,8 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 /// Notification when config is successfully activated
 const NSNotificationName FIRRemoteConfigActivateNotification =
     @"FIRRemoteConfigActivateNotification";
+static NSNotificationName FIRRolloutsStateDidChangeNotificationName =
+    @"FIRRolloutsStateDidChangeNotification";
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -79,8 +81,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     *RCInstances;
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithApp:(FIRApp *_Nonnull)firebaseApp {
-  return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform
-                                                   app:firebaseApp];
+  return [FIRRemoteConfig
+      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
+                               app:firebaseApp];
 }
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *_Nonnull)firebaseNamespace {
@@ -116,8 +119,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                        @"initializer in SwiftUI."];
   }
 
-  return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform
-                                                   app:[FIRApp defaultApp]];
+  return [FIRRemoteConfig
+      remoteConfigWithFIRNamespace:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform
+                               app:[FIRApp defaultApp]];
 }
 
 /// Singleton instance of serial queue for queuing all incoming RC calls.
@@ -329,10 +333,20 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
+    // Update last active template version number in setting and userDefaults.
+    [strongSelf->_settings updateLastActiveTemplateVersion];
+    // Update activeRolloutMetadata
+    [strongSelf->_configContent activateRolloutMetadata:^(BOOL success) {
+      if (success) {
+        [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
+                          versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+      }
+    }];
+
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-    if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
+    if ([namespace isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform]) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self notifyConfigHasActivated];
       });
@@ -377,6 +391,17 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   return fullyQualifiedNamespace;
 }
 
+- (FIRRemoteConfigValue *)defaultValueForFullyQualifiedNamespace:(NSString *)namespace
+                                                             key:(NSString *)key {
+  FIRRemoteConfigValue *value = self->_configContent.defaultConfig[namespace][key];
+  if (!value) {
+    value = [[FIRRemoteConfigValue alloc]
+        initWithData:[NSData data]
+              source:(FIRRemoteConfigSource)FIRRemoteConfigSourceStatic];
+  }
+  return value;
+}
+
 #pragma mark - Get Config Result
 
 - (FIRRemoteConfigValue *)objectForKeyedSubscript:(NSString *)key {
@@ -402,13 +427,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                    config:[self->_configContent getConfigAndMetadataForNamespace:FQNamespace]];
       return;
     }
-    value = self->_configContent.defaultConfig[FQNamespace][key];
-    if (value) {
-      return;
-    }
-
-    value = [[FIRRemoteConfigValue alloc] initWithData:[NSData data]
-                                                source:FIRRemoteConfigSourceStatic];
+    value = [self defaultValueForFullyQualifiedNamespace:FQNamespace key:key];
   });
   return value;
 }
@@ -613,4 +632,67 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   return [self->_configRealtime addConfigUpdateListener:listener];
 }
 
+#pragma mark - Rollout
+
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber {
+  [[NSNotificationCenter defaultCenter]
+      addObserverForName:FIRRolloutsStateDidChangeNotificationName
+                  object:self
+                   queue:nil
+              usingBlock:^(NSNotification *_Nonnull notification) {
+                FIRRolloutsState *rolloutsState =
+                    notification.userInfo[FIRRolloutsStateDidChangeNotificationName];
+                [subscriber rolloutsStateDidChange:rolloutsState];
+              }];
+  // Send active rollout metadata stored in persistence while app launched if there is activeConfig
+  NSString *fullyQualifiedNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+  NSDictionary<NSString *, NSDictionary *> *activeConfig = self->_configContent.activeConfig;
+  if (activeConfig[fullyQualifiedNamespace] && activeConfig[fullyQualifiedNamespace].count > 0) {
+    [self notifyRolloutsStateChange:self->_configContent.activeRolloutMetadata
+                      versionNumber:self->_settings.lastActiveTemplateVersion];
+  }
+}
+
+- (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata
+                    versionNumber:(NSString *)versionNumber {
+  NSArray<FIRRolloutAssignment *> *rolloutsAssignments =
+      [self rolloutsAssignmentsWith:rolloutMetadata versionNumber:versionNumber];
+  FIRRolloutsState *rolloutsState =
+      [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
+  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",
+              @"Send rollouts state notification with name %@ to RemoteConfigInterop.",
+              FIRRolloutsStateDidChangeNotificationName);
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRRolloutsStateDidChangeNotificationName
+                    object:self
+                  userInfo:@{FIRRolloutsStateDidChangeNotificationName : rolloutsState}];
+}
+
+- (NSArray<FIRRolloutAssignment *> *)rolloutsAssignmentsWith:
+                                         (NSArray<NSDictionary *> *)rolloutMetadata
+                                               versionNumber:(NSString *)versionNumber {
+  NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+  for (NSDictionary *metadata in rolloutMetadata) {
+    NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
+    NSString *variantID = metadata[RCNFetchResponseKeyVariantID];
+    NSArray<NSString *> *affectedParameterKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
+    if (rolloutId && variantID && affectedParameterKeys) {
+      for (NSString *key in affectedParameterKeys) {
+        FIRRemoteConfigValue *value = self->_configContent.activeConfig[FQNamespace][key];
+        if (!value) {
+          value = [self defaultValueForFullyQualifiedNamespace:FQNamespace key:key];
+        }
+        FIRRolloutAssignment *assignment =
+            [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
+                                                  variantId:variantID
+                                            templateVersion:[versionNumber longLongValue]
+                                               parameterKey:key
+                                             parameterValue:value.stringValue];
+        [rolloutsAssignments addObject:assignment];
+      }
+    }
+  }
+  return rolloutsAssignments;
+}
 @end

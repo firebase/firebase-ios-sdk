@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.prefix_header_file = false
 
   s.source_files = [
-    'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
+    'Crashlytics/Crashlytics/**/*.{c,h,m,mm,swift}',
     'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
@@ -62,6 +62,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'FirebaseSessions', '~> 10.5'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 10.23'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
@@ -119,7 +120,8 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'Crashlytics/UnitTests/*.[mh]',
-                              'Crashlytics/UnitTests/*/*.[mh]'
+                              'Crashlytics/UnitTests/*/*.[mh]',
+                              'Crashlytics/UnitTestsSwift/*.swift'
     unit_tests.resources = 'Crashlytics/UnitTests/Data/*',
                            'Crashlytics/UnitTests/*.clsrecord',
                            'Crashlytics/UnitTests/FIRCLSMachO/machO_data/*'
