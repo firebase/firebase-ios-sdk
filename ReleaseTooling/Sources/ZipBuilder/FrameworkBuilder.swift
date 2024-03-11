@@ -674,7 +674,17 @@ struct FrameworkBuilder {
       let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
                                                                             with: "")
       let fatBinary = frameworkPath.appendingPathComponent(binaryName).resolvingSymlinksInPath()
-      let infoPlist = frameworkPath.appendingPathComponent("Info.plist").resolvingSymlinksInPath()
+      let plistPathComponents = {
+        if platform == .catalyst || platform == .macOS {
+          // Frameworks for macOS and macCatalyst have a different directory
+          // structure so the framework-level `Info.plist` is found in a
+          // different spot.
+          return ["Versions", "A", "Resources", "Info.plist"]
+        } else {
+          return ["Info.plist"]
+        }
+      }()
+      let infoPlist = frameworkPath.appendingPathComponents(plistPathComponents).resolvingSymlinksInPath()
       let infoPlistDestination = platformFrameworkDir.appendingPathComponent("Info.plist")
       let fatBinaryDestination = platformFrameworkDir.appendingPathComponent(framework)
       do {
@@ -698,7 +708,7 @@ struct FrameworkBuilder {
 
         try updatedPlistData.write(to: infoPlistDestination)
       } catch {
-        // The Catalyst and macos Info.plist's are in another location. Ignore failure.
+        fatalError("Could not copy framework-level plist to framework directory for \(framework): \(error)")
       }
 
       // Use the appropriate moduleMaps
