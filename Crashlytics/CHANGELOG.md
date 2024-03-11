@@ -1,6 +1,6 @@
 # Unreleased
 - [added] Updated upload-symbols to 13.7 with VisionPro build phase support. (#12306)
-- [changed] Added support for Crashlytics to report information from Remote Config.
+- [changed] Added support for Crashlytics to report metadata about Remote Config keys and values.
 
 # 10.22.0
 - [fixed] Force validation or rotation of FIDs for FirebaseSessions.
