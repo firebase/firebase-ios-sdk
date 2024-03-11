@@ -28,9 +28,9 @@ jobs:
         target: [ios, tvos] #, macos --skip-tests, watchos]
         os: [macos-12, macos-13]
         include:
-          # - os: macos-12
-          #   xcode: Xcode_14.2
-          #   tests: --skip-tests
+          - os: macos-12
+            xcode: Xcode_14.2
+            tests: --skip-tests
           - os: macos-13
             xcode: Xcode_15.2
             tests:
