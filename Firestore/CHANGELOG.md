@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
+- [fixed] Update gRPC dependency to 1.62.* (#12098, #12021)
 
 # 10.22.0
 - [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
