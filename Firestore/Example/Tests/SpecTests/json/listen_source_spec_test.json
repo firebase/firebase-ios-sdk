@@ -1,0 +1,5895 @@
+{
+  "Clients can have multiple listeners with different sources": {
+    "describeName": "Listens source options:",
+    "itName": "Clients can have multiple listeners with different sources",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/b",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 2000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          },
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          },
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Contents of query are cleared when listen is removed.": {
+    "comment": "Explicitly tests eager GC behavior",
+    "describeName": "Listens source options:",
+    "itName": "Contents of query are cleared when listen is removed.",
+    "tags": [
+      "eager-gc"
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "key": "a"
+          }
+        ]
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Documents are cleared when listen is removed.": {
+    "describeName": "Listens source options:",
+    "itName": "Documents are cleared when listen is removed.",
+    "tags": [
+      "eager-gc"
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "matches": true
+          }
+        ]
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "matches": true
+          }
+        ]
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+              [
+                "matches",
+                "==",
+                true
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "matches": true
+                },
+                "version": 0
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "matches": true
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+                [
+                  "matches",
+                  "==",
+                  true
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "matches": false
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+                [
+                  "matches",
+                  "==",
+                  true
+                ]
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "matches": true
+                },
+                "version": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+              [
+                "matches",
+                "==",
+                true
+              ]
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "writeAck": {
+          "version": 3000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userUnlisten": [
+          4,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Doesn't include unknown documents in cached result": {
+    "describeName": "Listens source options:",
+    "itName": "Doesn't include unknown documents in cached result",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": true
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/exists",
+          {
+            "key": "a"
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/unknown",
+          {
+            "key": "b"
+          }
+        ]
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/exists",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Doesn't raise 'hasPendingWrites' for deletes": {
+    "describeName": "Listens source options:",
+    "itName": "Doesn't raise 'hasPendingWrites' for deletes",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userDelete": "collection/a",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "Empty initial snapshot is raised from cache": {
+    "describeName": "Listens source options:",
+    "itName": "Empty initial snapshot is raised from cache",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Empty-due-to-delete initial snapshot is raised from cache": {
+    "describeName": "Listens source options:",
+    "itName": "Empty-due-to-delete initial snapshot is raised from cache",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "v": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "v": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userDelete": "collection/a"
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Listeners with different source shares watch changes between primary and secondary clients": {
+    "describeName": "Listens source options:",
+    "itName": "Listeners with different source shares watch changes between primary and secondary clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 3,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 2,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 2,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/b",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 2000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 2,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Local mutations notifies listeners sourced from cache in all tabs": {
+    "describeName": "Listens source options:",
+    "itName": "Local mutations notifies listeners sourced from cache in all tabs",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userSet": [
+          "collection/a",
+          {
+            "key": "a"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Mirror queries being listened from different sources while listening to server in primary tab": {
+    "describeName": "Listens source options:",
+    "itName": "Mirror queries being listened from different sources while listening to server in primary tab",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToFirst",
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "orderBys": [
+                    [
+                      "sort",
+                      "asc"
+                    ]
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 0
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/b",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToFirst",
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToLast",
+            "orderBys": [
+              [
+                "sort",
+                "desc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/c",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": -1
+              },
+              "version": 2000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": -1
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToFirst",
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": -1
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Mirror queries being listened in different clients sourced from cache ": {
+    "describeName": "Listens source options:",
+    "itName": "Mirror queries being listened in different clients sourced from cache ",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 0
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/b",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 1
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/c",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToFirst",
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToFirst",
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToLast",
+            "orderBys": [
+              [
+                "sort",
+                "desc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userUnlisten": [
+          4,
+          {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToFirst",
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "userSet": [
+          "collection/c",
+          {
+            "sort": -1
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "sort": -1
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Mirror queries being listened in the same secondary client sourced from cache": {
+    "describeName": "Listens source options:",
+    "itName": "Mirror queries being listened in the same secondary client sourced from cache",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 0
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/b",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 1
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/c",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToFirst",
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToFirst",
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToLast",
+            "orderBys": [
+              [
+                "sort",
+                "desc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "userUnlisten": [
+          4,
+          {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToFirst",
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "userSet": [
+          "collection/c",
+          {
+            "sort": -1
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "sort": -1
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Mirror queries from different sources while listening to server in secondary tab": {
+    "describeName": "Listens source options:",
+    "itName": "Mirror queries from different sources while listening to server in secondary tab",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToFirst",
+            "orderBys": [
+              [
+                "sort",
+                "asc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "orderBys": [
+                    [
+                      "sort",
+                      "asc"
+                    ]
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "orderBys": [
+                    [
+                      "sort",
+                      "asc"
+                    ]
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 0
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/b",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToFirst",
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "limit": 2,
+            "limitType": "LimitToLast",
+            "orderBys": [
+              [
+                "sort",
+                "desc"
+              ]
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 0
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "limit": 2,
+                  "limitType": "LimitToFirst",
+                  "orderBys": [
+                    [
+                      "sort",
+                      "asc"
+                    ]
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/c",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sort": -1
+              },
+              "version": 2000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": -1
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToLast",
+              "orderBys": [
+                [
+                  "sort",
+                  "desc"
+                ]
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/c",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": -1
+                },
+                "version": 2000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "limit": 2,
+              "limitType": "LimitToFirst",
+              "orderBys": [
+                [
+                  "sort",
+                  "asc"
+                ]
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sort": 1
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Newer deleted docs from bundles should delete cached docs": {
+    "describeName": "Listens source options:",
+    "itName": "Newer deleted docs from bundles should delete cached docs",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.003000000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":158}}155{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.003000000Z\",\"exists\":false}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            },
+            "removed": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes": {
+    "describeName": "Listens source options:",
+    "itName": "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userPatch": [
+          "collection/a",
+          {
+            "value": "patched"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "value": "patched"
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.001001000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":388}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.001001000Z\",\"exists\":true}}228{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.001001000Z\",\"fields\":{\"value\":{\"stringValue\":\"fromBundle\"}}}}"
+      }
+    ]
+  },
+  "Newer docs from bundles should overwrite cache": {
+    "describeName": "Listens source options:",
+    "itName": "Newer docs from bundles should overwrite cache",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.003000000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.003000000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.001999000Z\",\"updateTime\":\"1970-01-01T00:00:00.002999000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "b"
+                },
+                "version": 2999
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes": {
+    "describeName": "Listens source options:",
+    "itName": "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 250
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-250"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 250
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 250
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "userPatch": [
+          "collection/a",
+          {
+            "value": "patched"
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "value": "patched"
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000500000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":379}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000500000Z\",\"exists\":true}}219{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.000500000Z\",\"fields\":{\"value\":{\"stringValue\":\"b\"}}}}"
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.001001000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":388}}154{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.001001000Z\",\"exists\":true}}228{\"document\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"createTime\":\"1970-01-01T00:00:00.000250000Z\",\"updateTime\":\"1970-01-01T00:00:00.001001000Z\",\"fields\":{\"value\":{\"stringValue\":\"fromBundle\"}}}}",
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "fromBundle"
+                },
+                "version": 1001
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Older deleted docs from bundles should do nothing": {
+    "describeName": "Listens source options:",
+    "itName": "Older deleted docs from bundles should do nothing",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "value": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "value": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "loadBundle": "127{\"metadata\":{\"id\":\"test-bundle\",\"createTime\":\"1970-01-01T00:00:00.000999000Z\",\"version\":1,\"totalDocuments\":1,\"totalBytes\":158}}155{\"documentMetadata\":{\"name\":\"projects/test-project/databases/(default)/documents/collection/a\",\"readTime\":\"1970-01-01T00:00:00.000999000Z\",\"exists\":false}}"
+      }
+    ]
+  },
+  "Primary client should not invoke watch request while all clients are listening to cache": {
+    "describeName": "Listens source options:",
+    "itName": "Primary client should not invoke watch request while all clients are listening to cache",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "Query is executed by primary client even if primary client only has listeners sourced from cache": {
+    "describeName": "Listens source options:",
+    "itName": "Query is executed by primary client even if primary client only has listeners sourced from cache",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Query only raises events in participating clients": {
+    "describeName": "Listens source options:",
+    "itName": "Query only raises events in participating clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 4,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 2,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 2,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 3,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 3,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true,
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        }
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 2,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 3,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Un-listen to listeners from different source": {
+    "describeName": "Listens source options:",
+    "itName": "Un-listen to listeners from different source",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "numClients": 2,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "clientIndex": 0,
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "clientIndex": 0,
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "clientIndex": 0,
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 1,
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "drainQueue": true
+      },
+      {
+        "clientIndex": 0,
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "clientIndex": 0,
+        "userSet": [
+          "collection/b",
+          {
+            "key": "b"
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "drainQueue": true,
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "key": "b"
+                },
+                "version": 0
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "clientIndex": 1,
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      }
+    ]
+  },
+  "onSnapshotsInSync fires for multiple listeners": {
+    "describeName": "Listens source options:",
+    "itName": "onSnapshotsInSync fires for multiple listeners",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "v": 1
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "v": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": {
+          "options": {
+            "source": "cache"
+          },
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "v": 1
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "addSnapshotsInSyncListener": true,
+        "expectedSnapshotsInSyncEvents": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 2
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "v": 2
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedSnapshotsInSyncEvents": 1
+      },
+      {
+        "addSnapshotsInSyncListener": true,
+        "expectedSnapshotsInSyncEvents": 1
+      },
+      {
+        "addSnapshotsInSyncListener": true,
+        "expectedSnapshotsInSyncEvents": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 3
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "v": 3
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedSnapshotsInSyncEvents": 3
+      },
+      {
+        "removeSnapshotsInSyncListener": true
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 4
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "v": 4
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedSnapshotsInSyncEvents": 2
+      }
+    ]
+  }
+}

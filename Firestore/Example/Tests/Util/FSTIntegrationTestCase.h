@@ -35,6 +35,7 @@
 @class FIRQuery;
 @class FIRWriteBatch;
 @class FSTEventAccumulator;
+@class FIRTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -112,6 +113,10 @@ extern "C" {
 
 - (FIRDocumentReference *)addDocumentRef:(FIRCollectionReference *)ref
                                     data:(NSDictionary<NSString *, id> *)data;
+
+- (void)runTransaction:(FIRFirestore *)db
+                 block:(id _Nullable (^)(FIRTransaction *, NSError **error))block
+            completion:(nullable void (^)(id _Nullable result, NSError *_Nullable error))completion;
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
