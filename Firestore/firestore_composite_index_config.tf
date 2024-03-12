@@ -388,6 +388,24 @@ locals {
         field_path = "`field\\\\slash`"
         order      = "DESCENDING"
       },
+    ],
+    index25 = [
+      {
+        field_path = "testId"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "v"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "key"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "sort"
+        order      = "ASCENDING"
+      },
     ]
   }
 }
