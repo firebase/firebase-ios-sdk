@@ -1,4 +1,4 @@
-# Unreleased
+# 10.23.0
 - [changed] Add support for other Firebase products to integrate with Remote Config.
 
 # 10.17.0

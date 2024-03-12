@@ -1,4 +1,4 @@
-# Unreleased
+# 10.23.0
 - [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
 - [fixed] Update gRPC dependency to 1.62.* (#12098, #12021)
 
