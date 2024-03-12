@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 10.23.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
 
 # Firebase 10.22.1
