@@ -58,6 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
   return newOptions;
 }
 
+/// This function forces the linker to include `FIRSnapshotListenOptions`.
+/// See `+[FIRFirestore notCalled]`.
+void FSTIncludeFIRSnapshotListenOptions(void) {
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
