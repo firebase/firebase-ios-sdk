@@ -36,6 +36,10 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -58,6 +62,10 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
@@ -679,6 +687,28 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
++ (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
+                  callback:(FIRStartPasskeySignInResponseCallback)callback {
+  [[self implementation] startPasskeySignIn:request callback:callback];
+}
+
++ (void)finalizePasskeySignIn:(FIRFinalizePasskeySignInRequest *)request
+                     callback:(FIRFinalizePasskeySignInResponseCallback)callback {
+  [[self implementation] finalizePasskeySignIn:request callback:callback];
+}
+
++ (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
+  [[self implementation] startPasskeyEnrollment:request callback:callback];
+}
+
++ (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  [[self implementation] finalizePasskeyEnrollment:request callback:callback];
+}
+#endif
+
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
            callback:(FIRRevokeTokenResponseCallback)callback {
   [[self implementation] revokeToken:request callback:callback];
@@ -1092,6 +1122,67 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 - (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
   FIRVerifyClientResponse *response = [[FIRVerifyClientResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+
+- (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
+                  callback:(FIRStartPasskeySignInResponseCallback)callback {
+  FIRStartPasskeySignInResponse *response = [[FIRStartPasskeySignInResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+- (void)finalizePasskeySignIn:(FIRFinalizePasskeySignInRequest *)request
+                     callback:(FIRFinalizePasskeySignInResponseCallback)callback {
+  FIRFinalizePasskeySignInResponse *response = [[FIRFinalizePasskeySignInResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+- (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
+  FIRStartPasskeyEnrollmentResponse *response = [[FIRStartPasskeyEnrollmentResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+- (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  FIRFinalizePasskeyEnrollmentResponse *response =
+      [[FIRFinalizePasskeyEnrollmentResponse alloc] init];
   [self callWithRequest:request
                response:response
                callback:^(NSError *error) {
