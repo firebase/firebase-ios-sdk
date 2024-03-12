@@ -42,8 +42,6 @@ static void FIRCLSMachOHeaderValues(FIRCLSMachOSliceRef slice,
 static bool FIRCLSMachOSliceIsValid(FIRCLSMachOSliceRef slice);
 
 bool FIRCLSMachOFileInitWithPath(FIRCLSMachOFileRef file, const char* path) {
-  struct stat statBuffer;
-
   if (!file || !path) {
     return false;
   }
