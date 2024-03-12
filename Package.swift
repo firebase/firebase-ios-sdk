@@ -1378,7 +1378,7 @@ func abseilDependency() -> Package.Dependency {
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2022062300.0" ..< "1.2022062400.0"
+      "1.2024011601.0" ..< "1.2024011700.0"
     )
   }
 
@@ -1393,7 +1393,7 @@ func grpcDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.62.3" ..< "1.63.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.49.1" ..< "1.50.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.1" ..< "1.63.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
