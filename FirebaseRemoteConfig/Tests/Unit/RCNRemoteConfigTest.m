@@ -1801,12 +1801,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testFetchAndActivateRolloutsNotifyInterop {
-  id mockNotificationCenter = [OCMockObject mockForClass:[NSNotificationCenter class]];
-  [[mockNotificationCenter expect] postNotificationName:@"RolloutsStateDidChangeNotification"
-                                                 object:[OCMArg any]
-                                               userInfo:[OCMArg any]];
-  id mockSubscriber = [OCMockObject mockForProtocol:@protocol(FIRRolloutsStateSubscriber)];
-  [[mockSubscriber expect] rolloutsStateDidChange:[OCMArg any]];
+  XCTestExpectation *notificationExpectation =
+      [self expectationForNotification:@"FIRRolloutsStateDidChangeNotification"
+                                object:[OCMArg any]
+                               handler:[OCMArg any]];
 
   XCTestExpectation *expectation = [self
       expectationWithDescription:[NSString
@@ -1827,6 +1825,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
             self->_configInstances[RCNTestRCInstanceDefault].lastFetchTime.timeIntervalSince1970, 0,
             @"last fetch time interval should be set.");
         [expectation fulfill];
+        [notificationExpectation fulfill];
       };
 
   [_configInstances[RCNTestRCInstanceDefault]
