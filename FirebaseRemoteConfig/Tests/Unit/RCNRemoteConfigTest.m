@@ -1801,16 +1801,10 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testFetchAndActivateRolloutsNotifyInterop {
-  id mockNotificationCenter = [OCMockObject mockForClass:[NSNotificationCenter class]];
-  [[mockNotificationCenter expect] postNotificationName:@"RolloutsStateDidChangeNotification"
-                                                 object:[OCMArg any]
-                                               userInfo:[OCMArg any]];
-  id mockSubscriber = [OCMockObject mockForProtocol:@protocol(FIRRolloutsStateSubscriber)];
-  [[mockSubscriber expect] rolloutsStateDidChange:[OCMArg any]];
-
-  XCTestExpectation *expectation = [self
-      expectationWithDescription:[NSString
-                                     stringWithFormat:@"Test rollout update send notification"]];
+  XCTestExpectation *notificationExpectation =
+      [self expectationForNotification:@"FIRRolloutsStateDidChangeNotification"
+                                object:nil
+                               handler:nil];
 
   XCTAssertEqual(_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
                  FIRRemoteConfigFetchStatusNoFetchYet);
@@ -1826,15 +1820,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
         XCTAssertGreaterThan(
             self->_configInstances[RCNTestRCInstanceDefault].lastFetchTime.timeIntervalSince1970, 0,
             @"last fetch time interval should be set.");
-        [expectation fulfill];
+        [notificationExpectation fulfill];
       };
 
   [_configInstances[RCNTestRCInstanceDefault]
       fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
-  [self waitForExpectationsWithTimeout:_expectationTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
+  [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
 }
 
 #pragma mark - Test Helpers
