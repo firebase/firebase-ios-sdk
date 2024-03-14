@@ -1830,7 +1830,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
   [_configInstances[RCNTestRCInstanceDefault]
       fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
-  [self waitForExpectationsWithTimeout:_expectationTimeout
+  [self waitForExpectationsWithTimeout:10
                                handler:^(NSError *error) {
                                  XCTAssertNil(error);
                                }];
