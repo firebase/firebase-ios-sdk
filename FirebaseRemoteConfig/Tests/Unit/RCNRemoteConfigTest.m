@@ -1803,12 +1803,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)testFetchAndActivateRolloutsNotifyInterop {
   XCTestExpectation *notificationExpectation =
       [self expectationForNotification:@"FIRRolloutsStateDidChangeNotification"
-                                object:[OCMArg any]
-                               handler:[OCMArg any]];
-
-  XCTestExpectation *expectation = [self
-      expectationWithDescription:[NSString
-                                     stringWithFormat:@"Test rollout update send notification"]];
+                                object:nil
+                               handler:nil];
 
   XCTAssertEqual(_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
                  FIRRemoteConfigFetchStatusNoFetchYet);
@@ -1824,16 +1820,12 @@ static NSString *UTCToLocal(NSString *utcTime) {
         XCTAssertGreaterThan(
             self->_configInstances[RCNTestRCInstanceDefault].lastFetchTime.timeIntervalSince1970, 0,
             @"last fetch time interval should be set.");
-        [expectation fulfill];
         [notificationExpectation fulfill];
       };
 
   [_configInstances[RCNTestRCInstanceDefault]
       fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
-  [self waitForExpectationsWithTimeout:10
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
+  [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
 }
 
 #pragma mark - Test Helpers
