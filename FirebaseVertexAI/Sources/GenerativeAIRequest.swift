@@ -38,8 +38,8 @@ public struct RequestOptions {
   /// - Parameters:
   ///   - timeout The request’s timeout interval in seconds; if not specified uses the default value
   ///   for a `URLRequest`.
-  ///   - apiVersion The API version to use in requests to the backend; defaults to "v1".
-  public init(timeout: TimeInterval? = nil, apiVersion: String = "v1") {
+  ///   - apiVersion The API version to use in requests to the backend; defaults to "v2beta".
+  public init(timeout: TimeInterval? = nil, apiVersion: String = "v2beta") {
     self.timeout = timeout
     self.apiVersion = apiVersion
   }

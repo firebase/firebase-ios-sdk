@@ -187,10 +187,6 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
-    .package(
-      url: "https://github.com/google/generative-ai-swift.git",
-      revision: "c9f2c4913bc65aa267815962c7e91358c2d8463f"
-    ),
   ],
   targets: [
     .target(
@@ -1363,13 +1359,8 @@ let package = Package(
         "FirebaseAppCheckInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
       ],
-      path: "FirebaseVertexAI/Sources",
-      sources: [
-        "VertexAI.swift",
-        "VertexAIComponent.swift",
-      ]
+      path: "FirebaseVertexAI/Sources"
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
