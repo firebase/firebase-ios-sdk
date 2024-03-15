@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 import FirebaseAppCheckInterop
 import FirebaseCore
-
-// Exports the GoogleGenerativeAI module to users of the SDK.
-@_exported import GoogleGenerativeAI
+import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
@@ -31,8 +27,7 @@ open class VertexAI: NSObject {
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   ///
   /// This instance is configured with the default `FirebaseApp`.
-  public static func generativeModel(modelName: String, location: String) -> GoogleGenerativeAI
-    .GenerativeModel {
+  public static func generativeModel(modelName: String, location: String) -> GenerativeModel {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -41,7 +36,7 @@ open class VertexAI: NSObject {
 
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   public static func generativeModel(app: FirebaseApp, modelName: String,
-                                     location: String) -> GoogleGenerativeAI.GenerativeModel {
+                                     location: String) -> GenerativeModel {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
       fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
@@ -64,18 +59,15 @@ open class VertexAI: NSObject {
   private let modelResouceName: String
 
   lazy var model: GenerativeModel = {
-    let options = RequestOptions(
-      apiVersion: "v2beta",
-      endpoint: "staging-firebaseml.sandbox.googleapis.com",
-      hooks: [addAppCheckHeader]
-    )
     guard let apiKey = app.options.apiKey else {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
     }
     return GenerativeModel(
       name: modelResouceName,
       apiKey: apiKey,
-      requestOptions: options
+      // TODO: Consider adding RequestOptions to public API.
+      requestOptions: RequestOptions(),
+      appCheck: appCheck
     )
   }()
 
@@ -103,22 +95,5 @@ open class VertexAI: NSObject {
     }
 
     return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
-  }
-
-  // MARK: Request Hooks
-
-  /// Adds an App Check token to the provided request if App Check is included in the app.
-  ///
-  /// This demonstrates how an App Check token can be added to requests; it is currently ignored by
-  /// the backend.
-  ///
-  /// - Parameter request: The `URLRequest` to modify by adding an App Check token header.
-  func addAppCheckHeader(request: inout URLRequest) async {
-    guard let appCheck else {
-      return
-    }
-
-    let tokenResult = await appCheck.getToken(forcingRefresh: false)
-    request.addValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
   }
 }
