@@ -22,7 +22,8 @@ import Foundation
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 @objc(FIRVertexAIProvider)
 protocol VertexAIProvider {
-  @objc func vertexAI(location: String, modelResourceName: String) -> VertexAI
+  @objc func vertexAI(for app: FirebaseApp, location: String, modelResourceName: String,
+                      requestOptions: RequestOptions) -> VertexAI
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
@@ -36,7 +37,7 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
 
   /// A map of active  `VertexAI` instances for `app`, keyed by model resource names
   /// (e.g., "projects/my-project-id/locations/us-central1/publishers/google/models/gemini-pro").
-  private var instances: [String: VertexAI] = [:]
+  private var instances: [String: [VertexAI]] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
   private var instancesLock: os_unfair_lock = .init()
@@ -64,17 +65,24 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
 
   // MARK: - VertexAIProvider conformance
 
-  func vertexAI(location: String, modelResourceName: String) -> VertexAI {
+  func vertexAI(for app: FirebaseApp, location: String, modelResourceName: String,
+                requestOptions: RequestOptions) -> VertexAI {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    if let instance = instances[modelResourceName] {
-      return instance
+    if let associatedInstances = instances[app.name] {
+      for instance in associatedInstances {
+        if instance.location == location && instance.modelResouceName == modelResourceName {
+          return instance
+        }
+      }
     }
+
     let newInstance = VertexAI(app: app, location: location, modelResourceName: modelResourceName)
-    instances[modelResourceName] = newInstance
+    let existingInstances = instances[app.name, default: []]
+    instances[app.name] = existingInstances + [newInstance]
     return newInstance
   }
 }

@@ -27,7 +27,9 @@ open class VertexAI: NSObject {
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   ///
   /// This instance is configured with the default `FirebaseApp`.
-  public static func generativeModel(modelName: String, location: String) -> GenerativeModel {
+  public static func generativeModel(modelName: String, location: String,
+                                     requestOptions: RequestOptions = RequestOptions())
+    -> GenerativeModel {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -36,16 +38,29 @@ open class VertexAI: NSObject {
 
   /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
   public static func generativeModel(app: FirebaseApp, modelName: String,
-                                     location: String) -> GenerativeModel {
+                                     location: String,
+                                     requestOptions: RequestOptions = RequestOptions())
+    -> GenerativeModel {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
       fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
     }
     let modelResourceName = modelResourceName(app: app, modelName: modelName, location: location)
-    let vertexAI = provider.vertexAI(location: location, modelResourceName: modelResourceName)
+    let vertexAI = provider.vertexAI(
+      for: app,
+      location: location,
+      modelResourceName: modelResourceName,
+      requestOptions: requestOptions
+    )
 
     return vertexAI.model
   }
+
+  // MARK: - Internal
+
+  let location: String
+
+  let modelResouceName: String
 
   // MARK: - Private
 
@@ -53,10 +68,6 @@ open class VertexAI: NSObject {
   private let app: FirebaseApp
 
   private let appCheck: AppCheckInterop?
-
-  private let location: String
-
-  private let modelResouceName: String
 
   lazy var model: GenerativeModel = {
     guard let apiKey = app.options.apiKey else {

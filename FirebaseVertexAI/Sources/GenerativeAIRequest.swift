@@ -25,7 +25,7 @@ protocol GenerativeAIRequest: Encodable {
 
 /// Configuration parameters for sending requests to the backend.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct RequestOptions {
+@objc public class RequestOptions: NSObject {
   /// The request’s timeout interval in seconds; if not specified uses the default value for a
   /// `URLRequest`.
   let timeout: TimeInterval?
