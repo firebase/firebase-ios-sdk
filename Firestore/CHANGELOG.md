@@ -1,6 +1,8 @@
 # 10.23.0
 - [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
 - [fixed] Update gRPC dependency to 1.62.* (#12098, #12021)
+- [feature] Firestore's binary Swift Package Manager distribution uses
+  XCFrameworks with code signatures (#12238).
 
 # 10.22.0
 - [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
