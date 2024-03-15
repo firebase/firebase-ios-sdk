@@ -1,8 +1,38 @@
-# Unreleased
+# Firebase 10.23.0
+- Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
+
+# Firebase 10.22.1
+- [Swift Package Manager / CocoaPods] Fix app validation issues on Xcode 15.3
+  for those using the `FirebaseAnalyticsOnDeviceConversion` SDK. This issue was
+  caused by embedding an incomplete `Info.plist` from a dependency of the SDK.
+  (#12441)
+
+# Firebase 10.22.0
 - [Swift Package Manager] Firebase now enforces a Swift 5.7.1 minimum version,
   which is aligned with the Xcode 14.1 minimum. (#12350)
 - Revert Firebase 10.20.0 change that removed `Info.plist` files from
   static xcframeworks (#12390).
+- Added privacy manifests for Firebase SDKs named in
+  https://developer.apple.com/support/third-party-SDK-requirements/. Please
+  review https://firebase.google.com/docs/ios/app-store-data-collection for
+  updated guidance on interpreting Firebase's privacy manifests and completing
+  app Privacy Nutrition Labels. (#11490)
+- Fixed validation issues in Xcode 15.3 that affected binary distributions
+  including Analytics, Firestore (SwiftPM binary distribution), and the
+  Firebase zip distribution. (#12441)
+- [Zip Distribution] The manual integration instructions found in the
+  `Firebase.zip` have been updated for Xcode 15 users. The updated instructions
+  call for embedding SDKs dragged in from the `Firebase.zip`. This will enable
+  Xcode's tooling to detect privacy manifests bundled within the xcframework.
+- [Zip Distribution] Several xcframeworks have been renamed to resolve the above
+  Xcode 15.3 validation issues. Please ensure that the following renamed
+  xcframeworks are removed from your project when upgrading (#12437, #12447):
+    - `abseil.xcframework` to `absl.xcframework`
+    - `BoringSSL-GRPC.xcframework` to `openssl_grpc.xcframework`
+    - `gRPC-Core.xcframework` to `grpc.xcframework`
+    - `gRPC-C++.xcframework` to `grpcpp.xcframework`
+    - `leveldb-library.xcframework` to `leveldb.xcframework`
+    - `PromisesSwift.xcframework` to `Promises.xcframework`
 
 # Firebase 10.21.0
 - Firebase now requires at least CocoaPods version 1.12.0 to enable privacy

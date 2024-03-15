@@ -61,8 +61,10 @@ import FirebaseCore
   /// - Parameter app: The custom `FirebaseApp` used for initialization.
   /// - Returns: A `Storage` instance, configured with the custom `FirebaseApp`.
   @objc(storageForApp:) open class func storage(app: FirebaseApp) -> Storage {
-    let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                           in: app.container)
+    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                                 in: app.container) else {
+      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
+    }
     return provider.storage(for: Storage.bucket(for: app))
   }
 
@@ -75,8 +77,10 @@ import FirebaseCore
   /// URL.
   @objc(storageForApp:URL:)
   open class func storage(app: FirebaseApp, url: String) -> Storage {
-    let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                           in: app.container)
+    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                                 in: app.container) else {
+      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
+    }
     return provider.storage(for: Storage.bucket(for: app, urlString: url))
   }
 

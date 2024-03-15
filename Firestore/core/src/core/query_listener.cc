@@ -136,6 +136,11 @@ bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
     return true;
   }
 
+  // Always raise first event if listening to cache
+  if (!listens_to_remote_store()) {
+    return true;
+  }
+
   // NOTE: We consider OnlineState::Unknown as online (it should become Offline
   // or Online if we wait long enough).
   bool maybe_online = online_state != OnlineState::Offline;
