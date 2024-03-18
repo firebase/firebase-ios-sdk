@@ -14,6 +14,7 @@
 
 import FirebaseAuth
 import FirebaseCore
+import GameKit
 import UIKit
 
 // For Account Linking with Sign in with Google.
@@ -92,6 +93,9 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
 
     case .twitter, .microsoft, .gitHub, .yahoo:
       performOAuthAccountLink(for: provider)
+
+    case .gameCenter:
+      performGameCenterAccountLink()
 
     case .emailPassword:
       performEmailPasswordAccountLink()
@@ -230,6 +234,42 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
       guard let accessToken = AccessToken.current else { return }
       let credential = FacebookAuthProvider.credential(withAccessToken: accessToken.tokenString)
       strongSelf.linkAccount(authCredential: credential)
+    }
+  }
+
+  private func performGameCenterAccountLink() {
+    // Step 1: Ensure Game Center Authentication
+    guard GKLocalPlayer.local.isAuthenticated else {
+      print("Error: Player not authenticated with Game Center.")
+      // TODO: Handle the 'not authenticated' scenario (e.g., prompt the user)
+      return
+    }
+
+    // Step 2: Get Game Center Credential for Linking
+    GameCenterAuthProvider.getCredential { credential, error in
+      if let error = error {
+        print("Error getting Game Center credential: \(error.localizedDescription)")
+        // TODO: Handle the credential error
+        return
+      }
+
+      guard let credential = credential else {
+        print("Error: Missing Game Center credential")
+        // TODO: Handle the missing credential case
+        return
+      }
+
+      // Step 3: Link Credential with Current Firebase User
+      Auth.auth().currentUser?.link(with: credential) { authResult, error in
+        if let error = error {
+          print("Error linking Game Center to Firebase: \(error.localizedDescription)")
+          // TODO: Handle the linking error
+          return
+        }
+
+        // Linking successful
+        print("Successfully linked Game Center to Firebase")
+      }
     }
   }
 

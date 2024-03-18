@@ -24,6 +24,7 @@ enum AuthMenu: String {
   case gitHub = "github.com"
   case yahoo = "yahoo.com"
   case facebook = "facebook.com"
+  case gameCenter = "gc.apple.com"
   case emailPassword = "password"
   case passwordless = "emailLink"
   case phoneNumber = "phone"
@@ -54,6 +55,8 @@ enum AuthMenu: String {
       return "Yahoo"
     case .facebook:
       return "Facebook"
+    case .gameCenter:
+      return "Game Center"
     case .emailPassword:
       return "Email & Password Login"
     case .passwordless:
@@ -91,6 +94,8 @@ enum AuthMenu: String {
       self = .yahoo
     case "Facebook":
       self = .facebook
+    case "Game Center":
+      self = .gameCenter
     case "Email & Password Login":
       self = .emailPassword
     case "Email Link/Passwordless":
@@ -114,7 +119,7 @@ enum AuthMenu: String {
 
 extension AuthMenu: DataSourceProvidable {
   private static var providers: [AuthMenu] {
-    [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook]
+    [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook, .gameCenter]
   }
 
   static var settingsSection: Section {
