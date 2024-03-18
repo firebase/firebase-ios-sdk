@@ -511,7 +511,7 @@ jobs:
           # Files in this set start with whitespace. Grep for them and a dashed
           # prefix for nicer formatting.
           echo "$comparison" | grep '^\s' | sed 's/^	/- /'
-          # exit 1
+          exit 1
         fi
 
   # TODO: Re-enable either in or after #11706.
