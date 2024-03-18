@@ -1366,7 +1366,11 @@ let package = Package(
         "FirebaseCoreExtension",
         .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseVertexAI/Sources",
+      sources: [
+        "VertexAI.swift",
+        "VertexAIComponent.swift",
+      ]
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
