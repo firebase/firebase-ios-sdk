@@ -66,6 +66,15 @@ extension User: DataSourceProvidable {
 // MARK: - UIKit Extensions
 
 public extension UIViewController {
+  func displayInfo(title: String, message: String, style: UIAlertController.Style) {
+    let alert = UIAlertController(title: title, message: message, preferredStyle: style)
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+
+    DispatchQueue.main.async { // Ensure UI updates on the main thread
+      self.present(alert, animated: true, completion: nil)
+    }
+  }
+
   func displayError(_ error: Error?, from function: StaticString = #function) {
     guard let error = error else { return }
     print("ⓧ Error in \(function): \(error.localizedDescription)")
