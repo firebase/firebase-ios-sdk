@@ -142,22 +142,6 @@ struct ErrorDetailsView: View {
             SafetyRatingsSection(ratings: ratings)
           }
 
-        case GenerateContentError.invalidAPIKey:
-          Section("Error Type") {
-            Text("Invalid API Key")
-          }
-
-          Section("Details") {
-            SubtitleFormRow(title: "Error description", value: error.localizedDescription)
-            SubtitleMarkdownFormRow(
-              title: "Help",
-              value: """
-              The `API_KEY` provided in the `GoogleService-Info.plist` file is invalid. Download a
-              new copy of the file from the [Firebase Console](https://console.firebase.google.com).
-              """
-            )
-          }
-
         default:
           Section("Error Type") {
             Text("Some other error")
@@ -221,12 +205,4 @@ struct ErrorDetailsView: View {
   )
 
   return ErrorDetailsView(error: error)
-}
-
-#Preview("Invalid API Key") {
-  ErrorDetailsView(error: GenerateContentError.invalidAPIKey)
-}
-
-#Preview("Unsupported User Location") {
-  ErrorDetailsView(error: GenerateContentError.unsupportedUserLocation)
 }

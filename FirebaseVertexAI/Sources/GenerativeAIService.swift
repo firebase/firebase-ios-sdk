@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAppCheckInterop
+import FirebaseCore
 import Foundation
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
@@ -19,15 +21,18 @@ struct GenerativeAIService {
   /// Gives permission to talk to the backend.
   private let apiKey: String
 
+  private let appCheck: AppCheckInterop?
+
   private let urlSession: URLSession
 
-  init(apiKey: String, urlSession: URLSession) {
+  init(apiKey: String, appCheck: AppCheckInterop?, urlSession: URLSession) {
     self.apiKey = apiKey
+    self.appCheck = appCheck
     self.urlSession = urlSession
   }
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
-    let urlRequest = try urlRequest(request: request)
+    let urlRequest = try await urlRequest(request: request)
 
     #if DEBUG
       printCURLCommand(from: urlRequest)
@@ -59,7 +64,7 @@ struct GenerativeAIService {
       Task {
         let urlRequest: URLRequest
         do {
-          urlRequest = try self.urlRequest(request: request)
+          urlRequest = try await self.urlRequest(request: request)
         } catch {
           continuation.finish(throwing: error)
           return
@@ -146,13 +151,24 @@ struct GenerativeAIService {
 
   // MARK: - Private Helpers
 
-  private func urlRequest<T: GenerativeAIRequest>(request: T) throws -> URLRequest {
+  private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
     var urlRequest = URLRequest(url: request.url)
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
-    urlRequest.setValue("genai-swift/\(GenerativeAISwift.version)",
-                        forHTTPHeaderField: "x-goog-api-client")
+    // TODO: Determine the right client header to use.
+    //    urlRequest.setValue("genai-swift/\(GenerativeAISwift.version))",
+    //                        forHTTPHeaderField: "x-goog-api-client")
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    if let appCheck {
+      let tokenResult = await appCheck.getToken(forcingRefresh: false)
+      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+      if let error = tokenResult.error {
+        Logging.default
+          .debug("[GoogleGenerativeAI] Failed to fetch AppCheck token. Error: \(error)")
+      }
+    }
+
     let encoder = JSONEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     urlRequest.httpBody = try encoder.encode(request)
