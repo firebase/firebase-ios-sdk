@@ -36,6 +36,9 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
             test: spmbuildonly
+          - os: macos-14
+            xcode: Xcode_15.2
+            test: spm
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -84,12 +87,15 @@ jobs:
       matrix:
         # Full set of Firebase-Package tests only run on iOS. Run subset on other platforms.
         target: [tvOS, macOS, catalyst]
-        os: [macos-12, macos-13]
+        os: [macos-12, macos-13, macos-14]
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.2
+            target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
