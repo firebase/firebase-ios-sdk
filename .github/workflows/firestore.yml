@@ -502,7 +502,7 @@ jobs:
         if [[ -z "$comparison" ]]; then
           echo "Success: Directories '$fst_dir' and '$fst_internal_dir' match."
         else
-          echo "Directories '$fst_dir' and '$fst_internal_dir' differ:"
+          echo "Error: Directories '$fst_dir' and '$fst_internal_dir' differ:"
           echo "Files only in '$fst_dir':"
           # Files in this set do not start with whitespace. Grep for them and a
           # dashed prefix for nicer formatting.
