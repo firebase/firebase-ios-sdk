@@ -584,7 +584,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_ihappmessaging
+        name: quickstart_artifacts_inappmessaging
         path: quickstart-ios/
 
   quickstart_framework_messaging:

@@ -32,6 +32,7 @@
 @end
 
 static NSString *const TestFIID = @"TEST_FIID";
+static NSString *const TestAuthToken = @"TEST_AUTH_TOKEN";
 
 @implementation FIRCLSReportAdapterTests
 
@@ -46,7 +47,8 @@ static NSString *const TestFIID = @"TEST_FIID";
   return [[FIRCLSReportAdapter alloc] initWithPath:path
                                        googleAppId:googleAppID
                                     installIDModel:installIDModel
-                                              fiid:TestFIID];
+                                              fiid:TestFIID
+                                         authToken:TestAuthToken];
 }
 
 /// Attempt sending a proto report to the reporting endpoint

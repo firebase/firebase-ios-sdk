@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '10.22.0'
+  s.version          = '10.23.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -37,7 +37,7 @@ device, and it is completely free.
 
   base_dir = "FirebaseMessaging/"
   s.source_files = [
-    base_dir + 'Sources/**/*',
+    base_dir + 'Sources/**/*.{c,m,h}',
     base_dir + 'Sources/Protogen/nanopb/*.h',
     base_dir + 'Interop/*.h',
     'Interop/Analytics/Public/*.h',
@@ -45,6 +45,9 @@ device, and it is completely free.
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseMessaging/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -65,7 +68,7 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.8'
   s.dependency 'GoogleDataTransport', '~> 9.3'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

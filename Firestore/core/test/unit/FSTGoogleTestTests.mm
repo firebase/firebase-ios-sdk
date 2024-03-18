@@ -139,7 +139,7 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
  * These members are then joined with a ":" as googletest requires.
  *
  * @see
- * https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
+ * https://github.com/google/googletest/blob/main/docs/advanced.md
  */
 NSString* CreateTestFiltersFromTestsToRun(NSSet<NSString*>* testsToRun) {
   NSMutableString* result = [[NSMutableString alloc] init];

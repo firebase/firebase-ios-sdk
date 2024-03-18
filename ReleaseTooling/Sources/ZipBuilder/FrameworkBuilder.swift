@@ -283,8 +283,20 @@ struct FrameworkBuilder {
   /// - Returns: The corresponding framework/module name.
   private static func frameworkBuildName(_ framework: String) -> String {
     switch framework {
+    case "abseil":
+      return "absl"
+    case "BoringSSL-GRPC":
+      return "openssl_grpc"
+    case "gRPC-Core":
+      return "grpc"
+    case "gRPC-C++":
+      return "grpcpp"
+    case "leveldb-library":
+      return "leveldb"
     case "PromisesObjC":
       return "FBLPromises"
+    case "PromisesSwift":
+      return "Promises"
     case "Protobuf":
       return "protobuf"
     default:
@@ -590,8 +602,8 @@ struct FrameworkBuilder {
   /// Groups slices for each platform into a minimal set of frameworks.
   /// - Parameter withName: The framework name.
   /// - Parameter isCarthage: Name the temp directory differently for Carthage.
-  /// - Parameter fromFolder: The almost complete framework folder. Includes
-  /// Headers, and Resources.
+  /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
+  /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func groupFrameworks(withName framework: String,
@@ -635,33 +647,7 @@ struct FrameworkBuilder {
           "\(framework): \(error)")
       }
 
-      // Move any privacy manifest-containing resource bundles into the
-      // platform framework.
-      try? fileManager.contentsOfDirectory(
-        at: frameworkPath.deletingLastPathComponent(),
-        includingPropertiesForKeys: nil
-      )
-      .filter { $0.pathExtension == "bundle" }
-      // TODO(ncooke3): Once the zip is built with Xcode 15, the following
-      // `filter` can be removed. The following block exists to preserve
-      // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
-      .filter { bundleURL in
-        let dirEnum = fileManager.enumerator(atPath: bundleURL.path)
-        var containsPrivacyManifest = false
-        while let relativeFilePath = dirEnum?.nextObject() as? String {
-          if relativeFilePath.hasSuffix("PrivacyInfo.xcprivacy") {
-            containsPrivacyManifest = true
-            break
-          }
-        }
-        return containsPrivacyManifest
-      }
-      // Bundles are moved rather than copied to prevent them from being
-      // packaged in a `Resources` directory at the root of the xcframework.
-      .forEach { try! fileManager.moveItem(
-        at: $0,
-        to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
-      ) }
+      processPrivacyManifests(fileManager, frameworkPath, platformFrameworkDir)
 
       // Headers from slice
       do {
@@ -684,15 +670,48 @@ struct FrameworkBuilder {
         fatalError("Could not create framework directory needed to build \(framework): \(error)")
       }
 
-      // Copy the binary to the right location.
+      // Copy the binary and Info.plist to the right location.
       let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
                                                                             with: "")
       let fatBinary = frameworkPath.appendingPathComponent(binaryName).resolvingSymlinksInPath()
+      let plistPathComponents = {
+        if platform == .catalyst || platform == .macOS {
+          // Frameworks for macOS and macCatalyst have a different directory
+          // structure so the framework-level `Info.plist` is found in a
+          // different spot.
+          return ["Versions", "A", "Resources", "Info.plist"]
+        } else {
+          return ["Info.plist"]
+        }
+      }()
+      let infoPlist = frameworkPath.appendingPathComponents(plistPathComponents)
+        .resolvingSymlinksInPath()
+      let infoPlistDestination = platformFrameworkDir.appendingPathComponent("Info.plist")
       let fatBinaryDestination = platformFrameworkDir.appendingPathComponent(framework)
       do {
         try fileManager.copyItem(at: fatBinary, to: fatBinaryDestination)
       } catch {
         fatalError("Could not copy fat binary to framework directory for \(framework): \(error)")
+      }
+      do {
+        // The minimum OS version is set to 100.0 to work around b/327020913.
+        // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
+        var plistDictionary = try PropertyListSerialization.propertyList(
+          from: Data(contentsOf: infoPlist), format: nil
+        ) as! [AnyHashable: Any]
+        plistDictionary["MinimumOSVersion"] = "100.0"
+
+        let updatedPlistData = try PropertyListSerialization.data(
+          fromPropertyList: plistDictionary,
+          format: .xml,
+          options: 0
+        )
+
+        try updatedPlistData.write(to: infoPlistDestination)
+      } catch {
+        fatalError(
+          "Could not copy framework-level plist to framework directory for \(framework): \(error)"
+        )
       }
 
       // Use the appropriate moduleMaps
@@ -704,6 +723,39 @@ struct FrameworkBuilder {
       frameworksBuilt.append(platformFrameworkDir)
     }
     return frameworksBuilt
+  }
+
+  /// Process privacy manifests.
+  ///
+  /// Move any privacy manifest-containing resource bundles into the platform framework.
+  func processPrivacyManifests(_ fileManager: FileManager,
+                               _ frameworkPath: URL,
+                               _ platformFrameworkDir: URL) {
+    try? fileManager.contentsOfDirectory(
+      at: frameworkPath.deletingLastPathComponent(),
+      includingPropertiesForKeys: nil
+    )
+    .filter { $0.pathExtension == "bundle" }
+    // TODO(ncooke3): Once the zip is built with Xcode 15, the following
+    // `filter` can be removed. The following block exists to preserve
+    // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
+    .filter { bundleURL in
+      let dirEnum = fileManager.enumerator(atPath: bundleURL.path)
+      var containsPrivacyManifest = false
+      while let relativeFilePath = dirEnum?.nextObject() as? String {
+        if relativeFilePath.hasSuffix("PrivacyInfo.xcprivacy") {
+          containsPrivacyManifest = true
+          break
+        }
+      }
+      return containsPrivacyManifest
+    }
+    // Bundles are moved rather than copied to prevent them from being
+    // packaged in a `Resources` directory at the root of the xcframework.
+    .forEach { try! fileManager.moveItem(
+      at: $0,
+      to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+    ) }
   }
 
   /// Package the built frameworks into an XCFramework.
