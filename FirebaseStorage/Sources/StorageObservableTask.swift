@@ -23,6 +23,7 @@ import Foundation
 /**
  * An extended `StorageTask` providing observable semantics that can be used for responding to changes
  * in task state.
+ *
  * Observers produce a `StorageHandle`, which is used to keep track of and remove specific
  * observers at a later date.
  */
@@ -80,7 +81,7 @@ import Foundation
 
   /**
    * Removes the single observer with the provided handle.
-   * - Parameter handle The handle of the task to remove.
+   * - Parameter handle: The handle of the task to remove.
    */
   @objc(removeObserverWithHandle:) open func removeObserver(withHandle handle: String) {
     if let status = handleToStatusMap[handle] {
@@ -93,7 +94,7 @@ import Foundation
 
   /**
    * Removes all observers for a single status.
-   * - Parameter status A `StorageTaskStatus` to remove all listeners for.
+   * - Parameter status: A `StorageTaskStatus` to remove all listeners for.
    */
   @objc(removeAllObserversForStatus:)
   open func removeAllObservers(for status: StorageTaskStatus) {

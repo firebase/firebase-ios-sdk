@@ -235,7 +235,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           expected. We are expecting to receive an @c NSError with the code
           @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded response in the
           @c NSError.userInfo dictionary associated with the key
-          @c FIRAuthErrorUserInfoDecodedResponseKey.
+          `userInfoDeserializedResponseKey`.
    */
   func testNonDictionarySuccessResponse() async throws {
     // We are responding with a JSON-encoded string value representing an array - which is

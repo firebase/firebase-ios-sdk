@@ -21,7 +21,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
-static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
 NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
     @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults
 static NSString *const kFIRMessagingAPNSSandboxPrefix = @"s_";
@@ -112,28 +111,6 @@ BOOL FIRMessagingIsWatchKitExtension(void) {
 #else
   return NO;
 #endif
-}
-
-uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {
-  NSError *error;
-  NSArray *paths =
-      NSSearchPathForDirectoriesInDomains(FIRMessagingSupportedDirectory(), NSUserDomainMask, YES);
-
-  NSDictionary *attributesMap =
-      [[NSFileManager defaultManager] attributesOfFileSystemForPath:[paths lastObject]
-                                                              error:&error];
-  if (attributesMap) {
-    uint64_t totalSizeInBytes __unused = [attributesMap[NSFileSystemSize] longLongValue];
-    uint64_t freeSizeInBytes = [attributesMap[NSFileSystemFreeSize] longLongValue];
-    FIRMessagingLoggerDebug(
-        kFIRMessagingMessageCodeUtilities001, @"Device has capacity %llu MB with %llu MB free.",
-        totalSizeInBytes / kBytesToMegabytesDivisor, freeSizeInBytes / kBytesToMegabytesDivisor);
-    return ((double)freeSizeInBytes) / kBytesToMegabytesDivisor;
-  } else {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeUtilities002,
-                            @"Error in retreiving device's free memory %@", error);
-    return 0;
-  }
 }
 
 NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {

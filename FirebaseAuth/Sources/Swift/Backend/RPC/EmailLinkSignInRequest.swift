@@ -14,34 +14,22 @@
 
 import Foundation
 
-/** @var kEmailLinkSigninEndpoint
-    @brief The "EmailLinkSignin" endpoint.
- */
+/// The "EmailLinkSignin" endpoint.
 private let kEmailLinkSigninEndpoint = "emailLinkSignin"
 
-/** @var kEmailKey
-    @brief The key for the "identifier" value in the request.
- */
+/// The key for the "identifier" value in the request.
 private let kEmailKey = "email"
 
-/** @var kEmailLinkKey
-    @brief The key for the "emailLink" value in the request.
- */
+/// The key for the "emailLink" value in the request.
 private let kOOBCodeKey = "oobCode"
 
-/** @var kIDTokenKey
-    @brief The key for the "IDToken" value in the request.
- */
+/// The key for the "IDToken" value in the request.
 private let kIDTokenKey = "idToken"
 
-/** @var kPostBodyKey
-    @brief The key for the "postBody" value in the request.
- */
+/// The key for the "postBody" value in the request.
 private let kPostBodyKey = "postBody"
 
-/** @var kTenantIDKey
-    @brief The key for the tenant id value in the request.
- */
+/// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -50,15 +38,10 @@ class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
 
   let email: String
 
-  /** @property oobCode
-      @brief The OOB code used to complete the email link sign-in flow.
-   */
+  /// The OOB code used to complete the email link sign-in flow.
   let oobCode: String
 
-  /** @property IDToken
-      @brief The ID Token code potentially used to complete the email link sign-in flow.
-   */
-
+  /// The ID Token code potentially used to complete the email link sign-in flow.
   var idToken: String?
 
   init(email: String, oobCode: String,

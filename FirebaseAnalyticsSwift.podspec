@@ -27,7 +27,7 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
   s.osx.deployment_target   = osx_deployment_target
   s.tvos.deployment_target  = tvos_deployment_target
 
-  s.cocoapods_version       = '>= 1.10.0'
+  s.cocoapods_version       = '>= 1.12.0'
   s.prefix_header_file      = false
 
   s.source_files = [

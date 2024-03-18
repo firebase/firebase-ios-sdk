@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurementOnDeviceConversion'
-    s.version          = '10.21.0'
+    s.version          = '10.23.0'
     s.summary          = <<-SUMMARY
     On device conversion measurement plugin for Google App Measurement. Not
     intended for direct use.
@@ -17,10 +17,10 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/4ab453c686c6aac4/GoogleAppMeasurementOnDeviceConversion-10.20.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/c696679c30b9561e/GoogleAppMeasurementOnDeviceConversion-10.22.1.tar.gz'
     }
 
-    s.cocoapods_version = '>= 1.10.2'
+    s.cocoapods_version = '>= 1.12.0'
 
     s.ios.deployment_target  = '10.0'
 

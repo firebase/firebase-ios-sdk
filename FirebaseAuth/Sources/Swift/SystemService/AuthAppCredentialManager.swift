@@ -15,24 +15,20 @@
 #if !os(macOS)
   import Foundation
 
-  /** @class FIRAuthAppCredentialManager
-      @brief A class to manage app credentials backed by iOS Keychain.
-   */
+  /// A class to manage app credentials backed by iOS Keychain.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAppCredentialManager: NSObject {
     let kKeychainDataKey = "app_credentials"
     let kFullCredentialKey = "full_credential"
     let kPendingReceiptsKey = "pending_receipts"
 
-    /** @property credential
-        @brief The full credential (which has a secret) to be used by the app, if one is available.
-     */
+    /// The full credential (which has a secret) to be used by the app, if one is available.
+
     var credential: AuthAppCredential?
 
-    /** @property maximumNumberOfPendingReceipts
-        @brief The maximum (but not necessarily the minimum) number of pending receipts to be kept.
-        @remarks Only tests should access this property.
-     */
+    /// The maximum (but not necessarily the minimum) number of pending receipts to be kept.
+    ///
+    /// Only tests should access this property.
     let maximumNumberOfPendingReceipts = 32
 
     init(withKeychain keychain: AuthKeychainServices) {
@@ -116,19 +112,13 @@
       }
     }
 
-    /** @var _keychainServices
-        @brief The keychain for app credentials to load from and to save to.
-     */
+    /// The keychain for app credentials to load from and to save to.
     private let keychainServices: AuthKeychainServices
 
-    /** @var pendingReceipts
-        @brief A list of pending receipts sorted in the order they were recorded.
-     */
+    /// A list of pending receipts sorted in the order they were recorded.
     private var pendingReceipts: [String] = []
 
-    /** @var callbacksByReceipt
-        @brief A map from pending receipts to callbacks.
-     */
+    /// A map from pending receipts to callbacks.
     private var callbacksByReceipt: [String: (AuthAppCredential) -> Void] = [:]
 
     // Only for testing.

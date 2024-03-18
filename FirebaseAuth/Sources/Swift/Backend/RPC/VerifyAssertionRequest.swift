@@ -14,197 +14,124 @@
 
 import Foundation
 
-/** @var kVerifyAssertionEndpoint
-    @brief The "verifyAssertion" endpoint.
- */
+/// The "verifyAssertion" endpoint.
 private let kVerifyAssertionEndpoint = "verifyAssertion"
 
-/** @var kProviderIDKey
-    @brief The key for the "providerId" value in the request.
- */
+/// The key for the "providerId" value in the request.
 private let kProviderIDKey = "providerId"
 
-/** @var kProviderIDTokenKey
-    @brief The key for the "id_token" value in the request.
- */
+/// The key for the "id_token" value in the request.
 private let kProviderIDTokenKey = "id_token"
 
-/** @var kProviderNonceKey
-    @brief The key for the "nonce" value in the request.
- */
+/// The key for the "nonce" value in the request.
 private let kProviderNonceKey = "nonce"
 
-/** @var kProviderAccessTokenKey
-    @brief The key for the "access_token" value in the request.
- */
+/// The key for the "access_token" value in the request.
 private let kProviderAccessTokenKey = "access_token"
 
-/** @var kProviderOAuthTokenSecretKey
-    @brief The key for the "oauth_token_secret" value in the request.
- */
+/// The key for the "oauth_token_secret" value in the request.
 private let kProviderOAuthTokenSecretKey = "oauth_token_secret"
 
-/** @var kIdentifierKey
-    @brief The key for the "identifier" value in the request.
- */
+/// The key for the "identifier" value in the request.
 private let kIdentifierKey = "identifier"
 
-/** @var kRequestURIKey
-    @brief The key for the "requestUri" value in the request.
- */
+/// The key for the "requestUri" value in the request.
 private let kRequestURIKey = "requestUri"
 
-/** @var kPostBodyKey
-    @brief The key for the "postBody" value in the request.
- */
+/// The key for the "postBody" value in the request.
 private let kPostBodyKey = "postBody"
 
-/** @var kPendingTokenKey
-    @brief The key for the "pendingToken" value in the request.
- */
+/// The key for the "pendingToken" value in the request.
 private let kPendingTokenKey = "pendingToken"
 
-/** @var kAutoCreateKey
-    @brief The key for the "autoCreate" value in the request.
- */
+/// The key for the "autoCreate" value in the request.
 private let kAutoCreateKey = "autoCreate"
 
-/** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
- */
+/// The key for the "idToken" value in the request. This is actually the STS Access Token,
+///   despite its confusing (backwards compatiable) parameter name.
 private let kIDTokenKey = "idToken"
 
-/** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
- */
+/// The key for the "returnSecureToken" value in the request.
 private let kReturnSecureTokenKey = "returnSecureToken"
 
-/** @var kReturnIDPCredentialKey
-    @brief The key for the "returnIdpCredential" value in the request.
- */
+/// The key for the "returnIdpCredential" value in the request.
 private let kReturnIDPCredentialKey = "returnIdpCredential"
 
-/** @var kSessionIDKey
-    @brief The key for the "sessionID" value in the request.
- */
+/// The key for the "sessionID" value in the request.
 private let kSessionIDKey = "sessionId"
 
-/** @var kTenantIDKey
-    @brief The key for the tenant id value in the request.
- */
+/// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
-/** @var kUserKey
-    @brief The key for the "user" value in the request. The value is a JSON object that contains the
-   name of the user.
- */
+/// The key for the "user" value in the request. The value is a JSON object that contains the
+/// name of the user.
 private let kUserKey = "user"
 
-/** @var kNameKey
-    @brief The key for the "name" value in the request. The value is a JSON object that contains the
-   first and/or last name of the user.
- */
+/// The key for the "name" value in the request. The value is a JSON object that contains the
+/// first and/or last name of the user.
 private let kNameKey = "name"
 
-/** @var kFirstNameKey
-    @brief The key for the "firstName" value in the request.
- */
+/// The key for the "firstName" value in the request.
 private let kFirstNameKey = "firstName"
 
-/** @var kLastNameKey
-    @brief The key for the "lastName" value in the request.
- */
+/// The key for the "lastName" value in the request.
 private let kLastNameKey = "lastName"
 
-/** @class FIRVerifyAssertionRequest
-    @brief Represents the parameters for the verifyAssertion endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
- */
+/// Represents the parameters for the verifyAssertion endpoint.
+/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyAssertionResponse
 
-  /** @property requestURI
-      @brief The URI to which the IDP redirects the user back. It may contain federated login result
-          params added by the IDP.
-   */
+  /// The URI to which the IDP redirects the user back. It may contain federated login result
+  ///    params added by the IDP.
   var requestURI: String?
 
-  /** @property pendingToken
-      @brief The Firebase ID Token for the IDP pending to be confirmed by the user.
-   */
+  /// The Firebase ID Token for the IDP pending to be confirmed by the user.
   var pendingToken: String?
 
-  /** @property accessToken
-      @brief The STS Access Token for the authenticated user, only needed for linking the user.
-   */
+  /// The STS Access Token for the authenticated user, only needed for linking the user.
   var accessToken: String?
 
-  /** @property returnSecureToken
-      @brief Whether the response should return access token and refresh token directly.
-      @remarks The default value is @c YES .
-   */
-  var returnSecureToken: Bool = false
+  /// Whether the response should return access token and refresh token directly.
+  /// The default value is `true` .
+
+  var returnSecureToken: Bool = true
 
   // MARK: - Components of "postBody"
 
-  /** @property providerID
-      @brief The ID of the IDP whose credentials are being presented to the endpoint.
-   */
+  /// The ID of the IDP whose credentials are being presented to the endpoint.
   let providerID: String
 
-  /** @property providerAccessToken
-      @brief An access token from the IDP.
-   */
+  /// An access token from the IDP.
   var providerAccessToken: String?
 
-  /** @property providerIDToken
-      @brief An ID Token from the IDP.
-   */
+  /// An ID Token from the IDP.
   var providerIDToken: String?
 
-  /** @property providerRawNonce
-      @brief An raw nonce from the IDP.
-   */
+  /// An raw nonce from the IDP.
   var providerRawNonce: String?
 
-  /** @property returnIDPCredential
-      @brief Whether the response should return the IDP credential directly.
-   */
-  var returnIDPCredential: Bool = false
+  /// Whether the response should return the IDP credential directly.
+  var returnIDPCredential: Bool = true
 
-  /** @property providerOAuthTokenSecret
-      @brief A session ID used to map this request to a headful-lite flow.
-   */
+  /// A session ID used to map this request to a headful-lite flow.
   var sessionID: String?
 
-  /** @property providerOAuthTokenSecret
-      @brief An OAuth client secret from the IDP.
-   */
+  /// An OAuth client secret from the IDP.
   var providerOAuthTokenSecret: String?
 
-  /** @property inputEmail
-      @brief The originally entered email in the UI.
-   */
+  /// The originally entered email in the UI.
   var inputEmail: String?
 
-  /** @property autoCreate
-      @brief A flag that indicates whether or not the user should be automatically created.
-   */
-  var autoCreate: Bool = false
+  /// A flag that indicates whether or not the user should be automatically created.
+  var autoCreate: Bool = true
 
-  /** @property fullName
-      @brief A full name from the IdP.
-   */
+  /// A full name from the IdP.
   var fullName: PersonNameComponents?
 
   init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
     self.providerID = providerID
-    returnSecureToken = true
-    autoCreate = true
-    returnIDPCredential = true
-
     super.init(endpoint: kVerifyAssertionEndpoint, requestConfiguration: requestConfiguration)
   }
 

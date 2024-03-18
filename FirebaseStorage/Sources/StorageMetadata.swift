@@ -15,11 +15,12 @@
 import Foundation
 
 /**
- * Class which represents the metadata on an object in Firebase Storage. This metadata is
+ * Class which represents the metadata on an object in Firebase Storage.
+ *
+ * This metadata is
  * returned on successful operations, and can be used to retrieve download URLs, content types,
- * and a Storage reference to the object in question. Full documentation can be found at the GCS
- * Objects#resource docs.
- * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+ * and a Storage reference to the object in question. Full documentation can be found in the
+ * [GCS documentation](https://cloud.google.com/storage/docs/json_api/v1/objects#resource)
  */
 @objc(FIRStorageMetadata) open class StorageMetadata: NSObject {
   // MARK: - Public APIs
@@ -145,6 +146,10 @@ import Foundation
 
   // MARK: - Public Initializers
 
+  /**
+   * Creates an empty instance of StorageMetadata.
+   * @return An empty instance of StorageMetadata.
+   */
   @objc override public convenience init() {
     self.init(dictionary: [:])
   }
