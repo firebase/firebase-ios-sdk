@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import Foundation
 
 #if !os(macOS) && !os(iOS)
@@ -20,7 +21,5 @@ import Foundation
 /// Constants associated with the GenerativeAISwift SDK
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public enum GenerativeAISwift {
-  /// String value of the SDK version
-  public static let version = "0.4.8"
-  static let baseURL = "https://generativelanguage.googleapis.com"
+  static let baseURL = "https://staging-firebaseml.sandbox.googleapis.com"
 }

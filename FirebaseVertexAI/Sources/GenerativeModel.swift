@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAppCheckInterop
 import Foundation
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
@@ -44,31 +45,21 @@ public final class GenerativeModel {
   ///   - apiKey: The API key for your project.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
-  ///   - requestOptions Configuration parameters for sending requests to the backend.
-  public convenience init(name: String,
-                          apiKey: String,
-                          generationConfig: GenerationConfig? = nil,
-                          safetySettings: [SafetySetting]? = nil,
-                          requestOptions: RequestOptions = RequestOptions()) {
-    self.init(
-      name: name,
-      apiKey: apiKey,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      requestOptions: requestOptions,
-      urlSession: .shared
-    )
-  }
-
-  /// The designated initializer for this class.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
   init(name: String,
        apiKey: String,
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
-       requestOptions: RequestOptions = RequestOptions(),
-       urlSession: URLSession) {
+       requestOptions: RequestOptions,
+       appCheck: AppCheckInterop?,
+       urlSession: URLSession = .shared) {
     modelResourceName = GenerativeModel.modelResourceName(name: name)
-    generativeAIService = GenerativeAIService(apiKey: apiKey, urlSession: urlSession)
+    generativeAIService = GenerativeAIService(
+      apiKey: apiKey,
+      appCheck: appCheck,
+      urlSession: urlSession
+    )
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings
     self.requestOptions = requestOptions
@@ -282,10 +273,6 @@ public final class GenerativeModel {
   private static func generateContentError(from error: Error) -> GenerateContentError {
     if let error = error as? GenerateContentError {
       return error
-    } else if let error = error as? RPCError, error.isInvalidAPIKeyError() {
-      return GenerateContentError.invalidAPIKey(message: error.message)
-    } else if let error = error as? RPCError, error.isUnsupportedUserLocationError() {
-      return GenerateContentError.unsupportedUserLocation
     }
     return GenerateContentError.internalError(underlying: error)
   }
