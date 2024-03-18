@@ -79,8 +79,10 @@
 @property(nonatomic, readwrite, assign) NSString *lastETag;
 /// The timestamp of the last eTag update.
 @property(nonatomic, readwrite, assign) NSTimeInterval lastETagUpdateTime;
-// Last fetched template version.
-@property(nonatomic, readwrite, assign) NSString *lastTemplateVersion;
+/// Last fetched template version.
+@property(nonatomic, readwrite, assign) NSString *lastFetchedTemplateVersion;
+/// Last active template version.
+@property(nonatomic, readwrite, assign) NSString *lastActiveTemplateVersion;
 
 #pragma mark Throttling properties
 
@@ -133,6 +135,9 @@
 /// Increases the throttling time for Realtime. Should only be called if the Realtime error
 /// indicates a server issue.
 - (void)updateRealtimeExponentialBackoffTime;
+
+/// Update last active template version from last fetched template version.
+- (void)updateLastActiveTemplateVersion;
 
 /// Returns the difference between the Realtime backoff end time and the current time in a
 /// NSTimeInterval format.

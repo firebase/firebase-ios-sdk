@@ -33,6 +33,7 @@ target 'FirebasePodTest' do
   pod 'FirebaseAppCheckInterop', :path => '../../../'
   pod 'FirebaseAuthInterop', :path => '../../../'
   pod 'FirebaseMessagingInterop', :path => '../../../'
+  pod 'FirebaseRemoteConfigInterop', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseCoreExtension', :path => '../../../'
   pod 'FirebaseSessions', :path => '../../../'

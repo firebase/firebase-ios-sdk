@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuthInterop'
-  s.version          = '10.21.0'
+  s.version          = '10.23.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
   s.description      = <<-DESC
@@ -25,6 +25,6 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
   s.watchos.deployment_target = '6.0'
 
-  s.source_files = 'FirebaseAuth/Interop/*.[hm]'
-  s.public_header_files = 'FirebaseAuth/Interop/*.h'
+  s.source_files = 'FirebaseAuth/Interop/**/*.[hm]'
+  s.public_header_files = 'FirebaseAuth/Interop/Public/FirebaseAuthInterop/*.h'
 end

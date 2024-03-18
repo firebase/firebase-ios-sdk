@@ -24,15 +24,12 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendRPCIssuer: NSObjectProtocol {
-  /** @fn
-      @brief Asynchronously sends a HTTP request.
-      @param requestConfiguration The request to be made.
-      @param URL The request URL.
-      @param body Request body.
-      @param contentType Content type of the body.
-      @param handler provided that handles HTTP response. Invoked asynchronously on the auth global
-          work queue in the future.
-   */
+  /// Asynchronously send a HTTP request.
+  /// - Parameter request: The request to be made.
+  /// - Parameter body: Request body.
+  /// - Parameter contentType: Content type of the body.
+  /// - Parameter completionHandler: Handles HTTP response. Invoked asynchronously
+  ///  on the auth global  work queue in the future.
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
                                          contentType: String,
@@ -152,19 +149,16 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     rpcIssuer = AuthBackendRPCIssuerImplementation()
   }
 
-  /** @fn call
-      @brief Calls the RPC using HTTP request.
-      @remarks Possible error responses:
-          @see FIRAuthInternalErrorCodeRPCRequestEncodingError
-          @see FIRAuthInternalErrorCodeJSONSerializationError
-          @see FIRAuthInternalErrorCodeNetworkError
-          @see FIRAuthInternalErrorCodeUnexpectedErrorResponse
-          @see FIRAuthInternalErrorCodeUnexpectedResponse
-          @see FIRAuthInternalErrorCodeRPCResponseDecodingError
-      @param request The request.
-      @param response The empty response to be filled.
-      @param callback The callback for both success and failure.
-   */
+  /// Calls the RPC using HTTP request.
+  /// Possible error responses:
+  /// * See FIRAuthInternalErrorCodeRPCRequestEncodingError
+  /// * See FIRAuthInternalErrorCodeJSONSerializationError
+  /// * See FIRAuthInternalErrorCodeNetworkError
+  /// * See FIRAuthInternalErrorCodeUnexpectedErrorResponse
+  /// * See FIRAuthInternalErrorCodeUnexpectedResponse
+  /// * See FIRAuthInternalErrorCodeRPCResponseDecodingError
+  /// - Parameter request: The request.
+  /// - Returns: The response.
   fileprivate func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     let response = try await callInternal(with: request)
     if let auth = request.requestConfiguration().auth,
@@ -233,19 +227,17 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     }
   #endif
 
-  /** @fn call
-      @brief Calls the RPC using HTTP request.
-      @remarks Possible error responses:
-          @see FIRAuthInternalErrorCodeRPCRequestEncodingError
-          @see FIRAuthInternalErrorCodeJSONSerializationError
-          @see FIRAuthInternalErrorCodeNetworkError
-          @see FIRAuthInternalErrorCodeUnexpectedErrorResponse
-          @see FIRAuthInternalErrorCodeUnexpectedResponse
-          @see FIRAuthInternalErrorCodeRPCResponseDecodingError
-      @param request The request.
-      @param response The empty response to be filled.
-      @param callback The callback for both success and failure.
-   */
+  /// Calls the RPC using HTTP request.
+  ///
+  /// Possible error responses:
+  /// * See FIRAuthInternalErrorCodeRPCRequestEncodingError
+  /// * See FIRAuthInternalErrorCodeJSONSerializationError
+  /// * See FIRAuthInternalErrorCodeNetworkError
+  /// * See FIRAuthInternalErrorCodeUnexpectedErrorResponse
+  /// * See FIRAuthInternalErrorCodeUnexpectedResponse
+  /// * See FIRAuthInternalErrorCodeRPCResponseDecodingError
+  /// - Parameter request: The request.
+  /// - Returns: The response.
   fileprivate func callInternal<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     var bodyData: Data?
     if request.containsPostBody {

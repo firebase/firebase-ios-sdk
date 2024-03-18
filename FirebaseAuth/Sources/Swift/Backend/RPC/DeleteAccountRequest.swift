@@ -14,34 +14,25 @@
 
 import Foundation
 
-/** @var kCreateAuthURIEndpoint
-    @brief The "deleteAccount" endpoint.
- */
+/// The "deleteAccount" endpoint.
+
 private let kDeleteAccountEndpoint = "deleteAccount"
 
-/** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
- */
+/// The key for the "idToken" value in the request. This is actually the STS Access Token,
+///    despite its confusing (backwards compatiable) parameter name.
 private let kIDTokenKey = "idToken"
 
-/** @var kLocalIDKey
-    @brief The key for the "localID" value in the request.
- */
+/// The key for the "localID" value in the request.
 private let kLocalIDKey = "localId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = DeleteAccountResponse
 
-  /** @var _accessToken
-      @brief The STS Access Token of the authenticated user.
-   */
+  /// The STS Access Token of the authenticated user.
   let accessToken: String
 
-  /** @var _localID
-      @brief The localID of the user.
-   */
+  /// The localID of the user.
   let localID: String
 
   init(localID: String, accessToken: String, requestConfiguration: AuthRequestConfiguration) {

@@ -70,14 +70,14 @@ class StorageComponentTests: StorageTestHelpers {
                                                            in: container)
     XCTAssertNotNil(provider)
 
-    let storage1 = provider.storage(for: "randomBucket")
-    let storage2 = provider.storage(for: "randomBucket")
+    let storage1 = provider?.storage(for: "randomBucket")
+    let storage2 = provider?.storage(for: "randomBucket")
     XCTAssertNotNil(storage1)
 
     // Ensure they're the same instance.
     XCTAssert(storage1 === storage2)
 
-    let storage3 = provider.storage(for: "differentBucket")
+    let storage3 = provider?.storage(for: "differentBucket")
     XCTAssertNotNil(storage3)
 
     XCTAssert(storage1 !== storage3)

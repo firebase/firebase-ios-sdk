@@ -33,7 +33,8 @@ static const size_t FIRCLSUInt64StringBufferLength = 21;
 static const size_t FIRCLSStringBufferLength = 16;
 const size_t FIRCLSWriteBufferLength = 1000;
 
-static bool FIRCLSFileInit(FIRCLSFile* file, int fdm, bool appendMode, bool bufferWrites);
+static bool FIRCLSFileInit(
+    FIRCLSFile* file, const char* path, int fdm, bool appendMode, bool bufferWrites);
 
 static void FIRCLSFileWriteToFileDescriptorOrBuffer(FIRCLSFile* file,
                                                     const char* string,
@@ -55,7 +56,8 @@ static void FIRCLSFileWriteCollectionEntryEpilog(FIRCLSFile* file);
 #define CLS_FILE_DEBUG_LOGGING 0
 
 #pragma mark - File Structure
-static bool FIRCLSFileInit(FIRCLSFile* file, int fd, bool appendMode, bool bufferWrites) {
+static bool FIRCLSFileInit(
+    FIRCLSFile* file, const char* path, int fd, bool appendMode, bool bufferWrites) {
   if (!file) {
     FIRCLSSDKLog("Error: file is null\n");
     return false;
@@ -83,9 +85,16 @@ static bool FIRCLSFileInit(FIRCLSFile* file, int fd, bool appendMode, bool buffe
 
   file->writtenLength = 0;
   if (appendMode) {
-    struct stat fileStats;
-    fstat(fd, &fileStats);
-    off_t currentFileSize = fileStats.st_size;
+    NSError* attributesError;
+    NSString* objCPath = [NSString stringWithCString:path encoding:NSUTF8StringEncoding];
+    NSDictionary* fileAttributes =
+        [[NSFileManager defaultManager] attributesOfItemAtPath:objCPath error:&attributesError];
+    if (attributesError != nil) {
+      FIRCLSErrorLog(@"Failed to read filesize from %@ with error %@", objCPath, attributesError);
+      return false;
+    }
+    NSNumber* fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
+    long long currentFileSize = [fileSizeNumber longLongValue];
     if (currentFileSize > 0) {
       file->writtenLength += currentFileSize;
     }
@@ -133,7 +142,7 @@ bool FIRCLSFileInitWithPathMode(FIRCLSFile* file,
     }
   }
 
-  return FIRCLSFileInit(file, fd, appendMode, bufferWrites);
+  return FIRCLSFileInit(file, path, fd, appendMode, bufferWrites);
 }
 
 bool FIRCLSFileClose(FIRCLSFile* file) {

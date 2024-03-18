@@ -153,7 +153,7 @@ nm ~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC/Build/Products/Debug/TestP
 # return exit code 1, which will cause the set pipefail to terminate execution.
 # To avoid this, `|| true` ensures the exit code always indicates success.
 DIFF=$(
-    git diff --no-index \
+    git diff --no-index --output-indicator-new="?" \
         objc_symbols_without_linker_flag.txt \
         objc_symbols_with_linker_flag.txt \
         || true
@@ -161,6 +161,9 @@ DIFF=$(
 if [[ -n "$DIFF" ]]; then
     echo "Failure: Unlinked Objective-C symbols have been detected:"
     echo "$DIFF"
+    echo -n "💡 To fix, follow the process shown in "
+    echo -n "https://github.com/firebase/firebase-ios-sdk/pull/12534 for the "
+    echo "above symbols that are prefixed with ?"
     exit 1
 else
     echo "Success: No unlinked Objective-C symbols have been detected."
