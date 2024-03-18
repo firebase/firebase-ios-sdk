@@ -1,3 +1,5 @@
+- [added] Adds `putFileHandle` and `putFileHandleAsync`.
+
 # 10.11.0
 - [added] Add progress tracking capability for `putDataAsync`, `putFileAsync`, and
   `writeAsync`. (#10574)

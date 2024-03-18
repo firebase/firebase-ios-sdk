@@ -365,6 +365,42 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testPutFileHandle() throws {
+    let expectation = self.expectation(description: #function)
+    let putFileHandleExpectation = self.expectation(description: "putFileHandle")
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFileHandle")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    let fileHandle = try XCTUnwrap(FileHandle(forReadingFrom: fileURL), "FileHandle init failed")
+
+    let task = ref.putFileHandle(from: fileURL) { result in
+      self.assertResultSuccess(result)
+      putFileExpectation.fulfill()
+    }
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+
+    var uploadedBytes: Int64 = -1
+
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
+        snapshot.description.starts(with: "<State: Resume"))
+      guard let progress = snapshot.progress else {
+        XCTFail("Failed to get snapshot.progress")
+        return
+      }
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+    }
+    waitForExpectations()
+  }
+
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"
