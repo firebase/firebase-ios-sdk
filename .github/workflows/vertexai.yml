@@ -24,6 +24,8 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v4
     - name: Xcode
