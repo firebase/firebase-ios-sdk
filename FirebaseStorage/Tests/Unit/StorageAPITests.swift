@@ -70,9 +70,13 @@ final class StorageAPITests: XCTestCase {
     let fileHandle = FileHandle.nullDevice
     _ = ref.putFileHandle(fileHandle)
     _ = ref.putFileHandle(fileHandle, metadata: metadata)
-    _ = ref.putFileHandle(fileHandle, metadata: metadata) { (result: Result<StorageMetadata, Error>) in
+    _ = ref.putFileHandle(fileHandle, metadata: metadata) { (result: Result<
+      StorageMetadata,
+      Error
+    >) in
     }
-    _ = ref.putFileHandle(fileHandle, metadata: metadata) { (result: StorageMetadata?, error: Error?) in
+    _ = ref.putFileHandle(fileHandle, metadata: metadata) { (result: StorageMetadata?,
+                                                             error: Error?) in
     }
 
     _ = ref.getData(maxSize: 122) { (result: Data?, error: Error?) in

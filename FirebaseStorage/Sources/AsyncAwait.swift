@@ -122,7 +122,8 @@ public extension StorageReference {
   /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
   func putFileHandleAsync(_ fileHandle: FileHandle,
                           metadata: StorageMetadata? = nil,
-                          onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
+                          onProgress: ((Progress?) -> Void)? = nil) async throws
+    -> StorageMetadata {
     guard let onProgress = onProgress else {
       return try await withCheckedThrowingContinuation { continuation in
         self.putFileHandle(fileHandle, metadata: metadata) { result in
@@ -140,7 +141,8 @@ public extension StorageReference {
       }
       uploadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in putFileHandleAsync")
+          snapshot.error ?? StorageError
+            .internalError("Internal Storage Error in putFileHandleAsync")
         ))
       }
     }
