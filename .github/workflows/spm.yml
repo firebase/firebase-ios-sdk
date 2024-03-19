@@ -98,6 +98,7 @@ jobs:
             xcode: Xcode_15.2
           - os: macos-14
             target: visionOS
+            xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
