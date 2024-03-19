@@ -97,7 +97,7 @@ final class StorageAPITests: XCTestCase {
 
     ref.listAll { (listResult: StorageListResult?, error: Error?) in
     }
-    ref.listAll { (result: Result<StorageListResult, Error>) inÎ
+    ref.listAll { (result: Result<StorageListResult, Error>) in
     }
 
     ref.list(maxResults: 123) { (listResult: StorageListResult?, error: Error?) in
