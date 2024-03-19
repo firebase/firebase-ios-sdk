@@ -73,6 +73,7 @@ jobs:
             xcode: Xcode_15.2
           - os: macos-14
             xcode: Xcode_15.2
+          - os: macos-14
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -98,8 +99,6 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
-          - os: macos-13
-            xcode: Xcode_15.2
           - swift: swift
             os: macos-13
             xcode: Xcode_15.2
