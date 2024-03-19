@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import Foundation
-@testable import GoogleGenerativeAI
 import XCTest
+
+@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 final class ChatTests: XCTestCase {
@@ -46,7 +47,13 @@ final class ChatTests: XCTestCase {
       return (response, fileURL.lines)
     }
 
-    let model = GenerativeModel(name: "my-model", apiKey: "API_KEY", urlSession: urlSession)
+    let model = GenerativeModel(
+      name: "my-model",
+      apiKey: "API_KEY",
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      urlSession: urlSession
+    )
     let chat = Chat(model: model, history: [])
     let input = "Test input"
     let stream = chat.sendMessageStream(input)

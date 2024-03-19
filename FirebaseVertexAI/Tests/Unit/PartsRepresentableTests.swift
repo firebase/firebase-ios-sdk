@@ -14,7 +14,7 @@
 
 import CoreGraphics
 import CoreImage
-import GoogleGenerativeAI
+import FirebaseVertexAI
 import XCTest
 #if canImport(UIKit)
   import UIKit

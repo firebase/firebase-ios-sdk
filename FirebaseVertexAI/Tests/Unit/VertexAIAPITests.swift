@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
 #if canImport(AppKit)
   import AppKit // For NSImage extensions.
@@ -21,8 +22,9 @@ import XCTest
 #endif
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-final class GoogleGenerativeAITests: XCTestCase {
+final class VertexAIAPITests: XCTestCase {
   func codeSamples() async throws {
+    let app = FirebaseApp.app()
     let config = GenerationConfig(temperature: 0.2,
                                   topP: 0.1,
                                   topK: 16,
@@ -32,16 +34,40 @@ final class GoogleGenerativeAITests: XCTestCase {
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
 
     // Permutations without optional arguments.
-    let _ = GenerativeModel(name: "gemini-1.0-pro", apiKey: "API_KEY")
-    let _ = GenerativeModel(name: "gemini-1.0-pro", apiKey: "API_KEY", safetySettings: filters)
-    let _ = GenerativeModel(name: "gemini-1.0-pro", apiKey: "API_KEY", generationConfig: config)
+
+    // TODO: Change `genAI` to `_` when safetySettings and generationConfig are added to public API.
+    let genAI = VertexAI.generativeModel(modelName: "gemini-1.0-pro", location: "us-central1")
+    let _ = VertexAI.generativeModel(
+      app: app!,
+      modelName: "gemini-1.0-pro",
+      location: "us-central1"
+    )
+
+    // TODO: Add safetySettings to public API.
+    // TODO: Add permutation with `app` specified.
+    //  let _ = VertexAI.generativeModel(
+    //    modelName: "gemini-1.0-pro",
+    //    location: "us-central1",
+    //    safetySettings: filters
+    //  )
+    // TODO: Add generationConfig to public API.
+    // TODO: Add permutation with `app` specified.
+    // let _ = VertexAI.generativeModel(
+    //   modelName: "gemini-1.0-pro",
+    //   location: "us-central1",
+    //   generationConfig: config
+    // )
 
     // All arguments passed.
-    let genAI = GenerativeModel(name: "gemini-1.0-pro",
-                                apiKey: "API_KEY",
-                                generationConfig: config, // Optional
-                                safetySettings: filters // Optional
-    )
+    // TODO: Add safetySettings and generationConfig to public API.
+    // TODO: Add permutation with `app` specified.
+    // let genAI = VertexAI.generativeModel(
+    //   modelName: "gemini-1.0-pro",
+    //   location: "us-central1",
+    //   generationConfig: config, // Optional
+    //   safetySettings: filters // Optional
+    // )
+
     // Full Typed Usage
     let pngData = Data() // ....
     let contents = [ModelContent(role: "user",

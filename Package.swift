@@ -1373,6 +1373,15 @@ let package = Package(
       ],
       path: "FirebaseVertexAI/Sources"
     ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: ["FirebaseVertexAI"],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("CountTokenResponses"),
+        .process("GenerateContentResponses"),
+      ]
+    ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
