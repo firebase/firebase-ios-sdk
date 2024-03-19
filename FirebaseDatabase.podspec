@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '10.23.0'
+  s.version          = '10.24.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC

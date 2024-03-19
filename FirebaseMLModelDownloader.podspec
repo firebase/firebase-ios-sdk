@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '10.23.0-beta'
+  s.version          = '10.24.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
 
   s.description      = <<-DESC
