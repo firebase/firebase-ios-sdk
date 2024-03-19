@@ -18,8 +18,7 @@ jobs:
   spm:
     strategy:
       matrix:
-        # TODO: Re-enable catalyst
-        target: [iOS, macOS]
+        target: [iOS, macOS, catalyst]
         os: [macos-13]
         include:
           - os: macos-13
@@ -32,6 +31,6 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
-      run: xcodebuild -list
+      run: scripts/setup_spm_tests.sh
     - name: Build and run tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
