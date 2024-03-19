@@ -18,7 +18,8 @@ jobs:
   spm:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst]
+        # TODO: Re-enable catalyst
+        target: [iOS, macOS]
         os: [macos-13]
         include:
           - os: macos-13
