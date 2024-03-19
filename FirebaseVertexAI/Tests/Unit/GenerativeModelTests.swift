@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import GoogleGenerativeAI
 import XCTest
+
+@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 final class GenerativeModelTests: XCTestCase {
@@ -32,7 +33,13 @@ final class GenerativeModelTests: XCTestCase {
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
     urlSession = try XCTUnwrap(URLSession(configuration: configuration))
-    model = GenerativeModel(name: "my-model", apiKey: "API_KEY", urlSession: urlSession)
+    model = GenerativeModel(
+      name: "my-model",
+      apiKey: "API_KEY",
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      urlSession: urlSession
+    )
   }
 
   override func tearDown() {
@@ -163,6 +170,8 @@ final class GenerativeModelTests: XCTestCase {
       // Model name is prefixed with "models/".
       name: "models/test-model",
       apiKey: "API_KEY",
+      requestOptions: RequestOptions(),
+      appCheck: nil,
       urlSession: urlSession
     )
 
@@ -181,10 +190,13 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.invalidAPIKey(message) {
-      XCTAssertEqual(message, "API key not valid. Please pass a valid API key.")
+    } catch let GenerateContentError.internalError(error as RPCError) {
+      XCTAssertEqual(error.httpResponseCode, 400)
+      XCTAssertEqual(error.status, .invalidArgument)
+      XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
+      return
     } catch {
-      XCTFail("Should throw GenerateContentError.invalidAPIKey; error thrown: \(error)")
+      XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
     }
   }
 
@@ -342,24 +354,6 @@ final class GenerativeModelTests: XCTestCase {
     }
   }
 
-  func testGenerateContent_failure_unsupportedUserLocation() async throws {
-    MockURLProtocol
-      .requestHandler = try httpRequestHandler(
-        forResource: "unary-failure-unsupported-user-location",
-        withExtension: "json",
-        statusCode: 400
-      )
-
-    do {
-      _ = try await model.generateContent(testPrompt)
-      XCTFail("Should throw GenerateContentError.unsupportedUserLocation; no error thrown.")
-    } catch GenerateContentError.unsupportedUserLocation {
-      return
-    }
-
-    XCTFail("Expected an unsupported user location error.")
-  }
-
   func testGenerateContent_failure_nonHTTPResponse() async throws {
     MockURLProtocol.requestHandler = try nonHTTPRequestHandler()
 
@@ -468,6 +462,7 @@ final class GenerativeModelTests: XCTestCase {
       name: "my-model",
       apiKey: "API_KEY",
       requestOptions: requestOptions,
+      appCheck: nil,
       urlSession: urlSession
     )
 
@@ -490,8 +485,10 @@ final class GenerativeModelTests: XCTestCase {
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
-    } catch GenerateContentError.invalidAPIKey {
-      // invalidAPIKey error is as expected, nothing else to check.
+    } catch let GenerateContentError.internalError(error as RPCError) {
+      XCTAssertEqual(error.httpResponseCode, 400)
+      XCTAssertEqual(error.status, .invalidArgument)
+      XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
       return
     }
 
@@ -747,26 +744,6 @@ final class GenerativeModelTests: XCTestCase {
     XCTFail("Expected an internal decoding error.")
   }
 
-  func testGenerateContentStream_failure_unsupportedUserLocation() async throws {
-    MockURLProtocol
-      .requestHandler = try httpRequestHandler(
-        forResource: "unary-failure-unsupported-user-location",
-        withExtension: "json",
-        statusCode: 400
-      )
-
-    let stream = model.generateContentStream(testPrompt)
-    do {
-      for try await content in stream {
-        XCTFail("Unexpected content in stream: \(content)")
-      }
-    } catch GenerateContentError.unsupportedUserLocation {
-      return
-    }
-
-    XCTFail("Expected an unsupported user location error.")
-  }
-
   func testGenerateContentStream_requestOptions_customTimeout() async throws {
     let expectedTimeout = 150.0
     MockURLProtocol
@@ -780,6 +757,7 @@ final class GenerativeModelTests: XCTestCase {
       name: "my-model",
       apiKey: "API_KEY",
       requestOptions: requestOptions,
+      appCheck: nil,
       urlSession: urlSession
     )
 
@@ -837,6 +815,7 @@ final class GenerativeModelTests: XCTestCase {
       name: "my-model",
       apiKey: "API_KEY",
       requestOptions: requestOptions,
+      appCheck: nil,
       urlSession: urlSession
     )
 
@@ -851,7 +830,12 @@ final class GenerativeModelTests: XCTestCase {
     let modelName = "my-model"
     let modelResourceName = "models/\(modelName)"
 
-    model = GenerativeModel(name: modelName, apiKey: "API_KEY")
+    model = GenerativeModel(
+      name: modelName,
+      apiKey: "API_KEY",
+      requestOptions: RequestOptions(),
+      appCheck: nil
+    )
 
     XCTAssertEqual(model.modelResourceName, modelResourceName)
   }
@@ -859,7 +843,12 @@ final class GenerativeModelTests: XCTestCase {
   func testModelResourceName_modelsPrefix() async throws {
     let modelResourceName = "models/my-model"
 
-    model = GenerativeModel(name: modelResourceName, apiKey: "API_KEY")
+    model = GenerativeModel(
+      name: modelResourceName,
+      apiKey: "API_KEY",
+      requestOptions: RequestOptions(),
+      appCheck: nil
+    )
 
     XCTAssertEqual(model.modelResourceName, modelResourceName)
   }
@@ -867,7 +856,12 @@ final class GenerativeModelTests: XCTestCase {
   func testModelResourceName_tunedModelsPrefix() async throws {
     let tunedModelResourceName = "tunedModels/my-model"
 
-    model = GenerativeModel(name: tunedModelResourceName, apiKey: "API_KEY")
+    model = GenerativeModel(
+      name: tunedModelResourceName,
+      apiKey: "API_KEY",
+      requestOptions: RequestOptions(),
+      appCheck: nil
+    )
 
     XCTAssertEqual(model.modelResourceName, tunedModelResourceName)
   }
