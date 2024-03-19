@@ -32,6 +32,5 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
-    # TODO: Add unit tests and switch from `spmbuildonly` to `spm`.
-    - name: Build
-      run: scripts/third_party/travis/retry.sh scripts/build.sh FirebaseVertexAI ${{ matrix.target }} spmbuildonly
+    - name: Build and run tests
+      run: scripts/third_party/travis/retry.sh scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
