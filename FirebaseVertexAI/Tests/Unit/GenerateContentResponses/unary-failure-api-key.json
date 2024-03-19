@@ -9,7 +9,7 @@
         "reason": "API_KEY_INVALID",
         "domain": "googleapis.com",
         "metadata": {
-          "service": "generativelanguage.googleapis.com"
+          "service": "staging-firebaseml.sandbox.googleapis.com"
         }
       },
       {
