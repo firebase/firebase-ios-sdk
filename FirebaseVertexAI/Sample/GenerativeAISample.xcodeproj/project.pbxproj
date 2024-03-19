@@ -56,6 +56,10 @@
 		88E10F592B11131900C08E95 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F582B11131900C08E95 /* ChatMessage.swift */; };
 		88E10F5B2B11133E00C08E95 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F5A2B11133E00C08E95 /* MessageView.swift */; };
 		88E10F5D2B11135000C08E95 /* BouncingDots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F5C2B11135000C08E95 /* BouncingDots.swift */; };
+		8D589E2B2BA8E87A0049BFCA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8D589E2A2BA8E87A0049BFCA /* FirebaseAppCheck */; };
+		8D589E2D2BA8EEA30049BFCA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8D589E2C2BA8EEA30049BFCA /* FirebaseAppCheck */; };
+		8D589E2F2BA8EEBD0049BFCA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8D589E2E2BA8EEBD0049BFCA /* FirebaseAppCheck */; };
+		8D589E312BA8EED80049BFCA /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8D589E302BA8EED80049BFCA /* FirebaseAppCheck */; };
 		CB0DFFD52B2B4F08006E109D /* GenerativeAIUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = CB0DFFD42B2B4F08006E109D /* GenerativeAIUIComponents */; };
 /* End PBXBuildFile section */
 
@@ -97,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D589E312BA8EED80049BFCA /* FirebaseAppCheck in Frameworks */,
 				886F95D82B17BA420036F07A /* MarkdownUI in Frameworks */,
 				869200AB2B86BE3100482873 /* FirebaseVertexAI in Frameworks */,
 				886F95E32B17D6630036F07A /* GenerativeAIUIComponents in Frameworks */,
@@ -108,6 +113,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88209C242B0FBE1700F64795 /* MarkdownUI in Frameworks */,
+				8D589E2F2BA8EEBD0049BFCA /* FirebaseAppCheck in Frameworks */,
 				869200B12B86BFF500482873 /* FirebaseVertexAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -116,6 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D589E2B2BA8E87A0049BFCA /* FirebaseAppCheck in Frameworks */,
 				88B8A91E2B0FC55100424728 /* MarkdownUI in Frameworks */,
 				869200AF2B86BFBC00482873 /* FirebaseVertexAI in Frameworks */,
 				88B8A9372B0FCBE700424728 /* GenerativeAIUIComponents in Frameworks */,
@@ -126,6 +133,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8D589E2D2BA8EEA30049BFCA /* FirebaseAppCheck in Frameworks */,
 				88D9474D2B14F27E008B5580 /* MarkdownUI in Frameworks */,
 				869200AD2B86BEA100482873 /* FirebaseVertexAI in Frameworks */,
 				CB0DFFD52B2B4F08006E109D /* GenerativeAIUIComponents in Frameworks */,
@@ -335,6 +343,7 @@
 				886F95D72B17BA420036F07A /* MarkdownUI */,
 				886F95E22B17D6630036F07A /* GenerativeAIUIComponents */,
 				869200AA2B86BE3100482873 /* FirebaseVertexAI */,
+				8D589E302BA8EED80049BFCA /* FirebaseAppCheck */,
 			);
 			productName = GenerativeAISample;
 			productReference = 8848C82F2B0D04BC007B434F /* GenerativeAISample.app */;
@@ -356,6 +365,7 @@
 			packageProductDependencies = (
 				88209C232B0FBE1700F64795 /* MarkdownUI */,
 				869200B02B86BFF500482873 /* FirebaseVertexAI */,
+				8D589E2E2BA8EEBD0049BFCA /* FirebaseAppCheck */,
 			);
 			productName = GenerativeAITextSample;
 			productReference = 8848C8442B0D051E007B434F /* GenerativeAITextSample.app */;
@@ -378,6 +388,7 @@
 				88B8A91D2B0FC55100424728 /* MarkdownUI */,
 				88B8A9362B0FCBE700424728 /* GenerativeAIUIComponents */,
 				869200AE2B86BFBC00482873 /* FirebaseVertexAI */,
+				8D589E2A2BA8E87A0049BFCA /* FirebaseAppCheck */,
 			);
 			productName = GenerativeAIMultimodalSample;
 			productReference = 8848C8562B0D056C007B434F /* GenerativeAIMultimodalSample.app */;
@@ -400,6 +411,7 @@
 				88D9474C2B14F27E008B5580 /* MarkdownUI */,
 				CB0DFFD42B2B4F08006E109D /* GenerativeAIUIComponents */,
 				869200AC2B86BEA100482873 /* FirebaseVertexAI */,
+				8D589E2C2BA8EEA30049BFCA /* FirebaseAppCheck */,
 			);
 			productName = ChatSample;
 			productReference = 88E10F422B110D5300C08E95 /* ChatSample.app */;
@@ -1042,6 +1054,22 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 88209C212B0FBDF700F64795 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;
+		};
+		8D589E2A2BA8E87A0049BFCA /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAppCheck;
+		};
+		8D589E2C2BA8EEA30049BFCA /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAppCheck;
+		};
+		8D589E2E2BA8EEBD0049BFCA /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAppCheck;
+		};
+		8D589E302BA8EED80049BFCA /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAppCheck;
 		};
 		CB0DFFD42B2B4F08006E109D /* GenerativeAIUIComponents */ = {
 			isa = XCSwiftPackageProductDependency;
