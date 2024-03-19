@@ -36,10 +36,9 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
             test: spmbuildonly
-          # TODO: Fix swift-tests for running on Arm Macs to enable tests.
           - os: macos-14
             xcode: Xcode_15.2
-            test: spmbuildonly
+            test: spm
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
