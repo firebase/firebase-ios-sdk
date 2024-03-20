@@ -376,9 +376,9 @@ class StorageResultTests: StorageIntegrationCommon {
 
     let fileHandle = try XCTUnwrap(FileHandle(forReadingFrom: fileURL), "FileHandle init failed")
 
-    let task = ref.putFileHandle(from: fileURL) { result in
+    let task = ref.putFileHandle(fileHandle) { result in
       self.assertResultSuccess(result)
-      putFileExpectation.fulfill()
+      putFileHandleExpectation.fulfill()
     }
 
     task.observe(StorageTaskStatus.success) { snapshot in

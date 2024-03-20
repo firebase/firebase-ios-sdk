@@ -177,6 +177,19 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     XCTAssertNotNil(result)
   }
 
+  func testSimplePutFileHandleNoMetadata() async throws {
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFileHandleNoMetadata")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    let fileHandle = try XCTUnwrap(FileHandle(forReadingFrom: fileURL), "FileHandle init failed")
+
+    let result = try await ref.putFileHandleAsync(fileHandle)
+    XCTAssertNotNil(result)
+  }
+
   func testSimplePutFileWithAsyncProgress() async throws {
     var checkedProgress = false
     let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
@@ -186,6 +199,26 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     try data.write(to: fileURL, options: .atomicWrite)
     var uploadedBytes: Int64 = -1
     let successMetadata = try await ref.putFileAsync(from: fileURL) { progress in
+      if let completed = progress?.completedUnitCount {
+        checkedProgress = true
+        XCTAssertGreaterThanOrEqual(completed, uploadedBytes)
+        uploadedBytes = completed
+      }
+    }
+    XCTAssertEqual(successMetadata.size, 17)
+    XCTAssertTrue(checkedProgress)
+  }
+
+  func testSimplePutFileHandleWithAsyncProgress() async throws {
+    var checkedProgress = false
+    let ref = storage.reference(withPath: "ios/public/testSimplePutFileHandle")
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
+    try data.write(to: fileURL, options: .atomicWrite)
+    let fileHandle = try XCTUnwrap(FileHandle(forReadingFrom: fileURL), "FileHandle init failed")
+    var uploadedBytes: Int64 = -1
+    let successMetadata = try await ref.putFileHandleAsync(fileHandle) { progress in
       if let completed = progress?.completedUnitCount {
         checkedProgress = true
         XCTAssertGreaterThanOrEqual(completed, uploadedBytes)

@@ -237,32 +237,6 @@ import Foundation
     return task
   }
 
-  /*
-   open func putFileHandle(_ fileHandle: FileHandle, metadata: StorageMetadata? = nil) -> StorageUploadTask {
-     return putFileHandle(fileHandle, metadata: metadata, completion: nil)
-   }
-
-     open func putFileHandle(_ fileHandle: FileHandle,
-                             metadata: StorageMetadata? = nil,
-                             completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
-         print("called this one")
-         let putMetadata: StorageMetadata = metadata ?? StorageMetadata()
-
-         if let path = path.object {
-           putMetadata.path = path
-           putMetadata.name = (path as NSString).lastPathComponent as String
-         }
-
-         let task = StorageUploadTask(reference: self,
-                                      service: storage.fetcherServiceForApp,
-                                      queue: storage.dispatchQueue,
-                                      fileHandle: fileHandle,
-                                      metadata: putMetadata)
-         startAndObserveUploadTask(task: task, completion: completion)
-         return task
-     }
-   */
-
   // MARK: - Downloads
 
   /// Asynchronously downloads the object at the `StorageReference` to a `Data` instance in memory.
