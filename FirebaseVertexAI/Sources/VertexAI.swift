@@ -20,10 +20,12 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-@objc(FIRVertexAI)
-open class VertexAI: NSObject {
+public class VertexAI: NSObject {
   // MARK: - Public APIs
 
+  /// The default `VertexAI` instance.
+  ///
+  /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
   public static func vertexAI() -> VertexAI {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
@@ -32,6 +34,10 @@ open class VertexAI: NSObject {
     return vertexAI(app: app)
   }
 
+  /// Creates an instance of `VertexAI` configured with a custom `FirebaseApp`.
+  ///
+  /// - Parameter app: The custom `FirebaseApp` used for initialization.
+  /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp) -> VertexAI {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
@@ -41,7 +47,18 @@ open class VertexAI: NSObject {
     return provider.vertexAI()
   }
 
-  /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
+  /// Initializes a generative model with the given parameters.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the model to use, e.g., `"gemini-1.0-pro"`; see
+  ///     [Gemini models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models)
+  ///     for a list of supported model names.
+  ///   - location: The location identifier, e.g., `us-central1`; see
+  ///     [Vertex AI regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
+  ///     for a list of supported locations.
+  ///   - generationConfig: The content generation parameters your model should use.
+  ///   - safetySettings: A value describing what types of harmful content your model should allow.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
   public func generativeModel(modelName: String, location: String,
                               generationConfig: GenerationConfig? = nil,
                               safetySettings: [SafetySetting]? = nil,
