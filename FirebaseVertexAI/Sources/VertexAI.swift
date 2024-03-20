@@ -51,10 +51,12 @@ public class VertexAI: NSObject {
   ///
   /// - Parameters:
   ///   - modelName: The name of the model to use, e.g., `"gemini-1.0-pro"`; see
-  ///     [Gemini models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models)
+  ///     [Gemini
+  ///     models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models)
   ///     for a list of supported model names.
   ///   - location: The location identifier, e.g., `us-central1`; see
-  ///     [Vertex AI regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
+  ///     [Vertex AI
+  ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
   ///     for a list of supported locations.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
