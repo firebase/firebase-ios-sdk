@@ -581,7 +581,8 @@ struct FrameworkBuilder {
               requires objc
             }
             """
-            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"]).resolvingSymlinksInPath()
+            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
+              .resolvingSymlinksInPath()
             try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
           }
         } catch {
@@ -622,8 +623,9 @@ struct FrameworkBuilder {
         fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
       }
     }
-    // Done – remove code sig dir, set OS min to 100 in plist, clean up symbolic link to avoid v8 carthage crash, privacy manifest, module map,
-    
+    // Done – remove code sig dir, set OS min to 100 in plist, clean up symbolic link to avoid v8
+    // carthage crash, privacy manifest, module map,
+
     return slicedFrameworks.map { platform, frameworkPath in
       // Create the following structure in the platform frameworks directory:
       // - platform_frameworks
@@ -632,7 +634,7 @@ struct FrameworkBuilder {
       let platformFrameworkDir = platformFrameworksDir
         .appendingPathComponent(platform.buildName)
         .appendingPathComponent(framework + ".framework")
-    
+
       do {
         // Create `platform_frameworks/$(PLATFORM)` subdirectory.
         try fileManager.createDirectory(
@@ -657,7 +659,7 @@ struct FrameworkBuilder {
         )
         .appendingPathComponent("_CodeSignature")
       try? fileManager.removeItem(at: codeSignatureDir)
-      
+
       // The minimum OS version is set to 100.0 to work around b/327020913.
       // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
       // TODO(ncooke3): Does this need to happen on macOS?
@@ -685,7 +687,7 @@ struct FrameworkBuilder {
           "Could not modify framework-level plist for b/327020913 in framework directory \(framework): \(error)"
         )
       }
-      
+
       // The macOS slice's `Headers` directory may have a `Headers` file in
       // it that symbolically links to nowhere. For example, in the 8.0.0
       // zip distribution, see the `Headers` directory in the macOS slice
@@ -696,7 +698,7 @@ struct FrameworkBuilder {
       let headersDir = platformFrameworkDir.appendingPathComponent("Headers")
         .resolvingSymlinksInPath()
       try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
-      
+
       // Move privacy manifest containing resource bundles into the framework.
       let resourceDir = platformFrameworkDir
         .appendingPathComponent(
@@ -704,13 +706,13 @@ struct FrameworkBuilder {
         )
         .resolvingSymlinksInPath()
       processPrivacyManifests(fileManager, frameworkPath, resourceDir)
-      
+
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
                         frameworkName: framework,
                         moduleMapContents: moduleMapContents,
                         destination: platformFrameworkDir)
-      
+
       return platformFrameworkDir
     }
   }
