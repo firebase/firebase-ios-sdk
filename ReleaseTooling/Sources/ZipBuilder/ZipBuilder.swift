@@ -501,8 +501,13 @@ struct ZipBuilder {
                 // Ignore anything that not a framework.
                 guard fileManager.isDirectory(at: frameworkPath),
                       frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
-                let resourcesDir = frameworkPath.appendingPathComponent("Resources")
-                try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
+                let resourcesDir = frameworkPath.appendingPathComponent("Resources").resolvingSymlinksInPath()
+                let xcResourceDirContents = try! fileManager.contentsOfDirectory(at: xcResourceDir, includingPropertiesForKeys: nil)
+                let resourcesDirContents = try! fileManager.contentsOfDirectory(at: resourcesDir, includingPropertiesForKeys: nil)
+
+                for file in Set(xcResourceDirContents).subtracting(resourcesDirContents) {
+                  try fileManager.copyItem(at: file, to: resourcesDir.appendingPathComponent(file.lastPathComponent))
+                }
               }
             }
             try fileManager.removeItem(at: xcResourceDir)
