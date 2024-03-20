@@ -456,17 +456,13 @@ struct FrameworkBuilder {
                           buildingCarthage: buildingCarthage) {
       return buildingCarthage
     }
-    // Copy the module map to the destination.
-    let moduleDir = destination.appendingPathComponent("Modules")
+
+    let modulemapURL = destination
+      .appendingPathComponent("Modules")
+      .appendingPathComponent("module.modulemap")
+      .resolvingSymlinksInPath()
     do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
-      fatalError("Could not create Modules directory for framework: \(frameworkName). \(error)")
-    }
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-    do {
-      try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
+      try moduleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
     } catch {
       let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
       fatalError("Could not write modulemap to disk for \(frameworkName): \(error)")
@@ -501,6 +497,7 @@ struct FrameworkBuilder {
           fatalError("Failed to get swiftmodule in \(moduleDir).")
         }
         let destModuleDir = destination.appendingPathComponent("Modules")
+        // TODO(ncooke3): This case shouldn't ever be true I think.
         if !fileManager.directoryExists(at: destModuleDir) {
           do {
             try fileManager.copyItem(at: moduleDir, to: destModuleDir)
@@ -511,48 +508,48 @@ struct FrameworkBuilder {
         } else {
           // If the Modules directory is already there, only copy in the architecture specific files
           // from the *.swiftmodule subdirectory.
-          do {
-            let files = try fileManager.contentsOfDirectory(at: swiftModule,
-                                                            includingPropertiesForKeys: nil)
-              .compactMap { $0.path }
-            let destSwiftModuleDir = destModuleDir
-              .appendingPathComponent(swiftModule.lastPathComponent)
-            for file in files {
-              let fileURL = URL(fileURLWithPath: file)
-              let projectDir = swiftModule.appendingPathComponent("Project")
-              if fileURL.lastPathComponent == "Project",
-                 fileManager.directoryExists(at: projectDir) {
-                // The Project directory (introduced with Xcode 11.4) already exists, only copy in
-                // new contents.
-                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
-                                                                       includingPropertiesForKeys: nil)
-                  .compactMap { $0.path }
-                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
-                for projectFile in projectFiles {
-                  let projectFileURL = URL(fileURLWithPath: projectFile)
-                  do {
-                    try fileManager.copyItem(at: projectFileURL, to:
-                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
-                  } catch {
-                    fatalError("Could not copy Project file from \(projectFileURL) to " +
-                      "\(destProjectDir): \(error)")
-                  }
-                }
-              } else {
-                do {
-                  try fileManager.copyItem(at: fileURL, to:
-                    destSwiftModuleDir
-                      .appendingPathComponent(fileURL.lastPathComponent))
-                } catch {
-                  fatalError("Could not copy Swift module file from \(fileURL) to " +
-                    "\(destSwiftModuleDir): \(error)")
-                }
-              }
-            }
-          } catch {
-            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
-              "\(error.localizedDescription)")
-          }
+//          do {
+//            let files = try fileManager.contentsOfDirectory(at: swiftModule,
+//                                                            includingPropertiesForKeys: nil)
+//              .compactMap { $0.path }
+//            let destSwiftModuleDir = destModuleDir
+//              .appendingPathComponent(swiftModule.lastPathComponent)
+//            for file in files {
+//              let fileURL = URL(fileURLWithPath: file)
+//              let projectDir = swiftModule.appendingPathComponent("Project")
+//              if fileURL.lastPathComponent == "Project",
+//                 fileManager.directoryExists(at: projectDir) {
+//                // The Project directory (introduced with Xcode 11.4) already exists, only copy in
+//                // new contents.
+//                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
+//                                                                       includingPropertiesForKeys: nil)
+//                  .compactMap { $0.path }
+//                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
+//                for projectFile in projectFiles {
+//                  let projectFileURL = URL(fileURLWithPath: projectFile)
+//                  do {
+//                    try fileManager.copyItem(at: projectFileURL, to:
+//                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
+//                  } catch {
+//                    fatalError("Could not copy Project file from \(projectFileURL) to " +
+//                      "\(destProjectDir): \(error)")
+//                  }
+//                }
+//              } else {
+//                do {
+//                  try fileManager.copyItem(at: fileURL, to:
+//                    destSwiftModuleDir
+//                      .appendingPathComponent(fileURL.lastPathComponent))
+//                } catch {
+//                  fatalError("Could not copy Swift module file from \(fileURL) to " +
+//                    "\(destSwiftModuleDir): \(error)")
+//                }
+//              }
+//            }
+//          } catch {
+//            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
+//              "\(error.localizedDescription)")
+//          }
         }
         do {
           // If this point is reached, the framework contains a Swift module,
@@ -564,7 +561,7 @@ struct FrameworkBuilder {
           // that the framework was built from mixed language sources because
           // those additional headers are public headers for the C Family
           // Language sources.
-          let headersDir = destination.appendingPathComponent("Headers")
+          let headersDir = destination.appendingPathComponent("Headers").resolvingSymlinksInPath()
           let headers = try fileManager.contentsOfDirectory(
             at: headersDir,
             includingPropertiesForKeys: nil
@@ -584,7 +581,7 @@ struct FrameworkBuilder {
               requires objc
             }
             """
-            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
+            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"]).resolvingSymlinksInPath()
             try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
           }
         } catch {
@@ -624,6 +621,102 @@ struct FrameworkBuilder {
       } catch {
         fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
       }
+    }
+    
+    // module map,
+    // + ensure plists are human readable. <- probably the create framework command!
+    
+    // Done – remove code sig dir, set OS min to 100 in plist, clean up symbolic link to avoid v8 carthage crash, privacy manifest
+    
+    return slicedFrameworks.map { platform, frameworkPath in
+      // Create the following structure in the platform frameworks directory:
+      // - platform_frameworks
+      //   └── $(PLATFORM)
+      //       └── $(FRAMEWORK).framework
+      let platformFrameworkDir = platformFrameworksDir
+        .appendingPathComponent(platform.buildName)
+        .appendingPathComponent(framework + ".framework")
+        
+        print("hello")
+        print(frameworkPath)
+        print(platformFrameworkDir)
+        print("goodbye")
+    
+      do {
+        // Create `platform_frameworks/$(PLATFORM)` subdirectory.
+        try! fileManager.createDirectory(
+          at: platformFrameworkDir.deletingLastPathComponent(),
+          withIntermediateDirectories: true
+        )
+
+        // Copy the built framework to the `platform_frameworks/$(PLATFORM)/$(FRAMEWORK).framework`.
+        try! fileManager.copyItem(at: frameworkPath, to: platformFrameworkDir)
+      } catch {
+        fatalError("Could not copy directory for architecture slices on \(platform) for " +
+          "\(framework): \(error)")
+      }
+        
+        
+      
+      // CocoaPods creates a `_CodeSignature` directory. Delete it.
+      // TODO(ncooke3): Is there a build setting that will remove need for this?
+      // TODO(ncooke3): Is this macOS/Catalyst specific? I think so.
+      let codeSignatureDir = platformFrameworkDir
+        .appendingPathComponent(
+          platform == .catalyst || platform == .macOS ? "Versions/A/" : ""
+        )
+        .appendingPathComponent("_CodeSignature")
+      try? fileManager.removeItem(at: codeSignatureDir)
+      
+      // The minimum OS version is set to 100.0 to work around b/327020913.
+      // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
+      // TODO(ncooke3): Does this need to happen on macOS?
+      do {
+        let frameworkInfoPlistURL = platformFrameworkDir
+          .appendingPathComponent(
+            platform == .catalyst || platform == .macOS ? "Resources" : ""
+          )
+          .resolvingSymlinksInPath()
+          .appendingPathComponent("Info.plist")
+        var plistDictionary = try PropertyListSerialization.propertyList(
+          from: Data(contentsOf: frameworkInfoPlistURL), format: nil
+        ) as! [AnyHashable: Any]
+        plistDictionary["MinimumOSVersion"] = "100.0"
+
+        let updatedPlistData = try PropertyListSerialization.data(
+          fromPropertyList: plistDictionary,
+          format: .xml,
+          options: 0
+        )
+
+        try updatedPlistData.write(to: frameworkInfoPlistURL)
+      } catch {
+        fatalError(
+          "Could not modify framework-level plist for b/327020913 in framework directory \(framework): \(error)"
+        )
+      }
+      
+      // The macOS slice's `Headers` directory may have a `Headers` file in
+      // it that symbolically links to nowhere. For example, in the 8.0.0
+      // zip distribution, see the `Headers` directory in the macOS slice
+      // of the `PromisesObjC.xcframework`. Delete it here to avoid putting
+      // it in the zip or crashing the Carthage hash generation. Because
+      // this will throw an error for cases where the file does not exist,
+      // the error is ignored.
+      let headersDir = platformFrameworkDir.appendingPathComponent("Headers")
+        .resolvingSymlinksInPath()
+      try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
+      
+      // Move privacy manifest containing resource bundles into the framework.
+      processPrivacyManifests(fileManager, frameworkPath, platformFrameworkDir)
+      
+      // Use the appropriate moduleMaps
+      packageModuleMaps(inFrameworks: [frameworkPath],
+                        frameworkName: framework,
+                        moduleMapContents: moduleMapContents,
+                        destination: platformFrameworkDir)
+      
+      return platformFrameworkDir
     }
 
     // Group the thin frameworks into three groups: device, simulator, and Catalyst (all represented
