@@ -708,7 +708,12 @@ struct FrameworkBuilder {
       try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
       
       // Move privacy manifest containing resource bundles into the framework.
-      processPrivacyManifests(fileManager, frameworkPath, platformFrameworkDir)
+      let resourceDir = platformFrameworkDir
+        .appendingPathComponent(
+          platform == .catalyst || platform == .macOS ? "Resources" : ""
+        )
+        .resolvingSymlinksInPath()
+      processPrivacyManifests(fileManager, frameworkPath, resourceDir)
       
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
