@@ -492,65 +492,7 @@ struct FrameworkBuilder {
         } else if buildingCarthage {
           return true
         }
-        guard let first = swiftModules.first,
-              let swiftModule = URL(string: first) else {
-          fatalError("Failed to get swiftmodule in \(moduleDir).")
-        }
-        let destModuleDir = destination.appendingPathComponent("Modules")
-        // TODO(ncooke3): This case shouldn't ever be true I think.
-        if !fileManager.directoryExists(at: destModuleDir) {
-          do {
-            try fileManager.copyItem(at: moduleDir, to: destModuleDir)
-          } catch {
-            fatalError("Could not copy Modules from \(moduleDir) to " +
-              "\(destModuleDir): \(error)")
-          }
-        } else {
-          // If the Modules directory is already there, only copy in the architecture specific files
-          // from the *.swiftmodule subdirectory.
-//          do {
-//            let files = try fileManager.contentsOfDirectory(at: swiftModule,
-//                                                            includingPropertiesForKeys: nil)
-//              .compactMap { $0.path }
-//            let destSwiftModuleDir = destModuleDir
-//              .appendingPathComponent(swiftModule.lastPathComponent)
-//            for file in files {
-//              let fileURL = URL(fileURLWithPath: file)
-//              let projectDir = swiftModule.appendingPathComponent("Project")
-//              if fileURL.lastPathComponent == "Project",
-//                 fileManager.directoryExists(at: projectDir) {
-//                // The Project directory (introduced with Xcode 11.4) already exists, only copy in
-//                // new contents.
-//                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
-//                                                                       includingPropertiesForKeys: nil)
-//                  .compactMap { $0.path }
-//                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
-//                for projectFile in projectFiles {
-//                  let projectFileURL = URL(fileURLWithPath: projectFile)
-//                  do {
-//                    try fileManager.copyItem(at: projectFileURL, to:
-//                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
-//                  } catch {
-//                    fatalError("Could not copy Project file from \(projectFileURL) to " +
-//                      "\(destProjectDir): \(error)")
-//                  }
-//                }
-//              } else {
-//                do {
-//                  try fileManager.copyItem(at: fileURL, to:
-//                    destSwiftModuleDir
-//                      .appendingPathComponent(fileURL.lastPathComponent))
-//                } catch {
-//                  fatalError("Could not copy Swift module file from \(fileURL) to " +
-//                    "\(destSwiftModuleDir): \(error)")
-//                }
-//              }
-//            }
-//          } catch {
-//            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
-//              "\(error.localizedDescription)")
-//          }
-        }
+
         do {
           // If this point is reached, the framework contains a Swift module,
           // so it's built from either Swift sources or Swift & C Family
