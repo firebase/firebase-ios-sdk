@@ -622,11 +622,7 @@ struct FrameworkBuilder {
         fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
       }
     }
-    
-    // module map,
-    // + ensure plists are human readable. <- probably the create framework command!
-    
-    // Done – remove code sig dir, set OS min to 100 in plist, clean up symbolic link to avoid v8 carthage crash, privacy manifest
+    // Done – remove code sig dir, set OS min to 100 in plist, clean up symbolic link to avoid v8 carthage crash, privacy manifest, module map,
     
     return slicedFrameworks.map { platform, frameworkPath in
       // Create the following structure in the platform frameworks directory:
@@ -636,31 +632,25 @@ struct FrameworkBuilder {
       let platformFrameworkDir = platformFrameworksDir
         .appendingPathComponent(platform.buildName)
         .appendingPathComponent(framework + ".framework")
-        
-        print("hello")
-        print(frameworkPath)
-        print(platformFrameworkDir)
-        print("goodbye")
     
       do {
         // Create `platform_frameworks/$(PLATFORM)` subdirectory.
-        try! fileManager.createDirectory(
+        try fileManager.createDirectory(
           at: platformFrameworkDir.deletingLastPathComponent(),
           withIntermediateDirectories: true
         )
 
         // Copy the built framework to the `platform_frameworks/$(PLATFORM)/$(FRAMEWORK).framework`.
-        try! fileManager.copyItem(at: frameworkPath, to: platformFrameworkDir)
+        try fileManager.copyItem(at: frameworkPath, to: platformFrameworkDir)
       } catch {
         fatalError("Could not copy directory for architecture slices on \(platform) for " +
           "\(framework): \(error)")
       }
-        
-        
-      
+
       // CocoaPods creates a `_CodeSignature` directory. Delete it.
-      // TODO(ncooke3): Is there a build setting that will remove need for this?
-      // TODO(ncooke3): Is this macOS/Catalyst specific? I think so.
+      // Note that the build only produces a `_CodeSignature` directory for
+      // macOS and macCatalyst, but we try to delete it for other platforms
+      // just in case it were to appear.
       let codeSignatureDir = platformFrameworkDir
         .appendingPathComponent(
           platform == .catalyst || platform == .macOS ? "Versions/A/" : ""
@@ -723,104 +713,6 @@ struct FrameworkBuilder {
       
       return platformFrameworkDir
     }
-
-    // Group the thin frameworks into three groups: device, simulator, and Catalyst (all represented
-    // by the `TargetPlatform` enum. The slices need to be packaged that way with lipo before
-    // creating a .framework that works for similar grouped architectures. If built separately,
-    // `-create-xcframework` will return an error and fail:
-    // `Both ios-arm64 and ios-armv7 represent two equivalent library definitions`
-    var frameworksBuilt: [URL] = []
-    for (platform, frameworkPath) in slicedFrameworks {
-      // Create the following structure in the platform frameworks directory:
-      // - platform_frameworks
-      //   └── $(PLATFORM)
-      //       └── $(FRAMEWORK).framework
-      let platformFrameworkDir = platformFrameworksDir
-        .appendingPathComponent(platform.buildName)
-        .appendingPathComponent(fromFolder.lastPathComponent)
-      do {
-        try fileManager.createDirectory(at: platformFrameworkDir, withIntermediateDirectories: true)
-      } catch {
-        fatalError("Could not create directory for architecture slices on \(platform) for " +
-          "\(framework): \(error)")
-      }
-
-      processPrivacyManifests(fileManager, frameworkPath, platformFrameworkDir)
-
-      // Headers from slice
-      do {
-        let headersSrc: URL = frameworkPath.appendingPathComponent("Headers")
-          .resolvingSymlinksInPath()
-        // The macOS slice's `Headers` directory may have a `Headers` file in
-        // it that symbolically links to nowhere. For example, in the 8.0.0
-        // zip distribution, see the `Headers` directory in the macOS slice
-        // of the `PromisesObjC.xcframework`. Delete it here to avoid putting
-        // it in the zip or crashing the Carthage hash generation. Because
-        // this will throw an error for cases where the file does not exist,
-        // the error is ignored.
-        try? fileManager.removeItem(at: headersSrc.appendingPathComponent("Headers"))
-
-        try fileManager.copyItem(
-          at: headersSrc,
-          to: platformFrameworkDir.appendingPathComponent("Headers")
-        )
-      } catch {
-        fatalError("Could not create framework directory needed to build \(framework): \(error)")
-      }
-
-      // Copy the binary and Info.plist to the right location.
-      let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
-                                                                            with: "")
-      let fatBinary = frameworkPath.appendingPathComponent(binaryName).resolvingSymlinksInPath()
-      let plistPathComponents = {
-        if platform == .catalyst || platform == .macOS {
-          // Frameworks for macOS and macCatalyst have a different directory
-          // structure so the framework-level `Info.plist` is found in a
-          // different spot.
-          return ["Versions", "A", "Resources", "Info.plist"]
-        } else {
-          return ["Info.plist"]
-        }
-      }()
-      let infoPlist = frameworkPath.appendingPathComponents(plistPathComponents)
-        .resolvingSymlinksInPath()
-      let infoPlistDestination = platformFrameworkDir.appendingPathComponent("Info.plist")
-      let fatBinaryDestination = platformFrameworkDir.appendingPathComponent(framework)
-      do {
-        try fileManager.copyItem(at: fatBinary, to: fatBinaryDestination)
-      } catch {
-        fatalError("Could not copy fat binary to framework directory for \(framework): \(error)")
-      }
-      do {
-        // The minimum OS version is set to 100.0 to work around b/327020913.
-        // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
-        var plistDictionary = try PropertyListSerialization.propertyList(
-          from: Data(contentsOf: infoPlist), format: nil
-        ) as! [AnyHashable: Any]
-        plistDictionary["MinimumOSVersion"] = "100.0"
-
-        let updatedPlistData = try PropertyListSerialization.data(
-          fromPropertyList: plistDictionary,
-          format: .xml,
-          options: 0
-        )
-
-        try updatedPlistData.write(to: infoPlistDestination)
-      } catch {
-        fatalError(
-          "Could not copy framework-level plist to framework directory for \(framework): \(error)"
-        )
-      }
-
-      // Use the appropriate moduleMaps
-      packageModuleMaps(inFrameworks: [frameworkPath],
-                        frameworkName: framework,
-                        moduleMapContents: moduleMapContents,
-                        destination: platformFrameworkDir)
-
-      frameworksBuilt.append(platformFrameworkDir)
-    }
-    return frameworksBuilt
   }
 
   /// Process privacy manifests.
