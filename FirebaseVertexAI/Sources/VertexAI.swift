@@ -24,31 +24,43 @@ import Foundation
 open class VertexAI: NSObject {
   // MARK: - Public APIs
 
-  /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
-  ///
-  /// This instance is configured with the default `FirebaseApp`.
-  ///
-  /// TODO: Add RequestOptions to public API.
-  public static func generativeModel(modelName: String, location: String) -> GenerativeModel {
+  public static func vertexAI() -> VertexAI {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
-    return generativeModel(app: app, modelName: modelName, location: location)
+
+    return vertexAI(app: app)
   }
 
-  /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
-  ///
-  /// TODO: Add RequestOptions to public API.
-  public static func generativeModel(app: FirebaseApp, modelName: String,
-                                     location: String) -> GenerativeModel {
+  public static func vertexAI(app: FirebaseApp) -> VertexAI {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
       fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
     }
-    let modelResourceName = modelResourceName(app: app, modelName: modelName, location: location)
-    let vertexAI = provider.vertexAI(location: location, modelResourceName: modelResourceName)
 
-    return vertexAI.model
+    return provider.vertexAI()
+  }
+
+  /// Returns an instance of `GoogleGenerativeAI.GenerativeModel` that uses the Vertex AI API.
+  public func generativeModel(modelName: String, location: String,
+                              generationConfig: GenerationConfig? = nil,
+                              safetySettings: [SafetySetting]? = nil,
+                              requestOptions: RequestOptions = RequestOptions())
+    -> GenerativeModel {
+    let modelResourceName = modelResourceName(modelName: modelName, location: location)
+
+    guard let apiKey = app.options.apiKey else {
+      fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
+    }
+
+    return GenerativeModel(
+      name: modelResourceName,
+      apiKey: apiKey,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      requestOptions: requestOptions,
+      appCheck: appCheck
+    )
   }
 
   // MARK: - Private
@@ -58,32 +70,12 @@ open class VertexAI: NSObject {
 
   private let appCheck: AppCheckInterop?
 
-  private let location: String
-
-  private let modelResouceName: String
-
-  lazy var model: GenerativeModel = {
-    guard let apiKey = app.options.apiKey else {
-      fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
-    }
-    return GenerativeModel(
-      name: modelResouceName,
-      apiKey: apiKey,
-      // TODO: Add RequestOptions to public API.
-      requestOptions: RequestOptions(),
-      appCheck: appCheck
-    )
-  }()
-
-  init(app: FirebaseApp, location: String, modelResourceName: String) {
+  init(app: FirebaseApp) {
     self.app = app
     appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
-    self.location = location
-    modelResouceName = modelResourceName
   }
 
-  private static func modelResourceName(app: FirebaseApp, modelName: String,
-                                        location: String) -> String {
+  private func modelResourceName(modelName: String, location: String) -> String {
     if modelName.contains("/") {
       return modelName
     }
