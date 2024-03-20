@@ -695,7 +695,6 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 #endif  // #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
-
 /** @fn updateEmail:password:callback:
     @brief Updates email address and/or password for the current user.
     @remarks May fail if there is already an email/password-based account for the same email
