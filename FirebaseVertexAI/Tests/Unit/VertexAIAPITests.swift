@@ -33,40 +33,35 @@ final class VertexAIAPITests: XCTestCase {
                                   stopSequences: ["..."])
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
 
+    // Instantiate Vertex AI SDK - Default App
+    let vertexAI = VertexAI.vertexAI()
+
+    // Instantiate Vertex AI SDK - Custom App
+    let _ = VertexAI.vertexAI(app: app!)
+
     // Permutations without optional arguments.
 
-    // TODO: Change `genAI` to `_` when safetySettings and generationConfig are added to public API.
-    let genAI = VertexAI.generativeModel(modelName: "gemini-1.0-pro", location: "us-central1")
-    let _ = VertexAI.generativeModel(
-      app: app!,
+    let _ = vertexAI.generativeModel(modelName: "gemini-1.0-pro", location: "us-central1")
+
+    let _ = vertexAI.generativeModel(
       modelName: "gemini-1.0-pro",
-      location: "us-central1"
+      location: "us-central1",
+      safetySettings: filters
     )
 
-    // TODO: Add safetySettings to public API.
-    // TODO: Add permutation with `app` specified.
-    //  let _ = VertexAI.generativeModel(
-    //    modelName: "gemini-1.0-pro",
-    //    location: "us-central1",
-    //    safetySettings: filters
-    //  )
-    // TODO: Add generationConfig to public API.
-    // TODO: Add permutation with `app` specified.
-    // let _ = VertexAI.generativeModel(
-    //   modelName: "gemini-1.0-pro",
-    //   location: "us-central1",
-    //   generationConfig: config
-    // )
+    let _ = vertexAI.generativeModel(
+      modelName: "gemini-1.0-pro",
+      location: "us-central1",
+      generationConfig: config
+    )
 
     // All arguments passed.
-    // TODO: Add safetySettings and generationConfig to public API.
-    // TODO: Add permutation with `app` specified.
-    // let genAI = VertexAI.generativeModel(
-    //   modelName: "gemini-1.0-pro",
-    //   location: "us-central1",
-    //   generationConfig: config, // Optional
-    //   safetySettings: filters // Optional
-    // )
+    let genAI = vertexAI.generativeModel(
+      modelName: "gemini-1.0-pro",
+      location: "us-central1",
+      generationConfig: config, // Optional
+      safetySettings: filters // Optional
+    )
 
     // Full Typed Usage
     let pngData = Data() // ....
