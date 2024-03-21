@@ -630,16 +630,14 @@ struct FrameworkBuilder {
         )
       }
 
-      // The macOS slice's `Headers` directory may have a `Headers` file in
-      // it that symbolically links to nowhere. For example, in the 8.0.0
-      // zip distribution, see the `Headers` directory in the macOS slice
-      // of the `PromisesObjC.xcframework`. Delete it here to avoid putting
-      // it in the zip or crashing the Carthage hash generation. Because
-      // this will throw an error for cases where the file does not exist,
-      // the error is ignored.
-      let headersDir = platformFrameworkDir.appendingPathComponent("Headers")
+      // The macOS slice's `PrivateHeaders` directory may have a
+      // `PrivateHeaders` file in it that symbolically links to nowhere. Delete
+      // it here to avoid putting it in the zip or crashing the Carthage hash
+      // generation. Because this will throw an error for cases where the file
+      // does not exist, the error is ignored.
+      let headersDir = platformFrameworkDir.appendingPathComponent("PrivateHeaders")
         .resolvingSymlinksInPath()
-      try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
+      try? fileManager.removeItem(at: headersDir.appendingPathComponent("PrivateHeaders"))
 
       // Move privacy manifest containing resource bundles into the framework.
       let resourceDir = platformFrameworkDir
