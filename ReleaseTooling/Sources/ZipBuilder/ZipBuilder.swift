@@ -507,12 +507,8 @@ struct ZipBuilder {
                   at: xcResourceDir,
                   includingPropertiesForKeys: nil
                 )
-                let resourcesDirContents = try fileManager.contentsOfDirectory(
-                  at: resourcesDir,
-                  includingPropertiesForKeys: nil
-                )
 
-                for file in Set(xcResourceDirContents).subtracting(resourcesDirContents) {
+                for file in xcResourceDirContents {
                   try fileManager.copyItem(
                     at: file,
                     to: resourcesDir.appendingPathComponent(file.lastPathComponent)
@@ -524,7 +520,7 @@ struct ZipBuilder {
           }
         }
       } catch {
-        fatalError("Could not setup Resources for \(pod) for \(packageKind) \(error)")
+        fatalError("Could not setup Resources for \(pod.key) for \(packageKind) \(error)")
       }
 
       // Special case for Crashlytics:
