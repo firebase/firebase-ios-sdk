@@ -503,6 +503,11 @@ struct ZipBuilder {
                       frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
                   .resolvingSymlinksInPath()
+                try? fileManager.createDirectory(
+                  at: resourcesDir,
+                  withIntermediateDirectories: true
+                )
+
                 let xcResourceDirContents = try fileManager.contentsOfDirectory(
                   at: xcResourceDir,
                   includingPropertiesForKeys: nil
