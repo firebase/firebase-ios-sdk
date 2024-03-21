@@ -33,6 +33,13 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
             test-specs: unit
+          - os: macos-14
+            xcode: Xcode_15.2
+            test-specs: unit
+          - os: macos-14
+            xcode: Xcode_15.2
+            target: visionOS
+            test-specs: unit
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

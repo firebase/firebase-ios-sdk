@@ -97,6 +97,13 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
             test: spmbuildonly
+          - os: macos-14
+            xcode: Xcode_15.2
+            test: spmbuildonly
+          - os: macos-14
+            xcode: Xcode_15.2
+            target: visionOS
+            test: spm
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
