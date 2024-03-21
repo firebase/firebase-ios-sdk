@@ -65,29 +65,41 @@ class PhotoReasoningViewModel: ObservableObject {
 
       let prompt = "Look at the image(s), and then answer the following question: \(userInput)"
 
-      var images = [any ThrowingPartsRepresentable]()
-      for item in selectedItems {
-        if let data = try? await item.loadTransferable(type: Data.self) {
-          guard let image = UIImage(data: data) else {
-            logger.error("Failed to parse data as an image, skipping.")
-            continue
-          }
-          if image.size.fits(largestDimension: PhotoReasoningViewModel.largestImageDimension) {
-            images.append(image)
-          } else {
-            guard let resizedImage = image
-              .preparingThumbnail(of: image.size
-                .aspectFit(largestDimension: PhotoReasoningViewModel.largestImageDimension)) else {
-              logger.error("Failed to resize image: \(image)")
-              continue
-            }
+      // TODO: Revert below before merging
 
-            images.append(resizedImage)
-          }
-        }
+      //  var images = [any ThrowingPartsRepresentable]()
+      //  for item in selectedItems {
+      //    if let data = try? await item.loadTransferable(type: Data.self) {
+      //      guard let image = UIImage(data: data) else {
+      //        logger.error("Failed to parse data as an image, skipping.")
+      //        continue
+      //      }
+      //      if image.size.fits(largestDimension: PhotoReasoningViewModel.largestImageDimension) {
+      //        images.append(image)
+      //      } else {
+      //        guard let resizedImage = image
+      //          .preparingThumbnail(of: image.size
+      //            .aspectFit(largestDimension: PhotoReasoningViewModel.largestImageDimension)) else {
+      //          logger.error("Failed to resize image: \(image)")
+      //          continue
+      //        }
+      //
+      //        images.append(resizedImage)
+      //      }
+      //    }
+      //  }
+
+      // Ignore the images added in the UI and use the following image stored in GCS.
+
+      let url = URL(string: "gs://vertex-sdk-firebase-test3-images/mount_everest.jpg")
+      guard let url = url else {
+        fatalError("Invalid image URL.")
       }
+      let parts: [ModelContent.Part] = [.text(prompt), .fileData(mimetype: "image/jpeg", url)]
 
-      let outputContentStream = model.generateContentStream(prompt, images)
+      let outputContentStream = model.generateContentStream([ModelContent(parts: parts)])
+
+      // TODO: Revert above before merging
 
       // stream response
       for try await outputContent in outputContentStream {

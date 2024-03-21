@@ -25,6 +25,7 @@ public struct ModelContent: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
       case text
       case inlineData
+      case fileData
     }
 
     enum InlineDataKeys: String, CodingKey {
@@ -32,11 +33,20 @@ public struct ModelContent: Codable, Equatable {
       case bytes = "data"
     }
 
+    enum FileDataKeys: String, CodingKey {
+      case mimeType = "mime_type"
+      case url = "file_uri"
+    }
+
     /// Text value.
     case text(String)
 
     /// Data with a specified media type. Not all media types may be supported by the AI model.
     case data(mimetype: String, Data)
+
+    /// URI based data with a specified media type. Not all media types may be supported by the AI
+    /// model.
+    case fileData(mimetype: String, URL)
 
     // MARK: Convenience Initializers
 
@@ -64,6 +74,13 @@ public struct ModelContent: Codable, Equatable {
         )
         try inlineDataContainer.encode(mimetype, forKey: .mimeType)
         try inlineDataContainer.encode(bytes, forKey: .bytes)
+      case let .fileData(mimetype: mimetype, url):
+        var fileDataContainer = container.nestedContainer(
+          keyedBy: FileDataKeys.self,
+          forKey: .fileData
+        )
+        try fileDataContainer.encode(mimetype, forKey: .mimeType)
+        try fileDataContainer.encode(url, forKey: .url)
       }
     }
 
