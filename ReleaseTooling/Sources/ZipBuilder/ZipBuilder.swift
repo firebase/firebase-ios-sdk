@@ -503,6 +503,8 @@ struct ZipBuilder {
                       frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
                   .resolvingSymlinksInPath()
+                // On macOS platforms, this directory will already be there, so
+                // ignore error that it already exists.
                 try? fileManager.createDirectory(
                   at: resourcesDir,
                   withIntermediateDirectories: true
