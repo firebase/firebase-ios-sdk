@@ -22,7 +22,7 @@ import Foundation
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 @objc(FIRVertexAIProvider)
 protocol VertexAIProvider {
-  @objc func vertexAI(location: String, modelResourceName: String) -> VertexAI
+  @objc func vertexAI() -> VertexAI
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
@@ -64,17 +64,17 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
 
   // MARK: - VertexAIProvider conformance
 
-  func vertexAI(location: String, modelResourceName: String) -> VertexAI {
+  func vertexAI() -> VertexAI {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    if let instance = instances[modelResourceName] {
+    if let instance = instances[app.name] {
       return instance
     }
-    let newInstance = VertexAI(app: app, location: location, modelResourceName: modelResourceName)
-    instances[modelResourceName] = newInstance
+    let newInstance = VertexAI(app: app)
+    instances[app.name] = newInstance
     return newInstance
   }
 }
