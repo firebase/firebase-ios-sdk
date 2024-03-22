@@ -635,9 +635,10 @@ struct FrameworkBuilder {
       // it here to avoid putting it in the zip or crashing the Carthage hash
       // generation. Because this will throw an error for cases where the file
       // does not exist, the error is ignored.
-      let headersDir = platformFrameworkDir.appendingPathComponent("PrivateHeaders")
-        .resolvingSymlinksInPath()
-      try? fileManager.removeItem(at: headersDir.appendingPathComponent("PrivateHeaders"))
+      let privateHeadersDir = platformFrameworkDir.appendingPathComponent("PrivateHeaders")
+      if !fileManager.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
+        try? fileManager.removeItem(at: privateHeadersDir)
+      }
 
       // Move privacy manifest containing resource bundles into the framework.
       let resourceDir = platformFrameworkDir
