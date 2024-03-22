@@ -40,7 +40,7 @@ jobs:
         retry_wait_seconds: 120
         command: scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
 
-sample:
+  sample:
     strategy:
       matrix:
         # Test build with debug and release configs (whether or not DEBUG is set and optimization level)
