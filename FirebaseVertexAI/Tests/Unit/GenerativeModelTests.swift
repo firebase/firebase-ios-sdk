@@ -25,7 +25,7 @@ final class GenerativeModelTests: XCTestCase {
     .init(category: .hateSpeech, probability: .negligible),
     .init(category: .harassment, probability: .negligible),
     .init(category: .dangerousContent, probability: .negligible),
-  ]
+  ].sorted()
 
   var urlSession: URLSession!
   var model: GenerativeModel!
@@ -62,15 +62,12 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings, safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let partText = try XCTUnwrap(part.text)
     XCTAssertTrue(partText.hasPrefix("You can ask me a wide range of questions"))
     XCTAssertEqual(response.text, partText)
-    let promptFeedback = try XCTUnwrap(response.promptFeedback)
-    XCTAssertNil(promptFeedback.blockReason)
-    XCTAssertEqual(promptFeedback.safetyRatings, safetyRatingsNegligible)
   }
 
   func testGenerateContent_success_basicReplyShort() async throws {
@@ -86,14 +83,11 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings, safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     XCTAssertEqual(part.text, "Mountain View, California, United States")
     XCTAssertEqual(response.text, part.text)
-    let promptFeedback = try XCTUnwrap(response.promptFeedback)
-    XCTAssertNil(promptFeedback.blockReason)
-    XCTAssertEqual(promptFeedback.safetyRatings, safetyRatingsNegligible)
   }
 
   func testGenerateContent_success_citations() async throws {
@@ -131,7 +125,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings, safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let partText = try XCTUnwrap(part.text)
@@ -139,7 +133,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.text, part.text)
     let promptFeedback = try XCTUnwrap(response.promptFeedback)
     XCTAssertNil(promptFeedback.blockReason)
-    XCTAssertEqual(promptFeedback.safetyRatings, safetyRatingsNegligible)
+    XCTAssertEqual(promptFeedback.safetyRatings.sorted(), safetyRatingsNegligible)
   }
 
   func testGenerateContent_success_unknownEnum_safetyRatings() async throws {
@@ -627,7 +621,7 @@ final class GenerativeModelTests: XCTestCase {
       responses += 1
     }
 
-    XCTAssertEqual(responses, 10)
+    XCTAssertEqual(responses, 8)
   }
 
   func testGenerateContentStream_successBasicReplyShort() async throws {
@@ -1049,3 +1043,11 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
 }
 
 struct AppCheckErrorFake: Error {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+extension SafetyRating: Comparable {
+  public static func < (lhs: FirebaseVertexAI.SafetyRating,
+                        rhs: FirebaseVertexAI.SafetyRating) -> Bool {
+    return lhs.category.rawValue < rhs.category.rawValue
+  }
+}

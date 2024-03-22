@@ -2,53 +2,49 @@
   "candidates": [
     {
       "content": {
+        "role": "model",
         "parts": [
           {
             "text": "Mountain View, California, United States"
           }
-        ],
-        "role": "model"
+        ]
       },
       "finishReason": "STOP",
-      "index": 0,
       "safetyRatings": [
         {
-          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-          "probability": "NEGLIGIBLE"
-        },
-        {
           "category": "HARM_CATEGORY_HATE_SPEECH",
-          "probability": "NEGLIGIBLE"
-        },
-        {
-          "category": "HARM_CATEGORY_HARASSMENT",
-          "probability": "NEGLIGIBLE"
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.029035643,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.05613278
         },
         {
           "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-          "probability": "NEGLIGIBLE"
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.2641685,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.082253955
+        },
+        {
+          "category": "HARM_CATEGORY_HARASSMENT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.087252244,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.04509957
+        },
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.1431877,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.11027937
         }
       ]
     }
   ],
-  "promptFeedback": {
-    "safetyRatings": [
-      {
-        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HATE_SPEECH",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HARASSMENT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "probability": "NEGLIGIBLE"
-      }
-    ]
+  "usageMetadata": {
+    "promptTokenCount": 6,
+    "candidatesTokenCount": 7,
+    "totalTokenCount": 13
   }
 }
