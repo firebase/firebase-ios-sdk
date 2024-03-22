@@ -3,9 +3,9 @@ name: vertexai
 on:
   pull_request:
     paths:
-        - 'FirebaseVertexAI**'
-        - '.github/workflows/vertexai.yml'
-        - 'Gemfile*'
+    - 'FirebaseVertexAI**'
+    - '.github/workflows/vertexai.yml'
+    - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
@@ -32,5 +32,35 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - name: Build and run tests
-      run: scripts/third_party/travis/retry.sh scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
+
+sample:
+    strategy:
+      matrix:
+        # Test build with debug and release configs (whether or not DEBUG is set and optimization level)
+        build: [build]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.0.1
+          - os: macos-14
+            xcode: Xcode_15.2
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh VertexSample iOS
