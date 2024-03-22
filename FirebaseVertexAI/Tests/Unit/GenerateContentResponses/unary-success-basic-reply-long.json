@@ -2,53 +2,49 @@
   "candidates": [
     {
       "content": {
+        "role": "model",
         "parts": [
           {
-            "text": "You can ask me a wide range of questions on various topics. Here are some examples:\n\n1. **General Knowledge:**\n   - What is the capital of France?\n   - Who painted the Mona Lisa?\n   - What is the largest ocean in the world?\n\n2. **Science and Technology:**\n   - How does a computer work?\n   - What is the difference between a virus and a bacteria?\n   - What are the latest advancements in artificial intelligence?\n\n3. **History and Culture:**\n   - Who was the first president of the United States?\n   - What is the significance of the Great Wall of China?\n   - What are some of the most famous works of Shakespeare?\n\n4. **Current Events:**\n   - What is the latest news about the COVID-19 pandemic?\n   - Who is the current president of Ukraine?\n   - What are the major issues being discussed in the upcoming election?\n\n5. **Personal Questions:**\n   - What are your hobbies?\n   - What is your favorite book or movie?\n   - What are your thoughts on the future of technology?\n\n6. **Fun and Games:**\n   - Can you tell me a joke?\n   - What is the answer to this riddle: \"I have keys but no locks. I have space but no room. You can enter, but can't go outside.\" (Answer: a keyboard)\n   - Let's play a game of 20 questions.\n\n7. **Hypothetical Questions:**\n   - What would you do if you won the lottery?\n   - What would happen if time travel were possible?\n   - What is the meaning of life?\n\n8. **Philosophical Questions:**\n   - What is the nature of reality?\n   - Does free will exist?\n   - What is the difference between right and wrong?\n\n9. **Creative Questions:**\n   - Write a poem about a sunset.\n   - Design a logo for a new company.\n   - Compose a song about your favorite season.\n\n10. **Technical Questions:**\n    - How can I improve the performance of my computer?\n    - What is the best way to troubleshoot a network issue?\n    - How do I create a website using HTML and CSS?\n\nRemember, I am still under development and may not be able to answer all questions perfectly. However, I will do my best to provide you with accurate and informative responses."
+            "text": "You can ask me a wide range of questions, including:\n\n* **General knowledge questions:** What is the capital of France? Who painted the Mona Lisa?\n* **Science questions:** What is the chemical formula for water? How does photosynthesis work?\n* **History questions:** When did World War II start? Who was the first president of the United States?\n* **Math questions:** What is the square root of 16? How do you solve for x in the equation x + 5 = 10?\n* **Current events questions:** What is happening in Ukraine? Who is the current president of the United States?\n* **Personal questions:** What are your hobbies? What are your favorite books?\n* **Hypothetical questions:** What would happen if all the ice caps melted? What if humans could live on Mars?\n* **Questions about me:** What is your name? How old are you? What are your capabilities?\n\n**Tips for asking questions:**\n\n* Be specific and clear in your questions.\n* Use correct grammar and spelling.\n* Try to ask open-ended questions that allow for multiple answers.\n* Be patient and wait for my response. I am still under development, so I may take a few seconds to process your question.\n\nPlease note that I am still under development and may not be able to answer all questions accurately. However, I will do my best to provide you with the most relevant information I have available."
           }
-        ],
-        "role": "model"
+        ]
       },
       "finishReason": "STOP",
-      "index": 0,
       "safetyRatings": [
         {
-          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-          "probability": "NEGLIGIBLE"
-        },
-        {
           "category": "HARM_CATEGORY_HATE_SPEECH",
-          "probability": "NEGLIGIBLE"
-        },
-        {
-          "category": "HARM_CATEGORY_HARASSMENT",
-          "probability": "NEGLIGIBLE"
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.047869004,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.050705366
         },
         {
           "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-          "probability": "NEGLIGIBLE"
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.052134257,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.036288295
+        },
+        {
+          "category": "HARM_CATEGORY_HARASSMENT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.08464396,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.033907957
+        },
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.06290424,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.050611436
         }
       ]
     }
   ],
-  "promptFeedback": {
-    "safetyRatings": [
-      {
-        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HATE_SPEECH",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_HARASSMENT",
-        "probability": "NEGLIGIBLE"
-      },
-      {
-        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "probability": "NEGLIGIBLE"
-      }
-    ]
+  "usageMetadata": {
+    "promptTokenCount": 6,
+    "candidatesTokenCount": 303,
+    "totalTokenCount": 309
   }
 }
