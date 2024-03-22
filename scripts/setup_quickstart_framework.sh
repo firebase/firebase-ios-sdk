@@ -43,7 +43,7 @@ if [ ! -f "Firebase/module.modulemap" ]; then
 fi
 for file in "$@"
 do
-  if [ ! -f "Firebase/$(basename ${file})" ]; then
+  if [ ! -d "Firebase/$(basename ${file})" ]; then
     cp -R ${file} Firebase/
   fi
 done
