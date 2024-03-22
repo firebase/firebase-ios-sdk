@@ -440,12 +440,17 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS]
-        os: [macos-12, macos-13]
+        os: [macos-12, macos-13, macos-14]
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.2
+            target: visionOS
     runs-on: ${{ matrix.os }}
     needs: check
     env:
@@ -460,9 +465,9 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
     - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   spm-binary:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
