@@ -643,6 +643,9 @@ struct FrameworkBuilder {
       } else {
         try? fileManager.removeItem(at: privateHeadersDir)
       }
+      let headersDir = platformFrameworkDir.appendingPathComponent("Headers")
+        .resolvingSymlinksInPath()
+      try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
 
       // Move privacy manifest containing resource bundles into the framework.
       let resourceDir = platformFrameworkDir
