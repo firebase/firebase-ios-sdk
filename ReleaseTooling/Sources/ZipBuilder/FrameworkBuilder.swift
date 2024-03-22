@@ -636,7 +636,11 @@ struct FrameworkBuilder {
       // generation. Because this will throw an error for cases where the file
       // does not exist, the error is ignored.
       let privateHeadersDir = platformFrameworkDir.appendingPathComponent("PrivateHeaders")
-      if !fileManager.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
+      if fileManager.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
+        try? fileManager
+          .removeItem(at: privateHeadersDir.resolvingSymlinksInPath()
+            .appendingPathComponent("PrivateHeaders"))
+      } else {
         try? fileManager.removeItem(at: privateHeadersDir)
       }
 
