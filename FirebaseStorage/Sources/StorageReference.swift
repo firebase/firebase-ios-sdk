@@ -186,30 +186,6 @@ import Foundation
   }
 
   /// Asynchronously uploads from a FileHandle to the currently specified `StorageReference`,
-  /// without additional metadata.
-  /// - Parameters:
-  ///   - fileHandle: A file handle to the data to upload.
-  ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
-  ///       about the object being uploaded.
-  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the
-  /// upload.
-  @objc(putFileHandle:metadata:)
-  @discardableResult
-  open func putFileHandle(_ fileHandle: FileHandle,
-                          metadata: StorageMetadata? = nil) -> StorageUploadTask {
-    return putFileHandle(fileHandle, metadata: metadata, completion: nil)
-  }
-
-  /// Asynchronously uploads from a FileHandle to the currently specified `StorageReference`.
-  /// - Parameter fileHandle A file handle to the data to upload.
-  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the
-  /// upload.
-  @objc(putFileHandle:) @discardableResult open func __putFileHandle(_ fileHandle: FileHandle)
-    -> StorageUploadTask {
-    return putFileHandle(fileHandle, metadata: nil, completion: nil)
-  }
-
-  /// Asynchronously uploads from a FileHandle to the currently specified `StorageReference`,
   /// - Parameters:
   ///   - fileHandle: A file handle to the data to upload.
   ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
@@ -218,10 +194,10 @@ import Foundation
   ///       or an error on failure.
   /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the
   /// upload.
-  @objc(putFileHandle:metadata:completion:) @discardableResult
+  @discardableResult
   open func putFileHandle(_ fileHandle: FileHandle,
                           metadata: StorageMetadata? = nil,
-                          completion: ((_: StorageMetadata?, _: Error?) -> Void)?)
+                          completion: ((_: StorageMetadata?, _: Error?) -> Void)? = nil)
     -> StorageUploadTask {
     let putMetadata = metadata ?? StorageMetadata()
     if let path = path.object {

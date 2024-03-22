@@ -368,7 +368,7 @@ class StorageResultTests: StorageIntegrationCommon {
   func testPutFileHandle() throws {
     let expectation = self.expectation(description: #function)
     let putFileHandleExpectation = self.expectation(description: "putFileHandle")
-    let ref = storage.reference(withPath: "ios/public/testSimplePutFileHandle")
+    let ref = storage.reference(withPath: "ios/public/testPutFileHandle")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("hello.txt")

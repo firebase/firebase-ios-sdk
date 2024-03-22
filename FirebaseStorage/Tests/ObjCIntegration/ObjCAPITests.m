@@ -69,14 +69,6 @@
            completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error){
            }];
 
-  NSFileHandle *fileHandle = [NSFileHandle fileHandleWithNullDevice];
-  task = [ref putFileHandle:fileHandle];
-  task = [ref putFileHandle:fileHandle metadata:nil];
-  task = [ref putFileHandle:fileHandle
-                   metadata:nil
-                 completion:^(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error){
-                 }];
-
   FIRStorageDownloadTask *task2 =
       [ref dataWithMaxSize:123
                 completion:^(NSData *_Nullable data, NSError *_Nullable error){
