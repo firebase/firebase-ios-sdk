@@ -57,6 +57,8 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: xcodebuild -list
+    - name: Placeholder GoogleService-Info.plist for build testing
+      run: cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist FirebaseVertexAI/Sample/
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120
