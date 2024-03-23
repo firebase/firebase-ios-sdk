@@ -30,9 +30,6 @@ jobs:
         target: [iOS, tvOS, macOS]
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: rc${{ matrix.target }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -107,9 +104,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -125,9 +119,6 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: catalyst${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -183,9 +174,6 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: build-test
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

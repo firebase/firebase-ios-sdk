@@ -33,9 +33,6 @@ jobs:
         scheme: [ClientApp, ClientApp-iOS13]
     steps:
       - uses: actions/checkout@v4
-      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-        with:
-          cache_key: ${{ matrix.os }}
       - name: Build Client App –– ${{ matrix.platform }}
         run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.scheme }} ${{ matrix.platform }} xcodebuild
 
@@ -52,9 +49,6 @@ jobs:
           scheme: [ClientApp, ClientApp-iOS13]
       steps:
         - uses: actions/checkout@v4
-        - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-          with:
-            cache_key: ${{ matrix.os }}
         - name: Build Client App –– ${{ matrix.platform }}
           run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.scheme }} ${{ matrix.platform }} xcodebuild
 
@@ -67,9 +61,6 @@ jobs:
         scheme: [ClientApp-CocoaPods, ClientApp-CocoaPods-iOS13]
     steps:
       - uses: actions/checkout@v4
-      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-        with:
-          cache_key: ${{ matrix.os }}
       - uses: ruby/setup-ruby@v1
       - name: Setup Bundler
         run: scripts/setup_bundler.sh

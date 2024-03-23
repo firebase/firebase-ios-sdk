@@ -239,9 +239,6 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
-source scripts/buildcache.sh
-xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
-
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
 # Right now, it makes the log overflow on Travis because many of our
 # dependencies don't build cleanly this way.

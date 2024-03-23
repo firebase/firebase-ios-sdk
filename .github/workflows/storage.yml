@@ -31,9 +31,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: integration${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -79,9 +76,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm-cron${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Xcodes
       run: ls -l /Applications/Xcode*
     - name: Xcode

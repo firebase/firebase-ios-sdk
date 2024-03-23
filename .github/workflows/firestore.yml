@@ -332,9 +332,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.target }}
 
     - uses: ruby/setup-ruby@v1
 
@@ -457,9 +454,6 @@ jobs:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -478,9 +472,6 @@ jobs:
     needs: check
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm-binary
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
@@ -531,9 +522,6 @@ jobs:
   #     FIREBASE_SOURCE_FIRESTORE: 1
   #   steps:
   #   - uses: actions/checkout@v4
-  #   - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-  #     with:
-  #       cache_key: ${{ matrix.os }}
   #   - name: Initialize xcodebuild
   #     run: scripts/setup_spm_tests.sh
   #   - name: Build Test - Binary
@@ -550,9 +538,6 @@ jobs:
         target: [tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary

@@ -63,10 +63,6 @@ CI script to build binary versions of non-Firebase SDKs for QuickStart testing.
 
 CI script for building the zip distribution.
 
-### [buildcache.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/buildcache.sh)
-
-Clang options for the buildcache GitHub action.
-
 ### [change_headers.swift](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/change_headers.swift)
 
 Utility script to update source to repo-relative headers.

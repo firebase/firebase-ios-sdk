@@ -26,9 +26,6 @@ jobs:
         pod: ["FirebaseAppDistribution", "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebasePerformance"]
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: cron-${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -49,9 +46,6 @@ jobs:
         pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: pods-${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
