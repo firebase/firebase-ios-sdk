@@ -78,7 +78,7 @@ int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
   uint64_t bit_index = combined_hash % bit_count_uint64;
 
   HARD_ASSERT(bit_index <= INT32_MAX);
-  return bit_index;
+  return static_cast<int32_t>(bit_index);
 }
 
 bool BloomFilter::IsBitSet(int32_t index) const {

@@ -23,6 +23,7 @@
 @class RCNConfigFetch;
 @class RCNConfigRealtime;
 @protocol FIRAnalyticsInterop;
+@protocol FIRRolloutsStateSubscriber;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -77,6 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+
+/// Register RolloutsStateSubcriber to FIRRemoteConfig instance
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
 
 @end
 

@@ -328,7 +328,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS]
+        target: [iOS, macOS, tvOS]
 
     steps:
     - uses: actions/checkout@v4
@@ -440,12 +440,17 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS]
-        os: [macos-12, macos-13]
+        os: [macos-12, macos-13, macos-14]
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.2
+            target: visionOS
     runs-on: ${{ matrix.os }}
     needs: check
     env:
@@ -460,9 +465,9 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
     - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   spm-binary:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -482,6 +487,37 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+
+  check-firestore-internal-public-headers:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    runs-on: macos-12
+    needs: check
+    steps:
+    - uses: actions/checkout@v4
+    - name: Assert that Firestore and FirestoreInternal have identically named headers.
+      run: |
+        fst_dir=Firestore/Source/Public/FirebaseFirestore/
+        fst_internal_dir=FirebaseFirestoreInternal/FirebaseFirestore/
+
+        comparison=$(comm -3 <(ls $fst_dir | sort) <(ls $fst_internal_dir | sort))
+
+        if [[ -z "$comparison" ]]; then
+          echo "Success: Directories '$fst_dir' and '$fst_internal_dir' match."
+        else
+          echo "Error: Directories '$fst_dir' and '$fst_internal_dir' differ:"
+          echo "Files only in '$fst_dir':"
+          # Files in this set do not start with whitespace. Grep for them and a
+          # dashed prefix for nicer formatting.
+          echo "$comparison" | grep -v '^\s' | sed 's/^/- /'
+          echo "Files only in '$fst_internal_dir':"
+          # Files in this set start with whitespace. Grep for them and a dashed
+          # prefix for nicer formatting.
+          echo "$comparison" | grep '^\s' | sed 's/^	/- /'
+          exit 1
+        fi
 
   # TODO: Re-enable either in or after #11706.
   # spm-source-cron:

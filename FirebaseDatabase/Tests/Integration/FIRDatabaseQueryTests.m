@@ -4192,9 +4192,7 @@
 
   [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
     XCTAssertNil(err);
-    XCTAssertEqualObjects(
-        [snapshot value],
-        @{@"a" : @1});
+    XCTAssertEqualObjects([snapshot value], @{@"a" : @1});
     done = YES;
   }];
 }

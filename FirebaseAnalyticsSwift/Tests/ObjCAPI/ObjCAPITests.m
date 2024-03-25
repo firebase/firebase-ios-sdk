@@ -60,6 +60,8 @@
 - (void)onDeviceConversionTests:(NSURL *)url {
   [FIRAnalytics initiateOnDeviceConversionMeasurementWithEmailAddress:@"a@.a.com"];
   [FIRAnalytics initiateOnDeviceConversionMeasurementWithPhoneNumber:@"+15555555555"];
+  [FIRAnalytics initiateOnDeviceConversionMeasurementWithHashedEmailAddress:[NSData data]];
+  [FIRAnalytics initiateOnDeviceConversionMeasurementWithHashedPhoneNumber:[NSData data]];
 }
 
 - (NSArray<NSString *> *)eventNames {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSessions'
-  s.version          = '10.22.0'
+  s.version          = '10.24.0'
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.10'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
   s.dependency 'PromisesSwift', '~> 2.1'
 
   s.pod_target_xcconfig = {
