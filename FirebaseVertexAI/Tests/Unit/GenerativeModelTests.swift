@@ -107,9 +107,9 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(citationMetadata.citationSources.count, 1)
     let citationSource = try XCTUnwrap(citationMetadata.citationSources.first)
     XCTAssertEqual(citationSource.uri, "https://www.example.com/some-citation")
-    XCTAssertEqual(citationSource.startIndex, 574)
-    XCTAssertEqual(citationSource.endIndex, 705)
-    XCTAssertEqual(citationSource.license, "")
+    XCTAssertEqual(citationSource.startIndex, 179)
+    XCTAssertEqual(citationSource.endIndex, 366)
+    XCTAssertNil(citationSource.license)
   }
 
   func testGenerateContent_success_quoteReply() async throws {
@@ -669,21 +669,30 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     let stream = model.generateContentStream("Hi")
-    var citations: [Citation] = []
+    var citations = [Citation]()
+    var responses = [GenerateContentResponse]()
     for try await content in stream {
+      responses.append(content)
       XCTAssertNotNil(content.text)
       let candidate = try XCTUnwrap(content.candidates.first)
-      XCTAssertEqual(candidate.finishReason, .stop)
       if let sources = candidate.citationMetadata?.citationSources {
         citations.append(contentsOf: sources)
       }
     }
 
-    XCTAssertEqual(citations.count, 8)
+    let lastCandidate = try XCTUnwrap(responses.last?.candidates.first)
+    XCTAssertEqual(lastCandidate.finishReason, .stop)
+    XCTAssertEqual(citations.count, 3)
     XCTAssertTrue(citations
-      .contains(where: { $0.startIndex == 574 && $0.endIndex == 705 && !$0.uri.isEmpty }))
+      .contains(where: {
+        $0.startIndex == 31 && $0.endIndex == 187 && $0
+          .uri == "https://www.example.com/citation-1" && $0.license == nil
+      }))
     XCTAssertTrue(citations
-      .contains(where: { $0.startIndex == 899 && $0.endIndex == 1026 && !$0.uri.isEmpty }))
+      .contains(where: {
+        $0.startIndex == 133 && $0.endIndex == 272 && $0
+          .uri == "https://www.example.com/citation-3" && $0.license == "mit"
+      }))
   }
 
   func testGenerateContentStream_appCheck_validToken() async throws {
