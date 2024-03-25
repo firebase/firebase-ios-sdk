@@ -178,7 +178,7 @@ jobs:
       with:
         name: Firebase-actions-dir
         github-token: '${{ secrets.GITHUB_TOKEN }}'
-        run-id: 1352153065
+        run-id: 36927374
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
