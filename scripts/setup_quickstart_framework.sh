@@ -41,6 +41,7 @@ fi
 if [ ! -f "Firebase/module.modulemap" ]; then
   cp "${HOME}"/ios_frameworks/Firebase/module.modulemap Firebase/
 fi
+ls Firebase/
 for file in "$@"
 do
   if [ ! -d "Firebase/$(basename ${file})" ]; then
