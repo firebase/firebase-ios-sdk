@@ -155,6 +155,10 @@ extension CandidateResponse: Decodable {
 /// A collection of source attributions for a piece of content.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public struct CitationMetadata: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case citationSources = "citations"
+  }
+
   /// A list of individual cited sources and the parts of the content to which they apply.
   public let citationSources: [Citation]
 }
@@ -172,7 +176,7 @@ public struct Citation: Decodable {
   public let uri: String
 
   /// The license the cited source work is distributed under.
-  public let license: String
+  public let license: String?
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
