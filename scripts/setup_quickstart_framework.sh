@@ -44,8 +44,7 @@ fi
 for file in "$@"
 do
   if [ ! -d "Firebase/$(basename ${file})" ]; then
-    rm -rf "Firebase/$(basename ${file})"
-    cp -R ${file} Firebase/
+    cp -av ${file} Firebase/
   fi
 done
 
