@@ -44,8 +44,8 @@ fi
 for file in "$@"
 do
   if [ ! -d "Firebase/$(basename ${file})" ]; then
-    rm -rf "Firebase/$(basename ${file})"
-    cp -a ${file} Firebase/
+    # rm -rf "Firebase/$(basename ${file})"
+    rsync -a ${file} Firebase/
   fi
 done
 
