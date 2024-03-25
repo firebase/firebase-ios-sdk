@@ -20,9 +20,9 @@ on:
         required: true
         default: 'https://github.com/firebase/SpecsStaging.git'
 
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
+# concurrency:
+#     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#     cancel-in-progress: true
 
 jobs:
   # package-release:

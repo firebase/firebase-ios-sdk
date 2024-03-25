@@ -45,6 +45,8 @@ ls Firebase/
 for file in "$@"
 do
   if [ ! -d "Firebase/$(basename ${file})" ]; then
+    ls "Firebase/$(basename ${file})"
+    rm -rf "Firebase/$(basename ${file})"
     cp -a ${file} Firebase/
   fi
 done
