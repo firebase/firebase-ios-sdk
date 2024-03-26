@@ -25,26 +25,35 @@ public class VertexAI: NSObject {
 
   /// The default `VertexAI` instance.
   ///
+  ///  - Parameter location: The location identifier, e.g., `us-central1`; see
+  ///     [Vertex AI
+  ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
+  ///     for a list of supported locations.
   /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
-  public static func vertexAI() -> VertexAI {
+  public static func vertexAI(location: String) -> VertexAI {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
 
-    return vertexAI(app: app)
+    return vertexAI(app: app, location: location)
   }
 
   /// Creates an instance of `VertexAI` configured with a custom `FirebaseApp`.
   ///
-  /// - Parameter app: The custom `FirebaseApp` used for initialization.
+  ///  - Parameters:
+  ///   - app: The custom `FirebaseApp` used for initialization.
+  ///   - location: The location identifier, e.g., `us-central1`; see
+  ///     [Vertex AI
+  ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
+  ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
-  public static func vertexAI(app: FirebaseApp) -> VertexAI {
+  public static func vertexAI(app: FirebaseApp, location: String) -> VertexAI {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
       fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
     }
 
-    return provider.vertexAI()
+    return provider.vertexAI(location)
   }
 
   /// Initializes a generative model with the given parameters.
@@ -54,14 +63,10 @@ public class VertexAI: NSObject {
   ///     [Gemini
   ///     models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models)
   ///     for a list of supported model names.
-  ///   - location: The location identifier, e.g., `us-central1`; see
-  ///     [Vertex AI
-  ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
-  ///     for a list of supported locations.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  public func generativeModel(modelName: String, location: String,
+  public func generativeModel(modelName: String,
                               generationConfig: GenerationConfig? = nil,
                               safetySettings: [SafetySetting]? = nil,
                               requestOptions: RequestOptions = RequestOptions())
@@ -89,8 +94,11 @@ public class VertexAI: NSObject {
 
   private let appCheck: AppCheckInterop?
 
-  init(app: FirebaseApp) {
+  private let location: String
+
+  init(app: FirebaseApp, location: String) {
     self.app = app
+    self.location = location
     appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
   }
 

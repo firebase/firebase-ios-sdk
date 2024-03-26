@@ -36,10 +36,7 @@ class ConversationViewModel: ObservableObject {
   private var chatTask: Task<Void, Never>?
 
   init() {
-    model = VertexAI.vertexAI().generativeModel(
-      modelName: "gemini-1.0-pro",
-      location: "us-central1"
-    )
+    model = VertexAI.vertexAI(location: "us-central1").generativeModel(modelName: "gemini-1.0-pro")
     chat = model.startChat()
   }
 

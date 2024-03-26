@@ -34,31 +34,28 @@ final class VertexAIAPITests: XCTestCase {
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
 
     // Instantiate Vertex AI SDK - Default App
-    let vertexAI = VertexAI.vertexAI()
+    let vertexAI = VertexAI.vertexAI(location: "my-location")
 
     // Instantiate Vertex AI SDK - Custom App
-    let _ = VertexAI.vertexAI(app: app!)
+    let _ = VertexAI.vertexAI(app: app!, location: "my-location")
 
     // Permutations without optional arguments.
 
-    let _ = vertexAI.generativeModel(modelName: "gemini-1.0-pro", location: "us-central1")
+    let _ = vertexAI.generativeModel(modelName: "gemini-1.0-pro")
 
     let _ = vertexAI.generativeModel(
       modelName: "gemini-1.0-pro",
-      location: "us-central1",
       safetySettings: filters
     )
 
     let _ = vertexAI.generativeModel(
       modelName: "gemini-1.0-pro",
-      location: "us-central1",
       generationConfig: config
     )
 
     // All arguments passed.
     let genAI = vertexAI.generativeModel(
       modelName: "gemini-1.0-pro",
-      location: "us-central1",
       generationConfig: config, // Optional
       safetySettings: filters // Optional
     )
