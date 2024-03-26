@@ -565,8 +565,6 @@ struct FrameworkBuilder {
         fatalError("Could not create a temp directory to store all thin frameworks: \(error)")
       }
     }
-    // Done – remove code sig dir, set OS min to 100 in plist, clean up symbolic link to avoid v8
-    // carthage crash, privacy manifest, module map,
 
     return slicedFrameworks.map { platform, frameworkPath in
       // Create the following structure in the platform frameworks directory:
