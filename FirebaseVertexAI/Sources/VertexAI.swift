@@ -25,35 +25,35 @@ public class VertexAI: NSObject {
 
   /// The default `VertexAI` instance.
   ///
-  ///  - Parameter location: The location identifier, e.g., `us-central1`; see
+  ///  - Parameter region: The region identifier, e.g., `us-central1`; see
   ///     [Vertex AI
   ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
-  ///     for a list of supported locations.
+  ///     for a list of supported regions.
   /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
-  public static func vertexAI(location: String) -> VertexAI {
+  public static func vertexAI(region: String) -> VertexAI {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
 
-    return vertexAI(app: app, location: location)
+    return vertexAI(app: app, region: region)
   }
 
   /// Creates an instance of `VertexAI` configured with a custom `FirebaseApp`.
   ///
   ///  - Parameters:
   ///   - app: The custom `FirebaseApp` used for initialization.
-  ///   - location: The location identifier, e.g., `us-central1`; see
+  ///   - region: The region identifier, e.g., `us-central1`; see
   ///     [Vertex AI
   ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
-  ///     for a list of supported locations.
+  ///     for a list of supported regions.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
-  public static func vertexAI(app: FirebaseApp, location: String) -> VertexAI {
+  public static func vertexAI(app: FirebaseApp, region: String) -> VertexAI {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
       fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
     }
 
-    return provider.vertexAI(location)
+    return provider.vertexAI(region)
   }
 
   /// Initializes a generative model with the given parameters.
@@ -71,7 +71,7 @@ public class VertexAI: NSObject {
                               safetySettings: [SafetySetting]? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    let modelResourceName = modelResourceName(modelName: modelName, location: location)
+    let modelResourceName = modelResourceName(modelName: modelName, region: region)
 
     guard let apiKey = app.options.apiKey else {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
@@ -94,29 +94,29 @@ public class VertexAI: NSObject {
 
   private let appCheck: AppCheckInterop?
 
-  private let location: String
+  private let region: String
 
-  init(app: FirebaseApp, location: String) {
+  init(app: FirebaseApp, region: String) {
     self.app = app
-    self.location = location
+    self.region = region
     appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
   }
 
-  private func modelResourceName(modelName: String, location: String) -> String {
+  private func modelResourceName(modelName: String, region: String) -> String {
     if modelName.contains("/") {
       return modelName
     }
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
-    guard !location.isEmpty else {
+    guard !region.isEmpty else {
       fatalError("""
-      No location specified; see
+      No region specified; see
       https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions for a
       list of available regions.
       """)
     }
 
-    return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
+    return "projects/\(projectID)/locations/\(region)/publishers/google/models/\(modelName)"
   }
 }

@@ -64,7 +64,7 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
 
   // MARK: - VertexAIProvider conformance
 
-  func vertexAI(_ location: String) -> VertexAI {
+  func vertexAI(_ region: String) -> VertexAI {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.
@@ -73,7 +73,7 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
     if let instance = instances[app.name] {
       return instance
     }
-    let newInstance = VertexAI(app: app, location: location)
+    let newInstance = VertexAI(app: app, region: region)
     instances[app.name] = newInstance
     return newInstance
   }

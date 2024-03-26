@@ -34,10 +34,10 @@ final class VertexAIAPITests: XCTestCase {
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
 
     // Instantiate Vertex AI SDK - Default App
-    let vertexAI = VertexAI.vertexAI(location: "my-location")
+    let vertexAI = VertexAI.vertexAI(region: "my-region")
 
     // Instantiate Vertex AI SDK - Custom App
-    let _ = VertexAI.vertexAI(app: app!, location: "my-location")
+    let _ = VertexAI.vertexAI(app: app!, region: "my-region")
 
     // Permutations without optional arguments.
 
