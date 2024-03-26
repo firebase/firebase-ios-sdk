@@ -1,3 +1,7 @@
+# Unreleased
+- Fix validation issue for macOS and macCatalyst XCFrameworks related to
+  framework directory structure. (#12557)
+
 # Firebase 10.23.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
 
