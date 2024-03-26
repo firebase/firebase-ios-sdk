@@ -70,12 +70,11 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    if let instance = instances[app.name],
-       instance.region == region {
+    if let instance = instances[region] {
       return instance
     }
     let newInstance = VertexAI(app: app, region: region)
-    instances[app.name] = newInstance
+    instances[region] = newInstance
     return newInstance
   }
 }
