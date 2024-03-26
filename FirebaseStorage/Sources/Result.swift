@@ -178,27 +178,6 @@ public extension StorageReference {
                    completion: getResultCallback(completion: completion))
   }
 
-  /// Asynchronously uploads from a FileHandle to the currently specified `StorageReference`.
-  ///
-  /// - Parameters:
-  ///   - fileHandle: A file handle to the data to upload.
-  ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
-  ///              about the object being uploaded.
-  ///   - completion: A completion block that returns a `Result` enum with either the
-  ///                object metadata or an `Error`.
-  ///
-  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage
-  ///            the upload.
-  @discardableResult
-  func putFileHandle(_ fileHandle: FileHandle,
-                     metadata: StorageMetadata? = nil,
-                     completion: @escaping (Result<StorageMetadata, Error>) -> Void)
-    -> StorageUploadTask {
-    return putFileHandle(fileHandle,
-                         metadata: metadata,
-                         completion: getResultCallback(completion: completion))
-  }
-
   /// Updates the metadata associated with an object at the current path.
   ///
   /// - Parameters:

@@ -136,7 +136,6 @@ import Foundation
   }
 
   /// Asynchronously uploads a file to the currently specified `StorageReference`.
-  /// `putData` should be used instead of `putFile` in Extensions.
   /// - Parameters:
   ///   - fileURL: A URL representing the system file path of the object to be uploaded.
   ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
@@ -150,7 +149,6 @@ import Foundation
 
   /// Asynchronously uploads a file to the currently specified `StorageReference`,
   /// without additional metadata.
-  /// `putData` should be used instead of `putFile` in Extensions.
   /// @param fileURL A URL representing the system file path of the object to be uploaded.
   /// @return An instance of StorageUploadTask, which can be used to monitor or manage the upload.
   @objc(putFile:) @discardableResult open func __putFile(from fileURL: URL) -> StorageUploadTask {
@@ -158,7 +156,6 @@ import Foundation
   }
 
   /// Asynchronously uploads a file to the currently specified `StorageReference`.
-  /// `putData` should be used instead of `putFile` in Extensions.
   /// - Parameters:
   ///   - fileURL: A URL representing the system file path of the object to be uploaded.
   ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
@@ -180,34 +177,6 @@ import Foundation
                                  service: storage.fetcherServiceForApp,
                                  queue: storage.dispatchQueue,
                                  file: fileURL,
-                                 metadata: putMetadata)
-    startAndObserveUploadTask(task: task, completion: completion)
-    return task
-  }
-
-  /// Asynchronously uploads from a FileHandle to the currently specified `StorageReference`,
-  /// - Parameters:
-  ///   - fileHandle: A file handle to the data to upload.
-  ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
-  ///       about the object being uploaded.
-  ///   - completion: A closure that either returns the object metadata on success,
-  ///       or an error on failure.
-  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the
-  /// upload.
-  @discardableResult
-  open func putFileHandle(_ fileHandle: FileHandle,
-                          metadata: StorageMetadata? = nil,
-                          completion: ((_: StorageMetadata?, _: Error?) -> Void)? = nil)
-    -> StorageUploadTask {
-    let putMetadata = metadata ?? StorageMetadata()
-    if let path = path.object {
-      putMetadata.path = path
-      putMetadata.name = (path as NSString).lastPathComponent as String
-    }
-    let task = StorageUploadTask(reference: self,
-                                 service: storage.fetcherServiceForApp,
-                                 queue: storage.dispatchQueue,
-                                 fileHandle: fileHandle,
                                  metadata: putMetadata)
     startAndObserveUploadTask(task: task, completion: completion)
     return task

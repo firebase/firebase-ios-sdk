@@ -73,7 +73,6 @@ public extension StorageReference {
   }
 
   /// Asynchronously uploads a file to the currently specified StorageReference.
-  /// `putDataAsync` should be used instead of `putFileAsync` in Extensions.
   ///
   /// - Parameters:
   ///   - url: A URL representing the system file path of the object to be uploaded.
@@ -105,44 +104,6 @@ public extension StorageReference {
       uploadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
           snapshot.error ?? StorageError.internalError("Internal Storage Error in putFileAsync")
-        ))
-      }
-    }
-  }
-
-  /// Asynchronously uploads from a FileHandle to the currently specified StorageReference.
-  ///
-  /// - Parameters:
-  ///   - fileHandle: A file handle to the data to upload.
-  ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
-  ///              about the object being uploaded.
-  ///   - onProgress: An optional closure function to return a `Progress` instance while the
-  /// upload proceeds.
-  /// - Throws: An error if the operation failed.
-  /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
-  func putFileHandleAsync(_ fileHandle: FileHandle,
-                          metadata: StorageMetadata? = nil,
-                          onProgress: ((Progress?) -> Void)? = nil) async throws
-    -> StorageMetadata {
-    guard let onProgress = onProgress else {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.putFileHandle(fileHandle, metadata: metadata) { result in
-          continuation.resume(with: result)
-        }
-      }
-    }
-    let uploadTask = putFileHandle(fileHandle, metadata: metadata)
-    return try await withCheckedThrowingContinuation { continuation in
-      uploadTask.observe(.progress) {
-        onProgress($0.progress)
-      }
-      uploadTask.observe(.success) { _ in
-        continuation.resume(with: .success(uploadTask.metadata!))
-      }
-      uploadTask.observe(.failure) { snapshot in
-        continuation.resume(with: .failure(
-          snapshot.error ?? StorageError
-            .internalError("Internal Storage Error in putFileHandleAsync")
         ))
       }
     }

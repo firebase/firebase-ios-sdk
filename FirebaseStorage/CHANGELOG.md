@@ -1,4 +1,4 @@
-- [added] Adds `putFileHandle` and `putFileHandleAsync`.
+- [fixed] `putFile` and `putFileAsync` now work in app extensions. A background session configuration is not used when uploading from an app extension.
 
 # 10.11.0
 - [added] Add progress tracking capability for `putDataAsync`, `putFileAsync`, and

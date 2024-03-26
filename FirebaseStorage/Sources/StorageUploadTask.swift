@@ -87,9 +87,10 @@ import Foundation
       } else if let fileURL = self.fileURL {
         uploadFetcher.uploadFileURL = fileURL
         uploadFetcher.comment = "File UploadTask"
-      } else if let fileHandle = self.uploadFileHandle {
-        uploadFetcher.uploadFileHandle = fileHandle
-        uploadFetcher.comment = "FileHandle UploadTask"
+
+        if Bundle.main.bundlePath.hasSuffix(".appex") {
+          uploadFetcher.useBackgroundSession = false
+        }
       }
       uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
 
@@ -197,7 +198,6 @@ import Foundation
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
-  private var uploadFileHandle: FileHandle?
   // Hold completion in object to force it to be retained until completion block is called.
   var completionMetadata: ((StorageMetadata?, Error?) -> Void)?
 
@@ -208,11 +208,9 @@ import Foundation
        queue: DispatchQueue,
        file: URL? = nil,
        data: Data? = nil,
-       fileHandle: FileHandle? = nil,
        metadata: StorageMetadata) {
     uploadMetadata = metadata
     uploadData = data
-    uploadFileHandle = fileHandle
     super.init(reference: reference, service: service, queue: queue, file: file)
 
     if uploadMetadata.contentType == nil {
@@ -226,9 +224,6 @@ import Foundation
 
   private func contentUploadError() -> NSError? {
     if uploadData != nil {
-      return nil
-    }
-    if uploadFileHandle != nil {
       return nil
     }
     if let resourceValues = try? fileURL?.resourceValues(forKeys: [.isRegularFileKey]),
