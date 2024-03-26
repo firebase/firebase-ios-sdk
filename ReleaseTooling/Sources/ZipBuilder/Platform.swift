@@ -71,7 +71,7 @@ enum PlatformMinimum {
     minimumIOSVersion = "14.0"
     minimumMacOSVersion = "11.0"
     minimumTVOSVersion = "14.0"
-    minimumWatchOSVersion = "6.0"
+    minimumWatchOSVersion = "8.0"
   }
 }
 
