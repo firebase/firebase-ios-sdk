@@ -502,14 +502,32 @@ struct ZipBuilder {
                 guard fileManager.isDirectory(at: frameworkPath),
                       frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
-                try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
+                  .resolvingSymlinksInPath()
+                // On macOS platforms, this directory will already be there, so
+                // ignore error that it already exists.
+                try? fileManager.createDirectory(
+                  at: resourcesDir,
+                  withIntermediateDirectories: true
+                )
+
+                let xcResourceDirContents = try fileManager.contentsOfDirectory(
+                  at: xcResourceDir,
+                  includingPropertiesForKeys: nil
+                )
+
+                for file in xcResourceDirContents {
+                  try fileManager.copyItem(
+                    at: file,
+                    to: resourcesDir.appendingPathComponent(file.lastPathComponent)
+                  )
+                }
               }
             }
             try fileManager.removeItem(at: xcResourceDir)
           }
         }
       } catch {
-        fatalError("Could not setup Resources for \(pod) for \(packageKind) \(error)")
+        fatalError("Could not setup Resources for \(pod.key) for \(packageKind) \(error)")
       }
 
       // Special case for Crashlytics:
