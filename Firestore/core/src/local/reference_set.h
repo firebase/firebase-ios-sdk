@@ -82,9 +82,9 @@ class ReferenceSet {
  private:
   void RemoveReference(const DocumentKeyReference& reference);
 
-  immutable::SortedSet<DocumentKeyReference, DocumentKeyReference::ByKey>
+  std::set<DocumentKeyReference, DocumentKeyReference::ByKey>
       by_key_;
-  immutable::SortedSet<DocumentKeyReference, DocumentKeyReference::ById> by_id_;
+  std::set<DocumentKeyReference, DocumentKeyReference::ById> by_id_;
 };
 
 }  // namespace local
