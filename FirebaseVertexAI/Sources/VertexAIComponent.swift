@@ -22,7 +22,7 @@ import Foundation
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 @objc(FIRVertexAIProvider)
 protocol VertexAIProvider {
-  @objc func vertexAI(_ location: String) -> VertexAI
+  @objc func vertexAI(_ region: String) -> VertexAI
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
@@ -32,7 +32,7 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
 
   /// The app associated with all `VertexAI` instances in this container.
   /// This is `unowned` instead of `weak` so it can be used without unwrapping in `vertexAI(...)`
-  private unowned let app: FirebaseApp
+  unowned let app: FirebaseApp
 
   /// A map of active  `VertexAI` instances for `app`, keyed by model resource names
   /// (e.g., "projects/my-project-id/locations/us-central1/publishers/google/models/gemini-pro").
@@ -70,11 +70,11 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    if let instance = instances[app.name] {
+    if let instance = instances[region] {
       return instance
     }
     let newInstance = VertexAI(app: app, region: region)
-    instances[app.name] = newInstance
+    instances[region] = newInstance
     return newInstance
   }
 }
