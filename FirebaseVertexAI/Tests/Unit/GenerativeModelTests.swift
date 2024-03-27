@@ -37,6 +37,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
       urlSession: urlSession
@@ -165,6 +166,7 @@ final class GenerativeModelTests: XCTestCase {
       // Model name is prefixed with "models/".
       name: "models/test-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
       urlSession: urlSession
@@ -173,11 +175,79 @@ final class GenerativeModelTests: XCTestCase {
     _ = try await model.generateContent(testPrompt)
   }
 
+  func testGenerateContent_success_functionCall_emptyArguments() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-function-call-empty-arguments",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    guard case let .functionCall(functionCall) = part else {
+      XCTFail("Part is not a FunctionCall.")
+      return
+    }
+    XCTAssertEqual(functionCall.name, "current_time")
+    XCTAssertTrue(functionCall.args.isEmpty)
+  }
+
+  func testGenerateContent_success_functionCall_noArguments() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-function-call-no-arguments",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    guard case let .functionCall(functionCall) = part else {
+      XCTFail("Part is not a FunctionCall.")
+      return
+    }
+    XCTAssertEqual(functionCall.name, "current_time")
+    XCTAssertTrue(functionCall.args.isEmpty)
+  }
+
+  func testGenerateContent_success_functionCall_withArguments() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-function-call-with-arguments",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    guard case let .functionCall(functionCall) = part else {
+      XCTFail("Part is not a FunctionCall.")
+      return
+    }
+    XCTAssertEqual(functionCall.name, "sum")
+    XCTAssertEqual(functionCall.args.count, 2)
+    let argX = try XCTUnwrap(functionCall.args["x"])
+    XCTAssertEqual(argX, .number(4))
+    let argY = try XCTUnwrap(functionCall.args["y"])
+    XCTAssertEqual(argY, .number(5))
+  }
+
   func testGenerateContent_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(token: appCheckToken),
       urlSession: urlSession
@@ -196,6 +266,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
       urlSession: urlSession
@@ -493,6 +564,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
       urlSession: urlSession
@@ -700,6 +772,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(token: appCheckToken),
       urlSession: urlSession
@@ -719,6 +792,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
       urlSession: urlSession
@@ -836,6 +910,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
       urlSession: urlSession
@@ -894,6 +969,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
       urlSession: urlSession
@@ -913,6 +989,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: modelName,
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil
     )
@@ -926,6 +1003,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: modelResourceName,
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil
     )
@@ -939,6 +1017,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: tunedModelResourceName,
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil
     )
