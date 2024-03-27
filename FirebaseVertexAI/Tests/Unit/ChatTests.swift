@@ -50,6 +50,7 @@ final class ChatTests: XCTestCase {
     let model = GenerativeModel(
       name: "my-model",
       apiKey: "API_KEY",
+      tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
       urlSession: urlSession
