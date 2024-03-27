@@ -52,6 +52,7 @@ extension User: DataSourceProvidable {
       Item(title: UserAction.signOut.rawValue, textColor: .systemBlue),
       Item(title: UserAction.link.rawValue, textColor: .systemBlue, hasNestedContent: true),
       Item(title: UserAction.requestVerifyEmail.rawValue, textColor: .systemBlue),
+      Item(title: UserAction.updatePassword.rawValue, textColor: .systemBlue),
       Item(title: UserAction.tokenRefresh.rawValue, textColor: .systemBlue),
       Item(title: UserAction.delete.rawValue, textColor: .systemRed),
     ]
