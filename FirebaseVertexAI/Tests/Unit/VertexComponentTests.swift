@@ -105,7 +105,7 @@ class VertexComponentTests: XCTestCase {
       options.projectID = "myProjectID"
       let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
       weakApp = try XCTUnwrap(app1)
-      let vertex = VertexAI(app: app1, region: "transitory bucket")
+      let vertex = VertexAI(app: app1, region: "transitory region")
       weakVertex = vertex
       XCTAssertNotNil(weakVertex)
     }
