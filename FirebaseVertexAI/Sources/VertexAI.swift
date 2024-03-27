@@ -94,7 +94,7 @@ public class VertexAI: NSObject {
 
   private let appCheck: AppCheckInterop?
 
-  private let region: String
+  let region: String
 
   init(app: FirebaseApp, region: String) {
     self.app = app
