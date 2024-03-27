@@ -14,6 +14,12 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -88,7 +94,7 @@ import Foundation
         uploadFetcher.uploadFileURL = fileURL
         uploadFetcher.comment = "File UploadTask"
 
-        if Bundle.main.bundlePath.hasSuffix(".appex") {
+        if GULAppEnvironmentUtil.isAppExtension() {
           uploadFetcher.useBackgroundSession = false
         }
       }

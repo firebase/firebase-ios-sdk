@@ -1161,6 +1161,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
       path: "FirebaseStorage/Sources"
     ),
