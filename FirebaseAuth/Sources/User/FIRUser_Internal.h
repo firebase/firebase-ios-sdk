@@ -44,6 +44,12 @@ typedef void (^FIRVerifyBeforeUpdateEmailCallback)(NSError *_Nullable error);
  */
 @property(nonatomic, copy, readonly) NSString *rawAccessToken;
 
+/**
+ @property passkeyName
+ @brief A cached passkey name that being passed from startPasskeyEnrollmentWithName:completion: call
+ and consumed at finalizePasskeyEnrollmentWithPlatformCredential:completion: call
+ */
+@property(nonatomic, copy, nullable) NSString *passkeyName;
 /** @property auth
     @brief A weak reference to a FIRAuth instance associated with this instance.
  */

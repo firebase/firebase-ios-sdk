@@ -19,6 +19,7 @@
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
 #import "FIRMultiFactor.h"
+#import "FIRPasskeyInfo.h"
 #import "FIRUserInfo.h"
 
 @class FIRAuthTokenResult;
@@ -26,6 +27,10 @@
 @class FIRUserProfileChangeRequest;
 @class FIRUserMetadata;
 @protocol FIRAuthUIDelegate;
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialRegistration;
+@class ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -123,6 +128,11 @@ NS_SWIFT_NAME(User)
 @property(nonatomic, readonly, nonnull)
     FIRMultiFactor *multiFactor API_UNAVAILABLE(macos, tvos, watchos);
 
+/** @property enrolledPasskeys
+    @brief a list of user enrolled passkey object.
+*/
+@property(nonatomic, readonly) NSArray<FIRPasskeyInfo *> *enrolledPasskeys API_UNAVAILABLE(watchos);
+
 /** @fn init
     @brief This class should not be instantiated.
     @remarks To retrieve the current user, use `Auth.currentUser`. To sign a user
@@ -165,6 +175,46 @@ NS_SWIFT_NAME(User)
     NS_SWIFT_NAME(updateEmail(to:completion:)) DEPRECATED_MSG_ATTRIBUTE(
         "This method is deprecated and will be removed in a future release. Use "
         "sendEmailVerification(beforeUpdatingEmail email: String) instead.");
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+/**
+ @fn startPasskeyEnrollmentWithName:completion:
+ @brief Start the passkey enrollment creating a plaform public key creation request with the
+ challenge from GCIP backend.
+
+ @param name The name for the passkey to be created.
+ @param completion Optionally; the block which is invoked when start passkey enrollment flow
+ finishes.
+
+ @remarks Possible error codes: // TODO @liubinj fill this after
+ */
+- (void)startPasskeyEnrollmentWithName:(nullable NSString *)name
+                            completion:
+                                (nullable void (^)(
+                                    ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                        *_Nullable request,
+                                    NSError *_Nullable error))completion
+    NS_SWIFT_NAME(startPasskeyEnrollment(with:completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+
+/**
+ @fn finalizePasskeyEnrollmentWithPlatformCredential:completion:
+ @brief Finalize the passkey enrollment with the platfrom public key credential.
+
+ @param platformCredential The name for the passkey to be created.
+ @param completion Optionally; a block which is invoked when the finalize  enroll with passkey flow
+ finishes, or is canceled
+
+ @remarks Possible error codes: // TODO @liubinj fill this after
+ */
+- (void)finalizePasskeyEnrollmentWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialRegistration *)platformCredential
+                                             completion:(nullable void (^)(
+                                                            FIRAuthDataResult *_Nullable authResult,
+                                                            NSError *_Nullable error))completion
+    NS_SWIFT_NAME(finalizePasskeyEnrollment(with:completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+#endif
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.

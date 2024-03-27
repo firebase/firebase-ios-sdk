@@ -125,6 +125,35 @@ static NSString *const kTestLocalID = @"testLocalId";
  */
 static NSString *const kEmailVerifiedKey = @"emailVerified";
 
+/** @var kPasskeyInfoKey
+    @brief The key for the "passkeyInfo" value in the response.
+ */
+static NSString *const kPasskeyInfoKey = @"passkeyInfo";
+
+/**
+ @var kNameKey
+ @brief The name of the field in the response JSON for name.
+ */
+static const NSString *kPasskeyNameKey = @"name";
+
+/**
+ @var kCredentialIdKey
+ @brief The name of the field in the response JSON for credential ID.
+ */
+static const NSString *kCredentialIdKey = @"credentialId";
+
+/**
+ @var kTestPasskeyName
+ @brief The fake name property value in the passkey response.
+ */
+static const NSString *kTestPasskeyName = @"testPasskeyName";
+
+/**
+ @var kTestCredentialId
+ @brief The fake credential ID property value in the passkey response.
+ */
+static const NSString *kTestCredentialId = @"testCredentialID";
+
 /** @class FIRGetAccountInfoResponseTests
     @brief Tests for @c FIRGetAccountInfoResponse.
  */
@@ -208,6 +237,11 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
               RPCError = error;
             }];
 
+  NSArray *testPasskeyInfo = @[ @{
+    kPasskeyNameKey : kTestPasskeyName,
+    kCredentialIdKey : kTestCredentialId,
+  } ];
+
   NSArray *users = @[ @{
     kProviderUserInfoKey : @[ @{
       kProviderIDkey : kTestProviderID,
@@ -221,7 +255,8 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
     kEmailKey : kTestEmail,
     kPhotoUrlKey : kTestPhotoURL,
     kEmailVerifiedKey : @YES,
-    kPasswordHashKey : kTestPasswordHash
+    kPasswordHashKey : kTestPasswordHash,
+    kPasskeyInfoKey : testPasskeyInfo,
   } ];
   [_RPCIssuer respondWithJSON:@{
     @"users" : users,
@@ -238,6 +273,10 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
     XCTAssertEqualObjects(RPCResponse.users[0].localID, kTestLocalID);
     XCTAssertEqual(RPCResponse.users[0].emailVerified, YES);
     XCTAssertEqualObjects(RPCResponse.users[0].passwordHash, kTestPasswordHash);
+    NSArray<FIRPasskeyInfo *> *enrolledPasskeys = RPCResponse.users[0].enrolledPasskeys;
+    XCTAssertEqual([enrolledPasskeys count], 1);
+    XCTAssertEqualObjects(enrolledPasskeys[0].name, kTestPasskeyName);
+    XCTAssertEqualObjects(enrolledPasskeys[0].credentialID, kTestCredentialId);
     NSArray<FIRGetAccountInfoResponseProviderUserInfo *> *providerUserInfo =
         RPCResponse.users[0].providerUserInfo;
     if ([providerUserInfo count]) {
