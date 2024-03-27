@@ -935,7 +935,9 @@ final class GenerativeModelTests: XCTestCase {
     )
 
     let response = try await model.countTokens("Why is the sky blue?")
+
     XCTAssertEqual(response.totalTokens, 6)
+    XCTAssertEqual(response.totalBillableCharacters, 16)
   }
 
   func testCountTokens_modelNotFound() async throws {
