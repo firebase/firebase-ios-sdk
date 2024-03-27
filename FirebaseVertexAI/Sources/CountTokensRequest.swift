@@ -42,4 +42,7 @@ extension CountTokensRequest: GenerativeAIRequest {
 public struct CountTokensResponse: Decodable {
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
+
+  /// The total number of billable characters in the input given to the model as a prompt.
+  public let totalBillableCharacters: Int
 }
