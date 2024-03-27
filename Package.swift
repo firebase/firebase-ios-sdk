@@ -23,7 +23,7 @@ let firebaseVersion = "10.24.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
+  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -428,21 +428,31 @@ let package = Package(
       name: "FirebaseAuth",
       dependencies: [
         "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseAuthInternal",
         "FirebaseCore",
+        "FirebaseCoreExtension",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
-      path: "FirebaseAuth/Sources",
+      path: "FirebaseAuth/Sources/Swift",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
+      ]
+    ),
+    .target(
+      name: "FirebaseAuthInternal",
+      path: "FirebaseAuth/Sources",
+      exclude: [
+        "Swift",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
       ]
     ),
     // Internal headers only for consuming from Swift.
@@ -452,7 +462,7 @@ let package = Package(
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: ".",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -461,18 +471,14 @@ let package = Package(
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
-        .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
-        "FIRAuthTests.m",
-        "FIRUserTests.m",
-        "SwiftAPI.swift", // Only builds via CocoaPods testing until Swift source update.
-        "SwiftGlobalTests.swift", // Only builds via CocoaPods testing until Swift source update.
-      ],
-      cSettings: [
-        .headerSearchPath("../../.."),
+        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
+        "PhoneAuthProviderTests.swift",
+        "AuthNotificationManagerTests.swift",
+        "ObjCAPITests.m", // Only builds via CocoaPods until mixed language or its own target.
+        "ObjCGlobalTests.m", // Only builds via CocoaPods until mixed language or its own target.
       ]
     ),
     .target(
@@ -685,6 +691,7 @@ let package = Package(
         .linkedFramework("QuartzCore"),
       ]
     ),
+
     firestoreWrapperTarget(),
     .target(
       name: "FirebaseFirestoreSwiftTarget",

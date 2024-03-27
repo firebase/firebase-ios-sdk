@@ -70,6 +70,10 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 }
 
 #ifndef FIREBASE_BUILD_CMAKE
+- (NSString *_Nullable)headerValue {
+  return FIRHeaderValueFromHeartbeatsPayload([self flushHeartbeatsIntoPayload]);
+}
+
 - (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
   FIRHeartbeatsPayload *payload = [_heartbeatController flush];
   return payload;

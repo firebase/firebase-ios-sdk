@@ -103,7 +103,8 @@
   [auth setCustomAuthDomain:s];
 #if TARGET_OS_IOS
   __unused NSData *d = [auth APNSToken];
-  auth.APNSToken = [[NSData alloc] init];
+  // TODO: It seems like a no-op and a bug to have this API in Objective C
+  // auth.APNSToken = [[NSData alloc] init];
 #endif
 }
 

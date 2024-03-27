@@ -16,10 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAuthCredential;
-
 NS_ASSUME_NONNULL_BEGIN
-
 /**
     @brief A string constant identifying the email & password identity provider.
  */
@@ -38,36 +35,5 @@ extern NSString *const FIREmailLinkAuthSignInMethod NS_SWIFT_NAME(EmailLinkAuthS
 extern NSString *const FIREmailPasswordAuthSignInMethod
     NS_SWIFT_NAME(EmailPasswordAuthSignInMethod);
 // clang-format on
-
-/** @class FIREmailAuthProvider
-    @brief A concrete implementation of `AuthProvider` for Email & Password Sign In.
- */
-NS_SWIFT_NAME(EmailAuthProvider)
-@interface FIREmailAuthProvider : NSObject
-
-/** @fn credentialWithEmail:password:
-    @brief Creates an `AuthCredential` for an email & password sign in.
-
-    @param email The user's email address.
-    @param password The user's password.
-    @return An `AuthCredential` containing the email & password credential.
- */
-+ (FIRAuthCredential *)credentialWithEmail:(NSString *)email password:(NSString *)password;
-
-/** @fn credentialWithEmail:Link:
-    @brief Creates an `AuthCredential` for an email & link sign in.
-
-    @param email The user's email address.
-    @param link The email sign-in link.
-    @return An `AuthCredential` containing the email & link credential.
- */
-+ (FIRAuthCredential *)credentialWithEmail:(NSString *)email link:(NSString *)link;
-
-/** @fn init
-    @brief This class is not meant to be initialized directly.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
 
 NS_ASSUME_NONNULL_END
