@@ -79,6 +79,7 @@ static NSString *const kClientType = @"CLIENT_TYPE_IOS";
   NSString *apiHostAndPathPrefix;
 
   NSString *emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort;
+  NSString *overrideIdentityToolKitHost = _requestConfiguration.auth.overrideIdentityToolKitHost;
 
   if (_useIdentityPlatform) {
     apiURLFormat = kIdentityPlatformAPIURLFormat;
@@ -90,6 +91,8 @@ static NSString *const kClientType = @"CLIENT_TYPE_IOS";
                                      kIdentityPlatformAPIHost];
     } else if (_useStaging) {
       apiHostAndPathPrefix = kIdentityPlatformStagingAPIHost;
+    } else if (overrideIdentityToolKitHost) {
+      apiHostAndPathPrefix = overrideIdentityToolKitHost;
     } else {
       apiHostAndPathPrefix = kIdentityPlatformAPIHost;
     }
@@ -102,6 +105,8 @@ static NSString *const kClientType = @"CLIENT_TYPE_IOS";
           stringWithFormat:kEmulatorHostAndPrefixFormat, emulatorHostAndPort, kFirebaseAuthAPIHost];
     } else if (_useStaging) {
       apiHostAndPathPrefix = kFirebaseAuthStagingAPIHost;
+    } else if (overrideIdentityToolKitHost) {
+      apiHostAndPathPrefix = overrideIdentityToolKitHost;
     } else {
       apiHostAndPathPrefix = kFirebaseAuthAPIHost;
     }
