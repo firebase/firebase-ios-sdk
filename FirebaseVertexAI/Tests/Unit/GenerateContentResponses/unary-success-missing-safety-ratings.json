@@ -1,0 +1,16 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "This is the generated content."
+          }
+        ]
+      },
+      "index": 0
+    }
+  ],
+  "promptFeedback": {
+  }
+}

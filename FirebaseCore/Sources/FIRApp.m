@@ -829,6 +829,7 @@ static FIRApp *sDefaultApp;
     @"FIRSessions" : @"fire-ses",
     @"FIRFunctionsComponent" : @"fire-fun",
     @"FIRStorageComponent" : @"fire-str",
+    @"FIRVertexAIComponent" : @"fire-vtx",
   };
   for (NSString *className in swiftComponents.allKeys) {
     Class klass = NSClassFromString(className);

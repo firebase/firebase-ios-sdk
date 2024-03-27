@@ -1,0 +1,50 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "You can ask me a wide range of questions, including:\n\n* **General knowledge questions:** What is the capital of France? Who painted the Mona Lisa?\n* **Science questions:** What is the chemical formula for water? How does photosynthesis work?\n* **History questions:** When did World War II start? Who was the first president of the United States?\n* **Math questions:** What is the square root of 16? How do you solve for x in the equation x + 5 = 10?\n* **Current events questions:** What is happening in Ukraine? Who is the current president of the United States?\n* **Personal questions:** What are your hobbies? What are your favorite books?\n* **Hypothetical questions:** What would happen if all the ice caps melted? What if humans could live on Mars?\n* **Questions about me:** What is your name? How old are you? What are your capabilities?\n\n**Tips for asking questions:**\n\n* Be specific and clear in your questions.\n* Use correct grammar and spelling.\n* Try to ask open-ended questions that allow for multiple answers.\n* Be patient and wait for my response. I am still under development, so I may take a few seconds to process your question.\n\nPlease note that I am still under development and may not be able to answer all questions accurately. However, I will do my best to provide you with the most relevant information I have available."
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "safetyRatings": [
+        {
+          "category": "HARM_CATEGORY_HATE_SPEECH",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.047869004,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.050705366
+        },
+        {
+          "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.052134257,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.036288295
+        },
+        {
+          "category": "HARM_CATEGORY_HARASSMENT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.08464396,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.033907957
+        },
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.06290424,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.050611436
+        }
+      ]
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 6,
+    "candidatesTokenCount": 303,
+    "totalTokenCount": 309
+  }
+}

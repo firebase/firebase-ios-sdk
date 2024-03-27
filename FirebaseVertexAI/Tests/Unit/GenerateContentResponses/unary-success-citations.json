@@ -1,0 +1,59 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "Some information cited from an external source"
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "safetyRatings": [
+        {
+          "category": "HARM_CATEGORY_HATE_SPEECH",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.16013464,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.074500255
+        },
+        {
+          "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.09687653,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.049313594
+        },
+        {
+          "category": "HARM_CATEGORY_HARASSMENT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.16817278,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.09451043
+        },
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE",
+          "probabilityScore": 0.05023736,
+          "severity": "HARM_SEVERITY_NEGLIGIBLE",
+          "severityScore": 0.034553625
+        }
+      ],
+      "citationMetadata": {
+        "citations": [
+          {
+            "startIndex": 179,
+            "endIndex": 366,
+            "uri": "https://www.example.com/some-citation"
+          }
+        ]
+      }
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 11,
+    "candidatesTokenCount": 135,
+    "totalTokenCount": 146
+  }
+}
