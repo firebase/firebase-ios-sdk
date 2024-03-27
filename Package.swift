@@ -138,7 +138,7 @@ let package = Package(
       targets: ["FirebaseStorage"]
     ),
     .library(
-      name: "FirebaseVertexAI",
+      name: "FirebaseVertexAI-Preview",
       targets: ["FirebaseVertexAI"]
     ),
   ],
