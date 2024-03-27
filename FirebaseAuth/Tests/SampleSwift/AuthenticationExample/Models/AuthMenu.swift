@@ -23,6 +23,7 @@ enum AuthMenu: String {
   case microsoft = "microsoft.com"
   case gitHub = "github.com"
   case yahoo = "yahoo.com"
+  case linkedIn = "linkedin.com"
   case facebook = "facebook.com"
   case gameCenter = "gc.apple.com"
   case emailPassword = "password"
@@ -72,6 +73,8 @@ enum AuthMenu: String {
       return "GitHub"
     case .yahoo:
       return "Yahoo"
+    case .linkedIn:
+      return "LinkedIn"
     case .facebook:
       return "Facebook"
     case .gameCenter:
@@ -154,6 +157,8 @@ enum AuthMenu: String {
       self = .gitHub
     case "Yahoo":
       self = .yahoo
+    case "LinkedIn":
+      self = .linkedIn
     case "Facebook":
       self = .facebook
     case "Game Center":
@@ -250,7 +255,7 @@ enum ActionCodeRequestType: String {
 
 class AuthMenuData: DataSourceProvidable {
   private static var providers: [AuthMenu] {
-    [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook, .gameCenter]
+    [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .linkedIn, .facebook, .gameCenter]
   }
 
   static var settingsSection: Section {

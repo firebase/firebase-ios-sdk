@@ -94,7 +94,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     case .facebook:
       performFacebookSignInFlow()
 
-    case .twitter, .microsoft, .gitHub, .yahoo:
+    case .twitter, .microsoft, .gitHub, .yahoo, .linkedIn:
       performOAuthLoginFlow(for: provider)
 
     case .gameCenter:
