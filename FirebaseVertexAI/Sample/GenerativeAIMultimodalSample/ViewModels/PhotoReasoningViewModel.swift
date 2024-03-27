@@ -44,7 +44,8 @@ class PhotoReasoningViewModel: ObservableObject {
   private var model: GenerativeModel?
 
   init() {
-    model = VertexAI.vertexAI(region: "us-central1").generativeModel(modelName: "gemini-1.0-pro")
+    let vertexAI = VertexAI.vertexAI(region: "us-central1")
+    model = vertexAI.generativeModel(modelName: "gemini-1.0-pro-vision")
   }
 
   func reason() async {
