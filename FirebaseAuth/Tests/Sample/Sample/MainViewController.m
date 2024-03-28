@@ -40,7 +40,8 @@
 #import "UIViewController+Alerts.h"
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
-
+#import "MainViewController+Passkey.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kSectionTitleSettings = @"Settings";
@@ -252,6 +253,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [weakSelf oobSection],
       // Auto Tests
       [weakSelf autoTestsSection],
+      // Passkey
+      [weakSelf passkeySection],
     ]];
 }
 
@@ -636,6 +639,11 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 - (IBAction)copyConsole:(id)sender {
   UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
   pasteboard.string = _consoleString ?: @"";
+}
+
+- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
+
+    return self.view.window;
 }
 
 @end

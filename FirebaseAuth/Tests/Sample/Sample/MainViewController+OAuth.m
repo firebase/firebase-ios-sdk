@@ -434,53 +434,76 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization API_AVAILABLE(ios(13.0)) {
-  ASAuthorizationAppleIDCredential* appleIDCredential = authorization.credential;
-  NSString *IDToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
-  FIROAuthCredential *credential =
-      [FIROAuthProvider appleCredentialWithIDToken:IDToken
-                                          rawNonce:self.appleRawNonce
-                                          fullName:appleIDCredential.fullName];
+  if (@available(iOS 16.0, *)) {
+    if ([authorization.credential isKindOfClass: [ASAuthorizationPlatformPublicKeyCredentialRegistration class]]) {
+      ASAuthorizationPlatformPublicKeyCredentialRegistration *platformCredential = (ASAuthorizationPlatformPublicKeyCredentialRegistration*) authorization.credential;
 
-  if ([appleIDCredential.state isEqualToString:@"signIn"]) {
-    [FIRAuth.auth signInWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
-      if (!error) {
-        NSLog(@"%@", authResult.description);
-      } else {
-        NSLog(@"%@", error.description);
-      }
-    }];
-  } else if ([appleIDCredential.state isEqualToString:@"link"]) {
-    [FIRAuth.auth.currentUser linkWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
-      if (!error) {
-        NSLog(@"%@", authResult.description);
-      } else {
-        NSLog(@"%@", error.description);
-      }
-    }];
-  } else if ([appleIDCredential.state isEqualToString:@"reauth"]) {
-    [FIRAuth.auth.currentUser reauthenticateWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
-      if (!error) {
-        NSLog(@"%@", authResult.description);
-      } else {
-        NSLog(@"%@", error.description);
-      }
-    }];
-  } else if ([appleIDCredential.state isEqualToString:@"revokeAppleTokenAndDeleteUser"]) {
-      NSString *code = [[NSString alloc] initWithData:appleIDCredential.authorizationCode encoding:NSUTF8StringEncoding];
       FIRUser *user = FIRAuth.auth.currentUser;
-      [FIRAuth.auth revokeTokenWithAuthorizationCode:code completion:^(NSError * _Nullable error) {
+      [user finalizePasskeyEnrollmentWithPlatformCredential:platformCredential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+        [self log:[NSString stringWithFormat:@"Passkey Enrollment succeed with uid: %@", authResult.user.uid]    ];
+        [self showTypicalUIForUserUpdateResultsWithTitle:@"Enrollment with passkey" error:error];
+      }];
+
+      } else if ([authorization.credential isKindOfClass: [ASAuthorizationPlatformPublicKeyCredentialAssertion class]]) {
+          ASAuthorizationPlatformPublicKeyCredentialAssertion *platformCredential = (ASAuthorizationPlatformPublicKeyCredentialAssertion*) authorization.credential;
+        [[AppManager auth] finalizePasskeySignInWithPlatformCredential:platformCredential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+          [self log:[NSString stringWithFormat:@"Passkey sign-in succeed with uid: %@", authResult.user.uid]];
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign in with passkey" error:error];
+
+        }];
+      }
+  } else if ([authorization.credential isKindOfClass: [ASAuthorizationAppleIDCredential class]]) {
+      ASAuthorizationAppleIDCredential* appleIDCredential = authorization.credential;
+      NSString *IDToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
+      FIROAuthCredential *credential =
+          [FIROAuthProvider appleCredentialWithIDToken:IDToken
+                                              rawNonce:self.appleRawNonce
+                                              fullName:appleIDCredential.fullName];
+
+      if ([appleIDCredential.state isEqualToString:@"signIn"]) {
+        [FIRAuth.auth signInWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
           if (!error) {
-              // Token revocation succeeded then delete user again.
-              [user deleteWithCompletion:^(NSError *_Nullable error) {
-                if (error) {
-                  [self logFailure:@"delete account failed" error:error];
-                }
-                [self showTypicalUIForUserUpdateResultsWithTitle:@"Delete User" error:error];
-              }];
+            NSLog(@"%@", authResult.description);
           } else {
             NSLog(@"%@", error.description);
           }
-      }];
+        }];
+      } else if ([appleIDCredential.state isEqualToString:@"link"]) {
+        [FIRAuth.auth.currentUser linkWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+          if (!error) {
+            NSLog(@"%@", authResult.description);
+          } else {
+            NSLog(@"%@", error.description);
+          }
+        }];
+      } else if ([appleIDCredential.state isEqualToString:@"reauth"]) {
+        [FIRAuth.auth.currentUser reauthenticateWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+          if (!error) {
+            NSLog(@"%@", authResult.description);
+          } else {
+            NSLog(@"%@", error.description);
+          }
+        }];
+      } else if ([appleIDCredential.state isEqualToString:@"revokeAppleTokenAndDeleteUser"]) {
+          NSString *code = [[NSString alloc] initWithData:appleIDCredential.authorizationCode encoding:NSUTF8StringEncoding];
+          FIRUser *user = FIRAuth.auth.currentUser;
+          [FIRAuth.auth revokeTokenWithAuthorizationCode:code completion:^(NSError * _Nullable error) {
+              if (!error) {
+                  // Token revocation succeeded then delete user again.
+                  [user deleteWithCompletion:^(NSError *_Nullable error) {
+                    if (error) {
+                      [self logFailure:@"delete account failed" error:error];
+                    }
+                    [self showTypicalUIForUserUpdateResultsWithTitle:@"Delete User" error:error];
+                  }];
+              } else {
+                NSLog(@"%@", error.description);
+              }
+          }];
+        }
+    } else {
+      // More supported credential type can be added here.
+      [self log:@"credential type not found or OS version too low."];
     }
 }
 
