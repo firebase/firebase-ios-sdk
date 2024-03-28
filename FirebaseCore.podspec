@@ -22,11 +22,13 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   osx_deployment_target = '10.13'
   tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
+  visionos_deployment_target = '1.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
-  s.watchos.deployment_target = watchos_deployment_target
+  s.watchos.deployment_target = watchos_deployment_target'
+  s.visionos.deployment_target = visionos_deployment_target
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
