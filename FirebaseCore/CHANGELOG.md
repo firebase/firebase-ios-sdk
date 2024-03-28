@@ -1,6 +1,6 @@
 # Firebase 10.23.1
 - [Swift Package Manager / CocoaPods] Fixes the macOS/Catalyst xcframework
-  structure issue blocking submission via Xcode 15.3.
+  structure issue in Firebase Analytics blocking submission via Xcode 15.3.
 
 # Firebase 10.23.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
