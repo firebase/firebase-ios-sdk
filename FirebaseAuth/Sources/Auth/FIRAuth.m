@@ -40,6 +40,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
@@ -54,6 +56,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -80,6 +84,10 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthRecaptchaVerifier.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#import <AuthenticationServices/AuthenticationServices.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1215,6 +1223,87 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                             }];
   });
 }
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+- (void)startPasskeySignInWithCompletion:
+    (nullable void (^)(
+        ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+        NSError *_Nullable error))completion {
+  FIRStartPasskeySignInRequest *request =
+      [[FIRStartPasskeySignInRequest alloc] initWithRequestConfiguration:self.requestConfiguration];
+  [FIRAuthBackend
+      startPasskeySignIn:request
+                callback:^(FIRStartPasskeySignInResponse *_Nullable response,
+                           NSError *_Nullable error) {
+                  if (error) {
+                    completion(nil, error);
+                    return;
+                  }
+                  if (response) {
+                    NSData *challengeInData =
+                        [[NSData alloc] initWithBase64EncodedString:response.challenge options:0];
+                    ASAuthorizationPlatformPublicKeyCredentialProvider *provider =
+                        [[ASAuthorizationPlatformPublicKeyCredentialProvider alloc]
+                            initWithRelyingPartyIdentifier:response.rpID];
+                    ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *request =
+                        [provider createCredentialAssertionRequestWithChallenge:challengeInData];
+
+                    completion(request, nil);
+                  }
+                }];
+}
+
+- (void)finalizePasskeySignInWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    NSString *credentialID = [platformCredential.credentialID base64EncodedStringWithOptions:0];
+    NSString *clientDataJson =
+        [platformCredential.rawClientDataJSON base64EncodedStringWithOptions:0];
+    NSString *authenticatorData =
+        [platformCredential.rawAuthenticatorData base64EncodedStringWithOptions:0];
+    NSString *signature = [platformCredential.signature base64EncodedStringWithOptions:0];
+    NSString *userID = [platformCredential.userID base64EncodedStringWithOptions:0];
+    FIRFinalizePasskeySignInRequest *request =
+        [[FIRFinalizePasskeySignInRequest alloc] initWithCredentialID:credentialID
+                                                       clientDataJson:clientDataJson
+                                                    authenticatorData:authenticatorData
+                                                            signature:signature
+                                                               userID:userID
+                                                 requestConfiguration:self.requestConfiguration];
+    [FIRAuthBackend
+        finalizePasskeySignIn:request
+                     callback:^(FIRFinalizePasskeySignInResponse *_Nullable response,
+                                NSError *_Nullable error) {
+                       if (error) {
+                         decoratedCallback(nil, error);
+                       }
+                       [self completeSignInWithAccessToken:response.idToken
+                                 accessTokenExpirationDate:nil
+                                              refreshToken:response.refreshToken
+                                                 anonymous:NO
+                                                  callback:^(FIRUser *_Nullable user,
+                                                             NSError *_Nullable error) {
+                                                    if (error) {
+                                                      completion(nil, error);
+                                                      return;
+                                                    }
+
+                                                    FIRAuthDataResult *authDataResult =
+                                                        user ? [[FIRAuthDataResult alloc]
+                                                                         initWithUser:user
+                                                                   additionalUserInfo:nil]
+                                                             : nil;
+                                                    decoratedCallback(authDataResult, error);
+                                                  }];
+                     }];
+  });
+}
+#endif  // #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
