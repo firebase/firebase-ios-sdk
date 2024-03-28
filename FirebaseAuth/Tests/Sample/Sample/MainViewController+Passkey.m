@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf passkeySignIn]; }],
     [StaticContentTableViewCell cellWithTitle:@"Enroll with Passkey"
                                        action:^{ [weakSelf passkeyEnroll]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Unenroll with Passkey"
+                                       action:^{ [weakSelf passkeyUnenroll]; }],
   ]];
 }
 
@@ -91,6 +93,24 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     [self log:@"OS version is not supported for this action."];
   }
+}
+
+- (void)passkeyUnenroll {
+  FIRUser *user = FIRAuth.auth.currentUser;
+  if (!user) {
+    [self logFailure:@"Please sign in first." error:nil];
+    return;
+  }
+  [self showTextInputPromptWithMessage:@"passkey credential ID"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable credentialID) {
+    [user unenrollPasskeyWithCredentialID:credentialID completion:^(NSError * _Nullable error) {
+      if (error) {
+        [self logFailure:[NSString stringWithFormat:@"Withdraw passkey with credential ID: %@ failed", credentialID] error:error];
+      } else {
+        [self logSuccess:[NSString stringWithFormat:@"Withdraw passkey with credential ID: %@ succeed", credentialID]];
+      }
+    }];
+  }];
 }
 
 @end
