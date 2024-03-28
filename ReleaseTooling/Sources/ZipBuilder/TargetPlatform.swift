@@ -47,7 +47,7 @@ enum TargetPlatform: CaseIterable {
     case .macOS: return [.x86_64, .arm64]
     case .tvOSDevice: return [.arm64]
     case .tvOSSimulator: return [.x86_64, .arm64]
-    case .watchOSDevice: return [.arm64_32]
+    case .watchOSDevice: return [.arm64_32, .arm64]
     case .watchOSSimulator: return [.x86_64, .arm64]
     }
   }
