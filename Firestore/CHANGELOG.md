@@ -1,5 +1,5 @@
 # Unreleased
-- [feature] Enable queries with range & inequality filters on multiple field. (#12416)
+- [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
 
 # 10.23.0
 - [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
