@@ -48,7 +48,7 @@ class VertexComponentTests: XCTestCase {
   func testVertexInstanceCreation() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let component = VertexAIComponent(app: app)
-    let vertex = component.vertexAI("my-region")
+    let vertex = component.vertexAI("my-location")
     XCTAssertNotNil(vertex)
   }
 
@@ -82,14 +82,14 @@ class VertexComponentTests: XCTestCase {
                                                             in: container)
     XCTAssertNotNil(provider)
 
-    let vertex1 = provider?.vertexAI("randomRegion")
-    let vertex2 = provider?.vertexAI("randomRegion")
+    let vertex1 = provider?.vertexAI("randomLocation")
+    let vertex2 = provider?.vertexAI("randomLocation")
     XCTAssertNotNil(vertex1)
 
     // Ensure they're the same instance.
     XCTAssert(vertex1 === vertex2)
 
-    let vertex3 = provider?.vertexAI("differentRegion")
+    let vertex3 = provider?.vertexAI("differentLocation")
     XCTAssertNotNil(vertex3)
 
     XCTAssert(vertex1 !== vertex3)
@@ -105,7 +105,7 @@ class VertexComponentTests: XCTestCase {
       options.projectID = "myProjectID"
       let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
       weakApp = try XCTUnwrap(app1)
-      let vertex = VertexAI(app: app1, region: "transitory region")
+      let vertex = VertexAI(app: app1, location: "transitory location")
       weakVertex = vertex
       XCTAssertNotNil(weakVertex)
     }
