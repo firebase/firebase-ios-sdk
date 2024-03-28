@@ -17,7 +17,7 @@
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager
-#import "FirebaseCrashlytics-Swift.h"
+#import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
 #endif  // CocoaPods
 
 #import <XCTest/XCTest.h>
