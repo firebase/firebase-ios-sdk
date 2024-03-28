@@ -22,7 +22,7 @@
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager
-#import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
+#import "FirebaseCrashlytics-Swift.h"
 #endif  // CocoaPods
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
