@@ -21,9 +21,14 @@
 
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
-#else  // Swift Package Manager
+#elif __has_include(<FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>)
+#import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
+#else
+// If frameworks are not available, fall back to importing the header as it
+// should be able to included in a header search path pointing to the build
+// directory. See #12611 for more context.
 #import "FirebaseCrashlytics-Swift.h"
-#endif  // CocoaPods
+#endif
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
 @property(nonatomic, readonly) FIRCLSFileManager *fileManager;
