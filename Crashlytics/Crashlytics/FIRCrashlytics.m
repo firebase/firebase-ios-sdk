@@ -65,7 +65,7 @@
 @import FirebaseCrashlyticsSwift;
 #elif __has_include(<FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>)
 #import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
-#else
+#elif __has_include("FirebaseCrashlytics-Swift.h")
 // If frameworks are not available, fall back to importing the header as it
 // should be findable from a header search path pointing to the build
 // directory. See #12611 for more context.
