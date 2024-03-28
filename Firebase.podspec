@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '10.23.0'
+  s.version          = '10.23.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -36,14 +36,14 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '12.0'
-    ss.ios.dependency 'FirebaseAnalytics', '~> 10.23.0'
-    ss.osx.dependency 'FirebaseAnalytics', '~> 10.23.0'
-    ss.tvos.dependency 'FirebaseAnalytics', '~> 10.23.0'
+    ss.ios.dependency 'FirebaseAnalytics', '~> 10.23.1'
+    ss.osx.dependency 'FirebaseAnalytics', '~> 10.23.1'
+    ss.tvos.dependency 'FirebaseAnalytics', '~> 10.23.1'
     ss.dependency 'Firebase/CoreOnly'
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '10.23.0'
+    ss.dependency 'FirebaseCore', '10.23.1'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -79,7 +79,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '10.0'
     ss.osx.deployment_target = '10.13'
     ss.tvos.deployment_target = '12.0'
-    ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 10.23.0'
+    ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 10.23.1'
     ss.dependency 'Firebase/CoreOnly'
   end
 
