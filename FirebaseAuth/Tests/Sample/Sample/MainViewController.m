@@ -641,10 +641,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   pasteboard.string = _consoleString ?: @"";
 }
 
-//- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
-//
-//    return self.view.window;
-//}
+- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
+
+    return self.view.window;
+}
 
 @end
 
