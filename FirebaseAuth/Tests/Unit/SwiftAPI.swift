@@ -17,6 +17,7 @@
 import Foundation
 import XCTest
 
+import AuthenticationServices
 import FirebaseAuth
 import FirebaseCore
 
@@ -109,6 +110,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
       }
     #endif
+    if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
+      auth.startPasskeySignIn { result, error in
+      }
+    }
     auth.signInAnonymously { result, error in
     }
     auth.signIn(withCustomToken: "abc") { result, error in
@@ -171,6 +176,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #if os(iOS) && !targetEnvironment(macCatalyst)
       try await auth.initializeRecaptchaConfig()
     #endif
+    if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
+      _ = try await auth.startPasskeySignIn()
+    }
     _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
     _ = try await auth.signInAnonymously()
     _ = try await auth.signIn(withCustomToken: "abc")
@@ -461,6 +469,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
+  func passkeyInfo(pi: PasskeyInfo) {
+    let _: String = pi.name
+    let _: String = pi.credentialID
+  }
+
   func oauthCredential(credential: OAuthCredential) {
     if let _: String = credential.idToken,
        let _: String = credential.accessToken,
@@ -583,6 +596,12 @@ class AuthAPI_hOnlyTests: XCTestCase {
       user.link(with: provider as! FederatedAuthProvider, uiDelegate: nil) { _, _ in
       }
     #endif
+    if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
+      user.startPasskeyEnrollment(with: "token") { _, _ in
+      }
+    }
+    user.unenrollPasskey(with: "credentialId") { _ in
+    }
     user.getIDTokenResult { _, _ in
     }
     user.getIDTokenResult(forcingRefresh: true) { _, _ in
@@ -650,6 +669,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       try await user.reauthenticate(with: provider as! FederatedAuthProvider, uiDelegate: nil)
       try await user.link(with: provider as! FederatedAuthProvider, uiDelegate: nil)
     #endif
+    if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
+      try await user.startPasskeyEnrollment(with: "token")
+    }
+    try await user.unenrollPasskey(with: "credentialID")
     _ = try await user.getIDTokenResult()
     _ = try await user.getIDTokenResult(forcingRefresh: true)
     _ = try await user.getIDToken()
