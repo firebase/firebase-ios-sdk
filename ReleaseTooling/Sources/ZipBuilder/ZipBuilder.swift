@@ -693,7 +693,6 @@ struct ZipBuilder {
     // string.
     do {
       let fileManager = FileManager.default
-
       let resourceDirs = try fileManager.contentsOfDirectory(
         at: dir,
         includingPropertiesForKeys: [.isDirectoryKey]
