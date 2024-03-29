@@ -16,7 +16,6 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
 #include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
