@@ -693,8 +693,14 @@ struct ZipBuilder {
     // string.
     do {
       let fileManager = FileManager.default
-      let resourceDirs = try fileManager.recursivelySearch(for: .directories(name: "Resources"),
-                                                           in: dir)
+
+      let resourceDirs = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      ).filter {
+        $0.lastPathComponent == "Resources"
+      }
+
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
         result += "\n" // Separate from next pod in listing for text version.
