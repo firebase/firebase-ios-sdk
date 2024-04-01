@@ -19,7 +19,7 @@
 #import <OCMock/OCMock.h>
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 
-static const NSTimeInterval kAsyncTestTimout = 0.5;
+static const NSTimeInterval kAsyncTestTimeout = 0.5;
 
 typedef void (^FakeAnalyticsLogEventWithOriginNameParametersHandler)(NSString *origin,
                                                                      NSString *name,
@@ -113,7 +113,7 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
       }];
 
   FIRDLLogEventToScion(FIRDLLogEventFirstOpen, nil, nil, nil, analytics);
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testGINLogEventToScionContainsCorrectNameWithFirstOpen {
@@ -126,7 +126,7 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
       }];
 
   FIRDLLogEventToScion(FIRDLLogEventFirstOpen, nil, nil, nil, analytics);
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testGINLogEventToScionCallsLogMethodWithAppOpen {
@@ -138,7 +138,7 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
       }];
   FIRDLLogEventToScion(FIRDLLogEventAppOpen, nil, nil, nil, analytics);
 
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testGINLogEventToScionContainsCorrectNameWithAppOpen {
@@ -151,7 +151,7 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
       }];
   FIRDLLogEventToScion(FIRDLLogEventAppOpen, nil, nil, nil, analytics);
 
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testGINLogEventToScionLogsParametersCorrectly {
@@ -176,7 +176,7 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 
   FIRDLLogEventToScion(FIRDLLogEventAppOpen, source, medium, campaign, analytics);
 
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 @end
