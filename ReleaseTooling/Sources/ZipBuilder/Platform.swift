@@ -21,12 +21,14 @@ enum Platform: CaseIterable {
   case iOS
   case macOS
   case tvOS
+  case watchOS
 
   var platformTargets: [TargetPlatform] {
     switch self {
     case .iOS: return [.iOSDevice, .iOSSimulator] + (SkipCatalyst.skip ? [] : [.catalyst])
     case .macOS: return [.macOS]
     case .tvOS: return [.tvOSDevice, .tvOSSimulator]
+    case .watchOS: return [.watchOSDevice, .watchOSSimulator]
     }
   }
 
@@ -36,6 +38,7 @@ enum Platform: CaseIterable {
     case .iOS: return "ios"
     case .macOS: return "macos"
     case .tvOS: return "tvos"
+    case .watchOS: return "watchos"
     }
   }
 
@@ -45,6 +48,7 @@ enum Platform: CaseIterable {
     case .iOS: return PlatformMinimum.minimumIOSVersion
     case .macOS: return PlatformMinimum.minimumMacOSVersion
     case .tvOS: return PlatformMinimum.minimumTVOSVersion
+    case .watchOS: return PlatformMinimum.minimumWatchOSVersion
     }
   }
 }
@@ -53,10 +57,12 @@ enum PlatformMinimum {
   fileprivate static var minimumIOSVersion = ""
   fileprivate static var minimumMacOSVersion = ""
   fileprivate static var minimumTVOSVersion = ""
-  static func initialize(ios: String, macos: String, tvos: String) {
+  fileprivate static var minimumWatchOSVersion = ""
+  static func initialize(ios: String, macos: String, tvos: String, watchos: String) {
     minimumIOSVersion = ios
     minimumMacOSVersion = macos
     minimumTVOSVersion = tvos
+    minimumWatchOSVersion = watchos
   }
 
   /// Useful to disable minimum version checking on pod installation. Pods still get built with
@@ -65,6 +71,7 @@ enum PlatformMinimum {
     minimumIOSVersion = "14.0"
     minimumMacOSVersion = "11.0"
     minimumTVOSVersion = "14.0"
+    minimumWatchOSVersion = "8.0"
   }
 }
 

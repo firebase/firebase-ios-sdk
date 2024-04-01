@@ -1,7 +1,7 @@
 # Firebase Apple SDKs
 
 This directory contains the full Firebase Apple distribution, packaged as static
-xcframeworks that include support for the iOS, tvOS, macOS, and Catalyst
+xcframeworks that include support for the iOS, tvOS, macOS, watchOS and Catalyst
 platforms.
 
 # Integration Instructions
