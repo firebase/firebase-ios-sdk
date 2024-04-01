@@ -113,6 +113,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       auth.startPasskeySignIn { result, error in
       }
+      auth
+        .finalizePasskeySignIn(with: ASAuthorizationPlatformPublicKeyCredentialAssertion) { result, error in
+        }
     }
     auth.signInAnonymously { result, error in
     }
@@ -178,6 +181,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #endif
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       _ = try await auth.startPasskeySignIn()
+      _ = try await auth
+        .finalizePasskeySignIn(with: ASAuthorizationPlatformPublicKeyCredentialAssertion)
     }
     _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
     _ = try await auth.signInAnonymously()
@@ -599,7 +604,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       user.startPasskeyEnrollment(with: "token") { _, _ in
       }
+      user
+        .finalizePasskeyEnrollment(with: ASAuthorizationPlatformPublicKeyCredentialRegistration) { _, _ in
+        }
     }
+
     user.unenrollPasskey(with: "credentialId") { _ in
     }
     user.getIDTokenResult { _, _ in
@@ -671,6 +680,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #endif
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       try await user.startPasskeyEnrollment(with: "token")
+      try await user
+        .finalizePasskeyEnrollment(with: ASAuthorizationPlatformPublicKeyCredentialRegistration)
     }
     try await user.unenrollPasskey(with: "credentialID")
     _ = try await user.getIDTokenResult()
