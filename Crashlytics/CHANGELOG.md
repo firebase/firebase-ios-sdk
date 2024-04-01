@@ -1,6 +1,7 @@
 # Unreleased
 - [fixed] Fix `'FirebaseCrashlytics/FirebaseCrashlytics-Swift.h' file not found`
   errors (#12611).
+- [changed] Remove usages of `mach_absolute_time` to reduce required reason impact.
 
 # 10.23.0
 - [added] Updated upload-symbols to 13.7 with VisionPro build phase support. (#12306)

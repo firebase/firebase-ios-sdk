@@ -29,7 +29,6 @@
 #import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
@@ -133,8 +132,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       return nil;
     }
 
-    FIRCLSProfileMark mark = FIRCLSProfilingStart();
-
     NSLog(@"[Firebase/Crashlytics] Version %@", FIRCLSSDKVersion());
 
     FIRCLSDeveloperLog("Crashlytics", @"Running on %@, %@ (%@)", FIRCLSHostModelInfo(),
@@ -200,7 +197,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       });
     }
 
-    [[[_reportManager startWithProfilingMark:mark] then:^id _Nullable(NSNumber *_Nullable value) {
+    [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
       if (![value boolValue]) {
         FIRCLSErrorLog(@"Crash reporting could not be initialized");
       }
