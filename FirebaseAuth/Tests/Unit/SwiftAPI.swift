@@ -113,8 +113,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       auth.startPasskeySignIn { result, error in
       }
+      let apa = NSCoder()
       auth
-        .finalizePasskeySignIn(with: ASAuthorizationPlatformPublicKeyCredentialAssertion) { result, error in
+        .finalizePasskeySignIn(
+          with: ASAuthorizationPlatformPublicKeyCredentialAssertion(coder: apa)!
+        ) { result, error in
         }
     }
     auth.signInAnonymously { result, error in
@@ -181,8 +184,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #endif
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       _ = try await auth.startPasskeySignIn()
+      let apa = NSCoder()
       _ = try await auth
-        .finalizePasskeySignIn(with: ASAuthorizationPlatformPublicKeyCredentialAssertion)
+        .finalizePasskeySignIn(
+          with: ASAuthorizationPlatformPublicKeyCredentialAssertion(coder: apa)!
+        )
     }
     _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
     _ = try await auth.signInAnonymously()
@@ -604,8 +610,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       user.startPasskeyEnrollment(with: "token") { _, _ in
       }
+      let apr = NSCoder()
       user
-        .finalizePasskeyEnrollment(with: ASAuthorizationPlatformPublicKeyCredentialRegistration) { _, _ in
+        .finalizePasskeyEnrollment(
+          with: ASAuthorizationPlatformPublicKeyCredentialRegistration(coder: apr)!
+        ) { _, _ in
         }
     }
 
@@ -680,8 +689,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #endif
     if #available(iOS 15.0, macOS 12.0, tvOS 16.0, *) {
       try await user.startPasskeyEnrollment(with: "token")
+      let apr = NSCoder()
       try await user
-        .finalizePasskeyEnrollment(with: ASAuthorizationPlatformPublicKeyCredentialRegistration)
+        .finalizePasskeyEnrollment(
+          with: ASAuthorizationPlatformPublicKeyCredentialRegistration(coder: apr)!
+        )
     }
     try await user.unenrollPasskey(with: "credentialID")
     _ = try await user.getIDTokenResult()
