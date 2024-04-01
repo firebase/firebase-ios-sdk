@@ -1,6 +1,9 @@
 # Unreleased
 - Fix validation issue for macOS and macCatalyst XCFrameworks related to
   framework directory structure. (#12587)
+- Extend community watchOS support to zip and Carthage distributions. See
+  https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform
+  for the Firebase products included. (#8731)
 
 # Firebase 10.23.1
 - [Swift Package Manager / CocoaPods] Fixes the macOS/Catalyst xcframework
