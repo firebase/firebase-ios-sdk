@@ -21,7 +21,7 @@ class TimePeriodTests: XCTestCase {
   }
 
   func testTimeIntervals() throws {
-    TimePeriod.allCases.forEach { period in
+    for period in TimePeriod.allCases {
       XCTAssertEqual(period.timeInterval, Double(period.rawValue) * 86400)
     }
   }

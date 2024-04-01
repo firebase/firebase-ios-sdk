@@ -72,8 +72,8 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
       }
 
       // Update cache with the new heartbeat's date.
-      heartbeat.timePeriods.forEach {
-        lastAddedHeartbeatDates[$0] = heartbeat.date
+      for timePeriod in heartbeat.timePeriods {
+        lastAddedHeartbeatDates[timePeriod] = heartbeat.date
       }
 
     } catch let error as RingBuffer<Heartbeat>.Error {
@@ -98,8 +98,8 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
 
       if case .success = secondPushAttempt {
         // Update cache with the new heartbeat's date.
-        diagnosticHeartbeat.timePeriods.forEach {
-          lastAddedHeartbeatDates[$0] = diagnosticHeartbeat.date
+        for timePeriod in diagnosticHeartbeat.timePeriods {
+          lastAddedHeartbeatDates[timePeriod] = diagnosticHeartbeat.date
         }
       }
     } catch {
@@ -124,9 +124,9 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
       poppedHeartbeats.append(poppedHeartbeat)
     }
 
-    poppedHeartbeats.reversed().forEach {
+    for poppedHeartbeat in poppedHeartbeats.reversed() {
       do {
-        try buffer.push($0)
+        try buffer.push(poppedHeartbeat)
       } catch {
         // Ignore error.
       }

@@ -142,8 +142,8 @@ private enum GoogleDataTransportConfig {
 
     super.init()
 
-    SessionsDependencies.dependencies.forEach { subscriberName in
-      self.subscriberPromises[subscriberName] = Promise<Void>.pending()
+    for subscriberName in SessionsDependencies.dependencies {
+      subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
     Logger
@@ -226,10 +226,10 @@ private enum GoogleDataTransportConfig {
   }
 
   func addSubscriberFields(event: SessionStartEvent) {
-    subscribers.forEach { subscriber in
+    for subscriber in subscribers {
       event.set(subscriber: subscriber.sessionsSubscriberName,
                 isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo: self.appInfo)
+                appInfo: appInfo)
     }
   }
 
