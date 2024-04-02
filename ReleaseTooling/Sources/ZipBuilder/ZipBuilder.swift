@@ -460,6 +460,9 @@ struct ZipBuilder {
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworksToAssemble,
                                        frameworksToIgnore: analyticsPods)
+
+        // Update the README.
+        metadataDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
       } catch {
         fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }
@@ -527,9 +530,6 @@ struct ZipBuilder {
       } catch {
         fatalError("Could not setup Resources for \(pod.key) for \(packageKind) \(error)")
       }
-
-      // Update the README.
-      metadataDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
 
       // Special case for Crashlytics:
       // Copy additional tools to avoid users from downloading another artifact to upload symbols.
@@ -691,26 +691,20 @@ struct ZipBuilder {
     result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
-    // string.
+    // string. At this point, resources will be at the root of XCFrameworks.
     do {
       let fileManager = FileManager.default
       let resourceDirs = try fileManager.contentsOfDirectory(
         at: dir,
         includingPropertiesForKeys: [.isDirectoryKey]
-      ).filter {
+      ).map {
+        try fileManager.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.isDirectoryKey]
+        )
+      }.filter {
         $0.lastPathComponent == "Resources"
       }
-      print("mango: \(resourceDirs)")
-      let resourceDirs1 = try fileManager.contentsOfDirectory(
-        at: dir,
-        includingPropertiesForKeys: [.isDirectoryKey]
-      )
-      print("papaya: \(resourceDirs1)")
-      let resourceDirs2 = try fileManager.contentsOfDirectory(
-        at: dir,
-        includingPropertiesForKeys: nil
-      )
-      print("banana: \(resourceDirs2)")
 
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
