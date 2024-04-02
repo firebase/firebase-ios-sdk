@@ -699,6 +699,17 @@ struct ZipBuilder {
       ).filter {
         $0.lastPathComponent == "Resources"
       }
+      print("mango: \(resourceDirs)")
+      let resourceDirs1 = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      )
+      print("mango: \(resourceDirs1)")
+      let resourceDirs2 = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: nil
+      )
+      print("mango: \(resourceDirs2)")
 
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
