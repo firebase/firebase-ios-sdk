@@ -611,6 +611,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                     callback:^(FIRStartPasskeyEnrollmentResponse *_Nullable response,
                                NSError *_Nullable error) {
                       if (error) {
+                        // reset the passkey name cache.
+                        self.passkeyName = nil;
                         completion(nil, error);
                         return;
                       } else {
@@ -651,9 +653,9 @@ static void callInMainThreadWithAuthDataResultAndError(
         [platformCredential.rawClientDataJSON base64EncodedStringWithOptions:0];
     NSString *attestationObject =
         [platformCredential.rawAttestationObject base64EncodedStringWithOptions:0];
+    
     // If passkey name is not provided, we will provide a firebase formatted default name.
-
-    if (self.passkeyName != nil || [self.passkeyName isEqual:@""]) {
+    if (self.passkeyName == nil || [self.passkeyName isEqual:@""]) {
       self.passkeyName = @"Unnamed account (Apple)";
     }
     FIRFinalizePasskeyEnrollmentRequest *request =

@@ -413,6 +413,12 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
  */
 static NSString *const kPasskeyName = @"mockPasskeyName";
 
+
+/** @var kDefaultPasskeyName
+    @brief default passkey name.
+ */
+static NSString *const kDefaultPasskeyName = @"Unnamed account (Apple)";
+
 /** @var kRpId
     @brief The fake passkey relying party identifier.
  */
@@ -988,6 +994,118 @@ static NSString *const kAttestationObject =
   }
 }
 
+/** @fn testStartPasskeyEnrollmentWithNilNameSuccess
+    @brief Tests the flow of a successful @c startPasskeyEnrollmentWithName:completion: call
+ */
+- (void)testStartPasskeyEnrollmentWithNilNameSuccess {
+  if (@available(iOS 15.0, tvOS 16.0, macOS 12.0, *)) {
+    OCMExpect([_mockBackend startPasskeyEnrollment:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRStartPasskeyEnrollmentRequest *_Nullable request,
+                         FIRStartPasskeyEnrollmentResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockStartPasskeyEnrollmentResponse =
+                OCMClassMock([FIRStartPasskeyEnrollmentResponse class]);
+            OCMStub([mockStartPasskeyEnrollmentResponse rpID]).andReturn(kRpId);
+            OCMStub([mockStartPasskeyEnrollmentResponse challenge]).andReturn(kChallenge);
+            OCMStub([mockStartPasskeyEnrollmentResponse userID]).andReturn(kUserID);
+            callback(mockStartPasskeyEnrollmentResponse, nil);
+          });
+        });
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    [self
+        signInAnonymouslyWithMockGetAccountInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *_Nonnull user) {
+                                               [user
+                                                   startPasskeyEnrollmentWithName:nil
+                                                                       completion:^(
+                                                                           ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                                                               *_Nullable request,
+                                                                           NSError
+                                                                               *_Nullable error) {
+                                                                         XCTAssertNil(error);
+                                                                         XCTAssertEqualObjects(
+                                                                             user.passkeyName,
+                                                                                               kDefaultPasskeyName);
+                                                                         XCTAssertEqualObjects(
+                                                                             [[request challenge]
+                                                                                 base64EncodedStringWithOptions:
+                                                                                     0],
+                                                                             kChallenge);
+                                                                         XCTAssertEqualObjects(
+                                                                             [request
+                                                                                 relyingPartyIdentifier],
+                                                                             kRpId);
+                                                                         XCTAssertEqualObjects(
+                                                                             [[request userID]
+                                                                                 base64EncodedStringWithOptions:
+                                                                                     0],
+                                                                             kUserID);
+                                                                         [expectation fulfill];
+                                                                       }];
+                                             }];
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(_mockBackend);
+  }
+}
+
+/** @fn testStartPasskeyEnrollmentWithEmptyNameSuccess
+    @brief Tests the flow of a successful @c startPasskeyEnrollmentWithName:completion: call
+ */
+- (void)testStartPasskeyEnrollmentWithEmptyNameSuccess {
+  if (@available(iOS 15.0, tvOS 16.0, macOS 12.0, *)) {
+    OCMExpect([_mockBackend startPasskeyEnrollment:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRStartPasskeyEnrollmentRequest *_Nullable request,
+                         FIRStartPasskeyEnrollmentResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockStartPasskeyEnrollmentResponse =
+                OCMClassMock([FIRStartPasskeyEnrollmentResponse class]);
+            OCMStub([mockStartPasskeyEnrollmentResponse rpID]).andReturn(kRpId);
+            OCMStub([mockStartPasskeyEnrollmentResponse challenge]).andReturn(kChallenge);
+            OCMStub([mockStartPasskeyEnrollmentResponse userID]).andReturn(kUserID);
+            callback(mockStartPasskeyEnrollmentResponse, nil);
+          });
+        });
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    [self
+        signInAnonymouslyWithMockGetAccountInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *_Nonnull user) {
+                                               [user
+                                                   startPasskeyEnrollmentWithName:@""
+                                                                       completion:^(
+                                                                           ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                                                               *_Nullable request,
+                                                                           NSError
+                                                                               *_Nullable error) {
+                                                                         XCTAssertNil(error);
+                                                                         XCTAssertEqualObjects(
+                                                                             user.passkeyName,
+                                                                                               kDefaultPasskeyName);
+                                                                         XCTAssertEqualObjects(
+                                                                             [[request challenge]
+                                                                                 base64EncodedStringWithOptions:
+                                                                                     0],
+                                                                             kChallenge);
+                                                                         XCTAssertEqualObjects(
+                                                                             [request
+                                                                                 relyingPartyIdentifier],
+                                                                             kRpId);
+                                                                         XCTAssertEqualObjects(
+                                                                             [[request userID]
+                                                                                 base64EncodedStringWithOptions:
+                                                                                     0],
+                                                                             kUserID);
+                                                                         [expectation fulfill];
+                                                                       }];
+                                             }];
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(_mockBackend);
+  }
+}
+
 /** @fn testStartPasskeyEnrollmentFailure
     @brief Tests the flow of a failed @c startPasskeyEnrollmentWithName:completion: call
  */
@@ -1008,6 +1126,7 @@ static NSString *const kAttestationObject =
                                                                            NSError
                                                                                *_Nullable error) {
                                                                          XCTAssertNil(request);
+                                                                         XCTAssertNil(user.passkeyName);
                                                                          XCTAssertEqual(
                                                                              error.code,
                                                                              FIRAuthErrorCodeOperationNotAllowed);
