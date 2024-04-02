@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import FirebaseCore
 import XCTest
 
 @testable import FirebaseVertexAI
@@ -1058,6 +1059,10 @@ final class GenerativeModelTests: XCTestCase {
       let requestURL = try XCTUnwrap(request.url)
       XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
       XCTAssertEqual(request.timeoutInterval, timeout)
+      let apiClientTags = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
+        .components(separatedBy: " ")
+      XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
+      XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
       let response = try XCTUnwrap(HTTPURLResponse(
         url: requestURL,
