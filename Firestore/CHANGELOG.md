@@ -1,4 +1,4 @@
-# Unreleased
+# 10.24.0
 - [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
 
 # 10.23.0

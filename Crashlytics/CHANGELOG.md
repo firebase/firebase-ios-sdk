@@ -1,4 +1,4 @@
-# Unreleased
+# 10.24.0
 - [fixed] Fix `'FirebaseCrashlytics/FirebaseCrashlytics-Swift.h' file not found`
   errors (#12611).
 - [changed] Remove usages of `mach_absolute_time` to reduce required reason impact.

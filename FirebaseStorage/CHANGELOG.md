@@ -1,4 +1,4 @@
-# Unreleased
+# 10.24.0
 - [fixed] `putFile` and `putFileAsync` now work in app extensions. A background session
    configuration is not used when uploading from an app extension (#12579).
 

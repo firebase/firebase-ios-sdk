@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 10.24.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks related to
   framework directory structure. (#12587)
 - Extend community watchOS support to zip and Carthage distributions. See
