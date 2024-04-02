@@ -704,12 +704,12 @@ struct ZipBuilder {
         at: dir,
         includingPropertiesForKeys: [.isDirectoryKey]
       )
-      print("mango: \(resourceDirs1)")
+      print("papaya: \(resourceDirs1)")
       let resourceDirs2 = try fileManager.contentsOfDirectory(
         at: dir,
         includingPropertiesForKeys: nil
       )
-      print("mango: \(resourceDirs2)")
+      print("banana: \(resourceDirs2)")
 
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
