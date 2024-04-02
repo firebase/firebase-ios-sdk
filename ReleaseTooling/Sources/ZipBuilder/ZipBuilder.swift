@@ -690,11 +690,21 @@ struct ZipBuilder {
     result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
-    // string.
+    // string. At this point, resources will be at the root of XCFrameworks.
     do {
       let fileManager = FileManager.default
-      let resourceDirs = try fileManager.recursivelySearch(for: .directories(name: "Resources"),
-                                                           in: dir)
+      let resourceDirs = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      ).flatMap {
+        try fileManager.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.isDirectoryKey]
+        )
+      }.filter {
+        $0.lastPathComponent == "Resources"
+      }
+
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
         result += "\n" // Separate from next pod in listing for text version.
