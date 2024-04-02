@@ -460,7 +460,6 @@ struct ZipBuilder {
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworksToAssemble,
                                        frameworksToIgnore: analyticsPods)
-
         // Update the README.
         metadataDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
       } catch {
