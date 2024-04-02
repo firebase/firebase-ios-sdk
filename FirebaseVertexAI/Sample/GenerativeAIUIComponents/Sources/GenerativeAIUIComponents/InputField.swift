@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+
 public struct InputField<Label>: View where Label: View {
   @Binding
   private var text: String
