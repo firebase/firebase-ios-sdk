@@ -38,7 +38,8 @@ public struct Pod {
        isClosedSource: Bool = false,
        isBeta: Bool = false,
        allowWarnings: Bool = false,
-       platforms: Set<String> = ["ios", "macos", "tvos", "watchos"],
+       platforms: Set<String> = ["ios"],
+//       platforms: Set<String> = ["ios", "macos", "tvos", "watchos"],
        podVersion: String? = nil,
        releasing: Bool = true,
        zip: Bool = false) {
