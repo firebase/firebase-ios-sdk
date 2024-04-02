@@ -460,8 +460,6 @@ struct ZipBuilder {
                                        rootZipDir: zipDir,
                                        builtFrameworks: frameworksToAssemble,
                                        frameworksToIgnore: analyticsPods)
-        // Update the README.
-        metadataDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
       } catch {
         fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }
@@ -529,6 +527,9 @@ struct ZipBuilder {
       } catch {
         fatalError("Could not setup Resources for \(pod.key) for \(packageKind) \(error)")
       }
+
+      // Update the README.
+      metadataDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
 
       // Special case for Crashlytics:
       // Copy additional tools to avoid users from downloading another artifact to upload symbols.
