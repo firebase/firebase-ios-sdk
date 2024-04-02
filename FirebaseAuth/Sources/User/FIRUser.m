@@ -653,7 +653,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         [platformCredential.rawClientDataJSON base64EncodedStringWithOptions:0];
     NSString *attestationObject =
         [platformCredential.rawAttestationObject base64EncodedStringWithOptions:0];
-    
+
     // If passkey name is not provided, we will provide a firebase formatted default name.
     if (self.passkeyName == nil || [self.passkeyName isEqual:@""]) {
       self.passkeyName = @"Unnamed account (Apple)";

@@ -413,7 +413,6 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
  */
 static NSString *const kPasskeyName = @"mockPasskeyName";
 
-
 /** @var kDefaultPasskeyName
     @brief default passkey name.
  */
@@ -1027,7 +1026,7 @@ static NSString *const kAttestationObject =
                                                                          XCTAssertNil(error);
                                                                          XCTAssertEqualObjects(
                                                                              user.passkeyName,
-                                                                                               kDefaultPasskeyName);
+                                                                             kDefaultPasskeyName);
                                                                          XCTAssertEqualObjects(
                                                                              [[request challenge]
                                                                                  base64EncodedStringWithOptions:
@@ -1083,7 +1082,7 @@ static NSString *const kAttestationObject =
                                                                          XCTAssertNil(error);
                                                                          XCTAssertEqualObjects(
                                                                              user.passkeyName,
-                                                                                               kDefaultPasskeyName);
+                                                                             kDefaultPasskeyName);
                                                                          XCTAssertEqualObjects(
                                                                              [[request challenge]
                                                                                  base64EncodedStringWithOptions:
@@ -1126,7 +1125,8 @@ static NSString *const kAttestationObject =
                                                                            NSError
                                                                                *_Nullable error) {
                                                                          XCTAssertNil(request);
-                                                                         XCTAssertNil(user.passkeyName);
+                                                                         XCTAssertNil(
+                                                                             user.passkeyName);
                                                                          XCTAssertEqual(
                                                                              error.code,
                                                                              FIRAuthErrorCodeOperationNotAllowed);
