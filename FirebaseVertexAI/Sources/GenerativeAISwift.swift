@@ -21,5 +21,5 @@ import Foundation
 /// Constants associated with the GenerativeAISwift SDK
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public enum GenerativeAISwift {
-  static let baseURL = "https://staging-firebaseml.sandbox.googleapis.com"
+  static let baseURL = "https://firebaseml.googleapis.com"
 }
