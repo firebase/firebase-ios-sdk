@@ -1028,6 +1028,9 @@ static NSString *const kAttestationObject =
                                                                              user.passkeyName,
                                                                              kDefaultPasskeyName);
                                                                          XCTAssertEqualObjects(
+                                                                             request.name,
+                                                                             kDefaultPasskeyName);
+                                                                         XCTAssertEqualObjects(
                                                                              [[request challenge]
                                                                                  base64EncodedStringWithOptions:
                                                                                      0],
@@ -1084,10 +1087,14 @@ static NSString *const kAttestationObject =
                                                                              user.passkeyName,
                                                                              kDefaultPasskeyName);
                                                                          XCTAssertEqualObjects(
+                                                                             request.name,
+                                                                             kDefaultPasskeyName);
+                                                                         XCTAssertEqualObjects(
                                                                              [[request challenge]
                                                                                  base64EncodedStringWithOptions:
                                                                                      0],
                                                                              kChallenge);
+
                                                                          XCTAssertEqualObjects(
                                                                              [request
                                                                                  relyingPartyIdentifier],

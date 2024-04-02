@@ -619,6 +619,11 @@ static void callInMainThreadWithAuthDataResultAndError(
                         // cached the passkey name.  This is needed when calling
                         // finalizePasskeyEnrollment
                         self.passkeyName = name;
+                        // If passkey name is not provided, we will provide a firebase formatted
+                        // default name.
+                        if (self.passkeyName == nil || [self.passkeyName isEqual:@""]) {
+                          self.passkeyName = @"Unnamed account (Apple)";
+                        }
                         NSData *challengeInData =
                             [[NSData alloc] initWithBase64EncodedString:response.challenge
                                                                 options:0];
@@ -631,7 +636,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                         ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest *request =
                             [provider
                                 createCredentialRegistrationRequestWithChallenge:challengeInData
-                                                                            name:name
+                                                                            name:self.passkeyName
                                                                           userID:userIdInData];
                         completion(request, nil);
                       }
@@ -654,10 +659,6 @@ static void callInMainThreadWithAuthDataResultAndError(
     NSString *attestationObject =
         [platformCredential.rawAttestationObject base64EncodedStringWithOptions:0];
 
-    // If passkey name is not provided, we will provide a firebase formatted default name.
-    if (self.passkeyName == nil || [self.passkeyName isEqual:@""]) {
-      self.passkeyName = @"Unnamed account (Apple)";
-    }
     FIRFinalizePasskeyEnrollmentRequest *request =
         [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:self.rawAccessToken
                                                                 name:self.passkeyName
