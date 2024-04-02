@@ -696,7 +696,7 @@ struct ZipBuilder {
       let resourceDirs = try fileManager.contentsOfDirectory(
         at: dir,
         includingPropertiesForKeys: [.isDirectoryKey]
-      ).map {
+      ).flatMap {
         try fileManager.contentsOfDirectory(
           at: $0,
           includingPropertiesForKeys: [.isDirectoryKey]
