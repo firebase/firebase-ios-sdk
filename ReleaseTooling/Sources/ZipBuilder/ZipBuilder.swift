@@ -704,6 +704,24 @@ struct ZipBuilder {
       }.filter {
         $0.lastPathComponent == "Resources"
       }
+      print("mango1-\(podName): \(resourceDirs)")
+
+      let resourceDirs0 = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      ).flatMap {
+        try fileManager.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.isDirectoryKey]
+        )
+      }
+      print("mango2-\(podName): \(resourceDirs0)")
+
+      let resourceDirs1 = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      )
+      print("banana1-\(podName): \(resourceDirs1)")
 
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
