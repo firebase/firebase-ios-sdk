@@ -472,6 +472,27 @@
                         ]));
 }
 
+- (void)testCanHaveBlobMutationsWhileOffline {
+  FIRCollectionReference *col = [self collectionRef];
+
+  // set a few docs to known values
+  NSDictionary *initialDocs = @{@"doc1" : @{@"key1" : FSTTestData(0)}, @"doc2" : @{@"key2" : FSTTestData(1)}};
+  [self writeAllDocuments:initialDocs toCollection:col];
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+  // apply *multiple* mutations while offline
+  [[col documentWithPath:@"doc1"] setData:@{@"key1b" : FSTTestData(2)}];
+  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : FSTTestData(0)}];
+
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(result), (@[
+                          @{@"key1b" : FSTTestData(2)},
+                          @{@"key2b" : FSTTestData(0)},
+                        ]));
+}
+
 - (void)testQueriesCanUseNotEqualFilters {
   // These documents are ordered by value in "zip" since notEquals filter is an inequality, which
   // results in documents being sorted by value.
