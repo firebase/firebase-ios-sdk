@@ -638,11 +638,10 @@ extern NSString *const kFIRLibraryVersionID;
   NSRange major = NSMakeRange(0, 2);
   NSRange minor = NSMakeRange(2, 2);
   NSRange patch = NSMakeRange(4, 2);
-  NSString *str =
-      [NSString stringWithFormat:@"%d.%d.%d",
-                                 [[kFIRLibraryVersionID substringWithRange:major] intValue],
-                                 [[kFIRLibraryVersionID substringWithRange:minor] intValue],
-                                 [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
+  NSString *str = [NSString
+      stringWithFormat:@"%d.%d.%d", [[kFIRLibraryVersionID substringWithRange:major] intValue],
+                       [[kFIRLibraryVersionID substringWithRange:minor] intValue],
+                       [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
   XCTAssertTrue([FIRFirebaseVersion() hasPrefix:str]);
 }
 
