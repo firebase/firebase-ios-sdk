@@ -70,6 +70,7 @@ final class GenerativeModelTests: XCTestCase {
     let partText = try XCTUnwrap(part.text)
     XCTAssertTrue(partText.hasPrefix("You can ask me a wide range of questions"))
     XCTAssertEqual(response.text, partText)
+    XCTAssertEqual(response.functionCalls, [])
   }
 
   func testGenerateContent_success_basicReplyShort() async throws {
@@ -90,6 +91,7 @@ final class GenerativeModelTests: XCTestCase {
     let part = try XCTUnwrap(candidate.content.parts.first)
     XCTAssertEqual(part.text, "Mountain View, California, United States")
     XCTAssertEqual(response.text, part.text)
+    XCTAssertEqual(response.functionCalls, [])
   }
 
   func testGenerateContent_success_citations() async throws {
@@ -195,6 +197,7 @@ final class GenerativeModelTests: XCTestCase {
     }
     XCTAssertEqual(functionCall.name, "current_time")
     XCTAssertTrue(functionCall.args.isEmpty)
+    XCTAssertEqual(response.functionCalls, [functionCall])
   }
 
   func testGenerateContent_success_functionCall_noArguments() async throws {
@@ -216,6 +219,7 @@ final class GenerativeModelTests: XCTestCase {
     }
     XCTAssertEqual(functionCall.name, "current_time")
     XCTAssertTrue(functionCall.args.isEmpty)
+    XCTAssertEqual(response.functionCalls, [functionCall])
   }
 
   func testGenerateContent_success_functionCall_withArguments() async throws {
@@ -241,6 +245,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(argX, .number(4))
     let argY = try XCTUnwrap(functionCall.args["y"])
     XCTAssertEqual(argY, .number(5))
+    XCTAssertEqual(response.functionCalls, [functionCall])
   }
 
   func testGenerateContent_appCheck_validToken() async throws {
