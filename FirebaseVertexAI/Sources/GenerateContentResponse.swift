@@ -37,6 +37,19 @@ public struct GenerateContentResponse {
     return text
   }
 
+  /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
+  public var functionCalls: [FunctionCall] {
+    guard let candidate = candidates.first else {
+      return []
+    }
+    return candidate.content.parts.compactMap { part in
+      guard case let .functionCall(functionCall) = part else {
+        return nil
+      }
+      return functionCall
+    }
+  }
+
   /// Initializer for SwiftUI previews or tests.
   public init(candidates: [CandidateResponse], promptFeedback: PromptFeedback?) {
     self.candidates = candidates
