@@ -185,7 +185,7 @@ class MemoryCacheSettings : public LocalCacheSettings {
  public:
   MemoryCacheSettings()
       : LocalCacheSettings(LocalCacheSettings::Kind::kMemory),
-        settings_(absl::make_unique<MemoryEagerGcSettings>()) {
+        settings_(absl::make_unique<MemoryLruGcSettings>()) {
   }
   MemoryCacheSettings(const MemoryCacheSettings& other);
   MemoryCacheSettings& operator=(const MemoryCacheSettings& other);

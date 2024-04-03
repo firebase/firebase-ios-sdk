@@ -96,7 +96,8 @@ using std_hash_type =
  * Combines a hash_value with whatever accumulated state there is so far.
  */
 constexpr size_t Combine(size_t state, size_t hash_value) {
-  return 31 * state + hash_value;
+  // make sure hash_value is not zero to participant in combined result
+  return 31 * state + (hash_value == 0 ? 1 : hash_value);
 }
 
 /**
