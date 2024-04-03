@@ -14,30 +14,20 @@
 
 import Foundation
 
-/** @class FIRSetAccountInfoResponseProviderUserInfo
-    @brief Represents the provider user info part of the response from the setAccountInfo endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
- */
+/// Represents the provider user info part of the response from the setAccountInfo endpoint.
+/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
 class SetAccountInfoResponseProviderUserInfo: NSObject {
-  /** @property providerID
-      @brief The ID of the identity provider.
-   */
+  /// The ID of the identity provider.
   var providerID: String?
 
-  /** @property displayName
-      @brief The user's display name at the identity provider.
-   */
+  /// The user's display name at the identity provider.
   var displayName: String?
 
-  /** @property photoURL
-      @brief The user's photo URL at the identity provider.
-   */
+  /// The user's photo URL at the identity provider.
   var photoURL: URL?
 
-  /** @fn initWithAPIKey:
-      @brief Designated initializer.
-      @param dictionary The provider user info data from endpoint.
-   */
+  /// Designated initializer.
+  /// - Parameter dictionary: The provider user info data from endpoint.
   init(dictionary: [String: Any]) {
     providerID = dictionary["providerId"] as? String
     displayName = dictionary["displayName"] as? String
@@ -47,43 +37,29 @@ class SetAccountInfoResponseProviderUserInfo: NSObject {
   }
 }
 
-/** @class FIRSetAccountInfoResponse
-    @brief Represents the response from the setAccountInfo endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
- */
+/// Represents the response from the setAccountInfo endpoint.
+/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
 class SetAccountInfoResponse: AuthRPCResponse {
   required init() {}
 
-  /** @property email
-      @brief The email or the user.
-   */
+  /// The email or the user.
   var email: String?
 
-  /** @property displayName
-      @brief The display name of the user.
-   */
+  /// The display name of the user.
   var displayName: String?
 
-  /** @property providerUserInfo
-      @brief The user's profiles at the associated identity providers.
-   */
+  /// The user's profiles at the associated identity providers.
   var providerUserInfo: [SetAccountInfoResponseProviderUserInfo]?
 
-  /** @property idToken
-      @brief Either an authorization code suitable for performing an STS token exchange, or the
-          access token from Secure Token Service, depending on whether @c returnSecureToken is set
-          on the request.
-   */
+  /// Either an authorization code suitable for performing an STS token exchange, or the
+  /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
+  /// on the request.
   var idToken: String?
 
-  /** @property approximateExpirationDate
-      @brief The approximate expiration date of the access token.
-   */
+  /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?
 
-  /** @property refreshToken
-      @brief The refresh token from Secure Token Service.
-   */
+  /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
   func setFields(dictionary: [String: AnyHashable]) throws {

@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 9999-12-31T23:59:59.999999999Z. By restricting to that range, we ensure that we can convert to
  * and from  RFC 3339 date strings.
  *
- * @see https://github.com/google/protobuf/blob/master/src/google/protobuf/timestamp.proto for the
+ * @see https://github.com/google/protobuf/blob/main/src/google/protobuf/timestamp.proto for the
  * reference timestamp definition.
  */
 NS_SWIFT_NAME(Timestamp)

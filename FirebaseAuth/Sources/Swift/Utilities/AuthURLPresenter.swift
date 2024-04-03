@@ -19,19 +19,16 @@
   import UIKit
   import WebKit
 
-  /** @class AuthURLPresenter
-      @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
-   */
+  /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthURLPresenter: NSObject,
     SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
-    /** @fn
-        @brief Presents an URL to interact with user.
-        @param url The URL to present.
-        @param uiDelegate The UI delegate to present view controller.
-        @param completion A block to be called either synchronously if the presentation fails to start,
-            or asynchronously in future on an unspecified thread once the presentation finishes.
-     */
+    /// Presents an URL to interact with user.
+    /// - Parameter url: The URL to present.
+    /// - Parameter uiDelegate: The UI delegate to present view controller.
+    /// - Parameter completion: A block to be called either synchronously if the presentation fails
+    /// to start, or asynchronously in future on an unspecified thread once the presentation
+    /// finishes.
     func present(_ url: URL,
                  uiDelegate: AuthUIDelegate?,
                  callbackMatcher: @escaping (URL?) -> Bool,
@@ -74,11 +71,9 @@
       }
     }
 
-    /** @fn canHandleURL:
-        @brief Determines if a URL was produced by the currently presented URL.
-        @param url The URL to handle.
-        @return Whether the URL could be handled or not.
-     */
+    /// Determines if a URL was produced by the currently presented URL.
+    /// - Parameter url: The URL to handle.
+    /// - Returns: Whether the URL could be handled or not.
     func canHandle(url: URL) -> Bool {
       if isPresenting,
          let callbackMatcher = callbackMatcher,
@@ -119,44 +114,33 @@
       }
     }
 
-    /** @var_isPresenting
-        @brief Whether or not some web-based content is being presented.
-            Accesses to this property are serialized on the global Auth work queue
-            and thus this variable should not be read or written outside of the work queue.
-     */
+    /// Whether or not some web-based content is being presented.
+    ///
+    /// Accesses to this property are serialized on the global Auth work queue
+    /// and thus this variable should not be read or written outside of the work queue.
     private var isPresenting: Bool = false
 
-    /** @var callbackMatcher
-        @brief The callback URL matcher for the current presentation, if one is active.
-     */
+    /// The callback URL matcher for the current presentation, if one is active.
     private var callbackMatcher: ((URL) -> Bool)?
 
-    /** @var safariViewController
-        @brief The SFSafariViewController used for the current presentation, if any.
-     */
+    /// The SFSafariViewController used for the current presentation, if any.
     private var safariViewController: SFSafariViewController?
 
-    /** @var webViewController
-        @brief The FIRAuthWebViewController used for the current presentation, if any.
-     */
+    /// The `AuthWebViewController` used for the current presentation, if any.
     private var webViewController: AuthWebViewController?
 
-    /** @var uiDelegate
-        @brief The UIDelegate used to present the SFSafariViewController.
-     */
+    /// The UIDelegate used to present the SFSafariViewController.
     var uiDelegate: AuthUIDelegate?
 
-    /** @var completion
-        @brief The completion handler for the current presentation, if one is active.
-            Accesses to this variable are serialized on the global Auth work queue
-            and thus this variable should not be read or written outside of the work queue.
-        @remarks This variable is also used as a flag to indicate a presentation is active.
-     */
+    /// The completion handler for the current presentation, if one is active.
+    ///
+    /// Accesses to this variable are serialized on the global Auth work queue
+    /// and thus this variable should not be read or written outside of the work queue.
+    ///
+    /// This variable is also used as a flag to indicate a presentation is active.
     var completion: ((URL?, Error?) -> Void)?
 
-    /** @var fakeUIDelegate
-        @brief Test-only option to validate the calls to the uiDelegate.
-     */
+    /// Test-only option to validate the calls to the uiDelegate.
     var fakeUIDelegate: AuthUIDelegate?
 
     // MARK: Private methods

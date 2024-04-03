@@ -15,6 +15,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_INDEX_BACKFILLER_H_
 #define FIRESTORE_CORE_SRC_LOCAL_INDEX_BACKFILLER_H_
 
+#include <cstddef>
 #include <string>
 
 namespace firebase {
@@ -43,7 +44,7 @@ class IndexBackfiller {
    * Writes index entries until the cap is reached. Returns the number of
    * documents processed.
    */
-  int WriteIndexEntries(const LocalStore* local_store);
+  size_t WriteIndexEntries(const LocalStore* local_store);
 
  private:
   friend class IndexBackfillerTest;
@@ -53,9 +54,10 @@ class IndexBackfiller {
    * Writes entries for the provided collection group. Returns the number of
    * documents processed.
    */
-  int WriteEntriesForCollectionGroup(const LocalStore* local_store,
-                                     const std::string& collection_group,
-                                     int documents_remaining_under_cap) const;
+  size_t WriteEntriesForCollectionGroup(
+      const LocalStore* local_store,
+      const std::string& collection_group,
+      size_t documents_remaining_under_cap) const;
 
   /** Returns the next offset based on the provided documents. */
   model::IndexOffset GetNewOffset(const model::IndexOffset& existing_offset,

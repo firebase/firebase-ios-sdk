@@ -36,6 +36,7 @@ extern NSString *const FIRCLSReportInternalIncrementalKVFile;
 extern NSString *const FIRCLSReportInternalCompactedKVFile;
 extern NSString *const FIRCLSReportUserIncrementalKVFile;
 extern NSString *const FIRCLSReportUserCompactedKVFile;
+extern NSString *const FIRCLSReportRolloutsFile;
 
 @class FIRCLSFileManager;
 

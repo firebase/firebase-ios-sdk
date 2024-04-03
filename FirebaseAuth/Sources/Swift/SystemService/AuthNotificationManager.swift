@@ -16,79 +16,54 @@
   import Foundation
   import UIKit
 
-  /** @class FIRAuthAppCredential
-      @brief A class represents a credential that proves the identity of the app.
-   */
+  /// A class represents a credential that proves the identity of the app.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthNotificationManager: NSObject {
-    /** @var kNotificationKey
-        @brief The key to locate payload data in the remote notification.
-     */
+    /// The key to locate payload data in the remote notification.
     private let kNotificationDataKey = "com.google.firebase.auth"
 
-    /** @var kNotificationReceiptKey
-        @brief The key for the receipt in the remote notification payload data.
-     */
+    /// The key for the receipt in the remote notification payload data.
     private let kNotificationReceiptKey = "receipt"
 
-    /** @var kNotificationSecretKey
-        @brief The key for the secret in the remote notification payload data.
-     */
+    /// The key for the secret in the remote notification payload data.
     private let kNotificationSecretKey = "secret"
 
-    /** @var kNotificationProberKey
-        @brief The key for marking the prober in the remote notification payload data.
-     */
+    /// The key for marking the prober in the remote notification payload data.
     private let kNotificationProberKey = "warning"
 
-    /** @var kProbingTimeout
-        @brief Timeout for probing whether the app delegate forwards the remote notification to us.
-     */
+    /// Timeout for probing whether the app delegate forwards the remote notification to us.
     private let kProbingTimeout = 1.0
 
-    /** @var _application
-        @brief The application.
-     */
+    /// The application.
     private let application: UIApplication
 
-    /** @var _appCredentialManager
-        @brief The object to handle app credentials delivered via notification.
-     */
+    /// The object to handle app credentials delivered via notification.
     private let appCredentialManager: AuthAppCredentialManager
 
-    /** @var _hasCheckedNotificationForwarding
-        @brief Whether notification forwarding has been checked or not.
-     */
+    /// Whether notification forwarding has been checked or not.
     private var hasCheckedNotificationForwarding: Bool = false
 
-    /** @var _isNotificationBeingForwarded
-        @brief Whether or not notification is being forwarded
-     */
+    /// Whether or not notification is being forwarded
     private var isNotificationBeingForwarded: Bool = false
 
-    /** @property timeout
-        @brief The timeout for checking for notification forwarding.
-        @remarks Only tests should access this property.
-     */
+    /// The timeout for checking for notification forwarding.
+    ///
+    /// Only tests should access this property.
     let timeout: TimeInterval
 
-    /** @property immediateCallbackForTestFaking
-        @brief Disable callback waiting for tests.
-        @remarks Only tests should access this property.
-     */
+    /// Disable callback waiting for tests.
+    ///
+    /// Only tests should access this property.
     var immediateCallbackForTestFaking: (() -> Bool)?
 
-    /** @var _pendingCallbacks
-        @brief All pending callbacks while a check is being performed.
-     */
+    /// All pending callbacks while a check is being performed.
     private var pendingCallbacks: [(Bool) -> Void]?
 
-    /** @fn initWithApplication:appCredentialManager:
-        @brief Initializes the instance.
-        @param application The application.
-        @param appCredentialManager The object to handle app credentials delivered via notification.
-        @return The initialized instance.
-     */
+    /// Initializes the instance.
+    /// - Parameter application: The application.
+    /// - Parameter appCredentialManager: The object to handle app credentials delivered via
+    /// notification.
+    /// - Returns: The initialized instance.
     init(withApplication application: UIApplication,
          appCredentialManager: AuthAppCredentialManager) {
       self.application = application
@@ -96,11 +71,9 @@
       timeout = kProbingTimeout
     }
 
-    /** @fn checkNotificationForwardingWithCallback:
-        @brief Checks whether or not remote notifications are being forwarded to this class.
-        @param callback The block to be called either immediately or in future once a result
-            is available.
-     */
+    /// Checks whether or not remote notifications are being forwarded to this class.
+    /// - Parameter callback: The block to be called either immediately or in future once a result
+    /// is available.
     func checkNotificationForwardingInternal(withCallback callback: @escaping (Bool) -> Void) {
       if pendingCallbacks != nil {
         pendingCallbacks?.append(callback)
@@ -154,11 +127,9 @@
       }
     }
 
-    /** @fn canHandleNotification:
-        @brief Attempts to handle the remote notification.
-        @param notification The notification in question.
-        @return Whether or the notification has been handled.
-     */
+    /// Attempts to handle the remote notification.
+    /// - Parameter notification: The notification in question.
+    /// - Returns: Whether or the notification has been handled.
     func canHandle(notification: [AnyHashable: Any]) -> Bool {
       var stringDictionary: [String: Any]?
       let data = notification[kNotificationDataKey]

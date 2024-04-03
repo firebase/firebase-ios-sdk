@@ -94,7 +94,7 @@ development with Swift Package Manager.
 ### CocoaPods
 
 Install the following:
-* CocoaPods 1.10.0 (or later)
+* CocoaPods 1.12.0 (or later)
 * [CocoaPods generate](https://github.com/square/cocoapods-generate)
 
 For the pod that you want to develop:
@@ -153,7 +153,7 @@ GitHub Actions will verify that any code changes are done in a style-compliant
 way. Install `clang-format` and `mint`:
 
 ```console
-brew install clang-format@17
+brew install clang-format@18
 brew install mint
 ```
 
