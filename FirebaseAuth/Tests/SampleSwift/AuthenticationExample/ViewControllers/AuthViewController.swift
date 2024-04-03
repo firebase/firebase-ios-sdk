@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseAuth
 // For Sign in with Facebook
 import FBSDKLoginKit
-import FirebaseAuth
+@testable import FirebaseAuth
 // [START auth_import]
 import FirebaseCore
 import GameKit
@@ -117,7 +116,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .verifyClient:
       verifyClient()
-    
+
     case .deleteApp:
       deleteApp()
     }
@@ -413,7 +412,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   func verifyClient() {
     AppManager.shared.auth().tokenManager.getTokenInternal { token, error in
-      if(token == nil) {
+      if token == nil {
         print("Verify iOS Client failed.")
         return
       }
@@ -422,33 +421,37 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         isSandbox: token?.type == .sandbox,
         requestConfiguration: AppManager.shared.auth().requestConfiguration
       )
-      
+
       Task {
         do {
           let verifyResponse = try await AuthBackend.call(with: request)
-          
+
           guard let receipt = verifyResponse.receipt,
                 let timeoutDate = verifyResponse.suggestedTimeOutDate else {
             print("Internal Auth Error: invalid VerifyClientResponse.")
             return
           }
-          
+
           let timeout = timeoutDate.timeIntervalSinceNow
           do {
-            let credential = await AppManager.shared.auth().appCredentialManager.didStartVerification(withReceipt: receipt, timeout: timeout)
-            
+            let credential = await AppManager.shared.auth().appCredentialManager
+              .didStartVerification(
+                withReceipt: receipt,
+                timeout: timeout
+              )
+
             guard credential.secret != nil else {
               print("Failed to receive remote notification to verify App ID.")
               return
             }
-            
+
             let testPhoneNumber = "+16509964692"
             let request = SendVerificationCodeRequest(
               phoneNumber: testPhoneNumber,
               codeIdentity: CodeIdentity.credential(credential),
               requestConfiguration: AppManager.shared.auth().requestConfiguration
             )
-            
+
             do {
               _ = try await AuthBackend.call(with: request)
               print("Verify iOS client succeeded")
@@ -463,15 +466,14 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
-
   func deleteApp() {
-    AppManager.shared.app.delete({ success in
+    AppManager.shared.app.delete { success in
       if success {
         print("App deleted successfully.")
       } else {
         print("Failed to delete app.")
       }
-    })
+    }
   }
 
   // MARK: - Private Helpers
