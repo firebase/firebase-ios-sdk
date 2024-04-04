@@ -214,11 +214,6 @@ extension AuthSettings: DataSourceProvidable {
     }
 
     alertController.addTextField(configurationHandler: nil)
-
-    // Present the alert controller
-    // Make sure to present it from a view controller
-    // For example, if this code is inside a UIViewController, you can use
-    // `self.present(alertController, animated: true, completion: nil)`
   }
 
   // TODO: Add ability to click and clear both of these fields.
