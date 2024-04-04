@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DE305B702B7BE0B5000595B3 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = DE305B6F2B7BE0B5000595B3 /* FirebaseStorage */; };
 		DE99626B2B44C96C0038ED6B /* objc-module-import-test.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9962682B44C96B0038ED6B /* objc-module-import-test.m */; };
 		DE99626C2B44C96C0038ED6B /* objc-module-import-test.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9962682B44C96B0038ED6B /* objc-module-import-test.m */; };
 		DE99626D2B44C96C0038ED6B /* objcxx-header-import-test.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE9962692B44C96B0038ED6B /* objcxx-header-import-test.mm */; };
@@ -50,7 +51,6 @@
 		EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, tvos, ); productRef = EA7DF5AE29EF3328005664A7 /* FirebasePerformance */; };
 		EA7DF5B129EF3328005664A7 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */; };
 		EA7DF5B329EF3328005664A7 /* FirebaseRemoteConfigSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */; };
-		EA7DF5B529EF3328005664A7 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B429EF3328005664A7 /* FirebaseStorage */; };
 		EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */; };
 		EAA0A99A2AD8495000C28FCD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAA0A9992AD8495000C28FCD /* Preview Assets.xcassets */; };
 		EAA0A9A52AD849E600C28FCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B329EDF98800D79E66 /* AppDelegate.swift */; };
@@ -119,7 +119,6 @@
 				EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */,
 				EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */,
 				EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */,
-				EA7DF5B529EF3328005664A7 /* FirebaseStorage in Frameworks */,
 				EA7DF5A729EF3327005664A7 /* FirebaseInAppMessagingSwift-Beta in Frameworks */,
 				EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */,
 				EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */,
@@ -149,6 +148,7 @@
 				EABBCF6F2B45B46500232BAF /* FirebaseAuthCombine-Community in Frameworks */,
 				EABBCF6D2B45B44100232BAF /* FirebaseAuth in Frameworks */,
 				EAA0A9C32AD84E5600C28FCD /* FirebaseInAppMessagingSwift-Beta in Frameworks */,
+				DE305B702B7BE0B5000595B3 /* FirebaseStorage in Frameworks */,
 				EAA0A9C12AD84E5600C28FCD /* FirebaseInAppMessaging-Beta in Frameworks */,
 				EAA0A9C52AD84E5D00C28FCD /* FirebaseAnalytics in Frameworks */,
 			);
@@ -157,6 +157,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DE305B6E2B7BE0B5000595B3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EA1269A729EDF98800D79E66 = {
 			isa = PBXGroup;
 			children = (
@@ -169,7 +176,7 @@
 				EAA0A9902AD8494F00C28FCD /* ClientApp-CocoaPods-iOS13 */,
 				EAA0A9B22AD84E0800C28FCD /* ClientApp-iOS13 */,
 				EA1269B129EDF98800D79E66 /* Products */,
-				EABBCF6B2B45B44100232BAF /* Frameworks */,
+				DE305B6E2B7BE0B5000595B3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -291,13 +298,6 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		EABBCF6B2B45B44100232BAF /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -337,7 +337,6 @@
 				EA7DF5AE29EF3328005664A7 /* FirebasePerformance */,
 				EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */,
 				EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */,
-				EA7DF5B429EF3328005664A7 /* FirebaseStorage */,
 				EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */,
 				EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */,
 			);
@@ -399,6 +398,7 @@
 				EAA0A9C62AD84E5D00C28FCD /* FirebaseAnalyticsSwift */,
 				EABBCF6C2B45B44100232BAF /* FirebaseAuth */,
 				EABBCF6E2B45B46500232BAF /* FirebaseAuthCombine-Community */,
+				DE305B6F2B7BE0B5000595B3 /* FirebaseStorage */,
 			);
 			productName = "ClientApp-iOS13";
 			productReference = EAA0A9B12AD84E0800C28FCD /* ClientApp-iOS13.app */;
@@ -1026,6 +1026,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		DE305B6F2B7BE0B5000595B3 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseStorage;
+		};
 		EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalyticsOnDeviceConversion;
@@ -1117,10 +1121,6 @@
 		EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseRemoteConfigSwift;
-		};
-		EA7DF5B429EF3328005664A7 /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseStorage;
 		};
 		EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */ = {
 			isa = XCSwiftPackageProductDependency;

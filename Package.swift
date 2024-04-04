@@ -1,4 +1,4 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7.1
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.21.0"
+let firebaseVersion = "10.23.0"
 
 let package = Package(
   name: "Firebase",
@@ -162,7 +162,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
-      "2.30909.0" ..< "2.30910.0"
+      "2.30909.0" ..< "2.30911.0"
     ),
     abseilDependency(),
     grpcDependency(),
@@ -199,6 +199,7 @@ let package = Package(
         .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../.."),
@@ -232,6 +233,7 @@ let package = Package(
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../"),
@@ -246,7 +248,8 @@ let package = Package(
       dependencies: [
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
-      path: "FirebaseCore/Internal/Sources"
+      path: "FirebaseCore/Internal/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")]
     ),
     .testTarget(
       name: "FirebaseCoreInternalTests",
@@ -260,6 +263,7 @@ let package = Package(
       name: "FirebaseABTesting",
       dependencies: ["FirebaseCore"],
       path: "FirebaseABTesting/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -310,8 +314,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.20.0/FirebaseAnalytics.zip",
-      checksum: "169e9983be26e31bff373ea3ae5b56559a49f6bf14986f8813be5af03c00b251"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.23.0/FirebaseAnalytics.zip",
+      checksum: "3fb2f7a91480cffd1dfe9c8f212626cf67860f2686f4ec74122df0e9b411ec53"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -434,6 +438,7 @@ let package = Package(
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources/Swift",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
@@ -457,7 +462,7 @@ let package = Package(
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: ".",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -498,11 +503,17 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
-                     .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-                     .product(name: "GULEnvironment", package: "GoogleUtilities"),
-                     .product(name: "FBLPromises", package: "Promises"),
-                     .product(name: "nanopb", package: "nanopb")],
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseSessions",
+        "FirebaseRemoteConfigInterop",
+        "FirebaseCrashlyticsSwift",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "FBLPromises", package: "Promises"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
       path: "Crashlytics",
       exclude: [
         "run",
@@ -515,6 +526,7 @@ let package = Package(
         "upload-symbols",
         "CrashlyticsInputFiles.xcfilelist",
         "third_party/libunwind/LICENSE",
+        "Crashlytics/Rollouts/",
       ],
       sources: [
         "Crashlytics/",
@@ -522,6 +534,7 @@ let package = Package(
         "Shared/",
         "third_party/libunwind/dwarf.h",
       ],
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Crashlytics/Public",
       cSettings: [
         .headerSearchPath(".."),
@@ -542,6 +555,19 @@ let package = Package(
         .linkedFramework("Security"),
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
+    ),
+    .target(
+      name: "FirebaseCrashlyticsSwift",
+      dependencies: ["FirebaseRemoteConfigInterop"],
+      path: "Crashlytics",
+      sources: [
+        "Crashlytics/Rollouts/",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseCrashlyticsSwiftUnit",
+      dependencies: ["FirebaseCrashlyticsSwift"],
+      path: "Crashlytics/UnitTestsSwift/"
     ),
     .testTarget(
       name: "FirebaseCrashlyticsUnit",
@@ -654,6 +680,7 @@ let package = Package(
       name: "FirebaseDynamicLinks",
       dependencies: ["FirebaseCore"],
       path: "FirebaseDynamicLinks/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -801,6 +828,7 @@ let package = Package(
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseInstallations/Source/Library",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../../"),
@@ -846,6 +874,7 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseMessaging/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -965,6 +994,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseABTesting",
         "FirebaseInstallations",
+        "FirebaseRemoteConfigInterop",
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseRemoteConfig/Sources",
@@ -994,13 +1024,22 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .testTarget(
+      name: "RemoteConfigSwiftUnit",
+      dependencies: ["FirebaseRemoteConfigInternal"],
+      path: "FirebaseRemoteConfig/Tests/SwiftUnit",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
     .target(
       name: "FirebaseRemoteConfig",
       dependencies: [
         "FirebaseRemoteConfigInternal",
         "FirebaseSharedSwift",
       ],
-      path: "FirebaseRemoteConfig/Swift"
+      path: "FirebaseRemoteConfig/Swift",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")]
     ),
     .target(
       name: "FirebaseRemoteConfigSwift",
@@ -1034,6 +1073,15 @@ let package = Package(
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../../"),
+      ]
+    ),
+    // Internal headers only for consuming from other SDK.
+    .target(
+      name: "FirebaseRemoteConfigInterop",
+      path: "FirebaseRemoteConfig/Interop",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
       ]
     ),
 
@@ -1073,6 +1121,8 @@ let package = Package(
     .target(
       name: "FirebaseSessionsObjC",
       dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
@@ -1319,7 +1369,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.20.0")
+  return .package(url: appMeasurementURL, exact: "10.23.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1330,12 +1380,12 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220623.0" ..< "0.20220624.0"
+      "0.20240116.1" ..< "0.20240117.0"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2022062300.0" ..< "1.2022062400.0"
+      "1.2024011601.0" ..< "1.2024011700.0"
     )
   }
 
@@ -1348,9 +1398,9 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.49.1" ..< "1.50.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.62.3" ..< "1.63.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.49.1" ..< "1.50.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.1" ..< "1.63.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1472,7 +1522,8 @@ func firestoreTargets() -> [Target] {
         ],
         sources: [
           "Swift/Source/",
-        ]
+        ],
+        resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")]
       ),
     ]
   }
@@ -1488,8 +1539,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.20.0/FirebaseFirestoreInternal.zip",
-        checksum: "7fe8f913d35e257979eddc8e2df0fedd3b89735c7030494307079747f03279c7"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/10.23.0/rc1/FirebaseFirestoreInternal.zip",
+        checksum: "777f89e6c453cca8dfdcc375304cd3f3059b55c4beab86dce3061c0ece1e0556"
       )
     }
   }()
@@ -1520,6 +1571,7 @@ func firestoreTargets() -> [Target] {
         "FirebaseSharedSwift",
       ],
       path: "Firestore/Swift/Source",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),

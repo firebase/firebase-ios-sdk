@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '10.21.0'
+    s.version          = '10.23.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC
@@ -29,6 +29,10 @@ Pod::Spec.new do |s|
 
     s.source_files = 'FirebaseCore/Extension/*.[hm]'
     s.public_header_files = 'FirebaseCore/Extension/*.h'
+
+    s.resource_bundles = {
+      "#{s.module_name}_Privacy" => 'FirebaseCore/Extension/Resources/PrivacyInfo.xcprivacy'
+    }
 
     s.dependency 'FirebaseCore', '~> 10.0'
   end

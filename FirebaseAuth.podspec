@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '10.21.0'
+  s.version          = '10.23.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -31,7 +31,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   source = 'FirebaseAuth/Sources/'
@@ -41,7 +41,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + 'Public/FirebaseAuth/*.h'
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
-
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseAuth/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.preserve_paths = [
     'FirebaseAuth/README.md',
     'FirebaseAuth/CHANGELOG.md'
@@ -53,7 +55,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
-  s.dependency 'FirebaseAuthInterop', '~> 10.9'
+  s.dependency 'FirebaseAuthInterop', '~> 10.22'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'

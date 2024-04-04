@@ -16,19 +16,16 @@ import Foundation
 
 private let kExpiresInKey = "expires_in"
 
-/** @var kRefreshTokenKey
-    @brief The key for the refresh token.
- */
+/// The key for the refresh token.
+
 private let kRefreshTokenKey = "refresh_token"
 
-/** @var kAccessTokenKey
-    @brief The key for the access token.
- */
+/// The key for the access token.
+
 private let kAccessTokenKey = "access_token"
 
-/** @var kIDTokenKey
-    @brief The key for the "id_token" value in the response.
- */
+/// The key for the "id_token" value in the response.
+
 private let kIDTokenKey = "id_token"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

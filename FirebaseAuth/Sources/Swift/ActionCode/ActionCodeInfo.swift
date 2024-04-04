@@ -14,24 +14,16 @@
 
 import Foundation
 
-/** @class ActionCodeInfo
-    @brief Manages information regarding action codes.
- */
+/// Manages information regarding action codes.
 @objc(FIRActionCodeInfo) open class ActionCodeInfo: NSObject {
-  /**
-      @brief The operation being performed.
-   */
+  /// The operation being performed.
   @objc public let operation: ActionCodeOperation
 
-  /** @property email
-      @brief The email address to which the code was sent. The new email address in the case of
-          `ActionCodeOperationRecoverEmail`.
-   */
+  /// The email address to which the code was sent. The new email address in the case of
+  /// `ActionCodeOperation.recoverEmail`.
   @objc public let email: String?
 
-  /** @property previousEmail
-      @brief The email that is being recovered in the case of `ActionCodeOperationRecoverEmail`.
-   */
+  /// The email that is being recovered in the case of `ActionCodeOperation.recoverEmail`.
   @objc public let previousEmail: String?
 
   init(withOperation operation: ActionCodeOperation, email: String, newEmail: String?) {
@@ -45,11 +37,9 @@ import Foundation
     }
   }
 
-  /** @fn actionCodeOperationForRequestType:
-      @brief Returns the corresponding operation type per provided request type string.
-      @param requestType Request type returned in in the server response.
-      @return The corresponding ActionCodeOperation for the supplied request type.
-   */
+  /// Map a request type string to the corresponding operation type.
+  /// - Parameter requestType: Request type returned in in the server response.
+  /// - Returns: The corresponding ActionCodeOperation for the supplied request type.
   class func actionCodeOperation(forRequestType requestType: String?) -> ActionCodeOperation {
     switch requestType {
     case "PASSWORD_RESET": return .passwordReset

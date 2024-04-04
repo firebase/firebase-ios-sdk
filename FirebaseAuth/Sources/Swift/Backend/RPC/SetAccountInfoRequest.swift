@@ -24,179 +24,114 @@ private let FIRSetAccountInfoUserAttributePhotoURL = "PHOTO_URL"
 
 private let FIRSetAccountInfoUserAttributePassword = "PASSWORD"
 
-/** @var kCreateAuthURIEndpoint
-    @brief The "setAccountInfo" endpoint.
- */
+/// The "setAccountInfo" endpoint.
 private let kSetAccountInfoEndpoint = "setAccountInfo"
 
-/** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
- */
+/// The key for the "idToken" value in the request. This is actually the STS Access Token,
+///    despite its confusing (backwards compatiable) parameter name.
 private let kIDTokenKey = "idToken"
 
-/** @var kDisplayNameKey
-    @brief The key for the "displayName" value in the request.
- */
+/// The key for the "displayName" value in the request.
 private let kDisplayNameKey = "displayName"
 
-/** @var kLocalIDKey
-    @brief The key for the "localID" value in the request.
- */
+/// The key for the "localID" value in the request.
 private let kLocalIDKey = "localId"
 
-/** @var kEmailKey
-    @brief The key for the "email" value in the request.
- */
+/// The key for the "email" value in the request.
 private let kEmailKey = "email"
 
-/** @var kPasswordKey
-    @brief The key for the "password" value in the request.
- */
+/// The key for the "password" value in the request.
 private let kPasswordKey = "password"
 
-/** @var kPhotoURLKey
-    @brief The key for the "photoURL" value in the request.
- */
+/// The key for the "photoURL" value in the request.
 private let kPhotoURLKey = "photoUrl"
 
-/** @var kProvidersKey
-    @brief The key for the "providers" value in the request.
- */
+/// The key for the "providers" value in the request.
 private let kProvidersKey = "provider"
 
-/** @var kOOBCodeKey
-    @brief The key for the "OOBCode" value in the request.
- */
+/// The key for the "OOBCode" value in the request.
 private let kOOBCodeKey = "oobCode"
 
-/** @var kEmailVerifiedKey
-    @brief The key for the "emailVerified" value in the request.
- */
+/// The key for the "emailVerified" value in the request.
 private let kEmailVerifiedKey = "emailVerified"
 
-/** @var kUpgradeToFederatedLoginKey
-    @brief The key for the "upgradeToFederatedLogin" value in the request.
- */
+/// The key for the "upgradeToFederatedLogin" value in the request.
 private let kUpgradeToFederatedLoginKey = "upgradeToFederatedLogin"
 
-/** @var kCaptchaChallengeKey
-    @brief The key for the "captchaChallenge" value in the request.
- */
+/// The key for the "captchaChallenge" value in the request.
 private let kCaptchaChallengeKey = "captchaChallenge"
 
-/** @var kCaptchaResponseKey
-    @brief The key for the "captchaResponse" value in the request.
- */
+/// The key for the "captchaResponse" value in the request.
 private let kCaptchaResponseKey = "captchaResponse"
 
-/** @var kDeleteAttributesKey
-    @brief The key for the "deleteAttribute" value in the request.
- */
+/// The key for the "deleteAttribute" value in the request.
 private let kDeleteAttributesKey = "deleteAttribute"
 
-/** @var kDeleteProvidersKey
-    @brief The key for the "deleteProvider" value in the request.
- */
+/// The key for the "deleteProvider" value in the request.
 private let kDeleteProvidersKey = "deleteProvider"
 
-/** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
- */
+/// The key for the "returnSecureToken" value in the request.
 private let kReturnSecureTokenKey = "returnSecureToken"
 
-/** @var kTenantIDKey
-    @brief The key for the tenant id value in the request.
- */
+/// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
-/** @class FIRSetAccountInfoRequest
-    @brief Represents the parameters for the setAccountInfo endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
- */
+/// Represents the parameters for the setAccountInfo endpoint.
+/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = SetAccountInfoResponse
-  /** @property accessToken
-      @brief The STS Access Token of the authenticated user.
-   */
+
+  /// The STS Access Token of the authenticated user.
   var accessToken: String?
 
-  /** @property displayName
-      @brief The name of the user.
-   */
+  /// The name of the user.
   var displayName: String?
 
-  /** @property localID
-      @brief The local ID of the user.
-   */
+  /// The local ID of the user.
   var localID: String?
 
-  /** @property email
-      @brief The email of the user.
-   */
+  /// The email of the user.
   var email: String?
 
-  /** @property photoURL
-      @brief The photoURL of the user.
-   */
+  /// The photoURL of the user.
   var photoURL: URL?
 
-  /** @property password
-      @brief The new password of the user.
-   */
+  /// The new password of the user.
   var password: String?
 
-  /** @property providers
-      @brief The associated identity providers of the user.
-   */
+  /// The associated identity providers of the user.
   var providers: [String]?
 
-  /** @property OOBCode
-      @brief The out-of-band code of the change email request.
-   */
+  /// The out-of-band code of the change email request.
   var oobCode: String?
 
-  /** @property emailVerified
-      @brief Whether to mark the email as verified or not.
-   */
+  /// Whether to mark the email as verified or not.
   var emailVerified: Bool = false
 
-  /** @property upgradeToFederatedLogin
-      @brief Whether to mark the user to upgrade to federated login.
-   */
+  /// Whether to mark the user to upgrade to federated login.
   var upgradeToFederatedLogin: Bool = false
 
-  /** @property captchaChallenge
-      @brief The captcha challenge.
-   */
+  /// The captcha challenge.
   var captchaChallenge: String?
 
-  /** @property captchaResponse
-      @brief Response to the captcha.
-   */
+  /// Response to the captcha.
   var captchaResponse: String?
 
-  /** @property deleteAttributes
-      @brief The list of user attributes to delete.
-      @remarks Every element of the list must be one of the predefined constant starts with
-          "FIRSetAccountInfoUserAttribute".
-   */
+  /// The list of user attributes to delete.
+  ///
+  /// Every element of the list must be one of the predefined constant starts with
+  /// `SetAccountInfoUserAttribute`.
   var deleteAttributes: [String]?
 
-  /** @property deleteProviders
-      @brief The list of identity providers to delete.
-   */
+  /// The list of identity providers to delete.
   var deleteProviders: [String]?
 
-  /** @property returnSecureToken
-      @brief Whether the response should return access token and refresh token directly.
-      @remarks The default value is @c YES .
-   */
-  var returnSecureToken: Bool = false
+  /// Whether the response should return access token and refresh token directly.
+  /// The default value is `true` .
+  var returnSecureToken: Bool = true
 
   init(requestConfiguration: AuthRequestConfiguration) {
-    returnSecureToken = true
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 

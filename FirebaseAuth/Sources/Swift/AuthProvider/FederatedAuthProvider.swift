@@ -14,19 +14,16 @@
 
 import Foundation
 
-/**
-    Utility type for constructing federated auth provider credentials.
- */
+/// Utility type for constructing federated auth provider credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRFederatedAuthProvider) public protocol FederatedAuthProvider: NSObjectProtocol {
   #if os(iOS)
-    /** @fn getCredentialWithUIDelegate:completion:
-        @brief Used to obtain an auth credential via a mobile web flow.
-            This method is available on iOS only.
-        @param UIDelegate An optional UI delegate used to present the mobile web flow.
-     */
+
+    /// Used to obtain an auth credential via a mobile web flow.
+    /// This method is available on iOS only.
+    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
-    func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential
+    func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential
   #endif
 }
