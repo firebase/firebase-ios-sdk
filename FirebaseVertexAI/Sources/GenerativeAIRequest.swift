@@ -31,16 +31,14 @@ public struct RequestOptions {
   let timeout: TimeInterval?
 
   /// The API version to use in requests to the backend.
-  let apiVersion: String
+  let apiVersion = "v2beta"
 
   /// Initializes a request options object.
   ///
   /// - Parameters:
   ///   - timeout The request’s timeout interval in seconds; if not specified uses the default value
   ///   for a `URLRequest`.
-  ///   - apiVersion The API version to use in requests to the backend; defaults to "v2beta".
-  public init(timeout: TimeInterval? = nil, apiVersion: String = "v2beta") {
+  public init(timeout: TimeInterval? = nil) {
     self.timeout = timeout
-    self.apiVersion = apiVersion
   }
 }
