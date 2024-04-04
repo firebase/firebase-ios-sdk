@@ -208,9 +208,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor \(flavor)")
     }
 
-    db.disableNetwork()
+    disableNetwork()
     defer {
-      db.enableNetwork()
+      enableNetwork()
     }
 
     try docToWrite.setData(from: model)
