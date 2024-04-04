@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Allow blob of data with zero length. (#11773, #12620)
+
 # 10.24.0
 - [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
 
