@@ -97,7 +97,7 @@ class LocalCacheSettings {
   friend class Settings;
 
  public:
-  enum class Kind { kMemory, kPersistent };
+  enum class Kind { kMemory = 1, kPersistent };
   virtual ~LocalCacheSettings() = default;
   friend bool operator==(const LocalCacheSettings& lhs,
                          const LocalCacheSettings& rhs);
@@ -135,7 +135,7 @@ class PersistentCacheSettings : public LocalCacheSettings {
 
 class MemoryGargabeCollectorSettings {
  public:
-  enum class MemoryGcKind { kEagerGc, kLruGc };
+  enum class MemoryGcKind { kEagerGc = 1, kLruGc };
   virtual ~MemoryGargabeCollectorSettings() = default;
   friend bool operator==(const MemoryGargabeCollectorSettings& lhs,
                          const MemoryGargabeCollectorSettings& rhs);
