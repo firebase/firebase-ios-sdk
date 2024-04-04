@@ -17,9 +17,13 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_LISTEN_OPTIONS_H_
 #define FIRESTORE_CORE_SRC_CORE_LISTEN_OPTIONS_H_
 
+#include <utility>
+#include "Firestore/core/src/api/listen_source.h"
 namespace firebase {
 namespace firestore {
 namespace core {
+
+using api::ListenSource;
 
 class ListenOptions {
  public:
@@ -44,14 +48,36 @@ class ListenOptions {
   }
 
   /**
-   * Creates a default ListenOptions, with metadata changes and
-   * wait_for_sync_when_online disabled.
+   * Creates a new ListenOptions.
+   *
+   * @param include_query_metadata_changes Raise events when only metadata of
+   *     the query changes.
+   * @param include_document_metadata_changes Raise events when only metadata of
+   *     documents changes.
+   * @param wait_for_sync_when_online Wait for a sync with the server when
+   *     online, but still raise events while offline.
+   * @param source sets the source a snapshot listener listens to.
+   */
+  ListenOptions(bool include_query_metadata_changes,
+                bool include_document_metadata_changes,
+                bool wait_for_sync_when_online,
+                ListenSource source)
+      : include_query_metadata_changes_(include_query_metadata_changes),
+        include_document_metadata_changes_(include_document_metadata_changes),
+        wait_for_sync_when_online_(wait_for_sync_when_online),
+        source_(std::move(source)) {
+  }
+
+  /**
+   * Creates a default ListenOptions, with metadata changes,
+   * wait_for_sync_when_online disabled, and listen source set to default.
    */
   static ListenOptions DefaultOptions() {
     return ListenOptions(
         /*include_query_metadata_changes=*/false,
         /*include_document_metadata_changes=*/false,
-        /*wait_for_sync_when_online=*/false);
+        /*wait_for_sync_when_online=*/false,
+        /*source=*/ListenSource::Default);
   }
 
   /**
@@ -63,7 +89,19 @@ class ListenOptions {
     return ListenOptions(
         /*include_query_metadata_changes=*/include_metadata_changes,
         /*include_document_metadata_changes=*/include_metadata_changes,
-        /*wait_for_sync_when_online=*/false);
+        /*wait_for_sync_when_online=*/false,
+        /*source=*/ListenSource::Default);
+  }
+
+  /**
+   * Creates a ListenOptions which sets the source snapshot listener listens to.
+   */
+  static ListenOptions FromOptions(bool include_metadata_changes,
+                                   ListenSource source) {
+    return ListenOptions(
+        /*include_query_metadata_changes=*/include_metadata_changes,
+        /*include_document_metadata_changes=*/include_metadata_changes,
+        /*wait_for_sync_when_online=*/false, std::move(source));
   }
 
   bool include_query_metadata_changes() const {
@@ -78,10 +116,15 @@ class ListenOptions {
     return wait_for_sync_when_online_;
   }
 
+  ListenSource source() const {
+    return source_;
+  }
+
  private:
   bool include_query_metadata_changes_ = false;
   bool include_document_metadata_changes_ = false;
   bool wait_for_sync_when_online_ = false;
+  ListenSource source_ = ListenSource::Default;
 };
 
 }  // namespace core

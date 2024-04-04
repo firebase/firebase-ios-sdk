@@ -1,3 +1,6 @@
+# 10.23.0
+- [fixed] [CocoaPods] Fix "no rule" warning when running `pod install`. (#12511)
+
 # 10.20.0
 - [fixed] Fix 10.19.0 regression where the FCM registration token was nil at first app start
   after update from 10.19.0 or earlier. (#12245)

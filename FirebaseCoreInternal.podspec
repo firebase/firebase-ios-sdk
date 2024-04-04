@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreInternal'
-  s.version          = '10.21.0'
+  s.version          = '10.23.0'
   s.summary          = 'APIs for internal FirebaseCore usage.'
 
   s.description      = <<-DESC
@@ -31,6 +31,10 @@ Pod::Spec.new do |s|
   s.source_files = [
     'FirebaseCore/Internal/Sources/**/*.swift'
   ]
+
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseCore/Internal/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
 
   s.swift_version = '5.3'
 

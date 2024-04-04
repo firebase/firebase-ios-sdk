@@ -18,6 +18,7 @@ FirebaseMessaging
 FirebaseMessagingInterop
 FirebasePerformance
 FirebaseRemoteConfig
+FirebaseRemoteConfigInterop
 FirebaseSessions
 FirebaseStorage
 GTMSessionFetcher
@@ -253,6 +254,7 @@ record keeping.)
   27287199
   27287880
   27287883
+  263291445
 
   OpenSSL License
   ---------------

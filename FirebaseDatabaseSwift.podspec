@@ -21,7 +21,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.osx.deployment_target   = '10.13'
   s.tvos.deployment_target  = '12.0'
 
-  s.cocoapods_version       = '>= 1.4.0'
+  s.cocoapods_version       = '>= 1.12.0'
   s.prefix_header_file      = false
 
   s.source_files = [

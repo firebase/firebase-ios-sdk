@@ -37,6 +37,14 @@ static NSString *const RCNFetchResponseKeyEntries = @"entries";
 static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
 /// Key that includes data for Personalization metadata.
 static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
+/// Key that includes data for Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutMetadata = @"rolloutMetadata";
+/// Key that indicates rollout id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutID = @"rolloutId";
+/// Key that indicates variant id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyVariantID = @"variantId";
+/// Key that indicates affected parameter keys in Rollout Metadata.
+static NSString *const RCNFetchResponseKeyAffectedParameterKeys = @"affectedParameterKeys";
 /// Error key.
 static NSString *const RCNFetchResponseKeyError = @"error";
 /// Error code.
@@ -58,5 +66,7 @@ static NSString *const RCNFetchResponseKeyStateNoTemplate = @"NO_TEMPLATE";
 static NSString *const RCNFetchResponseKeyStateNoChange = @"NO_CHANGE";
 /// Template found, but evaluates to empty (e.g. all keys omitted).
 static NSString *const RCNFetchResponseKeyStateEmptyConfig = @"EMPTY_CONFIG";
-/// Template Version key
+/// Fetched Template Version key
 static NSString *const RCNFetchResponseKeyTemplateVersion = @"templateVersion";
+/// Active Template Version key
+static NSString *const RCNActiveKeyTemplateVersion = @"activeTemplateVersion";
