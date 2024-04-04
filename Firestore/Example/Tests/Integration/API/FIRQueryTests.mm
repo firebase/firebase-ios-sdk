@@ -476,7 +476,8 @@
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few docs to known values
-  NSDictionary *initialDocs = @{@"doc1" : @{@"key1" : FSTTestData(0)}, @"doc2" : @{@"key2" : FSTTestData(1)}};
+  NSDictionary *initialDocs =
+      @{@"doc1" : @{@"key1" : FSTTestData(0)}, @"doc2" : @{@"key2" : FSTTestData(1)}};
   [self writeAllDocuments:initialDocs toCollection:col];
 
   // go offline for the rest of this test

@@ -193,7 +193,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
     let model = Model(
       name: "name",
-      data: Data([1,2,3,4]),
+      data: Data([1, 2, 3, 4]),
       emptyData: Data()
     )
 
@@ -204,7 +204,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
       let data = readDocument(forRef: docToWrite)
 
-      XCTAssertEqual(data["data"] as! Data, Data([1,2,3,4]), "Failed with flavor \(flavor)")
+      XCTAssertEqual(data["data"] as! Data, Data([1, 2, 3, 4]), "Failed with flavor \(flavor)")
       XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor \(flavor)")
     }
 
@@ -215,7 +215,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
     try docToWrite.setData(from: model)
     let data = readDocument(forRef: docToWrite)
-    XCTAssertEqual(data["data"] as! Data, Data([1,2,3,4]), "Failed with flavor offline docRef")
+    XCTAssertEqual(data["data"] as! Data, Data([1, 2, 3, 4]), "Failed with flavor offline docRef")
     XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor offline docRef")
   }
 
