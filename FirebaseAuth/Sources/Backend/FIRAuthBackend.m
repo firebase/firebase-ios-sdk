@@ -561,9 +561,15 @@ static NSString *const kInvalidRecaptchaVersion = @"INVALID_RECAPTCHA_VERSION";
 
 /** @var kInvalidLoginCredentials
     @brief This is the error message the server will respond with if the login credentials is
-   invalid. in the request.
+   invalid in the request.
  */
 static NSString *const kInvalidLoginCredentials = @"INVALID_LOGIN_CREDENTIALS";
+
+/** @var kPasskeyEnrollmentNotFound
+    @brief This is the error message the server will respond with if the passkey credentials is
+   invalid in the request.
+ */
+static NSString *const kPasskeyEnrollmentNotFound = @"PASSKEY_ENROLLMENT_NOT_FOUND";
 
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
@@ -1400,7 +1406,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                                                    underlyingError:error]);
                                return;
                              }
-
                              // Finally, we try to populate the response object with the JSON
                              // values.
                              if (![response setWithDictionary:dictionary error:&error]) {
@@ -1473,6 +1478,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kUserNotFoundErrorMessage]) {
     return [FIRAuthErrorUtils userNotFoundErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kPasskeyEnrollmentNotFound]) {
+    return [FIRAuthErrorUtils passkeyEnrollmentNotFoundError];
   }
 
   if ([shortErrorMessage isEqualToString:kUserDeletedErrorMessage]) {

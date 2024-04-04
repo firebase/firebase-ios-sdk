@@ -673,6 +673,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                     NSError *_Nullable error) {
                            if (error) {
                              decoratedCallback(nil, error);
+                             return;
                            } else {
                              [FIRAuth.auth
                                  completeSignInWithAccessToken:response.idToken
