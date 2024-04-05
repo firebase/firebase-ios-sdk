@@ -630,6 +630,9 @@ static NSString *const kFIRAuthErrorMessageInvalidLoginCredentials =
     @"Login credentials invalid. It is possible that the email/password combination does not "
     @"exist.";
 
+static NSString *const kFIRAuthErrorMessageMissingPasskeyEnrollment =
+    @"Cannot find the passkey linked to the current account.";
+
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -814,6 +817,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidReqType;
     case FIRAuthErrorCodeRecaptchaSDKNotLinked:
       return kFIRAuthErrorMessageRecaptchaSDKNotLinked;
+    case FIRAuthErrorCodePasskeyEnrollmentNotFound:
+      return kFIRAuthErrorMessageMissingPasskeyEnrollment;
   }
 }
 
@@ -1001,6 +1006,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_REQ_TYPE";
     case FIRAuthErrorCodeRecaptchaSDKNotLinked:
       return @"ERROR_RECAPTCHA_SDK_NOT_LINKED";
+    case FIRAuthErrorCodePasskeyEnrollmentNotFound:
+      return @"ERROR_PASSKEY_ENROLLMENT_NOT_FOUND";
   }
 }
 
@@ -1237,6 +1244,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)userNotFoundErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeUserNotFound message:message];
+}
+
++ (NSError *)passkeyEnrollmentNotFoundError {
+  return [self errorWithCode:FIRAuthInternalPasskeyEnrollmentNotFound];
 }
 
 + (NSError *)invalidAPIKeyError {

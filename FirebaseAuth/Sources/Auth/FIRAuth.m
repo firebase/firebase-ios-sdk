@@ -1281,6 +1281,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                 NSError *_Nullable error) {
                        if (error) {
                          decoratedCallback(nil, error);
+                         return;
                        }
                        [self completeSignInWithAccessToken:response.idToken
                                  accessTokenExpirationDate:nil

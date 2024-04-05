@@ -489,6 +489,12 @@ static NSString *const kMissingRecaptchaTokenErrorPrefix = @"MISSING_RECAPTCHA_T
  */
 + (NSError *)notificationNotForwardedError;
 
+/** @fn passkeyEnrollmentNotFoundError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeNotificationNotForwarded code.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)passkeyEnrollmentNotFoundError;
+
 #if TARGET_OS_IOS
 /** @fn secondFactorRequiredError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeSecondFactorRequired code.
