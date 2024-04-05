@@ -39,10 +39,27 @@ extension CountTokensRequest: GenerativeAIRequest {
 
 /// The model's response to a count tokens request.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct CountTokensResponse: Decodable {
+public struct CountTokensResponse {
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
 
   /// The total number of billable characters in the input given to the model as a prompt.
-  public let totalBillableCharacters: Int?
+  public let totalBillableCharacters: Int
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension CountTokensResponse: Decodable {
+  enum CodingKeys: CodingKey {
+    case totalTokens
+    case totalBillableCharacters
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    totalTokens = try container.decode(Int.self, forKey: .totalTokens)
+    totalBillableCharacters = try container.decodeIfPresent(
+      Int.self,
+      forKey: .totalBillableCharacters
+    ) ?? 0
+  }
 }
