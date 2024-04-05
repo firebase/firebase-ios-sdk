@@ -15,9 +15,9 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-  import GoogleUtilities_NSData
+  @_implementationOnly import GoogleUtilities_NSData
 #else
-  import GoogleUtilities
+  @_implementationOnly import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// A type that provides a string representation for use in an HTTP header.
