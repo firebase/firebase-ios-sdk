@@ -36,7 +36,6 @@ class AuthenticationExampleUITests: XCTestCase {
     XCTAssertTrue(app.navigationBars["Firebase Auth"].exists)
   }
 
-
   func testAuthAnonymously() {
     app.staticTexts["Anonymous Authentication"].tap()
 
