@@ -24,11 +24,11 @@ class OperationsManager {
 
   func queryRef<ResultDataType: Codable>(for request: QueryRequest,
                                          with resultType: ResultDataType
-    .Type) -> any QueryRef {
+    .Type) -> any ObservableQueryRef {
       if #available(iOS 17, *) {
-        return QueryRefObservation(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any QueryRef)
+        return QueryRefObservation(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
     } else {
-        return QueryRefObservableObject(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any QueryRef)
+        return QueryRefObservableObject(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
     }
 }
 

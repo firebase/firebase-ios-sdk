@@ -29,7 +29,5 @@ public protocol OperationRequest {
 public protocol OperationRef {
   associatedtype ResultDataType: Codable
 
-  var request: any OperationRequest { get }
-
   func execute() async throws -> OperationResult<ResultDataType>
 }

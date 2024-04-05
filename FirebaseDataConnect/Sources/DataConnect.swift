@@ -109,7 +109,7 @@ public class DataConnect {
 
   public func getQueryRef<ResultDataType: Codable>(request: QueryRequest,
                                                    resultsDataType: ResultDataType
-                                                     .Type) -> any QueryRef {
+                                                     .Type) -> any ObservableQueryRef {
     return operationsManager.queryRef(for: request, with: resultsDataType)
   }
 
