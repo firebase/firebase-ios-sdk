@@ -946,6 +946,21 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.totalBillableCharacters, 16)
   }
 
+  func testCountTokens_succeeds_noBillableCharacters() async throws {
+    MockURLProtocol.requestHandler = try httpRequestHandler(
+      forResource: "success-no-billable-characters",
+      withExtension: "json"
+    )
+
+    let response = try await model.countTokens(ModelContent.Part.data(
+      mimetype: "image/jpeg",
+      Data()
+    ))
+
+    XCTAssertEqual(response.totalTokens, 258)
+    XCTAssertNil(response.totalBillableCharacters)
+  }
+
   func testCountTokens_modelNotFound() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "failure-model-not-found", withExtension: "json",

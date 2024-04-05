@@ -44,5 +44,5 @@ public struct CountTokensResponse: Decodable {
   public let totalTokens: Int
 
   /// The total number of billable characters in the input given to the model as a prompt.
-  public let totalBillableCharacters: Int
+  public let totalBillableCharacters: Int?
 }
