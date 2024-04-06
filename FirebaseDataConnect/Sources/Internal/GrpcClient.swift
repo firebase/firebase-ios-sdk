@@ -65,7 +65,7 @@ actor GrpcClient {
       "projects/\(projectId)/locations/\(serviceConfig.location.rawValue)/services/\(serviceConfig.serviceId)/operationSets/\(serviceConfig.connector)/revisions/r"
   }
 
-  func executeQuery<ResultType: Codable>(request: QueryRequest,
+  func executeQuery<ResultType: Codable, VariableType: OperationVariable>(request: QueryRequest<VariableType>,
                                          resultType: ResultType
                                            .Type) async throws -> OperationResult<ResultType> {
     guard let client else {
@@ -91,7 +91,7 @@ actor GrpcClient {
     }
   }
 
-  func executeMutation<ResultType: Codable>(request: MutationRequest,
+  func executeMutation<ResultType: Codable, VariableType: OperationVariable>(request: MutationRequest<VariableType>,
                                             resultType: ResultType
                                               .Type) async throws -> OperationResult<ResultType> {
     guard let client else {

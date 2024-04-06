@@ -15,33 +15,30 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct MutationRequest: OperationRequest {
+public struct MutationRequest<VariableType: OperationVariable>: OperationRequest {
   public var operationName: String
-  public var variables: (any Codable)?
+  public var variables: VariableType?
 
-  public init(operationName: String, variables: (any Codable)? = nil) {
+  public init(operationName: String, variables: VariableType? = nil) {
     self.operationName = operationName
     self.variables = variables
   }
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class MutationRef<ResultDataType: Codable>: OperationRef {
-  public var request: any OperationRequest 
-
-  var dataType: ResultDataType.Type
+public class MutationRef<ResultDataType: Codable, VariableType: OperationVariable>: OperationRef {
+  public var request: any OperationRequest
 
   private var grpcClient: GrpcClient
 
-  init(request: any OperationRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  init(request: any OperationRequest, grpcClient: GrpcClient) {
     self.request = request
-    self.dataType = dataType
     self.grpcClient = grpcClient
   }
 
   public func execute() async throws -> OperationResult<ResultDataType> {
     let results = try await grpcClient.executeMutation(
-      request: request as! MutationRequest,
+      request: request as! MutationRequest<VariableType>,
       resultType: ResultDataType.self
     )
     return results

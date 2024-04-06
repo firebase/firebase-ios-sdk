@@ -22,19 +22,19 @@ class OperationsManager {
     self.grpcClient = grpcClient
   }
 
-  func queryRef<ResultDataType: Codable>(for request: QueryRequest,
+  func queryRef<ResultDataType: Codable, VariableType: OperationVariable>(for request: QueryRequest<VariableType>,
                                          with resultType: ResultDataType
     .Type) -> any ObservableQueryRef {
       if #available(iOS 17, *) {
-        return QueryRefObservation(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+        return QueryRefObservation<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
     } else {
-        return QueryRefObservableObject(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+        return QueryRefObservableObject<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
     }
 }
 
-func mutationRef<ResultDataType: Codable>(for request: MutationRequest,
+  func mutationRef<ResultDataType: Codable, VariableType: OperationVariable>(for request: MutationRequest<VariableType>,
                                           with resultType: ResultDataType
-  .Type) -> MutationRef<ResultDataType> {
-    return MutationRef(request: request, dataType: resultType, grpcClient: grpcClient)
+  .Type) -> MutationRef<ResultDataType, VariableType> {
+    return MutationRef(request: request, grpcClient: grpcClient)
   }
 }

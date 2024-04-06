@@ -42,8 +42,8 @@ class Codec {
     }
   }
 
-  func createQueryRequestProto(connectorName: String,
-                               request: QueryRequest) throws
+  func createQueryRequestProto<VariableType: OperationVariable>(connectorName: String,
+                               request: QueryRequest<VariableType>) throws
     -> Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
@@ -67,8 +67,8 @@ class Codec {
     }
   }
 
-  func createMutationRequestProto(connectorName: String,
-                                  request: MutationRequest) throws
+  func createMutationRequestProto<VariableType: OperationVariable>(connectorName: String,
+                                  request: MutationRequest<VariableType>) throws
     -> Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil

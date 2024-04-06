@@ -19,10 +19,15 @@ public struct OperationResult<ResultDataType: Codable> {
   public var data: ResultDataType
 }
 
+// notional protocol that denotes a variable.
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+public protocol OperationVariable: Codable, Hashable, Equatable { }
+
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public protocol OperationRequest {
+  associatedtype VariableType : OperationVariable
   var operationName: String { get } // Name within Connector definition
-  var variables: (any Codable)? { get set }
+  var variables: VariableType? { get }
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)

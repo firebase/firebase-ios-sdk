@@ -18,19 +18,46 @@ import Combine
 import Observation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct QueryRequest: OperationRequest {
-  public var operationName: String
-  public var variables: (any Codable)?
+public struct QueryRequest<VariableType: OperationVariable>: OperationRequest, Hashable, Equatable {
 
-  public init(operationName: String, variables: (any Codable)? = nil) {
+  public private(set) var operationName: String
+  public private(set) var variables: VariableType?
+
+  public init(operationName: String, variables: VariableType? = nil) {
     self.operationName = operationName
     self.variables = variables
   }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(operationName)
+    if let variables {
+      hasher.combine(variables)
+    }
+  }
+
+  public static func == (lhs: QueryRequest, rhs: QueryRequest) -> Bool {
+
+    guard lhs.operationName == rhs.operationName else {
+      return false
+    }
+    
+    if lhs.variables == nil && rhs.variables == nil {
+      return true
+    }
+
+    guard let lhsVar = lhs.variables,
+          let rhsVar = rhs.variables,
+          lhsVar == rhsVar else {
+      return false
+    }
+
+    return true
+  }
+
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public protocol QueryRef: OperationRef {
-
   // This call starts query execution and publishes data
   func subscribe() async throws -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never>
 }
@@ -38,19 +65,16 @@ public protocol QueryRef: OperationRef {
 
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public actor GenericQueryRef<ResultDataType: Codable>: QueryRef {
+public actor GenericQueryRef<ResultDataType: Codable, VariableType: OperationVariable>: QueryRef {
 
   private var resultsPublisher = PassthroughSubject<Result<ResultDataType, DataConnectError>, Never>()
 
-  public var request: QueryRequest
-
-  private var dataType: ResultDataType.Type
+  public var request: QueryRequest<VariableType>
 
   private var grpcClient: GrpcClient
 
-  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  init(request: QueryRequest<VariableType>, grpcClient: GrpcClient) {
     self.request = request
-    self.dataType = dataType
     self.grpcClient = grpcClient
   }
 
@@ -99,17 +123,17 @@ public protocol ObservableQueryRef: OperationRef {
 // lastError: Published variable that contains DataConnectError if last fetch had error.
 //            If last fetch was successful, this variable is cleared
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class QueryRefObservableObject<ResultDataType: Codable>: ObservableObject, ObservableQueryRef {
+public class QueryRefObservableObject<ResultDataType: Codable, VariableType: OperationVariable>: ObservableObject, ObservableQueryRef {
 
-  private var request: OperationRequest
+  private var request: QueryRequest<VariableType>
 
-  private var baseRef: GenericQueryRef<ResultDataType>
+  private var baseRef: GenericQueryRef<ResultDataType, VariableType>
 
   private var resultsCancellable: AnyCancellable?
 
-  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  init(request: QueryRequest<VariableType>, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
     self.request = request
-    baseRef = GenericQueryRef(request: request, dataType: dataType, grpcClient: grpcClient)
+    baseRef = GenericQueryRef(request: request, grpcClient: grpcClient)
 
     setupSubscription()
   }
@@ -149,17 +173,17 @@ public class QueryRefObservableObject<ResultDataType: Codable>: ObservableObject
 //            If last fetch was successful, this variable is cleared
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
 @Observable
-public class QueryRefObservation<ResultDataType: Codable>: ObservableQueryRef {
+public class QueryRefObservation<ResultDataType: Codable, VariableType: OperationVariable>: ObservableQueryRef {
 
-  private var request: QueryRequest
+  private var request: QueryRequest<VariableType>
 
-  private var baseRef: GenericQueryRef<ResultDataType>
+  private var baseRef: GenericQueryRef<ResultDataType, VariableType>
 
   private var resultsCancellable: AnyCancellable?
 
-  init(request: QueryRequest, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  init(request: QueryRequest<VariableType>, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
     self.request = request
-    baseRef = GenericQueryRef(request: request, dataType: dataType, grpcClient: grpcClient)
+    baseRef = GenericQueryRef(request: request, grpcClient: grpcClient)
   }
 
   private func setupSubscription() {
