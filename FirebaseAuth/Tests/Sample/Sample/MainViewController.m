@@ -251,10 +251,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [weakSelf appSection],
       // OOB
       [weakSelf oobSection],
-      // Auto Tests
-      [weakSelf autoTestsSection],
       // Passkey
       [weakSelf passkeySection],
+      // Auto Tests
+      [weakSelf autoTestsSection],
     ]];
 }
 
@@ -642,7 +642,6 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 - (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
-
     return self.view.window;
 }
 

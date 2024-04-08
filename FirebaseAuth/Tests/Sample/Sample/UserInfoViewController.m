@@ -118,6 +118,7 @@ static NSString *stringFromDate(NSDate *date) {
     [string appendString:info.name];
     [string appendString:@" - "];
     [string appendString:info.credentialID];
+    [string appendString:@" "];
   }
 
   return string;
