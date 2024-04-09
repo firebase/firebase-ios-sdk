@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0274FD322BB5DCF000DE5140 /* MainViewController+Passkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 0274FD312BB5DCF000DE5140 /* MainViewController+Passkey.m */; };
 		400283EA23EA254B0006A298 /* MainViewController+MultiFactor.m in Sources */ = {isa = PBXBuildFile; fileRef = 400283E923EA254A0006A298 /* MainViewController+MultiFactor.m */; };
 		DE1865AC245B879B00F8AD70 /* TestsBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865AB245B879B00F8AD70 /* TestsBase.swift */; };
 		DE1865AE245B8A1400F8AD70 /* AnonymousTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1865AD245B8A1400F8AD70 /* AnonymousTests.swift */; };
@@ -85,6 +86,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0274FD302BB5DCF000DE5140 /* MainViewController+Passkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+Passkey.h"; sourceTree = "<group>"; };
+		0274FD312BB5DCF000DE5140 /* MainViewController+Passkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+Passkey.m"; sourceTree = "<group>"; };
 		400283E823EA254A0006A298 /* MainViewController+MultiFactor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MainViewController+MultiFactor.h"; sourceTree = "<group>"; };
 		400283E923EA254A0006A298 /* MainViewController+MultiFactor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MainViewController+MultiFactor.m"; sourceTree = "<group>"; };
 		DE1865AB245B879B00F8AD70 /* TestsBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestsBase.swift; sourceTree = "<group>"; };
@@ -277,6 +280,8 @@
 				DE800B4222A2F8AF00AC9A23 /* MainViewController+GameCenter.h */,
 				DE800B1922A2F8AF00AC9A23 /* MainViewController+GameCenter.m */,
 				DE800B2122A2F8AF00AC9A23 /* MainViewController+Google.h */,
+				0274FD302BB5DCF000DE5140 /* MainViewController+Passkey.h */,
+				0274FD312BB5DCF000DE5140 /* MainViewController+Passkey.m */,
 				DE800B3922A2F8AF00AC9A23 /* MainViewController+Google.m */,
 				DE800B3022A2F8AF00AC9A23 /* MainViewController+Internal.h */,
 				400283E823EA254A0006A298 /* MainViewController+MultiFactor.h */,
@@ -534,6 +539,7 @@
 				DE800B5A22A2F8AF00AC9A23 /* MainViewController+App.m in Sources */,
 				DE800B6222A2F8AF00AC9A23 /* CustomTokenDataEntryViewController.m in Sources */,
 				DE800B6122A2F8AF00AC9A23 /* ApplicationDelegate.m in Sources */,
+				0274FD322BB5DCF000DE5140 /* MainViewController+Passkey.m in Sources */,
 				DE800B4A22A2F8AF00AC9A23 /* GoogleAuthProvider.m in Sources */,
 				DE800B5B22A2F8AF00AC9A23 /* MainViewController+OAuth.m in Sources */,
 				DE800B6022A2F8AF00AC9A23 /* FacebookAuthProvider.m in Sources */,
