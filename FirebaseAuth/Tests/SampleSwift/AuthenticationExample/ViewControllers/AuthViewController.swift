@@ -1,29 +1,29 @@
-  // Copyright 2020 Google LLC
-  //
-  // Licensed under the Apache License, Version 2.0 (the "License");
-  // you may not use this file except in compliance with the License.
-  // You may obtain a copy of the License at
-  //
-  //      http://www.apache.org/licenses/LICENSE-2.0
-  //
-  // Unless required by applicable law or agreed to in writing, software
-  // distributed under the License is distributed on an "AS IS" BASIS,
-  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  // See the License for the specific language governing permissions and
-  // limitations under the License.
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 @testable import FirebaseAuth
-
-  // For Sign in with Facebook
+// For Sign in with Facebook
 import FBSDKLoginKit
-  // [START auth_import]
+@testable import FirebaseAuth
+// [START auth_import]
 import FirebaseCore
 import GameKit
-  // For Sign in with Google
-  // [START google_import]
+// For Sign in with Google
+// [START google_import]
 import GoogleSignIn
 import UIKit
 
-  // For Sign in with Apple
+// For Sign in with Apple
 import AuthenticationServices
 import CryptoKit
 
@@ -31,175 +31,174 @@ private let kFacebookAppID = "ENTER APP ID HERE"
 private let kContinueUrl = "Enter URL"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
-    // var tableView: UITableView { view as! UITableView }
   var dataSourceProvider: DataSourceProvider<AuthMenuData>!
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
   var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
   var actionCodeContinueURL: URL?
   var actionCodeRequestType: ActionCodeRequestType = .inApp
-  
+
   let spinner = UIActivityIndicatorView(style: .medium)
   var tableView: UITableView { view as! UITableView }
-  
+
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
   }
-  
+
   override func viewDidLoad() {
     super.viewDidLoad()
     configureNavigationBar()
     configureDataSourceProvider()
   }
-  
+
   private func showSpinner() {
     spinner.center = view.center
     spinner.startAnimating()
     view.addSubview(spinner)
   }
-  
+
   private func hideSpinner() {
     spinner.stopAnimating()
     spinner.removeFromSuperview()
   }
-  
+
   private func actionCodeSettings() -> ActionCodeSettings {
     let settings = ActionCodeSettings()
     settings.url = actionCodeContinueURL
     settings.handleCodeInApp = (actionCodeRequestType == .inApp)
     return settings
   }
-  
-    // MARK: - DataSourceProviderDelegate
-  
+
+  // MARK: - DataSourceProviderDelegate
+
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
-    
-    let providerName = item.title!
-    
+
+    let providerName = item.isEditable ? item.detailTitle! : item.title!
+
     guard let provider = AuthMenu(rawValue: providerName) else {
-        // The row tapped has no affiliated action.
+      // The row tapped has no affiliated action.
       return
     }
-    
+
     switch provider {
     case .settings:
       performSettings()
-      
+
     case .google:
       performGoogleSignInFlow()
-      
+
     case .apple:
       performAppleSignInFlow()
-      
+
     case .facebook:
       performFacebookSignInFlow()
-      
+
     case .twitter, .microsoft, .gitHub, .yahoo:
       performOAuthLoginFlow(for: provider)
-      
+
     case .gameCenter:
       performGameCenterLoginFlow()
-      
+
     case .emailPassword:
       performDemoEmailPasswordLoginFlow()
-      
+
     case .passwordless:
       performPasswordlessLoginFlow()
-      
+
     case .phoneNumber:
       performPhoneNumberLoginFlow()
-      
+
     case .anonymous:
       performAnonymousLoginFlow()
-      
+
     case .custom:
       performCustomAuthLoginFlow()
-      
+
     case .initRecaptcha:
       performInitRecaptcha()
-      
+
     case .customAuthDomain:
       performCustomAuthDomainFlow()
-      
+
     case .getToken:
       getUserTokenResult(force: false)
-      
+
     case .getTokenForceRefresh:
       getUserTokenResult(force: true)
-      
+
     case .addAuthStateChangeListener:
       addAuthStateListener()
-      
+
     case .removeLastAuthStateChangeListener:
       removeAuthStateListener()
-      
+
     case .addIdTokenChangeListener:
       addIDTokenListener()
-      
+
     case .removeLastIdTokenChangeListener:
       removeIDTokenListener()
-      
+
     case .verifyClient:
       verifyClient()
-      
+
     case .deleteApp:
       deleteApp()
-      
+
     case .actionType:
       toggleActionCodeRequestType(at: indexPath)
-      
+
     case .continueURL:
       changeActionCodeContinueURL(at: indexPath)
-      
+
     case .requestVerifyEmail:
       requestVerifyEmail()
-      
+
     case .requestPasswordReset:
       requestPasswordReset()
-      
+
     case .resetPassword:
       resetPassword()
-      
+
     case .checkActionCode:
       checkActionCode()
-      
+
     case .applyActionCode:
       applyActionCode()
-      
+
     case .verifyPasswordResetCode:
       verifyPasswordResetCode()
   }
-  
-    // MARK: - Firebase 🔥
-  
+
+  // MARK: - Firebase 🔥
+
   private func performSettings() {
     let settingsController = SettingsViewController()
     navigationController?.pushViewController(settingsController, animated: true)
   }
-  
+
   private func performGoogleSignInFlow() {
-      // [START headless_google_auth]
+    // [START headless_google_auth]
     guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-    
-      // Create Google Sign In configuration object.
-      // [START_EXCLUDE silent]
-      // TODO: Move configuration to Info.plist
-      // [END_EXCLUDE]
+
+    // Create Google Sign In configuration object.
+    // [START_EXCLUDE silent]
+    // TODO: Move configuration to Info.plist
+    // [END_EXCLUDE]
     let config = GIDConfiguration(clientID: clientID)
     GIDSignIn.sharedInstance.configuration = config
-    
-      // Start the sign in flow!
+
+    // Start the sign in flow!
     GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] result, error in
       guard error == nil else {
-          // [START_EXCLUDE]
+        // [START_EXCLUDE]
         return displayError(error)
-          // [END_EXCLUDE]
+        // [END_EXCLUDE]
       }
-      
+
       guard let user = result?.user,
             let idToken = user.idToken?.tokenString
       else {
-          // [START_EXCLUDE]
+        // [START_EXCLUDE]
         let error = NSError(
           domain: "GIDSignInError",
           code: -1,
@@ -208,38 +207,38 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
           ]
         )
         return displayError(error)
-          // [END_EXCLUDE]
+        // [END_EXCLUDE]
       }
-      
+
       let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                      accessToken: user.accessToken.tokenString)
-      
-        // [START_EXCLUDE]
+
+      // [START_EXCLUDE]
       signIn(with: credential)
-        // [END_EXCLUDE]
+      // [END_EXCLUDE]
     }
-      // [END headless_google_auth]
+    // [END headless_google_auth]
   }
-  
+
   func signIn(with credential: AuthCredential) {
-      // [START signin_google_credential]
+    // [START signin_google_credential]
     AppManager.shared.auth().signIn(with: credential) { result, error in
-        // [START_EXCLUDE silent]
+      // [START_EXCLUDE silent]
       guard error == nil else { return self.displayError(error) }
-        // [END_EXCLUDE]
-      
-        // At this point, our user is signed in
-        // [START_EXCLUDE silent]
-        // so we advance to the User View Controller
+      // [END_EXCLUDE]
+
+      // At this point, our user is signed in
+      // [START_EXCLUDE silent]
+      // so we advance to the User View Controller
       self.transitionToUserViewController()
-        // [END_EXCLUDE]
+      // [END_EXCLUDE]
     }
-      // [END signin_google_credential]
+    // [END signin_google_credential]
   }
-  
-    // For Sign in with Apple
+
+  // For Sign in with Apple
   var currentNonce: String?
-  
+
   private func performAppleSignInFlow() {
     do {
       let nonce = try CryptoUtils.randomNonceString()
@@ -248,23 +247,23 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       let request = appleIDProvider.createRequest()
       request.requestedScopes = [.fullName, .email]
       request.nonce = CryptoUtils.sha256(nonce)
-      
+
       let authorizationController = ASAuthorizationController(authorizationRequests: [request])
       authorizationController.delegate = self
       authorizationController.presentationContextProvider = self
       authorizationController.performRequests()
     } catch {
-        // In the unlikely case that nonce generation fails, show error view.
+      // In the unlikely case that nonce generation fails, show error view.
       displayError(error)
     }
   }
-  
+
   private func performFacebookSignInFlow() {
-      // The following config can also be stored in the project's .plist
+    // The following config can also be stored in the project's .plist
     Settings.shared.appID = kFacebookAppID
     Settings.shared.displayName = "AuthenticationExample"
-    
-      // Create a Facebook `LoginManager` instance
+
+    // Create a Facebook `LoginManager` instance
     let loginManager = LoginManager()
     loginManager.logIn(permissions: ["email"], from: self) { result, error in
       guard error == nil else { return self.displayError(error) }
@@ -273,10 +272,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       self.signin(with: credential)
     }
   }
-  
-    // Maintain a strong reference to an OAuthProvider for login
+
+  // Maintain a strong reference to an OAuthProvider for login
   private var oauthProvider: OAuthProvider!
-  
+
   private func performOAuthLoginFlow(for provider: AuthMenu) {
     oauthProvider = OAuthProvider(providerID: provider.id)
     oauthProvider.getCredentialWith(nil) { credential, error in
@@ -285,85 +284,85 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       self.signin(with: credential)
     }
   }
-  
+
   private func performGameCenterLoginFlow() {
-      // Step 1: System Game Center Login
+    // Step 1: System Game Center Login
     GKLocalPlayer.local.authenticateHandler = { viewController, error in
       if let error = error {
-          // Handle Game Center login error
+        // Handle Game Center login error
         print("Error logging into Game Center: \(error.localizedDescription)")
       } else if let authViewController = viewController {
-          // Present Game Center login UI if needed
+        // Present Game Center login UI if needed
         self.present(authViewController, animated: true)
       } else {
-          // Game Center login successful, proceed to Firebase
+        // Game Center login successful, proceed to Firebase
         self.linkGameCenterToFirebase()
       }
     }
   }
-  
-    // Step 2: Link to Firebase
+
+  // Step 2: Link to Firebase
   private func linkGameCenterToFirebase() {
     GameCenterAuthProvider.getCredential { credential, error in
       if let error = error {
-          // Handle Firebase credential retrieval error
+        // Handle Firebase credential retrieval error
         print("Error getting Game Center credential: \(error.localizedDescription)")
       } else if let credential = credential {
         Auth.auth().signIn(with: credential) { authResult, error in
           if let error = error {
-              // Handle Firebase sign-in error
+            // Handle Firebase sign-in error
             print("Error signing into Firebase with Game Center: \(error.localizedDescription)")
           } else {
-              // Firebase sign-in successful
+            // Firebase sign-in successful
             print("Successfully linked Game Center to Firebase")
           }
         }
       }
     }
   }
-  
+
   private func performDemoEmailPasswordLoginFlow() {
     let loginController = LoginController()
     loginController.delegate = self
     navigationController?.pushViewController(loginController, animated: true)
   }
-  
+
   private func performPasswordlessLoginFlow() {
     let passwordlessViewController = PasswordlessViewController()
     passwordlessViewController.delegate = self
     let navPasswordlessAuthController =
-    UINavigationController(rootViewController: passwordlessViewController)
+      UINavigationController(rootViewController: passwordlessViewController)
     navigationController?.present(navPasswordlessAuthController, animated: true)
   }
-  
+
   private func performPhoneNumberLoginFlow() {
     let phoneAuthViewController = PhoneAuthViewController()
     phoneAuthViewController.delegate = self
     let navPhoneAuthController = UINavigationController(rootViewController: phoneAuthViewController)
     navigationController?.present(navPhoneAuthController, animated: true)
   }
-  
+
   private func performAnonymousLoginFlow() {
     AppManager.shared.auth().signInAnonymously { result, error in
       guard error == nil else { return self.displayError(error) }
       self.transitionToUserViewController()
     }
   }
-  
+
   private func performCustomAuthLoginFlow() {
     let customAuthController = CustomAuthViewController()
     customAuthController.delegate = self
     let navCustomAuthController = UINavigationController(rootViewController: customAuthController)
     navigationController?.present(navCustomAuthController, animated: true)
   }
-  
+
   private func signin(with credential: AuthCredential) {
     AppManager.shared.auth().signIn(with: credential) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.transitionToUserViewController()
     }
   }
-  
+
   private func performInitRecaptcha() {
     Task {
       do {
@@ -374,25 +373,25 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-  
+
   private func performCustomAuthDomainFlow() {
     showTextInputPrompt(with: "Enter Custom Auth Domain For Auth: ", completion: { newDomain in
       AppManager.shared.auth().customAuthDomain = newDomain
     })
   }
-  
+
   private func getUserTokenResult(force: Bool) {
     guard let currentUser = Auth.auth().currentUser else {
       print("Error: No user logged in")
       return
     }
-    
+
     currentUser.getIDTokenResult(forcingRefresh: force, completion: { tokenResult, error in
       if error != nil {
         print("Error: Error refreshing token")
         return // Handle error case, returning early
       }
-      
+
       if let tokenResult = tokenResult, let claims = tokenResult.claims as? [String: Any] {
         var message = "Token refresh succeeded\n\n"
         for (key, value) in claims {
@@ -404,7 +403,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     })
   }
-  
+
   private func addAuthStateListener() {
     weak var weakSelf = self
     let index = authStateDidChangeListeners.count
@@ -415,7 +414,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
     authStateDidChangeListeners.append(handle)
   }
-  
+
   private func removeAuthStateListener() {
     guard !authStateDidChangeListeners.isEmpty else {
       print("No remaining Auth State Did Change Listeners.")
@@ -427,7 +426,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     authStateDidChangeListeners.removeLast()
     print("Auth State Did Change Listener #\(index) was removed.")
   }
-  
+
   private func addIDTokenListener() {
     weak var weakSelf = self
     let index = IDTokenDidChangeListeners.count
@@ -438,7 +437,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
     IDTokenDidChangeListeners.append(handle)
   }
-  
+
   private func removeIDTokenListener() {
     guard !IDTokenDidChangeListeners.isEmpty else {
       print("No remaining ID Token Did Change Listeners.")
@@ -450,7 +449,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     IDTokenDidChangeListeners.removeLast()
     print("ID Token Did Change Listener #\(index) was removed.")
   }
-  
+
   private func verifyClient() {
     AppManager.shared.auth().tokenManager.getTokenInternal { token, error in
       if token == nil {
@@ -462,17 +461,17 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         isSandbox: token?.type == .sandbox,
         requestConfiguration: AppManager.shared.auth().requestConfiguration
       )
-      
+
       Task {
         do {
           let verifyResponse = try await AuthBackend.call(with: request)
-          
+
           guard let receipt = verifyResponse.receipt,
                 let timeoutDate = verifyResponse.suggestedTimeOutDate else {
             print("Internal Auth Error: invalid VerifyClientResponse.")
             return
           }
-          
+
           let timeout = timeoutDate.timeIntervalSinceNow
           do {
             let credential = await AppManager.shared.auth().appCredentialManager
@@ -480,19 +479,19 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
                 withReceipt: receipt,
                 timeout: timeout
               )
-            
+
             guard credential.secret != nil else {
               print("Failed to receive remote notification to verify App ID.")
               return
             }
-            
+
             let testPhoneNumber = "+16509964692"
             let request = SendVerificationCodeRequest(
               phoneNumber: testPhoneNumber,
               codeIdentity: CodeIdentity.credential(credential),
               requestConfiguration: AppManager.shared.auth().requestConfiguration
             )
-            
+
             do {
               _ = try await AuthBackend.call(with: request)
               print("Verify iOS client succeeded")
@@ -506,7 +505,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-  
+
   private func deleteApp() {
     AppManager.shared.app.delete { success in
       if success {
@@ -516,7 +515,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-  
+
   private func toggleActionCodeRequestType(at indexPath: IndexPath) {
     switch actionCodeRequestType {
     case .inApp:
@@ -532,7 +531,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     )
     tableView.reloadData()
   }
-  
+
   private func changeActionCodeContinueURL(at indexPath: IndexPath) {
     showTextInputPrompt(with: "Continue URL:", completion: { newContinueURL in
       self.actionCodeContinueURL = URL(string: newContinueURL)
@@ -548,13 +547,13 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       self.tableView.reloadData()
     })
   }
-  
+
   private func requestVerifyEmail() {
     showSpinner()
     let completionHandler: (Error?) -> Void = { [weak self] error in
       guard let self = self else { return }
       self.hideSpinner()
-      
+
       if let error = error {
         let errorMessage = "Error sending verification email: \(error.localizedDescription)"
         showAlert(for: errorMessage)
@@ -578,7 +577,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       )
     }
   }
-  
+
   func requestPasswordReset() {
     showTextInputPrompt(with: "Email:", completion: { email in
       print("Sending password reset link to: \(email)")
@@ -609,7 +608,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     })
   }
-  
+
   private func resetPassword() {
     showSpinner()
     let completionHandler: (Error?) -> Void = { [weak self] error in
@@ -635,7 +634,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-  
+
   private func nameForActionCodeOperation(_ operation: ActionCodeOperation) -> String {
     switch operation {
     case .verifyEmail:
@@ -654,7 +653,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       return "Unknown action"
     }
   }
-  
+
   private func checkActionCode() {
     showSpinner()
     let completionHandler: (ActionCodeInfo?, Error?) -> Void = { [weak self] info, error in
@@ -678,7 +677,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.auth().checkActionCode(oobCode, completion: completionHandler)
     }
   }
-  
+
   private func applyActionCode() {
     showSpinner()
     let completionHandler: (Error?) -> Void = { [weak self] error in
@@ -697,7 +696,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.auth().applyActionCode(oobCode, completion: completionHandler)
     }
   }
-  
+
   private func verifyPasswordResetCode() {
     showSpinner()
     let completionHandler: (String?, Error?) -> Void = { [weak self] email, error in
@@ -716,9 +715,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.auth().verifyPasswordResetCode(oobCode, completion: completionHandler)
     }
   }
-  
-    // MARK: - Private Helpers
-  
+
+  // MARK: - Private Helpers
+
   private func showTextInputPrompt(with message: String, completion: ((String) -> Void)? = nil) {
     let editController = UIAlertController(
       title: message,
@@ -726,48 +725,48 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       preferredStyle: .alert
     )
     editController.addTextField()
-    
+
     let saveHandler: (UIAlertAction) -> Void = { _ in
       let text = editController.textFields?.first?.text ?? ""
       completion?(text)
         // completion?()
     }
-    
+
     let cancelHandler: (UIAlertAction) -> Void = { _ in
       completion?("")
         // completion?()
     }
-    
+
     editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler))
     editController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: cancelHandler))
-    
+
       // Assuming `self` is a view controller
     present(editController, animated: true, completion: nil)
   }
-  
+
   private func showQRCodePromptWithTextInput(with message: String, url: String, completion: ((String) -> Void)? = nil) {
       // Create a UIAlertController
     let alertController = UIAlertController(title: "QR Code Prompt", message: message, preferredStyle: .alert)
-    
+
       // Add a text field for input
     alertController.addTextField { (textField) in
       textField.placeholder = "Enter text"
     }
-    
+
       // Create a UIImage from the URL
     guard let image = generateQRCode(from: url) else {
       print("Failed to generate QR code")
       return
     }
-    
+
       // Create an image view to display the QR code
     let imageView = UIImageView(image: image)
     imageView.contentMode = .scaleAspectFit
     imageView.translatesAutoresizingMaskIntoConstraints = false
-    
+
       // Add the image view to the alert controller
     alertController.view.addSubview(imageView)
-    
+
       // Add constraints to position the image view
     NSLayoutConstraint.activate([
       imageView.topAnchor.constraint(equalTo: alertController.view.topAnchor, constant: 20),
@@ -775,7 +774,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       imageView.widthAnchor.constraint(equalToConstant: 200),
       imageView.heightAnchor.constraint(equalToConstant: 200)
     ])
-    
+
       // Add actions
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
     let submitAction = UIAlertAction(title: "Submit", style: .default) { (_) in
@@ -783,30 +782,30 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         completion?(text)
       }
     }
-    
+
     alertController.addAction(cancelAction)
     alertController.addAction(submitAction)
-    
+
       // Present the alert controller
     UIApplication.shared.windows.first?.rootViewController?.present(alertController, animated: true, completion: nil)
   }
-  
+
     // Function to generate QR code from a string
   private func generateQRCode(from string: String) -> UIImage? {
     let data = string.data(using: String.Encoding.ascii)
-    
+
     if let filter = CIFilter(name: "CIQRCodeGenerator") {
       filter.setValue(data, forKey: "inputMessage")
       let transform = CGAffineTransform(scaleX: 10, y: 10)
-      
+
       if let output = filter.outputImage?.transformed(by: transform) {
         return UIImage(ciImage: output)
       }
     }
-    
+
     return nil
   }
-  
+
   func showAlert(for message: String) {
     let alertController = UIAlertController(
       title: message,
@@ -815,7 +814,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     )
     alertController.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default))
   }
-  
+
   private func configureDataSourceProvider() {
     dataSourceProvider = DataSourceProvider(
       dataSource: AuthMenuData.sections,
@@ -823,7 +822,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     )
     dataSourceProvider.delegate = self
   }
-  
+
   private func configureNavigationBar() {
     navigationItem.title = "Firebase Auth"
     guard let navigationBar = navigationController?.navigationBar else { return }
@@ -831,9 +830,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     navigationBar.titleTextAttributes = [.foregroundColor: UIColor.systemOrange]
     navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.systemOrange]
   }
-  
+
   private func transitionToUserViewController() {
-      // UserViewController is at index 1 in the tabBarController.viewControllers array
+    // UserViewController is at index 1 in the tabBarController.viewControllers array
     tabBarController?.transitionToViewController(atIndex: 1)
   }
 }
@@ -843,15 +842,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 extension AuthViewController: LoginDelegate {
   public func loginDidOccur() {
     transitionToUserViewController()
-    }
+  }
 }
 
 // MARK: - Implementing Sign in with Apple with Firebase
 
 extension AuthViewController: ASAuthorizationControllerDelegate,
-                              ASAuthorizationControllerPresentationContextProviding {
+  ASAuthorizationControllerPresentationContextProviding {
   // MARK: ASAuthorizationControllerDelegate
-  
+
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithAuthorization authorization: ASAuthorization) {
     guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential
@@ -859,11 +858,11 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
       print("Unable to retrieve AppleIDCredential")
       return
     }
-    
+
     guard let nonce = currentNonce else {
       fatalError("Invalid state: A login callback was received, but no login request was sent.")
     }
-    
+
     guard let appleIDToken = appleIDCredential.identityToken else {
       print("Unable to fetch identity token")
       return
@@ -876,39 +875,39 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
       print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
       return
     }
-    
+
     guard let _ = String(data: appleAuthCode, encoding: .utf8) else {
       print("Unable to serialize auth code string from data: \(appleAuthCode.debugDescription)")
       return
     }
-    
-      // use this call to create the authentication credential and set the user's full name
+
+    // use this call to create the authentication credential and set the user's full name
     let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
                                                    rawNonce: nonce,
                                                    fullName: appleIDCredential.fullName)
-    
+
     AppManager.shared.auth().signIn(with: credential) { result, error in
-        // Error. If error.code == .MissingOrInvalidNonce, make sure
-        // you're sending the SHA256-hashed nonce as a hex string with
-        // your request to Apple.
+      // Error. If error.code == .MissingOrInvalidNonce, make sure
+      // you're sending the SHA256-hashed nonce as a hex string with
+      // your request to Apple.
       guard error == nil else { return self.displayError(error) }
-      
-        // At this point, our user is signed in
-        // so we advance to the User View Controller
+
+      // At this point, our user is signed in
+      // so we advance to the User View Controller
       self.transitionToUserViewController()
     }
   }
-  
+
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithError error: Error) {
-      // Ensure that you have:
-      //  - enabled `Sign in with Apple` on the Firebase console
-      //  - added the `Sign in with Apple` capability for this project
+    // Ensure that you have:
+    //  - enabled `Sign in with Apple` on the Firebase console
+    //  - added the `Sign in with Apple` capability for this project
     print("Sign in with Apple failed: \(error)")
   }
-  
-    // MARK: ASAuthorizationControllerPresentationContextProviding
-  
+
+  // MARK: ASAuthorizationControllerPresentationContextProviding
+
   func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
     return view.window!
   }
