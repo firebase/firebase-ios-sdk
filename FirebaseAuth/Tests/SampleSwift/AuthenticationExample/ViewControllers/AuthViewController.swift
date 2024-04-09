@@ -31,7 +31,6 @@ private let kFacebookAppID = "ENTER APP ID HERE"
 private let kContinueUrl = "Enter URL"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
-  // var tableView: UITableView { view as! UITableView }
   var dataSourceProvider: DataSourceProvider<AuthMenuData>!
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
   var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
