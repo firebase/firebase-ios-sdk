@@ -48,11 +48,11 @@ enum AuthMenu: String {
   case checkActionCode
   case applyActionCode
   case verifyPasswordResetCode
-  
-    // More intuitively named getter for `rawValue`.
+
+  // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
-  
-    // The UI friendly name of the `AuthMenu`. Used for display.
+
+  // The UI friendly name of the `AuthMenu`. Used for display.
   var name: String {
     switch self {
     case .settings:
@@ -201,7 +201,7 @@ enum ActionCodeRequestType: String {
   case email
   case `continue`
   case inApp
-  
+
   var name: String {
     switch self {
     case .email:
@@ -212,7 +212,7 @@ enum ActionCodeRequestType: String {
       return "Continue URL"
     }
   }
-  
+
   init?(rawValue: String) {
     switch rawValue {
     case "Email Only":
@@ -232,34 +232,34 @@ enum ActionCodeRequestType: String {
 class AuthMenuData: DataSourceProvidable {
   private static var providers: [AuthMenu] {
     [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook, .gameCenter]
-    }
-  
+  }
+
   static var settingsSection: Section {
     let header = "Auth Settings"
     let item = Item(title: AuthMenu.settings.name, hasNestedContent: true)
     return Section(headerDescription: header, items: [item])
   }
-  
+
   static var providerSection: Section {
     let providers = self.providers.map { Item(title: $0.name) }
     let header = "Identity Providers"
     let footer = "Choose a login flow from one of the identity providers above."
     return Section(headerDescription: header, footerDescription: footer, items: providers)
   }
-  
+
   static var emailPasswordSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Email and Password Login"
     let item = Item(title: AuthMenu.emailPassword.name, hasNestedContent: true, image: image)
     return Section(headerDescription: header, items: [item])
   }
-  
+
   static var otherSection: Section {
     let lockSymbol = UIImage.systemImage("lock.slash.fill", tintColor: .systemOrange)
     let phoneSymbol = UIImage.systemImage("phone.fill", tintColor: .systemOrange)
     let anonSymbol = UIImage.systemImage("questionmark.circle.fill", tintColor: .systemOrange)
     let shieldSymbol = UIImage.systemImage("lock.shield.fill", tintColor: .systemOrange)
-    
+
     let otherOptions = [
       Item(title: AuthMenu.passwordless.name, image: lockSymbol),
       Item(title: AuthMenu.phoneNumber.name, image: phoneSymbol),
@@ -269,21 +269,21 @@ class AuthMenuData: DataSourceProvidable {
     let header = "Other Authentication Methods"
     return Section(headerDescription: header, items: otherOptions)
   }
-  
+
   static var recaptchaSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Initialize reCAPTCHA Enterprise"
     let item = Item(title: AuthMenu.initRecaptcha.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
-  
+
   static var customAuthDomainSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Custom Auth Domain"
     let item = Item(title: AuthMenu.customAuthDomain.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
-  
+
   static var appSection: Section {
     let header = "APP"
     let items: [Item] = [
@@ -298,7 +298,7 @@ class AuthMenuData: DataSourceProvidable {
     ]
     return Section(headerDescription: header, items: items)
   }
-  
+
   static var oobSection: Section {
     let header = "OOB"
     let items: [Item] = [
@@ -313,18 +313,18 @@ class AuthMenuData: DataSourceProvidable {
     ]
     return Section(headerDescription: header, items: items)
   }
-  
+
   static var sections: [Section] =
-  [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-   customAuthDomainSection, appSection, oobSection]
-  
+    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
+     customAuthDomainSection, appSection, oobSection]
+
   static var authLinkSections: [Section] {
     let allItems = AuthMenuData.sections.flatMap { $0.items }
     let header = "Manage linking between providers"
     let footer =
-    "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
+      "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
     return [Section(headerDescription: header, footerDescription: footer, items: allItems)]
   }
-  
+
   var sections: [Section] = AuthMenuData.sections
 }
