@@ -14,191 +14,119 @@
 
 import Foundation
 
-/** @class FIRVerifyAssertionResponse
- @brief Represents the response from the verifyAssertion endpoint.
- @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
- */
+/// Represents the response from the verifyAssertion endpoint.
+/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
 class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
-  /** @property federatedID
-   @brief The unique ID identifies the IdP account.
-   */
+  /// The unique ID identifies the IdP account.
   var federatedID: String?
 
-  /** @property providerID
-   @brief The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
-   live.net and yahoo.com. If the "providerId" param is set to OpenID OP identifer other than
-   the whilte listed IdPs the OP identifier is returned. If the "identifier" param is federated
-   ID in the createAuthUri request. The domain part of the federated ID is returned.
-   */
+  /// The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
+  /// live.net and yahoo.com.If the "providerId" param is set to OpenID OP identifer other than
+  /// the white listed IdPs the OP identifier is returned.If the "identifier" param is federated
+  /// ID in the createAuthUri request.The domain part of the federated ID is returned.
   var providerID: String?
 
-  /** @property localID
-   @brief The RP local ID if it's already been mapped to the IdP account identified by the
-   federated ID.
-   */
+  /// The RP local ID if it's already been mapped to the IdP account identified by the federated ID.
   var localID: String?
 
-  /** @property email
-   @brief The email returned by the IdP. NOTE: The federated login user may not own the email.
-   */
+  /// The email returned by the IdP. NOTE: The federated login user may not own the email.
   var email: String?
 
-  /** @property inputEmail
-   @brief It's the identifier param in the createAuthUri request if the identifier is an email. It
-   can be used to check whether the user input email is different from the asserted email.
-   */
+  /// It's the identifier param in the createAuthUri request if the identifier is an email. It
+  /// can be used to check whether the user input email is different from the asserted email.
   var inputEmail: String?
 
-  /** @property originalEmail
-   @brief The original email stored in the mapping storage. It's returned when the federated ID is
-   associated to a different email.
-   */
+  /// The original email stored in the mapping storage. It's returned when the federated ID is
+  /// associated to a different email.
   var originalEmail: String?
 
-  /** @property oauthRequestToken
-   @brief The user approved request token for the OpenID OAuth extension.
-   */
+  /// The user approved request token for the OpenID OAuth extension.
   var oauthRequestToken: String?
 
-  /** @property oauthScope
-   @brief The scope for the OpenID OAuth extension.
-   */
+  /// The scope for the OpenID OAuth extension.
   var oauthScope: String?
 
-  /** @property firstName
-   @brief The first name of the user.
-   */
+  /// The first name of the user.
   var firstName: String?
 
-  /** @property lastName
-   @brief The last name of the user.
-   */
+  /// The last name of the user.
   var lastName: String?
 
-  /** @property fullName
-   @brief The full name of the user.
-   */
+  /// The full name of the user.
   var fullName: String?
 
-  /** @property nickName
-   @brief The nick name of the user.
-   */
+  /// The nickname of the user.
   var nickName: String?
 
-  /** @property displayName
-   @brief The display name of the user.
-   */
+  /// The display name of the user.
   var displayName: String?
 
-  /** @property idToken
-   @brief Either an authorization code suitable for performing an STS token exchange, or the
-   access token from Secure Token Service, depending on whether @c returnSecureToken is set
-   on the request.
-   */
+  /// Either an authorization code suitable for performing an STS token exchange, or the
+  /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
+  /// on the request.
   private(set) var idToken: String?
 
-  /** @property approximateExpirationDate
-   @brief The approximate expiration date of the access token.
-   */
+  /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?
 
-  /** @property refreshToken
-   @brief The refresh token from Secure Token Service.
-   */
+  /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
-  /** @property action
-   @brief The action code.
-   */
+  /// The action code.
   var action: String?
 
-  /** @property language
-   @brief The language preference of the user.
-   */
+  /// The language preference of the user.
   var language: String?
 
-  /** @property timeZone
-   @brief The timezone of the user.
-   */
+  /// The timezone of the user.
   var timeZone: String?
 
-  /** @property photoURL
-   @brief The URI of the accessible profile picture.
-   */
+  /// The URI of the accessible profile picture.
   var photoURL: URL?
 
-  /** @property dateOfBirth
-   @brief The birth date of the IdP account.
-   */
+  /// The birth date of the IdP account.
   var dateOfBirth: String?
 
-  /** @property context
-   @brief The opaque value used by the client to maintain context info between the authentication
-   request and the IDP callback.
-   */
+  /// The opaque value used by the client to maintain context info between the authentication
+  /// request and the IDP callback.
   var context: String?
 
-  /** @property verifiedProvider
-   @brief When action is 'map', contains the idps which can be used for confirmation.
-   */
+  /// When action is 'map', contains the idps which can be used for confirmation.
   var verifiedProvider: [String]?
 
-  /** @property needConfirmation
-   @brief Whether the assertion is from a non-trusted IDP and need account linking confirmation.
-   */
+  /// Whether the assertion is from a non-trusted IDP and need account linking confirmation.
   var needConfirmation: Bool = false
 
-  /** @property emailRecycled
-   @brief It's true if the email is recycled.
-   */
+  /// It's true if the email is recycled.
   var emailRecycled: Bool = false
 
-  /** @property emailVerified
-   @brief The value is true if the IDP is also the email provider. It means the user owns the
-   email.
-   */
+  /// The value is true if the IDP is also the email provider. It means the user owns the email.
   var emailVerified: Bool = false
 
-  /** @property isNewUser
-   @brief Flag indicating that the user signing in is a new user and not a returning user.
-   */
+  /// Flag indicating that the user signing in is a new user and not a returning user.
   var isNewUser: Bool = false
 
-  /** @property profile
-   @brief Dictionary containing the additional IdP specific information.
-   */
+  /// Dictionary containing the additional IdP specific information.
   var profile: [String: Any]?
 
-  /** @property username
-   @brief The name of the user.
-   */
+  /// The name of the user.
   var username: String?
 
-  /** @property oauthIDToken
-   @brief The ID token for the OpenID OAuth extension.
-   */
+  /// The ID token for the OpenID OAuth extension.
   var oauthIDToken: String?
 
-  /** @property oauthExpirationDate
-   @brief The approximate expiration date of the oauth access token.
-   */
+  /// The approximate expiration date of the oauth access token.
   var oauthExpirationDate: Date?
 
-  /** @property oauthAccessToken
-   @brief The access token for the OpenID OAuth extension.
-   */
+  /// The access token for the OpenID OAuth extension.
   var oauthAccessToken: String?
 
-  /** @property oauthSecretToken
-   @brief The secret for the OpenID OAuth extention.
-   */
+  /// The secret for the OpenID OAuth extention.
   var oauthSecretToken: String?
 
-  /** @property pendingToken
-   @brief The pending ID Token string.
-   */
+  /// The pending ID Token string.
   var pendingToken: String?
 
   // MARK: - AuthMFAResponse

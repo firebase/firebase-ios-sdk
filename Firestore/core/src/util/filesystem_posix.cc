@@ -166,7 +166,6 @@ Status Filesystem::IsDirectory(const Path& path) {
 
   return Status::OK();
 }
-#endif  // !__APPLE__
 
 StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   struct stat st {};
@@ -177,6 +176,7 @@ StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
         errno, StringFormat("Failed to stat file: %s", path.ToUtf8String()));
   }
 }
+#endif  // !__APPLE__
 
 Status Filesystem::CreateDir(const Path& path) {
   if (::mkdir(path.c_str(), 0777)) {

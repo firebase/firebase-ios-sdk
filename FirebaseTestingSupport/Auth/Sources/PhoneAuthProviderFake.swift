@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseAuth/FirebaseAuth.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-typedef void (^FIRVerifyPhoneNumberHandler)(FIRVerificationResultCallback completion);
+@testable import FirebaseAuth
+import Foundation
 
 /// A fake object to replace a real `AuthAPNSTokenManager` in tests.
-NS_SWIFT_NAME(PhoneAuthProviderFake)
-@interface FIRPhoneAuthProviderFake : FIRPhoneAuthProvider
+public class PhoneAuthProviderFake: PhoneAuthProvider {
+  override init(auth: Auth) {
+    super.init(auth: auth)
+  }
 
-- (instancetype)init;
+  var verifyPhoneNumberHandler: (((String?, Error?) -> Void) -> Void)?
 
-/// The block to be called each time when `verifyPhoneNumber(_:uiDelegate:completion:)` method is
-/// called.
-@property(nonatomic, nullable, copy) FIRVerifyPhoneNumberHandler verifyPhoneNumberHandler;
-
-// TODO: Implement other handlers as needed.
-
-@end
-
-NS_ASSUME_NONNULL_END
+  override public func verifyPhoneNumber(_ phoneNumber: String,
+                                         uiDelegate: AuthUIDelegate? = nil,
+                                         completion: ((_: String?, _: Error?) -> Void)?) {
+    if let verifyPhoneNumberHandler,
+       let completion {
+      verifyPhoneNumberHandler(completion)
+    }
+  }
+}

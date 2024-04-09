@@ -241,16 +241,24 @@ extension CarthageUtils {
     } catch {
       fatalError("Couldn't copy dummy library for Firebase framework in Carthage. \(error)")
     }
+
+    // Write the Info.plist.
+    generatePlistContents(forName: "Firebase", withVersion: version, to: frameworkDir)
   }
 
   static func generatePlistContents(forName name: String,
                                     withVersion version: String,
                                     to location: URL) {
     let ver = version.components(separatedBy: "-")[0] // remove any version suffix.
+
+    // TODO(paulb777): Does MinimumOSVersion or anything else need
+    // to be adapted for other platforms?
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
                                    "CFBundleVersion": ver,
+                                   "CFBundleShortVersionString": ver,
+                                   "MinimumOSVersion": Platform.iOS.minimumVersion,
                                    "DTSDKName": "iphonesimulator11.2",
                                    "CFBundleExecutable": name,
                                    "CFBundleName": name]

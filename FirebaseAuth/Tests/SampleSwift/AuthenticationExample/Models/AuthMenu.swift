@@ -249,12 +249,14 @@ enum ActionCodeRequestType: String {
 // MARK: DataSourceProvidable
 
 class AuthMenuData: DataSourceProvidable {
+class AuthMenuData: DataSourceProvidable {
   private static var providers: [AuthMenu] {
     [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook, .gameCenter]
   }
 
   static var settingsSection: Section {
     let header = "Auth Settings"
+    let item = Item(title: AuthMenu.settings.name, hasNestedContent: true)
     let item = Item(title: AuthMenu.settings.name, hasNestedContent: true)
     return Section(headerDescription: header, items: [item])
   }
@@ -270,6 +272,7 @@ class AuthMenuData: DataSourceProvidable {
     let image = UIImage(named: "firebaseIcon")
     let header = "Email and Password Login"
     let item = Item(title: AuthMenu.emailPassword.name, hasNestedContent: true, image: image)
+    let item = Item(title: AuthMenu.emailPassword.name, hasNestedContent: true, image: image)
     return Section(headerDescription: header, items: [item])
   }
 
@@ -284,6 +287,10 @@ class AuthMenuData: DataSourceProvidable {
       Item(title: AuthMenu.phoneNumber.name, image: phoneSymbol),
       Item(title: AuthMenu.anonymous.name, image: anonSymbol),
       Item(title: AuthMenu.custom.name, image: shieldSymbol),
+      Item(title: AuthMenu.passwordless.name, image: lockSymbol),
+      Item(title: AuthMenu.phoneNumber.name, image: phoneSymbol),
+      Item(title: AuthMenu.anonymous.name, image: anonSymbol),
+      Item(title: AuthMenu.custom.name, image: shieldSymbol),
     ]
     let header = "Other Authentication Methods"
     return Section(headerDescription: header, items: otherOptions)
@@ -293,12 +300,14 @@ class AuthMenuData: DataSourceProvidable {
     let image = UIImage(named: "firebaseIcon")
     let header = "Initialize reCAPTCHA Enterprise"
     let item = Item(title: AuthMenu.initRecaptcha.name, hasNestedContent: false, image: image)
+    let item = Item(title: AuthMenu.initRecaptcha.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
 
   static var customAuthDomainSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Custom Auth Domain"
+    let item = Item(title: AuthMenu.customAuthDomain.name, hasNestedContent: false, image: image)
     let item = Item(title: AuthMenu.customAuthDomain.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
@@ -329,10 +338,33 @@ class AuthMenuData: DataSourceProvidable {
       Item(title: AuthMenu.checkActionCode.name),
       Item(title: AuthMenu.applyActionCode.name),
       Item(title: AuthMenu.verifyPasswordResetCode.name),
+      Item(title: AuthMenu.getToken.name),
+      Item(title: AuthMenu.getTokenForceRefresh.name),
+      Item(title: AuthMenu.addAuthStateChangeListener.name),
+      Item(title: AuthMenu.removeLastAuthStateChangeListener.name),
+      Item(title: AuthMenu.addIdTokenChangeListener.name),
+      Item(title: AuthMenu.removeLastIdTokenChangeListener.name),
+      Item(title: AuthMenu.verifyClient.name),
+      Item(title: AuthMenu.deleteApp.name),
     ]
     return Section(headerDescription: header, items: items)
   }
-  
+
+  static var oobSection: Section {
+    let header = "OOB"
+    let items: [Item] = [
+      Item(title: AuthMenu.actionType.name, detailTitle: ActionCodeRequestType.inApp.name),
+      Item(title: AuthMenu.continueURL.name, detailTitle: "--", isEditable: true),
+      Item(title: AuthMenu.requestVerifyEmail.name),
+      Item(title: AuthMenu.requestPasswordReset.name),
+      Item(title: AuthMenu.resetPassword.name),
+      Item(title: AuthMenu.checkActionCode.name),
+      Item(title: AuthMenu.applyActionCode.name),
+      Item(title: AuthMenu.verifyPasswordResetCode.name),
+    ]
+    return Section(headerDescription: header, items: items)
+  }
+
   static var multifactorSection: Section {
     let header = "Multi Factor"
     let items: [Item] = [
@@ -349,11 +381,13 @@ class AuthMenuData: DataSourceProvidable {
 
   static var authLinkSections: [Section] {
     let allItems = AuthMenuData.sections.flatMap { $0.items }
+    let allItems = AuthMenuData.sections.flatMap { $0.items }
     let header = "Manage linking between providers"
     let footer =
       "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
     return [Section(headerDescription: header, footerDescription: footer, items: allItems)]
   }
 
+  var sections: [Section] = AuthMenuData.sections
   var sections: [Section] = AuthMenuData.sections
 }

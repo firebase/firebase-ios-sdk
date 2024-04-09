@@ -82,9 +82,12 @@ import FirebaseCoreExtension
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension Auth: AuthInterop {
+  /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+  ///
+  /// This method is not for public use. It is for Firebase clients of AuthInterop.
   @objc(getTokenForcingRefresh:withCallback:)
-  open func getToken(forcingRefresh forceRefresh: Bool,
-                     completion callback: @escaping (String?, Error?) -> Void) {
+  public func getToken(forcingRefresh forceRefresh: Bool,
+                       completion callback: @escaping (String?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async { [weak self] in
       if let strongSelf = self {
         // Enable token auto-refresh if not already enabled.
@@ -134,22 +137,22 @@ extension Auth: AuthInterop {
     }
   }
 
+  /// Get the current Auth user's UID. Returns nil if there is no user signed in.
+  ///
+  /// This method is not for public use. It is for Firebase clients of AuthInterop.
   open func getUserID() -> String? {
     return currentUser?.uid
   }
 }
 
-/** @class Auth
-    @brief Manages authentication for Firebase apps.
-    @remarks This class is thread-safe.
- */
+/// Manages authentication for Firebase apps.
+///
+/// This class is thread-safe.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuth) open class Auth: NSObject {
-  /** @fn auth
-   @brief Gets the auth object for the default Firebase app.
-   @remarks The default Firebase app must have already been configured or an exception will be
-   raised.
-   */
+  /// Gets the auth object for the default Firebase app.
+  ///
+  /// The default Firebase app must have already been configured or an exception will be raised.
   @objc open class func auth() -> Auth {
     guard let defaultApp = FirebaseApp.app() else {
       fatalError("The default FirebaseApp instance must be configured before the default Auth " +
@@ -161,32 +164,25 @@ extension Auth: AuthInterop {
     return auth(app: defaultApp)
   }
 
-  /** @fn authWithApp:
-   @brief Gets the auth object for a `FirebaseApp`.
-
-   @param app The app for which to retrieve the associated `Auth` instance.
-   @return The `Auth` instance associated with the given app.
-   */
+  /// Gets the auth object for a `FirebaseApp`.
+  /// - Parameter app: The app for which to retrieve the associated `Auth` instance.
+  /// - Returns: The `Auth` instance associated with the given app.
   @objc open class func auth(app: FirebaseApp) -> Auth {
-    return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container).auth()
+    return ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container) as! Auth
   }
 
-  /** @property app
-   @brief Gets the `FirebaseApp` object that this auth object is connected to.
-   */
+  /// Gets the `FirebaseApp` object that this auth object is connected to.
   @objc public internal(set) weak var app: FirebaseApp?
 
-  /** @property currentUser
-   @brief Synchronously gets the cached current user, or null if there is none.
-   */
+  /// Synchronously gets the cached current user, or null if there is none.
   @objc public internal(set) var currentUser: User?
 
-  /** @property languageCode
-   @brief The current user language code. This property can be set to the app's current language by
-   calling `useAppLanguage()`.
-
-   @remarks The string used to set this property must be a language code that follows BCP 47.
-   */
+  /// The current user language code.
+  ///
+  /// This property can be set to the app's current language by
+  /// calling `useAppLanguage()`.
+  ///
+  /// The string used to set this property must be a language code that follows BCP 47.
   @objc open var languageCode: String? {
     get {
       kAuthGlobalWorkQueue.sync {
@@ -200,42 +196,34 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @property settings
-   @brief Contains settings related to the auth object.
-   */
+  /// Contains settings related to the auth object.
   @NSCopying @objc open var settings: AuthSettings?
 
-  /** @property userAccessGroup
-   @brief The current user access group that the Auth instance is using. Default is nil.
-   */
+  /// The current user access group that the Auth instance is using.
+  ///
+  /// Default is `nil`.
   @objc public internal(set) var userAccessGroup: String?
 
-  /** @property shareAuthStateAcrossDevices
-   @brief Contains shareAuthStateAcrossDevices setting related to the auth object.
-   @remarks If userAccessGroup is not set, setting shareAuthStateAcrossDevices will
-   have no effect. You should set shareAuthStateAcrossDevices to it's desired
-   state and then set the userAccessGroup after.
-   */
+  /// Contains shareAuthStateAcrossDevices setting related to the auth object.
+  ///
+  /// If userAccessGroup is not set, setting shareAuthStateAcrossDevices will
+  /// have no effect. You should set shareAuthStateAcrossDevices to it's desired
+  /// state and then set the userAccessGroup after.
   @objc open var shareAuthStateAcrossDevices: Bool = false
 
-  /** @property tenantID
-   @brief The tenant ID of the auth instance. nil if none is available.
-   */
+  /// The tenant ID of the auth instance. `nil` if none is available.
   @objc open var tenantID: String?
 
-  /**
-   * @property customAuthDomain
-   * @brief The custom authentication domain used to handle all sign-in redirects. End-users will see
-   * this domain when signing in. This domain must be allowlisted in the Firebase Console.
-   */
+  /// The custom authentication domain used to handle all sign-in redirects.
+  /// End-users will see
+  /// this domain when signing in. This domain must be allowlisted in the Firebase Console.
   @objc open var customAuthDomain: String?
 
-  /** @fn updateCurrentUser:completion:
-   @brief Sets the `currentUser` on the receiver to the provided user object.
-   @param user The user object to be set as the current user of the calling Auth instance.
-   @param completion Optionally; a block invoked after the user of the calling Auth instance has
-   been updated or an error was encountered.
-   */
+  /// Sets the `currentUser` on the receiver to the provided user object.
+  /// - Parameters:
+  ///   - user: The user object to be set as the current user of the calling Auth instance.
+  ///   - completion: Optionally; a block invoked after the user of the calling Auth instance has
+  ///             been updated or an error was encountered.
   @objc open func updateCurrentUser(_ user: User?, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       guard let user else {
@@ -268,12 +256,10 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn updateCurrentUser:completion:
-   @brief Sets the `currentUser` on the receiver to the provided user object.
-   @param user The user object to be set as the current user of the calling Auth instance.
-   @param completion Optionally; a block invoked after the user of the calling Auth instance has
-   been updated or an error was encountered.
-   */
+  /// Sets the `currentUser` on the receiver to the provided user object.
+  /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
+  /// - Parameter completion: Optionally; a block invoked after the user of the calling Auth
+  /// instance has been updated or an error was encountered.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateCurrentUser(_ user: User) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -287,22 +273,18 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn fetchSignInMethodsForEmail:completion:
-   @brief [Deprecated] Fetches the list of all sign-in methods previously used for the provided
-   email address. This method returns an empty list when [Email Enumeration
-   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-   is enabled, irrespective of the number of authentication methods available for the given email.
-   @param email The email address for which to obtain a list of sign-in methods.
-   @param completion Optionally; a block which is invoked when the list of sign in methods for the
-   specified email address is ready or an error was encountered. Invoked asynchronously on the
-   main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-
-   @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
-   */
+  /// [Deprecated] Fetches the list of all sign-in methods previously used for the provided
+  /// email address. This method returns an empty list when [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled, irrespective of the number of authentication methods available for the given
+  /// email.
+  ///
+  /// Possible error codes: `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  ///
+  /// - Parameter email: The email address for which to obtain a list of sign-in methods.
+  /// - Parameter completion: Optionally; a block which is invoked when the list of sign in methods
+  /// for the specified email address is ready or an error was encountered. Invoked asynchronously
+  /// on the main thread in the future.
   @available(
     *,
     deprecated,
@@ -325,19 +307,16 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn fetchSignInMethodsForEmail:completion:
-   @brief [Deprecated] Fetches the list of all sign-in methods previously used for the provided
-   email address. This method returns an empty list when [Email Enumeration
-   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-   is enabled, irrespective of the number of authentication methods available for the given email.
-   @param email The email address for which to obtain a list of sign-in methods.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-
-   @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
-   */
+  /// [Deprecated] Fetches the list of all sign-in methods previously used for the provided
+  /// email address. This method returns an empty list when [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled, irrespective of the number of authentication methods available for the given
+  /// email.
+  ///
+  /// Possible error codes: `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  ///
+  /// - Parameter email: The email address for which to obtain a list of sign-in methods.
+  /// - Returns: List of sign-in methods
   @available(
     *,
     deprecated,
@@ -355,29 +334,25 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithEmail:password:completion:
-   @brief Signs in using an email address and password.  When [Email Enumeration
-   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-   is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
-   email/password.
-
-   @param email The user's email address.
-   @param password The user's password.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeWrongPassword` - Indicates the user attempted
-   sign in with an incorrect password.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Signs in using an email address and password.
+  ///
+  /// When [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled, this method fails with an error in case of an invalid
+  /// email/password.
+  ///
+  /// Possible error codes:
+  ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+  /// accounts are not enabled. Enable them in the Auth section of the
+  /// Firebase console.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+  /// sign in with an incorrect password.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's password.
+  /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          password: String,
                          completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -397,18 +372,23 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithEmail:password:callback:
-   @brief Signs in using an email address and password.  When [Email Enumeration
-   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-   is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
-   email/password.
-   @param email The user's email address.
-   @param password The user's password.
-   @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-   asynchronously on the global auth work queue in the future.
-   @remarks This is the internal counterpart of this method, which uses a callback that does not
-   update the current user.
-   */
+  /// Signs in using an email address and password.
+  ///
+  /// When [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled, this method throws in case of an invalid email/password.
+  ///
+  /// Possible error codes:
+  ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+  /// accounts are not enabled. Enable them in the Auth section of the
+  /// Firebase console.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+  /// sign in with an incorrect password.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's password.
+  /// - Returns: The signed in user.
   func internalSignInUser(withEmail email: String,
                           password: String) async throws -> User {
     let request = VerifyPasswordRequest(email: email,
@@ -431,24 +411,19 @@ extension Auth: AuthInterop {
     )
   }
 
-  /** @fn signInWithEmail:password:completion:
-   @brief Signs in using an email address and password.
-
-   @param email The user's email address.
-   @param password The user's password.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeWrongPassword` - Indicates the user attempted
-   sign in with an incorrect password.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Signs in using an email address and password.
+  ///
+  /// Possible error codes:
+  ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+  /// accounts are not enabled. Enable them in the Auth section of the
+  /// Firebase console.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+  /// sign in with an incorrect password.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's password.
+  ///  - Returns: The `AuthDataResult` after a successful signin.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
@@ -463,24 +438,20 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithEmail:link:completion:
-   @brief Signs in using an email address and email sign-in link.
-
-   @param email The user's email address.
-   @param link The email sign-in link.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and email sign-in link
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is invalid.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Signs in using an email address and email sign-in link.
+  ///
+  /// Possible error codes:
+  ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+  /// accounts are not enabled. Enable them in the Auth section of the
+  /// Firebase console.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+  /// sign in with an incorrect password.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// - Parameter email: The user's email address.
+  /// - Parameter link: The email sign-in link.
+  /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          link: String,
                          completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -499,24 +470,18 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithEmail:link:completion:
-   @brief Signs in using an email address and email sign-in link.
-
-   @param email The user's email address.
-   @param link The email sign-in link.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and email sign-in link
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is invalid.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Signs in using an email address and email sign-in link.
+  /// Possible error codes:
+  ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+  /// accounts are not enabled. Enable them in the Auth section of the
+  /// Firebase console.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+  /// sign in with an incorrect password.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// - Parameter email: The user's email address.
+  /// - Parameter link: The email sign-in link.
+  ///  - Returns: The `AuthDataResult` after a successful signin.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func signIn(withEmail email: String, link: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -531,54 +496,40 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
+    /// Signs in using the provided auth provider instance.
+    ///
+    /// Possible error codes:
+    ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+    /// accounts are not enabled. Enable them in the Auth section of the
+    /// Firebase console.
+    /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+    /// sign in with an incorrect password.
+    /// * `AuthErrorCodeWebNetworkRequestFailed` - Indicates that a network request within a
+    /// SFSafariViewController or WKWebView failed.
+    /// * `AuthErrorCodeWebInternalError` - Indicates that an internal error occurred within a
+    /// SFSafariViewController or WKWebView.
+    /// * `AuthErrorCodeWebSignInUserInteractionFailure` - Indicates a general failure during
+    /// a web sign-in flow.
+    /// * `AuthErrorCodeWebContextAlreadyPresented` - Indicates that an attempt was made to
+    /// present a new web context while one was already being presented.
+    /// * `AuthErrorCodeWebContextCancelled` - Indicates that the URL presentation was
+    /// cancelled prematurely by the user.
+    /// *  `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
+    /// by the credential (e.g. the email in a Facebook access token) is already in use by an
+    /// existing account, that cannot be authenticated with this sign-in method. Call
+    /// fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+    /// the sign-in providers returned. This error will only be thrown if the "One account per
+    /// email address" setting is enabled in the Firebase console, under Auth settings.
+    /// - Parameter provider: An instance of an auth provider used to initiate the sign-in flow.
+    /// - Parameter uiDelegate: Optionally an instance of a class conforming to the AuthUIDelegate
+    /// protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
+    /// will be used.
+    /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
+    /// or is canceled. Invoked asynchronously on the main thread in the future.
     @available(tvOS, unavailable)
     @available(macOS, unavailable)
     @available(watchOS, unavailable)
-    /** @fn signInWithProvider:UIDelegate:completion:
-     @brief Signs in using the provided auth provider instance.
-     This method is available on iOS, macOS Catalyst, and tvOS only.
-
-     @param provider An instance of an auth provider used to initiate the sign-in flow.
-     @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
-     protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
-     will be used.
-     @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-     canceled. Invoked asynchronously on the main thread in the future.
-
-     @remarks Possible error codes:
-     <ul>
-     <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
-     accounts are not enabled. Enable them in the Auth section of the
-     Firebase console.
-     </li>
-     <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
-     </li>
-     <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
-     SFSafariViewController or WKWebView failed.
-     </li>
-     <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
-     SFSafariViewController or WKWebView.
-     </li>
-     <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
-     a web sign-in flow.
-     </li>
-     <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
-     present a new web context while one was already being presented.
-     </li>
-     <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
-     cancelled prematurely by the user.
-     </li>
-     <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
-     by the credential (e.g. the email in a Facebook access token) is already in use by an
-     existing account, that cannot be authenticated with this sign-in method. Call
-     fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-     the sign-in providers returned. This error will only be thrown if the "One account per
-     email address" setting is enabled in the Firebase console, under Auth settings.
-     </li>
-     </ul>
-
-     @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
-     */
     @objc(signInWithProvider:UIDelegate:completion:)
     open func signIn(with provider: FederatedAuthProvider,
                      uiDelegate: AuthUIDelegate?,
@@ -600,49 +551,36 @@ extension Auth: AuthInterop {
       }
     }
 
-    /** @fn signInWithProvider:UIDelegate:completion:
-     @brief Signs in using the provided auth provider instance.
-     This method is available on iOS, macOS Catalyst, and tvOS only.
-
-     @param provider An instance of an auth provider used to initiate the sign-in flow.
-     @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
-     protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
-     will be used.
-
-     @remarks Possible error codes:
-     <ul>
-     <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
-     accounts are not enabled. Enable them in the Auth section of the
-     Firebase console.
-     </li>
-     <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
-     </li>
-     <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
-     SFSafariViewController or WKWebView failed.
-     </li>
-     <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
-     SFSafariViewController or WKWebView.
-     </li>
-     <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
-     a web sign-in flow.
-     </li>
-     <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
-     present a new web context while one was already being presented.
-     </li>
-     <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
-     cancelled prematurely by the user.
-     </li>
-     <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
-     by the credential (e.g. the email in a Facebook access token) is already in use by an
-     existing account, that cannot be authenticated with this sign-in method. Call
-     fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-     the sign-in providers returned. This error will only be thrown if the "One account per
-     email address" setting is enabled in the Firebase console, under Auth settings.
-     </li>
-     </ul>
-
-     @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
-     */
+    /// Signs in using the provided auth provider instance.
+    ///
+    /// Possible error codes:
+    ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+    /// accounts are not enabled. Enable them in the Auth section of the
+    /// Firebase console.
+    /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+    /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted
+    /// sign in with an incorrect password.
+    /// * `AuthErrorCodeWebNetworkRequestFailed` - Indicates that a network request within a
+    /// SFSafariViewController or WKWebView failed.
+    /// * `AuthErrorCodeWebInternalError` - Indicates that an internal error occurred within a
+    /// SFSafariViewController or WKWebView.
+    /// * `AuthErrorCodeWebSignInUserInteractionFailure` - Indicates a general failure during
+    /// a web sign-in flow.
+    /// * `AuthErrorCodeWebContextAlreadyPresented` - Indicates that an attempt was made to
+    /// present a new web context while one was already being presented.
+    /// * `AuthErrorCodeWebContextCancelled` - Indicates that the URL presentation was
+    /// cancelled prematurely by the user.
+    /// *  `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
+    /// by the credential (e.g. the email in a Facebook access token) is already in use by an
+    /// existing account, that cannot be authenticated with this sign-in method. Call
+    /// fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+    /// the sign-in providers returned. This error will only be thrown if the "One account per
+    /// email address" setting is enabled in the Firebase console, under Auth settings.
+    /// - Parameter provider: An instance of an auth provider used to initiate the sign-in flow.
+    /// - Parameter uiDelegate: Optionally an instance of a class conforming to the AuthUIDelegate
+    /// protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
+    /// will be used.
+    /// - Returns: The `AuthDataResult` after the successful signin.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @available(tvOS, unavailable)
     @available(macOS, unavailable)
@@ -662,44 +600,38 @@ extension Auth: AuthInterop {
     }
   #endif // iOS
 
-  /** @fn signInWithCredential:completion:
-   @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
-   login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
-   identity provider data.
-
-   @param credential The credential supplied by the IdP.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
-   This could happen if it has expired or it is malformed.
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts
-   with the identity provider represented by the credential are not enabled.
-   Enable them in the Auth section of the Firebase console.
-   + `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
-   by the credential (e.g. the email in a Facebook access token) is already in use by an
-   existing account, that cannot be authenticated with this sign-in method. Call
-   fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-   the sign-in providers returned. This error will only be thrown if the "One account per
-   email address" setting is enabled in the Firebase console, under Auth settings.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeWrongPassword` - Indicates the user attempted sign in with an
-   incorrect password, if credential is of the type EmailPasswordAuthCredential.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-   + `AuthErrorCodeMissingVerificationID` - Indicates that the phone auth credential was
-   created with an empty verification ID.
-   + `AuthErrorCodeMissingVerificationCode` - Indicates that the phone auth credential
-   was created with an empty verification code.
-   + `AuthErrorCodeInvalidVerificationCode` - Indicates that the phone auth credential
-   was created with an invalid verification Code.
-   + `AuthErrorCodeInvalidVerificationID` - Indicates that the phone auth credential was
-   created with an invalid verification ID.
-   + `AuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods
-   */
+  /// Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
+  /// login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
+  /// identity provider data.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
+  /// This could happen if it has expired or it is malformed.
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates that accounts
+  /// with the identity provider represented by the credential are not enabled.
+  /// Enable them in the Auth section of the Firebase console.
+  /// * `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
+  /// by the credential (e.g. the email in a Facebook access token) is already in use by an
+  /// existing account, that cannot be authenticated with this sign-in method. Call
+  /// fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+  /// the sign-in providers returned. This error will only be thrown if the "One account per
+  /// email address" setting is enabled in the Firebase console, under Auth settings.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted sign in with an
+  /// incorrect password, if credential is of the type EmailPasswordAuthCredential.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// * `AuthErrorCodeMissingVerificationID` - Indicates that the phone auth credential was
+  /// created with an empty verification ID.
+  /// * `AuthErrorCodeMissingVerificationCode` - Indicates that the phone auth credential
+  /// was created with an empty verification code.
+  /// * `AuthErrorCodeInvalidVerificationCode` - Indicates that the phone auth credential
+  /// was created with an invalid verification Code.
+  /// * `AuthErrorCodeInvalidVerificationID` - Indicates that the phone auth credential was
+  /// created with an invalid verification ID.
+  /// * `AuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
+  /// - Parameter credential: The credential supplied by the IdP.
+  /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc(signInWithCredential:completion:)
   open func signIn(with credential: AuthCredential,
                    completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -717,44 +649,37 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithCredential:completion:
-   @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
-   login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
-   identity provider data.
-
-   @param credential The credential supplied by the IdP.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
-   This could happen if it has expired or it is malformed.
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts
-   with the identity provider represented by the credential are not enabled.
-   Enable them in the Auth section of the Firebase console.
-   + `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
-   by the credential (e.g. the email in a Facebook access token) is already in use by an
-   existing account, that cannot be authenticated with this sign-in method. Call
-   fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-   the sign-in providers returned. This error will only be thrown if the "One account per
-   email address" setting is enabled in the Firebase console, under Auth settings.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeWrongPassword` - Indicates the user attempted sign in with an
-   incorrect password, if credential is of the type EmailPasswordAuthCredential.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-   + `AuthErrorCodeMissingVerificationID` - Indicates that the phone auth credential was
-   created with an empty verification ID.
-   + `AuthErrorCodeMissingVerificationCode` - Indicates that the phone auth credential
-   was created with an empty verification code.
-   + `AuthErrorCodeInvalidVerificationCode` - Indicates that the phone auth credential
-   was created with an invalid verification Code.
-   + `AuthErrorCodeInvalidVerificationID` - Indicates that the phone auth credential was
-   created with an invalid verification ID.
-   + `AuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods
-   */
+  /// Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
+  /// login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
+  /// identity provider data.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidCredential` - Indicates the supplied credential is invalid.
+  /// This could happen if it has expired or it is malformed.
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates that accounts
+  /// with the identity provider represented by the credential are not enabled.
+  /// Enable them in the Auth section of the Firebase console.
+  /// * `AuthErrorCodeAccountExistsWithDifferentCredential` - Indicates the email asserted
+  /// by the credential (e.g. the email in a Facebook access token) is already in use by an
+  /// existing account, that cannot be authenticated with this sign-in method. Call
+  /// fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+  /// the sign-in providers returned. This error will only be thrown if the "One account per
+  /// email address" setting is enabled in the Firebase console, under Auth settings.
+  /// * `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+  /// * `AuthErrorCodeWrongPassword` - Indicates the user attempted sign in with an
+  /// incorrect password, if credential is of the type EmailPasswordAuthCredential.
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// * `AuthErrorCodeMissingVerificationID` - Indicates that the phone auth credential was
+  /// created with an empty verification ID.
+  /// * `AuthErrorCodeMissingVerificationCode` - Indicates that the phone auth credential
+  /// was created with an empty verification code.
+  /// * `AuthErrorCodeInvalidVerificationCode` - Indicates that the phone auth credential
+  /// was created with an invalid verification Code.
+  /// * `AuthErrorCodeInvalidVerificationID` - Indicates that the phone auth credential was
+  /// created with an invalid verification ID.
+  /// * `AuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
+  /// - Parameter credential: The credential supplied by the IdP.
+  /// - Returns: The `AuthDataResult` after the successful signin.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func signIn(with credential: AuthCredential) async throws -> AuthDataResult {
@@ -769,21 +694,16 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInAnonymouslyWithCompletion:
-   @brief Asynchronously creates and becomes an anonymous user.
-   @param completion Optionally; a block which is invoked when the sign in finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks If there is already an anonymous user signed in, that user will be returned instead.
-   If there is any other existing user signed in, that user will be signed out.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
-   not enabled. Enable them in the Auth section of the Firebase console.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Asynchronously creates and becomes an anonymous user.
+  ///
+  /// If there is already an anonymous user signed in, that user will be returned instead.
+  /// If there is any other existing user signed in, that user will be signed out.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
+  /// not enabled. Enable them in the Auth section of the Firebase console.
+  /// - Parameter completion: Optionally; a block which is invoked when the sign in finishes, or is
+  /// canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
@@ -816,19 +736,15 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInAnonymouslyWithCompletion:
-   @brief Asynchronously creates and becomes an anonymous user.
-
-   @remarks If there is already an anonymous user signed in, that user will be returned instead.
-   If there is any other existing user signed in, that user will be signed out.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
-   not enabled. Enable them in the Auth section of the Firebase console.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Asynchronously creates and becomes an anonymous user.
+  ///
+  /// If there is already an anonymous user signed in, that user will be returned instead.
+  /// If there is any other existing user signed in, that user will be signed out.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates that anonymous accounts are
+  /// not enabled. Enable them in the Auth section of the Firebase console.
+  /// - Returns: The `AuthDataResult` after the successful signin.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   @objc open func signInAnonymously() async throws -> AuthDataResult {
@@ -843,22 +759,16 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithCustomToken:completion:
-   @brief Asynchronously signs in to Firebase with the given Auth token.
-
-   @param token A self-signed custom auth token.
-   @param completion Optionally; a block which is invoked when the sign in finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidCustomToken` - Indicates a validation error with
-   the custom token.
-   + `AuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
-   belong to different projects.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Asynchronously signs in to Firebase with the given Auth token.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidCustomToken` - Indicates a validation error with
+  /// the custom token.
+  /// * `AuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
+  /// belong to different projects.
+  /// - Parameter token: A self-signed custom auth token.
+  /// - Parameter completion: Optionally; a block which is invoked when the sign in finishes, or is
+  ///    canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withCustomToken token: String,
                          completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
@@ -888,22 +798,15 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signInWithCustomToken:completion:
-   @brief Asynchronously signs in to Firebase with the given Auth token.
-
-   @param token A self-signed custom auth token.
-   @param completion Optionally; a block which is invoked when the sign in finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidCustomToken` - Indicates a validation error with
-   the custom token.
-   + `AuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
-   belong to different projects.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Asynchronously signs in to Firebase with the given Auth token.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidCustomToken` - Indicates a validation error with
+  /// the custom token.
+  /// * `AuthErrorCodeCustomTokenMismatch` - Indicates the service account and the API key
+  /// belong to different projects.
+  /// - Parameter token: A self-signed custom auth token.
+  /// - Returns: The `AuthDataResult` after the successful signin.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func signIn(withCustomToken token: String) async throws -> AuthDataResult {
@@ -918,28 +821,22 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn createUserWithEmail:password:completion:
-   @brief Creates and, on success, signs in a user with the given email address and password.
-
-   @param email The user's email address.
-   @param password The user's desired password.
-   @param completion Optionally; a block which is invoked when the sign up flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-   + `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
-   already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
-   used, and prompt the user to sign in with one of those.
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
-   are not enabled. Enable them in the Auth section of the Firebase console.
-   + `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-   considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
-   dictionary object will contain more detailed explanation that can be shown to the user.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Creates and, on success, signs in a user with the given email address and password.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// * `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
+  /// already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+  /// used, and prompt the user to sign in with one of those.
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
+  /// are not enabled. Enable them in the Auth section of the Firebase console.
+  /// * `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+  /// considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+  /// dictionary object will contain more detailed explanation that can be shown to the user.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's desired password.
+  /// - Parameter completion: Optionally; a block which is invoked when the sign up flow finishes,
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func createUser(withEmail email: String,
                              password: String,
                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -1011,28 +908,21 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn createUserWithEmail:password:completion:
-   @brief Creates and, on success, signs in a user with the given email address and password.
-
-   @param email The user's email address.
-   @param password The user's desired password.
-   @param completion Optionally; a block which is invoked when the sign up flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-   + `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
-   already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
-   used, and prompt the user to sign in with one of those.
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
-   are not enabled. Enable them in the Auth section of the Firebase console.
-   + `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-   considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
-   dictionary object will contain more detailed explanation that can be shown to the user.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Creates and, on success, signs in a user with the given email address and password.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+  /// * `AuthErrorCodeEmailAlreadyInUse` - Indicates the email used to attempt sign up
+  /// already exists. Call fetchProvidersForEmail to check which sign-in mechanisms the user
+  /// used, and prompt the user to sign in with one of those.
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password accounts
+  /// are not enabled. Enable them in the Auth section of the Firebase console.
+  /// * `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+  /// considered too weak. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo
+  /// dictionary object will contain more detailed explanation that can be shown to the user.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's desired password.
+  /// - Returns: The `AuthDataResult` after the successful signin.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func createUser(withEmail email: String, password: String) async throws -> AuthDataResult {
@@ -1047,25 +937,20 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn confirmPasswordResetWithCode:newPassword:completion:
-   @brief Resets the password given a code sent to the user outside of the app and a new password
-   for the user.
-
-   @param newPassword The new password.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-   considered too weak.
-   + `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign
-   in with the specified identity provider.
-   + `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
-   + `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Resets the password given a code sent to the user outside of the app and a new password
+  /// for the user.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+  /// considered too weak.
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign
+  /// in with the specified identity provider.
+  /// * `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
+  /// * `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
+  /// - Parameter code: The reset code.
+  ///  - Parameter newPassword: The new password.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func confirmPasswordReset(withCode code: String, newPassword: String,
                                        completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
@@ -1076,25 +961,18 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn confirmPasswordResetWithCode:newPassword:completion:
-   @brief Resets the password given a code sent to the user outside of the app and a new password
-   for the user.
-
-   @param newPassword The new password.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
-   considered too weak.
-   + `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign
-   in with the specified identity provider.
-   + `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
-   + `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
-
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
+  /// Resets the password given a code sent to the user outside of the app and a new password
+  /// for the user.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+  /// considered too weak.
+  /// * `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled sign
+  /// in with the specified identity provider.
+  /// * `AuthErrorCodeExpiredActionCode` - Indicates the OOB code is expired.
+  /// * `AuthErrorCodeInvalidActionCode` - Indicates the OOB code is invalid.
+  /// - Parameter code: The reset code.
+  ///  - Parameter newPassword: The new password.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func confirmPasswordReset(withCode code: String, newPassword: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1108,13 +986,11 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn checkActionCode:completion:
-   @brief Checks the validity of an out of band code.
-
-   @param code The out of band code to check validity.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-   */
+  /// Checks the validity of an out of band code.
+  /// - Parameter code: The out of band code to check validity.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked
+  /// asynchronously on the main thread in the future.
   @objc open func checkActionCode(_ code: String,
                                   completion: @escaping (ActionCodeInfo?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
@@ -1140,13 +1016,9 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn checkActionCode:completion:
-   @brief Checks the validity of an out of band code.
-
-   @param code The out of band code to check validity.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-   */
+  /// Checks the validity of an out of band code.
+  /// - Parameter code: The out of band code to check validity.
+  /// - Returns:  An `ActionCodeInfo`.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func checkActionCode(_ code: String) async throws -> ActionCodeInfo {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1160,13 +1032,10 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn verifyPasswordResetCode:completion:
-   @brief Checks the validity of a verify password reset code.
-
-   @param code The password reset code to be verified.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-   */
+  /// Checks the validity of a verify password reset code.
+  /// - Parameter code: The password reset code to be verified.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func verifyPasswordResetCode(_ code: String,
                                           completion: @escaping (String?, Error?) -> Void) {
     checkActionCode(code) { info, error in
@@ -1178,13 +1047,9 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn verifyPasswordResetCode:completion:
-   @brief Checks the validity of a verify password reset code.
-
-   @param code The password reset code to be verified.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-   */
+  /// Checks the validity of a verify password reset code.
+  /// - Parameter code: The password reset code to be verified.
+  /// - Returns: An email.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func verifyPasswordResetCode(_ code: String) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1198,16 +1063,13 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn applyActionCode:completion:
-   @brief Applies out of band code.
-
-   @param code The out of band code to be applied.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks This method will not work for out of band codes which require an additional parameter,
-   such as password reset code.
-   */
+  /// Applies out of band code.
+  ///
+  /// This method will not work for out of band codes which require an additional parameter,
+  /// such as password reset code.
+  /// - Parameter code: The out of band code to be applied.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
@@ -1216,16 +1078,11 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn applyActionCode:completion:
-   @brief Applies out of band code.
-
-   @param code The out of band code to be applied.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks This method will not work for out of band codes which require an additional parameter,
-   such as password reset code.
-   */
+  /// Applies out of band code.
+  ///
+  /// This method will not work for out of band codes which require an additional parameter,
+  /// such as password reset code.
+  /// - Parameter code: The out of band code to be applied.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func applyActionCode(_ code: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1239,58 +1096,56 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn sendPasswordResetWithEmail:completion:
-   @brief Initiates a password reset for the given email address. This method does not throw an
-   error when there's no user account with the given email address and [Email Enumeration
-   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-   is enabled.
-
-   @param email The email address of the user.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
-   sent in the request.
-   + `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
-   the console for this action.
-   + `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
-   sending update email.
-
-   */
+  /// Initiates a password reset for the given email address.
+  ///
+  /// This method does not throw an
+  /// error when there's no user account with the given email address and [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+  /// sent in the request.
+  /// * `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+  /// the console for this action.
+  /// * `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+  /// sending update email.
+  /// - Parameter email: The email address of the user.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked
+  /// asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
                                     completion: ((Error?) -> Void)? = nil) {
     sendPasswordReset(withEmail: email, actionCodeSettings: nil, completion: completion)
   }
 
-  /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
-   @brief Initiates a password reset for the given email address and `ActionCodeSettings` object.
-
-   @param email The email address of the user.
-   @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
-   handling action codes.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
-   sent in the request.
-   + `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
-   the console for this action.
-   + `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
-   sending update email.
-   + `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
-   `handleCodeInApp` is set to true.
-   + `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
-   is missing when the `androidInstallApp` flag is set to true.
-   + `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
-   continue URL is not allowlisted in the Firebase console.
-   + `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
-   continue URL is not valid.
-
-   */
+  /// Initiates a password reset for the given email address and `ActionCodeSettings` object.
+  ///
+  /// This method does not throw an
+  /// error when there's no user account with the given email address and [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+  /// sent in the request.
+  /// * `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+  /// the console for this action.
+  /// * `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+  /// sending update email.
+  /// * `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
+  /// `handleCodeInApp` is set to true.
+  /// * `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
+  /// is missing when the `androidInstallApp` flag is set to true.
+  /// * `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
+  /// continue URL is not allowlisted in the Firebase console.
+  /// * `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
+  /// continue URL is not valid.
+  /// - Parameter email: The email address of the user.
+  /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
+  /// handling action codes.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
                                     actionCodeSettings: ActionCodeSettings?,
                                     completion: ((Error?) -> Void)? = nil) {
@@ -1315,37 +1170,31 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
-   @brief Initiates a password reset for the given email address and `ActionCodeSettings` object.
-   This method does not throw an
-      error when there's no user account with the given email address and [Email Enumeration
-      Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-      is enabled.
-
-   @param email The email address of the user.
-   @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
-   handling action codes.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
-   sent in the request.
-   + `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
-   the console for this action.
-   + `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
-   sending update email.
-   + `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
-   `handleCodeInApp` is set to true.
-   + `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
-   is missing when the `androidInstallApp` flag is set to true.
-   + `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
-   continue URL is not allowlisted in the Firebase console.
-   + `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
-   continue URL is not valid.
-
-   */
+  /// Initiates a password reset for the given email address and `ActionCodeSettings` object.
+  ///
+  /// This method does not throw an
+  /// error when there's no user account with the given email address and [Email Enumeration
+  /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+  /// sent in the request.
+  /// * `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+  /// the console for this action.
+  /// * `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+  /// sending update email.
+  /// * `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
+  /// `handleCodeInApp` is set to true.
+  /// * `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
+  /// is missing when the `androidInstallApp` flag is set to true.
+  /// * `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
+  /// continue URL is not allowlisted in the Firebase console.
+  /// * `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
+  /// continue URL is not valid.
+  /// - Parameter email: The email address of the user.
+  /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
+  /// handling action codes.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendPasswordReset(withEmail email: String,
                               actionCodeSettings: ActionCodeSettings? = nil) async throws {
@@ -1360,15 +1209,12 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
-   @brief Sends a sign in with email link to provided email address.
-
-   @param email The email address of the user.
-   @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
-   handling action codes.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-   */
+  /// Sends a sign in with email link to provided email address.
+  /// - Parameter email: The email address of the user.
+  /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
+  /// handling action codes.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func sendSignInLink(toEmail email: String,
                                  actionCodeSettings: ActionCodeSettings,
                                  completion: ((Error?) -> Void)? = nil) {
@@ -1397,15 +1243,10 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
-   @brief Sends a sign in with email link to provided email address.
-
-   @param email The email address of the user.
-   @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
-   handling action codes.
-   @param completion Optionally; a block which is invoked when the request finishes. Invoked
-   asynchronously on the main thread in the future.
-   */
+  /// Sends a sign in with email link to provided email address.
+  /// - Parameter email: The email address of the user.
+  /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
+  /// handling action codes.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendSignInLink(toEmail email: String,
                            actionCodeSettings: ActionCodeSettings) async throws {
@@ -1420,20 +1261,12 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn signOut:
-   @brief Signs out the current user.
-
-   @param error Optionally; if an error occurs, upon return contains an NSError object that
-   describes the problem; is nil otherwise.
-   @return @YES when the sign out request was successful. @NO otherwise.
-
-   @remarks Possible error codes:
-
-   + `AuthErrorCodeKeychainError` - Indicates an error occurred when accessing the
-   keychain. The `NSLocalizedFailureReasonErrorKey` field in the `userInfo`
-   dictionary will contain more information about the error encountered.
-
-   */
+  /// Signs out the current user.
+  ///
+  /// Possible error codes:
+  /// * `AuthErrorCodeKeychainError` - Indicates an error occurred when accessing the
+  /// keychain. The `NSLocalizedFailureReasonErrorKey` field in the `userInfo`
+  /// dictionary will contain more information about the error encountered.
   @objc(signOut:) open func signOut() throws {
     try kAuthGlobalWorkQueue.sync {
       guard self.currentUser != nil else {
@@ -1443,12 +1276,9 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn isSignInWithEmailLink
-   @brief Checks if link is an email sign-in link.
-
-   @param link The email sign-in link.
-   @return Returns true when the link passed matches the expected format of an email sign-in link.
-   */
+  /// Checks if link is an email sign-in link.
+  /// - Parameter link: The email sign-in link.
+  /// - Returns: `true` when the link passed matches the expected format of an email sign-in link.
   @objc open func isSignIn(withEmailLink link: String) -> Bool {
     guard link.count > 0 else {
       return false
@@ -1463,13 +1293,11 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS) && !targetEnvironment(macCatalyst)
-    /** @fn initializeRecaptchaConfigWithCompletion:completion:
-        @brief Initializes reCAPTCHA using the settings configured for the project or
-        tenant.
 
-        If you change the tenant ID of the `Auth` instance, the configuration will be
-        reloaded.
-     */
+    /// Initializes reCAPTCHA using the settings configured for the project or tenant.
+    ///
+    /// If you change the tenant ID of the `Auth` instance, the configuration will be
+    /// reloaded.
     @objc(initializeRecaptchaConfigWithCompletion:)
     open func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
       Task {
@@ -1486,13 +1314,10 @@ extension Auth: AuthInterop {
       }
     }
 
-    /** @fn initializeRecaptchaConfig
-        @brief Initializes reCAPTCHA using the settings configured for the project or
-        tenant.
-
-        If you change the tenant ID of the `Auth` instance, the configuration will be
-        reloaded.
-     */
+    /// Initializes reCAPTCHA using the settings configured for the project or tenant.
+    ///
+    /// If you change the tenant ID of the `Auth` instance, the configuration will be
+    /// reloaded.
     open func initializeRecaptchaConfig() async throws {
       // Trigger recaptcha verification flow to initialize the recaptcha client and
       // config. Recaptcha token will be returned.
@@ -1501,24 +1326,21 @@ extension Auth: AuthInterop {
     }
   #endif
 
-  /** @fn addAuthStateDidChangeListener:
-   @brief Registers a block as an "auth state did change" listener. To be invoked when:
-
-   + The block is registered as a listener,
-   + A user with a different UID from the current user has signed in, or
-   + The current user has signed out.
-
-   @param listener The block to be invoked. The block is always invoked asynchronously on the main
-   thread, even for it's initial invocation after having been added as a listener.
-
-   @remarks The block is invoked immediately after adding it according to it's standard invocation
-   semantics, asynchronously on the main thread. Users should pay special attention to
-   making sure the block does not inadvertently retain objects which should not be retained by
-   the long-lived block. The block itself will be retained by `Auth` until it is
-   unregistered or until the `Auth` instance is otherwise deallocated.
-
-   @return A handle useful for manually unregistering the block as a listener.
-   */
+  /// Registers a block as an "auth state did change" listener.
+  ///
+  /// To be invoked when:
+  /// * The block is registered as a listener,
+  /// * A user with a different UID from the current user has signed in, or
+  /// * The current user has signed out.
+  ///
+  ///  The block is invoked immediately after adding it according to it's standard invocation
+  /// semantics, asynchronously on the main thread. Users should pay special attention to
+  /// making sure the block does not inadvertently retain objects which should not be retained by
+  /// the long-lived block. The block itself will be retained by `Auth` until it is
+  /// unregistered or until the `Auth` instance is otherwise deallocated.
+  /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
+  /// the main thread, even for it's initial invocation after having been added as a listener.
+  /// - Returns: A handle useful for manually unregistering the block as a listener.
   @objc(addAuthStateDidChangeListener:)
   open func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
@@ -1534,11 +1356,8 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn removeAuthStateDidChangeListener:
-   @brief Unregisters a block as an "auth state did change" listener.
-
-   @param listenerHandle The handle for the listener.
-   */
+  /// Unregisters a block as an "auth state did change" listener.
+  /// - Parameter listenerHandle: The handle for the listener.
   @objc(removeAuthStateDidChangeListener:)
   open func removeStateDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
@@ -1547,25 +1366,22 @@ extension Auth: AuthInterop {
     listenerHandles.remove(listenerHandle)
   }
 
-  /** @fn addIDTokenDidChangeListener:
-   @brief Registers a block as an "ID token did change" listener. To be invoked when:
-
-   + The block is registered as a listener,
-   + A user with a different UID from the current user has signed in,
-   + The ID token of the current user has been refreshed, or
-   + The current user has signed out.
-
-   @param listener The block to be invoked. The block is always invoked asynchronously on the main
-   thread, even for it's initial invocation after having been added as a listener.
-
-   @remarks The block is invoked immediately after adding it according to it's standard invocation
-   semantics, asynchronously on the main thread. Users should pay special attention to
-   making sure the block does not inadvertently retain objects which should not be retained by
-   the long-lived block. The block itself will be retained by `Auth` until it is
-   unregistered or until the `Auth` instance is otherwise deallocated.
-
-   @return A handle useful for manually unregistering the block as a listener.
-   */
+  /// Registers a block as an "ID token did change" listener.
+  ///
+  /// To be invoked when:
+  /// * The block is registered as a listener,
+  /// * A user with a different UID from the current user has signed in,
+  /// * The ID token of the current user has been refreshed, or
+  /// * The current user has signed out.
+  ///
+  /// The block is invoked immediately after adding it according to it's standard invocation
+  /// semantics, asynchronously on the main thread. Users should pay special attention to
+  /// making sure the block does not inadvertently retain objects which should not be retained by
+  /// the long-lived block. The block itself will be retained by `Auth` until it is
+  /// unregistered or until the `Auth` instance is otherwise deallocated.
+  /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
+  /// the main thread, even for it's initial invocation after having been added as a listener.
+  /// - Returns: A handle useful for manually unregistering the block as a listener.
   @objc open func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
     let handle = NotificationCenter.default.addObserver(
@@ -1586,11 +1402,8 @@ extension Auth: AuthInterop {
     return handle
   }
 
-  /** @fn removeIDTokenDidChangeListener:
-   @brief Unregisters a block as an "ID token did change" listener.
-
-   @param listenerHandle The handle for the listener.
-   */
+  /// Unregisters a block as an "ID token did change" listener.
+  /// - Parameter listenerHandle: The handle for the listener.
   @objc open func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
@@ -1598,18 +1411,14 @@ extension Auth: AuthInterop {
     objc_sync_exit(Auth.self)
   }
 
-  /** @fn useAppLanguage
-   @brief Sets `languageCode` to the app's current language.
-   */
+  /// Sets `languageCode` to the app's current language.
   @objc open func useAppLanguage() {
     kAuthGlobalWorkQueue.sync {
       self.requestConfiguration.languageCode = Locale.preferredLanguages.first
     }
   }
 
-  /** @fn useEmulatorWithHost:port
-   @brief Configures Firebase Auth to connect to an emulated host instead of the remote backend.
-   */
+  /// Configures Firebase Auth to connect to an emulated host instead of the remote backend.
   @objc open func useEmulator(withHost host: String, port: Int) {
     guard host.count > 0 else {
       fatalError("Cannot connect to empty host")
@@ -1624,11 +1433,9 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn revokeTokenWithAuthorizationCode:Completion
-   @brief Revoke the users token with authorization code.
-   @param completion (Optional) the block invoked when the request to revoke the token is
-   complete, or fails. Invoked asynchronously on the main thread in the future.
-   */
+  /// Revoke the users token with authorization code.
+  /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
+  /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
                               completion: ((Error?) -> Void)? = nil) {
     currentUser?.internalGetToken { idToken, error in
@@ -1646,11 +1453,9 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn revokeTokenWithAuthorizationCode:Completion
-   @brief Revoke the users token with authorization code.
-   @param completion (Optional) the block invoked when the request to revoke the token is
-   complete, or fails. Invoked asynchronously on the main thread in the future.
-   */
+  /// Revoke the users token with authorization code.
+  /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
+  /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1664,10 +1469,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn useUserAccessGroup:error:
-   @brief Switch userAccessGroup and current user to the given accessGroup and the user stored in
-   it.
-   */
+  /// Switch userAccessGroup and current user to the given accessGroup and the user stored in it.
   @objc open func useUserAccessGroup(_ accessGroup: String?) throws {
     // self.storedUserManager is initialized asynchronously. Make sure it is done.
     kAuthGlobalWorkQueue.sync {}
@@ -1686,12 +1488,11 @@ extension Auth: AuthInterop {
     lastNotifiedUserToken = user?.rawAccessToken()
   }
 
-  /** @fn getStoredUserForAccessGroup:error:
-   @brief Get the stored user in the given accessGroup.
-   @note This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
-   This case will return `nil`.
-   Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
-   */
+  /// Get the stored user in the given accessGroup.
+  ///
+  ///  This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
+  /// and will return `nil`.
+  /// Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
   @available(swift 1000.0) // Objective-C only API
   @objc(getStoredUserForAccessGroup:error:)
   open func __getStoredUser(forAccessGroup accessGroup: String?,
@@ -1704,12 +1505,12 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn getStoredUserForAccessGroup
-   @brief Get the stored user in the given accessGroup.
-   @note This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
-   This case will return `nil`.
-   Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
-   */
+  /// Get the stored user in the given accessGroup.
+  ///
+  ///  This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
+  /// and will return `nil`.
+  ///
+  /// Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
   open func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
     var user: User?
     if let accessGroup {
@@ -1742,24 +1543,63 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
+    /// The APNs token used for phone number authentication.
+    ///
+    /// The type of the token (production or sandbox) will be automatically
+    /// detected based on your provisioning profile.
+    ///
+    /// This property is available on iOS only.
+    ///
+    /// If swizzling is disabled, the APNs Token must be set for phone number auth to work,
+    /// by either setting this property or by calling `setAPNSToken(_:type:)`.
     @objc(APNSToken) open var apnsToken: Data? {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token?.data
       }
     }
 
+    /// Sets the APNs token along with its type.
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, the APNs Token must be set for phone number auth to work,
+    /// by either setting calling this method or by setting the `APNSToken` property.
     @objc open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
       }
     }
 
+    /// Whether the specific remote notification is handled by `Auth` .
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, related remote notifications must be forwarded to this method
+    /// for phone number auth to work.
+    /// - Parameter userInfo: A dictionary that contains information related to the
+    /// notification in question.
+    /// - Returns: Whether or the notification is handled. A return value of `true` means the
+    /// notification is for Firebase Auth so the caller should ignore the notification from further
+    /// processing, and `false` means the notification is for the app (or another library) so
+    /// the caller should continue handling this notification as usual.
     @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
       kAuthGlobalWorkQueue.sync {
         self.notificationManager.canHandle(notification: userInfo)
       }
     }
 
+    /// Whether the specific URL is handled by `Auth` .
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, URLs received by the application delegate must be forwarded
+    /// to this method for phone number auth to work.
+    /// - Parameter url: The URL received by the application delegate from any of the openURL
+    /// method.
+    /// - Returns: Whether or the URL is handled. `true` means the URL is for Firebase Auth
+    /// so the caller should ignore the URL from further processing, and `false` means the
+    /// the URL is for the app (or another library) so the caller should continue handling
+    /// this URL as usual.
     @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
         guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
@@ -1770,6 +1610,10 @@ extension Auth: AuthInterop {
     }
   #endif
 
+  /// The name of the `NSNotificationCenter` notification which is posted when the auth state
+  /// changes (for example, a new token has been produced, a user signs in or signs out).
+  ///
+  /// The object parameter of the notification is the sender `Auth` instance.
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
 
@@ -1937,10 +1781,8 @@ extension Auth: AuthInterop {
     return user
   }
 
-  /** @fn keychainServiceNameForAppName:
-   @brief Gets the keychain service name global data for the particular app by name.
-   @param appName The name of the Firebase app to get keychain service name for.
-   */
+  /// Gets the keychain service name global data for the particular app by name.
+  /// - Parameter appName: The name of the Firebase app to get keychain service name for.
   class func keychainServiceForAppID(_ appID: String) -> String {
     return "firebase_auth_\(appID)"
   }
@@ -1960,38 +1802,31 @@ extension Auth: AuthInterop {
     return nil
   }
 
-  /** @var gKeychainServiceNameForAppName
-   @brief A map from Firebase app name to keychain service names.
-   @remarks This map is needed for looking up the keychain service name after the FIRApp instance
-   is deleted, to remove the associated keychain item. Accessing should occur within a
-   @syncronized([FIRAuth class]) context.""
-   */
+  /// A map from Firebase app name to keychain service names.
+  ///
+  /// This map is needed for looking up the keychain service name after the FirebaseApp instance
+  /// is deleted, to remove the associated keychain item. Accessing should occur within a
+  /// @syncronized([FIRAuth class]) context.
   fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
 
-  /** @fn setKeychainServiceNameForApp
-   @brief Sets the keychain service name global data for the particular app.
-   @param app The Firebase app to set keychain service name for.
-   */
+  /// Sets the keychain service name global data for the particular app.
+  /// - Parameter app: The Firebase app to set keychain service name for.
   class func setKeychainServiceNameForApp(_ app: FirebaseApp) {
     objc_sync_enter(Auth.self)
     gKeychainServiceNameForAppName[app.name] = "firebase_auth_\(app.options.googleAppID)"
     objc_sync_exit(Auth.self)
   }
 
-  /** @fn keychainServiceNameForAppName:
-   @brief Gets the keychain service name global data for the particular app by name.
-   @param appName The name of the Firebase app to get keychain service name for.
-   */
+  /// Gets the keychain service name global data for the particular app by name.
+  /// - Parameter appName: The name of the Firebase app to get keychain service name for.
   class func keychainServiceName(forAppName appName: String) -> String? {
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
     return gKeychainServiceNameForAppName[appName]
   }
 
-  /** @fn deleteKeychainServiceNameForAppName:
-   @brief Deletes the keychain service name global data for the particular app by name.
-   @param appName The name of the Firebase app to delete keychain service name for.
-   */
+  /// Deletes the keychain service name global data for the particular app by name.
+  /// - Parameter appName: The name of the Firebase app to delete keychain service name for.
   class func deleteKeychainServiceNameForAppName(_ appName: String) {
     objc_sync_enter(Auth.self)
     gKeychainServiceNameForAppName.removeValue(forKey: appName)
@@ -2007,9 +1842,7 @@ extension Auth: AuthInterop {
 
   // MARK: Private methods
 
-  /** @fn possiblyPostAuthStateChangeNotification
-   @brief Posts the auth state change notificaton if current user's token has been changed.
-   */
+  /// Posts the auth state change notificaton if current user's token has been changed.
   private func possiblyPostAuthStateChangeNotification() {
     let token = currentUser?.rawAccessToken()
     if lastNotifiedUserToken == token ||
@@ -2039,23 +1872,20 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn scheduleAutoTokenRefreshWithDelay:
-   @brief Schedules a task to automatically refresh tokens on the current user. The0 token refresh
-   is scheduled 5 minutes before the  scheduled expiration time.
-   @remarks If the token expires in less than 5 minutes, schedule the token refresh immediately.
-   */
+  /// Schedules a task to automatically refresh tokens on the current user. The0 token refresh
+  /// is scheduled 5 minutes before the  scheduled expiration time.
+  ///
+  /// If the token expires in less than 5 minutes, schedule the token refresh immediately.
   private func scheduleAutoTokenRefresh() {
     let tokenExpirationInterval =
       (currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
     scheduleAutoTokenRefresh(withDelay: max(tokenExpirationInterval, 0), retry: false)
   }
 
-  /** @fn scheduleAutoTokenRefreshWithDelay:
-   @brief Schedules a task to automatically refresh tokens on the current user.
-   @param delay The delay in seconds after which the token refresh task should be scheduled to be
-   executed.
-   @param retry Flag to determine whether the invocation is a retry attempt or not.
-   */
+  /// Schedules a task to automatically refresh tokens on the current user.
+  /// - Parameter delay: The delay in seconds after which the token refresh task should be scheduled
+  /// to be executed.
+  /// - Parameter retry: Flag to determine whether the invocation is a retry attempt or not.
   private func scheduleAutoTokenRefresh(withDelay delay: TimeInterval, retry: Bool) {
     guard let accessToken = currentUser?.rawAccessToken() else {
       return
@@ -2099,16 +1929,15 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn updateCurrentUser:byForce:savingToDisk:error:
-   @brief Update the current user; initializing the user's internal properties correctly, and
-   optionally saving the user to disk.
-   @remarks This method is called during: sign in and sign out events, as well as during class
-   initialization time. The only time the saveToDisk parameter should be set to NO is during
-   class initialization time because the user was just read from disk.
-   @param user The user to use as the current user (including nil, which is passed at sign out
-   time.)
-   @param saveToDisk Indicates the method should persist the user data to disk.
-   */
+  /// Update the current user; initializing the user's internal properties correctly, and
+  /// optionally saving the user to disk.
+  ///
+  /// This method is called during: sign in and sign out events, as well as during class
+  /// initialization time. The only time the saveToDisk parameter should be set to NO is during
+  /// class initialization time because the user was just read from disk.
+  /// - Parameter user: The user to use as the current user (including nil, which is passed at sign
+  /// out time.)
+  /// - Parameter saveToDisk: Indicates the method should persist the user data to disk.
   func updateCurrentUser(_ user: User?, byForce force: Bool,
                          savingToDisk saveToDisk: Bool) throws {
     if user == currentUser {
@@ -2169,15 +1998,11 @@ extension Auth: AuthInterop {
     }
   }
 
-  /** @fn completeSignInWithTokenService:callback:
-   @brief Completes a sign-in flow once we have access and refresh tokens for the user.
-   @param accessToken The STS access token.
-   @param accessTokenExpirationDate The approximate expiration date of the access token.
-   @param refreshToken The STS refresh token.
-   @param anonymous Whether or not the user is anonymous.
-   @param callback Called when the user has been signed in or when an error occurred. Invoked
-   asynchronously on the global auth work queue in the future.
-   */
+  /// Completes a sign-in flow once we have access and refresh tokens for the user.
+  /// - Parameter accessToken: The STS access token.
+  /// - Parameter accessTokenExpirationDate: The approximate expiration date of the access token.
+  /// - Parameter refreshToken: The STS refresh token.
+  /// - Parameter anonymous: Whether or not the user is anonymous.
   @discardableResult
   func completeSignIn(withAccessToken accessToken: String?,
                       accessTokenExpirationDate: Date?,
@@ -2190,15 +2015,12 @@ extension Auth: AuthInterop {
                                        anonymous: anonymous)
   }
 
-  /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
-   @brief Signs in using an email address and password.
-   @param email The user's email address.
-   @param password The user's password.
-   @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-   asynchronously on the global auth work queue in the future.
-   @remarks This is the internal counterpart of this method, which uses a callback that does not
-   update the current user.
-   */
+  /// Signs in using an email address and password.
+  ///
+  /// This is the internal counterpart of this method, which uses a callback that does not
+  /// update the current user.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's password.
   private func internalSignInAndRetrieveData(withEmail email: String,
                                              password: String) async throws -> AuthDataResult {
     let credential = EmailAuthCredential(withEmail: email, password: password)
@@ -2286,13 +2108,9 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
-    /** @fn signInWithPhoneCredential:callback:
-        @brief Signs in using a phone credential.
-        @param credential The Phone Auth credential used to sign in.
-        @param operation The type of operation for which this sign-in attempt is initiated.
-        @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-            asynchronously on the global auth work queue in the future.
-     */
+    /// Signs in using a phone credential.
+    /// - Parameter credential: The Phone Auth credential used to sign in.
+    /// - Parameter operation: The type of operation for which this sign-in attempt is initiated.
     private func signIn(withPhoneCredential credential: PhoneAuthCredential,
                         operation: AuthOperationType) async throws -> VerifyPhoneNumberResponse {
       switch credential.credentialKind {
@@ -2319,12 +2137,8 @@ extension Auth: AuthInterop {
   #endif
 
   #if !os(watchOS)
-    /** @fn signInAndRetrieveDataWithGameCenterCredential:callback:
-        @brief Signs in using a game center credential.
-        @param credential The Game Center Auth Credential used to sign in.
-        @param callback A block which is invoked when the sign in finished (or is cancelled). Invoked
-            asynchronously on the global auth work queue in the future.
-     */
+    /// Signs in using a game center credential.
+    /// - Parameter credential: The Game Center Auth Credential used to sign in.
     private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential) async throws
       -> AuthDataResult {
       guard let publicKeyURL = credential.publicKeyURL,
@@ -2358,13 +2172,9 @@ extension Auth: AuthInterop {
 
   #endif
 
-  /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:
-      @brief Signs in using an email and email sign-in link.
-      @param email The user's email address.
-      @param link The email sign-in link.
-      @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-          asynchronously on the global auth work queue in the future.
-   */
+  /// Signs in using an email and email sign-in link.
+  /// - Parameter email: The user's email address.
+  /// - Parameter link: The email sign-in link.
   private func internalSignInAndRetrieveData(withEmail email: String,
                                              link: String) async throws -> AuthDataResult {
     guard isSignIn(withEmailLink: link) else {
@@ -2404,15 +2214,15 @@ extension Auth: AuthInterop {
     return queryItems
   }
 
-  /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
-       @brief Creates a AuthDataResultCallback block which wraps another AuthDataResultCallback;
-           trying to update the current user before forwarding it's invocations along to a subject block.
-       @param callback Called when the user has been updated or when an error has occurred. Invoked
-           asynchronously on the main thread in the future.
-       @return Returns a block that updates the current user.
-       @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
-           consider alternative ways of updating the current user.
-   */
+  /// Creates a AuthDataResultCallback block which wraps another AuthDataResultCallback;
+  ///    trying to update the current user before forwarding it's invocations along to a subject
+  /// block.
+  ///
+  ///    Typically invoked as part of the complete sign-in flow. For any other uses please
+  /// consider alternative ways of updating the current user.
+  /// - Parameter callback: Called when the user has been updated or when an error has occurred.
+  /// Invoked asynchronously on the main thread in the future.
+  /// - Returns: Returns a block that updates the current user.
   func signInFlowAuthDataResultCallback(byDecorating callback:
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
@@ -2514,106 +2324,72 @@ extension Auth: AuthInterop {
 
   // MARK: Internal properties
 
-  /** @property mainBundle
-      @brief Allow tests to swap in an alternate mainBundle.
-   */
+  /// Allow tests to swap in an alternate mainBundle.
   var mainBundleUrlTypes: [[String: Any]]!
 
-  /** @property requestConfiguration
-      @brief The configuration object comprising of parameters needed to make a request to Firebase
-          Auth's backend.
-   */
+  /// The configuration object comprising of parameters needed to make a request to Firebase
+  ///   Auth's backend.
   var requestConfiguration: AuthRequestConfiguration
 
   #if os(iOS)
-    /** @property tokenManager
-        @brief The manager for APNs tokens used by phone number auth.
-     */
+
+    /// The manager for APNs tokens used by phone number auth.
     var tokenManager: AuthAPNSTokenManager!
 
-    /** @property appCredentailManager
-        @brief The manager for app credentials used by phone number auth.
-     */
+    /// The manager for app credentials used by phone number auth.
     var appCredentialManager: AuthAppCredentialManager!
 
-    /** @property notificationManager
-        @brief The manager for remote notifications used by phone number auth.
-     */
+    /// The manager for remote notifications used by phone number auth.
     var notificationManager: AuthNotificationManager!
 
-    /** @property authURLPresenter
-        @brief An object that takes care of presenting URLs via the auth instance.
-     */
+    /// An object that takes care of presenting URLs via the auth instance.
     var authURLPresenter: AuthWebViewControllerDelegate
 
   #endif // TARGET_OS_IOS
 
   // MARK: Private properties
 
-  /** @property storedUserManager
-      @brief The stored user manager.
-   */
+  /// The stored user manager.
   private var storedUserManager: AuthStoredUserManager!
 
-  /** @var _firebaseAppName
-      @brief The Firebase app name.
-   */
+  /// The Firebase app name.
   private let firebaseAppName: String
 
-  /** @var _keychainServices
-      @brief The keychain service.
-   */
+  /// The keychain service.
   private var keychainServices: AuthKeychainServices!
 
-  /** @var _lastNotifiedUserToken
-      @brief The user access (ID) token used last time for posting auth state changed notification.
-   */
+  /// The user access (ID) token used last time for posting auth state changed notification.
   private var lastNotifiedUserToken: String?
 
-  /** @var _autoRefreshTokens
-      @brief This flag denotes whether or not tokens should be automatically refreshed.
-      @remarks Will only be set to @YES if the another Firebase service is included (additionally to
-        Firebase Auth).
-   */
+  /// This flag denotes whether or not tokens should be automatically refreshed.
+  /// Will only be set to `true` if the another Firebase service is included (additionally to
+  ///  Firebase Auth).
   private var autoRefreshTokens = false
 
-  /** @var _autoRefreshScheduled
-      @brief Whether or not token auto-refresh is currently scheduled.
-   */
+  /// Whether or not token auto-refresh is currently scheduled.
   private var autoRefreshScheduled = false
 
-  /** @var _isAppInBackground
-      @brief A flag that is set to YES if the app is put in the background and no when the app is
-          returned to the foreground.
-   */
+  /// A flag that is set to YES if the app is put in the background and no when the app is
+  ///    returned to the foreground.
   private var isAppInBackground = false
 
-  /** @var _applicationDidBecomeActiveObserver
-      @brief An opaque object to act as the observer for UIApplicationDidBecomeActiveNotification.
-   */
+  /// An opaque object to act as the observer for UIApplicationDidBecomeActiveNotification.
   private var applicationDidBecomeActiveObserver: NSObjectProtocol?
 
-  /** @var _applicationDidBecomeActiveObserver
-      @brief An opaque object to act as the observer for
-          UIApplicationDidEnterBackgroundNotification.
-   */
+  /// An opaque object to act as the observer for
+  ///    UIApplicationDidEnterBackgroundNotification.
   private var applicationDidEnterBackgroundObserver: NSObjectProtocol?
 
-  /** @var _protectedDataDidBecomeAvailableObserver
-      @brief An opaque object to act as the observer for
-     UIApplicationProtectedDataDidBecomeAvailable.
-   */
+  /// An opaque object to act as the observer for
+  /// UIApplicationProtectedDataDidBecomeAvailable.
   private var protectedDataDidBecomeAvailableObserver: NSObjectProtocol?
 
-  /** @var kUserKey
-      @brief Key of user stored in the keychain. Prefixed with a Firebase app name.
-   */
+  /// Key of user stored in the keychain. Prefixed with a Firebase app name.
   private let kUserKey = "_firebase_user"
 
-  /** @var _listenerHandles
-      @brief Handles returned from @c NSNotificationCenter for blocks which are "auth state did
-          change" notification listeners.
-      @remarks Mutations should occur within a @syncronized(self) context.
-   */
+  /// Handles returned from `NSNotificationCenter` for blocks which are "auth state did
+  /// change" notification listeners.
+  ///
+  /// Mutations should occur within a @syncronized(self) context.
   private var listenerHandles: NSMutableArray = []
 }
