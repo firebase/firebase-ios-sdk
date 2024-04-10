@@ -1,3 +1,5 @@
+// For Sign in with Facebook
+import FBSDKLoginKit
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 @testable import FirebaseAuth
-
-// For Sign in with Facebook
-import FBSDKLoginKit
 // [START auth_import]
 import FirebaseCore
 import GameKit
@@ -938,40 +937,45 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     present(editController, animated: true, completion: nil)
   }
 
-  private func showQRCodePromptWithTextInput(with message: String, url: String, completion: ((String) -> Void)? = nil) {
-      // Create a UIAlertController
-    let alertController = UIAlertController(title: "QR Code Prompt", message: message, preferredStyle: .alert)
+  private func showQRCodePromptWithTextInput(with message: String, url: String,
+                                             completion: ((String) -> Void)? = nil) {
+    // Create a UIAlertController
+    let alertController = UIAlertController(
+      title: "QR Code Prompt",
+      message: message,
+      preferredStyle: .alert
+    )
 
-      // Add a text field for input
-    alertController.addTextField { (textField) in
+    // Add a text field for input
+    alertController.addTextField { textField in
       textField.placeholder = "Enter text"
     }
 
-      // Create a UIImage from the URL
+    // Create a UIImage from the URL
     guard let image = generateQRCode(from: url) else {
       print("Failed to generate QR code")
       return
     }
 
-      // Create an image view to display the QR code
+    // Create an image view to display the QR code
     let imageView = UIImageView(image: image)
     imageView.contentMode = .scaleAspectFit
     imageView.translatesAutoresizingMaskIntoConstraints = false
 
-      // Add the image view to the alert controller
+    // Add the image view to the alert controller
     alertController.view.addSubview(imageView)
 
-      // Add constraints to position the image view
+    // Add constraints to position the image view
     NSLayoutConstraint.activate([
       imageView.topAnchor.constraint(equalTo: alertController.view.topAnchor, constant: 20),
       imageView.centerXAnchor.constraint(equalTo: alertController.view.centerXAnchor),
       imageView.widthAnchor.constraint(equalToConstant: 200),
-      imageView.heightAnchor.constraint(equalToConstant: 200)
+      imageView.heightAnchor.constraint(equalToConstant: 200),
     ])
 
-      // Add actions
+    // Add actions
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-    let submitAction = UIAlertAction(title: "Submit", style: .default) { (_) in
+    let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
       if let text = alertController.textFields?.first?.text {
         completion?(text)
       }
@@ -980,11 +984,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     alertController.addAction(cancelAction)
     alertController.addAction(submitAction)
 
-      // Present the alert controller
-    UIApplication.shared.windows.first?.rootViewController?.present(alertController, animated: true, completion: nil)
+    // Present the alert controller
+    UIApplication.shared.windows.first?.rootViewController?.present(
+      alertController,
+      animated: true,
+      completion: nil
+    )
   }
 
-    // Function to generate QR code from a string
+  // Function to generate QR code from a string
   private func generateQRCode(from string: String) -> UIImage? {
     let data = string.data(using: String.Encoding.ascii)
 
