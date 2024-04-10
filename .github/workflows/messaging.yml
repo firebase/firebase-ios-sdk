@@ -86,14 +86,12 @@ jobs:
         target: [iOS, watchOS, tvOS, macOS, catalyst]
         os: [macos-13, macos-14]
         include:
-          - os: macos-14
-            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:

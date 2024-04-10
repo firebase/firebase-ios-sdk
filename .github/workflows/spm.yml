@@ -48,8 +48,13 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Functions Integration Test Server
       run: FirebaseFunctions/Backend/start.sh synchronous
-    - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS ${{ matrix.test }}
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh Firebase-Package iOS ${{ matrix.test }}
 
   # Test iOS Device build since some Firestore dependencies build different files.
   iOS-Device:

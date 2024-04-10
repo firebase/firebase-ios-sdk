@@ -51,7 +51,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleAuthUtilities'
     pod 'GoogleConversionTracking'
     pod 'GoogleDataTransport'
-    pod 'GoogleIDFASupport'
+#     pod 'GoogleIDFASupport' Fails to build with Xcode 15
     pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
 

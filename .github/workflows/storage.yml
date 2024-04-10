@@ -96,11 +96,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
-            xcode: Xcode_15.3
-          - swift: swift
-            os: macos-13
+          - os: macos-13
             xcode: Xcode_15.2
+          - swift: swift
+            os: macos-14
+            xcode: Xcode_15.3
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
