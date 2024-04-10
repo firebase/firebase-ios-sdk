@@ -10,6 +10,8 @@
 		868A33662BB476FA00304BB1 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 868A33652BB476FA00304BB1 /* FirebaseAppCheck */; };
 		868A33682BB476FA00304BB1 /* FirebaseVertexAI-Preview in Frameworks */ = {isa = PBXBuildFile; productRef = 868A33672BB476FA00304BB1 /* FirebaseVertexAI-Preview */; };
 		869200B32B879C4F00482873 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 869200B22B879C4F00482873 /* GoogleService-Info.plist */; };
+		86C1F4832BC726150026816F /* FunctionCallingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C1F47E2BC726150026816F /* FunctionCallingScreen.swift */; };
+		86C1F4842BC726150026816F /* FunctionCallingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C1F4802BC726150026816F /* FunctionCallingViewModel.swift */; };
 		88263BF02B239C09008AB09B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88263BEE2B239BFE008AB09B /* ErrorView.swift */; };
 		88263BF12B239C11008AB09B /* ErrorDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 889873842B208563005B4896 /* ErrorDetailsView.swift */; };
 		8848C8332B0D04BC007B434F /* GenerativeAISampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848C8322B0D04BC007B434F /* GenerativeAISampleApp.swift */; };
@@ -31,6 +33,8 @@
 
 /* Begin PBXFileReference section */
 		869200B22B879C4F00482873 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		86C1F47E2BC726150026816F /* FunctionCallingScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FunctionCallingScreen.swift; sourceTree = "<group>"; };
+		86C1F4802BC726150026816F /* FunctionCallingViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FunctionCallingViewModel.swift; sourceTree = "<group>"; };
 		8802666F2B0FC39000CF7CB6 /* PhotoReasoningViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoReasoningViewModel.swift; sourceTree = "<group>"; };
 		880266752B0FC39000CF7CB6 /* PhotoReasoningScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoReasoningScreen.swift; sourceTree = "<group>"; };
 		88209C1B2B0FBDC300F64795 /* SummarizeScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummarizeScreen.swift; sourceTree = "<group>"; };
@@ -71,6 +75,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		86C1F47F2BC726150026816F /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				86C1F47E2BC726150026816F /* FunctionCallingScreen.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		86C1F4812BC726150026816F /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				86C1F4802BC726150026816F /* FunctionCallingViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		86C1F4822BC726150026816F /* FunctionCallingSample */ = {
+			isa = PBXGroup;
+			children = (
+				86C1F4812BC726150026816F /* ViewModels */,
+				86C1F47F2BC726150026816F /* Screens */,
+			);
+			path = FunctionCallingSample;
+			sourceTree = "<group>";
+		};
 		8802666E2B0FC39000CF7CB6 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -119,6 +148,7 @@
 				8848C8452B0D051E007B434F /* GenerativeAITextSample */,
 				8848C8572B0D056C007B434F /* GenerativeAIMultimodalSample */,
 				88E10F432B110D5300C08E95 /* ChatSample */,
+				86C1F4822BC726150026816F /* FunctionCallingSample */,
 				8848C8302B0D04BC007B434F /* Products */,
 				88209C222B0FBE1700F64795 /* Frameworks */,
 			);
@@ -327,7 +357,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86C1F4832BC726150026816F /* FunctionCallingScreen.swift in Sources */,
 				886F95DF2B17D5010036F07A /* BouncingDots.swift in Sources */,
+				86C1F4842BC726150026816F /* FunctionCallingViewModel.swift in Sources */,
 				886F95DE2B17D5010036F07A /* ChatMessage.swift in Sources */,
 				88263BF12B239C11008AB09B /* ErrorDetailsView.swift in Sources */,
 				8848C8352B0D04BC007B434F /* ContentView.swift in Sources */,
