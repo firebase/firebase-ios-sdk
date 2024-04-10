@@ -741,30 +741,34 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
           return
         }
 
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, multiFactorSession: session) { verificationID, error in
-          guard error == nil else {
-            self.showAlert(for: "Enrollment failed")
-            print("Multi factor start enroll failed. Error: \(error!)")
-            return
-          }
+        PhoneAuthProvider.provider()
+          .verifyPhoneNumber(phoneNumber, multiFactorSession: session) { verificationID, error in
+            guard error == nil else {
+              self.showAlert(for: "Enrollment failed")
+              print("Multi factor start enroll failed. Error: \(error!)")
+              return
+            }
 
-          self.showTextInputPrompt(with: "Verification Code: ") { verificationCode in
-            let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID!, verificationCode: verificationCode)
-            let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
+            self.showTextInputPrompt(with: "Verification Code: ") { verificationCode in
+              let credential = PhoneAuthProvider.provider().credential(
+                withVerificationID: verificationID!,
+                verificationCode: verificationCode
+              )
+              let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
 
-            self.showTextInputPrompt(with: "Display Name:") { displayName in
-              user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
-                if let error = error {
-                  self.showAlert(for: "Enrollment failed")
-                  print("Multi factor finalize enroll failed. Error: \(error)")
-                } else {
-                  self.showAlert(for: "Successfully enrolled: \(displayName)")
-                  print("Multi factor finalize enroll succeeded.")
+              self.showTextInputPrompt(with: "Display Name:") { displayName in
+                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
+                  if let error = error {
+                    self.showAlert(for: "Enrollment failed")
+                    print("Multi factor finalize enroll failed. Error: \(error)")
+                  } else {
+                    self.showAlert(for: "Successfully enrolled: \(displayName)")
+                    print("Multi factor finalize enroll succeeded.")
+                  }
                 }
               }
             }
           }
-        }
       }
     }
   }
@@ -816,33 +820,40 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
           secret.openInOTPApp(withQRCodeURL: url)
 
-          self.showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:", url: url) { oneTimePassword in
-            guard !oneTimePassword.isEmpty else {
-              self.showAlert(for: "Display name must not be empty")
-              print("OTP not entered.")
-              return
-            }
-
-            let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(with: secret, oneTimePassword: oneTimePassword)
-
-            self.showTextInputPrompt(with: "Display Name") { displayName in
-              guard !displayName.isEmpty else {
+          self
+            .showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:",
+                                           url: url) { oneTimePassword in
+              guard !oneTimePassword.isEmpty else {
                 self.showAlert(for: "Display name must not be empty")
-                print("Display name not entered.")
+                print("OTP not entered.")
                 return
               }
 
-              user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
-                if let error = error {
-                  self.showAlert(for: "Enrollment failed")
-                  print("Multi factor finalize enroll failed. Error: \(error.localizedDescription)")
-                } else {
-                  self.showAlert(for: "Successfully enrolled: \(displayName)")
-                  print("Multi factor finalize enroll succeeded.")
+              let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
+                with: secret,
+                oneTimePassword: oneTimePassword
+              )
+
+              self.showTextInputPrompt(with: "Display Name") { displayName in
+                guard !displayName.isEmpty else {
+                  self.showAlert(for: "Display name must not be empty")
+                  print("Display name not entered.")
+                  return
+                }
+
+                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
+                  if let error = error {
+                    self.showAlert(for: "Enrollment failed")
+                    print(
+                      "Multi factor finalize enroll failed. Error: \(error.localizedDescription)"
+                    )
+                  } else {
+                    self.showAlert(for: "Successfully enrolled: \(displayName)")
+                    print("Multi factor finalize enroll succeeded.")
+                  }
                 }
               }
             }
-          }
         }
       }
     }
@@ -862,7 +873,11 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
 
-    let alertController = UIAlertController(title: "Select Multi Factor to Unenroll", message: nil, preferredStyle: .actionSheet)
+    let alertController = UIAlertController(
+      title: "Select Multi Factor to Unenroll",
+      message: nil,
+      preferredStyle: .actionSheet
+    )
 
     for displayName in displayNames {
       let action = UIAlertAction(title: displayName, style: .default) { _ in
@@ -879,7 +894,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func unenrollFactor(with displayName: String) {
     guard let currentUser = Auth.auth().currentUser else {
-      self.showAlert(for: "User must be logged in")
+      showAlert(for: "User must be logged in")
       print("Error: No current user")
       return
     }
@@ -905,9 +920,6 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-
-
-
 
   // MARK: - Private Helpers
 
