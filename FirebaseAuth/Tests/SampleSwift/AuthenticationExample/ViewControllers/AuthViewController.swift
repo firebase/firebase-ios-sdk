@@ -167,6 +167,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .verifyPasswordResetCode:
       verifyPasswordResetCode()
+   }
   }
 
   // MARK: - Firebase 🔥
