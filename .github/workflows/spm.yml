@@ -31,7 +31,7 @@ jobs:
         include:
           # The integration tests are slow and flaky on Xcode 15, so just build.
           - os: macos-13
-            xcode: Xcode_15.3
+            xcode: Xcode_15.2
             test: spmbuildonly
           - os: macos-14
             xcode: Xcode_15.3

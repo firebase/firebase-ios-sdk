@@ -40,7 +40,7 @@ target 'SymbolCollisionTest' do
   # Other Google Pods
     pod 'ARCore'
 #    pod 'Blockly'  `Blockly` does not specify a Swift version ...
-    pod 'DigitsMigrationHelper'
+#    pod 'DigitsMigrationHelper' Dependency Base64 doesn't build in Xcode 15
     pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
 #    pod 'google-cast-sdk' -- abseil
