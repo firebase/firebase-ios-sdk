@@ -79,6 +79,7 @@ public class VertexAI: NSObject {
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
+      toolConfig: toolConfig,
       requestOptions: requestOptions,
       appCheck: appCheck
     )
