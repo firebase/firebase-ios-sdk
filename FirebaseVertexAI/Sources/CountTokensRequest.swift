@@ -43,7 +43,10 @@ public struct CountTokensResponse {
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
 
-  /// The total number of billable characters in the input given to the model as a prompt.
+  /// The total number of billable characters in the text input given to the model as a prompt.
+  ///
+  /// > Important: This does not include billable image, video or other non-text input. See
+  /// [Vertex AI pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) for details.
   public let totalBillableCharacters: Int
 }
 
