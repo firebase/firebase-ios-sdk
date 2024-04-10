@@ -58,11 +58,13 @@ public class VertexAI: NSObject {
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   public func generativeModel(modelName: String,
                               generationConfig: GenerationConfig? = nil,
                               safetySettings: [SafetySetting]? = nil,
                               tools: [Tool]? = nil,
+                              toolConfig: ToolConfig? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
     let modelResourceName = modelResourceName(modelName: modelName, location: location)
