@@ -72,7 +72,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
 
-    let providerName = item.title!
+    guard let providerName = item.title else {
+      fatalError("Invalid item name")
+    }
 
     guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
