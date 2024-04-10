@@ -84,6 +84,7 @@ body:
         - Performance
         - Remote Config
         - Storage
+        - VertexAI
         - All
         - Infrastructure
     validations:
