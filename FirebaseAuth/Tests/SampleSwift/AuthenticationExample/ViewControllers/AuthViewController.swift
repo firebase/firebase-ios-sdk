@@ -1,3 +1,5 @@
+// For Sign in with Facebook
+import FBSDKLoginKit
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 @testable import FirebaseAuth
-
-// For Sign in with Facebook
-import FBSDKLoginKit
 // [START auth_import]
 import FirebaseCore
 import GameKit
@@ -73,7 +72,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
 
-    let providerName = item.title!
+    guard let providerName = item.title else {
+      fatalError("Invalid item name")
+    }
 
     guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
@@ -742,30 +743,34 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
           return
         }
 
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, multiFactorSession: session) { verificationID, error in
-          guard error == nil else {
-            self.showAlert(for: "Enrollment failed")
-            print("Multi factor start enroll failed. Error: \(error!)")
-            return
-          }
+        PhoneAuthProvider.provider()
+          .verifyPhoneNumber(phoneNumber, multiFactorSession: session) { verificationID, error in
+            guard error == nil else {
+              self.showAlert(for: "Enrollment failed")
+              print("Multi factor start enroll failed. Error: \(error!)")
+              return
+            }
 
-          self.showTextInputPrompt(with: "Verification Code: ") { verificationCode in
-            let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID!, verificationCode: verificationCode)
-            let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
+            self.showTextInputPrompt(with: "Verification Code: ") { verificationCode in
+              let credential = PhoneAuthProvider.provider().credential(
+                withVerificationID: verificationID!,
+                verificationCode: verificationCode
+              )
+              let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
 
-            self.showTextInputPrompt(with: "Display Name:") { displayName in
-              user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
-                if let error = error {
-                  self.showAlert(for: "Enrollment failed")
-                  print("Multi factor finalize enroll failed. Error: \(error)")
-                } else {
-                  self.showAlert(for: "Successfully enrolled: \(displayName)")
-                  print("Multi factor finalize enroll succeeded.")
+              self.showTextInputPrompt(with: "Display Name:") { displayName in
+                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
+                  if let error = error {
+                    self.showAlert(for: "Enrollment failed")
+                    print("Multi factor finalize enroll failed. Error: \(error)")
+                  } else {
+                    self.showAlert(for: "Successfully enrolled: \(displayName)")
+                    print("Multi factor finalize enroll succeeded.")
+                  }
                 }
               }
             }
           }
-        }
       }
     }
   }
@@ -817,33 +822,40 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
           secret.openInOTPApp(withQRCodeURL: url)
 
-          self.showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:", url: url) { oneTimePassword in
-            guard !oneTimePassword.isEmpty else {
-              self.showAlert(for: "Display name must not be empty")
-              print("OTP not entered.")
-              return
-            }
-
-            let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(with: secret, oneTimePassword: oneTimePassword)
-
-            self.showTextInputPrompt(with: "Display Name") { displayName in
-              guard !displayName.isEmpty else {
+          self
+            .showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:",
+                                           url: url) { oneTimePassword in
+              guard !oneTimePassword.isEmpty else {
                 self.showAlert(for: "Display name must not be empty")
-                print("Display name not entered.")
+                print("OTP not entered.")
                 return
               }
 
-              user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
-                if let error = error {
-                  self.showAlert(for: "Enrollment failed")
-                  print("Multi factor finalize enroll failed. Error: \(error.localizedDescription)")
-                } else {
-                  self.showAlert(for: "Successfully enrolled: \(displayName)")
-                  print("Multi factor finalize enroll succeeded.")
+              let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
+                with: secret,
+                oneTimePassword: oneTimePassword
+              )
+
+              self.showTextInputPrompt(with: "Display Name") { displayName in
+                guard !displayName.isEmpty else {
+                  self.showAlert(for: "Display name must not be empty")
+                  print("Display name not entered.")
+                  return
+                }
+
+                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
+                  if let error = error {
+                    self.showAlert(for: "Enrollment failed")
+                    print(
+                      "Multi factor finalize enroll failed. Error: \(error.localizedDescription)"
+                    )
+                  } else {
+                    self.showAlert(for: "Successfully enrolled: \(displayName)")
+                    print("Multi factor finalize enroll succeeded.")
+                  }
                 }
               }
             }
-          }
         }
       }
     }
@@ -863,7 +875,11 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
 
-    let alertController = UIAlertController(title: "Select Multi Factor to Unenroll", message: nil, preferredStyle: .actionSheet)
+    let alertController = UIAlertController(
+      title: "Select Multi Factor to Unenroll",
+      message: nil,
+      preferredStyle: .actionSheet
+    )
 
     for displayName in displayNames {
       let action = UIAlertAction(title: displayName, style: .default) { _ in
@@ -880,7 +896,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func unenrollFactor(with displayName: String) {
     guard let currentUser = Auth.auth().currentUser else {
-      self.showAlert(for: "User must be logged in")
+      showAlert(for: "User must be logged in")
       print("Error: No current user")
       return
     }
@@ -906,9 +922,6 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       }
     }
   }
-
-
-
 
   // MARK: - Private Helpers
 
@@ -938,40 +951,45 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     present(editController, animated: true, completion: nil)
   }
 
-  private func showQRCodePromptWithTextInput(with message: String, url: String, completion: ((String) -> Void)? = nil) {
-      // Create a UIAlertController
-    let alertController = UIAlertController(title: "QR Code Prompt", message: message, preferredStyle: .alert)
+  private func showQRCodePromptWithTextInput(with message: String, url: String,
+                                             completion: ((String) -> Void)? = nil) {
+    // Create a UIAlertController
+    let alertController = UIAlertController(
+      title: "QR Code Prompt",
+      message: message,
+      preferredStyle: .alert
+    )
 
-      // Add a text field for input
-    alertController.addTextField { (textField) in
+    // Add a text field for input
+    alertController.addTextField { textField in
       textField.placeholder = "Enter text"
     }
 
-      // Create a UIImage from the URL
+    // Create a UIImage from the URL
     guard let image = generateQRCode(from: url) else {
       print("Failed to generate QR code")
       return
     }
 
-      // Create an image view to display the QR code
+    // Create an image view to display the QR code
     let imageView = UIImageView(image: image)
     imageView.contentMode = .scaleAspectFit
     imageView.translatesAutoresizingMaskIntoConstraints = false
 
-      // Add the image view to the alert controller
+    // Add the image view to the alert controller
     alertController.view.addSubview(imageView)
 
-      // Add constraints to position the image view
+    // Add constraints to position the image view
     NSLayoutConstraint.activate([
       imageView.topAnchor.constraint(equalTo: alertController.view.topAnchor, constant: 20),
       imageView.centerXAnchor.constraint(equalTo: alertController.view.centerXAnchor),
       imageView.widthAnchor.constraint(equalToConstant: 200),
-      imageView.heightAnchor.constraint(equalToConstant: 200)
+      imageView.heightAnchor.constraint(equalToConstant: 200),
     ])
 
-      // Add actions
+    // Add actions
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-    let submitAction = UIAlertAction(title: "Submit", style: .default) { (_) in
+    let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
       if let text = alertController.textFields?.first?.text {
         completion?(text)
       }
@@ -980,11 +998,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     alertController.addAction(cancelAction)
     alertController.addAction(submitAction)
 
-      // Present the alert controller
-    UIApplication.shared.windows.first?.rootViewController?.present(alertController, animated: true, completion: nil)
+    // Present the alert controller
+    UIApplication.shared.windows.first?.rootViewController?.present(
+      alertController,
+      animated: true,
+      completion: nil
+    )
   }
 
-    // Function to generate QR code from a string
+  // Function to generate QR code from a string
   private func generateQRCode(from string: String) -> UIImage? {
     let data = string.data(using: String.Encoding.ascii)
 
