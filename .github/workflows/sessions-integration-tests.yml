@@ -25,7 +25,7 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126

@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: macos-12
+    runs-on: macos-14
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
@@ -83,7 +83,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
 
@@ -105,7 +105,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-12, ubuntu-latest]
+        os: [macos-14, ubuntu-latest]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -152,7 +152,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-14]
         databaseId: [(default), test-db]
 
     env:
@@ -239,7 +239,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-14]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
@@ -323,7 +323,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     needs: check
 
     strategy:
@@ -399,7 +399,7 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
         exclude:
           - os: macos-13
@@ -408,8 +408,8 @@ jobs:
           - os: macos-13
             platforms: 'ios'
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
@@ -440,16 +440,14 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS]
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     needs: check
@@ -474,7 +472,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     needs: check
     steps:
     - uses: actions/checkout@v4
@@ -493,7 +491,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     needs: check
     steps:
     - uses: actions/checkout@v4
@@ -523,7 +521,7 @@ jobs:
   # spm-source-cron:
   #   # Don't run on private repo.
   #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-  #   runs-on: macos-12
+  #   runs-on: macos-14
   #   strategy:
   #     matrix:
   #       target: [tvOS, macOS, catalyst]
@@ -544,7 +542,7 @@ jobs:
   spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -581,7 +579,7 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-12
+  #   runs-on: macos-14
   #   needs: check
 
   #   steps:

@@ -22,10 +22,10 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
@@ -48,7 +48,7 @@ jobs:
 
   mlmodeldownloader-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+    runs-on: macos-14
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
@@ -75,16 +75,14 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -101,7 +99,7 @@ jobs:
 
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -118,7 +116,7 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event_name == 'schedule' || github.event_name == 'pull_request')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126

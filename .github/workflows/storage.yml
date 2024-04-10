@@ -24,8 +24,8 @@ jobs:
       matrix:
         language: [Swift, ObjC]
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: ${{ matrix.os }}
@@ -65,16 +65,14 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -98,8 +96,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - swift: swift
             os: macos-13
             xcode: Xcode_15.2
@@ -128,7 +126,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -157,10 +155,10 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
             tests: --skip-tests
           - os: macos-13
             xcode: Xcode_15.2
@@ -186,10 +184,10 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
