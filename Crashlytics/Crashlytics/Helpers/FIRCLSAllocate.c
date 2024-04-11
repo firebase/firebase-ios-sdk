@@ -43,7 +43,7 @@ FIRCLSAllocatorRef FIRCLSAllocatorCreate(size_t writableSpace, size_t readableSp
   readableSpace += sizeof(FIRCLSAllocator);  // add the space for our allocator itself
 
   // we can only protect at the page level, so we need all of our regions to be
-  // exact multples of pages.  But, we don't need anything in the special-case of zero.
+  // exact multiples of pages.  But, we don't need anything in the special-case of zero.
 
   writableRegion.size = 0;
   if (writableSpace > 0) {
