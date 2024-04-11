@@ -16,7 +16,7 @@ import FirebaseCore
 import SwiftUI
 
 @main
-struct GenerativeAISampleApp: App {
+struct VertexAISampleApp: App {
   init() {
     // Recommendation: Protect your Vertex AI API resources from abuse by preventing unauthorized
     // clients using App Check; see https://firebase.google.com/docs/app-check#get_started.
