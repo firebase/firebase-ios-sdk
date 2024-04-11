@@ -32,6 +32,7 @@ final class VertexAIAPITests: XCTestCase {
                                   maxOutputTokens: 256,
                                   stopSequences: ["..."])
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
+    let systemInstruction = ModelContent(role: "system", parts: [.text("Talk like a pirate.")])
 
     // Instantiate Vertex AI SDK - Default App
     let vertexAI = VertexAI.vertexAI()
@@ -53,11 +54,17 @@ final class VertexAIAPITests: XCTestCase {
       generationConfig: config
     )
 
+    let _ = vertexAI.generativeModel(
+      modelName: "gemini-1.0-pro",
+      systemInstruction: systemInstruction
+    )
+
     // All arguments passed.
     let genAI = vertexAI.generativeModel(
       modelName: "gemini-1.0-pro",
       generationConfig: config, // Optional
-      safetySettings: filters // Optional
+      safetySettings: filters, // Optional
+      systemInstruction: systemInstruction // Optional
     )
 
     // Full Typed Usage
