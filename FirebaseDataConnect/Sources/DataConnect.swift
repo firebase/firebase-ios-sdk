@@ -109,8 +109,8 @@ public class DataConnect {
 
   public func getQueryRef<ResultDataType: Codable, Variable: OperationVariable>(request: QueryRequest<Variable>,
                                                    resultsDataType: ResultDataType
-                                                     .Type) -> any ObservableQueryRef {
-    return operationsManager.queryRef(for: request, with: resultsDataType)
+    .Type, publisher: ResultsPublisherType = .observableObject) -> any ObservableQueryRef {
+    return operationsManager.queryRef(for: request, with: resultsDataType, publisher: publisher)
   }
 
   public func getMutationRef<ResultDataType: Codable, VariableType: OperationVariable>(request: MutationRequest<VariableType>,

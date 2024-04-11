@@ -18,6 +18,14 @@ import Combine
 import Observation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+public enum ResultsPublisherType {
+  case auto // automatically determine ObservableQueryRef
+  case observableObject // pre-iOS 17 ObservableObject
+  case observation // iOS 17+ Observation framework
+}
+
+
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public struct QueryRequest<VariableType: OperationVariable>: OperationRequest, Hashable, Equatable {
 
   public private(set) var operationName: String
@@ -28,6 +36,7 @@ public struct QueryRequest<VariableType: OperationVariable>: OperationRequest, H
     self.variables = variables
   }
 
+  // Hashable and Equatable implementation
   public func hash(into hasher: inout Hasher) {
     hasher.combine(operationName)
     if let variables {
@@ -36,7 +45,6 @@ public struct QueryRequest<VariableType: OperationVariable>: OperationRequest, H
   }
 
   public static func == (lhs: QueryRequest, rhs: QueryRequest) -> Bool {
-
     guard lhs.operationName == rhs.operationName else {
       return false
     }
@@ -65,11 +73,11 @@ public protocol QueryRef: OperationRef {
 
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public actor GenericQueryRef<ResultDataType: Codable, VariableType: OperationVariable>: QueryRef {
+actor GenericQueryRef<ResultDataType: Codable, VariableType: OperationVariable>: QueryRef {
 
   private var resultsPublisher = PassthroughSubject<Result<ResultDataType, DataConnectError>, Never>()
 
-  public var request: QueryRequest<VariableType>
+  var request: QueryRequest<VariableType>
 
   private var grpcClient: GrpcClient
 
@@ -113,9 +121,13 @@ public actor GenericQueryRef<ResultDataType: Codable, VariableType: OperationVar
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public protocol ObservableQueryRef: OperationRef {
+public protocol ObservableQueryRef: QueryRef {
+  // results of fetch.
   var data: ResultDataType? {get}
+
+  // last error received. if last fetch was successful this is cleared
   var lastError: DataConnectError? {get}
+
 }
 
 // QueryRef class used with ObservableObject protocol
@@ -134,7 +146,6 @@ public class QueryRefObservableObject<ResultDataType: Codable, VariableType: Ope
   init(request: QueryRequest<VariableType>, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
     self.request = request
     baseRef = GenericQueryRef(request: request, grpcClient: grpcClient)
-
     setupSubscription()
   }
 
@@ -154,15 +165,22 @@ public class QueryRefObservableObject<ResultDataType: Codable, VariableType: Ope
     }
   }
 
-  // contains published results of the query
+  // ObservableQueryRef implementation
+
   @Published private(set) public var data: ResultDataType?
 
-  // last error received. if last fetch was successful, this is cleared
   @Published private(set) public var lastError: DataConnectError?
+
+
+  // QueryRef implementation
 
   public func execute() async throws -> OperationResult<ResultDataType> {
     let result = try await baseRef.execute()
     return result
+  }
+
+  public func subscribe() async throws -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never> {
+    return await baseRef.subscribe()
   }
 }
 
@@ -175,15 +193,19 @@ public class QueryRefObservableObject<ResultDataType: Codable, VariableType: Ope
 @Observable
 public class QueryRefObservation<ResultDataType: Codable, VariableType: OperationVariable>: ObservableQueryRef {
 
+  @ObservationIgnored
   private var request: QueryRequest<VariableType>
 
+  @ObservationIgnored
   private var baseRef: GenericQueryRef<ResultDataType, VariableType>
 
+  @ObservationIgnored
   private var resultsCancellable: AnyCancellable?
 
   init(request: QueryRequest<VariableType>, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
     self.request = request
     baseRef = GenericQueryRef(request: request, grpcClient: grpcClient)
+    setupSubscription()
   }
 
   private func setupSubscription() {
@@ -202,16 +224,21 @@ public class QueryRefObservation<ResultDataType: Codable, VariableType: Operatio
     }
   }
 
-  // contains published results of the query
+  // ObservableQueryRef implementation
+
   private(set) public var data: ResultDataType?
 
-  // last error received. if last fetch was successful, this is cleared
   private(set) public var lastError: DataConnectError?
+
+  // QueryRef implementation
 
   public func execute() async throws -> OperationResult<ResultDataType> {
     let result = try await baseRef.execute()
     return result
   }
 
+  public func subscribe() async throws -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never> {
+    return await baseRef.subscribe()
+  }
 
 }

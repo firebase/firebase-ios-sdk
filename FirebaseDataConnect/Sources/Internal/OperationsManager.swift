@@ -14,6 +14,7 @@
 
 import Foundation
 
+
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 class OperationsManager {
   private var grpcClient: GrpcClient
@@ -23,14 +24,20 @@ class OperationsManager {
   }
 
   func queryRef<ResultDataType: Codable, VariableType: OperationVariable>(for request: QueryRequest<VariableType>,
-                                         with resultType: ResultDataType
-    .Type) -> any ObservableQueryRef {
-      if #available(iOS 17, *) {
-        return QueryRefObservation<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
-    } else {
+                                                                          with resultType: ResultDataType
+    .Type, publisher: ResultsPublisherType = .auto) -> any ObservableQueryRef {
+
+      switch publisher {
+      case .auto, .observation:
+        if #available(iOS 17, *) {
+          return QueryRefObservation<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+        } else {
+          return QueryRefObservableObject<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+        }
+      case .observableObject:
         return QueryRefObservableObject<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+      }
     }
-}
 
   func mutationRef<ResultDataType: Codable, VariableType: OperationVariable>(for request: MutationRequest<VariableType>,
                                           with resultType: ResultDataType
@@ -38,3 +45,5 @@ class OperationsManager {
     return MutationRef(request: request, grpcClient: grpcClient)
   }
 }
+
+
