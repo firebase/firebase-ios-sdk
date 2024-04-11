@@ -46,7 +46,7 @@ target 'SymbolCollisionTest' do
 #    pod 'google-cast-sdk' -- abseil
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'
-    pod 'GoogleAppIndexing'
+#    pod 'GoogleAppIndexing' Fails to build with Xcode 15
     pod 'GoogleAppUtilities'
     pod 'GoogleAuthUtilities'
 #    pod 'GoogleConversionTracking' Fails to build with Xcode 15

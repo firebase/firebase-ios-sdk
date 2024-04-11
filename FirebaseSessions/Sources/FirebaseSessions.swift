@@ -18,6 +18,7 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
+
 #if swift(>=6.0)
   internal import Promises
 #elseif swift(>=5.10)

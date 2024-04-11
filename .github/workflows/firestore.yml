@@ -326,7 +326,8 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
+    # TODO: macOS 14 blocked on https://github.com/grpc/grpc/pull/36340
+    runs-on: macos-12
     needs: check
 
     strategy:
