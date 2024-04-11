@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, FIRCLSApplicationInstallationSourceType) {
 };
 
 /**
- * Returns the application bundle identifier with occurences of "/" replaced by "_"
+ * Returns the application bundle identifier with occurrences of "/" replaced by "_"
  */
 NSString* FIRCLSApplicationGetBundleIdentifier(void);
 
