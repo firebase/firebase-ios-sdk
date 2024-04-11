@@ -37,6 +37,12 @@ public final class GenerativeModel {
   /// A list of tools the model may use to generate the next response.
   let tools: [Tool]?
 
+  /// Tool configuration for any `Tool` specified in the request.
+  let toolConfig: ToolConfig?
+
+  /// Instructions that direct the model to behave a certain way.
+  let systemInstruction: ModelContent?
+
   /// Configuration parameters for sending requests to the backend.
   let requestOptions: RequestOptions
 
@@ -49,6 +55,9 @@ public final class GenerativeModel {
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
+  ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
   init(name: String,
@@ -56,6 +65,8 @@ public final class GenerativeModel {
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
        tools: [Tool]?,
+       toolConfig: ToolConfig? = nil,
+       systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        appCheck: AppCheckInterop?,
        urlSession: URLSession = .shared) {
@@ -68,6 +79,8 @@ public final class GenerativeModel {
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings
     self.tools = tools
+    self.toolConfig = toolConfig
+    self.systemInstruction = systemInstruction
     self.requestOptions = requestOptions
 
     Logging.default.info("""
@@ -114,6 +127,8 @@ public final class GenerativeModel {
                                                               generationConfig: generationConfig,
                                                               safetySettings: safetySettings,
                                                               tools: tools,
+                                                              toolConfig: toolConfig,
+                                                              systemInstruction: systemInstruction,
                                                               isStreaming: false,
                                                               options: requestOptions)
       response = try await generativeAIService.loadRequest(request: generateContentRequest)
@@ -186,6 +201,8 @@ public final class GenerativeModel {
                                                         generationConfig: generationConfig,
                                                         safetySettings: safetySettings,
                                                         tools: tools,
+                                                        toolConfig: toolConfig,
+                                                        systemInstruction: systemInstruction,
                                                         isStreaming: true,
                                                         options: requestOptions)
 
