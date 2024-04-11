@@ -24,7 +24,6 @@ function pod_gen() {
 }
 
 set -euo pipefail
-set -x
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
@@ -95,11 +94,8 @@ system=$(uname -s)
 case "$system" in
   Darwin)
     xcode_version=$(xcodebuild -version | grep Xcode)
-    echo $xcode_version
     xcode_version="${xcode_version/Xcode /}"
-    echo $xcode_version
     xcode_major="${xcode_version/.*/}"
-    echo $xcode_major
     ;;
   *)
     xcode_major="0"

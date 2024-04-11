@@ -40,30 +40,18 @@ target 'SymbolCollisionTest' do
   # Other Google Pods
     pod 'ARCore'
 #    pod 'Blockly'  `Blockly` does not specify a Swift version ...
-#    pod 'DigitsMigrationHelper' Dependency Base64 doesn't build in Xcode 15
     pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
 #    pod 'google-cast-sdk' -- abseil
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'
-#    pod 'GoogleAppIndexing' Fails to build with Xcode 15
-    pod 'GoogleAppUtilities'
-    pod 'GoogleAuthUtilities'
-#    pod 'GoogleConversionTracking' Fails to build with Xcode 15
-    pod 'GoogleDataTransport'
-#     pod 'GoogleIDFASupport' Fails to build with Xcode 15
-    pod 'GoogleInterchangeUtilities'
     pod 'GoogleMaps'
 
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
-    pod 'GoogleNetworkingUtilities'
-    pod 'GoogleParsingUtilities'
     pod 'GooglePlacePicker'
     pod 'GooglePlaces'
-    pod 'GooglePlusUtilities'
     pod 'GoogleSignIn', '> 6'
     pod 'GTMAppAuth'
-    pod 'GoogleSymbolUtilities'
     pod 'GoogleTagManager'
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
@@ -71,7 +59,6 @@ target 'SymbolCollisionTest' do
     pod 'GTMSessionFetcher'
 #    pod 'GVRSDK' -- absl and protobuf duplicates
     pod 'leveldb-library'
-#    pod 'MDFTextAccessibility' - conflicts with GVRSDK
     pod 'nanopb'
 #    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'
