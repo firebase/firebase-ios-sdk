@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		868A33662BB476FA00304BB1 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 868A33652BB476FA00304BB1 /* FirebaseAppCheck */; };
 		868A33682BB476FA00304BB1 /* FirebaseVertexAI-Preview in Frameworks */ = {isa = PBXBuildFile; productRef = 868A33672BB476FA00304BB1 /* FirebaseVertexAI-Preview */; };
 		869200B32B879C4F00482873 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 869200B22B879C4F00482873 /* GoogleService-Info.plist */; };
 		86C1F4832BC726150026816F /* FunctionCallingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C1F47E2BC726150026816F /* FunctionCallingScreen.swift */; };
@@ -67,7 +66,6 @@
 			files = (
 				868A33682BB476FA00304BB1 /* FirebaseVertexAI-Preview in Frameworks */,
 				886F95D82B17BA420036F07A /* MarkdownUI in Frameworks */,
-				868A33662BB476FA00304BB1 /* FirebaseAppCheck in Frameworks */,
 				886F95E32B17D6630036F07A /* GenerativeAIUIComponents in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -294,7 +292,6 @@
 			packageProductDependencies = (
 				886F95D72B17BA420036F07A /* MarkdownUI */,
 				886F95E22B17D6630036F07A /* GenerativeAIUIComponents */,
-				868A33652BB476FA00304BB1 /* FirebaseAppCheck */,
 				868A33672BB476FA00304BB1 /* FirebaseVertexAI-Preview */,
 			);
 			productName = GenerativeAISample;
@@ -607,10 +604,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		868A33652BB476FA00304BB1 /* FirebaseAppCheck */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseAppCheck;
-		};
 		868A33672BB476FA00304BB1 /* FirebaseVertexAI-Preview */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = "FirebaseVertexAI-Preview";
