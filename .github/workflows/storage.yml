@@ -97,7 +97,7 @@ jobs:
       matrix:
         include:
           - os: macos-13
-            xcode: Xcode_15.2
+            xcode: Xcode_14.2 # TODO: the legacy ObjC quickstart doesn't build with Xcode 15.
           - swift: swift
             os: macos-14
             xcode: Xcode_15.3

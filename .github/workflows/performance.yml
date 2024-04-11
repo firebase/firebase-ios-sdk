@@ -79,7 +79,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-14
+    runs-on: macos-12  # TODO: the legacy ObjC quickstarts don't run with Xcode 15.
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1

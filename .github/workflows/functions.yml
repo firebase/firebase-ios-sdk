@@ -117,7 +117,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
-    runs-on: macos-14
+    # TODO: Move to macos-14 and Xcode 15. The legacy quickstart uses material which doesn't build on Xcode 15.
+    runs-on: macos-12
 
     steps:
     - uses: actions/checkout@v4

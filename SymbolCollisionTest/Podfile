@@ -49,7 +49,7 @@ target 'SymbolCollisionTest' do
     pod 'GoogleAppIndexing'
     pod 'GoogleAppUtilities'
     pod 'GoogleAuthUtilities'
-    pod 'GoogleConversionTracking'
+#    pod 'GoogleConversionTracking' Fails to build with Xcode 15
     pod 'GoogleDataTransport'
 #     pod 'GoogleIDFASupport' Fails to build with Xcode 15
     pod 'GoogleInterchangeUtilities'

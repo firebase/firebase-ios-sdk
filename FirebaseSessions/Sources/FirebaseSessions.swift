@@ -18,7 +18,13 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
-@_implementationOnly import Promises
+#if swift(>=6.0)
+  internal import Promises
+#elseif swift(>=5.10)
+  import Promises
+#else
+  @_implementationOnly import Promises
+#endif
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
