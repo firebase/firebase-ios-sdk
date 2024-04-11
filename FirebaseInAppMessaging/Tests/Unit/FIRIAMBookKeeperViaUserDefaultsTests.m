@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
 
 @interface FIRIAMBookKeeperViaUserDefaultsTests : XCTestCase
-@property(nonatomic) NSUserDefaults *userDefaultsForTesting;
+@property(nonatomic) GULUserDefaults *userDefaultsForTesting;
 @end
 
 extern NSString *FIRIAM_UserDefaultsKeyForImpressions;
@@ -32,15 +33,15 @@ extern NSString *FIRIAM_ImpressionDictKeyForTimestamp;
 @implementation FIRIAMBookKeeperViaUserDefaultsTests
 - (void)setUp {
   [super setUp];
-  self.userDefaultsForTesting =
-      [[NSUserDefaults alloc] initWithSuiteName:@"FIRIAMBookKeeperViaUserDefaultsTests"];
+  NSString *suiteName = [[NSString alloc]
+      initWithFormat:@"FIRIAMBookKeeperViaUserDefaultsTests-%@", [NSUUID UUID].UUIDString];
+  self.userDefaultsForTesting = [[GULUserDefaults alloc] initWithSuiteName:suiteName];
 }
 
 - (void)tearDown {
   // Put teardown code here. This method is called after the invocation of each test method in the
   // class.
   [super tearDown];
-  [self.userDefaultsForTesting removeSuiteNamed:@"FIRIAMBookKeeperViaUserDefaultsTests"];
 }
 
 - (void)testRecordImpressionRecords {
