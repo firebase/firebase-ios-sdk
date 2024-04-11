@@ -26,7 +26,11 @@ static const char* kInvalid = "<invalid>";
 
 // Disable asan for this function because of the way it manages stack
 // (nested closure) is flaged with stack underflow by clang on Ubuntu.
+#if defined(_MSC_VER)
+__declspec(no_sanitize_address) std::string StringFormatPieces(
+#else
 __attribute__((no_sanitize_address)) std::string StringFormatPieces(
+#endif
     const char* format, std::initializer_list<absl::string_view> pieces) {
   std::string result;
 
