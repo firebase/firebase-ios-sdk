@@ -22,6 +22,7 @@ struct GenerateContentRequest {
   let generationConfig: GenerationConfig?
   let safetySettings: [SafetySetting]?
   let tools: [Tool]?
+  let toolConfig: ToolConfig?
   let isStreaming: Bool
   let options: RequestOptions
 }
@@ -33,6 +34,7 @@ extension GenerateContentRequest: Encodable {
     case generationConfig
     case safetySettings
     case tools
+    case toolConfig
   }
 }
 
