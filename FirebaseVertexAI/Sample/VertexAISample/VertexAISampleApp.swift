@@ -16,7 +16,7 @@ import FirebaseCore
 import SwiftUI
 
 @main
-struct GenerativeAISampleApp: App {
+struct VertexAISampleApp: App {
   init() {
     FirebaseApp.configure()
 
