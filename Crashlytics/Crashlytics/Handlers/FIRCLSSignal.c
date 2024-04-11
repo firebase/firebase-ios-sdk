@@ -86,7 +86,7 @@ static void FIRCLSSignalInstallHandlers(FIRCLSSignalReadContext *roContext) {
     action.sa_sigaction = FIRCLSSignalHandler;
     // SA_RESETHAND seems like it would be great, but it doesn't appear to
     // work correctly.  After taking a signal, causing another identical signal in
-    // the handler will *not* cause the default handler to be invokved (which should
+    // the handler will *not* cause the default handler to be involved (which should
     // terminate the process).  I've found some evidence that others have seen this
     // behavior on MAC OS X.
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;

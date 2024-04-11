@@ -310,7 +310,7 @@ static NSString *const kTopicRegexPattern = @"/topics/([a-zA-Z0-9-_.~%]+)";
 }
 
 /**
- *  Gets the class describing occurences of topic names and sender IDs in the sender.
+ *  Gets the class describing occurrences of topic names and sender IDs in the sender.
  *
  *  @param topic The topic expression used to generate a pubsub topic
  *

@@ -173,7 +173,7 @@ static bool FIRCLSProcessGetThreadState(FIRCLSProcess *process,
     return true;
   }
 
-  // Here's a wild trick: emulate what thread_get_state would do. It apppears that
+  // Here's a wild trick: emulate what thread_get_state would do. It appears that
   // we cannot reliably unwind out of thread_get_state. So, instead of trying, setup
   // a thread context that resembles what the real thing would look like
   if (FIRCLSProcessIsCurrentThread(process, thread)) {
