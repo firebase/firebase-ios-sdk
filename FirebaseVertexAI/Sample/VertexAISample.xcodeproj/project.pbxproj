@@ -13,7 +13,7 @@
 		86C1F4842BC726150026816F /* FunctionCallingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C1F4802BC726150026816F /* FunctionCallingViewModel.swift */; };
 		88263BF02B239C09008AB09B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88263BEE2B239BFE008AB09B /* ErrorView.swift */; };
 		88263BF12B239C11008AB09B /* ErrorDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 889873842B208563005B4896 /* ErrorDetailsView.swift */; };
-		8848C8332B0D04BC007B434F /* GenerativeAISampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848C8322B0D04BC007B434F /* GenerativeAISampleApp.swift */; };
+		8848C8332B0D04BC007B434F /* VertexAISampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848C8322B0D04BC007B434F /* VertexAISampleApp.swift */; };
 		8848C8352B0D04BC007B434F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848C8342B0D04BC007B434F /* ContentView.swift */; };
 		8848C8372B0D04BD007B434F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8848C8362B0D04BD007B434F /* Assets.xcassets */; };
 		8848C83A2B0D04BD007B434F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8848C8392B0D04BD007B434F /* Preview Assets.xcassets */; };
@@ -39,8 +39,8 @@
 		88209C1B2B0FBDC300F64795 /* SummarizeScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummarizeScreen.swift; sourceTree = "<group>"; };
 		88209C1D2B0FBDC300F64795 /* SummarizeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummarizeViewModel.swift; sourceTree = "<group>"; };
 		88263BEE2B239BFE008AB09B /* ErrorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
-		8848C82F2B0D04BC007B434F /* GenerativeAISample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GenerativeAISample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8848C8322B0D04BC007B434F /* GenerativeAISampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerativeAISampleApp.swift; sourceTree = "<group>"; };
+		8848C82F2B0D04BC007B434F /* VertexAISample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VertexAISample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8848C8322B0D04BC007B434F /* VertexAISampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexAISampleApp.swift; sourceTree = "<group>"; };
 		8848C8342B0D04BC007B434F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8848C8362B0D04BD007B434F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8848C8392B0D04BD007B434F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -142,7 +142,7 @@
 			children = (
 				88B8A9352B0FCBA700424728 /* GenerativeAIUIComponents */,
 				869200B22B879C4F00482873 /* GoogleService-Info.plist */,
-				8848C8312B0D04BC007B434F /* GenerativeAISample */,
+				8848C8312B0D04BC007B434F /* VertexAISample */,
 				8848C8452B0D051E007B434F /* GenerativeAITextSample */,
 				8848C8572B0D056C007B434F /* GenerativeAIMultimodalSample */,
 				88E10F432B110D5300C08E95 /* ChatSample */,
@@ -155,20 +155,20 @@
 		8848C8302B0D04BC007B434F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8848C82F2B0D04BC007B434F /* GenerativeAISample.app */,
+				8848C82F2B0D04BC007B434F /* VertexAISample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8848C8312B0D04BC007B434F /* GenerativeAISample */ = {
+		8848C8312B0D04BC007B434F /* VertexAISample */ = {
 			isa = PBXGroup;
 			children = (
-				8848C8322B0D04BC007B434F /* GenerativeAISampleApp.swift */,
+				8848C8322B0D04BC007B434F /* VertexAISampleApp.swift */,
 				8848C8342B0D04BC007B434F /* ContentView.swift */,
 				8848C8362B0D04BD007B434F /* Assets.xcassets */,
 				8848C8382B0D04BD007B434F /* Preview Content */,
 			);
-			path = GenerativeAISample;
+			path = VertexAISample;
 			sourceTree = "<group>";
 		};
 		8848C8382B0D04BD007B434F /* Preview Content */ = {
@@ -276,9 +276,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8848C82E2B0D04BC007B434F /* GenerativeAISample */ = {
+		8848C82E2B0D04BC007B434F /* VertexAISample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8848C83D2B0D04BD007B434F /* Build configuration list for PBXNativeTarget "GenerativeAISample" */;
+			buildConfigurationList = 8848C83D2B0D04BD007B434F /* Build configuration list for PBXNativeTarget "VertexAISample" */;
 			buildPhases = (
 				8848C82B2B0D04BC007B434F /* Sources */,
 				8848C82C2B0D04BC007B434F /* Frameworks */,
@@ -288,14 +288,14 @@
 			);
 			dependencies = (
 			);
-			name = GenerativeAISample;
+			name = VertexAISample;
 			packageProductDependencies = (
 				886F95D72B17BA420036F07A /* MarkdownUI */,
 				886F95E22B17D6630036F07A /* GenerativeAIUIComponents */,
 				868A33672BB476FA00304BB1 /* FirebaseVertexAI-Preview */,
 			);
 			productName = GenerativeAISample;
-			productReference = 8848C82F2B0D04BC007B434F /* GenerativeAISample.app */;
+			productReference = 8848C82F2B0D04BC007B434F /* VertexAISample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -313,7 +313,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8848C82A2B0D04BC007B434F /* Build configuration list for PBXProject "GenerativeAISample" */;
+			buildConfigurationList = 8848C82A2B0D04BC007B434F /* Build configuration list for PBXProject "VertexAISample" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -331,7 +331,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8848C82E2B0D04BC007B434F /* GenerativeAISample */,
+				8848C82E2B0D04BC007B434F /* VertexAISample */,
 			);
 		};
 /* End PBXProject section */
@@ -361,7 +361,7 @@
 				88263BF12B239C11008AB09B /* ErrorDetailsView.swift in Sources */,
 				8848C8352B0D04BC007B434F /* ContentView.swift in Sources */,
 				886F95D52B17BA010036F07A /* SummarizeScreen.swift in Sources */,
-				8848C8332B0D04BC007B434F /* GenerativeAISampleApp.swift in Sources */,
+				8848C8332B0D04BC007B434F /* VertexAISampleApp.swift in Sources */,
 				886F95E02B17D5010036F07A /* ConversationViewModel.swift in Sources */,
 				886F95DD2B17D5010036F07A /* MessageView.swift in Sources */,
 				886F95DC2B17BAEF0036F07A /* PhotoReasoningScreen.swift in Sources */,
@@ -501,7 +501,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"GenerativeAISample/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"VertexAISample/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -531,7 +531,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"GenerativeAISample/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"VertexAISample/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -557,7 +557,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8848C82A2B0D04BC007B434F /* Build configuration list for PBXProject "GenerativeAISample" */ = {
+		8848C82A2B0D04BC007B434F /* Build configuration list for PBXProject "VertexAISample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8848C83B2B0D04BD007B434F /* Debug */,
@@ -566,7 +566,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8848C83D2B0D04BD007B434F /* Build configuration list for PBXNativeTarget "GenerativeAISample" */ = {
+		8848C83D2B0D04BD007B434F /* Build configuration list for PBXNativeTarget "VertexAISample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8848C83E2B0D04BD007B434F /* Debug */,
