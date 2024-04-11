@@ -55,7 +55,7 @@ FIRCLSAllocatorRef FIRCLSAllocatorCreate(size_t writableSpace, size_t readableSp
     readableRegion.size = ((readableSpace / pageSize) + 1) * pageSize;
   }
 
-  // Make one big, continous allocation, adding additional pages for our guards.  Note
+  // Make one big, continuous allocation, adding additional pages for our guards.  Note
   // that we cannot use malloc (or valloc) in this case, because we need to assert full
   // ownership over these allocations.  mmap is a much better choice.  We also mark these
   // pages as MAP_NOCACHE.
