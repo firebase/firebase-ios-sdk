@@ -492,8 +492,8 @@ case "$product-$platform-$method" in
 
   VertexSample-*-*)
     RunXcodebuild \
-      -project 'FirebaseVertexAI/Sample/GenerativeAISample.xcodeproj' \
-      -scheme "GenerativeAISample" \
+      -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
+      -scheme "VertexAISample" \
       "${xcb_flags[@]}" \
       build
     ;;
