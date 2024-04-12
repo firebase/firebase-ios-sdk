@@ -1,4 +1,4 @@
-platform :ios, '11.0'
+platform :ios, '15.0'
 
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
@@ -45,11 +45,10 @@ target 'SymbolCollisionTest' do
 #    pod 'google-cast-sdk' -- abseil
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'
-    pod 'GoogleMaps'
+    pod 'GoogleMaps', '> 8'
 
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
-    pod 'GooglePlacePicker'
-    pod 'GooglePlaces'
+    pod 'GooglePlaces', '> 8'
     pod 'GoogleSignIn', '> 6'
     pod 'GTMAppAuth'
     pod 'GoogleTagManager'
