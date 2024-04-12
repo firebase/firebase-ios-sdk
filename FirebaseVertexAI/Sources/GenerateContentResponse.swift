@@ -17,12 +17,27 @@ import Foundation
 /// The model's response to a generate content request.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public struct GenerateContentResponse {
+  /// Token usage metadata for processing the generate content request.
+  public struct UsageMetadata {
+    /// The number of tokens in the request prompt.
+    let promptTokenCount: Int
+
+    /// The total number of tokens across the generated response candidates.
+    let candidatesTokenCount: Int
+
+    /// The total number of tokens in both the request and response.
+    let totalTokenCount: Int
+  }
+
   /// A list of candidate response content, ordered from best to worst.
   public let candidates: [CandidateResponse]
 
   /// A value containing the safety ratings for the response, or, if the request was blocked, a
   /// reason for blocking the request.
   public let promptFeedback: PromptFeedback?
+
+  /// Token usage metadata for processing the generate content request.
+  public let usageMetadata: UsageMetadata?
 
   /// The response's content as text, if it exists.
   public var text: String? {
@@ -51,9 +66,11 @@ public struct GenerateContentResponse {
   }
 
   /// Initializer for SwiftUI previews or tests.
-  public init(candidates: [CandidateResponse], promptFeedback: PromptFeedback?) {
+  public init(candidates: [CandidateResponse], promptFeedback: PromptFeedback?,
+              usageMetadata: UsageMetadata?) {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
+    self.usageMetadata = usageMetadata
   }
 }
 
@@ -62,6 +79,7 @@ extension GenerateContentResponse: Decodable {
   enum CodingKeys: CodingKey {
     case candidates
     case promptFeedback
+    case usageMetadata
   }
 
   public init(from decoder: Decoder) throws {
@@ -86,6 +104,7 @@ extension GenerateContentResponse: Decodable {
       candidates = []
     }
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
+    usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
   }
 }
 
@@ -299,5 +318,22 @@ extension PromptFeedback: Decodable {
     } else {
       safetyRatings = []
     }
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension GenerateContentResponse.UsageMetadata: Decodable {
+  enum CodingKeys: CodingKey {
+    case promptTokenCount
+    case candidatesTokenCount
+    case totalTokenCount
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
+    candidatesTokenCount = try container
+      .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
   }
 }
