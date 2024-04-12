@@ -45,7 +45,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-# TODO: Update to macos-14 when tests are updated for Xcode 15.
+# TODO(#12770): Update to macos-14 when tests are updated for Xcode 15.
     runs-on: macos-12
     strategy:
       matrix:
