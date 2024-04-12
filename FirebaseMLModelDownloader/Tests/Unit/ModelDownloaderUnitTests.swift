@@ -24,6 +24,8 @@
   import XCTest
   #if SWIFT_PACKAGE
     @_implementationOnly import GoogleUtilities_UserDefaults
+
+//    @_implementationOnly import GoogleUtilities_Logger
   #else
     @_implementationOnly import GoogleUtilities
   #endif // SWIFT_PACKAGE
