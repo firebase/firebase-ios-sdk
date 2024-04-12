@@ -6,7 +6,7 @@ use the sample app, you'll need to perform the following steps:
 1. Download
    [vertexai-preview-0.1.0.zip](https://github.com/firebase/firebase-ios-sdk/archive/refs/heads/vertexai-preview-0.1.0.zip)
    for the latest release of the SDK
-1. Extract the zip and open `GenerativeAISample.xcodeproj` in the
+1. Extract the zip and open `VertexAISample.xcodeproj` in the
    `FirebaseVertexAI/Sample` directory
 1. [Register the sample app](https://firebase.google.com/docs/ios/setup#register-app)
    in your Firebase project
