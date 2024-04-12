@@ -39,8 +39,6 @@ target 'SymbolCollisionTest' do
 
   # Other Google Pods
     pod 'ARCore'
-#    pod 'Blockly'  `Blockly` does not specify a Swift version ...
-    pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
 #    pod 'google-cast-sdk' -- abseil
     pod 'Google-Mobile-Ads-SDK'
