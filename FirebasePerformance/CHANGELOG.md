@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Removed usages of user defaults API to reduce required reason impact.
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
 
 # 10.18.0
 - [fixed] Fix a Xcode 15.1 build warning (#12027).

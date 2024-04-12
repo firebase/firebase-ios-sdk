@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Removed usages of user defaults API to reduce required reason impact.
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
 
 # 10.17.0
 - [feature] The `FirebaseDatabase` module now contains Firebase Database's
