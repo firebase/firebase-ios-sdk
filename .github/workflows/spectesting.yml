@@ -11,7 +11,7 @@ jobs:
   specs_checking:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+    runs-on: macos-14
     outputs:
       matrix: ${{ steps.check_files.outputs.matrix }}
       podspecs: ${{ steps.check_files.outputs.podspecs }}
@@ -44,6 +44,7 @@ jobs:
   specs_testing:
     needs: specs_checking
     if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
+    # TODO: macOS 14 blocked on https://github.com/grpc/grpc/pull/36340
     runs-on: macos-12
     strategy:
       fail-fast: false

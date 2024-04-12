@@ -19,7 +19,7 @@ jobs:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
 
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         # These need to be on a single line or else the formatting won't validate.
@@ -41,7 +41,7 @@ jobs:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
 
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         target: [ios, tvos, macos]
