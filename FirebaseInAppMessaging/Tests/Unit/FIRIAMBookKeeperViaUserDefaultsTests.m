@@ -30,18 +30,19 @@ extern NSString *FIRIAM_UserDefaultsKeyForLastImpressionTimestamp;
 extern NSString *FIRIAM_ImpressionDictKeyForID;
 extern NSString *FIRIAM_ImpressionDictKeyForTimestamp;
 
+static NSString *const kSuiteName = @"FIRIAMBookKeeperViaUserDefaultsTests";
+
 @implementation FIRIAMBookKeeperViaUserDefaultsTests
 - (void)setUp {
   [super setUp];
-  NSString *suiteName = [[NSString alloc]
-      initWithFormat:@"FIRIAMBookKeeperViaUserDefaultsTests-%@", [NSUUID UUID].UUIDString];
-  self.userDefaultsForTesting = [[GULUserDefaults alloc] initWithSuiteName:suiteName];
+  self.userDefaultsForTesting = [[GULUserDefaults alloc] initWithSuiteName:kSuiteName];
 }
 
 - (void)tearDown {
   // Put teardown code here. This method is called after the invocation of each test method in the
   // class.
   [super tearDown];
+  [[[NSUserDefaults alloc] initWithSuiteName:kSuiteName] removePersistentDomainForName:kSuiteName];
 }
 
 - (void)testRecordImpressionRecords {
