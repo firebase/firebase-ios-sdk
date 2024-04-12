@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Removed usages of user defaults API to reduce required reason impact.
+
 # 10.22.0
 - [fixed] Fixed an `objc_retain` crash. (#12393)
 
