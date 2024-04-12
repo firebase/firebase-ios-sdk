@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.17.0
 - [feature] The `FirebaseDatabase` module now contains Firebase Database's
   Swift-only APIs that were previously only available via the
