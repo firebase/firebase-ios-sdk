@@ -51,8 +51,7 @@ struct ErrorView: View {
         ],
         finishReason: FinishReason.other,
         citationMetadata: nil),
-      ],
-      promptFeedback: nil)
+      ])
     )
     List {
       MessageView(message: ChatMessage.samples[0])
