@@ -287,6 +287,21 @@ final class GenerativeModelTests: XCTestCase {
     _ = try await model.generateContent(testPrompt)
   }
 
+  func testGenerateContent_usageMetadata() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokenCount, 6)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, 7)
+    XCTAssertEqual(usageMetadata.totalTokenCount, 13)
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol
@@ -812,6 +827,32 @@ final class GenerativeModelTests: XCTestCase {
 
     let stream = model.generateContentStream(testPrompt)
     for try await _ in stream {}
+  }
+
+  func testGenerateContentStream_usageMetadata() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "streaming-success-basic-reply-short",
+        withExtension: "txt"
+      )
+    var responses = [GenerateContentResponse]()
+
+    let stream = model.generateContentStream(testPrompt)
+    for try await response in stream {
+      responses.append(response)
+    }
+
+    for (index, response) in responses.enumerated() {
+      if index == responses.endIndex - 1 {
+        let usageMetadata = try XCTUnwrap(response.usageMetadata)
+        XCTAssertEqual(usageMetadata.promptTokenCount, 6)
+        XCTAssertEqual(usageMetadata.candidatesTokenCount, 4)
+        XCTAssertEqual(usageMetadata.totalTokenCount, 10)
+      } else {
+        // Only the last streamed response contains usage metadata
+        XCTAssertNil(response.usageMetadata)
+      }
+    }
   }
 
   func testGenerateContentStream_errorMidStream() async throws {
