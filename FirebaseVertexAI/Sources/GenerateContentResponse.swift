@@ -20,13 +20,13 @@ public struct GenerateContentResponse {
   /// Token usage metadata for processing the generate content request.
   public struct UsageMetadata {
     /// The number of tokens in the request prompt.
-    let promptTokenCount: Int
+    public let promptTokenCount: Int
 
     /// The total number of tokens across the generated response candidates.
-    let candidatesTokenCount: Int
+    public let candidatesTokenCount: Int
 
     /// The total number of tokens in both the request and response.
-    let totalTokenCount: Int
+    public let totalTokenCount: Int
   }
 
   /// A list of candidate response content, ordered from best to worst.
