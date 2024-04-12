@@ -176,8 +176,7 @@ struct ErrorDetailsView: View {
       ],
       finishReason: FinishReason.maxTokens,
       citationMetadata: nil),
-    ],
-    promptFeedback: nil)
+    ])
   )
 
   return ErrorDetailsView(error: error)
@@ -200,8 +199,7 @@ struct ErrorDetailsView: View {
       ],
       finishReason: FinishReason.other,
       citationMetadata: nil),
-    ],
-    promptFeedback: nil)
+    ])
   )
 
   return ErrorDetailsView(error: error)
