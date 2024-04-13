@@ -709,10 +709,13 @@ struct FrameworkBuilder {
       .appendingPathComponent(frameworkBuildName(name) + ".xcframework")
 
     // The arguments for the frameworks need to be separated.
-    var frameworkArgs: [String] = []
-    for frameworkBuilt in frameworks {
-      frameworkArgs.append("-framework")
-      frameworkArgs.append(frameworkBuilt.path)
+    let frameworkArgs = frameworks.flatMap {
+      [
+        "-framework",
+        // Xcode 15.0-15.2: Return the canonical path to work around issue
+        // https://forums.swift.org/t/67439
+        try! $0.resourceValues(forKeys: [.canonicalPathKey]).canonicalPath!,
+      ]
     }
 
     let outputArgs = ["-output", xcframework.path]
