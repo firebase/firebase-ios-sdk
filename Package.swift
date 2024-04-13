@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.24.0"
+let firebaseVersion = "10.25.0"
 
 let package = Package(
   name: "Firebase",
@@ -166,10 +166,16 @@ let package = Package(
     ),
     abseilDependency(),
     grpcDependency(),
+    // TODO: restore OCMock when https://github.com/erikdoe/ocmock/pull/537
+    // gets merged to fix Xcode 15.3 builds.
     .package(
-      url: "https://github.com/erikdoe/ocmock.git",
-      revision: "c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110"
+      url: "https://github.com/paulb777/ocmock.git",
+      revision: "173955e93e6ee6999a10729ab67e4b4efdd1db6d"
     ),
+//    .package(
+//      url: "https://github.com/erikdoe/ocmock.git",
+//      revision: "c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110"
+//    ),
     .package(
       url: "https://github.com/firebase/leveldb.git",
       "1.22.2" ..< "1.23.0"
@@ -590,6 +596,7 @@ let package = Package(
         "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseDatabase/Sources",
       exclude: [
@@ -777,6 +784,7 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseABTesting",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
         .target(name: "FirebaseInAppMessaging_iOS", condition: .when(platforms: [.iOS])),
       ],
@@ -838,6 +846,7 @@ let package = Package(
         "FirebaseInstallations",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "SwiftProtobuf", package: "swift-protobuf"),
       ],
       path: "FirebaseMLModelDownloader/Sources",
@@ -1090,6 +1099,7 @@ let package = Package(
         .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseSessions/Sources",
       cSettings: [
@@ -1280,6 +1290,7 @@ let package = Package(
               .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
+              .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
             path: "FirebaseAppCheck/Sources",
             publicHeadersPath: "Public",
