@@ -32,26 +32,32 @@
 
   extension UIApplication: AuthAPNSTokenApplication {}
 
-  /// A class to manage APNs token in memory.
+  /** @class AuthAPNSToken
+      @brief A data structure for an APNs token.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAPNSTokenManager: NSObject {
-    /// The timeout for registering for remote notification.
-    ///
-    /// Only tests should access this property.
+    /** @property timeout
+        @brief The timeout for registering for remote notification.
+        @remarks Only tests should access this property.
+     */
     var timeout: TimeInterval = 5
 
-    /// Initializes the instance.
-    /// - Parameter application: The  `UIApplication` to request the token from.
-    /// - Returns: The initialized instance.
+    /** @fn initWithApplication:
+        @brief Initializes the instance.
+        @param application The @c UIApplication to request the token from.
+        @return The initialized instance.
+     */
     init(withApplication application: AuthAPNSTokenApplication) {
       self.application = application
     }
 
-    /// Attempts to get the APNs token.
-    /// - Parameter callback: The block to be called either immediately or in future, either when a
-    /// token becomes available, or when timeout occurs, whichever happens earlier.
-    ///
-    /// This function is internal to make visible for tests.
+    // This function is internal to make visible for tests.
+    /** @fn getTokenWithCallback:
+        @brief Attempts to get the APNs token.
+        @param callback The block to be called either immediately or in future, either when a token
+            becomes available, or when timeout occurs, whichever happens earlier.
+     */
     func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
       if let token = tokenStore {
         callback(token, nil)
@@ -88,13 +94,14 @@
       }
     }
 
-    /// The APNs token, if one is available.
-    ///
-    /// Setting a token with AuthAPNSTokenTypeUnknown will automatically converts it to
-    /// a token with the automatically detected type.
+    /** @property token
+        @brief The APNs token, if one is available.
+        @remarks Setting a token with AuthAPNSTokenTypeUnknown will automatically converts it to
+            a token with the automatically detected type.
+     */
     var token: AuthAPNSToken? {
       get {
-        tokenStore
+        return tokenStore
       }
       set(setToken) {
         guard let setToken else {
@@ -112,16 +119,18 @@
       }
     }
 
-    /// Should only be written to in tests
+    // Should only be written to in tests
     var tokenStore: AuthAPNSToken?
 
-    /// Cancels any pending `getTokenWithCallback:` request.
-    /// - Parameter error: The error to return .
+    /** @fn cancelWithError:
+        @brief Cancels any pending `getTokenWithCallback:` request.
+        @param error The error to return.
+     */
     func cancel(withError error: Error) {
       callback(withToken: nil, error: error)
     }
 
-    /// Enable unit test faking.
+    // `application` is a var to enable unit test faking.
     var application: AuthAPNSTokenApplication
     private var pendingCallbacks: [(AuthAPNSToken?, Error?) -> Void] = []
 

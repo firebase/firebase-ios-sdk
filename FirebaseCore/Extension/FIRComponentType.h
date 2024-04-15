@@ -27,8 +27,7 @@ NS_SWIFT_NAME(ComponentType)
 
 /// Do not use directly. A factory method to retrieve an instance that provides a specific
 /// functionality.
-+ (nullable T)instanceForProtocol:(Protocol *)protocol
-                      inContainer:(FIRComponentContainer *)container;
++ (T)instanceForProtocol:(Protocol *)protocol inContainer:(FIRComponentContainer *)container;
 
 @end
 

@@ -38,7 +38,9 @@ enum FunctionsConstants {
   static let defaultRegion = "us-central1"
 }
 
-/// `Functions` is the client for Cloud Functions for a Firebase project.
+/**
+ * `Functions` is the client for Cloud Functions for a Firebase project.
+ */
 @objc(FIRFunctions) open class Functions: NSObject {
   // MARK: - Private Variables
 
@@ -59,12 +61,15 @@ enum FunctionsConstants {
 
   // MARK: - Public APIs
 
-  /// The current emulator origin, or `nil` if it is not set.
+  /**
+   * The current emulator origin, or `nil` if it is not set.
+   */
   open private(set) var emulatorOrigin: String?
 
-  /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
-  /// already exists.
-  /// - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
+  /**
+   * Creates a Cloud Functions client using the default or returns a pre-existing instance if it already exists.
+   * - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
+   */
   @objc(functions) open class func functions() -> Functions {
     return functions(
       app: FirebaseApp.app(),
@@ -73,51 +78,57 @@ enum FunctionsConstants {
     )
   }
 
-  /// Creates a Cloud Functions client with the given app, or returns a pre-existing
-  /// instance if one already exists.
-  /// - Parameter app: The app for the Firebase project.
-  /// - Returns: A shared Functions instance initialized with the specified `FirebaseApp`.
+  /**
+   * Creates a Cloud Functions client with the given app, or returns a pre-existing
+   * instance if one already exists.
+   * - Parameter app The app for the Firebase project.
+   * - Returns: A shared Functions instance initialized with the specified `FirebaseApp`.
+   */
   @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
   }
 
-  /// Creates a Cloud Functions client with the default app and given region.
-  ///  - Parameter region: The region for the HTTP trigger, such as `us-central1`.
-  ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
-  /// custom region.
+  /**
+   * Creates a Cloud Functions client with the default app and given region.
+   * - Parameter region The region for the HTTP trigger, such as `us-central1`.
+   * - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a custom region.
+   */
   @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
     return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
   }
 
-  ///  Creates a Cloud Functions client with the given custom domain or returns a pre-existing
-  ///  instance if one already exists.
-  ///  - Parameter customDomain: A custom domain for the HTTP trigger, such as
-  /// "https://mydomain.com".
-  ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
-  /// custom HTTP trigger domain.
+  /**
+   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+   * instance if one already exists.
+   * - Parameter customDomain A custom domain for the HTTP trigger, such as "https://mydomain.com".
+   * - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a custom HTTP trigger domain.
+   */
   @objc(functionsForCustomDomain:) open class func functions(customDomain: String) -> Functions {
     return functions(app: FirebaseApp.app(),
                      region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
 
-  ///  Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-  ///  instance if one already exists.
-  ///  - Parameters:
-  ///    - app: The app for the Firebase project.
-  ///    - region: The region for the HTTP trigger, such as `us-central1`.
-  ///  - Returns: An instance of `Functions` with a custom app and region.
+  /**
+   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+   * instance if one already exists.
+   * - Parameters:
+   *   - app: The app for the Firebase project.
+   *   - region: The region for the HTTP trigger, such as `us-central1`.
+   * - Returns: An instance of `Functions` with a custom app and region.
+   */
   @objc(functionsForApp:region:) open class func functions(app: FirebaseApp,
                                                            region: String) -> Functions {
     return functions(app: app, region: region, customDomain: nil)
   }
 
-  /// Creates a Cloud Functions client with the given app and custom domain, or returns a
-  /// pre-existing
-  /// instance if one already exists.
-  ///  - Parameters:
-  ///    - app: The app for the Firebase project.
-  ///    - customDomain: A custom domain for the HTTP trigger, such as `https://mydomain.com`.
-  ///  - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
+  /**
+   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+   * instance if one already exists.
+   * - Parameters:
+   *   - app The app for the Firebase project.
+   *   - customDomain A custom domain for the HTTP trigger, such as `https://mydomain.com`.
+   * - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
+   */
   @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
                                                                  customDomain: String)
     -> Functions {

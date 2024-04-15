@@ -159,13 +159,7 @@ public extension FileManager {
     // Recursively search using the enumerator, adding any matches to the array.
     var matches: [URL] = []
     var foundXcframework = false // Ignore .frameworks after finding an xcframework.
-    for case let fileURL as URL in dirEnumerator {
-      // Never mess with Privacy.bundles
-      if fileURL.lastPathComponent.hasSuffix("_Privacy.bundle") {
-        dirEnumerator.skipDescendants()
-        continue
-      }
-
+    while let fileURL = dirEnumerator.nextObject() as? URL {
       switch type {
       case .allFiles:
         // Skip directories, include everything else.

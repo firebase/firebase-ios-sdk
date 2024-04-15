@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '10.23.0'
+  s.version          = '10.21.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -28,17 +28,13 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.12.0'
+  s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
     'FirebaseCore/Extension/*.h'
   ]
-
-  s.resource_bundles = {
-    "#{s.module_name}_Privacy" => 'FirebaseCore/Sources/Resources/PrivacyInfo.xcprivacy'
-  }
 
   s.swift_version = '5.3'
 

@@ -14,32 +14,53 @@
 
 import Foundation
 
-/// The "verifyPhoneNumber" endpoint.
+/** @var kVerifyPhoneNumberEndPoint
+    @brief The "verifyPhoneNumber" endpoint.
+ */
 private let kVerifyPhoneNumberEndPoint = "verifyPhoneNumber"
 
-/// The key for the verification ID parameter in the request.
+/** @var kVerificationIDKey
+    @brief The key for the verification ID parameter in the request.
+ */
 private let kVerificationIDKey = "sessionInfo"
 
-/// The key for the verification code parameter in the request.
+/** @var kVerificationCodeKey
+    @brief The key for the verification code parameter in the request.
+ */
 private let kVerificationCodeKey = "code"
 
-/// The key for the "ID Token" value in the request.
+/** @var kIDTokenKey
+    @brief The key for the "ID Token" value in the request.
+ */
 private let kIDTokenKey = "idToken"
 
-/// The key for the temporary proof value in the request.
+/** @var kTemporaryProofKey
+    @brief The key for the temporary proof value in the request.
+ */
 private let kTemporaryProofKey = "temporaryProof"
 
-/// The key for the phone number value in the request.
+/** @var kPhoneNumberKey
+    @brief The key for the phone number value in the request.
+ */
 private let kPhoneNumberKey = "phoneNumber"
 
-/// The key for the operation value in the request.
+/** @var kOperationKey
+    @brief The key for the operation value in the request.
+ */
 private let kOperationKey = "operation"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
 extension AuthOperationType {
-  /// - Returns: The string value corresponding to the AuthOperationType.
+  /** @fn FIRAuthOperationString
+      @brief Returns a string object corresponding to the provided FIRAuthOperationType value.
+      @param operationType The value of the FIRAuthOperationType enum which will be translated to its
+          corresponding string value.
+      @return The string value corresponding to the FIRAuthOperationType argument.
+   */
   var operationString: String {
     switch self {
     case .unspecified:
@@ -60,30 +81,43 @@ extension AuthOperationType {
 class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyPhoneNumberResponse
 
-  /// The verification ID obtained from the response of `sendVerificationCode`.
+  /** @property verificationID
+       @brief The verification ID obtained from the response of @c sendVerificationCode.
+   */
   var verificationID: String?
 
-  /// The verification code provided by the user.
+  /** @property verificationCode
+       @brief The verification code provided by the user.
+   */
   var verificationCode: String?
 
-  /// The STS Access Token for the authenticated user.
+  /** @property accessToken
+      @brief The STS Access Token for the authenticated user.
+   */
   var accessToken: String?
 
-  /// The temporary proof code, previously returned from the backend.
+  /** @var temporaryProof
+      @brief The temporary proof code, previously returned from the backend.
+   */
   var temporaryProof: String?
 
-  /// The phone number to be verified in the request.
+  /** @var phoneNumber
+      @brief The phone number to be verified in the request.
+   */
   var phoneNumber: String?
 
-  /// The type of operation triggering this verify phone number request.
+  /** @var operation
+      @brief The type of operation triggering this verify phone number request.
+   */
   var operation: AuthOperationType
 
-  /// Designated initializer.
-  /// - Parameter temporaryProof: The temporary proof sent by the backed.
-  /// - Parameter phoneNumber: The phone number associated with the credential to be signed in .
-  /// - Parameter operation: Indicates what operation triggered the verify phone number request.
-  /// - Parameter requestConfiguration: An object containing configurations to be added to the
-  /// request.
+  /** @fn initWithTemporaryProof:phoneNumberAPIKey
+      @brief Designated initializer.
+      @param temporaryProof The temporary proof sent by the backed.
+      @param phoneNumber The phone number associated with the credential to be signed in.
+      @param operation Indicates what operation triggered the verify phone number request.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
   init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
        requestConfiguration: AuthRequestConfiguration) {
     self.temporaryProof = temporaryProof
@@ -92,13 +126,13 @@ class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  /// Designated initializer.
-  /// - Parameter verificationID: The verification ID obtained from the response of
-  /// `sendVerificationCode`.
-  /// - Parameter verificationCode: The verification code provided by the user.
-  /// - Parameter operation: Indicates what operation triggered the verify phone number request.
-  /// - Parameter requestConfiguration: An object containing configurations to be added to the
-  /// request.
+  /** @fn initWithVerificationID:verificationCode:requestConfiguration
+      @brief Designated initializer.
+      @param verificationID The verification ID obtained from the response of @c sendVerificationCode.
+      @param verificationCode The verification code provided by the user.
+      @param operation Indicates what operation triggered the verify phone number request.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
   init(verificationID: String,
        verificationCode: String,
        operation: AuthOperationType,

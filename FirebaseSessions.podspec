@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSessions'
-  s.version          = '10.23.0'
+  s.version          = '10.21.0'
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.12.0'
+  s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseSessions/"
@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.10'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
   s.dependency 'PromisesSwift', '~> 2.1'
 
   s.pod_target_xcconfig = {

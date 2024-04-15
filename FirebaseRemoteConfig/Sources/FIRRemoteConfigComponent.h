@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-@import FirebaseRemoteConfigInterop;
 
 @class FIRApp;
 @class FIRRemoteConfig;
@@ -38,18 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// A concrete implementation for FIRRemoteConfigInterop to create Remote Config instances and
 /// register with Core's component system.
-@interface FIRRemoteConfigComponent
-    : NSObject <FIRRemoteConfigProvider, FIRLibrary, FIRRemoteConfigInterop>
+@interface FIRRemoteConfigComponent : NSObject <FIRRemoteConfigProvider, FIRLibrary>
 
 /// The FIRApp that instances will be set up with.
 @property(nonatomic, weak, readonly) FIRApp *app;
 
 /// Cached instances of Remote Config objects.
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRRemoteConfig *> *instances;
-
-/// Clear all the component instances from the singleton which created previously, this is for
-/// testing only
-+ (void)clearAllComponentInstances;
 
 /// Default method for retrieving a Remote Config instance, or creating one if it doesn't exist.
 - (FIRRemoteConfig *)remoteConfigForNamespace:(NSString *)remoteConfigNamespace;

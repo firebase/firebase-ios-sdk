@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '10.23.0-beta'
+  s.version          = '10.21.0-beta'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -19,7 +19,7 @@ iOS SDK for App Distribution for Firebase.
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.12.0'
+  s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppDistribution/Sources/"

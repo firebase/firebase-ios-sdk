@@ -243,11 +243,7 @@ struct ZipBuilder {
                                                                          podInfo: podInfo)
             carthageGoogleUtilitiesFrameworks += cdFrameworks
           }
-          let fileManager = FileManager.default
-          if let resourceContents,
-             let contents = try? fileManager.contentsOfDirectory(at: resourceContents,
-                                                                 includingPropertiesForKeys: nil),
-             !contents.isEmpty {
+          if resourceContents != nil {
             resources[podName] = resourceContents
           }
         } else if podsBuilt[podName] == nil {

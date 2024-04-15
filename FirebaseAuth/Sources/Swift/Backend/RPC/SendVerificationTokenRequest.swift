@@ -14,22 +14,34 @@
 
 import Foundation
 
-/// The "sendVerificationCodeEnd" endpoint.
+/** @var kSendVerificationCodeEndPoint
+    @brief The "sendVerificationCodeEnd" endpoint.
+ */
 private let kSendVerificationCodeEndPoint = "sendVerificationCode"
 
-/// The key for the Phone Number parameter in the request.
+/** @var kPhoneNumberKey
+    @brief The key for the Phone Number parameter in the request.
+ */
 private let kPhoneNumberKey = "phoneNumber"
 
-/// The key for the receipt parameter in the request.
+/** @var kReceiptKey
+    @brief The key for the receipt parameter in the request.
+ */
 private let kReceiptKey = "iosReceipt"
 
-/// The key for the Secret parameter in the request.
+/** @var kSecretKey
+    @brief The key for the Secret parameter in the request.
+ */
 private let kSecretKey = "iosSecret"
 
-/// The key for the reCAPTCHAToken parameter in the request.
+/** @var kreCAPTCHATokenKey
+    @brief The key for the reCAPTCHAToken parameter in the request.
+ */
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
 ///  A verification code can be an appCredential or a reCaptcha Token
@@ -43,11 +55,14 @@ enum CodeIdentity {
 class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = SendVerificationCodeResponse
 
-  /// The phone number to which the verification code should be sent.
+  /** @property phoneNumber
+      @brief The phone number to which the verification code should be sent.
+   */
   let phoneNumber: String
 
-  /// The credential or reCAPTCHA token to prove the identity of the app in order to send the
-  /// verification code.
+  /** @property verificationCode
+      @brief The credential or reCAPTCHA token to prove the identity of the app in order to send the verification code.
+   */
   let codeIdentity: CodeIdentity
 
   init(phoneNumber: String, codeIdentity: CodeIdentity,

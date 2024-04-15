@@ -44,9 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Realtime retry count.
 @property(nonatomic, assign) int realtimeRetryCount;
 /// Last fetched template version.
-@property(nonatomic, assign) NSString *lastFetchedTemplateVersion;
-/// Last active template version.
-@property(nonatomic, assign) NSString *lastActiveTemplateVersion;
+@property(nonatomic, assign) NSString *lastTemplateVersion;
 
 /// Designated initializer.
 - (instancetype)initWithAppName:(NSString *)appName

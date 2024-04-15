@@ -190,8 +190,8 @@ auto RankedInvokeHash(const Range& range, HashChoice<3>)
  * value can itself be hashed.
  */
 template <typename K>
-auto RankedInvokeHash(const absl::optional<K>& option,
-                      HashChoice<4>) -> decltype(InvokeHash(*option)) {
+auto RankedInvokeHash(const absl::optional<K>& option, HashChoice<4>)
+    -> decltype(InvokeHash(*option)) {
   return option ? InvokeHash(*option) : -1171;
 }
 
@@ -202,8 +202,8 @@ size_t RankedInvokeHash(K value, HashChoice<5>) {
 }
 
 template <typename K>
-auto RankedInvokeHash(const std::unique_ptr<K>& ptr,
-                      HashChoice<6>) -> decltype(InvokeHash(*ptr)) {
+auto RankedInvokeHash(const std::unique_ptr<K>& ptr, HashChoice<6>)
+    -> decltype(InvokeHash(*ptr)) {
   return ptr ? InvokeHash(*ptr) : 23631;
 }
 

@@ -26,98 +26,112 @@ import FirebaseCore
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
-/// Firebase Storage is a service that supports uploading and downloading binary objects,
-/// such as images, videos, and other files to Google Cloud Storage. Instances of `Storage`
-/// are not thread-safe, but can be accessed from any thread.
-///
-/// If you call `Storage.storage()`, the instance will initialize with the default `FirebaseApp`,
-/// `FirebaseApp.app()`, and the storage location will come from the provided
-/// `GoogleService-Info.plist`.
-///
-/// If you provide a custom instance of `FirebaseApp`,
-/// the storage location will be specified via the `FirebaseOptions.storageBucket` property.
+/**
+ * Firebase Storage is a service that supports uploading and downloading binary objects,
+ * such as images, videos, and other files to Google Cloud Storage. Instances of `Storage`
+ * are not thread-safe, but can be accessed from any thread.
+ *
+ * If you call `Storage.storage()`, the instance will initialize with the default `FirebaseApp`,
+ * `FirebaseApp.app()`, and the storage location will come from the provided
+ * `GoogleService-Info.plist`.
+ *
+ * If you provide a custom instance of `FirebaseApp`,
+ * the storage location will be specified via the `FirebaseOptions.storageBucket` property.
+ */
 @objc(FIRStorage) open class Storage: NSObject {
   // MARK: - Public APIs
 
-  /// The default `Storage` instance.
-  /// - Returns: An instance of `Storage`, configured with the default `FirebaseApp`.
+  /**
+   * The default `Storage` instance.
+   * - Returns: An instance of `Storage`, configured with the default `FirebaseApp`.
+   */
   @objc(storage) open class func storage() -> Storage {
     return storage(app: FirebaseApp.app()!)
   }
 
-  /// A method used to create `Storage` instances initialized with a custom storage bucket URL.
-  ///
-  /// Any `StorageReferences` generated from this instance of `Storage` will reference files
-  /// and directories within the specified bucket.
-  /// - Parameter url: The `gs://` URL to your Firebase Storage bucket.
-  /// - Returns: A `Storage` instance, configured with the custom storage bucket.
+  /**
+   * A method used to create `Storage` instances initialized with a custom storage bucket URL.
+   * Any `StorageReferences` generated from this instance of `Storage` will reference files
+   * and directories within the specified bucket.
+   * - Parameter url The `gs://` URL to your Firebase Storage bucket.
+   * - Returns: A `Storage` instance, configured with the custom storage bucket.
+   */
   @objc(storageWithURL:) open class func storage(url: String) -> Storage {
     return storage(app: FirebaseApp.app()!, url: url)
   }
 
-  /// Creates an instance of `Storage`, configured with a custom `FirebaseApp`. `StorageReference`s
-  /// generated from a resulting instance will reference files in the Firebase project
-  /// associated with custom `FirebaseApp`.
-  /// - Parameter app: The custom `FirebaseApp` used for initialization.
-  /// - Returns: A `Storage` instance, configured with the custom `FirebaseApp`.
+  /**
+   * Creates an instance of `Storage`, configured with a custom `FirebaseApp`. `StorageReference`s
+   * generated from a resulting instance will reference files in the Firebase project
+   * associated with custom `FirebaseApp`.
+   * - Parameter app The custom `FirebaseApp` used for initialization.
+   * - Returns: A `Storage` instance, configured with the custom `FirebaseApp`.
+   */
   @objc(storageForApp:) open class func storage(app: FirebaseApp) -> Storage {
-    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                                 in: app.container) else {
-      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
-    }
+    let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                           in: app.container)
     return provider.storage(for: Storage.bucket(for: app))
   }
 
-  /// Creates an instance of `Storage`, configured with a custom `FirebaseApp` and a custom storage
-  /// bucket URL.
-  /// - Parameters:
-  ///   - app: The custom `FirebaseApp` used for initialization.
-  ///   - url: The `gs://` url to your Firebase Storage bucket.
-  /// - Returns: The `Storage` instance, configured with the custom `FirebaseApp` and storage bucket
-  /// URL.
+  /**
+   * Creates an instance of `Storage`, configured with a custom `FirebaseApp` and a custom storage
+   * bucket URL.
+   * - Parameters:
+   *   - app: The custom `FirebaseApp` used for initialization.
+   *   - url: The `gs://` url to your Firebase Storage bucket.
+   * - Returns: the `Storage` instance, configured with the custom `FirebaseApp` and storage bucket URL.
+   */
   @objc(storageForApp:URL:)
   open class func storage(app: FirebaseApp, url: String) -> Storage {
-    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                                 in: app.container) else {
-      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
-    }
+    let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
+                                                           in: app.container)
     return provider.storage(for: Storage.bucket(for: app, urlString: url))
   }
 
-  /// The `FirebaseApp` associated with this Storage instance.
+  /**
+   * The `FirebaseApp` associated with this Storage instance.
+   */
   @objc public let app: FirebaseApp
 
-  /// The maximum time in seconds to retry an upload if a failure occurs.
-  /// Defaults to 10 minutes (600 seconds).
+  /**
+   * The maximum time in seconds to retry an upload if a failure occurs.
+   * Defaults to 10 minutes (600 seconds).
+   */
   @objc public var maxUploadRetryTime: TimeInterval {
     didSet {
       maxUploadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxUploadRetryTime)
     }
   }
 
-  /// The maximum time in seconds to retry a download if a failure occurs.
-  /// Defaults to 10 minutes (600 seconds).
+  /**
+   * The maximum time in seconds to retry a download if a failure occurs.
+   * Defaults to 10 minutes (600 seconds).
+   */
   @objc public var maxDownloadRetryTime: TimeInterval {
     didSet {
       maxDownloadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxDownloadRetryTime)
     }
   }
 
-  /// The maximum time in seconds to retry operations other than upload and download if a failure
-  /// occurs.
-  /// Defaults to 2 minutes (120 seconds).
+  /**
+   * The maximum time in seconds to retry operations other than upload and download if a failure occurs.
+   * Defaults to 2 minutes (120 seconds).
+   */
   @objc public var maxOperationRetryTime: TimeInterval {
     didSet {
       maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
     }
   }
 
-  /// Specify the maximum upload chunk size. Values less than 256K (262144) will be rounded up to
-  /// 256K. Values
-  /// above 256K will be rounded down to the nearest 256K multiple. The default is no maximum.
+  /**
+   * Specify the maximum upload chunk size. Values less than 256K (262144) will be rounded up to 256K. Values
+   * above 256K will be rounded down to the nearest 256K multiple. The default is no maximum.
+   */
   @objc public var uploadChunkSizeBytes: Int64 = .max
 
-  /// A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
+  /**
+   * A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
+   */
   @objc public var callbackQueue: DispatchQueue {
     get {
       ensureConfigured()
@@ -132,25 +146,26 @@ import FirebaseCore
     }
   }
 
-  /// Creates a `StorageReference` initialized at the root Firebase Storage location.
-  /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
+  /**
+   * Creates a `StorageReference` initialized at the root Firebase Storage location.
+   * - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
+   */
   @objc open func reference() -> StorageReference {
     ensureConfigured()
     let path = StoragePath(with: storageBucket)
     return StorageReference(storage: self, path: path)
   }
 
-  /// Creates a StorageReference given a `gs://`, `http://`, or `https://` URL pointing to a
-  /// Firebase Storage location.
-  ///
-  /// For example, you can pass in an `https://` download URL retrieved from
-  /// `StorageReference.downloadURL(completion:)` or the `gs://` URL from
-  /// `StorageReference.description`.
-  /// - Parameter url: A gs:// or https:// URL to initialize the reference with.
-  /// - Returns: An instance of StorageReference at the given child path.
-  /// - Throws: Throws a fatal error if `url` is not associated with the `FirebaseApp` used to
-  /// initialize
-  ///     this Storage instance.
+  /**
+   * Creates a StorageReference given a `gs://`, `http://`, or `https://` URL pointing to a
+   * Firebase Storage location. For example, you can pass in an `https://` download URL retrieved from
+   * `StorageReference.downloadURL(completion:)` or the `gs://` URL from
+   * `StorageReference.description`.
+   * - Parameter url A gs:// or https:// URL to initialize the reference with.
+   * - Returns: An instance of StorageReference at the given child path.
+   * - Throws: Throws a fatal error if `url` is not associated with the `FirebaseApp` used to initialize
+   *     this Storage instance.
+   */
   @objc open func reference(forURL url: String) -> StorageReference {
     ensureConfigured()
     do {
@@ -173,16 +188,16 @@ import FirebaseCore
     }
   }
 
-  /// Creates a StorageReference given a `gs://`, `http://`, or `https://` URL pointing to a
-  /// Firebase Storage location.
-  ///
-  /// For example, you can pass in an `https://` download URL retrieved from
-  /// `StorageReference.downloadURL(completion:)` or the `gs://` URL from
-  /// `StorageReference.description`.
-  /// - Parameter url: A gs:// or https:// URL to initialize the reference with.
-  /// - Returns: An instance of StorageReference at the given child path.
-  /// - Throws: Throws an Error if `url` is not associated with the `FirebaseApp` used to initialize
-  ///     this Storage instance.
+  /**
+   * Creates a StorageReference given a `gs://`, `http://`, or `https://` URL pointing to a
+   * Firebase Storage location. For example, you can pass in an `https://` download URL retrieved from
+   * `StorageReference.downloadURL(completion:)` or the `gs://` URL from
+   * `StorageReference.description`.
+   * - Parameter url A gs:// or https:// URL to initialize the reference with.
+   * - Returns: An instance of StorageReference at the given child path.
+   * - Throws: Throws an Error if `url` is not associated with the `FirebaseApp` used to initialize
+   *     this Storage instance.
+   */
   open func reference(for url: URL) throws -> StorageReference {
     ensureConfigured()
     var path: StoragePath
@@ -207,20 +222,20 @@ import FirebaseCore
     return StorageReference(storage: self, path: path)
   }
 
-  /// Creates a `StorageReference` initialized at a location specified by the `path` parameter.
-  /// - Parameter path: A relative path from the root of the storage bucket,
-  ///     for instance @"path/to/object".
-  /// - Returns: An instance of `StorageReference` pointing to the given path.
+  /**
+   * Creates a `StorageReference` initialized at a location specified by the `path` parameter.
+   * - Parameter path A relative path from the root of the storage bucket,
+   *     for instance @"path/to/object".
+   * - Returns: An instance of `StorageReference` pointing to the given path.
+   */
   @objc(referenceWithPath:) open func reference(withPath path: String) -> StorageReference {
     return reference().child(path)
   }
 
-  /// Configures the Storage SDK to use an emulated backend instead of the default remote backend.
-  ///
-  /// This method should be called before invoking any other methods on a new instance of `Storage`.
-  /// - Parameter host: A string specifying the host.
-  /// - Parameter port: The port specified as an `Int`.
-
+  /**
+   * Configures the Storage SDK to use an emulated backend instead of the default remote backend.
+   * This method should be called before invoking any other methods on a new instance of `Storage`.
+   */
   @objc open func useEmulator(withHost host: String, port: Int) {
     guard host.count > 0 else {
       fatalError("Invalid host argument: Cannot connect to empty host.")
@@ -310,8 +325,8 @@ import FirebaseCore
 
   private static func initFetcherServiceForApp(_ app: FirebaseApp,
                                                _ bucket: String,
-                                               _ auth: AuthInterop?,
-                                               _ appCheck: AppCheckInterop?)
+                                               _ auth: AuthInterop,
+                                               _ appCheck: AppCheckInterop)
     -> GTMSessionFetcherService {
     objc_sync_enter(fetcherServiceLock)
     defer { objc_sync_exit(fetcherServiceLock) }
@@ -338,8 +353,8 @@ import FirebaseCore
     return fetcherService!
   }
 
-  private let auth: AuthInterop?
-  private let appCheck: AppCheckInterop?
+  private let auth: AuthInterop
+  private let appCheck: AppCheckInterop
   private let storageBucket: String
   private var usesEmulator: Bool = false
   var host: String
@@ -349,13 +364,14 @@ import FirebaseCore
   var maxOperationRetryInterval: TimeInterval
   var maxUploadRetryInterval: TimeInterval
 
-  /// Performs a crude translation of the user provided timeouts to the retry intervals that
-  /// GTMSessionFetcher accepts. GTMSessionFetcher times out operations if the time between
-  /// individual
-  /// retry attempts exceed a certain threshold, while our API contract looks at the total observed
-  /// time of the operation (i.e. the sum of all retries).
-  /// @param retryTime A timeout that caps the sum of all retry attempts
-  /// @return A timeout that caps the timeout of the last retry attempt
+  /**
+   * Performs a crude translation of the user provided timeouts to the retry intervals that
+   * GTMSessionFetcher accepts. GTMSessionFetcher times out operations if the time between individual
+   * retry attempts exceed a certain threshold, while our API contract looks at the total observed
+   * time of the operation (i.e. the sum of all retries).
+   * @param retryTime A timeout that caps the sum of all retry attempts
+   * @return A timeout that caps the timeout of the last retry attempt
+   */
   static func computeRetryInterval(fromRetryTime retryTime: TimeInterval) -> TimeInterval {
     // GTMSessionFetcher's retry starts at 1 second and then doubles every time. We use this
     // information to compute a best-effort estimate of what to translate the user provided retry
@@ -371,7 +387,9 @@ import FirebaseCore
     return lastInterval
   }
 
-  /// Configures the storage instance. Freezes the host setting.
+  /**
+   * Configures the storage instance. Freezes the host setting.
+   */
   private func ensureConfigured() {
     guard fetcherService == nil else {
       return

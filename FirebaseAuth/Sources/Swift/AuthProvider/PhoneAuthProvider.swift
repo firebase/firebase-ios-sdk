@@ -15,40 +15,47 @@
 import FirebaseCore
 import Foundation
 
-/// A concrete implementation of `AuthProvider` for phone auth providers.
-///
-/// This class is available on iOS only.
+/**
+ @brief A concrete implementation of `AuthProvider` for phone auth providers.
+     This class is available on iOS only.
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject {
-  /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
   #if os(iOS)
-    /// Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
+    /**
+     @brief Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
+     */
     @objc(provider) open class func provider() -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: Auth.auth())
     }
 
-    /// Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
-    /// - Parameter auth: The auth object to associate with the phone auth provider instance.
+    /**
+     @brief Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
+     @param auth The auth object to associate with the phone auth provider instance.
+     */
     @objc(providerWithAuth:)
     open class func provider(auth: Auth) -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: auth)
     }
 
-    /// Starts the phone number authentication flow by sending a verification code to the
-    /// specified phone number.
-    ///
-    /// Possible error codes:
-    /// * `AuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
-    /// the Firebase Auth is invalid or has expired.
-    /// * `AuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-    /// project has been exceeded.
-    /// * `AuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is invalid.
-    /// * `AuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
-    /// - Parameter phoneNumber: The phone number to be verified.
-    /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
-    /// retained by this method until the completion block is executed.
-    /// - Parameter completion: The callback to be invoked when the verification flow is finished.
+    /**
+     @brief Starts the phone number authentication flow by sending a verification code to the
+     specified phone number.
+     @param phoneNumber The phone number to be verified.
+     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+     by this method until the completion block is executed.
+     @param completion The callback to be invoked when the verification flow is finished.
+     @remarks Possible error codes:
+
+     + `AuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
+     the Firebase Auth is invalid or has expired.
+     + `AuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
+     project has been exceeded.
+     + `AuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
+     invalid.
+     + `AuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
+     */
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
@@ -59,14 +66,16 @@ import Foundation
                         completion: completion)
     }
 
-    /// Verify ownership of the second factor phone number by the current user.
-    /// - Parameter phoneNumber: The phone number to be verified.
-    /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
-    /// retained by this method until the completion block is executed.
-    /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
-    /// passed the first factor challenge.
-    /// - Parameter completion: The callback to be invoked when the verification flow is finished.
+    /**
+     @brief Verify ownership of the second factor phone number by the current user.
+     @param phoneNumber The phone number to be verified.
+     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+     by this method until the completion block is executed.
+     @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+     trying to enroll. For sign-in, this identifies that the user already passed the first
+     factor challenge.
+     @param completion The callback to be invoked when the verification flow is finished.
+     */
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
@@ -94,14 +103,16 @@ import Foundation
       }
     }
 
-    /// Verify ownership of the second factor phone number by the current user.
-    /// - Parameter phoneNumber: The phone number to be verified.
-    /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
-    /// retained by this method until the completion block is executed.
-    /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
-    /// passed the first factor challenge.
-    /// - Returns: The verification ID
+    /**
+     @brief Verify ownership of the second factor phone number by the current user.
+     @param phoneNumber The phone number to be verified.
+     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+     by this method until the completion block is executed.
+     @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+     trying to enroll. For sign-in, this identifies that the user already passed the first
+     factor challenge.
+     @returns The verification ID
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
@@ -120,14 +131,16 @@ import Foundation
       }
     }
 
-    /// Verify ownership of the second factor phone number by the current user.
-    /// - Parameter multiFactorInfo: The phone multi factor whose number need to be verified.
-    /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
-    /// retained by this method until the completion block is executed.
-    /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
-    /// passed the first factor challenge.
-    /// - Parameter completion: The callback to be invoked when the verification flow is finished.
+    /**
+         @brief Verify ownership of the second factor phone number by the current user.
+         @param multiFactorInfo The phone multi factor whose number need to be verified.
+         @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+             by this method until the completion block is executed.
+         @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+             trying to enroll. For sign-in, this identifies that the user already passed the first
+             factor challenge.
+         @param completion The callback to be invoked when the verification flow is finished.
+     */
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                 uiDelegate: AuthUIDelegate? = nil,
@@ -140,14 +153,6 @@ import Foundation
                         completion: completion)
     }
 
-    /// Verify ownership of the second factor phone number by the current user.
-    /// - Parameter multiFactorInfo: The phone multi factor whose number need to be verified.
-    /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
-    /// retained by this method until the completion block is executed.
-    /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
-    /// passed the first factor challenge.
-    /// - Returns: The verification ID.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                 uiDelegate: AuthUIDelegate? = nil,
@@ -165,14 +170,16 @@ import Foundation
       }
     }
 
-    /// Creates an `AuthCredential` for the phone number provider identified by the
-    ///    verification ID and verification code.
-    ///
-    /// - Parameter verificationID: The verification ID obtained from invoking
-    ///    verifyPhoneNumber:completion:
-    /// - Parameter verificationCode: The verification code obtained from the user.
-    /// - Returns: The corresponding phone auth credential for the verification ID and verification
-    /// code provided.
+    /**
+        @brief Creates an `AuthCredential` for the phone number provider identified by the
+            verification ID and verification code.
+
+        @param verificationID The verification ID obtained from invoking
+            verifyPhoneNumber:completion:
+        @param verificationCode The verification code obtained from the user.
+        @return The corresponding phone auth credential for the verification ID and verification code
+            provided.
+     */
     @objc(credentialWithVerificationID:verificationCode:)
     open func credential(withVerificationID verificationID: String,
                          verificationCode: String) -> PhoneAuthCredential {
@@ -200,12 +207,14 @@ import Foundation
                                                        uiDelegate: uiDelegate)
     }
 
-    /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
-    ///  AuthErrorCodeInvalidAppCredential error is returned from the backend.
-    /// - Parameter phoneNumber: The phone number to be verified.
-    /// - Parameter callback: The callback to be invoked on the global work queue when the flow is
-    /// finished.
+    /** @fn
+     @brief Starts the flow to verify the client via silent push notification.
+     @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
+       AuthErrorCodeInvalidAppCredential error is returned from the backend.
+     @param phoneNumber The phone number to be verified.
+     @param callback The callback to be invoked on the global work queue when the flow is
+     finished.
+     */
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
                                                  uiDelegate: AuthUIDelegate?) async throws
@@ -228,10 +237,14 @@ import Foundation
       }
     }
 
-    /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
-    /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
-    /// - Parameter phoneNumber: The phone number to be verified.
+    /** @fn
+     @brief Starts the flow to verify the client via silent push notification.
+     @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
+       AuthErrorCodeInvalidAppCredential error is returned from the backend.
+     @param phoneNumber The phone number to be verified.
+     @param callback The callback to be invoked on the global work queue when the flow is
+     finished.
+     */
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
                                                  multiFactorSession session: MultiFactorSession?,
@@ -303,7 +316,10 @@ import Foundation
       throw error
     }
 
-    /// Continues the flow to verify the client via silent push notification.
+    /** @fn
+     @brief Continues the flow to verify the client via silent push notification.
+     @param completion The callback to be invoked when the client verification flow is finished.
+     */
     private func verifyClient(withUIDelegate uiDelegate: AuthUIDelegate?) async throws
       -> CodeIdentity {
       // Remove the simulator check below after FCM supports APNs in simulators
@@ -358,7 +374,10 @@ import Foundation
       }
     }
 
-    /// Continues the flow to verify the client via silent push notification.
+    /** @fn
+     @brief Continues the flow to verify the client via silent push notification.
+     @param completion The callback to be invoked when the client verification flow is finished.
+     */
     private func reCAPTCHAFlowWithUIDelegate(withUIDelegate uiDelegate: AuthUIDelegate?) async throws
       -> String {
       let eventID = AuthWebUtils.randomString(withLength: 10)
@@ -393,9 +412,12 @@ import Foundation
       }
     }
 
-    /// Parses the reCAPTCHA URL and returns the reCAPTCHA token.
-    /// - Parameter url: The url to be parsed for a reCAPTCHA token.
-    /// - Returns: The reCAPTCHA token if successful.
+    /**
+     @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
+     @param URL The url to be parsed for a reCAPTCHA token.
+     @param error The error that occurred if any.
+     @return The reCAPTCHA token if successful.
+     */
     private func reCAPTCHAToken(forURL url: URL?) throws -> String {
       guard let url = url else {
         let reason = "Internal Auth Error: nil URL trying to access RECAPTCHA token"
@@ -435,8 +457,13 @@ import Foundation
       throw AuthErrorUtils.appVerificationUserInteractionFailure(reason: reason)
     }
 
-    /// Constructs a URL used for opening a reCAPTCHA app verification flow using a given event ID.
-    /// - Parameter eventID: The event ID used for this purpose.
+    /** @fn
+     @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
+     ID.
+     @param eventID The event ID used for this purpose.
+     @param completion The callback invoked after the URL has been constructed or an error
+     has been encountered.
+     */
     private func reCAPTCHAURL(withEventID eventID: String) async throws -> URL? {
       let authDomain = try await AuthWebUtils
         .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration)
@@ -478,7 +505,7 @@ import Foundation
     private let callbackScheme: String
     private let usingClientIDScheme: Bool
 
-    init(auth: Auth) {
+    private init(auth: Auth) {
       self.auth = auth
       if let clientID = auth.app?.options.clientID {
         let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()

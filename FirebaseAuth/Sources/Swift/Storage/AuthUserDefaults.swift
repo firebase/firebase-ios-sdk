@@ -16,14 +16,18 @@ import Foundation
 
 private let kPersistentDomainNamePrefix = "com.google.Firebase.Auth."
 
-/// The utility class to manage data storage in NSUserDefaults.
+/** @class AuthUserDefaults
+    @brief The utility class to storage data in NSUserDefaults.
+ */
 class AuthUserDefaults {
-  /// The name of the persistent domain in user defaults.
-
+  /** @var _persistentDomainName
+      @brief The name of the persistent domain in user defaults.
+   */
   private let persistentDomainName: String
 
-  /// The backing NSUserDefaults storage for this instance.
-
+  /** @var _storage
+      @brief The backing NSUserDefaults storage for this instance.
+   */
   private let storage: UserDefaults
 
   static func storage(identifier: String) -> Self {
@@ -56,9 +60,10 @@ class AuthUserDefaults {
     storage.setPersistentDomain(allData, forName: persistentDomainName)
   }
 
-  /// Clears all data from the storage.
-  ///
-  /// This method is only supposed to be called from tests.
+  /** @fn clear
+      @brief Clears all data from the storage.
+      @remarks This method is only supposed to be called from tests.
+   */
   func clear() {
     storage.setPersistentDomain([:], forName: persistentDomainName)
   }

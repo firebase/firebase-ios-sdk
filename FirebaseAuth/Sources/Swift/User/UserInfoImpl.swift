@@ -17,34 +17,37 @@ import Foundation
 extension UserInfoImpl: NSSecureCoding {}
 
 @objc(FIRUserInfoImpl) class UserInfoImpl: NSObject, UserInfo {
-  /// A convenience factory method for constructing a `UserInfo` instance from data
-  /// returned by the getAccountInfo endpoint.
-  /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
-  /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
+  /** @fn userInfoWithGetAccountInfoResponseProviderUserInfo:
+      @brief A convenience factory method for constructing a @c FIRUserInfo instance from data
+          returned by the getAccountInfo endpoint.
+      @param providerUserInfo Data returned by the getAccountInfo endpoint.
+      @return A new instance of @c FIRUserInfo using data from the getAccountInfo endpoint.
+   */
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
-    guard let providerID = providerUserInfo.providerID,
-          let uid = providerUserInfo.federatedID else {
+    guard let providerID = providerUserInfo.providerID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?
-      fatalError("Missing providerID or uid from GetAccountInfoResponseProviderUserInfo")
+      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
-                        userID: uid,
+                        userID: providerUserInfo.federatedID,
                         displayName: providerUserInfo.displayName,
                         photoURL: providerUserInfo.photoURL,
                         email: providerUserInfo.email,
                         phoneNumber: providerUserInfo.phoneNumber)
   }
 
-  /// Designated initializer.
-  /// - Parameter providerID: The provider identifier.
-  /// - Parameter userID: The unique user ID for the user (the value of the uid field in the token.)
-  /// - Parameter displayName: The name of the user.
-  /// - Parameter photoURL: The URL of the user's profile photo.
-  /// - Parameter email: The user's email address.
-  /// - Parameter phoneNumber: The user's phone number.
+  /** @fn initWithProviderID:userID:displayName:photoURL:email:
+      @brief Designated initializer.
+      @param providerID The provider identifier.
+      @param userID The unique user ID for the user (the value of the @c uid field in the token.)
+      @param displayName The name of the user.
+      @param photoURL The URL of the user's profile photo.
+      @param email The user's email address.
+      @param phoneNumber The user's phone number.
+   */
   private init(withProviderID providerID: String,
-               userID: String,
+               userID: String?,
                displayName: String?,
                photoURL: URL?,
                email: String?,
@@ -58,7 +61,7 @@ extension UserInfoImpl: NSSecureCoding {}
   }
 
   var providerID: String
-  var uid: String
+  var uid: String?
   var displayName: String?
   var photoURL: URL?
   var email: String?
@@ -87,17 +90,15 @@ extension UserInfoImpl: NSSecureCoding {}
   }
 
   required convenience init?(coder: NSCoder) {
-    guard let providerID = coder.decodeObject(
-      of: [NSString.self],
-      forKey: UserInfoImpl.kProviderIDCodingKey
-    ) as? String,
-      let userID = coder.decodeObject(
-        of: [NSString.self],
-        forKey: UserInfoImpl.kUserIDCodingKey
-      ) as? String
+    guard let providerID = coder.decodeObject(of: [NSString.self],
+                                              forKey: UserInfoImpl.kProviderIDCodingKey) as? String
     else {
       return nil
     }
+    let uid = coder.decodeObject(
+      of: [NSString.self],
+      forKey: UserInfoImpl.kUserIDCodingKey
+    ) as? String
     let displayName = coder.decodeObject(
       of: [NSString.self],
       forKey: UserInfoImpl.kDisplayNameCodingKey
@@ -115,7 +116,7 @@ extension UserInfoImpl: NSSecureCoding {}
       forKey: UserInfoImpl.kPhoneNumberCodingKey
     ) as? String
     self.init(withProviderID: providerID,
-              userID: userID,
+              userID: uid,
               displayName: displayName,
               photoURL: photoURL,
               email: email,

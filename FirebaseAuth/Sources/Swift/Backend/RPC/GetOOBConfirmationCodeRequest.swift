@@ -15,16 +15,24 @@
 import Foundation
 
 enum GetOOBConfirmationCodeRequestType: Int {
-  /// Requests a password reset code.
+  /** @var FIRGetOOBConfirmationCodeRequestTypePasswordReset
+      @brief Requests a password reset code.
+   */
   case passwordReset
 
-  /// Requests an email verification code.
+  /** @var FIRGetOOBConfirmationCodeRequestTypeVerifyEmail
+      @brief Requests an email verification code.
+   */
   case verifyEmail
 
-  /// Requests an email sign-in link.
+  /** @var FIRGetOOBConfirmationCodeRequestTypeEmailLink
+      @brief Requests an email sign-in link.
+   */
   case emailLink
 
-  /// Requests an verify before update email.
+  /** @var FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail
+      @brief Requests an verify before update email.
+   */
   case verifyBeforeUpdateEmail
 
   var value: String {
@@ -43,118 +51,187 @@ enum GetOOBConfirmationCodeRequestType: Int {
 
 private let kGetOobConfirmationCodeEndpoint = "getOobConfirmationCode"
 
-/// The name of the required "requestType" property in the request.
+/** @var kRequestTypeKey
+    @brief The name of the required "requestType" property in the request.
+ */
 private let kRequestTypeKey = "requestType"
 
-/// The name of the "email" property in the request.
+/** @var kEmailKey
+    @brief The name of the "email" property in the request.
+ */
 private let kEmailKey = "email"
 
-/// The name of the "newEmail" property in the request.
+/** @var kNewEmailKey
+    @brief The name of the "newEmail" property in the request.
+ */
 private let kNewEmailKey = "newEmail"
 
-/// The key for the "idToken" value in the request. This is actually the STS Access Token,
-///    despite its confusing (backwards compatiable) parameter name.
+/** @var kIDTokenKey
+    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+        despite it's confusing (backwards compatiable) parameter name.
+ */
 private let kIDTokenKey = "idToken"
 
-/// The key for the "continue URL" value in the request.
+/** @var kContinueURLKey
+    @brief The key for the "continue URL" value in the request.
+ */
 private let kContinueURLKey = "continueUrl"
 
-/// The key for the "iOS Bundle Identifier" value in the request.
+/** @var kIosBundeIDKey
+    @brief The key for the "iOS Bundle Identifier" value in the request.
+ */
 private let kIosBundleIDKey = "iOSBundleId"
 
-/// The key for the "Android Package Name" value in the request.
+/** @var kAndroidPackageNameKey
+    @brief The key for the "Android Package Name" value in the request.
+ */
 private let kAndroidPackageNameKey = "androidPackageName"
 
-/// The key for the request parameter indicating whether the android app should be installed or not.
+/** @var kAndroidInstallAppKey
+    @brief The key for the request parameter indicating whether the android app should be installed
+        or not.
+ */
 private let kAndroidInstallAppKey = "androidInstallApp"
 
-/// The key for the "minimum Android version supported" value in the request.
+/** @var kAndroidMinimumVersionKey
+    @brief The key for the "minimum Android version supported" value in the request.
+ */
 private let kAndroidMinimumVersionKey = "androidMinimumVersion"
 
-/// The key for the request parameter indicating whether the action code can be handled in the app
-/// or not.
+/** @var kCanHandleCodeInAppKey
+    @brief The key for the request parameter indicating whether the action code can be handled in
+        the app or not.
+ */
 private let kCanHandleCodeInAppKey = "canHandleCodeInApp"
 
-/// The key for the "dynamic link domain" value in the request.
+/** @var kDynamicLinkDomainKey
+    @brief The key for the "dynamic link domain" value in the request.
+ */
 private let kDynamicLinkDomainKey = "dynamicLinkDomain"
 
-/// The value for the "PASSWORD_RESET" request type.
+/** @var kPasswordResetRequestTypeValue
+    @brief The value for the "PASSWORD_RESET" request type.
+ */
 private let kPasswordResetRequestTypeValue = "PASSWORD_RESET"
 
-/// The value for the "EMAIL_SIGNIN" request type.
+/** @var kEmailLinkSignInTypeValue
+    @brief The value for the "EMAIL_SIGNIN" request type.
+ */
 private let kEmailLinkSignInTypeValue = "EMAIL_SIGNIN"
 
-/// The value for the "VERIFY_EMAIL" request type.
+/** @var kVerifyEmailRequestTypeValue
+    @brief The value for the "VERIFY_EMAIL" request type.
+ */
 private let kVerifyEmailRequestTypeValue = "VERIFY_EMAIL"
 
-/// The value for the "VERIFY_AND_CHANGE_EMAIL" request type.
+/** @var kVerifyBeforeUpdateEmailRequestTypeValue
+    @brief The value for the "VERIFY_AND_CHANGE_EMAIL" request type.
+ */
 private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
-/// The key for the "captchaResponse" value in the request.
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
 private let kCaptchaResponseKey = "captchaResp"
 
-/// The key for the "clientType" value in the request.
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
 private let kClientType = "clientType"
 
-/// The key for the "recaptchaVersion" value in the request.
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
 private let kRecaptchaVersion = "recaptchaVersion"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetOOBConfirmationCodeResponse
 
-  /// The types of OOB Confirmation Code to request.
+  /** @property requestType
+      @brief The types of OOB Confirmation Code to request.
+   */
   let requestType: GetOOBConfirmationCodeRequestType
 
-  /// The email of the user for password reset.
+  /** @property email
+      @brief The email of the user.
+      @remarks For password reset.
+   */
   private(set) var email: String?
 
-  /// The new email to be updated for verifyBeforeUpdateEmail.
+  /** @property updatedEmail
+      @brief The new email to be updated.
+      @remarks For verifyBeforeUpdateEmail.
+   */
   private(set) var updatedEmail: String?
 
-  /// The STS Access Token of the authenticated user for email change.
+  /** @property accessToken
+      @brief The STS Access Token of the authenticated user.
+      @remarks For email change.
+   */
   private(set) var accessToken: String?
 
-  /// This URL represents the state/Continue URL in the form of a universal link.
+  /** @property continueURL
+      @brief This URL represents the state/Continue URL in the form of a universal link.
+   */
   private(set) var continueURL: String?
 
-  /// The iOS bundle Identifier, if available.
+  /** @property iOSBundleID
+      @brief The iOS bundle Identifier, if available.
+   */
   private(set) var iOSBundleID: String?
 
-  /// The Android package name, if available.
+  /** @property androidPackageName
+      @brief The Android package name, if available.
+   */
   private(set) var androidPackageName: String?
 
-  /// The minimum Android version supported, if available.
+  /** @property androidMinimumVersion
+      @brief The minimum Android version supported, if available.
+   */
   private(set) var androidMinimumVersion: String?
 
-  /// Indicates whether or not the Android app should be installed if not already available.
+  /** @property androidInstallIfNotAvailable
+      @brief Indicates whether or not the Android app should be installed if not already available.
+   */
   private(set) var androidInstallApp: Bool
 
-  /// Indicates whether the action code link will open the app directly or after being
-  ///   redirected from a Firebase owned web widget.
+  /** @property handleCodeInApp
+      @brief Indicates whether the action code link will open the app directly or after being
+          redirected from a Firebase owned web widget.
+   */
   private(set) var handleCodeInApp: Bool
 
-  /// The Firebase Dynamic Link domain used for out of band code flow.
+  /** @property dynamicLinkDomain
+      @brief The Firebase Dynamic Link domain used for out of band code flow.
+   */
   private(set) var dynamicLinkDomain: String?
 
-  /// Response to the captcha.
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
   var captchaResponse: String?
 
-  /// The reCAPTCHA version.
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
   var recaptchaVersion: String?
 
-  /// Designated initializer.
-  /// - Parameter requestType: The types of OOB Confirmation Code to request.
-  /// - Parameter email: The email of the user.
-  /// - Parameter newEmail: The email of the user to be updated.
-  /// - Parameter accessToken: The STS Access Token of the currently signed in user.
-  /// - Parameter actionCodeSettings: An object of FIRActionCodeSettings which specifies action code
-  ///    settings to be applied to the OOB code request.
-  /// - Parameter requestConfiguration: An object containing configurations to be added to the
-  /// request.
+  /** @fn initWithRequestType:email:APIKey:
+      @brief Designated initializer.
+      @param requestType The types of OOB Confirmation Code to request.
+      @param email The email of the user.
+      @param newEmail The email of the user to be updated.
+      @param accessToken The STS Access Token of the currently signed in user.
+      @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+          settings to be applied to the OOB code request.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
   required init(requestType: GetOOBConfirmationCodeRequestType,
                 email: String?,
                 newEmail: String?,

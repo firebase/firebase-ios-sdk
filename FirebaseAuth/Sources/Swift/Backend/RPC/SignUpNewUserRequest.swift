@@ -14,69 +14,105 @@
 
 import Foundation
 
-/// The "SignupNewUserEndpoint" endpoint.
+/** @var kSignupNewUserEndpoint
+    @brief The "SingupNewUserEndpoint" endpoint.
+ */
 private let kSignupNewUserEndpoint = "signupNewUser"
 
-/// The key for the "email" value in the request.
+/** @var kEmailKey
+    @brief The key for the "email" value in the request.
+ */
 private let kEmailKey = "email"
 
-/// The key for the "password" value in the request.
+/** @var kPasswordKey
+    @brief The key for the "password" value in the request.
+ */
 private let kPasswordKey = "password"
 
-/// The key for the "kDisplayName" value in the request.
+/** @var kDisplayNameKey
+    @brief The key for the "kDisplayName" value in the request.
+ */
 private let kDisplayNameKey = "displayName"
 
-/// The key for the "kIDToken" value in the request.
+/** @var kIDToken
+    @brief The key for the "kIDToken" value in the request.
+ */
 private let kIDToken = "idToken"
 
-/// The key for the "captchaResponse" value in the request.
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
 private let kCaptchaResponseKey = "captchaResponse"
 
-/// The key for the "clientType" value in the request.
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
 private let kClientType = "clientType"
 
-/// The key for the "recaptchaVersion" value in the request.
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
 private let kRecaptchaVersion = "recaptchaVersion"
 
-/// The key for the "returnSecureToken" value in the request.
+/** @var kReturnSecureTokenKey
+    @brief The key for the "returnSecureToken" value in the request.
+ */
 private let kReturnSecureTokenKey = "returnSecureToken"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = SignUpNewUserResponse
 
-  /// The email of the user.
+  /** @property email
+      @brief The email of the user.
+   */
   private(set) var email: String?
 
-  /// The password inputed by the user.
+  /** @property password
+      @brief The password inputed by the user.
+   */
   private(set) var password: String?
 
-  /// The password inputed by the user.
+  /** @property displayName
+      @brief The password inputed by the user.
+   */
   private(set) var displayName: String?
 
-  /// The idToken of the user.
+  /** @property idToken
+      @brief The idToken of the user.
+   */
   private(set) var idToken: String?
 
-  /// Response to the captcha.
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
+
   var captchaResponse: String?
 
-  /// The reCAPTCHA version.
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
   var recaptchaVersion: String?
 
-  /// Whether the response should return access token and refresh token directly.
-  /// The default value is `true`.
+  /** @property returnSecureToken
+      @brief Whether the response should return access token and refresh token directly.
+      @remarks The default value is @c YES .
+   */
   var returnSecureToken: Bool = true
 
   init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  /// Designated initializer.
-  /// - Parameter requestConfiguration: An object containing configurations to be added to the
-  /// request.
+  /** @fn initWithAPIKey:email:password:displayName:requestConfiguration
+      @brief Designated initializer.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
   init(email: String?,
        password: String?,
        displayName: String?,

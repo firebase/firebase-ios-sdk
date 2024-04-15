@@ -14,38 +14,57 @@
 
 import Foundation
 
-/// The endpoint for the revokeToken request.
+/** @var kRevokeTokenEndpoint
+    @brief The endpoint for the revokeToken request.
+ */
 private let kRevokeTokenEndpoint = "accounts:revokeToken"
 
-/// The key for the provider that issued the token to revoke.
+/** @var kProviderIDKey
+    @brief The key for the provider that issued the token to revoke.
+ */
 private let kProviderIDKey = "providerId"
 
-/// The key for the type of the token to revoke.
+/** @var kTokenTypeKey
+    @brief The key for the type of the token to revoke.
+ */
 private let kTokenTypeKey = "tokenType"
 
-/// The key for the token to be revoked.
+/** @var kTokenKey
+    @brief The key for the token to be revoked.
+ */
 private let kTokenKey = "token"
 
-/// The key for the ID Token associated with this credential.
+/** @var kIDTokenKey
+    @brief The key for the ID Token associated with this credential.
+ */
 private let kIDTokenKey = "idToken"
 
-/// Represents the parameters for the verifyPassword endpoint.
-///
-/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+/** @class FIRVerifyPasswordRequest
+    @brief Represents the parameters for the verifyPassword endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = RevokeTokenResponse
 
-  /// The provider that issued the token to revoke.
+  /** @property providerID
+      @brief The provider that issued the token to revoke.
+   */
   private(set) var providerID: String
 
-  /// The type of the token to revoke.
+  /** @property tokenType
+      @brief The type of the token to revoke.
+   */
   private(set) var tokenType: TokenType
 
-  /// The token to be revoked.
+  /** @property token
+      @brief The token to be revoked.
+   */
   private(set) var token: String
 
-  /// The ID Token associated with this credential.
+  /** @property idToken
+      @brief The ID Token associated with this credential.
+   */
   private(set) var idToken: String
 
   enum TokenType: Int {

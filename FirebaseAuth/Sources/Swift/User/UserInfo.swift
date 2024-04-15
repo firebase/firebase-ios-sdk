@@ -14,25 +14,38 @@
 
 import Foundation
 
-/// Represents user data returned from an identity provider.
+/**
+    @brief Represents user data returned from an identity provider.
+ */
 @objc(FIRUserInfo) public protocol UserInfo: NSObjectProtocol {
-  /// The provider identifier.
+  /** @property providerID
+   @brief The provider identifier.
+   */
   var providerID: String { get }
 
-  /// The provider's user ID for the user.
-  var uid: String { get }
+  /** @property uid
+   @brief The provider's user ID for the user.
+   */
+  var uid: String? { get }
 
-  /// The name of the user.
+  /** @property displayName
+   @brief The name of the user.
+   */
   var displayName: String? { get }
 
-  /// The URL of the user's profile photo.
+  /** @property photoURL
+      @brief The URL of the user's profile photo.
+   */
   var photoURL: URL? { get }
 
-  /// The user's email address.
+  /** @property email
+      @brief The user's email address.
+   */
   var email: String? { get }
 
-  /// A phone number associated with the user.
-  ///
-  /// This property is only available for users authenticated via phone number auth.
+  /** @property phoneNumber
+      @brief A phone number associated with the user.
+      @remarks This property is only available for users authenticated via phone number auth.
+   */
   var phoneNumber: String? { get }
 }

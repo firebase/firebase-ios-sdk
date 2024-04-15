@@ -14,26 +14,35 @@
 
 import Foundation
 
-/// The "getAccountInfo" endpoint.
+/** @var kGetAccountInfoEndpoint
+    @brief The "getAccountInfo" endpoint.
+ */
 private let kGetAccountInfoEndpoint = "getAccountInfo"
 
-/// The key for the "idToken" value in the request. This is actually the STS Access Token,
-///    despite its confusing (backwards compatiable) parameter name.
+/** @var kIDTokenKey
+    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+        despite it's confusing (backwards compatiable) parameter name.
+ */
 private let kIDTokenKey = "idToken"
 
-/// Represents the parameters for the getAccountInfo endpoint.
-/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+/** @class FIRGetAccountInfoRequest
+    @brief Represents the parameters for the getAccountInfo endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetAccountInfoResponse
 
-  /// The STS Access Token for the authenticated user.
+  /** @property accessToken
+      @brief The STS Access Token for the authenticated user.
+   */
   let accessToken: String
 
-  /// Designated initializer.
-  /// - Parameter accessToken: The Access Token of the authenticated user.
-  /// - Parameter requestConfiguration: An object containing configurations to be added to the
-  /// request.
+  /** @fn initWithAccessToken:requestConfiguration
+      @brief Designated initializer.
+      @param accessToken The Access Token of the authenticated user.
+      @param requestConfiguration An object containing configurations to be added to the request.
+   */
   init(accessToken: String, requestConfiguration: AuthRequestConfiguration) {
     self.accessToken = accessToken
     super.init(endpoint: kGetAccountInfoEndpoint, requestConfiguration: requestConfiguration)

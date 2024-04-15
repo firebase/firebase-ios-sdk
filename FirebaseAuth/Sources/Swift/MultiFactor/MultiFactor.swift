@@ -18,20 +18,20 @@ import Foundation
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   extension MultiFactor: NSSecureCoding {}
-
-  /// The interface defining the multi factor related properties and operations pertaining to a
-  /// user.
-  ///
-  /// This class is available on iOS only.
+  /** @class FIRMultiFactor
+   @brief The interface defining the multi factor related properties and operations pertaining to a
+       user.
+       This class is available on iOS only.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactor) open class MultiFactor: NSObject {
     @objc open var enrolledFactors: [MultiFactorInfo]
 
-    /// Get a session for a second factor enrollment operation.
-    ///
-    /// This is used to identify the current user trying to enroll a second factor.
-    /// - Parameter completion: A block with the session identifier for a second factor enrollment
-    /// operation.
+    /** @fn getSessionWithCompletion:
+     @brief Get a session for a second factor enrollment operation.
+     @param completion A block with the session identifier for a second factor enrollment operation.
+     This is used to identify the current user trying to enroll a second factor.
+     */
     @objc(getSessionWithCompletion:)
     open func getSessionWithCompletion(_ completion: ((MultiFactorSession?, Error?) -> Void)?) {
       let session = MultiFactorSession.sessionForCurrentUser
@@ -40,9 +40,11 @@ import Foundation
       }
     }
 
-    /// Get a session for a second factor enrollment operation.
-    ///
-    /// This is used to identify the current user trying to enroll a second factor.
+    /** @fn getSessionWithCompletion:
+     @brief Get a session for a second factor enrollment operation.
+     @param completion A block with the session identifier for a second factor enrollment operation.
+     This is used to identify the current user trying to enroll a second factor.
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func session() async throws -> MultiFactorSession {
       return try await withCheckedThrowingContinuation { continuation in
@@ -56,12 +58,12 @@ import Foundation
       }
     }
 
-    /// Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
-    /// current user.
-    /// - Parameter assertion: The `MultiFactorAssertion`.
-    /// - Parameter displayName: An optional display name associated with the multi factor to
-    /// enroll.
-    /// - Parameter completion: The block invoked when the request is complete, or fails.
+    /** @fn enrollWithAssertion:displayName:completion:
+     @brief Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
+     current user.
+     @param displayName An optional display name associated with the multi factor to enroll.
+     @param completion The block invoked when the request is complete, or fails.
+     */
     @objc(enrollWithAssertion:displayName:completion:)
     open func enroll(with assertion: MultiFactorAssertion,
                      displayName: String?,
@@ -166,12 +168,12 @@ import Foundation
       }
     }
 
-    /// Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
-    /// current user.
-    /// - Parameter assertion: The `MultiFactorAssertion`.
-    /// - Parameter displayName: An optional display name associated with the multi factor to
-    /// enroll.
-    /// - Parameter completion: The block invoked when the request is complete, or fails.
+    /** @fn enrollWithAssertion:displayName:completion:
+     @brief Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
+     current user.
+     @param displayName An optional display name associated with the multi factor to enroll.
+     @param completion The block invoked when the request is complete, or fails.
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func enroll(with assertion: MultiFactorAssertion, displayName: String?) async throws {
       return try await withCheckedThrowingContinuation { continuation in
@@ -185,24 +187,32 @@ import Foundation
       }
     }
 
-    /// Unenroll the given multi factor.
-    /// - Parameter completion: The block invoked when the request to send the verification email is
-    /// complete, or fails.
+    /** @fn unenrollWithInfo:completion:
+     @brief Unenroll the given multi factor.
+     @param completion The block invoked when the request to send the verification email is complete,
+     or fails.
+     */
     @objc(unenrollWithInfo:completion:)
     open func unenroll(with factorInfo: MultiFactorInfo,
                        completion: ((Error?) -> Void)?) {
       unenroll(withFactorUID: factorInfo.uid, completion: completion)
     }
 
-    /// Unenroll the given multi factor.
+    /** @fn unenrollWithInfo:completion:
+     @brief Unenroll the given multi factor.
+     @param completion The block invoked when the request to send the verification email is complete,
+     or fails.
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func unenroll(with factorInfo: MultiFactorInfo) async throws {
       try await unenroll(withFactorUID: factorInfo.uid)
     }
 
-    /// Unenroll the given multi factor.
-    /// - Parameter completion: The block invoked when the request to send the verification email is
-    /// complete, or fails.
+    /** @fn unenrollWithFactorUID:completion:
+     @brief Unenroll the given multi factor.
+     @param completion The block invoked when the request to send the verification email is complete,
+     or fails.
+     */
     @objc(unenrollWithFactorUID:completion:)
     open func unenroll(withFactorUID factorUID: String,
                        completion: ((Error?) -> Void)?) {
@@ -242,7 +252,6 @@ import Foundation
       }
     }
 
-    /// Unenroll the given multi factor.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func unenroll(withFactorUID factorUID: String) async throws {
       return try await withCheckedThrowingContinuation { continuation in

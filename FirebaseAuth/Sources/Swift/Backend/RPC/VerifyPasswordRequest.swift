@@ -14,68 +14,105 @@
 
 import Foundation
 
-/// The "verifyPassword" endpoint.
+/** @var kVerifyPasswordEndpoint
+    @brief The "verifyPassword" endpoint.
+ */
 private let kVerifyPasswordEndpoint = "verifyPassword"
 
-/// The key for the "email" value in the request.
+/** @var kEmailKey
+    @brief The key for the "email" value in the request.
+ */
 private let kEmailKey = "email"
 
-/// The key for the "password" value in the request.
+/** @var kPasswordKey
+    @brief The key for the "password" value in the request.
+ */
 private let kPasswordKey = "password"
 
-/// The key for the "pendingIdToken" value in the request.
+/** @var kPendingIDTokenKey
+    @brief The key for the "pendingIdToken" value in the request.
+ */
 private let kPendingIDTokenKey = "pendingIdToken"
 
-/// The key for the "captchaChallenge" value in the request.
+/** @var kCaptchaChallengeKey
+    @brief The key for the "captchaChallenge" value in the request.
+ */
 private let kCaptchaChallengeKey = "captchaChallenge"
 
-/// The key for the "captchaResponse" value in the request.
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
 private let kCaptchaResponseKey = "captchaResponse"
 
-/// The key for the "clientType" value in the request.
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
 private let kClientType = "clientType"
 
-/// The key for the "recaptchaVersion" value in the request.
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
 private let kRecaptchaVersion = "recaptchaVersion"
 
-/// The key for the "returnSecureToken" value in the request.
+/** @var kReturnSecureTokenKey
+    @brief The key for the "returnSecureToken" value in the request.
+ */
 private let kReturnSecureTokenKey = "returnSecureToken"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
-/// Represents the parameters for the verifyPassword endpoint.
-/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+/** @class FIRVerifyPasswordRequest
+    @brief Represents the parameters for the verifyPassword endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyPasswordResponse
 
-  /// The email of the user.
+  /** @property email
+      @brief The email of the user.
+   */
   private(set) var email: String
 
-  /// The password inputed by the user.
+  /** @property password
+      @brief The password inputed by the user.
+   */
   private(set) var password: String
 
-  /// The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
+  /** @property pendingIDToken
+      @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
+   */
   var pendingIDToken: String?
 
-  /// The captcha challenge.
+  /** @property captchaChallenge
+      @brief The captcha challenge.
+   */
   var captchaChallenge: String?
 
-  /// Response to the captcha.
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
   var captchaResponse: String?
 
-  /// The reCAPTCHA version.
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
   var recaptchaVersion: String?
 
-  /// Whether the response should return access token and refresh token directly.
-  /// The default value is `true`.
-  private(set) var returnSecureToken: Bool = true
+  /** @property returnSecureToken
+      @brief Whether the response should return access token and refresh token directly.
+      @remarks The default value is @c YES .
+   */
+  private(set) var returnSecureToken: Bool
 
   init(email: String, password: String,
        requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password
+    returnSecureToken = true
     super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
   }
 

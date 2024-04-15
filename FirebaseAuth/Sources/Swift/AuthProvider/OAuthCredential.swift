@@ -14,19 +14,23 @@
 
 import Foundation
 
-/// Internal implementation of `AuthCredential` for generic credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIROAuthCredential) open class OAuthCredential: AuthCredential, NSSecureCoding {
-  /// The ID Token associated with this credential.
+  /** @property IDToken
+      @brief The ID Token associated with this credential.
+   */
   @objc(IDToken) public let idToken: String?
 
-  /// The access token associated with this credential.
+  /** @property accessToken
+      @brief The access token associated with this credential.
+   */
   @objc public let accessToken: String?
 
-  /// The secret associated with this credential. This will be nil for OAuth 2.0 providers.
-  ///
-  /// OAuthCredential already exposes a `provider` getter. This will help the developer
-  /// determine whether an access token / secret pair is needed.
+  /** @property secret
+      @brief The secret associated with this credential. This will be nil for OAuth 2.0 providers.
+      @detail OAuthCredential already exposes a providerId getter. This will help the developer
+          determine whether an access token/secret pair is needed.
+   */
   @objc public let secret: String?
 
   // internal

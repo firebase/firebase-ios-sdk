@@ -82,11 +82,11 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
   rwContext->customExceptionCount = 0;
 }
 
-void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel, NSString *rolloutsInfoJSON) {
+void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
   const char *name = [[exceptionModel.name copy] UTF8String];
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
-  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
-                        rolloutsInfoJSON);
+
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy]);
 }
 
 NSString *FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel *exceptionModel,
@@ -122,7 +122,7 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   }
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeObjectiveC, [name UTF8String], [reason UTF8String],
-                        frames, nil);
+                        frames);
 }
 
 static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRStackFrame *frame) {
@@ -175,8 +175,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
                           FIRCLSExceptionType type,
                           const char *name,
                           const char *reason,
-                          NSArray<FIRStackFrame *> *frames,
-                          NSString *rolloutsInfoJSON) {
+                          NSArray<FIRStackFrame *> *frames) {
   FIRCLSFileWriteSectionStart(file, "exception");
 
   FIRCLSFileWriteHashStart(file);
@@ -197,12 +196,6 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
     FIRCLSFileWriteArrayEnd(file);
   }
 
-  if (rolloutsInfoJSON) {
-    FIRCLSFileWriteHashKey(file, "rollouts");
-    FIRCLSFileWriteStringUnquoted(file, [rolloutsInfoJSON UTF8String]);
-    FIRCLSFileWriteHashEnd(file);
-  }
-
   FIRCLSFileWriteHashEnd(file);
 
   FIRCLSFileWriteSectionEnd(file);
@@ -211,8 +204,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
-                           NSArray<FIRStackFrame *> *frames,
-                           NSString *rolloutsInfoJSON) {
+                           NSArray<FIRStackFrame *> *frames) {
   if (!FIRCLSContextIsInitialized()) {
     return;
   }
@@ -232,7 +224,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
         return;
       }
 
-      FIRCLSExceptionWrite(&file, type, name, reason, frames, nil);
+      FIRCLSExceptionWrite(&file, type, name, reason, frames);
 
       // We only want to do this work if we have the expectation that we'll actually crash
       FIRCLSHandler(&file, mach_thread_self(), NULL);
@@ -243,7 +235,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
     FIRCLSUserLoggingWriteAndCheckABFiles(
         &_firclsContext.readonly->logging.customExceptionStorage,
         &_firclsContext.writable->logging.activeCustomExceptionPath, ^(FIRCLSFile *file) {
-          FIRCLSExceptionWrite(file, type, name, reason, frames, rolloutsInfoJSON);
+          FIRCLSExceptionWrite(file, type, name, reason, frames);
         });
   }
 
@@ -279,7 +271,6 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
 
   // Create new report and copy into it the current state of custom keys and log and the sdk.log,
   // binary_images.clsrecord, and metadata.clsrecord files.
-  // Also copy rollouts.clsrecord if applicable.
   NSError *error = nil;
   BOOL copied = [fileManager.underlyingFileManager copyItemAtPath:currentReportPath
                                                            toPath:newReportPath
@@ -352,7 +343,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     FIRCLSSDKLog("Unable to open log file for on demand custom exception\n");
     return nil;
   }
-  FIRCLSExceptionWrite(&file, type, name, reason, frames, nil);
+  FIRCLSExceptionWrite(&file, type, name, reason, frames);
   FIRCLSHandler(&file, mach_thread_self(), NULL);
   FIRCLSFileClose(&file);
 
@@ -406,21 +397,19 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 #endif
     }
   } catch (const char *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil, nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "const char *", exc, nil);
   } catch (const std::string &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil, nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::string", exc.c_str(), nil);
   } catch (const std::exception &exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil,
-                          nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc.what(), nil);
   } catch (const std::exception *exc) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil,
-                          nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil);
   } catch (const std::bad_alloc &exc) {
     // it is especially important to avoid demangling in this case, because the expetation at this
     // point is that all allocations could fail
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil, nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil);
   } catch (...) {
-    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil, nil);
+    FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), "", nil);
   }
 }
 

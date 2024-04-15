@@ -38,10 +38,6 @@
   /// Pending Personalization metadata that is latest data from server that might or might not be
   /// applied.
   NSDictionary *_fetchedPersonalization;
-  /// Active Rollout metadata that is currently used.
-  NSArray<NSDictionary *> *_activeRolloutMetadata;
-  /// Pending Rollout metadata that is latest data from server that might or might not be applied.
-  NSArray<NSDictionary *> *_fetchedRolloutMetadata;
   /// DBManager
   RCNConfigDBManager *_DBManager;
   /// Current bundle identifier;
@@ -84,8 +80,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     _defaultConfig = [[NSMutableDictionary alloc] init];
     _activePersonalization = [[NSDictionary alloc] init];
     _fetchedPersonalization = [[NSDictionary alloc] init];
-    _activeRolloutMetadata = [[NSArray alloc] init];
-    _fetchedRolloutMetadata = [[NSArray alloc] init];
     _bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     if (!_bundleIdentifier) {
       FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000038",
@@ -121,30 +115,25 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   _isDatabaseLoadAlreadyInitiated = true;
 
   dispatch_group_enter(_dispatch_group);
-  [_DBManager loadMainWithBundleIdentifier:_bundleIdentifier
-                         completionHandler:^(
-                             BOOL success, NSDictionary *fetchedConfig, NSDictionary *activeConfig,
-                             NSDictionary *defaultConfig, NSDictionary *rolloutMetadata) {
-                           self->_fetchedConfig = [fetchedConfig mutableCopy];
-                           self->_activeConfig = [activeConfig mutableCopy];
-                           self->_defaultConfig = [defaultConfig mutableCopy];
-                           self->_fetchedRolloutMetadata =
-                               [rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata] copy];
-                           self->_activeRolloutMetadata =
-                               [rolloutMetadata[@RCNRolloutTableKeyActiveMetadata] copy];
-                           dispatch_group_leave(self->_dispatch_group);
-                         }];
+  [_DBManager
+      loadMainWithBundleIdentifier:_bundleIdentifier
+                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                   self->_fetchedConfig = [fetchedConfig mutableCopy];
+                   self->_activeConfig = [activeConfig mutableCopy];
+                   self->_defaultConfig = [defaultConfig mutableCopy];
+                   dispatch_group_leave(self->_dispatch_group);
+                 }];
 
   // TODO(karenzeng): Refactor personalization to be returned in loadMainWithBundleIdentifier above
   dispatch_group_enter(_dispatch_group);
-  [_DBManager
-      loadPersonalizationWithCompletionHandler:^(
-          BOOL success, NSDictionary *fetchedPersonalization, NSDictionary *activePersonalization,
-          NSDictionary *defaultConfig, NSDictionary *rolloutMetadata) {
-        self->_fetchedPersonalization = [fetchedPersonalization copy];
-        self->_activePersonalization = [activePersonalization copy];
-        dispatch_group_leave(self->_dispatch_group);
-      }];
+  [_DBManager loadPersonalizationWithCompletionHandler:^(
+                  BOOL success, NSDictionary *fetchedPersonalization,
+                  NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
+    self->_fetchedPersonalization = [fetchedPersonalization copy];
+    self->_activePersonalization = [activePersonalization copy];
+    dispatch_group_leave(self->_dispatch_group);
+  }];
 }
 
 /// Update the current config result to main table.
@@ -280,7 +269,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     [self handleUpdateStateForConfigNamespace:currentNamespace
                                   withEntries:response[RCNFetchResponseKeyEntries]];
     [self handleUpdatePersonalization:response[RCNFetchResponseKeyPersonalizationMetadata]];
-    [self handleUpdateRolloutFetchedMetadata:response[RCNFetchResponseKeyRolloutMetadata]];
     return;
   }
 }
@@ -289,15 +277,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   _activePersonalization = _fetchedPersonalization;
   [_DBManager insertOrUpdatePersonalizationConfig:_activePersonalization
                                        fromSource:RCNDBSourceActive];
-}
-
-- (void)activateRolloutMetadata:(void (^)(BOOL success))completionHandler {
-  _activeRolloutMetadata = _fetchedRolloutMetadata;
-  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
-                                          value:_activeRolloutMetadata
-                              completionHandler:^(BOOL success, NSDictionary *result) {
-                                completionHandler(success);
-                              }];
 }
 
 #pragma mark State handling
@@ -363,16 +342,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [_DBManager insertOrUpdatePersonalizationConfig:metadata fromSource:RCNDBSourceFetched];
 }
 
-- (void)handleUpdateRolloutFetchedMetadata:(NSArray<NSDictionary *> *)metadata {
-  if (!metadata) {
-    metadata = [[NSArray alloc] init];
-  }
-  _fetchedRolloutMetadata = metadata;
-  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
-                                          value:metadata
-                              completionHandler:nil];
-}
-
 #pragma mark - getter/setter
 - (NSDictionary *)fetchedConfig {
   /// If this is the first time reading the fetchedConfig, we might still be reading it from the
@@ -398,11 +367,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 - (NSDictionary *)activePersonalization {
   [self checkAndWaitForInitialDatabaseLoad];
   return _activePersonalization;
-}
-
-- (NSArray<NSDictionary *> *)activeRolloutMetadata {
-  [self checkAndWaitForInitialDatabaseLoad];
-  return _activeRolloutMetadata;
 }
 
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace {
@@ -447,8 +411,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _activeConfig[FIRNamespace] ? _activeConfig[FIRNamespace] : [[NSDictionary alloc] init];
   NSDictionary *fetchedP13n = _fetchedPersonalization;
   NSDictionary *activeP13n = _activePersonalization;
-  NSArray<NSDictionary *> *fetchedRolloutMetadata = _fetchedRolloutMetadata;
-  NSArray<NSDictionary *> *activeRolloutMetadata = _activeRolloutMetadata;
 
   // add new/updated params
   for (NSString *key in [fetchedConfig allKeys]) {
@@ -477,50 +439,8 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     }
   }
 
-  NSDictionary<NSString *, NSDictionary *> *fetchedRollouts =
-      [self getParameterKeyToRolloutMetadata:fetchedRolloutMetadata];
-  NSDictionary<NSString *, NSDictionary *> *activeRollouts =
-      [self getParameterKeyToRolloutMetadata:activeRolloutMetadata];
-
-  // add params with new/updated rollout metadata
-  for (NSString *key in [fetchedRollouts allKeys]) {
-    if (activeRollouts[key] == nil ||
-        ![activeRollouts[key] isEqualToDictionary:fetchedRollouts[key]]) {
-      [updatedKeys addObject:key];
-    }
-  }
-  // add params with deleted rollout metadata
-  for (NSString *key in [activeRollouts allKeys]) {
-    if (fetchedRollouts[key] == nil) {
-      [updatedKeys addObject:key];
-    }
-  }
-
   configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];
   return configUpdate;
-}
-
-- (NSDictionary<NSString *, NSDictionary *> *)getParameterKeyToRolloutMetadata:
-    (NSArray<NSDictionary *> *)rolloutMetadata {
-  NSMutableDictionary<NSString *, NSMutableDictionary *> *result =
-      [[NSMutableDictionary alloc] init];
-  for (NSDictionary *metadata in rolloutMetadata) {
-    NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
-    NSString *variantId = metadata[RCNFetchResponseKeyVariantID];
-    NSArray<NSString *> *affectedKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
-    if (rolloutId && variantId && affectedKeys) {
-      for (NSString *key in affectedKeys) {
-        if (result[key]) {
-          NSMutableDictionary *rolloutIdToVariantId = result[key];
-          [rolloutIdToVariantId setValue:variantId forKey:rolloutId];
-        } else {
-          NSMutableDictionary *rolloutIdToVariantId = [@{rolloutId : variantId} mutableCopy];
-          [result setValue:rolloutIdToVariantId forKey:key];
-        }
-      }
-    }
-  }
-  return [result copy];
 }
 
 @end

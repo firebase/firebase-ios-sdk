@@ -63,10 +63,6 @@ class QueryListener {
     return query_;
   }
 
-  bool listens_to_remote_store() const {
-    return options_.source() != ListenSource::Cache;
-  }
-
   /** The last received view snapshot. */
   const absl::optional<ViewSnapshot>& snapshot() const {
     return snapshot_;

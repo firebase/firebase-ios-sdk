@@ -337,13 +337,13 @@ class AuthMenuData: DataSourceProvidable {
     ]
     return Section(headerDescription: header, items: items)
   }
-
+  
   static var multifactorSection: Section {
     let header = "Multi Factor"
     let items: [Item] = [
       Item(title: AuthMenu.phoneEnroll.name),
       Item(title: AuthMenu.totpEnroll.name),
-      Item(title: AuthMenu.multifactorUnenroll.name),
+      Item(title: AuthMenu.multifactorUnenroll.name)
     ]
     return Section(headerDescription: header, items: items)
   }

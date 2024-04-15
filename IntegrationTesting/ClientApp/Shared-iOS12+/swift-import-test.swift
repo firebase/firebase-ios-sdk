@@ -50,6 +50,7 @@ import FirebaseMLModelDownloader
 #endif
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
+import FirebaseStorage
 #if SWIFT_PACKAGE
   import FirebaseStorageCombineSwift
 #endif // SWIFT_PACKAGE

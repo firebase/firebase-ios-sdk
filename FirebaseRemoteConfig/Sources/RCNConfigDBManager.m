@@ -31,7 +31,6 @@
 #define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
 #define RCNTableNamePersonalization "personalization"
-#define RCNTableNameRollout "rollout"
 
 static BOOL gIsNewDatabase;
 /// SQLite file name in versions 0, 1 and 2.
@@ -285,14 +284,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       "create TABLE IF NOT EXISTS " RCNTableNamePersonalization
       " (_id INTEGER PRIMARY KEY, key INTEGER, value BLOB)";
 
-  static const char *createTableRollout = "create TABLE IF NOT EXISTS " RCNTableNameRollout
-                                          " (_id INTEGER PRIMARY KEY, key TEXT, value BLOB)";
-
   return [self executeQuery:createTableMain] && [self executeQuery:createTableMainActive] &&
          [self executeQuery:createTableMainDefault] && [self executeQuery:createTableMetadata] &&
          [self executeQuery:createTableInternalMetadata] &&
          [self executeQuery:createTableExperiment] &&
-         [self executeQuery:createTablePersonalization] && [self executeQuery:createTableRollout];
+         [self executeQuery:createTablePersonalization];
 }
 
 - (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path {
@@ -622,52 +618,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return YES;
 }
 
-- (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
-                                    value:(NSArray<NSDictionary *> *)metadataList
-                        completionHandler:(RCNDBCompletion)handler {
-  dispatch_async(_databaseOperationQueue, ^{
-    BOOL success = [self insertOrUpdateRolloutTableWithKey:key value:metadataList];
-    if (handler) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(success, nil);
-      });
-    }
-  });
-}
-
-- (BOOL)insertOrUpdateRolloutTableWithKey:(NSString *)key
-                                    value:(NSArray<NSDictionary *> *)arrayValue {
-  RCN_MUST_NOT_BE_MAIN_THREAD();
-  NSError *error;
-  NSData *dataValue = [NSJSONSerialization dataWithJSONObject:arrayValue
-                                                      options:NSJSONWritingPrettyPrinted
-                                                        error:&error];
-  const char *SQL =
-      "INSERT OR REPLACE INTO " RCNTableNameRollout
-      " (_id, key, value) values ((SELECT _id from " RCNTableNameRollout " WHERE key = ?), ?, ?)";
-  sqlite3_stmt *statement = [self prepareSQL:SQL];
-  if (!statement) {
-    return NO;
-  }
-  if (![self bindStringToStatement:statement index:1 string:key]) {
-    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-  }
-
-  if (![self bindStringToStatement:statement index:2 string:key]) {
-    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-  }
-
-  if (sqlite3_bind_blob(statement, 3, dataValue.bytes, (int)dataValue.length, NULL) != SQLITE_OK) {
-    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-  }
-
-  if (sqlite3_step(statement) != SQLITE_DONE) {
-    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-  }
-  sqlite3_finalize(statement);
-  return YES;
-}
-
 #pragma mark - update
 
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
@@ -902,6 +852,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 - (NSMutableArray<NSData *> *)loadExperimentTableFromKey:(NSString *)key {
   RCN_MUST_NOT_BE_MAIN_THREAD();
 
+  NSMutableArray *results = [[NSMutableArray alloc] init];
   const char *SQL = "SELECT value FROM " RCNTableNameExperiment " WHERE key = ?";
   sqlite3_stmt *statement = [self prepareSQL:SQL];
   if (!statement) {
@@ -910,49 +861,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
   NSArray *params = @[ key ];
   [self bindStringsToStatement:statement stringArray:params];
-  NSMutableArray *results = [self loadValuesFromStatement:statement];
-  return results;
-}
-
-- (NSArray<NSDictionary *> *)loadRolloutTableFromKey:(NSString *)key {
-  RCN_MUST_NOT_BE_MAIN_THREAD();
-  const char *SQL = "SELECT value FROM " RCNTableNameRollout " WHERE key = ?";
-  sqlite3_stmt *statement = [self prepareSQL:SQL];
-  if (!statement) {
-    return nil;
-  }
-  NSArray *params = @[ key ];
-  [self bindStringsToStatement:statement stringArray:params];
-  NSMutableArray *results = [self loadValuesFromStatement:statement];
-  // There should be only one entry in this table.
-  if (results.count != 1) {
-    return nil;
-  }
-  NSArray *rollout;
-  // Convert from NSData to NSArray
-  if (results[0]) {
-    NSError *error;
-    rollout = [NSJSONSerialization JSONObjectWithData:results[0] options:0 error:&error];
-    if (!rollout) {
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
-                  @"Failed to convert NSData to NSAarry for Rollout Metadata with error %@.",
-                  error);
-    }
-  }
-  if (!rollout) {
-    rollout = [[NSArray alloc] init];
-  }
-  return rollout;
-}
-
-- (NSMutableArray *)loadValuesFromStatement:(sqlite3_stmt *)statement {
-  NSMutableArray *results = [[NSMutableArray alloc] init];
-  NSData *value;
+  NSData *experimentData;
   while (sqlite3_step(statement) == SQLITE_ROW) {
-    value = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 0)
-                           length:sqlite3_column_bytes(statement, 0)];
-    if (value) {
-      [results addObject:value];
+    experimentData = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 0)
+                                    length:sqlite3_column_bytes(statement, 0)];
+    if (experimentData) {
+      [results addObject:experimentData];
     }
   }
 
@@ -966,7 +880,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(NO, [NSMutableDictionary new], [NSMutableDictionary new], nil, nil);
+        handler(NO, [NSMutableDictionary new], [NSMutableDictionary new], nil);
       });
       return;
     }
@@ -999,7 +913,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
     if (handler) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(YES, fetchedPersonalization, activePersonalization, nil, nil);
+        handler(YES, fetchedPersonalization, activePersonalization, nil);
       });
     }
   });
@@ -1073,7 +987,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(NO, [NSDictionary new], [NSDictionary new], [NSDictionary new], [NSDictionary new]);
+        handler(NO, [NSDictionary new], [NSDictionary new], [NSDictionary new]);
       });
       return;
     }
@@ -1086,26 +1000,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     __block NSDictionary *defaultConfig =
         [strongSelf loadMainTableWithBundleIdentifier:bundleIdentifier
                                            fromSource:RCNDBSourceDefault];
-
-    __block NSArray<NSDictionary *> *fetchedRolloutMetadata =
-        [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyFetchedMetadata];
-    __block NSArray<NSDictionary *> *activeRolloutMetadata =
-        [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
-
     if (handler) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         fetchedConfig = fetchedConfig ? fetchedConfig : [[NSDictionary alloc] init];
         activeConfig = activeConfig ? activeConfig : [[NSDictionary alloc] init];
         defaultConfig = defaultConfig ? defaultConfig : [[NSDictionary alloc] init];
-        fetchedRolloutMetadata =
-            fetchedRolloutMetadata ? fetchedRolloutMetadata : [[NSArray alloc] init];
-        activeRolloutMetadata =
-            activeRolloutMetadata ? activeRolloutMetadata : [[NSArray alloc] init];
-        NSDictionary *rolloutMetadata = @{
-          @RCNRolloutTableKeyActiveMetadata : [activeRolloutMetadata copy],
-          @RCNRolloutTableKeyFetchedMetadata : [fetchedRolloutMetadata copy]
-        };
-        handler(YES, fetchedConfig, activeConfig, defaultConfig, rolloutMetadata);
+        handler(YES, fetchedConfig, activeConfig, defaultConfig);
       });
     }
   });

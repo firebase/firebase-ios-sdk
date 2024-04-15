@@ -14,32 +14,50 @@
 
 import Foundation
 
-/// The key for the "error" value in JSON responses from the server.
+/** @var kErrorKey
+    @brief The key for the "error" value in JSON responses from the server.
+ */
 private let kErrorKey = "error"
 
-/// Represents the provider user info part of the response from the getAccountInfo endpoint.
-/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+/** @class FIRGetAccountInfoResponseProviderUserInfo
+    @brief Represents the provider user info part of the response from the getAccountInfo endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+ */
 class GetAccountInfoResponseProviderUserInfo: NSObject {
-  /// The ID of the identity provider.
+  /** @property providerID
+   @brief The ID of the identity provider.
+   */
   let providerID: String?
 
-  /// The user's display name at the identity provider.
+  /** @property displayName
+   @brief The user's display name at the identity provider.
+   */
   let displayName: String?
 
-  /// The user's photo URL at the identity provider.
+  /** @property photoURL
+   @brief The user's photo URL at the identity provider.
+   */
   let photoURL: URL?
 
-  /// The user's identifier at the identity provider.
+  /** @property federatedID
+   @brief The user's identifier at the identity provider.
+   */
   let federatedID: String?
 
-  /// The user's email at the identity provider.
+  /** @property email
+   @brief The user's email at the identity provider.
+   */
   let email: String?
 
-  /// A phone number associated with the user.
+  /** @property phoneNumber
+   @brief A phone number associated with the user.
+   */
   let phoneNumber: String?
 
-  /// Designated initializer.
-  /// - Parameter dictionary: The provider user info data from endpoint.
+  /** @fn initWithAPIKey:
+   @brief Designated initializer.
+   @param dictionary The provider user info data from endpoint.
+   */
   init(dictionary: [String: Any]) {
     providerID = dictionary["providerId"] as? String
     displayName = dictionary["displayName"] as? String
@@ -55,44 +73,69 @@ class GetAccountInfoResponseProviderUserInfo: NSObject {
   }
 }
 
-/// Represents the firebase user info part of the response from the getAccountInfo endpoint.
-/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+/** @class FIRGetAccountInfoResponseUser
+    @brief Represents the firebase user info part of the response from the getAccountInfo endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+ */
 class GetAccountInfoResponseUser: NSObject {
-  /// The ID of the user.
+  /** @property localID
+   @brief The ID of the user.
+   */
   let localID: String?
 
-  /// The email or the user.
+  /** @property email
+   @brief The email or the user.
+   */
   let email: String?
 
-  /// Whether the email has been verified.
+  /** @property emailVerified
+   @brief Whether the email has been verified.
+   */
   let emailVerified: Bool
 
-  /// The display name of the user.
+  /** @property displayName
+   @brief The display name of the user.
+   */
   let displayName: String?
 
-  /// The user's photo URL.
+  /** @property photoURL
+   @brief The user's photo URL.
+   */
   let photoURL: URL?
 
-  /// The user's creation date.
+  /** @property creationDate
+   @brief The user's creation date.
+   */
   let creationDate: Date?
 
-  /// The user's last login date.
+  /** @property lastSignInDate
+   @brief The user's last login date.
+   */
   let lastLoginDate: Date?
 
-  /// The user's profiles at the associated identity providers.
+  /** @property providerUserInfo
+   @brief The user's profiles at the associated identity providers.
+   */
   let providerUserInfo: [GetAccountInfoResponseProviderUserInfo]?
 
-  /// Information about user's password.
-  /// This is not necessarily the hash of user's actual password.
+  /** @property passwordHash
+   @brief Information about user's password.
+   @remarks This is not necessarily the hash of user's actual password.
+   */
+
   let passwordHash: String?
 
-  /// A phone number associated with the user.
+  /** @property phoneNumber
+   @brief A phone number associated with the user.
+   */
   let phoneNumber: String?
 
   let mfaEnrollments: [AuthProtoMFAEnrollment]?
 
-  /// Designated initializer.
-  /// - Parameter dictionary: The provider user info data from endpoint.
+  /** @fn initWithAPIKey:
+   @brief Designated initializer.
+   @param dictionary The provider user info data from endpoint.
+   */
   init(dictionary: [String: Any]) {
     if let providerUserInfoData = dictionary["providerUserInfo"] as? [[String: Any]] {
       providerUserInfo = providerUserInfoData.map {
@@ -136,13 +179,17 @@ class GetAccountInfoResponseUser: NSObject {
   }
 }
 
-/// Represents the response from the setAccountInfo endpoint.
-/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+/** @class FIRGetAccountInfoResponse
+    @brief Represents the response from the setAccountInfo endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetAccountInfoResponse: AuthRPCResponse {
   required init() {}
 
-  /// The requested users' profiles.
+  /** @property providerUserInfo
+   @brief The requested users' profiles.
+   */
   var users: [GetAccountInfoResponseUser]?
   func setFields(dictionary: [String: AnyHashable]) throws {
     guard let usersData = dictionary["users"] as? [[String: AnyHashable]] else {

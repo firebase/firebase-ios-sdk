@@ -22,13 +22,16 @@
     @_implementationOnly import GoogleUtilities_Environment
   #endif
 
-  /// Class responsible for providing a default AuthUIDelegate.
-  ///
-  /// This class should be used in the case that a UIDelegate was expected and necessary to
-  /// continue a given flow, but none was provided.
+  /** @class AuthDefaultUIDelegate
+      @brief Class responsible for providing a default FIRAuthUIDelegate.
+      @remarks This class should be used in the case that a UIDelegate was expected and necessary to
+          continue a given flow, but none was provided.
+   */
   class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
-    /// Returns a default AuthUIDelegate object.
-    /// - Returns: The default AuthUIDelegate object.
+    /** @fn defaultUIDelegate
+        @brief Returns a default FIRAuthUIDelegate object.
+        @return The default FIRAuthUIDelegate object.
+     */
     class func defaultUIDelegate() -> AuthUIDelegate? {
       if GULAppEnvironmentUtil.isAppExtension() {
         // iOS App extensions should not call [UIApplication sharedApplication], even if

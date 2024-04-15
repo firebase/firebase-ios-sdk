@@ -14,61 +14,95 @@
 
 import Foundation
 
-/// The "createAuthUri" endpoint.
+/** @var kCreateAuthURIEndpoint
+    @brief The "createAuthUri" endpoint.
+ */
 private let kCreateAuthURIEndpoint = "createAuthUri"
 
-/// The key for the "providerId" value in the request.
+/** @var kProviderIDKey
+    @brief The key for the "providerId" value in the request.
+ */
 private let kProviderIDKey = "providerId"
 
-/// The key for the "identifier" value in the request.
+/** @var kIdentifierKey
+    @brief The key for the "identifier" value in the request.
+ */
 private let kIdentifierKey = "identifier"
 
-/// The key for the "continueUri" value in the request.
+/** @var kContinueURIKey
+    @brief The key for the "continueUri" value in the request.
+ */
 private let kContinueURIKey = "continueUri"
 
-/// The key for the "openidRealm" value in the request.
+/** @var kOpenIDRealmKey
+    @brief The key for the "openidRealm" value in the request.
+ */
 private let kOpenIDRealmKey = "openidRealm"
 
-/// The key for the "clientId" value in the request.
+/** @var kClientIDKey
+    @brief The key for the "clientId" value in the request.
+ */
 private let kClientIDKey = "clientId"
 
-/// The key for the "context" value in the request.
+/** @var kContextKey
+    @brief The key for the "context" value in the request.
+ */
 private let kContextKey = "context"
 
-/// The key for the "appId" value in the request.
+/** @var kAppIDKey
+    @brief The key for the "appId" value in the request.
+ */
 private let kAppIDKey = "appId"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
-/// Represents the parameters for the createAuthUri endpoint.
-/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
+/** @class FIRCreateAuthURIRequest
+    @brief Represents the parameters for the createAuthUri endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = CreateAuthURIResponse
 
-  /// The email or federated ID of the user.
+  /** @property identifier
+      @brief The email or federated ID of the user.
+   */
   let identifier: String
 
-  /// The URI to which the IDP redirects the user after the federated login flow.
+  /** @property continueURI
+      @brief The URI to which the IDP redirects the user after the federated login flow.
+   */
   let continueURI: String
 
-  /// Optional realm for OpenID protocol. The sub string "scheme://domain:port" of the param
-  ///   "continueUri" is used if this is not set.
+  /** @property openIDRealm
+      @brief Optional realm for OpenID protocol. The sub string "scheme://domain:port" of the param
+          "continueUri" is used if this is not set.
+   */
   var openIDRealm: String?
 
-  /// The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
-  ///    live.net and yahoo.com. For other OpenID IdPs it's the OP identifier.
+  /** @property providerID
+      @brief The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
+          live.net and yahoo.com. For other OpenID IdPs it's the OP identifier.
+   */
   var providerID: String?
 
-  /// The relying party OAuth client ID.
+  /** @property clientID
+      @brief The relying party OAuth client ID.
+   */
   var clientID: String?
 
-  /// The opaque value used by the client to maintain context info between the authentication
-  ///   request and the IDP callback.
+  /** @property context
+      @brief The opaque value used by the client to maintain context info between the authentication
+          request and the IDP callback.
+   */
   var context: String?
 
-  /// The iOS client application's bundle identifier.
+  /** @property appID
+      @brief The iOS client application's bundle identifier.
+   */
   var appID: String?
 
   init(identifier: String, continueURI: String,

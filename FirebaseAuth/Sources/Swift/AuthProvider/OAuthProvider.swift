@@ -15,40 +15,55 @@
 import CommonCrypto
 import Foundation
 
-/// Utility class for constructing OAuth Sign In credentials.
+/**
+ @brief Utility class for constructing OAuth Sign In credentials.
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider {
   @objc public static let id = "OAuth"
 
-  /// Array used to configure the OAuth scopes.
+  /** @property scopes
+      @brief Array used to configure the OAuth scopes.
+   */
   @objc open var scopes: [String]?
 
-  /// Dictionary used to configure the OAuth custom parameters.
+  /** @property customParameters
+      @brief Dictionary used to configure the OAuth custom parameters.
+   */
   @objc open var customParameters: [String: String]?
 
-  /// The provider ID indicating the specific OAuth provider this OAuthProvider instance represents.
+  /** @property providerID
+      @brief The provider ID indicating the specific OAuth provider this OAuthProvider instance
+            represents.
+   */
   @objc public let providerID: String
 
-  /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
-  /// be configured.
-  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
   @objc(providerWithProviderID:) open class func provider(providerID: String) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: Auth.auth())
   }
 
-  /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
-  /// be configured.
-  /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
-  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @param auth The auth instance to be associated with the `OAuthProvider` instance.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
   @objc(providerWithProviderID:auth:) open class func provider(providerID: String,
                                                                auth: Auth) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: auth)
   }
 
-  /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
-  /// be configured.
-  /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
-  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @param auth The auth instance to be associated with the `OAuthProvider` instance.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
   public init(providerID: String, auth: Auth = Auth.auth()) {
     if auth.requestConfiguration.emulatorHostAndPort == nil {
       if providerID == FacebookAuthProvider.id {
@@ -84,13 +99,16 @@ import Foundation
     }
   }
 
-  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
-  /// token, and access token.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
-  /// available.
-  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  /**
+      @brief Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
+          token, and access token.
+
+      @param providerID The provider ID associated with the Auth credential being created.
+      @param idToken The IDToken associated with the Auth credential being created.
+      @param accessToken The access token associated with the Auth credential be created, if
+          available.
+      @return A `AuthCredential` for the specified provider ID, ID token and access token.
+   */
   @objc(credentialWithProviderID:IDToken:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 idToken: String,
@@ -98,25 +116,31 @@ import Foundation
     return OAuthCredential(withProviderID: providerID, idToken: idToken, accessToken: accessToken)
   }
 
-  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID using
-  /// an ID token.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created
-  /// - Returns: An AuthCredential.
+  /**
+      @brief Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID using
+        an ID token.
+
+      @param providerID The provider ID associated with the Auth credential being created.
+      @param accessToken The access token associated with the Auth credential be created
+      @return An `AuthCredential`.
+   */
   @objc(credentialWithProviderID:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
   }
 
-  /// Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
-  /// token, raw nonce, and access token.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
-  /// available.
-  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  /**
+      @brief Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
+          token, raw nonce, and access token.
+
+      @param providerID The provider ID associated with the Auth credential being created.
+      @param idToken The IDToken associated with the Auth credential being created.
+      @param rawNonce The raw nonce associated with the Auth credential being created.
+      @param accessToken The access token associated with the Auth credential be created, if
+          available.
+      @return A `AuthCredential` for the specified provider ID, ID token and access token.
+   */
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String,
@@ -129,12 +153,15 @@ import Foundation
     )
   }
 
-  /// Creates an `AuthCredential` for that OAuth 2 provider identified by providerID using
-  /// an ID token and raw nonce.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Returns: An AuthCredential.
+  /**
+      @brief Creates an `AuthCredential` for that OAuth 2 provider identified by providerID using
+        an ID token and raw nonce.
+
+      @param providerID The provider ID associated with the Auth credential being created.
+      @param idToken The IDToken associated with the Auth credential being created.
+      @param rawNonce The raw nonce associated with the Auth credential being created.
+      @return A `AuthCredential`.
+   */
   @objc(credentialWithProviderID:IDToken:rawNonce:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String) -> OAuthCredential {
@@ -142,12 +169,13 @@ import Foundation
   }
 
   #if os(iOS)
-    /// Used to obtain an auth credential via a mobile web flow.
-    ///
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
-    /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
-    /// thread when the mobile web flow is completed.
+    /** @fn getCredentialWithUIDelegate:completion:
+        @brief Used to obtain an auth credential via a mobile web flow.
+            This method is available on iOS only.
+        @param uiDelegate An optional UI delegate used to present the mobile web flow.
+        @param completion Optionally; a block which is invoked asynchronously on the main thread when
+            the mobile web flow is completed.
+     */
     open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
                                 completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
@@ -215,9 +243,11 @@ import Foundation
       }
     }
 
-    /// Used to obtain an auth credential via a mobile web flow.
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
+    /** @fn getCredentialWithUIDelegate:completion:
+        @brief Used to obtain an auth credential via a mobile web flow.
+            This method is available on iOS only.
+        @param uiDelegate An optional UI delegate used to present the mobile web flow.
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
     open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
@@ -233,16 +263,18 @@ import Foundation
     }
   #endif
 
-  /// Creates an `AuthCredential` for the Sign in with Apple OAuth 2 provider identified by ID
-  /// token, raw nonce, and full name.This method is specific to the Sign in with Apple OAuth 2
-  /// provider as this provider requires the full name to be passed explicitly.
-  /// - Parameter idToken: The IDToken associated with the Sign in with Apple Auth credential being
-  /// created.
-  /// - Parameter rawNonce: The raw nonce associated with the Sign in with Apple Auth credential
-  /// being created.
-  /// - Parameter fullName: The full name associated with the Sign in with Apple Auth credential
-  /// being created.
-  /// - Returns: An AuthCredential.
+  /** @fn appleCredentialWithIDToken:rawNonce:fullName:
+   *  @brief Creates an `AuthCredential` for the Sign in with Apple OAuth 2 provider identified by ID
+   * token, raw nonce, and full name. This method is specific to the Sign in with Apple OAuth 2
+   * provider as this provider requires the full name to be passed explicitly.
+   *
+   *  @param idToken The IDToken associated with the Sign in with Apple Auth credential being created.
+   *  @param rawNonce The raw nonce associated with the Sign in with Apple Auth credential being
+   * created.
+   *  @param fullName The full name associated with the Sign in with Apple Auth credential being
+   * created.
+   *  @return An `AuthCredential`.
+   */
   @objc(appleCredentialWithIDToken:rawNonce:fullName:)
   public static func appleCredential(withIDToken idToken: String,
                                      rawNonce: String?,
@@ -255,9 +287,12 @@ import Foundation
 
   // MARK: - Private Methods
 
-  /// Parses the redirected URL and returns a string representation of the OAuth response URL.
-  /// - Parameter url: The url to be parsed for an OAuth response URL.
-  /// - Returns: The OAuth response if successful.
+  /** @fn OAuthResponseForURL:error:
+      @brief Parses the redirected URL and returns a string representation of the OAuth response URL.
+      @param URL The url to be parsed for an OAuth response URL.
+      @param error The error that occurred if any.
+      @return The OAuth response if successful.
+   */
   private func oAuthResponseForURL(url: URL) -> (String?, Error?) {
     var urlQueryItems = AuthWebUtils.dictionary(withHttpArgumentsString: url.query)
     if let item = urlQueryItems["deep_link_id"],
@@ -282,11 +317,14 @@ import Foundation
     ))
   }
 
-  /// Constructs a URL used for opening a headful-lite flow using a given event
-  /// ID and session ID.
-  /// - Parameter eventID: The event ID used for this purpose.
-  /// - Parameter sessionID: The session ID used when completing the headful lite flow.
-  /// - Returns: A url.
+  /** @fn getHeadfulLiteURLWithEventID
+      @brief Constructs a URL used for opening a headful-lite flow using a given event
+          ID and session ID.
+      @param eventID The event ID used for this purpose.
+      @param sessionID The session ID used when completing the headful lite flow.
+      @param completion The callback invoked after the URL has been constructed or an error
+          has been encountered.
+   */
   private func getHeadfulLiteUrl(eventID: String,
                                  sessionID: String) async throws -> URL? {
     let authDomain = try await AuthWebUtils
@@ -357,9 +395,11 @@ import Foundation
     return components?.url
   }
 
-  /// Returns the SHA256 hash representation of a given string object.
-  /// - Parameter string: The string for which a SHA256 hash is desired.
-  /// - Returns: An hexadecimal string representation of the SHA256 hash.
+  /** @fn hashforString:
+      @brief Returns the SHA256 hash representation of a given string object.
+      @param string The string for which a SHA256 hash is desired.
+      @return An hexadecimal string representation of the SHA256 hash.
+   */
   private func hash(forString string: String) -> String {
     guard let sessionIdData = string.data(using: .utf8) as? NSData else {
       fatalError("FirebaseAuth Internal error: Failed to create hash for sessionID")

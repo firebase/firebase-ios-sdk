@@ -14,22 +14,26 @@
 
 import Foundation
 
-/// A utility class used to facilitate scheduling tasks to be executed in the future.
+/** @class AuthDispatcher
+    @brief A utility class used to facilitate scheduling tasks to be executed in the future.
+ */
 class AuthDispatcher {
   static let shared = AuthDispatcher()
 
-  /// Allows custom implementation of dispatchAfterDelay:queue:callback:.
-  ///
-  /// Set to nil to restore default implementation.
+  /** @property dispatchAfterImplementation
+      @brief Allows custom implementation of dispatchAfterDelay:queue:callback:.
+      @remarks Set to nil to restore default implementation.
+   */
   var dispatchAfterImplementation: ((TimeInterval, DispatchQueue, @escaping () -> Void) -> Void)?
 
-  /// Schedules task in the future after a specified delay.
-  /// - Parameter delay: The delay in seconds after which the task will be scheduled to execute.
-  /// - Parameter queue: The dispatch queue on which the task will be submitted.
-  /// - Parameter task: The task(block) to be scheduled for future execution.
-  func dispatch(afterDelay delay: TimeInterval,
-                queue: DispatchQueue,
-                task: @escaping () -> Void) {
+  /** @fn dispatchAfterDelay:queue:callback:
+      @brief Schedules task in the future after a specified delay.
+
+      @param delay The delay in seconds after which the task will be scheduled to execute.
+      @param queue The dispatch queue on which the task will be submitted.
+      @param task The task (block) to be scheduled for future execution.
+   */
+  func dispatch(afterDelay delay: TimeInterval, queue: DispatchQueue, task: @escaping () -> Void) {
     if let dispatchAfterImplementation {
       dispatchAfterImplementation(delay, queue, task)
     } else {

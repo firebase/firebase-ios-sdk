@@ -614,8 +614,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     changeRequest.commitChanges { _ in
     }
     let _: String = user.providerID
-    let _: String = user.uid
-    if let _: String = user.displayName,
+    if let _: String = user.uid,
+       let _: String = user.displayName,
        let _: URL = user.photoURL,
        let _: String = user.email,
        let _: String = user.phoneNumber {}
@@ -671,8 +671,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
   func userInfoProperties(userInfo: UserInfo) {
     let _: String = userInfo.providerID
-    let _: String = userInfo.uid
-    if let _: String = userInfo.displayName,
+    if let _: String = userInfo.uid,
+       let _: String = userInfo.displayName,
        let _: URL = userInfo.photoURL,
        let _: String = userInfo.email,
        let _: String = userInfo.phoneNumber {}

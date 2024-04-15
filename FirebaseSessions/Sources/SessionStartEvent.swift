@@ -91,7 +91,6 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       proto.application_info.session_sdk_version,
       proto.session_data.session_id,
       proto.session_data.firebase_installation_id,
-      proto.session_data.firebase_authentication_token,
       proto.session_data.first_session_id,
     ]
     for pointer in garbage {
@@ -103,12 +102,6 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     let oldID = proto.session_data.firebase_installation_id
     proto.session_data.firebase_installation_id = makeProtoString(installationId)
     nanopb_free(oldID)
-  }
-
-  func setAuthenticationToken(authenticationToken: String) {
-    let oldToken = proto.session_data.firebase_authentication_token
-    proto.session_data.firebase_authentication_token = makeProtoString(authenticationToken)
-    nanopb_free(oldToken)
   }
 
   func setSamplingRate(samplingRate: Double) {
@@ -157,7 +150,18 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
   // MARK: - GDTCOREventDataObject
 
   func transportBytes() -> Data {
-    return FIRSESTransportBytes(&proto)
+    var fields = firebase_appquality_sessions_SessionEvent_fields
+    var error: NSError?
+    let data = FIRSESEncodeProto(&fields.0, &proto, &error)
+    if error != nil {
+      Logger
+        .logError("Session Event failed to encode as proto with error: \(error.debugDescription)")
+    }
+    guard let data = data else {
+      Logger.logError("Session Event generated nil transportBytes. Returning empty data.")
+      return Data()
+    }
+    return data
   }
 
   // MARK: - Data Conversion

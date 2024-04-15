@@ -18,29 +18,38 @@
   import UIKit
   import WebKit
 
-  /// Defines a delegate for AuthWebViewController
+  /** @protocol AuthWebViewControllerDelegate
+      @brief Defines a delegate for AuthWebViewController
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   protocol AuthWebViewControllerDelegate: AnyObject {
-    /// Notifies the delegate that the web view controller is being cancelled by the user.
-    /// - Parameter webViewController: The web view controller in question.
+    /** @fn webViewControllerDidCancel:
+        @brief Notifies the delegate that the web view controller is being cancelled by the user.
+        @param webViewController The web view controller in question.
+     */
     func webViewControllerDidCancel(_ controller: AuthWebViewController)
 
-    /// Determines if a URL should be handled by the delegate.
-    /// - Parameter url: The URL to handle.
-    /// - Returns: Whether the URL could be handled or not.
+    /** @fn webViewController:canHandleURL:
+        @brief Determines if a URL should be handled by the delegate.
+        @param URL The URL to handle.
+        @return Whether the URL could be handled or not.
+     */
     func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
 
-    /// Notifies the delegate that the web view controller failed to load a page.
-    /// - Parameter webViewController: The web view controller in question.
-    /// - Parameter error: The error that has occurred.
+    /** @fn webViewController:didFailWithError:
+        @brief Notifies the delegate that the web view controller failed to load a page.
+        @param webViewController The web view controller in question.
+        @param error The error that has occurred.
+     */
     func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
 
-    /// Presents an URL to interact with user.
-    /// - Parameter url: The URL to present.
-    /// - Parameter uiDelegate: The UI delegate to present view controller.
-    /// - Parameter completion: A block to be called either synchronously if the presentation fails
-    /// to start, or asynchronously in future on an unspecified thread once the presentation
-    /// finishes.
+    /** @fn presentURL:UIDelegate:callbackMatcher:completion:
+        @brief Presents an URL to interact with user.
+        @param url The URL to present.
+        @param uiDelegate The UI delegate to present view controller.
+        @param completion A block to be called either synchronously if the presentation fails to start,
+            or asynchronously in future on an unspecified thread once the presentation finishes.
+     */
     func present(_ url: URL,
                  uiDelegate: AuthUIDelegate?,
                  callbackMatcher: @escaping (URL?) -> Bool,

@@ -118,10 +118,6 @@ private enum GoogleDataTransportConfig {
             .logDebug(
               "Data Collection is disabled for all subscribers. Skipping this Session Event"
             )
-        case .SessionInstallationsTimeOutError:
-          Logger.logError(
-            "Error getting Firebase Installation ID due to timeout. Skipping this Session Event"
-          )
         }
       }
     }

@@ -24,6 +24,8 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 static const int64_t kDefaultSyncMessageTTL = 4 * 7 * 24 * 60 * 60;  // 4 weeks
+// 4 MB of free space is required to persist Sync messages
+static const uint64_t kMinFreeDiskSpaceInMB = 1;
 
 @interface FIRMessagingSyncMessageManager ()
 
@@ -61,6 +63,12 @@ static const int64_t kDefaultSyncMessageTTL = 4 * 7 * 24 * 60 * 60;  // 4 weeks
       [self.rmqManager querySyncMessageWithRmqID:rmqID];
 
   if (!persistentMessage) {
+    // Do not persist the new message if we don't have enough disk space
+    uint64_t freeDiskSpace = FIRMessagingGetFreeDiskSpaceInMB();
+    if (freeDiskSpace < kMinFreeDiskSpaceInMB) {
+      return NO;
+    }
+
     int64_t expirationTime = [[self class] expirationTimeForSyncMessage:message];
     [self.rmqManager saveSyncMessageWithRmqID:rmqID expirationTime:expirationTime];
     return NO;

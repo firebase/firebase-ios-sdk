@@ -31,15 +31,3 @@
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>
 #import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #endif
-#ifdef COCOAPODS
-#import "FirebaseStorage/FIRStorageTypedefs.h"
-
-@interface TestImports : NSObject
-@end
-
-@implementation TestImports
-- (FIRAuth *)testImports {
-  return [FIRAuth auth];
-}
-@end
-#endif

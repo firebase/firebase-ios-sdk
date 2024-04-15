@@ -22,7 +22,7 @@
 #include <string>
 #include <utility>
 
-#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponent.h"
 #import "FirebaseCore/Extension/FIRComponentContainer.h"

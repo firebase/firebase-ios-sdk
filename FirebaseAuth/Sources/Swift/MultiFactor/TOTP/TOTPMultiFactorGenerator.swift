@@ -15,19 +15,23 @@
 import Foundation
 
 #if os(iOS)
-
-  /// The data structure used to help initialize an assertion for a second factor entity to the
-  /// Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
-  /// the assertion.
-  ///
-  /// This class is available on iOS only.
+  /**
+   @class TOTPMultiFactorGenerator
+   @brief The data structure used to help initialize an assertion for a second factor entity to the
+   Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
+   the assertion.
+   This class is available on iOS only.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRTOTPMultiFactorGenerator) open class TOTPMultiFactorGenerator: NSObject {
-    /// Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a
-    /// QR code URL or inputting into a TOTP app. This method uses the auth instance corresponding
-    /// to the user in the multiFactorSession.
-    /// - Parameter session: The multiFactorSession instance.
-    /// - Parameter completion: Completion block
+    /**
+     @fn generateSecretWithMultiFactorSession
+     @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a
+     QR code URL or inputting into a TOTP app. This method uses the auth instance corresponding to the
+     user in the multiFactorSession.
+     @param session The multiFactorSession instance.
+     @param completion Completion block
+     */
     @objc(generateSecretWithMultiFactorSession:completion:)
     open class func generateSecret(with session: MultiFactorSession,
                                    completion: @escaping (TOTPSecret?, Error?) -> Void) {
@@ -67,14 +71,9 @@ import Foundation
       }
     }
 
-    /// Creates a TOTP secret as part of enrolling a TOTP second factor.
-    ///
-    /// Used for generating a QR code URL or inputting into a TOTP app. This
-    /// method uses the auth instance correspondingto the user in the multiFactorSession.
-    /// - Parameter session: The multiFactorSession instance.
-    /// - Returns: The TOTP secret.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    open class func generateSecret(with session: MultiFactorSession) async throws -> TOTPSecret {
+    open class func generateSecret(with session: MultiFactorSession) async throws
+      -> TOTPSecret {
       return try await withCheckedThrowingContinuation { continuation in
         self.generateSecret(with: session) { secret, error in
           if let secret {
@@ -86,12 +85,13 @@ import Foundation
       }
     }
 
-    /// Initializes the MFA assertion to confirm ownership of the TOTP second factor.
-    ///
-    /// This assertion is used to complete enrollment of TOTP as a second factor.
-    /// - Parameter secret: The TOTP secret.
-    /// - Parameter oneTimePassword: One time password string.
-    /// - Returns: The MFA assertion.
+    /**
+     @fn assertionForEnrollmentWithSecret:
+     @brief Initializes the MFA assertion to confirm ownership of the TOTP second factor. This assertion
+     is used to complete enrollment of TOTP as a second factor.
+     @param secret The TOTP secret.
+     @param oneTimePassword one time password string.
+     */
     @objc(assertionForEnrollmentWithSecret:oneTimePassword:)
     open class func assertionForEnrollment(with secret: TOTPSecret,
                                            oneTimePassword: String) -> TOTPMultiFactorAssertion {
@@ -99,12 +99,13 @@ import Foundation
                                       oneTimePassword: oneTimePassword)
     }
 
-    /// Initializes the MFA assertion to confirm ownership of the TOTP second factor.
-    ///
-    /// This assertion is used to complete signIn with TOTP as a second factor.
-    /// - Parameter enrollmentID: The ID that identifies the enrolled TOTP second factor.
-    /// - Parameter oneTimePassword: one time password string.
-    /// - Returns: The MFA assertion.
+    /**
+      @fn assertionForSignInWithenrollmentID:
+      @brief Initializes the MFA assertion to confirm ownership of the TOTP second factor. This
+      assertion is used to complete signIn with TOTP as a second factor.
+      @param enrollmentID The ID that identifies the enrolled TOTP second factor.
+      @param oneTimePassword one time password string.
+     */
     @objc(assertionForSignInWithEnrollmentID:oneTimePassword:)
     open class func assertionForSignIn(withEnrollmentID enrollmentID: String,
                                        oneTimePassword: String) -> TOTPMultiFactorAssertion {
@@ -112,4 +113,5 @@ import Foundation
                                       oneTimePassword: oneTimePassword)
     }
   }
+
 #endif

@@ -40,13 +40,19 @@ class IdentityToolkitRequest {
   /// The tenant ID of the request. nil if none is available.
   let tenantID: String?
 
-  /// The toggle of using Identity Platform endpoints.
+  /** @property useIdentityPlatform
+      @brief The toggle of using Identity Platform endpoints.
+   */
   let useIdentityPlatform: Bool
 
-  /// The toggle of using staging endpoints.
+  /** @property useStaging
+      @brief The toggle of using staging endpoints.
+   */
   let useStaging: Bool
 
-  /// The type of the client that the request sent from, which should be CLIENT_TYPE_IOS;
+  /** @property clientType
+      @brief The type of the client that the request sent from, which should be CLIENT_TYPE_IOS;
+   */
   var clientType: String
 
   private let _requestConfiguration: AuthRequestConfiguration

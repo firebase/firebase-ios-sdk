@@ -16,7 +16,6 @@ import XCTest
 
 import FirebaseCore
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigInterop
 import FirebaseRemoteConfigSwift
 
 final class FirebaseRemoteConfigSwift_APIBuildTests: XCTestCase {

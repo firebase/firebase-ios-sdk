@@ -15,6 +15,7 @@
 #include "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
 
 #include <mach/mach.h>
+#include <sys/mount.h>
 #include <sys/sysctl.h>
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
@@ -179,15 +180,16 @@ bool FIRCLSHostRecord(FIRCLSFile* file) {
 }
 
 void FIRCLSHostWriteDiskUsage(FIRCLSFile* file) {
+  struct statfs tStats;
+
   FIRCLSFileWriteSectionStart(file, "storage");
 
   FIRCLSFileWriteHashStart(file);
 
-  // Due to Apple Privacy Manifests, Crashlytics is not collecting
-  // disk space using statfs. When we find a solution, we can update
-  // this to actually track disk space correctly.
-  FIRCLSFileWriteHashEntryUint64(file, "free", 0);
-  FIRCLSFileWriteHashEntryUint64(file, "total", 0);
+  if (statfs(_firclsContext.readonly->host.documentDirectoryPath, &tStats) == 0) {
+    FIRCLSFileWriteHashEntryUint64(file, "free", tStats.f_bavail * tStats.f_bsize);
+    FIRCLSFileWriteHashEntryUint64(file, "total", tStats.f_blocks * tStats.f_bsize);
+  }
 
   FIRCLSFileWriteHashEnd(file);
 
