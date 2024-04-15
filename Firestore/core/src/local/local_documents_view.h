@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LOCAL_DOCUMENTS_VIEW_H_
 
-#include <cstddef>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -99,7 +98,7 @@ class LocalDocumentsView {
    */
   local::LocalWriteResult GetNextDocuments(const std::string& collection_group,
                                            const model::IndexOffset& offset,
-                                           size_t count) const;
+                                           int count) const;
 
   /**
    * Similar to `GetDocuments`, but creates the local view from the given

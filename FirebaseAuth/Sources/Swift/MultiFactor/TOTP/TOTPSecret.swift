@@ -22,24 +22,28 @@ import Foundation
 #if os(iOS)
   import UIKit
 
-  /// The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
-  /// (Time-based One Time Password) second factor.
-  ///
-  /// This class is available on iOS only.
+  /** @class FIRTOTPMultiFactorAssertion
+   @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
+   (Time-based One Time Password) second factor.
+   This class is available on iOS only.
+   */
   @objc(FIRTOTPSecret) open class TOTPSecret: NSObject {
-    /// Returns the shared secret key/seed used to generate time-based one-time passwords.
+    /**
+     @brief Returns the shared secret key/seed used to generate time-based one-time passwords.
+     */
     @objc open func sharedSecretKey() -> String {
       return secretKey
     }
 
-    /// Returns a QRCode URL as described in
-    /// https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
-    ///
-    /// This can be displayed to the user as a QRCode to be scanned into a TOTP app like Google
-    /// Authenticator.
-    /// - Parameter accountName: The name of the account/app.
-    /// - Parameter issuer: Issuer of the TOTP(likely the app name).
-    /// - Returns: A QRCode URL string.
+    /**
+     @brief Returns a QRCode URL as described in
+     https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+     This can be displayed to the user as a QRCode to be scanned into a TOTP app like Google
+     Authenticator.
+     @param accountName the name of the account/app.
+     @param issuer issuer of the TOTP(likely the app name).
+     @returns A QRCode URL string.
+     */
     @objc(generateQRCodeURLWithAccountName:issuer:)
     open func generateQRCodeURL(withAccountName accountName: String,
                                 issuer: String) -> String {
@@ -50,10 +54,11 @@ import Foundation
         "&algorithm=%\(hashingAlgorithm)&digits=\(codeLength)"
     }
 
-    /// Opens the specified QR Code URL in a password manager like iCloud Keychain.
-    ///
-    /// See more details
-    /// [here](https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes)
+    /**
+     @brief Opens the specified QR Code URL in a password manager like iCloud Keychain.
+     * See more details here:
+     https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes
+     */
     @objc(openInOTPAppWithQRCodeURL:)
     open func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if GULAppEnvironmentUtil.isAppExtension() {
@@ -77,23 +82,35 @@ import Foundation
       }
     }
 
-    /// Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
+    /**
+     @brief Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
+     */
     private let secretKey: String
 
-    /// Hashing algorithm used.
+    /**
+     @brief Hashing algorithm used.
+     */
     private let hashingAlgorithm: String?
 
-    /// Length of the one-time passwords to be generated.
+    /**
+     @brief Length of the one-time passwords to be generated.
+     */
     private let codeLength: Int
 
-    /// The interval (in seconds) when the OTP codes should change.
+    /**
+     @brief The interval (in seconds) when the OTP codes should change.
+     */
     private let codeIntervalSeconds: Int
 
-    /// The timestamp by which TOTP enrollment should be completed. This can be used by callers to
-    /// show a countdown of when to enter OTP code by.
+    /**
+     @brief The timestamp by which TOTP enrollment should be completed. This can be used by callers to
+     show a countdown of when to enter OTP code by.
+     */
     private let enrollmentCompletionDeadline: Date?
 
-    /// Additional session information.
+    /**
+     @brief Additional session information.
+     */
     let sessionInfo: String?
 
     init(secretKey: String, hashingAlgorithm: String?, codeLength: Int, codeIntervalSeconds: Int,

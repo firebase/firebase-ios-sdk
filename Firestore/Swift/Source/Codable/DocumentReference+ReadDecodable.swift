@@ -48,18 +48,14 @@ public extension DocumentReference {
   ///     not yet been set to their final value are returned from the snapshot.
   ///   - decoder: The decoder to use to convert the document. Defaults to use
   ///     the default decoder.
-  ///   - source: Indicates whether the results should be fetched from the cache only
-  ///     (`Source.cache`), the server only (`Source.server`), or to attempt the
-  ///     server and fall back to the cache (`Source.default`).
   ///   - completion: The closure to call when the document snapshot has been
   ///     fetched and decoded.
   func getDocument<T: Decodable>(as type: T.Type,
                                  with serverTimestampBehavior: ServerTimestampBehavior =
                                    .none,
                                  decoder: Firestore.Decoder = .init(),
-                                 source: FirestoreSource = .default,
                                  completion: @escaping (Result<T, Error>) -> Void) {
-    getDocument(source: source) { snapshot, error in
+    getDocument { snapshot, error in
       guard let snapshot = snapshot else {
         /**
          * Force unwrapping here is fine since this logic corresponds to the auto-synthesized
@@ -105,17 +101,13 @@ public extension DocumentReference {
   ///     snapshot.
   ///   - decoder: The decoder to use to convert the document. Defaults to use
   ///     the default decoder.
-  ///   - source: Indicates whether the results should be fetched from the cache only
-  ///     (`Source.cache`), the server only (`Source.server`), or to attempt the
-  ///     server and fall back to the cache (`Source.default`).
   /// - Returns: This instance of the supplied `Decodable` type `T`.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func getDocument<T: Decodable>(as type: T.Type,
                                  with serverTimestampBehavior: ServerTimestampBehavior =
                                    .none,
-                                 decoder: Firestore.Decoder = .init(),
-                                 source: FirestoreSource = .default) async throws -> T {
-    let snapshot = try await getDocument(source: source)
+                                 decoder: Firestore.Decoder = .init()) async throws -> T {
+    let snapshot = try await getDocument()
     return try snapshot.data(as: T.self,
                              with: serverTimestampBehavior,
                              decoder: decoder)

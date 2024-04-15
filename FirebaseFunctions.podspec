@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '10.23.0'
+  s.version          = '10.21.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -28,7 +28,7 @@ Cloud Functions for Firebase.
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.12.0'
+  s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   s.swift_version = '5.3'

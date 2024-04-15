@@ -584,16 +584,10 @@ Message<google_firestore_v1_Value> BundleSerializer::DecodeValue(
 
 Message<google_firestore_v1_MapValue> BundleSerializer::DecodeMapValue(
     JsonReader& reader, const json& map_json) const {
-  if (!map_json.is_object()) {
-    reader.Fail("mapValue is not a valid object");
+  if (!map_json.is_object() || !map_json.contains("fields")) {
+    reader.Fail("mapValue is not a valid map");
     return {};
   }
-
-  // Empty map doesn't have `fields` field.
-  if (!map_json.contains("fields")) {
-    return {};
-  }
-
   const auto& fields = map_json.at("fields");
   if (!fields.is_object()) {
     reader.Fail("mapValue's 'field' is not a valid map");

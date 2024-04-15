@@ -183,10 +183,6 @@ nanopb::Message<google_firestore_v1_Value> DeepClone(
 nanopb::Message<google_firestore_v1_ArrayValue> DeepClone(
     const google_firestore_v1_ArrayValue& source);
 
-/** Creates a copy of the contents of the MapValue proto. */
-nanopb::Message<google_firestore_v1_MapValue> DeepClone(
-    const google_firestore_v1_MapValue& source);
-
 /** Returns true if `value` is a INTEGER_VALUE. */
 inline bool IsInteger(const absl::optional<google_firestore_v1_Value>& value) {
   return value &&

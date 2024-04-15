@@ -25,7 +25,6 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
-@import FirebaseRemoteConfigInterop;
 
 #ifdef RCN_STAGING_SERVER
 static NSString *const kServerURLDomain =
@@ -106,7 +105,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
-    _templateVersionNumber = [self->_settings lastFetchedTemplateVersion];
+    _templateVersionNumber = [self->_settings lastTemplateVersion];
   }
   return self;
 }
@@ -573,7 +572,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         // Update experiments only for 3p namespace
         NSString *namespace = [strongSelf->_FIRNamespace
             substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
-        if ([namespace isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform]) {
+        if ([namespace isEqualToString:FIRNamespaceGoogleMobilePlatform]) {
           [strongSelf->_experiment updateExperimentsWithResponse:
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }

@@ -18,7 +18,6 @@
 
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
-#import "FIRSnapshotListenOptions.h"
 
 @class FIRAggregateQuery;
 @class FIRAggregateField;
@@ -104,21 +103,6 @@ NS_SWIFT_NAME(Query)
                                          listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                                             NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
-
-/**
- * Attaches a listener for `QuerySnapshot` events.
- * @param options Sets snapshot listener options, including whether metadata-only changes should
- *     trigger snapshot events, the source to listen to, the executor to use to call the
- *     listener, or the activity to scope the listener to.
- * @param listener The listener to attach.
- *
- * @return A `ListenerRegistration` that can be used to remove this listener.
- */
-- (id<FIRListenerRegistration>)
-    addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
-                          listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
-                                             NSError *_Nullable error))listener
-    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 
 #pragma mark - Filtering Data
 /**

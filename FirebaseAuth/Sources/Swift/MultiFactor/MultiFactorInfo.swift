@@ -17,20 +17,29 @@ import Foundation
 #if os(iOS)
   extension MultiFactorInfo: NSSecureCoding {}
 
-  /// Safe public structure used to represent a second factor entity from a client perspective.
-  ///
-  /// This class is available on iOS only.
+  /** @class FIRMultiFactorInfo
+   @brief Safe public structure used to represent a second factor entity from a client perspective.
+       This class is available on iOS only.
+   */
   @objc(FIRMultiFactorInfo) open class MultiFactorInfo: NSObject {
-    /// The multi-factor enrollment ID.
+    /**
+        @brief The multi-factor enrollment ID.
+     */
     @objc(UID) public let uid: String
 
-    /// The user friendly name of the current second factor.
+    /**
+        @brief The user friendly name of the current second factor.
+     */
     @objc public let displayName: String?
 
-    /// The second factor enrollment date.
+    /**
+        @brief The second factor enrollment date.
+     */
     @objc public let enrollmentDate: Date
 
-    /// The identifier of the second factor.
+    /**
+        @brief The identifier of the second factor.
+     */
     @objc public let factorID: String
 
     init(proto: AuthProtoMFAEnrollment, factorID: String) {

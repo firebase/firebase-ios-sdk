@@ -231,13 +231,10 @@ class BundleReaderTest : public ::testing::Test {
     value3.set_null_value(google::protobuf::NULL_VALUE);
     ProtoValue value4;
     value4.mutable_array_value();
-    ProtoValue value5;
-    value5.mutable_map_value();
     document.mutable_fields()->insert({"\0\ud7ff\ue000\uffff\"", value1});
     document.mutable_fields()->insert({"\"(╯°□°）╯︵ ┻━┻\"", value2});
     document.mutable_fields()->insert({"nValue", value3});
     document.mutable_fields()->insert({"emptyArray", value4});
-    document.mutable_fields()->insert({"emptyMap", value5});
 
     return document;
   }

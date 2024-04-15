@@ -14,29 +14,41 @@
 
 import Foundation
 
-/// This class will allow developers to easily extract information about out of band links.
+/** @class FIRActionCodeURL
+    @brief This class will allow developers to easily extract information about out of band links.
+ */
 @objc(FIRActionCodeURL) open class ActionCodeURL: NSObject {
-  /// Returns the API key from the link. nil, if not provided.
+  /** @property APIKey
+      @brief Returns the API key from the link. nil, if not provided.
+   */
   @objc(APIKey) public let apiKey: String?
 
-  /// Returns the mode of oob action.
-  ///
-  /// The property will be of `ActionCodeOperation` type.
-  /// It will return `.unknown` if no oob action is provided.
+  /** @property operation
+      @brief Returns the mode of oob action. The property will be of `FIRActionCodeOperation` type.
+          It will return `FIRActionCodeOperationUnknown` if no oob action is provided.
+   */
   @objc public let operation: ActionCodeOperation
 
-  /// Returns the email action code from the link. nil, if not provided.
+  /** @property code
+      @brief Returns the email action code from the link. nil, if not provided.
+   */
   @objc public let code: String?
 
-  /// Returns the continue URL from the link. nil, if not provided.
+  /** @property continueURL
+      @brief Returns the continue URL from the link. nil, if not provided.
+   */
   @objc public let continueURL: URL?
 
-  /// Returns the language code from the link. nil, if not provided.
+  /** @property languageCode
+      @brief Returns the language code from the link. nil, if not provided.
+   */
   @objc public let languageCode: String?
 
-  /// Construct an `ActionCodeURL` from an out of band link (e.g. email link).
-  /// - Parameter link: The oob link string used to construct the action code URL.
-  /// - Returns: The ActionCodeURL object constructed based on the oob link provided.
+  /** @fn actionCodeURLWithLink:
+      @brief Construct an `ActionCodeURL` from an out of band link (e.g. email link).
+      @param link The oob link string used to construct the action code URL.
+      @return The `ActionCodeURL` object constructed based on the oob link provided.
+   */
   @objc(actionCodeURLWithLink:) public init?(link: String) {
     var queryItems = ActionCodeURL.parseURL(link)
     if queryItems.count == 0 {

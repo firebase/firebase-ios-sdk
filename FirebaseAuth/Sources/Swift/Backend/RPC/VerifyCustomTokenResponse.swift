@@ -14,22 +14,32 @@
 
 import Foundation
 
-/// Represents the response from the verifyCustomToken endpoint.
+/** @class FIRVerifyCustomTokenResponse
+    @brief Represents the response from the verifyCustomToken endpoint.
+ */
 class VerifyCustomTokenResponse: AuthRPCResponse {
   required init() {}
 
-  /// Either an authorization code suitable for performing an STS token exchange, or the
-  /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
-  /// on the request.
+  /** @property idToken
+   @brief Either an authorization code suitable for performing an STS token exchange, or the
+   access token from Secure Token Service, depending on whether @c returnSecureToken is set
+   on the request.
+   */
   var idToken: String?
 
-  /// The approximate expiration date of the access token.
+  /** @property approximateExpirationDate
+   @brief The approximate expiration date of the access token.
+   */
   var approximateExpirationDate: Date?
 
-  /// The refresh token from Secure Token Service.
+  /** @property refreshToken
+   @brief The refresh token from Secure Token Service.
+   */
   var refreshToken: String?
 
-  /// Flag indicating that the user signing in is a new user and not a returning user.
+  /** @property isNewUser
+   @brief Flag indicating that the user signing in is a new user and not a returning user.
+   */
   var isNewUser: Bool = false
 
   func setFields(dictionary: [String: AnyHashable]) throws {

@@ -22,13 +22,10 @@ import Foundation
 
 /**
  * `StorageDownloadTask` implements resumable downloads from an object in Firebase Storage.
- *
  * Downloads can be returned on completion with a completion handler, and can be monitored
  * by attaching observers, or controlled by calling `pause()`, `resume()`,
  * or `cancel()`.
- *
  * Downloads can currently be returned as `Data` in memory, or as a `URL` to a file on disk.
- *
  * Downloads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  */

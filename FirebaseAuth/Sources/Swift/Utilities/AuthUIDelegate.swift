@@ -17,26 +17,31 @@
   import Foundation
   import UIKit
 
-  /// A protocol to handle user interface interactions for Firebase Auth.
-  ///
-  /// This protocol is available on iOS, macOS Catalyst, and tvOS only.
+  /** @protocol AuthUIDelegate
+      @brief A protocol to handle user interface interactions for Firebase Auth.
+          This protocol is available on iOS, macOS Catalyst, and tvOS only.
+   */
   @objc(FIRAuthUIDelegate) public protocol AuthUIDelegate: NSObjectProtocol {
-    /// If implemented, this method will be invoked when Firebase Auth needs to display a view
-    /// controller.
-    /// - Parameter viewControllerToPresent: The view controller to be presented.
-    /// - Parameter flag: Decides whether the view controller presentation should be animated.
-    /// - Parameter completion: The block to execute after the presentation finishes.
-    /// This block has no return value and takes no parameters.
+    /** @fn presentViewController:animated:completion:
+         @brief If implemented, this method will be invoked when Firebase Auth needs to display a view
+             controller.
+         @param viewControllerToPresent The view controller to be presented.
+         @param flag Decides whether the view controller presentation should be animated or not.
+         @param completion The block to execute after the presentation finishes. This block has no return
+             value and takes no parameters.
+     */
     @objc(presentViewController:animated:completion:)
     func present(_ viewControllerToPresent: UIViewController,
                  animated flag: Bool,
                  completion: (() -> Void)?)
 
-    /// If implemented, this method will be invoked when Firebase Auth needs to display a view
-    /// controller.
-    /// - Parameter flag: Decides whether removing the view controller should be animated or not.
-    /// - Parameter completion: The block to execute after the presentation finishes.
-    /// This block has no return value and takes no parameters.
+    /** @fn dismissViewControllerAnimated:completion:
+         @brief If implemented, this method will be invoked when Firebase Auth needs to display a view
+             controller.
+         @param flag Decides whether removing the view controller should be animated or not.
+         @param completion The block to execute after the presentation finishes. This block has no return
+             value and takes no parameters.
+     */
     @objc(dismissViewControllerAnimated:completion:)
     func dismiss(animated flag: Bool, completion: (() -> Void)?)
   }

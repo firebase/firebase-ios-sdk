@@ -110,8 +110,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
 
     _isFetchInProgress = NO;
-    _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
-    _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];
+    _lastTemplateVersion = [_userDefaultsManager lastTemplateVersion];
     _realtimeExponentialBackoffRetryInterval =
         [_userDefaultsManager currentRealtimeThrottlingRetryIntervalSeconds];
     _realtimeExponentialBackoffThrottleEndTime = [_userDefaultsManager realtimeThrottleEndTime];
@@ -293,8 +292,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     [self updateLastFetchTimeInterval:[[NSDate date] timeIntervalSince1970]];
     // Note: We expect the googleAppID to always be available.
     _deviceContext = FIRRemoteConfigDeviceContextWithProjectIdentifier(_googleAppID);
-    _lastFetchedTemplateVersion = templateVersion;
-    [_userDefaultsManager setLastFetchedTemplateVersion:templateVersion];
+    [_userDefaultsManager setLastTemplateVersion:templateVersion];
   }
 
   [self updateMetadataTable];
@@ -377,11 +375,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   };
 
   [_DBManager insertMetadataTableWithValues:columnNameToValue completionHandler:nil];
-}
-
-- (void)updateLastActiveTemplateVersion {
-  _lastActiveTemplateVersion = _lastFetchedTemplateVersion;
-  [_userDefaultsManager setLastActiveTemplateVersion:_lastActiveTemplateVersion];
 }
 
 #pragma mark - fetch request

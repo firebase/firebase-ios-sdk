@@ -14,8 +14,10 @@
 
 import Foundation
 
-/// AuthProtoFinalizeMFATOTPSignInRequestInfo class.  This class is used to compose
-/// finalizeMFASignInRequest for TOTP case .
+/**
+ @brief AuthProtoFinalizeMFATOTPSignInRequestInfo class.  This class is used to compose
+ finalizeMFASignInRequest for TOTP case.
+ */
 class AuthProtoFinalizeMFATOTPSignInRequestInfo: NSObject, AuthProto {
   required init(dictionary: [String: AnyHashable]) {
     fatalError()

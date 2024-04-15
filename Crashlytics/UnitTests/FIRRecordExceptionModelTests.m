@@ -75,7 +75,7 @@
   FIRExceptionModel *exceptionModel = [FIRExceptionModel exceptionModelWithName:name reason:reason];
   exceptionModel.stackTrace = stackTrace;
 
-  FIRCLSExceptionRecordModel(exceptionModel, nil);
+  FIRCLSExceptionRecordModel(exceptionModel);
 
   NSData *data = [NSData
       dataWithContentsOfFile:[self.reportPath

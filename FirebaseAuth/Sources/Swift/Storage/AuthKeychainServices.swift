@@ -15,15 +15,20 @@
 import FirebaseCoreExtension
 import Foundation
 
-/// The prefix string for keychain item account attribute before the key.
-///
-/// A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
+/** @var kAccountPrefix
+    @brief The prefix string for keychain item account attribute before the key.
+    @remarks A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
+ */
 private let kAccountPrefix = "firebase_auth_1_"
 
-/// The utility class to manipulate data in iOS Keychain.
+/** @class FIRAuthKeychain
+    @brief The utility class to manipulate data in iOS Keychain.
+ */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthKeychainServices {
-  /// The name of the keychain service.
+  /** @var _service
+      @brief The name of the keychain service.
+   */
   let service: String
 
   let keychainStorage: AuthKeychainStorage
@@ -36,9 +41,11 @@ final class AuthKeychainServices {
     keychainStorage = storage
   }
 
-  /// Get the item from keychain by given query.
-  /// - Parameter query: The query to query the keychain.
-  /// - Returns: The item of the given query.  `nil` if it doesn't  exist.
+  /** @fn getItemWithQuery:error:
+   @brief Get the item from keychain by given query.
+   @param query The query to query the keychain.
+   @return The item of the given query. `nil`` if not exist.
+   */
   func getItem(query: [String: Any]) throws -> Data? {
     var mutableQuery = query
     mutableQuery[kSecReturnData as String] = true
@@ -64,10 +71,12 @@ final class AuthKeychainServices {
     }
   }
 
-  /// Set the item into keychain with given query.
-  /// - Parameter item: The item to be added into keychain.
-  /// - Parameter query: The query to query the keychain.
-  /// - Returns: Whether the operation succeed.
+  /** @fn setItem:withQuery:error:
+   @brief Set the item into keychain with given query.
+   @param item The item to be added into keychain.
+   @param query The query to query the keychain.
+   @return Whether the operation succeed.
+   */
   func setItem(_ item: Data, withQuery query: [String: Any]) throws {
     let status: OSStatus
     let function: String
@@ -88,8 +97,11 @@ final class AuthKeychainServices {
     throw AuthErrorUtils.keychainError(function: function, status: status)
   }
 
-  /// Remove the item with given queryfrom keychain.
-  /// - Parameter query: The query to query the keychain.
+  /** @fn removeItemWithQuery:error:
+   @brief Remove the item with given queryfrom keychain.
+   @param query The query to query the keychain.
+   @return Whether the operation succeed.
+   */
   func removeItem(query: [String: Any]) throws {
     let status = keychainStorage.delete(query: query)
     if status == noErr || status == errSecItemNotFound {
@@ -98,10 +110,12 @@ final class AuthKeychainServices {
     throw AuthErrorUtils.keychainError(function: "SecItemDelete", status: status)
   }
 
-  /// Indicates whether or not this class knows that the legacy item for a particular key has
-  /// been deleted.
-  ///
-  /// This dictionary is to avoid unnecessary keychain operations against legacy items.
+  /** @var _legacyItemDeletedForKey
+      @brief Indicates whether or not this class knows that the legacy item for a particular key has
+          been deleted.
+      @remarks This dictionary is to avoid unecessary keychain operations against legacy items.
+   */
+
   private var legacyEntryDeletedForKey: Set<String> = []
 
   static func storage(identifier: String) -> Self {
@@ -211,8 +225,10 @@ final class AuthKeychainServices {
     throw AuthErrorUtils.keychainError(function: function, status: status)
   }
 
-  /// Deletes legacy item from the keychain if it is not already known to be deleted.
-  /// - Parameter key: The key for the item.
+  /** @fn deleteLegacyItemsWithKey:
+      @brief Deletes legacy item from the keychain if it is not already known to be deleted.
+      @param key The key for the item.
+   */
   private func deleteLegacyItem(key: String) {
     if legacyEntryDeletedForKey.contains(key) {
       return
@@ -222,9 +238,10 @@ final class AuthKeychainServices {
     legacyEntryDeletedForKey.insert(key)
   }
 
-  /// Returns a keychain query of generic password to be used to manipulate key'ed value.
-  /// - Parameter key: The key for the value being manipulated, used as the account field in the
-  /// query.
+  /** @fn genericPasswordQueryWithKey:
+      @brief Returns a keychain query of generic password to be used to manipulate key'ed value.
+      @param key The key for the value being manipulated, used as the account field in the query.
+   */
   private func genericPasswordQuery(key: String) -> [String: Any] {
     if key.isEmpty {
       fatalError("The key cannot be empty.")
@@ -238,10 +255,11 @@ final class AuthKeychainServices {
     return query
   }
 
-  /// Returns a keychain query of generic password without service field, which is used by
-  /// previous version of this class .
-  /// - Parameter key: The key for the value being manipulated, used as the account field in the
-  /// query.
+  /** @fn legacyGenericPasswordQueryWithKey:
+      @brief Returns a keychain query of generic password without service field, which is used by
+          previous version of this class.
+      @param key The key for the value being manipulated, used as the account field in the query.
+   */
   private func legacyGenericPasswordQuery(key: String) -> [String: Any] {
     [
       kSecClass as String: kSecClassGenericPassword,

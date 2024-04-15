@@ -17,15 +17,21 @@ import Foundation
 class SignUpNewUserResponse: AuthRPCResponse {
   required init() {}
 
-  /// Either an authorization code suitable for performing an STS token exchange, or the
-  /// access token from Secure Token Service, depending on whether  `returnSecureToken` is set
-  /// on the request.
+  /** @property IDToken
+      @brief Either an authorization code suitable for performing an STS token exchange, or the
+          access token from Secure Token Service, depending on whether @c returnSecureToken is set
+          on the request.
+   */
   var idToken: String?
 
-  /// The approximate expiration date of the access token.
+  /** @property approximateExpirationDate
+      @brief The approximate expiration date of the access token.
+   */
   var approximateExpirationDate: Date?
 
-  /// The refresh token from Secure Token Service.
+  /** @property refreshToken
+      @brief The refresh token from Secure Token Service.
+   */
   var refreshToken: String?
 
   func setFields(dictionary: [String: AnyHashable]) throws {

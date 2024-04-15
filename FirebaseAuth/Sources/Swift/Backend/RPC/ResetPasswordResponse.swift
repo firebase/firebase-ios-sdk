@@ -14,26 +14,32 @@
 
 import Foundation
 
-/// Represents the response from the resetPassword endpoint.
-///
-/// Possible error codes:
-/// * FIRAuthErrorCodeWeakPassword
-/// * FIRAuthErrorCodeUserDisabled
-/// * FIRAuthErrorCodeOperationNotAllowed
-/// * FIRAuthErrorCodeExpiredActionCode
-/// * FIRAuthErrorCodeInvalidActionCode
-///
-/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
+/** @class FIRAuthResetPasswordResponse
+    @brief Represents the response from the resetPassword endpoint.
+    @remarks Possible error codes:
+       - FIRAuthErrorCodeWeakPassword
+       - FIRAuthErrorCodeUserDisabled
+       - FIRAuthErrorCodeOperationNotAllowed
+       - FIRAuthErrorCodeExpiredActionCode
+       - FIRAuthErrorCodeInvalidActionCode
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
+ */
 class ResetPasswordResponse: AuthRPCResponse {
   required init() {}
 
-  /// The email address corresponding to the reset password request.
+  /** @property email
+   @brief The email address corresponding to the reset password request.
+   */
   var email: String?
 
-  /// The verified email returned from the backend.
+  /** @property verifiedEmail
+   @brief The verified email returned from the backend.
+   */
   var verifiedEmail: String?
 
-  /// The type of request as returned by the backend.
+  /** @property requestType
+   @brief The type of request as returned by the backend.
+   */
   var requestType: String?
 
   func setFields(dictionary: [String: AnyHashable]) throws {

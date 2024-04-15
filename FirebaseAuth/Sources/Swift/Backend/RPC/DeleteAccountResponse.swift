@@ -14,9 +14,10 @@
 
 import Foundation
 
-/// Represents the response from the deleteAccount endpoint.
-///
-/// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
+/** @class FIRDeleteAccountResponse
+    @brief Represents the response from the deleteAccount endpoint.
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
+ */
 class DeleteAccountResponse: NSObject, AuthRPCResponse {
   override required init() {}
 

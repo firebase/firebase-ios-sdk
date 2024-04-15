@@ -13,21 +13,28 @@
 // limitations under the License.
 
 import Foundation
-
-/// Indicates the type of operation performed for RPCs that support the operation parameter.
+/**
+    @brief Indicates the type of operation performed for RPCs that support the operation
+        parameter.
+ */
 enum AuthOperationType: Int {
-  /// Indicates that the operation type is uspecified.
+  /** Indicates that the operation type is uspecified.
+   */
   case unspecified = 0
 
-  /// Indicates that the operation type is sign in or sign up.
+  /** Indicates that the operation type is sign in or sign up.
+   */
   case signUpOrSignIn = 1
 
-  /// Indicates that the operation type is reauthentication.
+  /** Indicates that the operation type is reauthentication.
+   */
   case reauth = 2
 
-  /// Indicates that the operation type is update.
+  /** Indicates that the operation type is update.
+   */
   case update = 3
 
-  /// Indicates that the operation type is link.
+  /** Indicates that the operation type is link.
+   */
   case link = 4
 }

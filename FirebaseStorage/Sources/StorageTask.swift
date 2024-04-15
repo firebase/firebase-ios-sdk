@@ -24,7 +24,6 @@ import Foundation
  * A superclass to all Storage tasks, including `StorageUploadTask`
  * and `StorageDownloadTask`, to provide state transitions, event raising, and common storage
  * for metadata and errors.
- *
  * Callbacks are always fired on the developer-specified callback queue.
  * If no queue is specified, it defaults to the main queue.
  * This class is thread-safe.
@@ -99,7 +98,6 @@ import Foundation
 
 /**
  * Defines task operations such as pause, resume, cancel, and enqueue for all tasks.
- *
  * All tasks are required to implement enqueue, which begins the task, and may optionally
  * implement pause, resume, and cancel, which operate on the task to pause, resume, and cancel
  * operations.

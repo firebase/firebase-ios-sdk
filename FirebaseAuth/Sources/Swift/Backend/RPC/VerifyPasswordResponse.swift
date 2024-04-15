@@ -14,37 +14,52 @@
 
 import Foundation
 
-/// Represents the response from the verifyPassword endpoint.
-///
-/// Possible error codes:
-/// * FIRAuthInternalErrorCodeUserDisabled
-/// * FIRAuthInternalErrorCodeEmailNotFound
-///
-/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+/** @class FIRVerifyPasswordResponse
+    @brief Represents the response from the verifyPassword endpoint.
+    @remarks Possible error codes:
+       - FIRAuthInternalErrorCodeUserDisabled
+       - FIRAuthInternalErrorCodeEmailNotFound
+    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+ */
 class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
-  /// The RP local ID if it's already been mapped to the IdP account identified by the federated ID.
+  /** @property localID
+      @brief The RP local ID if it's already been mapped to the IdP account identified by the
+          federated ID.
+   */
   var localID: String?
 
-  /// The email returned by the IdP. NOTE: The federated login user may not own the email.
+  /** @property email
+      @brief The email returned by the IdP. NOTE: The federated login user may not own the email.
+   */
   var email: String?
 
-  /// The display name of the user.
+  /** @property displayName
+      @brief The display name of the user.
+   */
   var displayName: String?
 
-  /// Either an authorization code suitable for performing an STS token exchange, or the
-  /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
-  /// on the request.
+  /** @property IDToken
+      @brief Either an authorization code suitable for performing an STS token exchange, or the
+          access token from Secure Token Service, depending on whether @c returnSecureToken is set
+          on the request.
+   */
   private(set) var idToken: String?
 
-  /// The approximate expiration date of the access token.
+  /** @property approximateExpirationDate
+      @brief The approximate expiration date of the access token.
+   */
   var approximateExpirationDate: Date?
 
-  /// The refresh token from Secure Token Service.
+  /** @property refreshToken
+      @brief The refresh token from Secure Token Service.
+   */
   var refreshToken: String?
 
-  /// The URI of the accessible profile picture.
+  /** @property photoURL
+      @brief The URI of the accessible profile picture.
+   */
   var photoURL: URL?
 
   // MARK: - AuthMFAResponse

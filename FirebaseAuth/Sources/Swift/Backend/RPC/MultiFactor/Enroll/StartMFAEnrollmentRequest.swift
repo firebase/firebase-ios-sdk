@@ -16,7 +16,9 @@ import Foundation
 
 private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

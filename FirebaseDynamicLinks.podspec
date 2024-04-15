@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDynamicLinks'
-  s.version          = '10.23.0'
+  s.version          = '10.21.0'
   s.summary          = 'Firebase Dynamic Links'
 
   s.description      = <<-DESC
@@ -20,7 +20,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.12.0'
+  s.cocoapods_version = '>= 1.4.0'
   s.prefix_header_file = false
 
   s.source_files = [
@@ -29,9 +29,6 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = 'FirebaseDynamicLinks/Sources/Public/FirebaseDynamicLinks/*.h'
-  s.resource_bundles = {
-    "#{s.module_name}_Privacy" => 'FirebaseDynamicLinks/Sources/Resources/PrivacyInfo.xcprivacy'
-  }
   s.frameworks = 'QuartzCore'
   s.weak_framework = 'WebKit'
   s.dependency 'FirebaseCore', '~> 10.0'

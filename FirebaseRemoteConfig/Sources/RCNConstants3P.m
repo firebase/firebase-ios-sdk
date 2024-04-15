@@ -17,5 +17,4 @@
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
 /// Firebase Remote Config service default namespace.
-/// TODO(doudounan): Change to use this namespace defined in RemoteConfigInterop.
 NSString *const FIRNamespaceGoogleMobilePlatform = @"firebase";

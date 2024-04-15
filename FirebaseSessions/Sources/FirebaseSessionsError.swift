@@ -20,8 +20,6 @@ enum FirebaseSessionsError: Error {
   case SessionSamplingError
   /// Firebase Installation ID related error
   case SessionInstallationsError(Error)
-  /// Firebase Installation ID related timeout error
-  case SessionInstallationsTimeOutError
   /// Error from the GoogleDataTransport SDK
   case DataTransportError(Error)
   /// Sessions SDK is disabled via settings error

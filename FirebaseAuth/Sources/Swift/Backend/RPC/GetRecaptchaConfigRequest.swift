@@ -18,29 +18,45 @@ private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
 
 private let kGetOobConfirmationCodeEndpoint = "getOobConfirmationCode"
 
-/// The name of the required "requestType" property in the request.
+/** @var kRequestTypeKey
+    @brief The name of the required "requestType" property in the request.
+ */
 private let kRequestTypeKey = "requestType"
 
-/// The name of the "email" property in the request.
+/** @var kEmailKey
+    @brief The name of the "email" property in the request.
+ */
 private let kEmailKey = "email"
 
-/// The name of the "newEmail" property in the request.
+/** @var kNewEmailKey
+    @brief The name of the "newEmail" property in the request.
+ */
 private let kNewEmailKey = "newEmail"
 
-/// The key for the "idToken" value in the request. This is actually the STS Access Token,
-///   despite its confusing (backwards compatiable) parameter name.
+/** @var kIDTokenKey
+    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+        despite it's confusing (backwards compatiable) parameter name.
+ */
 private let kIDTokenKey = "idToken"
 
-/// The "getRecaptchaConfig" endpoint.
+/** @var kGetRecaptchaConfigEndpoint
+    @brief The "getRecaptchaConfig" endpoint.
+ */
 private let kGetRecaptchaConfigEndpoint = "recaptchaConfig"
 
-/// The key for the "clientType" value in the request.
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
 private let kClientTypeKey = "clientType"
 
-/// The key for the "version" value in the request.
+/** @var kVersionKey
+    @brief The key for the "version" value in the request.
+ */
 private let kVersionKey = "version"
 
-/// The key for the tenant id value in the request.
+/** @var kTenantIDKey
+    @brief The key for the tenant id value in the request.
+ */
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

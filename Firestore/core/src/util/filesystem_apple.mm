@@ -109,37 +109,6 @@ Status Filesystem::IsDirectory(const Path& path) {
   return Status::OK();
 }
 
-StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
-  NSFileManager* file_manager = NSFileManager.defaultManager;
-  NSString* ns_path_str = path.ToNSString();
-  NSError* error = nil;
-
-  NSDictionary* attributes = [file_manager attributesOfItemAtPath:ns_path_str
-                                                            error:&error];
-
-  if (attributes == nil) {
-    if ([error.domain isEqualToString:NSCocoaErrorDomain]) {
-      switch (error.code) {
-        case NSFileReadNoSuchFileError:
-        case NSFileNoSuchFileError:
-          return Status{Error::kErrorNotFound, path.ToUtf8String()}.CausedBy(
-              Status::FromNSError(error));
-      }
-    }
-
-    return Status{Error::kErrorInternal,
-                  StringFormat("attributesOfItemAtPath failed for %s",
-                               path.ToUtf8String())}
-        .CausedBy(Status::FromNSError(error));
-  }
-
-  NSNumber* fileSizeNumber = [attributes objectForKey:NSFileSize];
-
-  // Use brace initialization of the in64_t return value so that compilation
-  // will fail if the conversion from long long is narrowing.
-  return {[fileSizeNumber longLongValue]};
-}
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

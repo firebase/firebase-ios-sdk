@@ -14,8 +14,9 @@
 
 import Foundation
 
-/// The "getProjectConfig" endpoint.
-
+/** @var kGetProjectConfigEndPoint
+    @brief The "getProjectConfig" endpoint.
+ */
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

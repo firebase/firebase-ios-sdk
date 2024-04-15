@@ -16,15 +16,21 @@ import Foundation
 
 // MARK: - URL response error codes
 
-/// Error code that indicates that the client ID provided was invalid.
+/** @var kURLResponseErrorCodeInvalidClientID
+    @brief Error code that indicates that the client ID provided was invalid.
+ */
 private let kURLResponseErrorCodeInvalidClientID = "auth/invalid-oauth-client-id"
 
-/// Error code that indicates that a network request within the SFSafariViewController or WKWebView
-/// failed.
+/** @var kURLResponseErrorCodeNetworkRequestFailed
+    @brief Error code that indicates that a network request within the SFSafariViewController or
+        WKWebView failed.
+ */
 private let kURLResponseErrorCodeNetworkRequestFailed = "auth/network-request-failed"
 
-/// Error code that indicates that an internal error occurred within the
-/// SFSafariViewController or WKWebView failed.
+/** @var kURLResponseErrorCodeInternalError
+    @brief Error code that indicates that an internal error occurred within the
+        SFSafariViewController or WKWebView failed.
+ */
 private let kURLResponseErrorCodeInternalError = "auth/internal-error"
 
 private let kFIRAuthErrorMessageMalformedJWT =
@@ -36,8 +42,10 @@ class AuthErrorUtils: NSObject {
   static let userInfoDeserializedResponseKey = "FIRAuthErrorUserInfoDeserializedResponseKey"
   static let userInfoDataKey = "FIRAuthErrorUserInfoDataKey"
 
-  /// This marker indicates that the server error message contains a detail error message which
-  /// should be used instead of the hardcoded client error message.
+  /** @var kServerErrorDetailMarker
+      @brief This marker indicates that the server error message contains a detail error message which
+          should be used instead of the hardcoded client error message.
+   */
   private static let kServerErrorDetailMarker = " : "
 
   static func error(code: SharedErrorCode, userInfo: [String: Any]? = nil) -> Error {

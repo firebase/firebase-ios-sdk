@@ -34,11 +34,6 @@ class SessionCoordinatorTests: XCTestCase {
     )
   }
 
-  override func tearDown() {
-    installations.authTokenFinished = false
-    installations.installationIdFinished = false
-  }
-
   var defaultSessionInfo: SessionInfo {
     return SessionInfo(
       sessionId: "test_session_id",
@@ -66,9 +61,6 @@ class SessionCoordinatorTests: XCTestCase {
       fieldName: "installation_id"
     )
 
-    XCTAssertTrue(installations.authTokenFinished)
-    XCTAssertTrue(installations.installationIdFinished)
-
     // We should have logged successfully
     XCTAssertEqual(fireLogger.loggedEvent, event)
     XCTAssert(resultSuccess)
@@ -89,9 +81,6 @@ class SessionCoordinatorTests: XCTestCase {
         resultSuccess = false
       }
     }
-
-    XCTAssertTrue(installations.authTokenFinished)
-    XCTAssertTrue(installations.installationIdFinished)
 
     // Make sure we've set the Installation ID
     assertEqualProtoString(
@@ -121,8 +110,6 @@ class SessionCoordinatorTests: XCTestCase {
       }
     }
 
-    XCTAssertTrue(installations.authTokenFinished)
-    XCTAssertTrue(installations.installationIdFinished)
     // We should have logged the event, but with a failed result
     XCTAssertNotNil(fireLogger.loggedEvent)
     XCTAssertFalse(resultSuccess)
@@ -150,9 +137,6 @@ class SessionCoordinatorTests: XCTestCase {
         XCTAssertEqual(err, FirebaseSessionsError.DataTransportError(fireLogError))
       }
     }
-
-    XCTAssertTrue(installations.authTokenFinished)
-    XCTAssertTrue(installations.installationIdFinished)
 
     // Make sure we've set the Installation ID to empty because the FIID
     // fetch failed

@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 import FirebaseAppCheckInterop
-import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
+import Foundation
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@objc(FIRAuthProvider) protocol AuthProvider {
+  @objc func auth() -> Auth
+}
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthComponent)
-class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
+class AuthComponent: NSObject, Library, AuthProvider, ComponentLifecycleMaintainer {
   // MARK: - Private Variables
 
   /// The app associated with all Auth instances in this container.
@@ -44,17 +47,17 @@ class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
   // MARK: - Library conformance
 
   static func componentsToRegister() -> [Component] {
-    let authCreationBlock: ComponentCreationBlock = { container, isCacheable in
-      guard let app = container.app else { return nil }
-      isCacheable.pointee = true
-      return Auth(app: app)
-    }
     let appCheckInterop = Dependency(with: AppCheckInterop.self, isRequired: false)
-    let authInterop = Component(AuthInterop.self,
-                                instantiationTiming: .alwaysEager,
-                                dependencies: [appCheckInterop],
-                                creationBlock: authCreationBlock)
-    return [authInterop]
+    return [Component(AuthProvider.self,
+                      instantiationTiming: .alwaysEager,
+                      dependencies: [appCheckInterop]) { container, isCacheable in
+        guard let app = container.app else { return nil }
+        isCacheable.pointee = true
+        let newComponent = AuthComponent(app: app)
+        // Set up instances early enough so User on keychain will be decoded.
+        newComponent.auth()
+        return newComponent
+      }]
   }
 
   // MARK: - AuthProvider conformance

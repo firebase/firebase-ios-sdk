@@ -22,13 +22,10 @@ import Foundation
 
 /**
  * `StorageUploadTask` implements resumable uploads to a file in Firebase Storage.
- *
  * Uploads can be returned on completion with a completion callback, and can be monitored
  * by attaching observers, or controlled by calling `pause()`, `resume()`,
  * or `cancel()`.
- *
  * Uploads can be initialized from `Data` in memory, or a URL to a file on disk.
- *
  * Uploads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */

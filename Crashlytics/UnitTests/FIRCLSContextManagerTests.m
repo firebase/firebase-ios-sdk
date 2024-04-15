@@ -75,8 +75,7 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
                                                             installIDModel:self.installIDModel
-                                                                      fiid:@"TestFIID"
-                                                                 authToken:@"TestAuthToken"];
+                                                                      fiid:@"TestFIID"];
 
   XCTAssertEqualObjects(adapter.identity.app_quality_session_id, @"");
 }
@@ -93,8 +92,7 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
                                                             installIDModel:self.installIDModel
-                                                                      fiid:@"TestFIID"
-                                                                 authToken:@"TestAuthToken"];
+                                                                      fiid:@"TestFIID"];
   NSLog(@"reportPath: %@", self.report.path);
 
   XCTAssertEqualObjects(adapter.identity.app_quality_session_id, TestContextSessionID2);
@@ -112,8 +110,7 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
                                                             installIDModel:self.installIDModel
-                                                                      fiid:@"TestFIID"
-                                                                 authToken:@"TestAuthToken"];
+                                                                      fiid:@"TestFIID"];
   NSLog(@"reportPath: %@", self.report.path);
 
   XCTAssertEqualObjects(adapter.identity.app_quality_session_id, TestContextSessionID2);

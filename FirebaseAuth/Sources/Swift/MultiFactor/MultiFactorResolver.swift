@@ -15,28 +15,36 @@
 import Foundation
 
 #if os(iOS)
-
-  /// The subclass of base class `MultiFactorAssertion`, used to assert ownership of a phone
-  /// second factor.
-  ///
-  /// This class is available on iOS only.
+  /** @class FIRPhoneMultiFactorAssertion
+   @brief The subclass of base class FIRMultiFactorAssertion, used to assert ownership of a phone
+       second factor.
+       This class is available on iOS only.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorResolver)
   open class MultiFactorResolver: NSObject {
-    /// The opaque session identifier for the current sign-in flow.
+    /**
+        @brief The opaque session identifier for the current sign-in flow.
+     */
     @objc public let session: MultiFactorSession
 
-    /// The list of hints for the second factors needed to complete the sign-in for the current
-    /// session.
+    /**
+        @brief The list of hints for the second factors needed to complete the sign-in for the current
+            session.
+     */
     @objc public let hints: [MultiFactorInfo]
 
-    /// The Auth reference for the current `MultiResolver`.
+    /**
+        @brief The Auth reference for the current FIRMultiResolver.
+     */
     @objc public let auth: Auth
 
-    /// A helper function to help users complete sign in with a second factor using a
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
-    /// challenge.
-    /// - Parameter completion: The block invoked when the request is complete, or fails.
+    /** @fn resolveSignInWithAssertion:completion:
+         @brief A helper function to help users complete sign in with a second factor using an
+             FIRMultiFactorAssertion confirming the user successfully completed the second factor
+        challenge.
+         @param completion The block invoked when the request is complete, or fails.
+     */
     @objc(resolveSignInWithAssertion:completion:)
     open func resolveSignIn(with assertion: MultiFactorAssertion,
                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -89,9 +97,12 @@ import Foundation
       }
     }
 
-    /// A helper function to help users complete sign in with a second factor using a
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
-    /// challenge.
+    /** @fn resolveSignInWithAssertion:completion:
+         @brief A helper function to help users complete sign in with a second factor using an
+             FIRMultiFactorAssertion confirming the user successfully completed the second factor
+        challenge.
+         @param completion The block invoked when the request is complete, or fails.
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
