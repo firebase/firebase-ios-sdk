@@ -10,7 +10,8 @@ installation before integrating a new version of XCFrameworks. This ensures
 that outdated files and directories from the existing installation do not
 break the code signature of the new installation.
 - If the integration is performed programmatically, ensure that the
-XCFrameworks are copied in a way that preserves symlinks.
+XCFrameworks are copied in a way that preserves symlinks (e.g. `cp -rP`,
+`rsync -a`).
 
 # Integration Instructions
 
