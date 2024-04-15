@@ -7,6 +7,7 @@ def shared_pods
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseCoreExtension', :path => '../../../'
   pod 'FirebaseSessions', :path => '../../../'
+  pod 'FirebaseRemoteConfigInterop', :path => '../../../'
 end
 
 target 'AppQualityDevApp_iOS' do

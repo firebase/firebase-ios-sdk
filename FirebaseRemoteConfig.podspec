@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '10.21.0'
+  s.version          = '10.23.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -30,7 +30,7 @@ app update.
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseRemoteConfig/Sources/"
@@ -43,6 +43,9 @@ app update.
     'FirebaseRemoteConfig/Swift/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseRemoteConfig/Swift/Resources/PrivacyInfo.xcprivacy'
+  }
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
@@ -53,6 +56,7 @@ app update.
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 10.23'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
@@ -77,7 +81,8 @@ app update.
         'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNUserDefaultsManagerTests.m',
         'FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h',
-        'FirebaseRemoteConfig/Tests/Unit/RCNInstanceIDTest.m'
+        'FirebaseRemoteConfig/Tests/Unit/RCNInstanceIDTest.m',
+        'FirebaseRemoteConfig/Tests/SwiftUnit/*.swift'
     # Supply plist custom plist testing.
     unit_tests.resources =
         'FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist',

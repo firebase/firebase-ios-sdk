@@ -91,7 +91,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
     case .updateEmail:
       presentEditUserInfoController(for: actionName, to: updateUserEmail)
-      
+
     case .updatePassword:
       presentEditUserInfoController(for: actionName, to: updatePassword)
 
@@ -167,7 +167,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       self.updateUI()
     })
   }
-  
+
   public func updatePassword(to newPassword: String) {
     user?.updatePassword(to: newPassword, completion: {
       error in
@@ -180,7 +180,6 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       self.updateUI()
     })
   }
-
 
   public func updatePhotoURL(to newPhotoURL: String) {
     guard let newPhotoURL = URL(string: newPhotoURL) else {

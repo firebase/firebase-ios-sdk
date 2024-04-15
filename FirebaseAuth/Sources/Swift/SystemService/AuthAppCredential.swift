@@ -14,26 +14,19 @@
 
 import Foundation
 
-/** @class FIRAuthAppCredential
-    @brief A class represents a credential that proves the identity of the app.
- */
+/// A class represents a credential that proves the identity of the app.
 @objc(FIRAuthAppCredential) class AuthAppCredential: NSObject, NSSecureCoding {
-  /** @property receipt
-      @brief The server acknowledgement of receiving client's claim of identity.
-   */
+  /// The server acknowledgement of receiving client's claim of identity.
   var receipt: String
 
-  /** @property secret
-      @brief The secret that the client received from server via a trusted channel, if ever.
-   */
+  /// The secret that the client received from server via a trusted channel, if ever.
   var secret: String?
 
-  /** @fn initWithReceipt:secret:
-      @brief Initializes the instance.
-      @param receipt The server acknowledgement of receiving client's claim of identity.
-      @param secret The secret that the client received from server via a trusted channel, if ever.
-      @return The initialized instance.
-   */
+  /// Initializes the instance.
+  /// - Parameter receipt: The server acknowledgement of receiving client's claim of identity.
+  /// - Parameter secret: The secret that the client received from server via a trusted channel, if
+  /// ever.
+  /// - Returns: The initialized instance.
   init(receipt: String, secret: String?) {
     self.secret = secret
     self.receipt = receipt

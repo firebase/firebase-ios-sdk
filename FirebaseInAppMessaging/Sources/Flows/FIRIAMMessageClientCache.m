@@ -126,7 +126,9 @@
 }
 
 - (BOOL)hasTestMessage {
-  return self.testMessages.count > 0;
+  @synchronized(self) {
+    return self.testMessages.count > 0;
+  }
 }
 
 - (nullable FIRIAMMessageDefinition *)nextOnAppLaunchDisplayMsg {
@@ -135,7 +137,7 @@
 
 - (nullable FIRIAMMessageDefinition *)nextOnAppOpenDisplayMsg {
   @synchronized(self) {
-    // always first check test message which always have higher prirority
+    // always first check test message which always have higher priority
     if (self.testMessages.count > 0) {
       FIRIAMMessageDefinition *testMessage = self.testMessages[0];
       // always remove test message right away when being fetched for display

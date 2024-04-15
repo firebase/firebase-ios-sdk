@@ -73,6 +73,8 @@ final class AnalyticsAPITests {
 
     Analytics.initiateOnDeviceConversionMeasurement(emailAddress: "test@gmail.com")
     Analytics.initiateOnDeviceConversionMeasurement(phoneNumber: "+15555555555")
+    Analytics.initiateOnDeviceConversionMeasurement(hashedEmailAddress: Data())
+    Analytics.initiateOnDeviceConversionMeasurement(hashedPhoneNumber: Data())
 
     // MARK: - EventNames
 

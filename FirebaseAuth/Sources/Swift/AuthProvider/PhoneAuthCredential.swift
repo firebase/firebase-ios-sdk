@@ -14,10 +14,9 @@
 
 import Foundation
 
-/** @class PhoneAuthCredential
-    @brief Implementation of FIRAuthCredential for Phone Auth credentials.
-        This class is available on iOS only.
- */
+/// Implementation of AuthCredential for Phone Auth credentials.
+///
+/// This class is available on iOS only.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthCredential) open class PhoneAuthCredential: AuthCredential, NSSecureCoding {
   enum CredentialKind {

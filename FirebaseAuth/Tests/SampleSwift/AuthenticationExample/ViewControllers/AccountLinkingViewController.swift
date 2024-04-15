@@ -241,7 +241,6 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     // Step 1: Ensure Game Center Authentication
     guard GKLocalPlayer.local.isAuthenticated else {
       print("Error: Player not authenticated with Game Center.")
-      // TODO: Handle the 'not authenticated' scenario (e.g., prompt the user)
       return
     }
 
@@ -249,13 +248,11 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     GameCenterAuthProvider.getCredential { credential, error in
       if let error = error {
         print("Error getting Game Center credential: \(error.localizedDescription)")
-        // TODO: Handle the credential error
         return
       }
 
       guard let credential = credential else {
         print("Error: Missing Game Center credential")
-        // TODO: Handle the missing credential case
         return
       }
 
@@ -263,12 +260,8 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
       Auth.auth().currentUser?.link(with: credential) { authResult, error in
         if let error = error {
           print("Error linking Game Center to Firebase: \(error.localizedDescription)")
-          // TODO: Handle the linking error
           return
         }
-
-        // Linking successful
-        print("Successfully linked Game Center to Firebase")
       }
     }
   }

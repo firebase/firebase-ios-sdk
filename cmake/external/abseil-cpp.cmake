@@ -14,6 +14,7 @@
 
 include(ExternalProject)
 
+# Note: When updating to 20230802.0 or later, remove the PATCH_COMMAND below.
 set(version 20220623.0)
 
 ExternalProject_Add(
@@ -31,4 +32,6 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   TEST_COMMAND ""
   HTTP_HEADER "${EXTERNAL_PROJECT_HTTP_HEADER}"
+
+  PATCH_COMMAND patch -Np1 -i ${CMAKE_CURRENT_LIST_DIR}/abseil-cpp.patch.txt
 )
