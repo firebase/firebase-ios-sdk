@@ -398,7 +398,8 @@ jobs:
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
-    runs-on: macos-14
+    # TODO: The functions quickstart uses Material which isn't supported by Xcode 15
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
