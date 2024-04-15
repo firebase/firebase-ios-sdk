@@ -284,10 +284,6 @@ class AuthMenuData: DataSourceProvidable {
       Item(title: AuthMenu.phoneNumber.name, image: phoneSymbol),
       Item(title: AuthMenu.anonymous.name, image: anonSymbol),
       Item(title: AuthMenu.custom.name, image: shieldSymbol),
-      Item(title: AuthMenu.passwordless.name, image: lockSymbol),
-      Item(title: AuthMenu.phoneNumber.name, image: phoneSymbol),
-      Item(title: AuthMenu.anonymous.name, image: anonSymbol),
-      Item(title: AuthMenu.custom.name, image: shieldSymbol),
     ]
     let header = "Other Authentication Methods"
     return Section(headerDescription: header, items: otherOptions)
