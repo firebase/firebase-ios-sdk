@@ -46,29 +46,7 @@ jobs:
       matrix:
         target: [ios, tvos, macos]
         # These need to be on a single line or else the formatting won't validate.
-        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: pods-${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and archive
-      run: scripts/test_archiving.sh ${{ matrix.pod }} ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
-
-  # TODO(#12780: Merge Firestore back into above job after https://github.com/grpc/grpc/pull/36340
-  pods-ios-tvos-macos-cron-macos12:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
-
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        # These need to be on a single line or else the formatting won't validate.
-        pod: ["FirebaseFirestore"]
+        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
