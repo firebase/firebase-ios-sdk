@@ -68,10 +68,7 @@ jobs:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: build
-    strategy:
-      matrix:
-        os: [macos-13, macos-13-arm64]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
