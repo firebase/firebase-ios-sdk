@@ -167,6 +167,24 @@ final class VertexAIAPITests: XCTestCase {
     _ = genAI.startChat(history: [ModelContent(parts: "abc")])
   }
 
+  // Public API tests for GenerateContentResponse.
+  func generateContentResponseAPI() {
+    let response = GenerateContentResponse(candidates: [])
+
+    let _: [CandidateResponse] = response.candidates
+    let _: PromptFeedback? = response.promptFeedback
+
+    // Usage Metadata
+    guard let usageMetadata = response.usageMetadata else { fatalError() }
+    let _: Int = usageMetadata.promptTokenCount
+    let _: Int = usageMetadata.candidatesTokenCount
+    let _: Int = usageMetadata.totalTokenCount
+
+    // Computed Properties
+    let _: String? = response.text
+    let _: [FunctionCall] = response.functionCalls
+  }
+
   // Result builder alternative
 
   /*
