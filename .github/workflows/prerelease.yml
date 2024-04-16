@@ -17,7 +17,8 @@ jobs:
   specs_checking:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-14
+    # TODO(#12780): macOS 14 blocked on https://github.com/grpc/grpc/pull/36340
+    runs-on: macos-12
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       # The SDK repo will be cloned to this dir and podspecs from
@@ -111,7 +112,8 @@ jobs:
     needs: [buildup_SpecsTesting_repo_FirebaseCore, specs_checking]
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-14
+    # TODO(#12780): macOS 14 blocked on https://github.com/grpc/grpc/pull/36340
+    runs-on: macos-12
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
@@ -445,7 +447,8 @@ jobs:
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
-    runs-on: macos-14
+    # TODO: The functions quickstart uses Material which isn't supported by Xcode 15
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1

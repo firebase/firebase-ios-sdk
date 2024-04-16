@@ -4,6 +4,15 @@ This directory contains the full Firebase Apple distribution, packaged as static
 xcframeworks that include support for the iOS, tvOS, macOS, watchOS and Catalyst
 platforms.
 
+# Tips for Integrating
+- It's recommended to remove your existing Firebase XCFramework
+installation before integrating a new version of XCFrameworks. This ensures
+that outdated files and directories from the existing installation do not
+break the code signature of the new installation.
+- If the integration is performed programmatically, ensure that the
+XCFrameworks are copied in a way that preserves symlinks (e.g. `cp -rP`,
+`rsync -a`).
+
 # Integration Instructions
 
 Each Firebase component requires several xcframeworks in order to function
