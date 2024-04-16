@@ -433,7 +433,7 @@ enum CocoaPodUtils {
 
     // The third component is the version in parentheses, potentially with a `:` at the end. Let's
     // just strip the unused characters (including quotes) and return the version. We don't
-    // necesarily have to match against semver since it's a non trivial regex and we don't actually
+    // necessarily have to match against semver since it's a non trivial regex and we don't actually
     // care, `Podfile.lock` has a standard format that we know will be valid. Also strip out any
     // extra quotes.
     let version = components[2].trimmingCharacters(in: CharacterSet(charactersIn: "():\""))
