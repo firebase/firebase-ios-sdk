@@ -198,7 +198,7 @@ enum InitializeSpecTesting {
   }
 
   private static func createPodDirectory(specRepoPath: String, podName: String,
-                                        version: String) -> URL {
+                                         version: String) -> URL {
     guard let specRepoURL = URL(string: specRepoPath) else {
       fatalError("\(specRepoPath) does not exist.")
     }
