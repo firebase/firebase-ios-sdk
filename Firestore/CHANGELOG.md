@@ -1,3 +1,11 @@
+# Unreleased
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  setter no longer logs a warning since it discouraged valid patterns,
+  e.g., updating the document ID after the document is created in Firestore. (#12756)
+
+# 10.24.0
+- [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
+
 # 10.23.0
 - [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
 - [fixed] Update gRPC dependency to 1.62.* (#12098, #12021)

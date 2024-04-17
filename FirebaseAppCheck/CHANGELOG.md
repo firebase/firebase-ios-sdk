@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.19.1
 - [fixed] Fix bug in apps using both AppCheck and ARCore where AppCheck
   unnecessarily tries to create tokens for the ARCore SDK. This results in

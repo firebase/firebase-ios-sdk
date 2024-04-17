@@ -57,7 +57,7 @@ struct GHAMatrixSpecCollector {
           if let spec = podsMap[specName] {
             output.append(spec)
           } else {
-            print("\(specName) is not in manifiest")
+            print("\(specName) is not in manifest")
           }
         }
       }

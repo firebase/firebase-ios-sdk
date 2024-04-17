@@ -22,20 +22,26 @@
   @testable import FirebaseInstallations
   @testable import FirebaseMLModelDownloader
   import XCTest
+  #if SWIFT_PACKAGE
+    @_implementationOnly import GoogleUtilities_UserDefaults
+  #else
+    @_implementationOnly import GoogleUtilities
+  #endif // SWIFT_PACKAGE
 
-  extension UserDefaults {
-    /// Returns a new cleared instance of user defaults.
-    static func createTestInstance(testName: String) -> UserDefaults {
+  extension GULUserDefaults {
+    /// Returns an instance of user defaults.
+    static func createTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      let defaults = UserDefaults(suiteName: suiteName)!
-      defaults.removePersistentDomain(forName: suiteName)
-      return defaults
+      // Clear the suite (`UserDefaults` and `GULUserDefaults` map to the same
+      // storage space and `GULUserDefaults` doesn't offer API to do this.)
+      UserDefaults(suiteName: suiteName)!.removePersistentDomain(forName: suiteName)
+      return GULUserDefaults(suiteName: suiteName)
     }
 
     /// Returns the existing user defaults instance.
-    static func getTestInstance(testName: String) -> UserDefaults {
+    static func getTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      return UserDefaults(suiteName: suiteName)!
+      return GULUserDefaults(suiteName: suiteName)
     }
   }
 

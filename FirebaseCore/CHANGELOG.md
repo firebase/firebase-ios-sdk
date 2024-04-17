@@ -1,3 +1,19 @@
+# Unreleased
+- [Zip Distribution] Update zip integration instructions with tips for
+  preserving symlinks and protecting code signatures.
+
+# Firebase 10.24.0
+- Fix validation issue for macOS and macCatalyst XCFrameworks related to
+  framework directory structure. (#12587)
+- Extend community watchOS support to zip and Carthage distributions. See
+  https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform
+  for the Firebase products included. (#8731)
+- Add code signatures to all of Firebase's binary artifacts (#12238).
+
+# Firebase 10.23.1
+- [Swift Package Manager / CocoaPods] Fixes the macOS/Catalyst xcframework
+  structure issue in Firebase Analytics blocking submission via Xcode 15.3.
+
 # Firebase 10.23.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
 
