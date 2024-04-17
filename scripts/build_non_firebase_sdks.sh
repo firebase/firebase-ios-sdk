@@ -51,6 +51,7 @@ for xcframework in "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/**/*.xcfram
                 if [ -d  $framework ]; then
                     cp -rP $framework_resource $framework
                 fi
+                rm -rf $framework_resource
             done
         done
     fi 
