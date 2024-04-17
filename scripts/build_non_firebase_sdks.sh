@@ -44,8 +44,7 @@ unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
 for xcframework in "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/**/*.xcframework; do
-  echo $xcframework
-  ls $xcframework
+  ls "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/' 
   echo "checkpoint 1"
     if [ -d "$xcframework/Resources" ]; then
       echo "checkpoint 2"
