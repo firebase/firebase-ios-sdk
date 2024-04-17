@@ -44,12 +44,16 @@ unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
 for xcframework in "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/**/*.xcframework; do
-echo "here"
+  echo "checkpoint 1"
     if [ -d "$xcframework/Resources" ]; then
+      echo "checkpoint 2"
         for framework_resource in "$xcframework/Resources"/*; do
+          echo "checkpoint 3"
             for platform in "ios-arm64" "ios-arm64_x86_64-simulator"; do
+              echo "checkpoint 4"
                 framework="$xcframework/$platform/$(basename "$xcframework" .xcframework).framework"
                 if [ -d  $framework ]; then
+                  echo "checkpoint 5"
                     cp -rP $framework_resource $framework
                     echo "Copying $framework_resource to $framework"
                 fi
