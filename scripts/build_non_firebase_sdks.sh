@@ -44,6 +44,7 @@ unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
 for xcframework in "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/**/*.xcframework; do
+echo "here"
     if [ -d "$xcframework/Resources" ]; then
         for framework_resource in "$xcframework/Resources"/*; do
             for platform in "ios-arm64" "ios-arm64_x86_64-simulator"; do
