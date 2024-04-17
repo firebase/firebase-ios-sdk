@@ -52,7 +52,7 @@ explicit import by other Firebase pods)
 
 See [Headers and Imports](HeadersImports.md) for details on managing headers and imports.
 
-## Continous Integration
+## Continuous Integration
 
 Set up a GitHub Action workflow for the pod. A good example template is
 [storage.yml](.github/workflows/storage.yml).

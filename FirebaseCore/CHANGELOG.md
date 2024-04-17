@@ -1,3 +1,7 @@
+# Unreleased
+- [Zip Distribution] Update zip integration instructions with tips for
+  preserving symlinks and protecting code signatures.
+
 # Firebase 10.24.0
 - Fix validation issue for macOS and macCatalyst XCFrameworks related to
   framework directory structure. (#12587)

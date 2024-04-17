@@ -22,10 +22,10 @@ jobs:
       matrix:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
@@ -45,16 +45,14 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:

@@ -14,9 +14,9 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-  import GoogleUtilities_Logger
+  @_implementationOnly import GoogleUtilities_Logger
 #else
-  import GoogleUtilities
+  @_implementationOnly import GoogleUtilities
 #endif
 
 /// Enum of log messages.

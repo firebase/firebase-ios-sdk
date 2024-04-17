@@ -69,15 +69,15 @@ std::unique_ptr<LocalCacheSettings> Settings::CopyCacheSettings(
   UNREACHABLE();
 }
 
-std::unique_ptr<MemoryGargabeCollectorSettings>
+std::unique_ptr<MemoryGarbageCollectorSettings>
 MemoryCacheSettings::CopyMemoryGcSettings(
-    const MemoryGargabeCollectorSettings& settings) {
+    const MemoryGarbageCollectorSettings& settings) {
   if (settings.kind() ==
-      MemoryGargabeCollectorSettings::MemoryGcKind::kEagerGc) {
+      MemoryGarbageCollectorSettings::MemoryGcKind::kEagerGc) {
     return absl::make_unique<MemoryEagerGcSettings>(
         static_cast<const MemoryEagerGcSettings&>(settings));
   } else if (settings.kind() ==
-             MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc) {
+             MemoryGarbageCollectorSettings::MemoryGcKind::kLruGc) {
     return absl::make_unique<MemoryLruGcSettings>(
         static_cast<const MemoryLruGcSettings&>(settings));
   }
@@ -107,7 +107,7 @@ MemoryLruGcSettings MemoryLruGcSettings::WithSizeBytes(int64_t size) const {
 }
 
 MemoryCacheSettings MemoryCacheSettings::WithMemoryGarbageCollectorSettings(
-    const MemoryGargabeCollectorSettings& settings) {
+    const MemoryGarbageCollectorSettings& settings) {
   MemoryCacheSettings new_settings(*this);
   new_settings.settings_ = CopyMemoryGcSettings(settings);
   return new_settings;
@@ -157,18 +157,18 @@ bool operator==(const LocalCacheSettings& lhs, const LocalCacheSettings& rhs) {
   UNREACHABLE();
 }
 
-bool operator==(const MemoryGargabeCollectorSettings& lhs,
-                const MemoryGargabeCollectorSettings& rhs) {
+bool operator==(const MemoryGarbageCollectorSettings& lhs,
+                const MemoryGarbageCollectorSettings& rhs) {
   if (lhs.kind() != rhs.kind()) {
     return false;
   }
 
-  if (lhs.kind() == MemoryGargabeCollectorSettings::MemoryGcKind::kEagerGc) {
+  if (lhs.kind() == MemoryGarbageCollectorSettings::MemoryGcKind::kEagerGc) {
     return static_cast<const MemoryEagerGcSettings&>(lhs) ==
            static_cast<const MemoryEagerGcSettings&>(rhs);
   }
 
-  if (lhs.kind() == MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc) {
+  if (lhs.kind() == MemoryGarbageCollectorSettings::MemoryGcKind::kLruGc) {
     return static_cast<const MemoryLruGcSettings&>(lhs) ==
            static_cast<const MemoryLruGcSettings&>(rhs);
   }
@@ -268,7 +268,7 @@ int64_t Settings::cache_size_bytes() const {
       auto* memory_cache_settings =
           static_cast<MemoryCacheSettings*>(cache_settings_.get());
       if (memory_cache_settings->gc_settings().kind() ==
-          MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc) {
+          MemoryGarbageCollectorSettings::MemoryGcKind::kLruGc) {
         return static_cast<const MemoryLruGcSettings&>(
                    memory_cache_settings->gc_settings())
             .size_bytes();
@@ -289,7 +289,7 @@ bool Settings::gc_enabled() const {
       auto* memory_cache_settings =
           static_cast<MemoryCacheSettings*>(cache_settings_.get());
       return memory_cache_settings->gc_settings().kind() ==
-                 MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc &&
+                 MemoryGarbageCollectorSettings::MemoryGcKind::kLruGc &&
              static_cast<const MemoryLruGcSettings&>(
                  memory_cache_settings->gc_settings())
                      .size_bytes() != CacheSizeUnlimited;

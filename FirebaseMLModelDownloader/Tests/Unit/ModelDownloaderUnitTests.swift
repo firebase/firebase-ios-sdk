@@ -22,6 +22,12 @@
   @testable import FirebaseInstallations
   @testable import FirebaseMLModelDownloader
   import XCTest
+  #if SWIFT_PACKAGE
+    @_implementationOnly import GoogleUtilities_Logger
+    @_implementationOnly import GoogleUtilities_UserDefaults
+  #else
+    @_implementationOnly import GoogleUtilities
+  #endif // SWIFT_PACKAGE
 
   /// Mock options to configure default Firebase app.
   private enum MockOptions {
@@ -1325,19 +1331,18 @@
     }
   }
 
-  extension UserDefaults {
-    /// Returns a new cleared instance of user defaults.
-    static func createUnitTestInstance(testName: String) -> UserDefaults {
+  extension GULUserDefaults {
+    /// Returns a new instance of user defaults.
+    static func createUnitTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      let defaults = UserDefaults(suiteName: suiteName)!
-      defaults.removePersistentDomain(forName: suiteName)
+      let defaults = GULUserDefaults(suiteName: suiteName)
       return defaults
     }
 
     /// Returns the existing user defaults instance.
-    static func getUnitTestInstance(testName: String) -> UserDefaults {
+    static func getUnitTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      return UserDefaults(suiteName: suiteName)!
+      return GULUserDefaults(suiteName: suiteName)
     }
   }
 

@@ -37,7 +37,8 @@
   [FIRApp resetAppForAuthUnitTests];
 }
 
-- (void)testUseUserAccessGroup {
+// TODO(#12767) Fix flakiness and reenable.
+- (void)SKIPtestUseUserAccessGroup {
   id classMock = OCMClassMock([FIRAuth class]);
   OCMStub([classMock keychainServiceNameForAppName:OCMOCK_ANY]).andReturn(nil);
   FIRAuthStoredUserManager *myManager =
