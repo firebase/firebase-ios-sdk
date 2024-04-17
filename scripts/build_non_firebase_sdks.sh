@@ -43,9 +43,9 @@ unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 # Move Frameworks to Firebase dir, so be align with Firebase SDKs.
 mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
 
-tree -L 3 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
-
 for xcframework in "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/**/*.xcframework; do
+  echo $xcframework
+  ls $xcframework
   echo "checkpoint 1"
     if [ -d "$xcframework/Resources" ]; then
       echo "checkpoint 2"
