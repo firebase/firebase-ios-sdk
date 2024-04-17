@@ -386,7 +386,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
       preferredStyle: .alert
     )
 
-    ["Email", "Password"].forEach { placeholder in
+    for placeholder in ["Email", "Password"] {
       loginAlertController.addTextField { textfield in
         textfield.placeholder = placeholder
       }
