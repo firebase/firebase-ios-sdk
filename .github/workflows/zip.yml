@@ -459,8 +459,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Firebase-actions-dir
-        github-token: '${{ secrets.GITHUB_TOKEN }}'
-        run-id: 8707424883
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          run-id: 8707424883
       - uses: ruby/setup-ruby@v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
