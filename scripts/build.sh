@@ -93,7 +93,7 @@ database_emulator="${scripts_dir}/run_database_emulator.sh"
 system=$(uname -s)
 case "$system" in
   Darwin)
-    xcode_version=$(xcodebuild -version | head -n 1)
+    xcode_version=$(xcodebuild -version | grep Xcode)
     xcode_version="${xcode_version/Xcode /}"
     xcode_major="${xcode_version/.*/}"
     ;;

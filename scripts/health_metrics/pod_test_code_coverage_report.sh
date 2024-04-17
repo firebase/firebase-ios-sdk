@@ -65,7 +65,7 @@ else
   # should be a targeted dir of actions/upload-artifact in workflows.
   # In code coverage workflow, files under OUTPUT_PATH will be uploaded to
   # GitHub Actions.
-  scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --platforms="$(tr '[:upper:]' '[:lower:]'<<<${PLATFORM})" --test-specs="${TEST_SPEC}"
+  scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --verbose --platforms="$(tr '[:upper:]' '[:lower:]'<<<${PLATFORM})" --test-specs="${TEST_SPEC}"
 fi
 
 find /Users/runner/Library/Developer/Xcode/DerivedData -type d -regex ".*/.*\.xcresult" -execdir cp -R '{}' "${OUTPUT_PATH}" \;

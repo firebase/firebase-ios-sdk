@@ -29,7 +29,7 @@
 
 // The purpose of the crash context is to hold values that absolutely must be read and/or written at
 // crash time.  For robustness against memory corruption, they are protected with guard pages.
-// Further, the context is seperated into read-only and read-write sections.
+// Further, the context is separated into read-only and read-write sections.
 
 __BEGIN_DECLS
 

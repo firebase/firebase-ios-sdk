@@ -102,12 +102,12 @@ jobs:
       SDK: "ABTesting"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -163,12 +163,12 @@ jobs:
       SDK:  "Authentication"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -216,12 +216,12 @@ jobs:
       SDK: "Config"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -267,12 +267,12 @@ jobs:
       SDK: "Crashlytics"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -397,12 +397,12 @@ jobs:
       SDK: "DynamicLinks"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -541,12 +541,12 @@ jobs:
       SDK: "InAppMessaging"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -597,12 +597,12 @@ jobs:
       SDK: "Messaging"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -652,12 +652,12 @@ jobs:
       SDK: "Storage"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

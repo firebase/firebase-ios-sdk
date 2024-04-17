@@ -66,7 +66,7 @@ non-Google open source project should be nested under a `third_party` directory.
 * `FirebaseFoo/Tests/Sample` - Optional
 * `FirebaseFoo/Tests/{Other}` - Optional
 
-## Continous Integration
+## Continuous Integration
 
 Set up a GitHub Action workflow for the pod. A good example template is
 [storage.yml](.github/workflows/storage.yml).

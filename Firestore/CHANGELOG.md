@@ -1,5 +1,8 @@
 # Unreleased
 - [fixed] Allow blob of data with zero length. (#11773, #12620)
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  setter no longer logs a warning since it discouraged valid patterns,
+  e.g., updating the document ID after the document is created in Firestore. (#12756)
 
 # 10.24.0
 - [feature] Enable queries with range & inequality filters on multiple fields. (#12416)

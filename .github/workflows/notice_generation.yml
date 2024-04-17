@@ -12,7 +12,7 @@ jobs:
   generate_a_notice:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+    runs-on: macos-14
     name: Generate NOTICES
     env:
       # The path of NOTICES based on the root dir of repo."
