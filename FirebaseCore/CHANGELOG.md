@@ -1,4 +1,6 @@
 # Unreleased
+- [changed] Firebase now requires at least Xcode 15.2. See
+  https://developer.apple.com/news/?id=fxu2qp7b for more info.
 - [Zip Distribution] Update zip integration instructions with tips for
   preserving symlinks and protecting code signatures.
 
