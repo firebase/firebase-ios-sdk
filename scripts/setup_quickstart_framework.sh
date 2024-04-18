@@ -54,8 +54,8 @@ if [[ "${SAMPLE}" == "Authentication" ]]; then
 fi
 
 if [[ "${SAMPLE}" == "Firestore" ]]; then
-  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseAuthUI.xcframework/Resources/FirebaseAuthUI.bundle
-  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseEmailAuthUI.xcframework/Resources/FirebaseEmailAuthUI.bundle
+  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseAuthUI.xcframework/ios-arm64/FirebaseAuthUI.framework/FirebaseAuthUI.bundle
+  "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/FirebaseEmailAuthUI.xcframework/ios-arm64/FirebaseAuthUI.framework/FirebaseEmailAuthUI.bundle
 fi
 
 "${QS_SCRIPTS}"/add_framework_script.rb --sdk "${SAMPLE}" --target "${TARGET}" --framework_path Firebase/
