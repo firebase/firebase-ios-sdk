@@ -40,50 +40,5 @@ swift run zip-builder --keep-build-artifacts --update-pod-repo --platforms ios \
 
 unzip -o "${REPO}"/sdk_zip/Frameworks.zip -d "${HOME}"/ios_frameworks/Firebase/
 
-for xcframework in "${HOME}"/ios_frameworks/Firebase/Binaries/*.xcframework; do
-  echo $(ls "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs)
-  echo "checkpoint 1A"
-    if [ -d "$xcframework/Resources" ]; then
-      echo "checkpoint 2"
-        for framework_resource in "$xcframework/Resources"/*; do
-          echo "checkpoint 3"
-            for platform in "ios-arm64" "ios-arm64_x86_64-simulator"; do
-              echo "checkpoint 4"
-                framework="$xcframework/$platform/$(basename "$xcframework" .xcframework).framework"
-                if [ -d  $framework ]; then
-                  echo "checkpoint 5"
-                    cp -rP $framework_resource $framework
-                    echo "Copying $framework_resource to $framework"
-                fi
-            done
-            rm -rf $framework_resource
-            echo "Removing $framework_resource"
-        done
-    fi
-done
-
-
 # Move Frameworks to Firebase dir, so be align with Firebase SDKs.
 mv -n "${HOME}"/ios_frameworks/Firebase/Binaries "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/
-
-for xcframework in "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/Binaries/*.xcframework; do
-  ls "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs
-  echo "checkpoint 1B"
-    if [ -d "$xcframework/Resources" ]; then
-      echo "checkpoint 2"
-        for framework_resource in "$xcframework/Resources"/*; do
-          echo "checkpoint 3"
-            for platform in "ios-arm64" "ios-arm64_x86_64-simulator"; do
-              echo "checkpoint 4"
-                framework="$xcframework/$platform/$(basename "$xcframework" .xcframework).framework"
-                if [ -d  $framework ]; then
-                  echo "checkpoint 5"
-                    cp -rP $framework_resource $framework
-                    echo "Copying $framework_resource to $framework"
-                fi
-            done
-            rm -rf $framework_resource
-            echo "Removing $framework_resource"
-        done
-    fi
-done
