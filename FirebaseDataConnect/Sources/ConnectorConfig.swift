@@ -15,16 +15,20 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct ServerSettings {
-  public private(set) var hostName: String
-  public private(set) var port: Int
-  public private(set) var sslEnabled: Bool
+public enum ServiceRegion: String {
+  case USCentral1 = "us-central1"
+  case USWest1 = "us-west1"
+}
 
-  static var defaults: ServerSettings {
-    return ServerSettings(
-      hostName: "firebasedataconnect.googleapis.com",
-      port: 443,
-      sslEnabled: true
-    )
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+public struct ConnectorConfig {
+  public private(set) var serviceId: String
+  public private(set) var location: ServiceRegion
+  public private(set) var connector: String
+
+  public init(serviceId: String, location: ServiceRegion, connector: String) {
+    self.serviceId = serviceId
+    self.location = location
+    self.connector = connector
   }
 }

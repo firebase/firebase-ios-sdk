@@ -21,16 +21,16 @@ import SwiftProtobuf
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 actor GrpcClient {
-  private var projectId: String
+  private let projectId: String
 
   private let threadPoolSize = 1
 
-  private var serverSettings: ServerSettings
+  private let serverSettings: DataConnectSettings
 
-  private var serviceConfig: ServiceConfig
+  private let connectorConfig: ConnectorConfig
 
   // projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
-  private var connectorName: String = "" // Operation Set Full Qualified Name
+  private let connectorName: String // Operation Set Full Qualified Name
 
   private lazy var client: Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClient? = {
     do {
@@ -52,17 +52,13 @@ actor GrpcClient {
     }
   }()
 
-  init(projectId: String, serverSettings: ServerSettings, serviceConfig: ServiceConfig) {
+  init(projectId: String, settings: DataConnectSettings, connectorConfig: ConnectorConfig) {
     self.projectId = projectId
-    self.serverSettings = serverSettings
-    self.serviceConfig = serviceConfig
+    self.serverSettings = settings
+    self.connectorConfig = connectorConfig
 
-    createConnectorName()
-  }
-
-  private func createConnectorName() {
-    connectorName =
-      "projects/\(projectId)/locations/\(serviceConfig.location.rawValue)/services/\(serviceConfig.serviceId)/operationSets/\(serviceConfig.connector)/revisions/r"
+    self.connectorName =
+      "projects/\(projectId)/locations/\(connectorConfig.location.rawValue)/services/\(connectorConfig.serviceId)/operationSets/\(connectorConfig.connector)/revisions/r"
   }
 
   func executeQuery<ResultType: Codable, VariableType: OperationVariable>(request: QueryRequest<VariableType>,
