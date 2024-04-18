@@ -1,6 +1,6 @@
 # Unreleased
 - [changed] Removed usages of user defaults API from internal Firebase Sessions
-  dependency Firebaseto eliminate required reason impact.
+  dependency to eliminate required reason impact.
 
 # 10.24.0
 - [fixed] Fix `'FirebaseCrashlytics/FirebaseCrashlytics-Swift.h' file not found`
