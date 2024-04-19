@@ -46,6 +46,15 @@ struct ModuleMapBuilder {
       module * { export * }
 
       """
+
+      if module == "FirebaseFirestoreInternal" {
+        content += """
+          link framework "openssl_grpc"
+          link framework "grpc"
+          link framework "grpcpp"
+        """
+      }
+
       for framework in frameworks.sorted() {
         content += "  link framework " + framework + "\n"
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,894 +20,948 @@
 #include "google/firestore/v1/write.pb.h"
 
 #include <algorithm>
-
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/extension_set.h>
-#include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/generated_message_reflection.h>
-#include <google/protobuf/reflection_ops.h>
-#include <google/protobuf/wire_format.h>
+#include "google/protobuf/io/coded_stream.h"
+#include "google/protobuf/extension_set.h"
+#include "google/protobuf/wire_format_lite.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/reflection_ops.h"
+#include "google/protobuf/wire_format.h"
+#include "google/protobuf/generated_message_tctable_impl.h"
 // @@protoc_insertion_point(includes)
-#include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BloomFilter_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Precondition_google_2ffirestore_2fv1_2fcommon_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
+
+// Must be included last.
+#include "google/protobuf/port_def.inc"
+PROTOBUF_PRAGMA_INIT_SEG
+namespace _pb = ::google::protobuf;
+namespace _pbi = ::google::protobuf::internal;
+namespace _fl = ::google::protobuf::internal::field_layout;
 namespace google {
 namespace firestore {
 namespace v1 {
-class WriteDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Write> _instance;
-  const ::google::firestore::v1::Document* update_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr delete__;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr verify_;
-  const ::google::firestore::v1::DocumentTransform* transform_;
-} _Write_default_instance_;
-class DocumentTransform_FieldTransformDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DocumentTransform_FieldTransform> _instance;
-  int set_to_server_value_;
-  const ::google::firestore::v1::Value* increment_;
-  const ::google::firestore::v1::Value* maximum_;
-  const ::google::firestore::v1::Value* minimum_;
-  const ::google::firestore::v1::ArrayValue* append_missing_elements_;
-  const ::google::firestore::v1::ArrayValue* remove_all_from_array_;
-} _DocumentTransform_FieldTransform_default_instance_;
-class DocumentTransformDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DocumentTransform> _instance;
-} _DocumentTransform_default_instance_;
-class WriteResultDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<WriteResult> _instance;
-} _WriteResult_default_instance_;
-class DocumentChangeDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DocumentChange> _instance;
-} _DocumentChange_default_instance_;
-class DocumentDeleteDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DocumentDelete> _instance;
-} _DocumentDelete_default_instance_;
-class DocumentRemoveDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<DocumentRemove> _instance;
-} _DocumentRemove_default_instance_;
-class ExistenceFilterDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ExistenceFilter> _instance;
-} _ExistenceFilter_default_instance_;
+
+inline constexpr DocumentRemove::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        removed_target_ids_{},
+        _removed_target_ids_cached_byte_size_{0},
+        document_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        read_time_{nullptr} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DocumentRemove::DocumentRemove(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DocumentRemoveDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DocumentRemoveDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DocumentRemoveDefaultTypeInternal() {}
+  union {
+    DocumentRemove _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DocumentRemoveDefaultTypeInternal _DocumentRemove_default_instance_;
+
+inline constexpr DocumentDelete::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        removed_target_ids_{},
+        _removed_target_ids_cached_byte_size_{0},
+        document_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        read_time_{nullptr} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DocumentDelete::DocumentDelete(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DocumentDeleteDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DocumentDeleteDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DocumentDeleteDefaultTypeInternal() {}
+  union {
+    DocumentDelete _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DocumentDeleteDefaultTypeInternal _DocumentDelete_default_instance_;
+
+inline constexpr WriteResult::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        transform_results_{},
+        update_time_{nullptr} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR WriteResult::WriteResult(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct WriteResultDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR WriteResultDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~WriteResultDefaultTypeInternal() {}
+  union {
+    WriteResult _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 WriteResultDefaultTypeInternal _WriteResult_default_instance_;
+
+inline constexpr ExistenceFilter::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        unchanged_names_{nullptr},
+        target_id_{0},
+        count_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR ExistenceFilter::ExistenceFilter(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct ExistenceFilterDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ExistenceFilterDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ExistenceFilterDefaultTypeInternal() {}
+  union {
+    ExistenceFilter _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ExistenceFilterDefaultTypeInternal _ExistenceFilter_default_instance_;
+
+inline constexpr DocumentTransform_FieldTransform::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : field_path_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        transform_type_{},
+        _cached_size_{0},
+        _oneof_case_{} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DocumentTransform_FieldTransform::DocumentTransform_FieldTransform(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DocumentTransform_FieldTransformDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DocumentTransform_FieldTransformDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DocumentTransform_FieldTransformDefaultTypeInternal() {}
+  union {
+    DocumentTransform_FieldTransform _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DocumentTransform_FieldTransformDefaultTypeInternal _DocumentTransform_FieldTransform_default_instance_;
+
+inline constexpr DocumentTransform::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : field_transforms_{},
+        document_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DocumentTransform::DocumentTransform(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DocumentTransformDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DocumentTransformDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DocumentTransformDefaultTypeInternal() {}
+  union {
+    DocumentTransform _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DocumentTransformDefaultTypeInternal _DocumentTransform_default_instance_;
+
+inline constexpr Write::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        update_transforms_{},
+        update_mask_{nullptr},
+        current_document_{nullptr},
+        operation_{},
+        _oneof_case_{} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR Write::Write(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct WriteDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR WriteDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~WriteDefaultTypeInternal() {}
+  union {
+    Write _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 WriteDefaultTypeInternal _Write_default_instance_;
+
+inline constexpr DocumentChange::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        target_ids_{},
+        _target_ids_cached_byte_size_{0},
+        removed_target_ids_{},
+        _removed_target_ids_cached_byte_size_{0},
+        document_{nullptr} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DocumentChange::DocumentChange(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct DocumentChangeDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DocumentChangeDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DocumentChangeDefaultTypeInternal() {}
+  union {
+    DocumentChange _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DocumentChangeDefaultTypeInternal _DocumentChange_default_instance_;
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
-static void InitDefaultsscc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_DocumentChange_default_instance_;
-    new (ptr) ::google::firestore::v1::DocumentChange();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::DocumentChange::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static void InitDefaultsscc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_DocumentDelete_default_instance_;
-    new (ptr) ::google::firestore::v1::DocumentDelete();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::DocumentDelete::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
-
-static void InitDefaultsscc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_DocumentRemove_default_instance_;
-    new (ptr) ::google::firestore::v1::DocumentRemove();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::DocumentRemove::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
-
-static void InitDefaultsscc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_DocumentTransform_default_instance_;
-    new (ptr) ::google::firestore::v1::DocumentTransform();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::DocumentTransform::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,}};
-
-static void InitDefaultsscc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_;
-    new (ptr) ::google::firestore::v1::DocumentTransform_FieldTransform();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::DocumentTransform_FieldTransform::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static void InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_ExistenceFilter_default_instance_;
-    new (ptr) ::google::firestore::v1::ExistenceFilter();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::ExistenceFilter::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_BloomFilter_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto.base,}};
-
-static void InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_Write_default_instance_;
-    new (ptr) ::google::firestore::v1::Write();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::Write::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<5> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 5, 0, InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto.base,
-      &scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-      &scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto.base,
-      &scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-      &scc_info_Precondition_google_2ffirestore_2fv1_2fcommon_2eproto.base,}};
-
-static void InitDefaultsscc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_WriteResult_default_instance_;
-    new (ptr) ::google::firestore::v1::WriteResult();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::WriteResult::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto}, {
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,
-      &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[8];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto[1];
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto = nullptr;
-
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2fwrite_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _internal_metadata_),
-  ~0u,  // no _extensions_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _oneof_case_[0]),
-  ~0u,  // no _weak_field_map_
-  offsetof(::google::firestore::v1::WriteDefaultTypeInternal, update_),
-  offsetof(::google::firestore::v1::WriteDefaultTypeInternal, delete__),
-  offsetof(::google::firestore::v1::WriteDefaultTypeInternal, verify_),
-  offsetof(::google::firestore::v1::WriteDefaultTypeInternal, transform_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, update_mask_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, update_transforms_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, current_document_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, operation_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _internal_metadata_),
-  ~0u,  // no _extensions_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _oneof_case_[0]),
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, field_path_),
-  offsetof(::google::firestore::v1::DocumentTransform_FieldTransformDefaultTypeInternal, set_to_server_value_),
-  offsetof(::google::firestore::v1::DocumentTransform_FieldTransformDefaultTypeInternal, increment_),
-  offsetof(::google::firestore::v1::DocumentTransform_FieldTransformDefaultTypeInternal, maximum_),
-  offsetof(::google::firestore::v1::DocumentTransform_FieldTransformDefaultTypeInternal, minimum_),
-  offsetof(::google::firestore::v1::DocumentTransform_FieldTransformDefaultTypeInternal, append_missing_elements_),
-  offsetof(::google::firestore::v1::DocumentTransform_FieldTransformDefaultTypeInternal, remove_all_from_array_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, transform_type_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform, document_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform, field_transforms_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, update_time_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, transform_results_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, document_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, target_ids_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, removed_target_ids_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, document_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, removed_target_ids_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, read_time_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, document_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, removed_target_ids_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, read_time_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, target_id_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, count_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, unchanged_names_),
-};
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::google::firestore::v1::Write)},
-  { 13, -1, sizeof(::google::firestore::v1::DocumentTransform_FieldTransform)},
-  { 26, -1, sizeof(::google::firestore::v1::DocumentTransform)},
-  { 33, -1, sizeof(::google::firestore::v1::WriteResult)},
-  { 40, -1, sizeof(::google::firestore::v1::DocumentChange)},
-  { 48, -1, sizeof(::google::firestore::v1::DocumentDelete)},
-  { 56, -1, sizeof(::google::firestore::v1::DocumentRemove)},
-  { 64, -1, sizeof(::google::firestore::v1::ExistenceFilter)},
+static ::_pb::Metadata file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[8];
+static const ::_pb::EnumDescriptor* file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto[1];
+static constexpr const ::_pb::ServiceDescriptor**
+    file_level_service_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto = nullptr;
+const ::uint32_t TableStruct_google_2ffirestore_2fv1_2fwrite_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
+    protodesc_cold) = {
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _internal_metadata_),
+    ~0u,  // no _extensions_
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_._oneof_case_[0]),
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_.update_mask_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_.update_transforms_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_.current_document_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_.operation_),
+    ~0u,
+    ~0u,
+    ~0u,
+    ~0u,
+    0,
+    ~0u,
+    1,
+    ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _internal_metadata_),
+    ~0u,  // no _extensions_
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _impl_._oneof_case_[0]),
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _impl_.field_path_),
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _impl_.transform_type_),
+    ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform, _impl_.document_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform, _impl_.field_transforms_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, _impl_.update_time_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::WriteResult, _impl_.transform_results_),
+    0,
+    ~0u,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, _impl_.document_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, _impl_.target_ids_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentChange, _impl_.removed_target_ids_),
+    0,
+    ~0u,
+    ~0u,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, _impl_.document_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, _impl_.removed_target_ids_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentDelete, _impl_.read_time_),
+    ~0u,
+    ~0u,
+    0,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, _impl_.document_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, _impl_.removed_target_ids_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentRemove, _impl_.read_time_),
+    ~0u,
+    ~0u,
+    0,
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, _impl_.target_id_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, _impl_.count_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, _impl_.unchanged_names_),
+    ~0u,
+    ~0u,
+    0,
 };
 
-static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_Write_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_DocumentTransform_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_WriteResult_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_DocumentChange_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_DocumentDelete_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_DocumentRemove_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_ExistenceFilter_default_instance_),
+static const ::_pbi::MigrationSchema
+    schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+        {0, 16, -1, sizeof(::google::firestore::v1::Write)},
+        {23, -1, -1, sizeof(::google::firestore::v1::DocumentTransform_FieldTransform)},
+        {39, -1, -1, sizeof(::google::firestore::v1::DocumentTransform)},
+        {49, 59, -1, sizeof(::google::firestore::v1::WriteResult)},
+        {61, 72, -1, sizeof(::google::firestore::v1::DocumentChange)},
+        {75, 86, -1, sizeof(::google::firestore::v1::DocumentDelete)},
+        {89, 100, -1, sizeof(::google::firestore::v1::DocumentRemove)},
+        {103, 114, -1, sizeof(::google::firestore::v1::ExistenceFilter)},
 };
 
-const char descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\037google/firestore/v1/write.proto\022\023googl"
-  "e.firestore.v1\032&google/firestore/v1/bloo"
-  "m_filter.proto\032 google/firestore/v1/comm"
-  "on.proto\032\"google/firestore/v1/document.p"
-  "roto\032\037google/protobuf/timestamp.proto\"\355\002"
-  "\n\005Write\022/\n\006update\030\001 \001(\0132\035.google.firesto"
-  "re.v1.DocumentH\000\022\020\n\006delete\030\002 \001(\tH\000\022\020\n\006ve"
-  "rify\030\005 \001(\tH\000\022;\n\ttransform\030\006 \001(\0132&.google"
-  ".firestore.v1.DocumentTransformH\000\0226\n\013upd"
-  "ate_mask\030\003 \001(\0132!.google.firestore.v1.Doc"
-  "umentMask\022P\n\021update_transforms\030\007 \003(\01325.g"
-  "oogle.firestore.v1.DocumentTransform.Fie"
-  "ldTransform\022;\n\020current_document\030\004 \001(\0132!."
-  "google.firestore.v1.PreconditionB\013\n\toper"
-  "ation\"\345\004\n\021DocumentTransform\022\020\n\010document\030"
-  "\001 \001(\t\022O\n\020field_transforms\030\002 \003(\01325.google"
-  ".firestore.v1.DocumentTransform.FieldTra"
-  "nsform\032\354\003\n\016FieldTransform\022\022\n\nfield_path\030"
-  "\001 \001(\t\022`\n\023set_to_server_value\030\002 \001(\0162A.goo"
-  "gle.firestore.v1.DocumentTransform.Field"
-  "Transform.ServerValueH\000\022/\n\tincrement\030\003 \001"
-  "(\0132\032.google.firestore.v1.ValueH\000\022-\n\007maxi"
-  "mum\030\004 \001(\0132\032.google.firestore.v1.ValueH\000\022"
-  "-\n\007minimum\030\005 \001(\0132\032.google.firestore.v1.V"
-  "alueH\000\022B\n\027append_missing_elements\030\006 \001(\0132"
-  "\037.google.firestore.v1.ArrayValueH\000\022@\n\025re"
-  "move_all_from_array\030\007 \001(\0132\037.google.fires"
-  "tore.v1.ArrayValueH\000\"=\n\013ServerValue\022\034\n\030S"
-  "ERVER_VALUE_UNSPECIFIED\020\000\022\020\n\014REQUEST_TIM"
-  "E\020\001B\020\n\016transform_type\"u\n\013WriteResult\022/\n\013"
-  "update_time\030\001 \001(\0132\032.google.protobuf.Time"
-  "stamp\0225\n\021transform_results\030\002 \003(\0132\032.googl"
-  "e.firestore.v1.Value\"q\n\016DocumentChange\022/"
-  "\n\010document\030\001 \001(\0132\035.google.firestore.v1.D"
-  "ocument\022\022\n\ntarget_ids\030\005 \003(\005\022\032\n\022removed_t"
-  "arget_ids\030\006 \003(\005\"m\n\016DocumentDelete\022\020\n\010doc"
-  "ument\030\001 \001(\t\022\032\n\022removed_target_ids\030\006 \003(\005\022"
-  "-\n\tread_time\030\004 \001(\0132\032.google.protobuf.Tim"
-  "estamp\"m\n\016DocumentRemove\022\020\n\010document\030\001 \001"
-  "(\t\022\032\n\022removed_target_ids\030\002 \003(\005\022-\n\tread_t"
-  "ime\030\004 \001(\0132\032.google.protobuf.Timestamp\"n\n"
-  "\017ExistenceFilter\022\021\n\ttarget_id\030\001 \001(\005\022\r\n\005c"
-  "ount\030\002 \001(\005\0229\n\017unchanged_names\030\003 \001(\0132 .go"
-  "ogle.firestore.v1.BloomFilterB\256\001\n\027com.go"
-  "ogle.firestore.v1B\nWriteProtoP\001Z<google."
-  "golang.org/genproto/googleapis/firestore"
-  "/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fire"
-  "store.V1Beta1\312\002\036Google\\Cloud\\Firestore\\V"
-  "1beta1b\006proto3"
-  ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps[4] = {
-  &::descriptor_table_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto,
-  &::descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto,
-  &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
-  &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
+static const ::_pb::Message* const file_default_instances[] = {
+    &::google::firestore::v1::_Write_default_instance_._instance,
+    &::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_._instance,
+    &::google::firestore::v1::_DocumentTransform_default_instance_._instance,
+    &::google::firestore::v1::_WriteResult_default_instance_._instance,
+    &::google::firestore::v1::_DocumentChange_default_instance_._instance,
+    &::google::firestore::v1::_DocumentDelete_default_instance_._instance,
+    &::google::firestore::v1::_DocumentRemove_default_instance_._instance,
+    &::google::firestore::v1::_ExistenceFilter_default_instance_._instance,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_sccs[8] = {
-  &scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto.base,
-  &scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto.base,
+const char descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+    "\n\037google/firestore/v1/write.proto\022\023googl"
+    "e.firestore.v1\032&google/firestore/v1/bloo"
+    "m_filter.proto\032 google/firestore/v1/comm"
+    "on.proto\032\"google/firestore/v1/document.p"
+    "roto\032\037google/protobuf/timestamp.proto\"\355\002"
+    "\n\005Write\022/\n\006update\030\001 \001(\0132\035.google.firesto"
+    "re.v1.DocumentH\000\022\020\n\006delete\030\002 \001(\tH\000\022\020\n\006ve"
+    "rify\030\005 \001(\tH\000\022;\n\ttransform\030\006 \001(\0132&.google"
+    ".firestore.v1.DocumentTransformH\000\0226\n\013upd"
+    "ate_mask\030\003 \001(\0132!.google.firestore.v1.Doc"
+    "umentMask\022P\n\021update_transforms\030\007 \003(\01325.g"
+    "oogle.firestore.v1.DocumentTransform.Fie"
+    "ldTransform\022;\n\020current_document\030\004 \001(\0132!."
+    "google.firestore.v1.PreconditionB\013\n\toper"
+    "ation\"\345\004\n\021DocumentTransform\022\020\n\010document\030"
+    "\001 \001(\t\022O\n\020field_transforms\030\002 \003(\01325.google"
+    ".firestore.v1.DocumentTransform.FieldTra"
+    "nsform\032\354\003\n\016FieldTransform\022\022\n\nfield_path\030"
+    "\001 \001(\t\022`\n\023set_to_server_value\030\002 \001(\0162A.goo"
+    "gle.firestore.v1.DocumentTransform.Field"
+    "Transform.ServerValueH\000\022/\n\tincrement\030\003 \001"
+    "(\0132\032.google.firestore.v1.ValueH\000\022-\n\007maxi"
+    "mum\030\004 \001(\0132\032.google.firestore.v1.ValueH\000\022"
+    "-\n\007minimum\030\005 \001(\0132\032.google.firestore.v1.V"
+    "alueH\000\022B\n\027append_missing_elements\030\006 \001(\0132"
+    "\037.google.firestore.v1.ArrayValueH\000\022@\n\025re"
+    "move_all_from_array\030\007 \001(\0132\037.google.fires"
+    "tore.v1.ArrayValueH\000\"=\n\013ServerValue\022\034\n\030S"
+    "ERVER_VALUE_UNSPECIFIED\020\000\022\020\n\014REQUEST_TIM"
+    "E\020\001B\020\n\016transform_type\"u\n\013WriteResult\022/\n\013"
+    "update_time\030\001 \001(\0132\032.google.protobuf.Time"
+    "stamp\0225\n\021transform_results\030\002 \003(\0132\032.googl"
+    "e.firestore.v1.Value\"q\n\016DocumentChange\022/"
+    "\n\010document\030\001 \001(\0132\035.google.firestore.v1.D"
+    "ocument\022\022\n\ntarget_ids\030\005 \003(\005\022\032\n\022removed_t"
+    "arget_ids\030\006 \003(\005\"m\n\016DocumentDelete\022\020\n\010doc"
+    "ument\030\001 \001(\t\022\032\n\022removed_target_ids\030\006 \003(\005\022"
+    "-\n\tread_time\030\004 \001(\0132\032.google.protobuf.Tim"
+    "estamp\"m\n\016DocumentRemove\022\020\n\010document\030\001 \001"
+    "(\t\022\032\n\022removed_target_ids\030\002 \003(\005\022-\n\tread_t"
+    "ime\030\004 \001(\0132\032.google.protobuf.Timestamp\"n\n"
+    "\017ExistenceFilter\022\021\n\ttarget_id\030\001 \001(\005\022\r\n\005c"
+    "ount\030\002 \001(\005\0229\n\017unchanged_names\030\003 \001(\0132 .go"
+    "ogle.firestore.v1.BloomFilterB\256\001\n\027com.go"
+    "ogle.firestore.v1B\nWriteProtoP\001Z<google."
+    "golang.org/genproto/googleapis/firestore"
+    "/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fire"
+    "store.V1Beta1\312\002\036Google\\Cloud\\Firestore\\V"
+    "1beta1b\006proto3"
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once;
-static bool descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized = false;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto, "google/firestore/v1/write.proto", 1934,
-  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps, 8, 4,
-  schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fwrite_2eproto::offsets,
-  file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto, 8, file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto,
+static const ::_pbi::DescriptorTable* const descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps[4] =
+    {
+        &::descriptor_table_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto,
+        &::descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto,
+        &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
+        &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
+};
+static ::absl::once_flag descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once;
+const ::_pbi::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto = {
+    false,
+    false,
+    1934,
+    descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto,
+    "google/firestore/v1/write.proto",
+    &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+    descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps,
+    4,
+    8,
+    schemas,
+    file_default_instances,
+    TableStruct_google_2ffirestore_2fv1_2fwrite_2eproto::offsets,
+    file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto,
+    file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto,
+    file_level_service_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto,
 };
 
+// This function exists to be marked as weak.
+// It can significantly speed up compilation by breaking up LLVM's SCC
+// in the .pb.cc translation units. Large translation units see a
+// reduction of more than 35% of walltime for optimized builds. Without
+// the weak attribute all the messages in the file, including all the
+// vtables and everything they use become part of the same SCC through
+// a cycle like:
+// GetMetadata -> descriptor table -> default instances ->
+//   vtables -> GetMetadata
+// By adding a weak function here we break the connection from the
+// individual vtables back into the descriptor table.
+PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter() {
+  return &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto;
+}
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_google_2ffirestore_2fv1_2fwrite_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto), true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2
+static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_google_2ffirestore_2fv1_2fwrite_2eproto(&descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto);
 namespace google {
 namespace firestore {
 namespace v1 {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DocumentTransform_FieldTransform_ServerValue_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto);
+const ::google::protobuf::EnumDescriptor* DocumentTransform_FieldTransform_ServerValue_descriptor() {
+  ::google::protobuf::internal::AssignDescriptors(&descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto);
   return file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto[0];
 }
+PROTOBUF_CONSTINIT const uint32_t DocumentTransform_FieldTransform_ServerValue_internal_data_[] = {
+    131072u, 0u, };
 bool DocumentTransform_FieldTransform_ServerValue_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
+  return 0 <= value && value <= 1;
 }
+#if (__cplusplus < 201703) && \
+  (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 constexpr DocumentTransform_FieldTransform_ServerValue DocumentTransform_FieldTransform::SERVER_VALUE_UNSPECIFIED;
 constexpr DocumentTransform_FieldTransform_ServerValue DocumentTransform_FieldTransform::REQUEST_TIME;
 constexpr DocumentTransform_FieldTransform_ServerValue DocumentTransform_FieldTransform::ServerValue_MIN;
 constexpr DocumentTransform_FieldTransform_ServerValue DocumentTransform_FieldTransform::ServerValue_MAX;
 constexpr int DocumentTransform_FieldTransform::ServerValue_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 
+#endif  // (__cplusplus < 201703) &&
+        // (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 // ===================================================================
 
-void Write::InitAsDefaultInstance() {
-  ::google::firestore::v1::_Write_default_instance_.update_ = const_cast< ::google::firestore::v1::Document*>(
-      ::google::firestore::v1::Document::internal_default_instance());
-  ::google::firestore::v1::_Write_default_instance_.delete__.UnsafeSetDefault(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1::_Write_default_instance_.verify_.UnsafeSetDefault(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1::_Write_default_instance_.transform_ = const_cast< ::google::firestore::v1::DocumentTransform*>(
-      ::google::firestore::v1::DocumentTransform::internal_default_instance());
-  ::google::firestore::v1::_Write_default_instance_._instance.get_mutable()->update_mask_ = const_cast< ::google::firestore::v1::DocumentMask*>(
-      ::google::firestore::v1::DocumentMask::internal_default_instance());
-  ::google::firestore::v1::_Write_default_instance_._instance.get_mutable()->current_document_ = const_cast< ::google::firestore::v1::Precondition*>(
-      ::google::firestore::v1::Precondition::internal_default_instance());
-}
 class Write::_Internal {
  public:
+  using HasBits = decltype(std::declval<Write>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+    8 * PROTOBUF_FIELD_OFFSET(Write, _impl_._has_bits_);
+  static constexpr ::int32_t kOneofCaseOffset =
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Write, _impl_._oneof_case_);
   static const ::google::firestore::v1::Document& update(const Write* msg);
   static const ::google::firestore::v1::DocumentTransform& transform(const Write* msg);
   static const ::google::firestore::v1::DocumentMask& update_mask(const Write* msg);
+  static void set_has_update_mask(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
   static const ::google::firestore::v1::Precondition& current_document(const Write* msg);
+  static void set_has_current_document(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
 };
 
-const ::google::firestore::v1::Document&
-Write::_Internal::update(const Write* msg) {
-  return *msg->operation_.update_;
+const ::google::firestore::v1::Document& Write::_Internal::update(const Write* msg) {
+  return *msg->_impl_.operation_.update_;
 }
-const ::google::firestore::v1::DocumentTransform&
-Write::_Internal::transform(const Write* msg) {
-  return *msg->operation_.transform_;
+const ::google::firestore::v1::DocumentTransform& Write::_Internal::transform(const Write* msg) {
+  return *msg->_impl_.operation_.transform_;
 }
-const ::google::firestore::v1::DocumentMask&
-Write::_Internal::update_mask(const Write* msg) {
-  return *msg->update_mask_;
+const ::google::firestore::v1::DocumentMask& Write::_Internal::update_mask(const Write* msg) {
+  return *msg->_impl_.update_mask_;
 }
-const ::google::firestore::v1::Precondition&
-Write::_Internal::current_document(const Write* msg) {
-  return *msg->current_document_;
+const ::google::firestore::v1::Precondition& Write::_Internal::current_document(const Write* msg) {
+  return *msg->_impl_.current_document_;
 }
 void Write::set_allocated_update(::google::firestore::v1::Document* update) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_operation();
   if (update) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(update)->GetArena();
     if (message_arena != submessage_arena) {
-      update = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, update, submessage_arena);
+      update = ::google::protobuf::internal::GetOwnedMessage(message_arena, update, submessage_arena);
     }
     set_has_update();
-    operation_.update_ = update;
+    _impl_.operation_.update_ = update;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Write.update)
 }
 void Write::clear_update() {
-  if (_internal_has_update()) {
-    delete operation_.update_;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (operation_case() == kUpdate) {
+    if (GetArena() == nullptr) {
+      delete _impl_.operation_.update_;
+    }
     clear_has_operation();
   }
 }
 void Write::set_allocated_transform(::google::firestore::v1::DocumentTransform* transform) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_operation();
   if (transform) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = transform->GetArena();
     if (message_arena != submessage_arena) {
-      transform = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, transform, submessage_arena);
+      transform = ::google::protobuf::internal::GetOwnedMessage(message_arena, transform, submessage_arena);
     }
     set_has_transform();
-    operation_.transform_ = transform;
+    _impl_.operation_.transform_ = transform;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Write.transform)
 }
 void Write::clear_update_mask() {
-  if (GetArenaNoVirtual() == nullptr && update_mask_ != nullptr) {
-    delete update_mask_;
-  }
-  update_mask_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.update_mask_ != nullptr) _impl_.update_mask_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 void Write::clear_current_document() {
-  if (GetArenaNoVirtual() == nullptr && current_document_ != nullptr) {
-    delete current_document_;
-  }
-  current_document_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.current_document_ != nullptr) _impl_.current_document_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
-Write::Write()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.Write)
+Write::Write(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.Write)
 }
-Write::Write(const Write& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      update_transforms_(from.update_transforms_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_update_mask()) {
-    update_mask_ = new ::google::firestore::v1::DocumentMask(*from.update_mask_);
-  } else {
-    update_mask_ = nullptr;
+inline PROTOBUF_NDEBUG_INLINE Write::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        update_transforms_{visibility, arena, from.update_transforms_},
+        operation_{},
+        _oneof_case_{from._oneof_case_[0]} {}
+
+Write::Write(
+    ::google::protobuf::Arena* arena,
+    const Write& from)
+    : ::google::protobuf::Message(arena) {
+  Write* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.update_mask_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::google::firestore::v1::DocumentMask>(arena, *from._impl_.update_mask_)
+                : nullptr;
+  _impl_.current_document_ = (cached_has_bits & 0x00000002u)
+                ? CreateMaybeMessage<::google::firestore::v1::Precondition>(arena, *from._impl_.current_document_)
+                : nullptr;
+  switch (operation_case()) {
+    case OPERATION_NOT_SET:
+      break;
+      case kUpdate:
+        _impl_.operation_.update_ = CreateMaybeMessage<::google::firestore::v1::Document>(arena, *from._impl_.operation_.update_);
+        break;
+      case kDelete:
+        new (&_impl_.operation_.delete__) decltype(_impl_.operation_.delete__){arena, from._impl_.operation_.delete__};
+        break;
+      case kVerify:
+        new (&_impl_.operation_.verify_) decltype(_impl_.operation_.verify_){arena, from._impl_.operation_.verify_};
+        break;
+      case kTransform:
+        _impl_.operation_.transform_ = CreateMaybeMessage<::google::firestore::v1::DocumentTransform>(arena, *from._impl_.operation_.transform_);
+        break;
   }
-  if (from._internal_has_current_document()) {
-    current_document_ = new ::google::firestore::v1::Precondition(*from.current_document_);
-  } else {
-    current_document_ = nullptr;
-  }
-  clear_has_operation();
-  switch (from.operation_case()) {
-    case kUpdate: {
-      _internal_mutable_update()->::google::firestore::v1::Document::MergeFrom(from._internal_update());
-      break;
-    }
-    case kDelete: {
-      _internal_set_delete_(from._internal_delete_());
-      break;
-    }
-    case kVerify: {
-      _internal_set_verify(from._internal_verify());
-      break;
-    }
-    case kTransform: {
-      _internal_mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from._internal_transform());
-      break;
-    }
-    case OPERATION_NOT_SET: {
-      break;
-    }
-  }
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.Write)
 }
+inline PROTOBUF_NDEBUG_INLINE Write::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0},
+        update_transforms_{visibility, arena},
+        operation_{},
+        _oneof_case_{} {}
 
-void Write::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  ::memset(&update_mask_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&current_document_) -
-      reinterpret_cast<char*>(&update_mask_)) + sizeof(current_document_));
-  clear_has_operation();
+inline void Write::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, update_mask_),
+           0,
+           offsetof(Impl_, current_document_) -
+               offsetof(Impl_, update_mask_) +
+               sizeof(Impl_::current_document_));
 }
-
 Write::~Write() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.Write)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void Write::SharedDtor() {
-  if (this != internal_default_instance()) delete update_mask_;
-  if (this != internal_default_instance()) delete current_document_;
+inline void Write::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  delete _impl_.update_mask_;
+  delete _impl_.current_document_;
   if (has_operation()) {
     clear_operation();
   }
+  _impl_.~Impl_();
 }
-
-void Write::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const Write& Write::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void Write::clear_operation() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.Write)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   switch (operation_case()) {
     case kUpdate: {
-      delete operation_.update_;
+      if (GetArena() == nullptr) {
+        delete _impl_.operation_.update_;
+      }
       break;
     }
     case kDelete: {
-      operation_.delete__.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+      _impl_.operation_.delete__.Destroy();
       break;
     }
     case kVerify: {
-      operation_.verify_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+      _impl_.operation_.verify_.Destroy();
       break;
     }
     case kTransform: {
-      delete operation_.transform_;
+      if (GetArena() == nullptr) {
+        delete _impl_.operation_.transform_;
+      }
       break;
     }
     case OPERATION_NOT_SET: {
       break;
     }
   }
-  _oneof_case_[0] = OPERATION_NOT_SET;
+  _impl_._oneof_case_[0] = OPERATION_NOT_SET;
 }
 
 
-void Write::Clear() {
+PROTOBUF_NOINLINE void Write::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.Write)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  update_transforms_.Clear();
-  if (GetArenaNoVirtual() == nullptr && update_mask_ != nullptr) {
-    delete update_mask_;
+  _impl_.update_transforms_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      ABSL_DCHECK(_impl_.update_mask_ != nullptr);
+      _impl_.update_mask_->Clear();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      ABSL_DCHECK(_impl_.current_document_ != nullptr);
+      _impl_.current_document_->Clear();
+    }
   }
-  update_mask_ = nullptr;
-  if (GetArenaNoVirtual() == nullptr && current_document_ != nullptr) {
-    delete current_document_;
-  }
-  current_document_ = nullptr;
   clear_operation();
-  _internal_metadata_.Clear();
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* Write::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // .google.firestore.v1.Document update = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_update(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // string delete = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          auto str = _internal_mutable_delete_();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Write.delete"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.DocumentMask update_mask = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_update_mask(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.Precondition current_document = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(_internal_mutable_current_document(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // string verify = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          auto str = _internal_mutable_verify();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.Write.verify"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.DocumentTransform transform = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ctx->ParseMessage(_internal_mutable_transform(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_update_transforms(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<58>(ptr));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* Write::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Write::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<3, 7, 5, 46, 2> Write::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(Write, _impl_._has_bits_),
+    0, // no _extensions_
+    7, 56,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967168,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    7,  // num_field_entries
+    5,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_Write_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // .google.firestore.v1.DocumentMask update_mask = 3;
+    {::_pbi::TcParser::FastMtS1,
+     {26, 0, 1, PROTOBUF_FIELD_OFFSET(Write, _impl_.update_mask_)}},
+    // .google.firestore.v1.Precondition current_document = 4;
+    {::_pbi::TcParser::FastMtS1,
+     {34, 1, 2, PROTOBUF_FIELD_OFFSET(Write, _impl_.current_document_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
+    {::_pbi::TcParser::FastMtR1,
+     {58, 63, 4, PROTOBUF_FIELD_OFFSET(Write, _impl_.update_transforms_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // .google.firestore.v1.Document update = 1;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.operation_.update_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // string delete = 2;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.operation_.delete__), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // .google.firestore.v1.DocumentMask update_mask = 3;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.update_mask_), _Internal::kHasBitsOffset + 0, 1,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .google.firestore.v1.Precondition current_document = 4;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.current_document_), _Internal::kHasBitsOffset + 1, 2,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // string verify = 5;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.operation_.verify_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // .google.firestore.v1.DocumentTransform transform = 6;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.operation_.transform_), _Internal::kOneofCaseOffset + 0, 3,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
+    {PROTOBUF_FIELD_OFFSET(Write, _impl_.update_transforms_), -1, 4,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Document>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::DocumentMask>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Precondition>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::DocumentTransform>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::DocumentTransform_FieldTransform>()},
+  }}, {{
+    "\31\0\6\0\0\6\0\0"
+    "google.firestore.v1.Write"
+    "delete"
+    "verify"
+  }},
+};
+
+::uint8_t* Write::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.Write)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
-  // .google.firestore.v1.Document update = 1;
-  if (_internal_has_update()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::update(this), target, stream);
+  switch (operation_case()) {
+    case kUpdate: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          1, _Internal::update(this),
+          _Internal::update(this).GetCachedSize(), target, stream);
+      break;
+    }
+    case kDelete: {
+      const std::string& _s = this->_internal_delete_();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.Write.delete");
+      target = stream->WriteStringMaybeAliased(2, _s, target);
+      break;
+    }
+    default:
+      break;
   }
-
-  // string delete = 2;
-  if (_internal_has_delete_()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_delete_().data(), static_cast<int>(this->_internal_delete_().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Write.delete");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_delete_(), target);
-  }
-
+  cached_has_bits = _impl_._has_bits_[0];
   // .google.firestore.v1.DocumentMask update_mask = 3;
-  if (this->has_update_mask()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::update_mask(this), target, stream);
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        3, _Internal::update_mask(this),
+        _Internal::update_mask(this).GetCachedSize(), target, stream);
   }
 
   // .google.firestore.v1.Precondition current_document = 4;
-  if (this->has_current_document()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::current_document(this), target, stream);
+  if (cached_has_bits & 0x00000002u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        4, _Internal::current_document(this),
+        _Internal::current_document(this).GetCachedSize(), target, stream);
   }
 
-  // string verify = 5;
-  if (_internal_has_verify()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_verify().data(), static_cast<int>(this->_internal_verify().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.Write.verify");
-    target = stream->WriteStringMaybeAliased(
-        5, this->_internal_verify(), target);
+  switch (operation_case()) {
+    case kVerify: {
+      const std::string& _s = this->_internal_verify();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.Write.verify");
+      target = stream->WriteStringMaybeAliased(5, _s, target);
+      break;
+    }
+    case kTransform: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          6, _Internal::transform(this),
+          _Internal::transform(this).GetCachedSize(), target, stream);
+      break;
+    }
+    default:
+      break;
   }
-
-  // .google.firestore.v1.DocumentTransform transform = 6;
-  if (_internal_has_transform()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::transform(this), target, stream);
-  }
-
   // repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_update_transforms_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(7, this->_internal_update_transforms(i), target, stream);
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_update_transforms_size()); i < n; i++) {
+    const auto& repfield = this->_internal_update_transforms().Get(i);
+    target = ::google::protobuf::internal::WireFormatLite::
+        InternalWriteMessage(7, repfield, repfield.GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.Write)
   return target;
 }
 
-size_t Write::ByteSizeLong() const {
+::size_t Write::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.Write)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.DocumentTransform.FieldTransform update_transforms = 7;
   total_size += 1UL * this->_internal_update_transforms_size();
-  for (const auto& msg : this->update_transforms_) {
+  for (const auto& msg : this->_internal_update_transforms()) {
     total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+      ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
   }
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    // .google.firestore.v1.DocumentMask update_mask = 3;
+    if (cached_has_bits & 0x00000001u) {
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.update_mask_);
+    }
 
-  // .google.firestore.v1.DocumentMask update_mask = 3;
-  if (this->has_update_mask()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *update_mask_);
+    // .google.firestore.v1.Precondition current_document = 4;
+    if (cached_has_bits & 0x00000002u) {
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.current_document_);
+    }
+
   }
-
-  // .google.firestore.v1.Precondition current_document = 4;
-  if (this->has_current_document()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *current_document_);
-  }
-
   switch (operation_case()) {
     // .google.firestore.v1.Document update = 1;
     case kUpdate: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *operation_.update_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.operation_.update_);
       break;
     }
     // string delete = 2;
     case kDelete: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_delete_());
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this->_internal_delete_());
       break;
     }
     // string verify = 5;
     case kVerify: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_verify());
+      total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                      this->_internal_verify());
       break;
     }
     // .google.firestore.v1.DocumentTransform transform = 6;
     case kTransform: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *operation_.transform_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.operation_.transform_);
       break;
     }
     case OPERATION_NOT_SET: {
       break;
     }
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void Write::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.Write)
-  GOOGLE_DCHECK_NE(&from, this);
-  const Write* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Write>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.Write)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.Write)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData Write::_class_data_ = {
+    Write::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* Write::GetClassData() const {
+  return &_class_data_;
 }
 
-void Write::MergeFrom(const Write& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.Write)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void Write::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<Write*>(&to_msg);
+  auto& from = static_cast<const Write&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.Write)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  update_transforms_.MergeFrom(from.update_transforms_);
-  if (from.has_update_mask()) {
-    _internal_mutable_update_mask()->::google::firestore::v1::DocumentMask::MergeFrom(from._internal_update_mask());
-  }
-  if (from.has_current_document()) {
-    _internal_mutable_current_document()->::google::firestore::v1::Precondition::MergeFrom(from._internal_current_document());
+  _this->_internal_mutable_update_transforms()->MergeFrom(
+      from._internal_update_transforms());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_mutable_update_mask()->::google::firestore::v1::DocumentMask::MergeFrom(
+          from._internal_update_mask());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_internal_mutable_current_document()->::google::firestore::v1::Precondition::MergeFrom(
+          from._internal_current_document());
+    }
   }
   switch (from.operation_case()) {
     case kUpdate: {
-      _internal_mutable_update()->::google::firestore::v1::Document::MergeFrom(from._internal_update());
+      _this->_internal_mutable_update()->::google::firestore::v1::Document::MergeFrom(
+          from._internal_update());
       break;
     }
     case kDelete: {
-      _internal_set_delete_(from._internal_delete_());
+      _this->_internal_set_delete_(from._internal_delete_());
       break;
     }
     case kVerify: {
-      _internal_set_verify(from._internal_verify());
+      _this->_internal_set_verify(from._internal_verify());
       break;
     }
     case kTransform: {
-      _internal_mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(from._internal_transform());
+      _this->_internal_mutable_transform()->::google::firestore::v1::DocumentTransform::MergeFrom(
+          from._internal_transform());
       break;
     }
     case OPERATION_NOT_SET: {
       break;
     }
   }
-}
-
-void Write::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.Write)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Write::CopyFrom(const Write& from) {
@@ -917,42 +971,39 @@ void Write::CopyFrom(const Write& from) {
   MergeFrom(from);
 }
 
-bool Write::IsInitialized() const {
+PROTOBUF_NOINLINE bool Write::IsInitialized() const {
   return true;
 }
 
-void Write::InternalSwap(Write* other) {
+::_pbi::CachedSize* Write::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void Write::InternalSwap(Write* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  update_transforms_.InternalSwap(&other->update_transforms_);
-  swap(update_mask_, other->update_mask_);
-  swap(current_document_, other->current_document_);
-  swap(operation_, other->operation_);
-  swap(_oneof_case_[0], other->_oneof_case_[0]);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.update_transforms_.InternalSwap(&other->_impl_.update_transforms_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Write, _impl_.current_document_)
+      + sizeof(Write::_impl_.current_document_)
+      - PROTOBUF_FIELD_OFFSET(Write, _impl_.update_mask_)>(
+          reinterpret_cast<char*>(&_impl_.update_mask_),
+          reinterpret_cast<char*>(&other->_impl_.update_mask_));
+  swap(_impl_.operation_, other->_impl_.operation_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata Write::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata Write::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[0]);
 }
-
-
 // ===================================================================
 
-void DocumentTransform_FieldTransform::InitAsDefaultInstance() {
-  ::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_.set_to_server_value_ = 0;
-  ::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_.increment_ = const_cast< ::google::firestore::v1::Value*>(
-      ::google::firestore::v1::Value::internal_default_instance());
-  ::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_.maximum_ = const_cast< ::google::firestore::v1::Value*>(
-      ::google::firestore::v1::Value::internal_default_instance());
-  ::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_.minimum_ = const_cast< ::google::firestore::v1::Value*>(
-      ::google::firestore::v1::Value::internal_default_instance());
-  ::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_.append_missing_elements_ = const_cast< ::google::firestore::v1::ArrayValue*>(
-      ::google::firestore::v1::ArrayValue::internal_default_instance());
-  ::google::firestore::v1::_DocumentTransform_FieldTransform_default_instance_.remove_all_from_array_ = const_cast< ::google::firestore::v1::ArrayValue*>(
-      ::google::firestore::v1::ArrayValue::internal_default_instance());
-}
 class DocumentTransform_FieldTransform::_Internal {
  public:
+  static constexpr ::int32_t kOneofCaseOffset =
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::DocumentTransform_FieldTransform, _impl_._oneof_case_);
   static const ::google::firestore::v1::Value& increment(const DocumentTransform_FieldTransform* msg);
   static const ::google::firestore::v1::Value& maximum(const DocumentTransform_FieldTransform* msg);
   static const ::google::firestore::v1::Value& minimum(const DocumentTransform_FieldTransform* msg);
@@ -960,527 +1011,499 @@ class DocumentTransform_FieldTransform::_Internal {
   static const ::google::firestore::v1::ArrayValue& remove_all_from_array(const DocumentTransform_FieldTransform* msg);
 };
 
-const ::google::firestore::v1::Value&
-DocumentTransform_FieldTransform::_Internal::increment(const DocumentTransform_FieldTransform* msg) {
-  return *msg->transform_type_.increment_;
+const ::google::firestore::v1::Value& DocumentTransform_FieldTransform::_Internal::increment(const DocumentTransform_FieldTransform* msg) {
+  return *msg->_impl_.transform_type_.increment_;
 }
-const ::google::firestore::v1::Value&
-DocumentTransform_FieldTransform::_Internal::maximum(const DocumentTransform_FieldTransform* msg) {
-  return *msg->transform_type_.maximum_;
+const ::google::firestore::v1::Value& DocumentTransform_FieldTransform::_Internal::maximum(const DocumentTransform_FieldTransform* msg) {
+  return *msg->_impl_.transform_type_.maximum_;
 }
-const ::google::firestore::v1::Value&
-DocumentTransform_FieldTransform::_Internal::minimum(const DocumentTransform_FieldTransform* msg) {
-  return *msg->transform_type_.minimum_;
+const ::google::firestore::v1::Value& DocumentTransform_FieldTransform::_Internal::minimum(const DocumentTransform_FieldTransform* msg) {
+  return *msg->_impl_.transform_type_.minimum_;
 }
-const ::google::firestore::v1::ArrayValue&
-DocumentTransform_FieldTransform::_Internal::append_missing_elements(const DocumentTransform_FieldTransform* msg) {
-  return *msg->transform_type_.append_missing_elements_;
+const ::google::firestore::v1::ArrayValue& DocumentTransform_FieldTransform::_Internal::append_missing_elements(const DocumentTransform_FieldTransform* msg) {
+  return *msg->_impl_.transform_type_.append_missing_elements_;
 }
-const ::google::firestore::v1::ArrayValue&
-DocumentTransform_FieldTransform::_Internal::remove_all_from_array(const DocumentTransform_FieldTransform* msg) {
-  return *msg->transform_type_.remove_all_from_array_;
+const ::google::firestore::v1::ArrayValue& DocumentTransform_FieldTransform::_Internal::remove_all_from_array(const DocumentTransform_FieldTransform* msg) {
+  return *msg->_impl_.transform_type_.remove_all_from_array_;
 }
 void DocumentTransform_FieldTransform::set_allocated_increment(::google::firestore::v1::Value* increment) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_transform_type();
   if (increment) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(increment)->GetArena();
     if (message_arena != submessage_arena) {
-      increment = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, increment, submessage_arena);
+      increment = ::google::protobuf::internal::GetOwnedMessage(message_arena, increment, submessage_arena);
     }
     set_has_increment();
-    transform_type_.increment_ = increment;
+    _impl_.transform_type_.increment_ = increment;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.increment)
 }
 void DocumentTransform_FieldTransform::clear_increment() {
-  if (_internal_has_increment()) {
-    delete transform_type_.increment_;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (transform_type_case() == kIncrement) {
+    if (GetArena() == nullptr) {
+      delete _impl_.transform_type_.increment_;
+    }
     clear_has_transform_type();
   }
 }
 void DocumentTransform_FieldTransform::set_allocated_maximum(::google::firestore::v1::Value* maximum) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_transform_type();
   if (maximum) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(maximum)->GetArena();
     if (message_arena != submessage_arena) {
-      maximum = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, maximum, submessage_arena);
+      maximum = ::google::protobuf::internal::GetOwnedMessage(message_arena, maximum, submessage_arena);
     }
     set_has_maximum();
-    transform_type_.maximum_ = maximum;
+    _impl_.transform_type_.maximum_ = maximum;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.maximum)
 }
 void DocumentTransform_FieldTransform::clear_maximum() {
-  if (_internal_has_maximum()) {
-    delete transform_type_.maximum_;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (transform_type_case() == kMaximum) {
+    if (GetArena() == nullptr) {
+      delete _impl_.transform_type_.maximum_;
+    }
     clear_has_transform_type();
   }
 }
 void DocumentTransform_FieldTransform::set_allocated_minimum(::google::firestore::v1::Value* minimum) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_transform_type();
   if (minimum) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(minimum)->GetArena();
     if (message_arena != submessage_arena) {
-      minimum = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, minimum, submessage_arena);
+      minimum = ::google::protobuf::internal::GetOwnedMessage(message_arena, minimum, submessage_arena);
     }
     set_has_minimum();
-    transform_type_.minimum_ = minimum;
+    _impl_.transform_type_.minimum_ = minimum;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.minimum)
 }
 void DocumentTransform_FieldTransform::clear_minimum() {
-  if (_internal_has_minimum()) {
-    delete transform_type_.minimum_;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (transform_type_case() == kMinimum) {
+    if (GetArena() == nullptr) {
+      delete _impl_.transform_type_.minimum_;
+    }
     clear_has_transform_type();
   }
 }
 void DocumentTransform_FieldTransform::set_allocated_append_missing_elements(::google::firestore::v1::ArrayValue* append_missing_elements) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_transform_type();
   if (append_missing_elements) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(append_missing_elements)->GetArena();
     if (message_arena != submessage_arena) {
-      append_missing_elements = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, append_missing_elements, submessage_arena);
+      append_missing_elements = ::google::protobuf::internal::GetOwnedMessage(message_arena, append_missing_elements, submessage_arena);
     }
     set_has_append_missing_elements();
-    transform_type_.append_missing_elements_ = append_missing_elements;
+    _impl_.transform_type_.append_missing_elements_ = append_missing_elements;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.append_missing_elements)
 }
 void DocumentTransform_FieldTransform::clear_append_missing_elements() {
-  if (_internal_has_append_missing_elements()) {
-    delete transform_type_.append_missing_elements_;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (transform_type_case() == kAppendMissingElements) {
+    if (GetArena() == nullptr) {
+      delete _impl_.transform_type_.append_missing_elements_;
+    }
     clear_has_transform_type();
   }
 }
 void DocumentTransform_FieldTransform::set_allocated_remove_all_from_array(::google::firestore::v1::ArrayValue* remove_all_from_array) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  ::google::protobuf::Arena* message_arena = GetArena();
   clear_transform_type();
   if (remove_all_from_array) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(remove_all_from_array)->GetArena();
     if (message_arena != submessage_arena) {
-      remove_all_from_array = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, remove_all_from_array, submessage_arena);
+      remove_all_from_array = ::google::protobuf::internal::GetOwnedMessage(message_arena, remove_all_from_array, submessage_arena);
     }
     set_has_remove_all_from_array();
-    transform_type_.remove_all_from_array_ = remove_all_from_array;
+    _impl_.transform_type_.remove_all_from_array_ = remove_all_from_array;
   }
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.DocumentTransform.FieldTransform.remove_all_from_array)
 }
 void DocumentTransform_FieldTransform::clear_remove_all_from_array() {
-  if (_internal_has_remove_all_from_array()) {
-    delete transform_type_.remove_all_from_array_;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (transform_type_case() == kRemoveAllFromArray) {
+    if (GetArena() == nullptr) {
+      delete _impl_.transform_type_.remove_all_from_array_;
+    }
     clear_has_transform_type();
   }
 }
-DocumentTransform_FieldTransform::DocumentTransform_FieldTransform()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.DocumentTransform.FieldTransform)
+DocumentTransform_FieldTransform::DocumentTransform_FieldTransform(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.DocumentTransform.FieldTransform)
 }
-DocumentTransform_FieldTransform::DocumentTransform_FieldTransform(const DocumentTransform_FieldTransform& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  field_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_field_path().empty()) {
-    field_path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_path_);
+inline PROTOBUF_NDEBUG_INLINE DocumentTransform_FieldTransform::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : field_path_(arena, from.field_path_),
+        transform_type_{},
+        _cached_size_{0},
+        _oneof_case_{from._oneof_case_[0]} {}
+
+DocumentTransform_FieldTransform::DocumentTransform_FieldTransform(
+    ::google::protobuf::Arena* arena,
+    const DocumentTransform_FieldTransform& from)
+    : ::google::protobuf::Message(arena) {
+  DocumentTransform_FieldTransform* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  switch (transform_type_case()) {
+    case TRANSFORM_TYPE_NOT_SET:
+      break;
+      case kSetToServerValue:
+        _impl_.transform_type_.set_to_server_value_ = from._impl_.transform_type_.set_to_server_value_;
+        break;
+      case kIncrement:
+        _impl_.transform_type_.increment_ = CreateMaybeMessage<::google::firestore::v1::Value>(arena, *from._impl_.transform_type_.increment_);
+        break;
+      case kMaximum:
+        _impl_.transform_type_.maximum_ = CreateMaybeMessage<::google::firestore::v1::Value>(arena, *from._impl_.transform_type_.maximum_);
+        break;
+      case kMinimum:
+        _impl_.transform_type_.minimum_ = CreateMaybeMessage<::google::firestore::v1::Value>(arena, *from._impl_.transform_type_.minimum_);
+        break;
+      case kAppendMissingElements:
+        _impl_.transform_type_.append_missing_elements_ = CreateMaybeMessage<::google::firestore::v1::ArrayValue>(arena, *from._impl_.transform_type_.append_missing_elements_);
+        break;
+      case kRemoveAllFromArray:
+        _impl_.transform_type_.remove_all_from_array_ = CreateMaybeMessage<::google::firestore::v1::ArrayValue>(arena, *from._impl_.transform_type_.remove_all_from_array_);
+        break;
   }
-  clear_has_transform_type();
-  switch (from.transform_type_case()) {
-    case kSetToServerValue: {
-      _internal_set_set_to_server_value(from._internal_set_to_server_value());
-      break;
-    }
-    case kIncrement: {
-      _internal_mutable_increment()->::google::firestore::v1::Value::MergeFrom(from._internal_increment());
-      break;
-    }
-    case kMaximum: {
-      _internal_mutable_maximum()->::google::firestore::v1::Value::MergeFrom(from._internal_maximum());
-      break;
-    }
-    case kMinimum: {
-      _internal_mutable_minimum()->::google::firestore::v1::Value::MergeFrom(from._internal_minimum());
-      break;
-    }
-    case kAppendMissingElements: {
-      _internal_mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_append_missing_elements());
-      break;
-    }
-    case kRemoveAllFromArray: {
-      _internal_mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_remove_all_from_array());
-      break;
-    }
-    case TRANSFORM_TYPE_NOT_SET: {
-      break;
-    }
-  }
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DocumentTransform.FieldTransform)
 }
+inline PROTOBUF_NDEBUG_INLINE DocumentTransform_FieldTransform::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : field_path_(arena),
+        transform_type_{},
+        _cached_size_{0},
+        _oneof_case_{} {}
 
-void DocumentTransform_FieldTransform::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  field_path_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  clear_has_transform_type();
+inline void DocumentTransform_FieldTransform::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
 }
-
 DocumentTransform_FieldTransform::~DocumentTransform_FieldTransform() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.DocumentTransform.FieldTransform)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void DocumentTransform_FieldTransform::SharedDtor() {
-  field_path_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline void DocumentTransform_FieldTransform::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.field_path_.Destroy();
   if (has_transform_type()) {
     clear_transform_type();
   }
+  _impl_.~Impl_();
 }
-
-void DocumentTransform_FieldTransform::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const DocumentTransform_FieldTransform& DocumentTransform_FieldTransform::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DocumentTransform_FieldTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void DocumentTransform_FieldTransform::clear_transform_type() {
 // @@protoc_insertion_point(one_of_clear_start:google.firestore.v1.DocumentTransform.FieldTransform)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   switch (transform_type_case()) {
     case kSetToServerValue: {
       // No need to clear
       break;
     }
     case kIncrement: {
-      delete transform_type_.increment_;
+      if (GetArena() == nullptr) {
+        delete _impl_.transform_type_.increment_;
+      }
       break;
     }
     case kMaximum: {
-      delete transform_type_.maximum_;
+      if (GetArena() == nullptr) {
+        delete _impl_.transform_type_.maximum_;
+      }
       break;
     }
     case kMinimum: {
-      delete transform_type_.minimum_;
+      if (GetArena() == nullptr) {
+        delete _impl_.transform_type_.minimum_;
+      }
       break;
     }
     case kAppendMissingElements: {
-      delete transform_type_.append_missing_elements_;
+      if (GetArena() == nullptr) {
+        delete _impl_.transform_type_.append_missing_elements_;
+      }
       break;
     }
     case kRemoveAllFromArray: {
-      delete transform_type_.remove_all_from_array_;
+      if (GetArena() == nullptr) {
+        delete _impl_.transform_type_.remove_all_from_array_;
+      }
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
       break;
     }
   }
-  _oneof_case_[0] = TRANSFORM_TYPE_NOT_SET;
+  _impl_._oneof_case_[0] = TRANSFORM_TYPE_NOT_SET;
 }
 
 
-void DocumentTransform_FieldTransform::Clear() {
+PROTOBUF_NOINLINE void DocumentTransform_FieldTransform::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  field_path_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.field_path_.ClearToEmpty();
   clear_transform_type();
-  _internal_metadata_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* DocumentTransform_FieldTransform::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // string field_path = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_field_path();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentTransform.FieldTransform.field_path"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-          _internal_set_set_to_server_value(static_cast<::google::firestore::v1::DocumentTransform_FieldTransform_ServerValue>(val));
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.Value increment = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_increment(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.Value maximum = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(_internal_mutable_maximum(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.Value minimum = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ctx->ParseMessage(_internal_mutable_minimum(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.ArrayValue append_missing_elements = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ctx->ParseMessage(_internal_mutable_append_missing_elements(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 58)) {
-          ptr = ctx->ParseMessage(_internal_mutable_remove_all_from_array(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* DocumentTransform_FieldTransform::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentTransform_FieldTransform::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 7, 5, 71, 2> DocumentTransform_FieldTransform::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    7, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967168,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    7,  // num_field_entries
+    5,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_DocumentTransform_FieldTransform_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // string field_path = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.field_path_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string field_path = 1;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.field_path_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.transform_type_.set_to_server_value_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kOpenEnum)},
+    // .google.firestore.v1.Value increment = 3;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.transform_type_.increment_), _Internal::kOneofCaseOffset + 0, 0,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .google.firestore.v1.Value maximum = 4;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.transform_type_.maximum_), _Internal::kOneofCaseOffset + 0, 1,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .google.firestore.v1.Value minimum = 5;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.transform_type_.minimum_), _Internal::kOneofCaseOffset + 0, 2,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .google.firestore.v1.ArrayValue append_missing_elements = 6;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.transform_type_.append_missing_elements_), _Internal::kOneofCaseOffset + 0, 3,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform_FieldTransform, _impl_.transform_type_.remove_all_from_array_), _Internal::kOneofCaseOffset + 0, 4,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Value>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Value>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Value>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::ArrayValue>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::ArrayValue>()},
+  }}, {{
+    "\64\12\0\0\0\0\0\0"
+    "google.firestore.v1.DocumentTransform.FieldTransform"
+    "field_path"
+  }},
+};
+
+::uint8_t* DocumentTransform_FieldTransform::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
   // string field_path = 1;
-  if (this->field_path().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_field_path().data(), static_cast<int>(this->_internal_field_path().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentTransform.FieldTransform.field_path");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_field_path(), target);
+  if (!this->_internal_field_path().empty()) {
+    const std::string& _s = this->_internal_field_path();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.DocumentTransform.FieldTransform.field_path");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
-  // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
-  if (_internal_has_set_to_server_value()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      2, this->_internal_set_to_server_value(), target);
+  switch (transform_type_case()) {
+    case kSetToServerValue: {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteEnumToArray(
+          2, this->_internal_set_to_server_value(), target);
+      break;
+    }
+    case kIncrement: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          3, _Internal::increment(this),
+          _Internal::increment(this).GetCachedSize(), target, stream);
+      break;
+    }
+    case kMaximum: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          4, _Internal::maximum(this),
+          _Internal::maximum(this).GetCachedSize(), target, stream);
+      break;
+    }
+    case kMinimum: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          5, _Internal::minimum(this),
+          _Internal::minimum(this).GetCachedSize(), target, stream);
+      break;
+    }
+    case kAppendMissingElements: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          6, _Internal::append_missing_elements(this),
+          _Internal::append_missing_elements(this).GetCachedSize(), target, stream);
+      break;
+    }
+    case kRemoveAllFromArray: {
+      target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+          7, _Internal::remove_all_from_array(this),
+          _Internal::remove_all_from_array(this).GetCachedSize(), target, stream);
+      break;
+    }
+    default:
+      break;
   }
-
-  // .google.firestore.v1.Value increment = 3;
-  if (_internal_has_increment()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::increment(this), target, stream);
-  }
-
-  // .google.firestore.v1.Value maximum = 4;
-  if (_internal_has_maximum()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::maximum(this), target, stream);
-  }
-
-  // .google.firestore.v1.Value minimum = 5;
-  if (_internal_has_minimum()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::minimum(this), target, stream);
-  }
-
-  // .google.firestore.v1.ArrayValue append_missing_elements = 6;
-  if (_internal_has_append_missing_elements()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::append_missing_elements(this), target, stream);
-  }
-
-  // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
-  if (_internal_has_remove_all_from_array()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        7, _Internal::remove_all_from_array(this), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentTransform.FieldTransform)
   return target;
 }
 
-size_t DocumentTransform_FieldTransform::ByteSizeLong() const {
+::size_t DocumentTransform_FieldTransform::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // string field_path = 1;
-  if (this->field_path().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_field_path());
+  if (!this->_internal_field_path().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_field_path());
   }
 
   switch (transform_type_case()) {
     // .google.firestore.v1.DocumentTransform.FieldTransform.ServerValue set_to_server_value = 2;
     case kSetToServerValue: {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_set_to_server_value());
+                    ::_pbi::WireFormatLite::EnumSize(this->_internal_set_to_server_value());
       break;
     }
     // .google.firestore.v1.Value increment = 3;
     case kIncrement: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *transform_type_.increment_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.transform_type_.increment_);
       break;
     }
     // .google.firestore.v1.Value maximum = 4;
     case kMaximum: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *transform_type_.maximum_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.transform_type_.maximum_);
       break;
     }
     // .google.firestore.v1.Value minimum = 5;
     case kMinimum: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *transform_type_.minimum_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.transform_type_.minimum_);
       break;
     }
     // .google.firestore.v1.ArrayValue append_missing_elements = 6;
     case kAppendMissingElements: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *transform_type_.append_missing_elements_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.transform_type_.append_missing_elements_);
       break;
     }
     // .google.firestore.v1.ArrayValue remove_all_from_array = 7;
     case kRemoveAllFromArray: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *transform_type_.remove_all_from_array_);
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.transform_type_.remove_all_from_array_);
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
       break;
     }
   }
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void DocumentTransform_FieldTransform::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  GOOGLE_DCHECK_NE(&from, this);
-  const DocumentTransform_FieldTransform* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<DocumentTransform_FieldTransform>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.DocumentTransform.FieldTransform)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.DocumentTransform.FieldTransform)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData DocumentTransform_FieldTransform::_class_data_ = {
+    DocumentTransform_FieldTransform::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DocumentTransform_FieldTransform::GetClassData() const {
+  return &_class_data_;
 }
 
-void DocumentTransform_FieldTransform::MergeFrom(const DocumentTransform_FieldTransform& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void DocumentTransform_FieldTransform::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DocumentTransform_FieldTransform*>(&to_msg);
+  auto& from = static_cast<const DocumentTransform_FieldTransform&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentTransform.FieldTransform)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.field_path().size() > 0) {
-
-    field_path_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.field_path_);
+  if (!from._internal_field_path().empty()) {
+    _this->_internal_set_field_path(from._internal_field_path());
   }
   switch (from.transform_type_case()) {
     case kSetToServerValue: {
-      _internal_set_set_to_server_value(from._internal_set_to_server_value());
+      _this->_internal_set_set_to_server_value(from._internal_set_to_server_value());
       break;
     }
     case kIncrement: {
-      _internal_mutable_increment()->::google::firestore::v1::Value::MergeFrom(from._internal_increment());
+      _this->_internal_mutable_increment()->::google::firestore::v1::Value::MergeFrom(
+          from._internal_increment());
       break;
     }
     case kMaximum: {
-      _internal_mutable_maximum()->::google::firestore::v1::Value::MergeFrom(from._internal_maximum());
+      _this->_internal_mutable_maximum()->::google::firestore::v1::Value::MergeFrom(
+          from._internal_maximum());
       break;
     }
     case kMinimum: {
-      _internal_mutable_minimum()->::google::firestore::v1::Value::MergeFrom(from._internal_minimum());
+      _this->_internal_mutable_minimum()->::google::firestore::v1::Value::MergeFrom(
+          from._internal_minimum());
       break;
     }
     case kAppendMissingElements: {
-      _internal_mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_append_missing_elements());
+      _this->_internal_mutable_append_missing_elements()->::google::firestore::v1::ArrayValue::MergeFrom(
+          from._internal_append_missing_elements());
       break;
     }
     case kRemoveAllFromArray: {
-      _internal_mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(from._internal_remove_all_from_array());
+      _this->_internal_mutable_remove_all_from_array()->::google::firestore::v1::ArrayValue::MergeFrom(
+          from._internal_remove_all_from_array());
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
       break;
     }
   }
-}
-
-void DocumentTransform_FieldTransform::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.DocumentTransform.FieldTransform)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void DocumentTransform_FieldTransform::CopyFrom(const DocumentTransform_FieldTransform& from) {
@@ -1490,228 +1513,214 @@ void DocumentTransform_FieldTransform::CopyFrom(const DocumentTransform_FieldTra
   MergeFrom(from);
 }
 
-bool DocumentTransform_FieldTransform::IsInitialized() const {
+PROTOBUF_NOINLINE bool DocumentTransform_FieldTransform::IsInitialized() const {
   return true;
 }
 
-void DocumentTransform_FieldTransform::InternalSwap(DocumentTransform_FieldTransform* other) {
+::_pbi::CachedSize* DocumentTransform_FieldTransform::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DocumentTransform_FieldTransform::InternalSwap(DocumentTransform_FieldTransform* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  field_path_.Swap(&other->field_path_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(transform_type_, other->transform_type_);
-  swap(_oneof_case_[0], other->_oneof_case_[0]);
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.field_path_, &other->_impl_.field_path_, arena);
+  swap(_impl_.transform_type_, other->_impl_.transform_type_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata DocumentTransform_FieldTransform::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata DocumentTransform_FieldTransform::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[1]);
 }
-
-
 // ===================================================================
 
-void DocumentTransform::InitAsDefaultInstance() {
-}
 class DocumentTransform::_Internal {
  public:
 };
 
-DocumentTransform::DocumentTransform()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.DocumentTransform)
+DocumentTransform::DocumentTransform(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.DocumentTransform)
 }
-DocumentTransform::DocumentTransform(const DocumentTransform& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      field_transforms_(from.field_transforms_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_document().empty()) {
-    document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
-  }
+inline PROTOBUF_NDEBUG_INLINE DocumentTransform::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : field_transforms_{visibility, arena, from.field_transforms_},
+        document_(arena, from.document_),
+        _cached_size_{0} {}
+
+DocumentTransform::DocumentTransform(
+    ::google::protobuf::Arena* arena,
+    const DocumentTransform& from)
+    : ::google::protobuf::Message(arena) {
+  DocumentTransform* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DocumentTransform)
 }
+inline PROTOBUF_NDEBUG_INLINE DocumentTransform::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : field_transforms_{visibility, arena},
+        document_(arena),
+        _cached_size_{0} {}
 
-void DocumentTransform::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline void DocumentTransform::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
 }
-
 DocumentTransform::~DocumentTransform() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.DocumentTransform)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void DocumentTransform::SharedDtor() {
-  document_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline void DocumentTransform::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.document_.Destroy();
+  _impl_.~Impl_();
 }
 
-void DocumentTransform::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const DocumentTransform& DocumentTransform::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void DocumentTransform::Clear() {
+PROTOBUF_NOINLINE void DocumentTransform::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.DocumentTransform)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  field_transforms_.Clear();
-  document_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  _internal_metadata_.Clear();
+  _impl_.field_transforms_.Clear();
+  _impl_.document_.ClearToEmpty();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* DocumentTransform::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // string document = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_document();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentTransform.document"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_field_transforms(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* DocumentTransform::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentTransform::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 1, 54, 2> DocumentTransform::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_DocumentTransform_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
+    {::_pbi::TcParser::FastMtR1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentTransform, _impl_.field_transforms_)}},
+    // string document = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentTransform, _impl_.document_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string document = 1;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform, _impl_.document_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
+    {PROTOBUF_FIELD_OFFSET(DocumentTransform, _impl_.field_transforms_), 0, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::DocumentTransform_FieldTransform>()},
+  }}, {{
+    "\45\10\0\0\0\0\0\0"
+    "google.firestore.v1.DocumentTransform"
+    "document"
+  }},
+};
+
+::uint8_t* DocumentTransform::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentTransform)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
   // string document = 1;
-  if (this->document().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_document().data(), static_cast<int>(this->_internal_document().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentTransform.document");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_document(), target);
+  if (!this->_internal_document().empty()) {
+    const std::string& _s = this->_internal_document();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.DocumentTransform.document");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
   // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_field_transforms_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, this->_internal_field_transforms(i), target, stream);
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_field_transforms_size()); i < n; i++) {
+    const auto& repfield = this->_internal_field_transforms().Get(i);
+    target = ::google::protobuf::internal::WireFormatLite::
+        InternalWriteMessage(2, repfield, repfield.GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentTransform)
   return target;
 }
 
-size_t DocumentTransform::ByteSizeLong() const {
+::size_t DocumentTransform::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentTransform)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.DocumentTransform.FieldTransform field_transforms = 2;
   total_size += 1UL * this->_internal_field_transforms_size();
-  for (const auto& msg : this->field_transforms_) {
+  for (const auto& msg : this->_internal_field_transforms()) {
     total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+      ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
   }
-
   // string document = 1;
-  if (this->document().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_document());
+  if (!this->_internal_document().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_document());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void DocumentTransform::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.DocumentTransform)
-  GOOGLE_DCHECK_NE(&from, this);
-  const DocumentTransform* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<DocumentTransform>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.DocumentTransform)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.DocumentTransform)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData DocumentTransform::_class_data_ = {
+    DocumentTransform::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DocumentTransform::GetClassData() const {
+  return &_class_data_;
 }
 
-void DocumentTransform::MergeFrom(const DocumentTransform& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentTransform)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void DocumentTransform::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DocumentTransform*>(&to_msg);
+  auto& from = static_cast<const DocumentTransform&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentTransform)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  field_transforms_.MergeFrom(from.field_transforms_);
-  if (from.document().size() > 0) {
-
-    document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
+  _this->_internal_mutable_field_transforms()->MergeFrom(
+      from._internal_field_transforms());
+  if (!from._internal_document().empty()) {
+    _this->_internal_set_document(from._internal_document());
   }
-}
-
-void DocumentTransform::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.DocumentTransform)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void DocumentTransform::CopyFrom(const DocumentTransform& from) {
@@ -1721,242 +1730,241 @@ void DocumentTransform::CopyFrom(const DocumentTransform& from) {
   MergeFrom(from);
 }
 
-bool DocumentTransform::IsInitialized() const {
+PROTOBUF_NOINLINE bool DocumentTransform::IsInitialized() const {
   return true;
 }
 
-void DocumentTransform::InternalSwap(DocumentTransform* other) {
+::_pbi::CachedSize* DocumentTransform::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DocumentTransform::InternalSwap(DocumentTransform* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  field_transforms_.InternalSwap(&other->field_transforms_);
-  document_.Swap(&other->document_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.field_transforms_.InternalSwap(&other->_impl_.field_transforms_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.document_, &other->_impl_.document_, arena);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata DocumentTransform::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata DocumentTransform::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[2]);
 }
-
-
 // ===================================================================
 
-void WriteResult::InitAsDefaultInstance() {
-  ::google::firestore::v1::_WriteResult_default_instance_._instance.get_mutable()->update_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
-      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
-}
 class WriteResult::_Internal {
  public:
-  static const PROTOBUF_NAMESPACE_ID::Timestamp& update_time(const WriteResult* msg);
+  using HasBits = decltype(std::declval<WriteResult>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+    8 * PROTOBUF_FIELD_OFFSET(WriteResult, _impl_._has_bits_);
+  static const ::google::protobuf::Timestamp& update_time(const WriteResult* msg);
+  static void set_has_update_time(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
 };
 
-const PROTOBUF_NAMESPACE_ID::Timestamp&
-WriteResult::_Internal::update_time(const WriteResult* msg) {
-  return *msg->update_time_;
+const ::google::protobuf::Timestamp& WriteResult::_Internal::update_time(const WriteResult* msg) {
+  return *msg->_impl_.update_time_;
 }
 void WriteResult::clear_update_time() {
-  if (GetArenaNoVirtual() == nullptr && update_time_ != nullptr) {
-    delete update_time_;
-  }
-  update_time_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.update_time_ != nullptr) _impl_.update_time_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 void WriteResult::clear_transform_results() {
-  transform_results_.Clear();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.transform_results_.Clear();
 }
-WriteResult::WriteResult()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.WriteResult)
+WriteResult::WriteResult(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.WriteResult)
 }
-WriteResult::WriteResult(const WriteResult& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      transform_results_(from.transform_results_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_update_time()) {
-    update_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.update_time_);
-  } else {
-    update_time_ = nullptr;
-  }
+inline PROTOBUF_NDEBUG_INLINE WriteResult::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        transform_results_{visibility, arena, from.transform_results_} {}
+
+WriteResult::WriteResult(
+    ::google::protobuf::Arena* arena,
+    const WriteResult& from)
+    : ::google::protobuf::Message(arena) {
+  WriteResult* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.update_time_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::google::protobuf::Timestamp>(arena, *from._impl_.update_time_)
+                : nullptr;
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.WriteResult)
 }
+inline PROTOBUF_NDEBUG_INLINE WriteResult::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0},
+        transform_results_{visibility, arena} {}
 
-void WriteResult::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  update_time_ = nullptr;
+inline void WriteResult::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.update_time_ = {};
 }
-
 WriteResult::~WriteResult() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.WriteResult)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void WriteResult::SharedDtor() {
-  if (this != internal_default_instance()) delete update_time_;
+inline void WriteResult::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  delete _impl_.update_time_;
+  _impl_.~Impl_();
 }
 
-void WriteResult::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const WriteResult& WriteResult::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void WriteResult::Clear() {
+PROTOBUF_NOINLINE void WriteResult::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.WriteResult)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  transform_results_.Clear();
-  if (GetArenaNoVirtual() == nullptr && update_time_ != nullptr) {
-    delete update_time_;
+  _impl_.transform_results_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.update_time_ != nullptr);
+    _impl_.update_time_->Clear();
   }
-  update_time_ = nullptr;
-  _internal_metadata_.Clear();
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* WriteResult::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // .google.protobuf.Timestamp update_time = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_update_time(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated .google.firestore.v1.Value transform_results = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_transform_results(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* WriteResult::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* WriteResult::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.WriteResult)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
 
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 2, 0, 2> WriteResult::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(WriteResult, _impl_._has_bits_),
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    2,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_WriteResult_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // repeated .google.firestore.v1.Value transform_results = 2;
+    {::_pbi::TcParser::FastMtR1,
+     {18, 63, 1, PROTOBUF_FIELD_OFFSET(WriteResult, _impl_.transform_results_)}},
+    // .google.protobuf.Timestamp update_time = 1;
+    {::_pbi::TcParser::FastMtS1,
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(WriteResult, _impl_.update_time_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // .google.protobuf.Timestamp update_time = 1;
+    {PROTOBUF_FIELD_OFFSET(WriteResult, _impl_.update_time_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .google.firestore.v1.Value transform_results = 2;
+    {PROTOBUF_FIELD_OFFSET(WriteResult, _impl_.transform_results_), -1, 1,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::protobuf::Timestamp>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Value>()},
+  }}, {{
+  }},
+};
+
+::uint8_t* WriteResult::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.WriteResult)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
   // .google.protobuf.Timestamp update_time = 1;
-  if (this->has_update_time()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::update_time(this), target, stream);
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, _Internal::update_time(this),
+        _Internal::update_time(this).GetCachedSize(), target, stream);
   }
 
   // repeated .google.firestore.v1.Value transform_results = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_transform_results_size()); i < n; i++) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, this->_internal_transform_results(i), target, stream);
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_transform_results_size()); i < n; i++) {
+    const auto& repfield = this->_internal_transform_results().Get(i);
+    target = ::google::protobuf::internal::WireFormatLite::
+        InternalWriteMessage(2, repfield, repfield.GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.WriteResult)
   return target;
 }
 
-size_t WriteResult::ByteSizeLong() const {
+::size_t WriteResult::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.WriteResult)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated .google.firestore.v1.Value transform_results = 2;
   total_size += 1UL * this->_internal_transform_results_size();
-  for (const auto& msg : this->transform_results_) {
+  for (const auto& msg : this->_internal_transform_results()) {
     total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+      ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
   }
-
   // .google.protobuf.Timestamp update_time = 1;
-  if (this->has_update_time()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *update_time_);
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size +=
+        1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.update_time_);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void WriteResult::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.WriteResult)
-  GOOGLE_DCHECK_NE(&from, this);
-  const WriteResult* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<WriteResult>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.WriteResult)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.WriteResult)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData WriteResult::_class_data_ = {
+    WriteResult::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* WriteResult::GetClassData() const {
+  return &_class_data_;
 }
 
-void WriteResult::MergeFrom(const WriteResult& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.WriteResult)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void WriteResult::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<WriteResult*>(&to_msg);
+  auto& from = static_cast<const WriteResult&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.WriteResult)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  transform_results_.MergeFrom(from.transform_results_);
-  if (from.has_update_time()) {
-    _internal_mutable_update_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_update_time());
+  _this->_internal_mutable_transform_results()->MergeFrom(
+      from._internal_transform_results());
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_mutable_update_time()->::google::protobuf::Timestamp::MergeFrom(
+        from._internal_update_time());
   }
-}
-
-void WriteResult::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.WriteResult)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void WriteResult::CopyFrom(const WriteResult& from) {
@@ -1966,171 +1974,184 @@ void WriteResult::CopyFrom(const WriteResult& from) {
   MergeFrom(from);
 }
 
-bool WriteResult::IsInitialized() const {
+PROTOBUF_NOINLINE bool WriteResult::IsInitialized() const {
   return true;
 }
 
-void WriteResult::InternalSwap(WriteResult* other) {
+::_pbi::CachedSize* WriteResult::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void WriteResult::InternalSwap(WriteResult* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  transform_results_.InternalSwap(&other->transform_results_);
-  swap(update_time_, other->update_time_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.transform_results_.InternalSwap(&other->_impl_.transform_results_);
+  swap(_impl_.update_time_, other->_impl_.update_time_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata WriteResult::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata WriteResult::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[3]);
 }
-
-
 // ===================================================================
 
-void DocumentChange::InitAsDefaultInstance() {
-  ::google::firestore::v1::_DocumentChange_default_instance_._instance.get_mutable()->document_ = const_cast< ::google::firestore::v1::Document*>(
-      ::google::firestore::v1::Document::internal_default_instance());
-}
 class DocumentChange::_Internal {
  public:
+  using HasBits = decltype(std::declval<DocumentChange>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+    8 * PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_._has_bits_);
   static const ::google::firestore::v1::Document& document(const DocumentChange* msg);
+  static void set_has_document(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
 };
 
-const ::google::firestore::v1::Document&
-DocumentChange::_Internal::document(const DocumentChange* msg) {
-  return *msg->document_;
+const ::google::firestore::v1::Document& DocumentChange::_Internal::document(const DocumentChange* msg) {
+  return *msg->_impl_.document_;
 }
 void DocumentChange::clear_document() {
-  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
-    delete document_;
-  }
-  document_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.document_ != nullptr) _impl_.document_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-DocumentChange::DocumentChange()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.DocumentChange)
+DocumentChange::DocumentChange(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.DocumentChange)
 }
-DocumentChange::DocumentChange(const DocumentChange& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      target_ids_(from.target_ids_),
-      removed_target_ids_(from.removed_target_ids_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_document()) {
-    document_ = new ::google::firestore::v1::Document(*from.document_);
-  } else {
-    document_ = nullptr;
-  }
+inline PROTOBUF_NDEBUG_INLINE DocumentChange::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        target_ids_{visibility, arena, from.target_ids_},
+        _target_ids_cached_byte_size_{0},
+        removed_target_ids_{visibility, arena, from.removed_target_ids_},
+        _removed_target_ids_cached_byte_size_{0} {}
+
+DocumentChange::DocumentChange(
+    ::google::protobuf::Arena* arena,
+    const DocumentChange& from)
+    : ::google::protobuf::Message(arena) {
+  DocumentChange* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.document_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::google::firestore::v1::Document>(arena, *from._impl_.document_)
+                : nullptr;
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DocumentChange)
 }
+inline PROTOBUF_NDEBUG_INLINE DocumentChange::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0},
+        target_ids_{visibility, arena},
+        _target_ids_cached_byte_size_{0},
+        removed_target_ids_{visibility, arena},
+        _removed_target_ids_cached_byte_size_{0} {}
 
-void DocumentChange::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  document_ = nullptr;
+inline void DocumentChange::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.document_ = {};
 }
-
 DocumentChange::~DocumentChange() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.DocumentChange)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void DocumentChange::SharedDtor() {
-  if (this != internal_default_instance()) delete document_;
+inline void DocumentChange::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  delete _impl_.document_;
+  _impl_.~Impl_();
 }
 
-void DocumentChange::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const DocumentChange& DocumentChange::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DocumentChange_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void DocumentChange::Clear() {
+PROTOBUF_NOINLINE void DocumentChange::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.DocumentChange)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  target_ids_.Clear();
-  removed_target_ids_.Clear();
-  if (GetArenaNoVirtual() == nullptr && document_ != nullptr) {
-    delete document_;
+  _impl_.target_ids_.Clear();
+  _impl_.removed_target_ids_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.document_ != nullptr);
+    _impl_.document_->Clear();
   }
-  document_ = nullptr;
-  _internal_metadata_.Clear();
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* DocumentChange::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // .google.firestore.v1.Document document = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_document(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated int32 target_ids = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_target_ids(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40) {
-          _internal_add_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated int32 removed_target_ids = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_removed_target_ids(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48) {
-          _internal_add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* DocumentChange::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentChange::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentChange)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
 
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 3, 1, 0, 2> DocumentChange::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_._has_bits_),
+    0, // no _extensions_
+    6, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967246,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_DocumentChange_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // repeated int32 removed_target_ids = 6;
+    {::_pbi::TcParser::FastV32P1,
+     {50, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_.removed_target_ids_)}},
+    // .google.firestore.v1.Document document = 1;
+    {::_pbi::TcParser::FastMtS1,
+     {10, 0, 0, PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_.document_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // .google.firestore.v1.Document document = 1;
+    {PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_.document_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated int32 target_ids = 5;
+    {PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_.target_ids_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedInt32)},
+    // repeated int32 removed_target_ids = 6;
+    {PROTOBUF_FIELD_OFFSET(DocumentChange, _impl_.removed_target_ids_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedInt32)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Document>()},
+  }}, {{
+  }},
+};
+
+::uint8_t* DocumentChange::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentChange)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
   // .google.firestore.v1.Document document = 1;
-  if (this->has_document()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::document(this), target, stream);
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        1, _Internal::document(this),
+        _Internal::document(this).GetCachedSize(), target, stream);
   }
 
   // repeated int32 target_ids = 5;
   {
-    int byte_size = _target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    int byte_size = _impl_._target_ids_cached_byte_size_.Get();
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
           5, _internal_target_ids(), byte_size, target);
@@ -2139,7 +2160,7 @@ failure:
 
   // repeated int32 removed_target_ids = 6;
   {
-    int byte_size = _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    int byte_size = _impl_._removed_target_ids_cached_byte_size_.Get();
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
           6, _internal_removed_target_ids(), byte_size, target);
@@ -2147,101 +2168,81 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentChange)
   return target;
 }
 
-size_t DocumentChange::ByteSizeLong() const {
+::size_t DocumentChange::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentChange)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated int32 target_ids = 5;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->target_ids_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _target_ids_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+    std::size_t data_size = ::_pbi::WireFormatLite::Int32Size(
+        this->_internal_target_ids())
+    ;
+    _impl_._target_ids_cached_byte_size_.Set(::_pbi::ToCachedSize(data_size));
+    std::size_t tag_size = data_size == 0
+        ? 0
+        : 1 + ::_pbi::WireFormatLite::Int32Size(
+                            static_cast<int32_t>(data_size))
+    ;
+    total_size += tag_size + data_size;
   }
-
   // repeated int32 removed_target_ids = 6;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->removed_target_ids_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _removed_target_ids_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+    std::size_t data_size = ::_pbi::WireFormatLite::Int32Size(
+        this->_internal_removed_target_ids())
+    ;
+    _impl_._removed_target_ids_cached_byte_size_.Set(::_pbi::ToCachedSize(data_size));
+    std::size_t tag_size = data_size == 0
+        ? 0
+        : 1 + ::_pbi::WireFormatLite::Int32Size(
+                            static_cast<int32_t>(data_size))
+    ;
+    total_size += tag_size + data_size;
   }
-
   // .google.firestore.v1.Document document = 1;
-  if (this->has_document()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *document_);
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size +=
+        1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.document_);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void DocumentChange::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.DocumentChange)
-  GOOGLE_DCHECK_NE(&from, this);
-  const DocumentChange* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<DocumentChange>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.DocumentChange)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.DocumentChange)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData DocumentChange::_class_data_ = {
+    DocumentChange::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DocumentChange::GetClassData() const {
+  return &_class_data_;
 }
 
-void DocumentChange::MergeFrom(const DocumentChange& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentChange)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void DocumentChange::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DocumentChange*>(&to_msg);
+  auto& from = static_cast<const DocumentChange&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentChange)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  target_ids_.MergeFrom(from.target_ids_);
-  removed_target_ids_.MergeFrom(from.removed_target_ids_);
-  if (from.has_document()) {
-    _internal_mutable_document()->::google::firestore::v1::Document::MergeFrom(from._internal_document());
+  _this->_internal_mutable_target_ids()->MergeFrom(from._internal_target_ids());
+  _this->_internal_mutable_removed_target_ids()->MergeFrom(from._internal_removed_target_ids());
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_mutable_document()->::google::firestore::v1::Document::MergeFrom(
+        from._internal_document());
   }
-}
-
-void DocumentChange::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.DocumentChange)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void DocumentChange::CopyFrom(const DocumentChange& from) {
@@ -2251,186 +2252,199 @@ void DocumentChange::CopyFrom(const DocumentChange& from) {
   MergeFrom(from);
 }
 
-bool DocumentChange::IsInitialized() const {
+PROTOBUF_NOINLINE bool DocumentChange::IsInitialized() const {
   return true;
 }
 
-void DocumentChange::InternalSwap(DocumentChange* other) {
+::_pbi::CachedSize* DocumentChange::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DocumentChange::InternalSwap(DocumentChange* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  target_ids_.InternalSwap(&other->target_ids_);
-  removed_target_ids_.InternalSwap(&other->removed_target_ids_);
-  swap(document_, other->document_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.target_ids_.InternalSwap(&other->_impl_.target_ids_);
+  _impl_.removed_target_ids_.InternalSwap(&other->_impl_.removed_target_ids_);
+  swap(_impl_.document_, other->_impl_.document_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata DocumentChange::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata DocumentChange::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[4]);
 }
-
-
 // ===================================================================
 
-void DocumentDelete::InitAsDefaultInstance() {
-  ::google::firestore::v1::_DocumentDelete_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
-      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
-}
 class DocumentDelete::_Internal {
  public:
-  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const DocumentDelete* msg);
+  using HasBits = decltype(std::declval<DocumentDelete>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+    8 * PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_._has_bits_);
+  static const ::google::protobuf::Timestamp& read_time(const DocumentDelete* msg);
+  static void set_has_read_time(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
 };
 
-const PROTOBUF_NAMESPACE_ID::Timestamp&
-DocumentDelete::_Internal::read_time(const DocumentDelete* msg) {
-  return *msg->read_time_;
+const ::google::protobuf::Timestamp& DocumentDelete::_Internal::read_time(const DocumentDelete* msg) {
+  return *msg->_impl_.read_time_;
 }
 void DocumentDelete::clear_read_time() {
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
-    delete read_time_;
-  }
-  read_time_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.read_time_ != nullptr) _impl_.read_time_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-DocumentDelete::DocumentDelete()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.DocumentDelete)
+DocumentDelete::DocumentDelete(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.DocumentDelete)
 }
-DocumentDelete::DocumentDelete(const DocumentDelete& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      removed_target_ids_(from.removed_target_ids_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_document().empty()) {
-    document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
-  }
-  if (from._internal_has_read_time()) {
-    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
-  } else {
-    read_time_ = nullptr;
-  }
+inline PROTOBUF_NDEBUG_INLINE DocumentDelete::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        removed_target_ids_{visibility, arena, from.removed_target_ids_},
+        _removed_target_ids_cached_byte_size_{0},
+        document_(arena, from.document_) {}
+
+DocumentDelete::DocumentDelete(
+    ::google::protobuf::Arena* arena,
+    const DocumentDelete& from)
+    : ::google::protobuf::Message(arena) {
+  DocumentDelete* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.read_time_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::google::protobuf::Timestamp>(arena, *from._impl_.read_time_)
+                : nullptr;
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DocumentDelete)
 }
+inline PROTOBUF_NDEBUG_INLINE DocumentDelete::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0},
+        removed_target_ids_{visibility, arena},
+        _removed_target_ids_cached_byte_size_{0},
+        document_(arena) {}
 
-void DocumentDelete::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  read_time_ = nullptr;
+inline void DocumentDelete::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.read_time_ = {};
 }
-
 DocumentDelete::~DocumentDelete() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.DocumentDelete)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void DocumentDelete::SharedDtor() {
-  document_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete read_time_;
+inline void DocumentDelete::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.document_.Destroy();
+  delete _impl_.read_time_;
+  _impl_.~Impl_();
 }
 
-void DocumentDelete::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const DocumentDelete& DocumentDelete::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void DocumentDelete::Clear() {
+PROTOBUF_NOINLINE void DocumentDelete::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.DocumentDelete)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  removed_target_ids_.Clear();
-  document_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
-    delete read_time_;
+  _impl_.removed_target_ids_.Clear();
+  _impl_.document_.ClearToEmpty();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.read_time_ != nullptr);
+    _impl_.read_time_->Clear();
   }
-  read_time_ = nullptr;
-  _internal_metadata_.Clear();
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* DocumentDelete::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // string document = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_document();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentDelete.document"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.protobuf.Timestamp read_time = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated int32 removed_target_ids = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_removed_target_ids(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48) {
-          _internal_add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* DocumentDelete::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentDelete::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 3, 1, 51, 2> DocumentDelete::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_._has_bits_),
+    0, // no _extensions_
+    6, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967254,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_DocumentDelete_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // .google.protobuf.Timestamp read_time = 4;
+    {::_pbi::TcParser::FastMtS1,
+     {34, 0, 0, PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_.read_time_)}},
+    // string document = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_.document_)}},
+    // repeated int32 removed_target_ids = 6;
+    {::_pbi::TcParser::FastV32P1,
+     {50, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_.removed_target_ids_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string document = 1;
+    {PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_.document_), -1, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // .google.protobuf.Timestamp read_time = 4;
+    {PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_.read_time_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated int32 removed_target_ids = 6;
+    {PROTOBUF_FIELD_OFFSET(DocumentDelete, _impl_.removed_target_ids_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedInt32)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::protobuf::Timestamp>()},
+  }}, {{
+    "\42\10\0\0\0\0\0\0"
+    "google.firestore.v1.DocumentDelete"
+    "document"
+  }},
+};
+
+::uint8_t* DocumentDelete::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentDelete)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
   // string document = 1;
-  if (this->document().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_document().data(), static_cast<int>(this->_internal_document().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentDelete.document");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_document(), target);
+  if (!this->_internal_document().empty()) {
+    const std::string& _s = this->_internal_document();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.DocumentDelete.document");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
+  cached_has_bits = _impl_._has_bits_[0];
   // .google.protobuf.Timestamp read_time = 4;
-  if (this->has_read_time()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::read_time(this), target, stream);
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        4, _Internal::read_time(this),
+        _Internal::read_time(this).GetCachedSize(), target, stream);
   }
 
   // repeated int32 removed_target_ids = 6;
   {
-    int byte_size = _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    int byte_size = _impl_._removed_target_ids_cached_byte_size_.Get();
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
           6, _internal_removed_target_ids(), byte_size, target);
@@ -2438,96 +2452,76 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentDelete)
   return target;
 }
 
-size_t DocumentDelete::ByteSizeLong() const {
+::size_t DocumentDelete::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentDelete)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated int32 removed_target_ids = 6;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->removed_target_ids_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _removed_target_ids_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+    std::size_t data_size = ::_pbi::WireFormatLite::Int32Size(
+        this->_internal_removed_target_ids())
+    ;
+    _impl_._removed_target_ids_cached_byte_size_.Set(::_pbi::ToCachedSize(data_size));
+    std::size_t tag_size = data_size == 0
+        ? 0
+        : 1 + ::_pbi::WireFormatLite::Int32Size(
+                            static_cast<int32_t>(data_size))
+    ;
+    total_size += tag_size + data_size;
   }
-
   // string document = 1;
-  if (this->document().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_document());
+  if (!this->_internal_document().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_document());
   }
 
   // .google.protobuf.Timestamp read_time = 4;
-  if (this->has_read_time()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *read_time_);
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size +=
+        1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.read_time_);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void DocumentDelete::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.DocumentDelete)
-  GOOGLE_DCHECK_NE(&from, this);
-  const DocumentDelete* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<DocumentDelete>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.DocumentDelete)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.DocumentDelete)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData DocumentDelete::_class_data_ = {
+    DocumentDelete::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DocumentDelete::GetClassData() const {
+  return &_class_data_;
 }
 
-void DocumentDelete::MergeFrom(const DocumentDelete& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentDelete)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void DocumentDelete::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DocumentDelete*>(&to_msg);
+  auto& from = static_cast<const DocumentDelete&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentDelete)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  removed_target_ids_.MergeFrom(from.removed_target_ids_);
-  if (from.document().size() > 0) {
-
-    document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
+  _this->_internal_mutable_removed_target_ids()->MergeFrom(from._internal_removed_target_ids());
+  if (!from._internal_document().empty()) {
+    _this->_internal_set_document(from._internal_document());
   }
-  if (from.has_read_time()) {
-    _internal_mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(
+        from._internal_read_time());
   }
-}
-
-void DocumentDelete::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.DocumentDelete)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void DocumentDelete::CopyFrom(const DocumentDelete& from) {
@@ -2537,284 +2531,278 @@ void DocumentDelete::CopyFrom(const DocumentDelete& from) {
   MergeFrom(from);
 }
 
-bool DocumentDelete::IsInitialized() const {
+PROTOBUF_NOINLINE bool DocumentDelete::IsInitialized() const {
   return true;
 }
 
-void DocumentDelete::InternalSwap(DocumentDelete* other) {
+::_pbi::CachedSize* DocumentDelete::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DocumentDelete::InternalSwap(DocumentDelete* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  removed_target_ids_.InternalSwap(&other->removed_target_ids_);
-  document_.Swap(&other->document_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(read_time_, other->read_time_);
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.removed_target_ids_.InternalSwap(&other->_impl_.removed_target_ids_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.document_, &other->_impl_.document_, arena);
+  swap(_impl_.read_time_, other->_impl_.read_time_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata DocumentDelete::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata DocumentDelete::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[5]);
 }
-
-
 // ===================================================================
 
-void DocumentRemove::InitAsDefaultInstance() {
-  ::google::firestore::v1::_DocumentRemove_default_instance_._instance.get_mutable()->read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
-      PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
-}
 class DocumentRemove::_Internal {
  public:
-  static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const DocumentRemove* msg);
+  using HasBits = decltype(std::declval<DocumentRemove>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+    8 * PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_._has_bits_);
+  static const ::google::protobuf::Timestamp& read_time(const DocumentRemove* msg);
+  static void set_has_read_time(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
 };
 
-const PROTOBUF_NAMESPACE_ID::Timestamp&
-DocumentRemove::_Internal::read_time(const DocumentRemove* msg) {
-  return *msg->read_time_;
+const ::google::protobuf::Timestamp& DocumentRemove::_Internal::read_time(const DocumentRemove* msg) {
+  return *msg->_impl_.read_time_;
 }
 void DocumentRemove::clear_read_time() {
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
-    delete read_time_;
-  }
-  read_time_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.read_time_ != nullptr) _impl_.read_time_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-DocumentRemove::DocumentRemove()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.DocumentRemove)
+DocumentRemove::DocumentRemove(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.DocumentRemove)
 }
-DocumentRemove::DocumentRemove(const DocumentRemove& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr),
-      removed_target_ids_(from.removed_target_ids_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_document().empty()) {
-    document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
-  }
-  if (from._internal_has_read_time()) {
-    read_time_ = new PROTOBUF_NAMESPACE_ID::Timestamp(*from.read_time_);
-  } else {
-    read_time_ = nullptr;
-  }
+inline PROTOBUF_NDEBUG_INLINE DocumentRemove::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        removed_target_ids_{visibility, arena, from.removed_target_ids_},
+        _removed_target_ids_cached_byte_size_{0},
+        document_(arena, from.document_) {}
+
+DocumentRemove::DocumentRemove(
+    ::google::protobuf::Arena* arena,
+    const DocumentRemove& from)
+    : ::google::protobuf::Message(arena) {
+  DocumentRemove* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.read_time_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::google::protobuf::Timestamp>(arena, *from._impl_.read_time_)
+                : nullptr;
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.DocumentRemove)
 }
+inline PROTOBUF_NDEBUG_INLINE DocumentRemove::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0},
+        removed_target_ids_{visibility, arena},
+        _removed_target_ids_cached_byte_size_{0},
+        document_(arena) {}
 
-void DocumentRemove::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  document_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  read_time_ = nullptr;
+inline void DocumentRemove::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.read_time_ = {};
 }
-
 DocumentRemove::~DocumentRemove() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.DocumentRemove)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void DocumentRemove::SharedDtor() {
-  document_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete read_time_;
+inline void DocumentRemove::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.document_.Destroy();
+  delete _impl_.read_time_;
+  _impl_.~Impl_();
 }
 
-void DocumentRemove::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const DocumentRemove& DocumentRemove::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void DocumentRemove::Clear() {
+PROTOBUF_NOINLINE void DocumentRemove::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.DocumentRemove)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  removed_target_ids_.Clear();
-  document_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == nullptr && read_time_ != nullptr) {
-    delete read_time_;
+  _impl_.removed_target_ids_.Clear();
+  _impl_.document_.ClearToEmpty();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.read_time_ != nullptr);
+    _impl_.read_time_->Clear();
   }
-  read_time_ = nullptr;
-  _internal_metadata_.Clear();
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* DocumentRemove::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // string document = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_document();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.firestore.v1.DocumentRemove.document"));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // repeated int32 removed_target_ids = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_removed_target_ids(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16) {
-          _internal_add_removed_target_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr));
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.protobuf.Timestamp read_time = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* DocumentRemove::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* DocumentRemove::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 3, 1, 51, 2> DocumentRemove::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_._has_bits_),
+    0, // no _extensions_
+    4, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967284,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_DocumentRemove_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // .google.protobuf.Timestamp read_time = 4;
+    {::_pbi::TcParser::FastMtS1,
+     {34, 0, 0, PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_.read_time_)}},
+    // string document = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_.document_)}},
+    // repeated int32 removed_target_ids = 2;
+    {::_pbi::TcParser::FastV32P1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_.removed_target_ids_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string document = 1;
+    {PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_.document_), -1, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // repeated int32 removed_target_ids = 2;
+    {PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_.removed_target_ids_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedInt32)},
+    // .google.protobuf.Timestamp read_time = 4;
+    {PROTOBUF_FIELD_OFFSET(DocumentRemove, _impl_.read_time_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::protobuf::Timestamp>()},
+  }}, {{
+    "\42\10\0\0\0\0\0\0"
+    "google.firestore.v1.DocumentRemove"
+    "document"
+  }},
+};
+
+::uint8_t* DocumentRemove::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.DocumentRemove)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
   // string document = 1;
-  if (this->document().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_document().data(), static_cast<int>(this->_internal_document().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1.DocumentRemove.document");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_document(), target);
+  if (!this->_internal_document().empty()) {
+    const std::string& _s = this->_internal_document();
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+        _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.DocumentRemove.document");
+    target = stream->WriteStringMaybeAliased(1, _s, target);
   }
 
   // repeated int32 removed_target_ids = 2;
   {
-    int byte_size = _removed_target_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    int byte_size = _impl_._removed_target_ids_cached_byte_size_.Get();
     if (byte_size > 0) {
       target = stream->WriteInt32Packed(
           2, _internal_removed_target_ids(), byte_size, target);
     }
   }
 
+  cached_has_bits = _impl_._has_bits_[0];
   // .google.protobuf.Timestamp read_time = 4;
-  if (this->has_read_time()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::read_time(this), target, stream);
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        4, _Internal::read_time(this),
+        _Internal::read_time(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.DocumentRemove)
   return target;
 }
 
-size_t DocumentRemove::ByteSizeLong() const {
+::size_t DocumentRemove::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.DocumentRemove)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // repeated int32 removed_target_ids = 2;
   {
-    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      Int32Size(this->removed_target_ids_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
-            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
-    }
-    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
-    _removed_target_ids_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+    std::size_t data_size = ::_pbi::WireFormatLite::Int32Size(
+        this->_internal_removed_target_ids())
+    ;
+    _impl_._removed_target_ids_cached_byte_size_.Set(::_pbi::ToCachedSize(data_size));
+    std::size_t tag_size = data_size == 0
+        ? 0
+        : 1 + ::_pbi::WireFormatLite::Int32Size(
+                            static_cast<int32_t>(data_size))
+    ;
+    total_size += tag_size + data_size;
   }
-
   // string document = 1;
-  if (this->document().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_document());
+  if (!this->_internal_document().empty()) {
+    total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                    this->_internal_document());
   }
 
   // .google.protobuf.Timestamp read_time = 4;
-  if (this->has_read_time()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *read_time_);
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size +=
+        1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.read_time_);
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void DocumentRemove::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.DocumentRemove)
-  GOOGLE_DCHECK_NE(&from, this);
-  const DocumentRemove* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<DocumentRemove>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.DocumentRemove)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.DocumentRemove)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData DocumentRemove::_class_data_ = {
+    DocumentRemove::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* DocumentRemove::GetClassData() const {
+  return &_class_data_;
 }
 
-void DocumentRemove::MergeFrom(const DocumentRemove& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentRemove)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void DocumentRemove::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<DocumentRemove*>(&to_msg);
+  auto& from = static_cast<const DocumentRemove&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.DocumentRemove)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  removed_target_ids_.MergeFrom(from.removed_target_ids_);
-  if (from.document().size() > 0) {
-
-    document_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.document_);
+  _this->_internal_mutable_removed_target_ids()->MergeFrom(from._internal_removed_target_ids());
+  if (!from._internal_document().empty()) {
+    _this->_internal_set_document(from._internal_document());
   }
-  if (from.has_read_time()) {
-    _internal_mutable_read_time()->PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_read_time());
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_mutable_read_time()->::google::protobuf::Timestamp::MergeFrom(
+        from._internal_read_time());
   }
-}
-
-void DocumentRemove::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.DocumentRemove)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void DocumentRemove::CopyFrom(const DocumentRemove& from) {
@@ -2824,264 +2812,273 @@ void DocumentRemove::CopyFrom(const DocumentRemove& from) {
   MergeFrom(from);
 }
 
-bool DocumentRemove::IsInitialized() const {
+PROTOBUF_NOINLINE bool DocumentRemove::IsInitialized() const {
   return true;
 }
 
-void DocumentRemove::InternalSwap(DocumentRemove* other) {
+::_pbi::CachedSize* DocumentRemove::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void DocumentRemove::InternalSwap(DocumentRemove* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  removed_target_ids_.InternalSwap(&other->removed_target_ids_);
-  document_.Swap(&other->document_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(read_time_, other->read_time_);
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.removed_target_ids_.InternalSwap(&other->_impl_.removed_target_ids_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.document_, &other->_impl_.document_, arena);
+  swap(_impl_.read_time_, other->_impl_.read_time_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata DocumentRemove::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata DocumentRemove::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[6]);
 }
-
-
 // ===================================================================
 
-void ExistenceFilter::InitAsDefaultInstance() {
-  ::google::firestore::v1::_ExistenceFilter_default_instance_._instance.get_mutable()->unchanged_names_ = const_cast< ::google::firestore::v1::BloomFilter*>(
-      ::google::firestore::v1::BloomFilter::internal_default_instance());
-}
 class ExistenceFilter::_Internal {
  public:
+  using HasBits = decltype(std::declval<ExistenceFilter>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+    8 * PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_._has_bits_);
   static const ::google::firestore::v1::BloomFilter& unchanged_names(const ExistenceFilter* msg);
+  static void set_has_unchanged_names(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
 };
 
-const ::google::firestore::v1::BloomFilter&
-ExistenceFilter::_Internal::unchanged_names(const ExistenceFilter* msg) {
-  return *msg->unchanged_names_;
+const ::google::firestore::v1::BloomFilter& ExistenceFilter::_Internal::unchanged_names(const ExistenceFilter* msg) {
+  return *msg->_impl_.unchanged_names_;
 }
 void ExistenceFilter::clear_unchanged_names() {
-  if (GetArenaNoVirtual() == nullptr && unchanged_names_ != nullptr) {
-    delete unchanged_names_;
-  }
-  unchanged_names_ = nullptr;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.unchanged_names_ != nullptr) _impl_.unchanged_names_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-ExistenceFilter::ExistenceFilter()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.ExistenceFilter)
+ExistenceFilter::ExistenceFilter(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.ExistenceFilter)
 }
-ExistenceFilter::ExistenceFilter(const ExistenceFilter& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_unchanged_names()) {
-    unchanged_names_ = new ::google::firestore::v1::BloomFilter(*from.unchanged_names_);
-  } else {
-    unchanged_names_ = nullptr;
-  }
-  ::memcpy(&target_id_, &from.target_id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&count_) -
-    reinterpret_cast<char*>(&target_id_)) + sizeof(count_));
+inline PROTOBUF_NDEBUG_INLINE ExistenceFilter::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0} {}
+
+ExistenceFilter::ExistenceFilter(
+    ::google::protobuf::Arena* arena,
+    const ExistenceFilter& from)
+    : ::google::protobuf::Message(arena) {
+  ExistenceFilter* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.unchanged_names_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::google::firestore::v1::BloomFilter>(arena, *from._impl_.unchanged_names_)
+                : nullptr;
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, target_id_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, target_id_),
+           offsetof(Impl_, count_) -
+               offsetof(Impl_, target_id_) +
+               sizeof(Impl_::count_));
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.ExistenceFilter)
 }
+inline PROTOBUF_NDEBUG_INLINE ExistenceFilter::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
 
-void ExistenceFilter::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  ::memset(&unchanged_names_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&count_) -
-      reinterpret_cast<char*>(&unchanged_names_)) + sizeof(count_));
+inline void ExistenceFilter::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, unchanged_names_),
+           0,
+           offsetof(Impl_, count_) -
+               offsetof(Impl_, unchanged_names_) +
+               sizeof(Impl_::count_));
 }
-
 ExistenceFilter::~ExistenceFilter() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.ExistenceFilter)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void ExistenceFilter::SharedDtor() {
-  if (this != internal_default_instance()) delete unchanged_names_;
+inline void ExistenceFilter::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  delete _impl_.unchanged_names_;
+  _impl_.~Impl_();
 }
 
-void ExistenceFilter::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const ExistenceFilter& ExistenceFilter::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void ExistenceFilter::Clear() {
+PROTOBUF_NOINLINE void ExistenceFilter::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.ExistenceFilter)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaNoVirtual() == nullptr && unchanged_names_ != nullptr) {
-    delete unchanged_names_;
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.unchanged_names_ != nullptr);
+    _impl_.unchanged_names_->Clear();
   }
-  unchanged_names_ = nullptr;
-  ::memset(&target_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&count_) -
-      reinterpret_cast<char*>(&target_id_)) + sizeof(count_));
-  _internal_metadata_.Clear();
+  ::memset(&_impl_.target_id_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.count_) -
+      reinterpret_cast<char*>(&_impl_.target_id_)) + sizeof(_impl_.count_));
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* ExistenceFilter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // int32 target_id = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          target_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // int32 count = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.firestore.v1.BloomFilter unchanged_names = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
-          ptr = ctx->ParseMessage(_internal_mutable_unchanged_names(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* ExistenceFilter::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* ExistenceFilter::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 3, 1, 0, 2> ExistenceFilter::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_._has_bits_),
+    0, // no _extensions_
+    3, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967288,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    3,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_ExistenceFilter_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 target_id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ExistenceFilter, _impl_.target_id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.target_id_)}},
+    // int32 count = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ExistenceFilter, _impl_.count_), 63>(),
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.count_)}},
+    // .google.firestore.v1.BloomFilter unchanged_names = 3;
+    {::_pbi::TcParser::FastMtS1,
+     {26, 0, 0, PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.unchanged_names_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // int32 target_id = 1;
+    {PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.target_id_), -1, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // int32 count = 2;
+    {PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.count_), -1, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // .google.firestore.v1.BloomFilter unchanged_names = 3;
+    {PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.unchanged_names_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::BloomFilter>()},
+  }}, {{
+  }},
+};
+
+::uint8_t* ExistenceFilter::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.ExistenceFilter)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
   // int32 target_id = 1;
-  if (this->target_id() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_target_id(), target);
+  if (this->_internal_target_id() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<1>(
+            stream, this->_internal_target_id(), target);
   }
 
   // int32 count = 2;
-  if (this->count() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_count(), target);
+  if (this->_internal_count() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<2>(
+            stream, this->_internal_count(), target);
   }
 
+  cached_has_bits = _impl_._has_bits_[0];
   // .google.firestore.v1.BloomFilter unchanged_names = 3;
-  if (this->has_unchanged_names()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::unchanged_names(this), target, stream);
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        3, _Internal::unchanged_names(this),
+        _Internal::unchanged_names(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.ExistenceFilter)
   return target;
 }
 
-size_t ExistenceFilter::ByteSizeLong() const {
+::size_t ExistenceFilter::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.ExistenceFilter)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // .google.firestore.v1.BloomFilter unchanged_names = 3;
-  if (this->has_unchanged_names()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *unchanged_names_);
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size +=
+        1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.unchanged_names_);
   }
 
   // int32 target_id = 1;
-  if (this->target_id() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+  if (this->_internal_target_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
         this->_internal_target_id());
   }
 
   // int32 count = 2;
-  if (this->count() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+  if (this->_internal_count() != 0) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
         this->_internal_count());
   }
 
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void ExistenceFilter::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.ExistenceFilter)
-  GOOGLE_DCHECK_NE(&from, this);
-  const ExistenceFilter* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ExistenceFilter>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.ExistenceFilter)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.ExistenceFilter)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData ExistenceFilter::_class_data_ = {
+    ExistenceFilter::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* ExistenceFilter::GetClassData() const {
+  return &_class_data_;
 }
 
-void ExistenceFilter::MergeFrom(const ExistenceFilter& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ExistenceFilter)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void ExistenceFilter::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<ExistenceFilter*>(&to_msg);
+  auto& from = static_cast<const ExistenceFilter&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.ExistenceFilter)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.has_unchanged_names()) {
-    _internal_mutable_unchanged_names()->::google::firestore::v1::BloomFilter::MergeFrom(from._internal_unchanged_names());
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_mutable_unchanged_names()->::google::firestore::v1::BloomFilter::MergeFrom(
+        from._internal_unchanged_names());
   }
-  if (from.target_id() != 0) {
-    _internal_set_target_id(from._internal_target_id());
+  if (from._internal_target_id() != 0) {
+    _this->_internal_set_target_id(from._internal_target_id());
   }
-  if (from.count() != 0) {
-    _internal_set_count(from._internal_count());
+  if (from._internal_count() != 0) {
+    _this->_internal_set_count(from._internal_count());
   }
-}
-
-void ExistenceFilter::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.ExistenceFilter)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void ExistenceFilter::CopyFrom(const ExistenceFilter& from) {
@@ -3091,53 +3088,37 @@ void ExistenceFilter::CopyFrom(const ExistenceFilter& from) {
   MergeFrom(from);
 }
 
-bool ExistenceFilter::IsInitialized() const {
+PROTOBUF_NOINLINE bool ExistenceFilter::IsInitialized() const {
   return true;
 }
 
-void ExistenceFilter::InternalSwap(ExistenceFilter* other) {
+::_pbi::CachedSize* ExistenceFilter::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void ExistenceFilter::InternalSwap(ExistenceFilter* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(unchanged_names_, other->unchanged_names_);
-  swap(target_id_, other->target_id_);
-  swap(count_, other->count_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.count_)
+      + sizeof(ExistenceFilter::_impl_.count_)
+      - PROTOBUF_FIELD_OFFSET(ExistenceFilter, _impl_.unchanged_names_)>(
+          reinterpret_cast<char*>(&_impl_.unchanged_names_),
+          reinterpret_cast<char*>(&other->_impl_.unchanged_names_));
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata ExistenceFilter::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata ExistenceFilter::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto[7]);
 }
-
-
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
-PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::Write* Arena::CreateMaybeMessage< ::google::firestore::v1::Write >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::Write >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::DocumentTransform_FieldTransform* Arena::CreateMaybeMessage< ::google::firestore::v1::DocumentTransform_FieldTransform >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::DocumentTransform_FieldTransform >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::DocumentTransform* Arena::CreateMaybeMessage< ::google::firestore::v1::DocumentTransform >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::DocumentTransform >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::WriteResult* Arena::CreateMaybeMessage< ::google::firestore::v1::WriteResult >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::WriteResult >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::DocumentChange* Arena::CreateMaybeMessage< ::google::firestore::v1::DocumentChange >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::DocumentChange >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::DocumentDelete* Arena::CreateMaybeMessage< ::google::firestore::v1::DocumentDelete >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::DocumentDelete >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::DocumentRemove* Arena::CreateMaybeMessage< ::google::firestore::v1::DocumentRemove >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::DocumentRemove >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::ExistenceFilter* Arena::CreateMaybeMessage< ::google::firestore::v1::ExistenceFilter >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::ExistenceFilter >(arena);
-}
-PROTOBUF_NAMESPACE_CLOSE
-
+namespace google {
+namespace protobuf {
+}  // namespace protobuf
+}  // namespace google
 // @@protoc_insertion_point(global_scope)
-#include <google/protobuf/port_undef.inc>
+#include "google/protobuf/port_undef.inc"

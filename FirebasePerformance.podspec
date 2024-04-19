@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '10.15.0'
+  s.version          = '10.25.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -25,7 +25,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.deployment_target = ios_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   base_dir = "FirebasePerformance/"
@@ -64,10 +64,11 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'FirebaseRemoteConfig', '~> 10.0'
   s.dependency 'FirebaseSessions', '~> 10.5'
   s.dependency 'GoogleDataTransport', '~> 9.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
-  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.8'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
+  s.dependency 'GoogleUtilities/ISASwizzler', '~> 7.13'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.13'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => ios_deployment_target, :tvos => tvos_deployment_target}

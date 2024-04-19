@@ -1,8 +1,17 @@
 # Firebase Apple SDKs
 
 This directory contains the full Firebase Apple distribution, packaged as static
-xcframeworks that include support for the iOS, tvOS, macOS, and Catalyst
+xcframeworks that include support for the iOS, tvOS, macOS, watchOS and Catalyst
 platforms.
+
+# Tips for Integrating
+- It's recommended to remove your existing Firebase XCFramework
+installation before integrating a new version of XCFrameworks. This ensures
+that outdated files and directories from the existing installation do not
+break the code signature of the new installation.
+- If the integration is performed programmatically, ensure that the
+XCFrameworks are copied in a way that preserves symlinks (e.g. `cp -rP`,
+`rsync -a`).
 
 # Integration Instructions
 
@@ -10,7 +19,7 @@ Each Firebase component requires several xcframeworks in order to function
 properly. Each section below lists the xcframeworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 14.1 or newer is required.
+Xcode 15.2 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
@@ -27,10 +36,6 @@ To integrate a Firebase SDK with your app:
    > ⚠ To disable AdId support, do not copy
    > `GoogleAppMeasurementIdentitySupport.xcframework`.
 
-   > ⚠ If the app does not use any Firebase Swift specific APIs, you do not need
-   > to copy any xcframeworks whose name includes `Swift` for this and the next
-   > step.
-
 6. Drag each framework from the directory named after the SDK into the Project
    Navigator pane. Note that there may be no additional frameworks, in which
    case this directory will be empty. For instance, if you want the Database
@@ -38,17 +43,18 @@ To integrate a Firebase SDK with your app:
    box that appears, make sure the target you want this framework to be added to
    has a checkmark next to it, and that you've selected "Copy items if needed."
 
-   > ⚠ Do not add the Firebase frameworks to the **Embed Frameworks** Xcode build
-   > phase. The Firebase frameworks are not embedded dynamic frameworks, but are
-   > [static frameworks](https://www.raywenderlich.com/65964/create-a-framework-for-ios)
-   > which cannot be embedded into your application's bundle.
+7. If using Xcode 15, embed each framework that was dragged in. Navigate to the
+   target's _General_ settings and find _Frameworks, Libraries, & Embedded
+   Content_. For each framework dragged in from the `Firebase.zip`, select
+   **Embed & Sign**. This step will enable privacy manifests to be picked up by
+   Xcode's tooling.
 
-7. If the SDK has resources, go into the Resources folders, which will be in
+8. If the SDK has resources, go into the Resources folders, which will be in
    the SDK folder. Drag all of those resources into the Project Navigator, just
    like the frameworks, again making sure that the target you want to add these
    resources to has a checkmark next to it, and that you've selected "Copy items
    if needed".
-8. Add the `-ObjC` flag to **Other Linker Settings**:
+9. Add the `-ObjC` flag to **Other Linker Settings**:
 
    a. In your project settings, open the **Settings** panel for your target.
 
@@ -57,13 +63,22 @@ To integrate a Firebase SDK with your app:
 
    c. Double-click the setting, click the '+' button, and add `-ObjC`
 
-9. Drag the `Firebase.h` header in this directory into your project. This will
+10. Add the `-lc++` flag to **Other Linker Settings**:
+
+   a. In your project settings, open the **Settings** panel for your target.
+
+   b. Go to the Build Settings tab and find the **Other Linker Flags** setting
+     in the **Linking** section.
+
+   c. Double-click the setting, click the '+' button, and add `-lc++`
+
+11. Drag the `Firebase.h` header in this directory into your project. This will
    allow you to `#import "Firebase.h"` and start using any Firebase SDK that you
    have.
-10. Drag `module.modulemap` into your project and update the
+12. Drag `module.modulemap` into your project and update the
    "User Header Search Paths" in your project's Build Settings to include the
    directory that contains the added module map.
-11. If your app does not include any Swift implementation, you may need to add
+13. If your app does not include any Swift implementation, you may need to add
    a dummy Swift file to the app to prevent Swift system library missing
    symbol linker errors. See
    https://forums.swift.org/t/using-binary-swift-sdks-from-non-swift-apps/55989.
@@ -71,7 +86,7 @@ To integrate a Firebase SDK with your app:
    > ⚠ If prompted with the option to create a corresponding bridging header
    > for the new Swift file, select **Don't create**.
 
-12. You're done! Compile your target and start using Firebase.
+14. You're done! Build your target and start using Firebase.
 
 If you want to add another SDK, repeat the steps above with the xcframeworks for
 the new SDK. You only need to add each framework once, so if you've already
@@ -97,5 +112,5 @@ You can get samples for Firebase from https://github.com/firebase/quickstart-ios
 Note that several of the samples depend on SDKs that are not included with
 this archive; for example, FirebaseUI. For the samples that depend on SDKs not
 included in this archive, you'll need to use CocoaPods or use the
-[ZipBuilder](https://github.com/firebase/firebase-ios-sdk/tree/master/ReleaseTooling)
+[ZipBuilder](https://github.com/firebase/firebase-ios-sdk/tree/main/ReleaseTooling)
 to create your own custom binary frameworks.

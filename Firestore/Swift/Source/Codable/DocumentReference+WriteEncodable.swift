@@ -15,7 +15,11 @@
  */
 
 import Foundation
-import FirebaseFirestore
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 public extension DocumentReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data

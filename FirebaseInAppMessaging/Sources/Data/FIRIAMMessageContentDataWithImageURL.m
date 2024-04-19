@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -40,7 +40,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 
 @implementation FIRIAMMessageContentDataWithImageURL
 - (instancetype)initWithMessageTitle:(nullable NSString *)title
-                         messageBody:(NSString *)body
+                         messageBody:(nullable NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
            secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText
                            actionURL:(nullable NSURL *)actionURL
@@ -206,4 +206,4 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)

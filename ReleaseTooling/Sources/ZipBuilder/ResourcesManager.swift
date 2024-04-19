@@ -212,7 +212,7 @@ extension ResourcesManager {
           try fileManager.removeItem(at: resourceDir)
         } catch {
           print("WARNING: Failed to remove empty Resources directory while cleaning up folder " +
-            "heirarchy: \(error)")
+            "hierarchy: \(error)")
         }
       }
     }

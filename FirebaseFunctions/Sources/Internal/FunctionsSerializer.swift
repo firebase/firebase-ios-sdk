@@ -38,7 +38,7 @@ class FUNSerializer: NSObject {
 
   // MARK: - Internal APIs
 
-  internal func encode(_ object: Any) throws -> AnyObject {
+  func encode(_ object: Any) throws -> AnyObject {
     if object is NSNull {
       return object as AnyObject
     } else if object is NSNumber {
@@ -71,7 +71,7 @@ class FUNSerializer: NSObject {
     }
   }
 
-  internal func decode(_ object: Any) throws -> AnyObject? {
+  func decode(_ object: Any) throws -> AnyObject? {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
     if let dict = object as? NSDictionary {
       if let requestedType = dict["@type"] as? String {

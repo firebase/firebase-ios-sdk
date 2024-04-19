@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseInAppMessagingSwift'
-  s.version                 = '10.15.0-beta'
+  s.version                 = '10.19.0-beta'
   s.summary                 = 'Swift Extensions for Firebase In-App Messaging'
 
   s.description      = <<-DESC
@@ -20,11 +20,11 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.swift_version           = '5.3'
   s.ios.deployment_target   = '13.0'
 
-  s.cocoapods_version       = '>= 1.4.0'
+  s.cocoapods_version       = '>= 1.12.0'
   s.prefix_header_file      = false
 
   s.source_files = [
-    'FirebaseInAppMessaging/Swift/Source/**/*.swift',
+    'FirebaseInAppMessagingSwift/Sources/**/*.swift',
   ]
 
   s.test_spec 'unit' do |unit_tests|
@@ -35,5 +35,5 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.framework = 'UIKit'
 
-  s.dependency 'FirebaseInAppMessaging', '~> 10.0-beta'
+  s.dependency 'FirebaseInAppMessaging', '~> 10.17-beta'
 end

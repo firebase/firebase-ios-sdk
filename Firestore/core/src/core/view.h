@@ -162,25 +162,21 @@ class View {
           absl::nullopt) const;
 
   /**
-   * Updates the view with the given ViewDocumentChanges.
-   *
-   * @param doc_changes The set of changes to make to the view's docs.
-   * @return A new ViewChange with the given docs, changes, and sync state.
-   */
-  ViewChange ApplyChanges(const core::ViewDocumentChanges& doc_changes);
-
-  /**
    * Updates the view with the given ViewDocumentChanges and updates limbo docs
    * and sync state from the given (optional) target change.
    *
    * @param doc_changes The set of changes to make to the view's docs.
    * @param target_change A target change to apply for computing limbo docs and
    *     sync state.
+   * @param targetIsPendingReset - Whether the target is pending to reset due to
+         existence filter mismatch. If not explicitly specified, it is treated
+         equivalently to `false`.
    * @return A new ViewChange with the given docs, changes, and sync state.
    */
   ViewChange ApplyChanges(
       const core::ViewDocumentChanges& doc_changes,
-      const absl::optional<remote::TargetChange>& target_change);
+      const absl::optional<remote::TargetChange>& target_change = absl::nullopt,
+      bool targetIsPendingReset = false);
 
   /**
    * Applies an OnlineState change to the view, potentially generating an

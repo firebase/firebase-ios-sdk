@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// TODO(csi): Delete this once setIndexConfigurationFromJSON and setIndexConfigurationFromStream
+//  are removed.
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import "FIRFirestore+Internal.h"
 
 #include <memory>
@@ -535,12 +539,14 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore->worker_queue();
 }
 
-- (FIRPersistentCacheIndexManager *)persistentCacheIndexManager {
+- (nullable FIRPersistentCacheIndexManager *)persistentCacheIndexManager {
   if (!_indexManager) {
     auto index_manager = _firestore->persistent_cache_index_manager();
     if (index_manager) {
       _indexManager = [[FIRPersistentCacheIndexManager alloc]
           initWithPersistentCacheIndexManager:index_manager];
+    } else {
+      return nil;
     }
   }
   return _indexManager;
@@ -561,12 +567,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Force Link Unreferenced Symbols
 
 extern void FSTIncludeFSTFirestoreComponent(void);
+extern void FSTIncludeFIRSnapshotListenOptions(void);
 
-/// This method forces the linker to include all the Analytics categories without requiring app
+/// This method forces the linker to include all Firestore symbols without requiring app
 /// developers to include the '-ObjC' linker flag in their projects. DO NOT CALL THIS METHOD.
 + (void)notCalled {
   NSAssert(NO, @"+notCalled should never be called");
   FSTIncludeFSTFirestoreComponent();
+  FSTIncludeFIRSnapshotListenOptions();
 }
 
 @end

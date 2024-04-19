@@ -283,8 +283,20 @@ struct FrameworkBuilder {
   /// - Returns: The corresponding framework/module name.
   private static func frameworkBuildName(_ framework: String) -> String {
     switch framework {
+    case "abseil":
+      return "absl"
+    case "BoringSSL-GRPC":
+      return "openssl_grpc"
+    case "gRPC-Core":
+      return "grpc"
+    case "gRPC-C++":
+      return "grpcpp"
+    case "leveldb-library":
+      return "leveldb"
     case "PromisesObjC":
       return "FBLPromises"
+    case "PromisesSwift":
+      return "Promises"
     case "Protobuf":
       return "protobuf"
     default:
@@ -380,10 +392,6 @@ struct FrameworkBuilder {
       }
       umbrellaHeader = umbrellaHeaderURL.lastPathComponent
     }
-    // Add an Info.plist. Required by Carthage and SPM binary xcframeworks.
-    CarthageUtils.generatePlistContents(forName: frameworkName,
-                                        withVersion: podInfo.version,
-                                        to: frameworkDir)
 
     // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
 
@@ -429,6 +437,7 @@ struct FrameworkBuilder {
   /// Returns true to fail if building for Carthage and there are Swift modules.
   @discardableResult
   private func packageModuleMaps(inFrameworks frameworks: [URL],
+                                 frameworkName: String,
                                  moduleMapContents: String,
                                  destination: URL,
                                  buildingCarthage: Bool = false) -> Bool {
@@ -436,28 +445,24 @@ struct FrameworkBuilder {
     // Instead it use build options to specify them. For the zip build, we need the module maps to
     // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
     // the CocoaPods config files and add them here.
-    // Currently we only do the construction for Objective-C since Swift Module directories require
-    // several other files. See https://github.com/firebase/firebase-ios-sdk/pull/5040.
-    // Therefore, for Swift we do a simple copy of the Modules files from an Xcode build.
-    // This is sufficient for the testing done so far, but more testing is required to determine
-    // if dependent libraries and frameworks also may need to be added to the Swift module maps in
-    // some cases.
+    // In the case of a mixed language framework, not only are the Swift module
+    // files copied, but a `module.modulemap` is created by combining the given
+    // module map contents and a synthesized submodule that modularizes the
+    // generated Swift header.
     if makeSwiftModuleMap(thinFrameworks: frameworks,
+                          frameworkName: frameworkName,
                           destination: destination,
+                          moduleMapContents: moduleMapContents,
                           buildingCarthage: buildingCarthage) {
       return buildingCarthage
     }
-    // Copy the module map to the destination.
-    let moduleDir = destination.appendingPathComponent("Modules")
+
+    let modulemapURL = destination
+      .appendingPathComponent("Modules")
+      .appendingPathComponent("module.modulemap")
+      .resolvingSymlinksInPath()
     do {
-      try FileManager.default.createDirectory(at: moduleDir, withIntermediateDirectories: true)
-    } catch {
-      let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
-      fatalError("Could not create Modules directory for framework: \(frameworkName). \(error)")
-    }
-    let modulemap = moduleDir.appendingPathComponent("module.modulemap")
-    do {
-      try moduleMapContents.write(to: modulemap, atomically: true, encoding: .utf8)
+      try moduleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
     } catch {
       let frameworkName: String = frameworks.first?.lastPathComponent ?? "<UNKNOWN"
       fatalError("Could not write modulemap to disk for \(frameworkName): \(error)")
@@ -468,7 +473,9 @@ struct FrameworkBuilder {
   /// URLs pointing to the frameworks containing architecture specific code.
   /// Returns true if there are Swift modules.
   private func makeSwiftModuleMap(thinFrameworks: [URL],
+                                  frameworkName: String,
                                   destination: URL,
+                                  moduleMapContents: String,
                                   buildingCarthage: Bool = false) -> Bool {
     let fileManager = FileManager.default
 
@@ -485,63 +492,45 @@ struct FrameworkBuilder {
         } else if buildingCarthage {
           return true
         }
-        guard let first = swiftModules.first,
-              let swiftModule = URL(string: first) else {
-          fatalError("Failed to get swiftmodule in \(moduleDir).")
-        }
-        let destModuleDir = destination.appendingPathComponent("Modules")
-        if !fileManager.directoryExists(at: destModuleDir) {
-          do {
-            try fileManager.copyItem(at: moduleDir, to: destModuleDir)
-          } catch {
-            fatalError("Could not copy Modules from \(moduleDir) to " +
-              "\(destModuleDir): \(error)")
-          }
-        } else {
-          // If the Modules directory is already there, only copy in the architecture specific files
-          // from the *.swiftmodule subdirectory.
-          do {
-            let files = try fileManager.contentsOfDirectory(at: swiftModule,
-                                                            includingPropertiesForKeys: nil)
-              .compactMap { $0.path }
-            let destSwiftModuleDir = destModuleDir
-              .appendingPathComponent(swiftModule.lastPathComponent)
-            for file in files {
-              let fileURL = URL(fileURLWithPath: file)
-              let projectDir = swiftModule.appendingPathComponent("Project")
-              if fileURL.lastPathComponent == "Project",
-                 fileManager.directoryExists(at: projectDir) {
-                // The Project directory (introduced with Xcode 11.4) already exists, only copy in
-                // new contents.
-                let projectFiles = try fileManager.contentsOfDirectory(at: projectDir,
-                                                                       includingPropertiesForKeys: nil)
-                  .compactMap { $0.path }
-                let destProjectDir = destSwiftModuleDir.appendingPathComponent("Project")
-                for projectFile in projectFiles {
-                  let projectFileURL = URL(fileURLWithPath: projectFile)
-                  do {
-                    try fileManager.copyItem(at: projectFileURL, to:
-                      destProjectDir.appendingPathComponent(projectFileURL.lastPathComponent))
-                  } catch {
-                    fatalError("Could not copy Project file from \(projectFileURL) to " +
-                      "\(destProjectDir): \(error)")
-                  }
-                }
-              } else {
-                do {
-                  try fileManager.copyItem(at: fileURL, to:
-                    destSwiftModuleDir
-                      .appendingPathComponent(fileURL.lastPathComponent))
-                } catch {
-                  fatalError("Could not copy Swift module file from \(fileURL) to " +
-                    "\(destSwiftModuleDir): \(error)")
-                }
-              }
+
+        do {
+          // If this point is reached, the framework contains a Swift module,
+          // so it's built from either Swift sources or Swift & C Family
+          // Language sources. Frameworks built from only Swift sources will
+          // contain only two headers: the CocoaPods-generated umbrella header
+          // and the Swift-generated Swift header. If the framework's `Headers`
+          // directory contains more than two resources, then it is assumed
+          // that the framework was built from mixed language sources because
+          // those additional headers are public headers for the C Family
+          // Language sources.
+          let headersDir = destination.appendingPathComponent("Headers").resolvingSymlinksInPath()
+          let headers = try fileManager.contentsOfDirectory(
+            at: headersDir,
+            includingPropertiesForKeys: nil
+          )
+          if headers.count > 2 {
+            // It is assumed that the framework will always contain a
+            // `module.modulemap` (either CocoaPods generates it or a custom
+            // one was set in the podspec corresponding to the framework being
+            // processed) within the framework's `Modules` directory. The main
+            // module declaration within this `module.modulemap` should be
+            // replaced with the given module map contents that was computed to
+            // include frameworks and libraries that the framework slice
+            // depends on.
+            let newModuleMapContents = moduleMapContents + """
+            module \(frameworkName).Swift {
+              header "\(frameworkName)-Swift.h"
+              requires objc
             }
-          } catch {
-            fatalError("Failed to get Modules directory contents - \(moduleDir):" +
-              "\(error.localizedDescription)")
+            """
+            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
+              .resolvingSymlinksInPath()
+            try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
           }
+        } catch {
+          fatalError(
+            "Error while synthesizing a mixed language framework's module map: \(error.localizedDescription)"
+          )
         }
       } catch {
         fatalError("Error while enumerating files \(moduleDir): \(error.localizedDescription)")
@@ -577,76 +566,134 @@ struct FrameworkBuilder {
       }
     }
 
-    // Group the thin frameworks into three groups: device, simulator, and Catalyst (all represented
-    // by the `TargetPlatform` enum. The slices need to be packaged that way with lipo before
-    // creating a .framework that works for similar grouped architectures. If built separately,
-    // `-create-xcframework` will return an error and fail:
-    // `Both ios-arm64 and ios-armv7 represent two equivalent library definitions`
-    var frameworksBuilt: [URL] = []
-    for (platform, frameworkPath) in slicedFrameworks {
+    return slicedFrameworks.map { platform, frameworkPath in
       // Create the following structure in the platform frameworks directory:
       // - platform_frameworks
       //   └── $(PLATFORM)
       //       └── $(FRAMEWORK).framework
       let platformFrameworkDir = platformFrameworksDir
         .appendingPathComponent(platform.buildName)
-        .appendingPathComponent(fromFolder.lastPathComponent)
+        .appendingPathComponent(framework + ".framework")
+
       do {
-        try fileManager.createDirectory(at: platformFrameworkDir, withIntermediateDirectories: true)
+        // Create `platform_frameworks/$(PLATFORM)` subdirectory.
+        try fileManager.createDirectory(
+          at: platformFrameworkDir.deletingLastPathComponent(),
+          withIntermediateDirectories: true
+        )
+
+        // Copy the built framework to the `platform_frameworks/$(PLATFORM)/$(FRAMEWORK).framework`.
+        try fileManager.copyItem(at: frameworkPath, to: platformFrameworkDir)
       } catch {
-        fatalError("Could not create directory for architecture slices on \(platform) for " +
+        fatalError("Could not copy directory for architecture slices on \(platform) for " +
           "\(framework): \(error)")
       }
 
-      // Headers from slice
-      do {
-        let headersSrc: URL = frameworkPath.appendingPathComponent("Headers")
-          .resolvingSymlinksInPath()
-        // The macOS slice's `Headers` directory may have a `Headers` file in
-        // it that symbolically links to nowhere. For example, in the 8.0.0
-        // zip distribution, see the `Headers` directory in the macOS slice
-        // of the `PromisesObjC.xcframework`. Delete it here to avoid putting
-        // it in the zip or crashing the Carthage hash generation. Because
-        // this will throw an error for cases where the file does not exist,
-        // the error is ignored.
-        try? fileManager.removeItem(at: headersSrc.appendingPathComponent("Headers"))
-
-        try fileManager.copyItem(
-          at: headersSrc,
-          to: platformFrameworkDir.appendingPathComponent("Headers")
+      // CocoaPods creates a `_CodeSignature` directory. Delete it.
+      // Note that the build only produces a `_CodeSignature` directory for
+      // macOS and macCatalyst, but we try to delete it for other platforms
+      // just in case it were to appear.
+      let codeSignatureDir = platformFrameworkDir
+        .appendingPathComponent(
+          platform == .catalyst || platform == .macOS ? "Versions/A/" : ""
         )
+        .appendingPathComponent("_CodeSignature")
+      try? fileManager.removeItem(at: codeSignatureDir)
+
+      // The minimum OS version is set to 100.0 to work around b/327020913.
+      // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
+      // TODO(ncooke3): Does this need to happen on macOS?
+      do {
+        let frameworkInfoPlistURL = platformFrameworkDir
+          .appendingPathComponent(
+            platform == .catalyst || platform == .macOS ? "Resources" : ""
+          )
+          .resolvingSymlinksInPath()
+          .appendingPathComponent("Info.plist")
+        var plistDictionary = try PropertyListSerialization.propertyList(
+          from: Data(contentsOf: frameworkInfoPlistURL), format: nil
+        ) as! [AnyHashable: Any]
+        plistDictionary["MinimumOSVersion"] = "100.0"
+
+        let updatedPlistData = try PropertyListSerialization.data(
+          fromPropertyList: plistDictionary,
+          format: .xml,
+          options: 0
+        )
+
+        try updatedPlistData.write(to: frameworkInfoPlistURL)
       } catch {
-        fatalError("Could not create framework directory needed to build \(framework): \(error)")
+        fatalError(
+          "Could not modify framework-level plist for b/327020913 in framework directory \(framework): \(error)"
+        )
       }
 
-      // Info.plist from `fromFolder`
-      do {
-        let infoPlistSrc = fromFolder.appendingPathComponent("Info.plist").resolvingSymlinksInPath()
-        let infoPlistDst = platformFrameworkDir.appendingPathComponent("Info.plist")
-        try fileManager.copyItem(at: infoPlistSrc, to: infoPlistDst)
-      } catch {
-        fatalError("Could not create framework directory needed to build \(framework): \(error)")
+      // The macOS slice's `PrivateHeaders` directory may have a
+      // `PrivateHeaders` file in it that symbolically links to nowhere. Delete
+      // it here to avoid putting it in the zip or crashing the Carthage hash
+      // generation. Because this will throw an error for cases where the file
+      // does not exist, the error is ignored.
+      let privateHeadersDir = platformFrameworkDir.appendingPathComponent("PrivateHeaders")
+      if fileManager.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
+        try? fileManager
+          .removeItem(at: privateHeadersDir.resolvingSymlinksInPath()
+            .appendingPathComponent("PrivateHeaders"))
+      } else {
+        try? fileManager.removeItem(at: privateHeadersDir)
       }
+      let headersDir = platformFrameworkDir.appendingPathComponent("Headers")
+        .resolvingSymlinksInPath()
+      try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
 
-      // Copy the binary to the right location.
-      let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
-                                                                            with: "")
-      let fatBinary = frameworkPath.appendingPathComponent(binaryName).resolvingSymlinksInPath()
-      let fatBinaryDestination = platformFrameworkDir.appendingPathComponent(framework)
-      do {
-        try fileManager.copyItem(at: fatBinary, to: fatBinaryDestination)
-      } catch {
-        fatalError("Could not copy fat binary to framework directory for \(framework): \(error)")
-      }
+      // Move privacy manifest containing resource bundles into the framework.
+      let resourceDir = platformFrameworkDir
+        .appendingPathComponent(
+          platform == .catalyst || platform == .macOS ? "Resources" : ""
+        )
+        .resolvingSymlinksInPath()
+      processPrivacyManifests(fileManager, frameworkPath, resourceDir)
 
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
+                        frameworkName: framework,
                         moduleMapContents: moduleMapContents,
                         destination: platformFrameworkDir)
 
-      frameworksBuilt.append(platformFrameworkDir)
+      return platformFrameworkDir
     }
-    return frameworksBuilt
+  }
+
+  /// Process privacy manifests.
+  ///
+  /// Move any privacy manifest-containing resource bundles into the platform framework.
+  func processPrivacyManifests(_ fileManager: FileManager,
+                               _ frameworkPath: URL,
+                               _ platformFrameworkDir: URL) {
+    try? fileManager.contentsOfDirectory(
+      at: frameworkPath.deletingLastPathComponent(),
+      includingPropertiesForKeys: nil
+    )
+    .filter { $0.pathExtension == "bundle" }
+    // TODO(ncooke3): Once the zip is built with Xcode 15, the following
+    // `filter` can be removed. The following block exists to preserve
+    // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
+    .filter { bundleURL in
+      let dirEnum = fileManager.enumerator(atPath: bundleURL.path)
+      var containsPrivacyManifest = false
+      while let relativeFilePath = dirEnum?.nextObject() as? String {
+        if relativeFilePath.hasSuffix("PrivacyInfo.xcprivacy") {
+          containsPrivacyManifest = true
+          break
+        }
+      }
+      return containsPrivacyManifest
+    }
+    // Bundles are moved rather than copied to prevent them from being
+    // packaged in a `Resources` directory at the root of the xcframework.
+    .forEach { try! fileManager.moveItem(
+      at: $0,
+      to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+    ) }
   }
 
   /// Package the built frameworks into an XCFramework.
@@ -662,10 +709,16 @@ struct FrameworkBuilder {
       .appendingPathComponent(frameworkBuildName(name) + ".xcframework")
 
     // The arguments for the frameworks need to be separated.
-    var frameworkArgs: [String] = []
-    for frameworkBuilt in frameworks {
-      frameworkArgs.append("-framework")
-      frameworkArgs.append(frameworkBuilt.path)
+    let frameworkArgs = frameworks.flatMap { frameworkPath in
+      do {
+        // Xcode 15.0-15.2: Return the canonical path to work around issue
+        // https://forums.swift.org/t/67439
+        let frameworkCanonicalPath = try frameworkPath.resourceValues(forKeys: [.canonicalPathKey])
+          .canonicalPath!
+        return ["-framework", frameworkCanonicalPath]
+      } catch {
+        fatalError("Failed to get canonical path for \(frameworkPath): \(error)")
+      }
     }
 
     let outputArgs = ["-output", xcframework.path]

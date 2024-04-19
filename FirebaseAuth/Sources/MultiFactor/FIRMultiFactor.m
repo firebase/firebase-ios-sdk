@@ -97,7 +97,7 @@ static NSString *kUserCodingKey = @"user";
                                  completion(error);
                                }
                              } else {
-                               [FIRAuth.auth
+                               [self.user.auth
                                    completeSignInWithAccessToken:response.IDToken
                                        accessTokenExpirationDate:nil
                                                     refreshToken:response.refreshToken
@@ -110,7 +110,7 @@ static NSString *kUserCodingKey = @"user";
                                                                   additionalUserInfo:nil];
 
                                                           FIRAuthDataResultCallback
-                                                              decoratedCallback = [FIRAuth.auth
+                                                              decoratedCallback = [self.user.auth
                                                                   signInFlowAuthDataResultCallbackByDecoratingCallback:
                                                                       ^(FIRAuthDataResult
                                                                             *_Nullable authResult,
@@ -145,7 +145,7 @@ static NSString *kUserCodingKey = @"user";
                        completion(error);
                      }
                    } else {
-                     [FIRAuth.auth
+                     [self.user.auth
                          completeSignInWithAccessToken:response.IDToken
                              accessTokenExpirationDate:nil
                                           refreshToken:response.refreshToken

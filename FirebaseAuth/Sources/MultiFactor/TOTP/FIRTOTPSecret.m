@@ -79,13 +79,14 @@ NS_ASSUME_NONNULL_BEGIN
         void (*func)(id, SEL, NSURL *, NSDictionary *, void (^)(BOOL)) = (void *)imp;
         func(application, selector, url, @{}, nil);
       } else {
-        NSLog(@"Cannot access openURL:options:completionHandler: method");
+        FIRLogError(kFIRLoggerAuth, @"I-AUT000023",
+                    @"Cannot access openURL:options:completionHandler: method");
       }
     } else {
-      NSLog(@"URL cannot be opened");
+      FIRLogError(kFIRLoggerAuth, @"I-AUT000024", @"URL cannot be opened");
     }
   } else {
-    NSLog(@"sharedApplication cannot be accessed");
+    FIRLogError(kFIRLoggerAuth, @"I-AUT000025", @"sharedApplication cannot be accessed");
   }
 }
 

@@ -156,3 +156,9 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 /Example/FirestoreSample/ui-debug.log
 /Example/FirestoreSample/firestore-debug.log
 /Example/FirestoreSample/firebase-debug.log
+
+# generated Terraform docs
+.terraform/*
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*

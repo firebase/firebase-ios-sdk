@@ -355,6 +355,13 @@ NS_SWIFT_NAME(Auth)
  */
 @property(nonatomic, strong, nullable) NSData *APNSToken API_UNAVAILABLE(macos, tvos, watchos);
 
+/**
+ * @property customAuthDomain
+ * @brief The custom authentication domain used to handle all sign-in redirects. End-users will see
+ * this domain when signing in. This domain must be allowlisted in the Firebase Console.
+ */
+@property(nonatomic, copy, nullable) NSString *customAuthDomain;
+
 /** @fn init
     @brief Please access auth instances using `Auth.auth()` and `Auth.auth(app:)`.
  */
@@ -370,8 +377,10 @@ NS_SWIFT_NAME(Auth)
                completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn fetchSignInMethodsForEmail:completion:
-    @brief Fetches the list of all sign-in methods previously used for the provided email address.
-
+    @brief [Deprecated] Fetches the list of all sign-in methods previously used for the provided
+   email address. This method returns an empty list when [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled, irrespective of the number of authentication methods available for the given email.
     @param email The email address for which to obtain a list of sign-in methods.
     @param completion Optionally; a block which is invoked when the list of sign in methods for the
         specified email address is ready or an error was encountered. Invoked asynchronously on the
@@ -386,10 +395,16 @@ NS_SWIFT_NAME(Auth)
 
 - (void)fetchSignInMethodsForEmail:(NSString *)email
                         completion:(nullable void (^)(NSArray<NSString *> *_Nullable,
-                                                      NSError *_Nullable))completion;
+                                                      NSError *_Nullable))completion
+    DEPRECATED_MSG_ATTRIBUTE(
+        "This method is deprecated and will be removed in a future release. This method returns an "
+        "empty list when Email Enumeration Protection is enabled.");
 
 /** @fn signInWithEmail:password:completion:
-    @brief Signs in using an email address and password.
+    @brief Signs in using an email address and password. When [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
+   email/password.
 
     @param email The user's email address.
     @param password The user's password.
@@ -656,8 +671,10 @@ NS_SWIFT_NAME(Auth)
 - (void)applyActionCode:(NSString *)code completion:(void (^)(NSError *_Nullable error))completion;
 
 /** @fn sendPasswordResetWithEmail:completion:
-    @brief Initiates a password reset for the given email address.
-
+    @brief Initiates a password reset for the given email address. This method does not throw an
+   error when there's no user account with the given email address and [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled.
     @param email The email address of the user.
     @param completion Optionally; a block which is invoked when the request finishes. Invoked
         asynchronously on the main thread in the future.

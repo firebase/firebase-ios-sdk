@@ -1,3 +1,24 @@
+# Unreleased
+- [changed] Removed usages of user defaults API from internal Firebase Sessions
+  dependency to eliminate required reason impact.
+
+# 10.24.0
+- [fixed] Fix `'FirebaseCrashlytics/FirebaseCrashlytics-Swift.h' file not found`
+  errors (#12611).
+- [changed] Remove usages of `mach_absolute_time` to reduce required reason impact.
+
+# 10.23.0
+- [added] Updated upload-symbols to 13.7 with VisionPro build phase support. (#12306)
+- [changed] Added support for Crashlytics to report metadata about Remote Config keys and values.
+
+# 10.22.0
+- [fixed] Force validation or rotation of FIDs for FirebaseSessions.
+- [changed] Removed calls to statfs in the Crashlytics SDK to comply with Apple Privacy Manifests. This change removes support for collecting Disk Space Free in Crashlytics reports.
+- [fixed] Fixed FirebaseSessions crash on startup that occurs in release mode in Xcode 15.3 and other build configurations. (#11403)
+
+# 10.16.0
+- [fixed] Fixed a memory leak regression when generating session events (#11725).
+
 # 10.12.0
 - [changed] Updated `upload-symbols` to version 3.16 with support for new default build settings in Xcode 15 (#11463)
 - [changed] Re-enabled dSYM uploads for Flutter apps building with `--obfuscate` and updated instructions for de-obfuscating Dart stacktraces
@@ -161,7 +182,7 @@
 
 This Firebase Crashlytics version includes the initial beta release of the Firebase Crashlytics SDK:
 
- - [feature] The SDK is now open-sourced. Take a look in our [GitHub repository](https://github.com/firebase/firebase-ios-sdk/tree/master/Crashlytics).
+ - [feature] The SDK is now open-sourced. Take a look in our [GitHub repository](https://github.com/firebase/firebase-ios-sdk/tree/main/Crashlytics).
  - [feature] Added support for Catalyst (note that Crashlytics still supports tvOS and macOS).
  - [feature] Added new APIs that are more consistent with other Firebase SDKs and more intuitive to use. The new APIs also give your users more control over how you collect their data.
  - [removed] Removed the Fabric API Key. Now, Crashlytics uses the GoogleService-Info.plist file to associate your app with your project. If you linked your app from Fabric and want to upgrade to the new SDK, remove the Fabric API key from your `run` and `upload-symbols` scripts. We also recommend removing the Fabric section from your app's Info.plist (when you upgrade, Crashlytics uses the new configuration you set up in Firebase).

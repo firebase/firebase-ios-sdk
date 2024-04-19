@@ -16,40 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAppCheckHTTPError;
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 @interface FIRAppCheckErrorUtil : NSObject
 
 + (NSError *)publicDomainErrorWithError:(NSError *)error;
-
-// MARK: - Internal errors
-
-+ (NSError *)cachedTokenNotFound;
-
-+ (NSError *)cachedTokenExpired;
-
-+ (NSError *)keychainErrorWithError:(NSError *)error;
-
-+ (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                              data:(nullable NSData *)data;
-
-+ (NSError *)APIErrorWithNetworkError:(NSError *)networkError;
-
-+ (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName;
-
-+ (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName;
-
-+ (NSError *)JSONSerializationError:(NSError *)error;
-
-+ (NSError *)errorWithFailureReason:(NSString *)failureReason;
-
-+ (NSError *)unsupportedAttestationProvider:(NSString *)providerName;
-
-+ (NSError *)appAttestKeyIDNotFound;
 
 @end
 

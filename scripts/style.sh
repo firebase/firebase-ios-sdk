@@ -22,7 +22,7 @@
 # Pass a specific file or directory name to format just files found there
 #
 # Commonly
-# ./scripts/style.sh master
+# ./scripts/style.sh main
 
 # Set the environment variable FIR_CLANG_FORMAT_PATH to use a specific version
 # of clang-format, regardless of its order in the shell PATH.
@@ -56,7 +56,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  16)
+  18)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -65,7 +65,7 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 16."
+    echo "Please upgrade to clang-format version 18."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1

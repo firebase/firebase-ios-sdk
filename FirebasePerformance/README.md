@@ -23,6 +23,6 @@ The above command should be sufficient for most scenarios. Few more options list
 
 - `sh generate_project.sh` (or) `sh generate_project.sh -e "autopush"`
 
-### Re-generate XCode project by deleting old XCode project
+### Re-generate Xcode project by deleting old Xcode project
 
 - `sh generate_project.sh -c`

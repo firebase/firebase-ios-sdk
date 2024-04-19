@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseInAppMessaging
 import SwiftUI
+
+#if SWIFT_PACKAGE
+  @_exported import FirebaseInAppMessagingInternal
+#endif // SWIFT_PACKAGE
 
 // MARK: Image-only messages.
 

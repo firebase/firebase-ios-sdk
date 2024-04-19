@@ -29,7 +29,7 @@ import Foundation
 
  */
 
-class Credentials {
+enum Credentials {
   static let kUserName = KUSER_NAME
   static let kPassword = KPASSWORD
 }

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import Combine
-import UIKit
-import SwiftUI
 import FirebaseCore
 import FirebaseInstallations
 import FirebaseMessaging
+import SwiftUI
+import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate,
   MessagingDelegate {

@@ -1,4 +1,4 @@
-# Merge the yml file to master branch for the cron job schedule to be effective.
+# Merge the yml file to main branch for the cron job schedule to be effective.
 # Reference: https://github.community/t/on-schedule-per-branch/17525
 name: performance-integration-tests
 
@@ -26,12 +26,12 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: integration
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

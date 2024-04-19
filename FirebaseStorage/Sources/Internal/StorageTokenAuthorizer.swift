@@ -25,7 +25,7 @@ import FirebaseCore
   import GTMSessionFetcherCore
 #endif
 
-internal class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
+class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   func authorizeRequest(_ request: NSMutableURLRequest?,
                         completionHandler handler: @escaping (Error?) -> Void) {
     // Set version header on each request
@@ -105,7 +105,7 @@ internal class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
   var userEmail: String?
 
-  internal let fetcherService: GTMSessionFetcherService
+  let fetcherService: GTMSessionFetcherService
   private let googleAppID: String
   private let auth: AuthInterop?
   private let appCheck: AppCheckInterop?

@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseCore
 import FirebaseInstallations
+import Foundation
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_UserDefaults
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 /// Possible ways to get a custom model.
 public enum ModelDownloadType {
@@ -41,7 +46,7 @@ public class ModelDownloader {
   private let installations: Installations
 
   /// User defaults for model info.
-  private let userDefaults: UserDefaults
+  private let userDefaults: GULUserDefaults
 
   /// Telemetry logger tied to this instance of model downloader.
   let telemetryLogger: TelemetryLogger?
@@ -67,7 +72,7 @@ public class ModelDownloader {
   }
 
   /// Private init for model downloader.
-  private init(app: FirebaseApp, defaults: UserDefaults = .firebaseMLDefaults) {
+  private init(app: FirebaseApp, defaults: GULUserDefaults = .firebaseMLDefaults) {
     appName = app.name
     options = app.options
     installations = Installations.installations(app: app)
@@ -641,7 +646,7 @@ extension ModelDownloader {
 /// Model downloader extension for testing.
 extension ModelDownloader {
   /// Model downloader instance for testing.
-  static func modelDownloaderWithDefaults(_ defaults: UserDefaults,
+  static func modelDownloaderWithDefaults(_ defaults: GULUserDefaults,
                                           app: FirebaseApp) -> ModelDownloader {
     let downloader = ModelDownloader(app: app, defaults: defaults)
     return downloader

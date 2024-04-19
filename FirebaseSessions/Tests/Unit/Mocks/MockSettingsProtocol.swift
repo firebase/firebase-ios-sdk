@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 @testable import FirebaseSessions
+import Foundation
 
 class MockSettingsProtocol: SettingsProtocol {
   var updateSettingsCalled = false

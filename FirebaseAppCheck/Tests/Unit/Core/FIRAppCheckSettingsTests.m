@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
@@ -46,7 +47,7 @@
 
   self.mockApp = OCMClassMock([FIRApp class]);
   OCMStub([self.mockApp name]).andReturn(self.appName);
-  self.mockUserDefaults = OCMClassMock([NSUserDefaults class]);
+  self.mockUserDefaults = OCMClassMock([GULUserDefaults class]);
   self.bundleMock = OCMClassMock([NSBundle class]);
 
   self.settings = [[FIRAppCheckSettings alloc] initWithApp:self.mockApp
@@ -104,7 +105,7 @@
   OCMReject([self.mockApp isDataCollectionDefaultEnabled]);
 
   // 1.4. Expect the new value to be saved to the user defaults.
-  OCMExpect([self.mockUserDefaults setObject:@(newFlagValue) forKey:self.userDefaultKey]);
+  OCMExpect([self.mockUserDefaults setBool:newFlagValue forKey:self.userDefaultKey]);
 
   // 2. Set flag value.
   self.settings.isTokenAutoRefreshEnabled = newFlagValue;
@@ -206,7 +207,7 @@
 - (void)testSetIsTokenAutoRefreshEnabled {
   // 1. Set first time.
   // 1.1. Expect the new value to be saved to the user defaults.
-  OCMExpect([self.mockUserDefaults setObject:@(YES) forKey:self.userDefaultKey]);
+  OCMExpect([self.mockUserDefaults setBool:YES forKey:self.userDefaultKey]);
 
   // 1.2 Set.
   self.settings.isTokenAutoRefreshEnabled = YES;
@@ -217,7 +218,7 @@
 
   // 2. Set second time.
   // 2.1. Expect the new value to be saved to the user defaults.
-  OCMExpect([self.mockUserDefaults setObject:@(NO) forKey:self.userDefaultKey]);
+  OCMExpect([self.mockUserDefaults setBool:NO forKey:self.userDefaultKey]);
 
   // 2.2 Set.
   self.settings.isTokenAutoRefreshEnabled = NO;

@@ -44,9 +44,9 @@
 
 import Combine
 import FirebaseAuth
+import FirebaseCombineSwift
 import FirebaseCore
 import FirebaseStorage
-import FirebaseCombineSwift
 import XCTest
 
 class StorageIntegration: XCTestCase {

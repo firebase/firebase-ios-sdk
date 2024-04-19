@@ -24,4 +24,4 @@ import Foundation
 #endif
 
 // This is here to appease the compiler.
-internal struct _Dummy {}
+struct _Dummy {}

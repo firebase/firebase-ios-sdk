@@ -23,10 +23,10 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
@@ -550,6 +550,12 @@ static NSString *const kMissingInvalidReqType = @"INVALID_REQ_TYPE";
    in the request.
  */
 static NSString *const kInvalidRecaptchaVersion = @"INVALID_RECAPTCHA_VERSION";
+
+/** @var kInvalidLoginCredentials
+    @brief This is the error message the server will respond with if the login credentials is
+   invalid. in the request.
+ */
+static NSString *const kInvalidLoginCredentials = @"INVALID_LOGIN_CREDENTIALS";
 
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
@@ -1404,7 +1410,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidCredentialErrorMessage] ||
-      [shortErrorMessage isEqualToString:kInvalidPendingToken]) {
+      [shortErrorMessage isEqualToString:kInvalidPendingToken] ||
+      [shortErrorMessage isEqualToString:kInvalidLoginCredentials]) {
     return [FIRAuthErrorUtils invalidCredentialErrorWithMessage:serverDetailErrorMessage];
   }
 

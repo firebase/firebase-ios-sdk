@@ -15,7 +15,12 @@
  */
 
 import SwiftUI
-import FirebaseFirestore
+
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 /// The strategy to use when an error occurs during mapping Firestore documents
 /// to the target type of `FirestoreQuery`.

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '10.15.0'
+  s.version                 = '10.19.0'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -31,15 +31,14 @@ app update.
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version       = '>= 1.4.0'
+  s.cocoapods_version       = '>= 1.12.0'
   s.prefix_header_file      = false
 
   s.source_files = [
     'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseRemoteConfig', '~> 10.0'
-  s.dependency 'FirebaseSharedSwift', '~> 10.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 10.17'
 
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|

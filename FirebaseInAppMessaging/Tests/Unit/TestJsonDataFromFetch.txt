@@ -292,7 +292,7 @@
             "actionUrl": "http:// example.com / recoverable_action_url_without_https "
           },
           "secondaryAction": {
-            "actionUrl": "NOT ^ A ^ URL"
+            "actionUrl": ""
           },
           "backgroundHexColor": "#ffffff"
         }

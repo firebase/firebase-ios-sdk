@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseABTesting'
-  s.version          = '10.15.0'
+  s.version          = '10.25.0'
   s.summary          = 'Firebase ABTesting'
 
   s.description      = <<-DESC
@@ -32,7 +32,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.swift_version = '5.3'
@@ -43,6 +43,9 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
    'Interop/Analytics/Public/*.h',
    'FirebaseCore/Extension/*.h',
   ]
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseABTesting/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'
   s.pod_target_xcconfig = {

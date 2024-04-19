@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '10.15.0-beta'
+  s.version          = '10.25.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -22,22 +22,23 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseInAppMessaging/"
   s.ios.source_files = [
     base_dir + "Sources/*.[cmh]",
-	base_dir + "Sources/Analytics/**/*.[cmh]",
-	base_dir + "Sources/Data/**/*.[cmh]",
-	base_dir + "Sources/DefaultUI/**/*.[cmh]",
-	base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
-	base_dir + "Sources/Flows/**/*.[cmh]",
-	base_dir + "Sources/Private/**/*.[cmh]",
-	base_dir + "Sources/Public/**/*.[cmh]",
-	base_dir + "Sources/RenderingObjects/**/*.[cmh]",
-	base_dir + "Sources/Runtime/**/*.[cmh]",
-	base_dir + "Sources/Util/**/*.[cmh]",
+	  base_dir + "Sources/Analytics/**/*.[cmh]",
+	  base_dir + "Sources/Data/**/*.[cmh]",
+	  base_dir + "Sources/DefaultUI/**/*.[cmh]",
+	  base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
+	  base_dir + "Sources/Flows/**/*.[cmh]",
+	  base_dir + "Sources/Private/**/*.[cmh]",
+	  base_dir + "Sources/Public/**/*.[cmh]",
+	  base_dir + "Sources/RenderingObjects/**/*.[cmh]",
+	  base_dir + "Sources/Runtime/**/*.[cmh]",
+	  base_dir + "Sources/Util/**/*.[cmh]",
+    base_dir + "Swift/Source/**/*.swift",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
@@ -46,15 +47,16 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.tvos.source_files = [
     base_dir + "Sources/*.[cmh]",
-	base_dir + "Sources/Analytics/**/*.[cmh]",
-	base_dir + "Sources/Data/**/*.[cmh]",
-	base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
-	base_dir + "Sources/Flows/**/*.[cmh]",
-	base_dir + "Sources/Private/**/*.[cmh]",
-	base_dir + "Sources/Public/**/*.[cmh]",
-	base_dir + "Sources/RenderingObjects/**/*.[cmh]",
-	base_dir + "Sources/Runtime/**/*.[cmh]",
-	base_dir + "Sources/Util/**/*.[cmh]",
+	  base_dir + "Sources/Analytics/**/*.[cmh]",
+	  base_dir + "Sources/Data/**/*.[cmh]",
+	  base_dir + "Sources/DisplayTrigger/**/*.[cmh]",
+	  base_dir + "Sources/Flows/**/*.[cmh]",
+	  base_dir + "Sources/Private/**/*.[cmh]",
+	  base_dir + "Sources/Public/**/*.[cmh]",
+	  base_dir + "Sources/RenderingObjects/**/*.[cmh]",
+	  base_dir + "Sources/Runtime/**/*.[cmh]",
+	  base_dir + "Sources/Util/**/*.[cmh]",
+    base_dir + "Swift/Source/**/*.swift",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
@@ -81,8 +83,9 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'FirebaseABTesting', '~> 10.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
+  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }

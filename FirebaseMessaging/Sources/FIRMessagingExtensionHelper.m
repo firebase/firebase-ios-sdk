@@ -205,7 +205,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 - (void)exportDeliveryMetricsToBigQueryWithMessageInfo:(NSDictionary *)info {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1249"
                                                              transformers:nil
-                                                                   target:kGDTCORTargetFLL];
+                                                                   target:kGDTCORTargetCCT];
 
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
@@ -266,7 +266,14 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   FIRMessagingMetricsLog *log =
       [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 
-  GDTCOREvent *event = [transport eventForTransport];
+  GDTCOREvent *event;
+  if (info[kFIRMessagingProductID]) {
+    int32_t productID = [info[kFIRMessagingProductID] intValue];
+    GDTCORProductData *productData = [[GDTCORProductData alloc] initWithProductID:productID];
+    event = [transport eventForTransportWithProductData:productData];
+  } else {
+    event = [transport eventForTransport];
+  }
   event.dataObject = log;
   event.qosTier = GDTCOREventQoSFast;
 

@@ -15,10 +15,11 @@
 # limitations under the License.
 
 # DESCRIPTION: This script identifies Objective-C symbols within the
-# `FirebaseFirestore.xcframework` that are not automatically linked when used
-# in a client target. Because the `FirebaseFirestore.xcframework` should
-# function without clients needing to pass the `-ObjC` flag, this script
-# catches potential regressions that break that requirement.
+# `FirebaseFirestoreInternal.xcframework` that are not automatically linked
+# when used in a client target. Because the
+# `FirebaseFirestoreInternal.xcframework` should function without clients
+# needing to pass the `-ObjC` flag, this script catches potential regressions
+# that break that requirement.
 #
 # DEPENDENCIES: This script depends on the given Firebase repo's `Package.swift`
 # using the `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` env var to swap the Firestore
@@ -57,8 +58,8 @@ fi
 # Check if the given xcframework path is valid.
 FIRESTORE_XCFRAMEWORK_PATH=$2
 
-if [ "$(basename $FIRESTORE_XCFRAMEWORK_PATH)" != 'FirebaseFirestore.xcframework' ]; then
-  echo "The given xcframework is not a FirebaseFirestore.xcframework."
+if [ "$(basename $FIRESTORE_XCFRAMEWORK_PATH)" != 'FirebaseFirestoreInternal.xcframework' ]; then
+  echo "The given xcframework is not a FirebaseFirestoreInternal.xcframework."
   exit 1
 fi
 
@@ -152,7 +153,7 @@ nm ~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC/Build/Products/Debug/TestP
 # return exit code 1, which will cause the set pipefail to terminate execution.
 # To avoid this, `|| true` ensures the exit code always indicates success.
 DIFF=$(
-    git diff --no-index \
+    git diff --no-index --output-indicator-new="?" \
         objc_symbols_without_linker_flag.txt \
         objc_symbols_with_linker_flag.txt \
         || true
@@ -160,6 +161,9 @@ DIFF=$(
 if [[ -n "$DIFF" ]]; then
     echo "Failure: Unlinked Objective-C symbols have been detected:"
     echo "$DIFF"
+    echo -n "💡 To fix, follow the process shown in "
+    echo -n "https://github.com/firebase/firebase-ios-sdk/pull/12534 for the "
+    echo "above symbols that are prefixed with ?"
     exit 1
 else
     echo "Success: No unlinked Objective-C symbols have been detected."

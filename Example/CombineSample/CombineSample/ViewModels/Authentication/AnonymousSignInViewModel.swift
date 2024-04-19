@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import Combine
 import Firebase
 import FirebaseAuthCombineSwift
 import FirebaseFirestoreCombineSwift
 import FirebaseFunctionsCombineSwift
 import FirebaseStorageCombineSwift
-import Combine
+import Foundation
 
 class AnonymousSignInViewModel: UserInfoViewModel {
   private var cancellables = Set<AnyCancellable>()

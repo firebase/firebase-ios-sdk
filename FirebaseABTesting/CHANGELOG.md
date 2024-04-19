@@ -1,3 +1,6 @@
+# 10.16.0
+- [fixed] Fix crash caused by empty experiment payload. (#11873)
+
 # 10.14.0
 - [fixed] Fix crash caused by mutating array during iteration. (#11669)
 

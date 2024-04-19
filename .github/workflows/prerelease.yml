@@ -17,7 +17,7 @@ jobs:
   specs_checking:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
+    runs-on: macos-14
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       # The SDK repo will be cloned to this dir and podspecs from
@@ -25,12 +25,12 @@ jobs:
       # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       local_repo: specstesting
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Generate matrix
       id: generate_matrix
       run: |
@@ -62,7 +62,7 @@ jobs:
       if: ${{ always() }}
       run: |
         rm -rf oss-bot-access.txt
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: firebase-ios-sdk
         path: |
@@ -72,15 +72,15 @@ jobs:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
+    runs-on: macos-14
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: FirebaseCore
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -111,7 +111,7 @@ jobs:
     needs: [buildup_SpecsTesting_repo_FirebaseCore, specs_checking]
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
@@ -121,8 +121,8 @@ jobs:
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: ${{ matrix.podspec }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -156,14 +156,14 @@ jobs:
   update_SpecsTesting_repo:
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event.pull_request.merged == true
-    runs-on: macos-12
+    runs-on: macos-14
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get token
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
@@ -173,14 +173,14 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         # Update/create a nightly tag to the head of the master branch.
+         # Update/create a nightly tag to the head of the main branch.
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Push updated podspecs
       run: |
         botaccess=`cat bot-access.txt`
         cd "${local_sdk_repo_dir}"
         # Changes in post submit tests will be fetched by getting diff between
-        # the HEAD and HEAD^ of the master branch.
+        # the HEAD and HEAD^ of the main branch.
         common_commit=$(git rev-parse HEAD^)
         git diff --name-only $common_commit remotes/origin/${podspec_repo_branch} > updated_files.txt
         updated_podspecs=()
@@ -210,9 +210,9 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -234,7 +234,7 @@ jobs:
       env:
         LEGACY: true
       run: scripts/remove_data.sh config release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_abtesting
@@ -248,9 +248,9 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -266,7 +266,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
     - name: Remove data before upload
       run: scripts/remove_data.sh authentication release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
@@ -282,9 +282,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -315,7 +315,7 @@ jobs:
       env:
         LEGACY: true
       run: scripts/remove_data.sh crashlytics release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_crashlytics
@@ -331,9 +331,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -351,7 +351,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh database release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_database
@@ -367,9 +367,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -393,7 +393,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh dynamiclinks release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_dynamiclinks
@@ -409,9 +409,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -428,7 +428,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
     - name: Remove data before upload
       run: scripts/remove_data.sh firestore release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_firestore
@@ -445,9 +445,10 @@ jobs:
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
+    # TODO: The functions quickstart uses Material which isn't supported by Xcode 15
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -469,7 +470,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh functions release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_functions
@@ -485,9 +486,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -507,7 +508,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh inappmessaging release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_inappmessaging
@@ -523,9 +524,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -545,7 +546,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh messaging release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_messaging
@@ -559,9 +560,9 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -577,7 +578,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
     - name: Remove data before upload
       run: scripts/remove_data.sh config release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_config
@@ -594,9 +595,9 @@ jobs:
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -614,7 +615,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh storage release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage
@@ -630,9 +631,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -651,7 +652,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh performance release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_performance

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '10.15.0'
+  s.version          = '10.25.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -29,14 +29,13 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppCheck/"
 
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
-    base_dir + 'Interop/*.h',
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
@@ -45,9 +44,12 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
+  s.dependency 'AppCheckCore', '~> 10.19'
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -62,14 +64,13 @@ Pod::Spec.new do |s|
     }
     unit_tests.source_files = [
       base_dir + 'Tests/Unit/**/*.[mh]',
-      base_dir + 'Tests/Utils/**/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*',
       'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
       'SharedTestUtilities/Date/*',
       'SharedTestUtilities/URLSession/*',
     ]
 
-    unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    unit_tests.resources = base_dir + 'Tests/Unit/Fixture/**/*'
     unit_tests.dependency 'OCMock'
     unit_tests.requires_app_host = true
   end
@@ -81,10 +82,8 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     integration_tests.source_files = [
-      base_dir + 'Tests/Integration/**/*.[mh]',
-      base_dir + 'Tests/Integration/**/*.[mh]',
+      base_dir + 'Tests/Integration/**/*.swift',
     ]
-    integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
     integration_tests.requires_app_host = true
   end
 
@@ -96,7 +95,6 @@ Pod::Spec.new do |s|
     }
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
-      base_dir + 'Tests/Unit/Swift/**/*.h',
     ]
   end
 

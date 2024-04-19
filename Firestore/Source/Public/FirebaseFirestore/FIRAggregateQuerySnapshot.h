@@ -19,6 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRAggregateQuery;
+@class FIRAggregateField;
 
 /**
  * The results of executing an `AggregateQuery`.
@@ -35,6 +36,22 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
 
 /** The number of documents in the result set of the underlying query. */
 @property(nonatomic, readonly) NSNumber* count;
+
+/**
+ * Gets the aggregate result for the specified aggregate field without loss of precision. No
+ * coercion of data types or values is performed.
+ *
+ * See the `AggregateField` class for the expected aggregate result values and types. Numeric
+ * aggregate results will be boxed in an `NSNumber`.
+ *
+ * @param aggregateField An instance of `AggregateField` that specifies which aggregate result to
+ * return.
+ * @return Returns the aggregate result from the server without loss of precision.
+ * @warning Throws an `InvalidArgument` exception if the aggregate field was not requested in the
+ * `AggregateQuery`.
+ * @see `AggregateField`
+ */
+- (id)valueForAggregateField:(FIRAggregateField*)aggregateField NS_SWIFT_NAME(get(_:));
 
 @end
 

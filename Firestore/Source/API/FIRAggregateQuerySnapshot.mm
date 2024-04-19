@@ -71,25 +71,25 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Public Methods
 
 - (NSNumber *)count {
-  return (NSNumber *)[self valueForAggregation:[FIRAggregateField aggregateFieldForCount]];
+  return (NSNumber *)[self valueForAggregateField:[FIRAggregateField aggregateFieldForCount]];
 }
 
 - (FIRAggregateQuery *)query {
   return _query;
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation {
+- (id)valueForAggregateField:(FIRAggregateField *)aggregateField {
   FIRServerTimestampBehavior serverTimestampBehavior = FIRServerTimestampBehaviorNone;
-  AggregateAlias alias = [aggregation createAlias];
+  AggregateAlias alias = [aggregateField createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
   if (!fieldValue) {
     std::string path{""};
-    if (aggregation.fieldPath) {
-      path = [aggregation.fieldPath internalValue].CanonicalString();
+    if (aggregateField.fieldPath) {
+      path = [aggregateField.fieldPath internalValue].CanonicalString();
     }
 
-    ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query.", [aggregation name],
-                         path);
+    ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query.",
+                         [aggregateField name], path);
   }
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_query.query.firestore.wrapped

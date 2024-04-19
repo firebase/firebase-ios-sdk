@@ -130,6 +130,7 @@ Path Filesystem::TempDir() {
 }
 #endif  // !__APPLE__ && !_WIN32
 
+#if !__APPLE__
 Status Filesystem::IsDirectory(const Path& path) {
   struct stat buffer {};
   if (::stat(path.c_str(), &buffer)) {
@@ -175,6 +176,7 @@ StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
         errno, StringFormat("Failed to stat file: %s", path.ToUtf8String()));
   }
 }
+#endif  // !__APPLE__
 
 Status Filesystem::CreateDir(const Path& path) {
   if (::mkdir(path.c_str(), 0777)) {

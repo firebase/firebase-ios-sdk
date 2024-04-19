@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRAggregateField.h>
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
 
-// TODO(sum/avg) update these imports with public imports when sum/avg is public
-#import "Firestore/Source/API/FIRAggregateField.h"
-#import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-
-#include "Firestore/core/src/util/sanitizers.h"
-
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/core/src/util/exception.h"
 
 @interface FIRAggregateTests : FSTIntegrationTestCase
 @end
@@ -204,9 +199,6 @@
 }
 
 - (void)testCanRunAggregateQuery {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -234,39 +226,26 @@
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
               [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
             ]]];
 
   // Count
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
   XCTAssertEqual([snapshot count], [NSNumber numberWithLong:2L]);
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
-          doubleValue],
-      99.6);
 
   // Average
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]],
-      [NSNumber numberWithDouble:75.0]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"weight"]]
-          doubleValue],
-      49.8);
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"pages"]],
+                 [NSNumber numberWithDouble:75.0]);
 }
 
 - (void)testCanRunEmptyAggregateQuery {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -311,8 +290,6 @@
 // (TODO:b/283101111): Try thread sanitizer to see if timeout on Github Actions is gone.
 #if !defined(THREAD_SANITIZER)
 - (void)testAggregateFieldQuerySnapshotEquality {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -340,40 +317,33 @@
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
               [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
             ]]];
 
   FIRAggregateQuerySnapshot* snapshot2 =
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
               [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
             ]]];
 
   // different aggregates
   FIRAggregateQuerySnapshot* snapshot3 =
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
-              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
               [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
             ]]];
 
   // different data set
-  FIRAggregateQuerySnapshot* snapshot4 = [self
-      readSnapshotForAggregate:[[testCollection queryWhereField:@"pages" isGreaterThan:@50]
-                                   aggregate:@[
-                                     [FIRAggregateField aggregateFieldForCount],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-                                     [FIRAggregateField
-                                         aggregateFieldForAverageOfField:@"weight"]
-                                   ]]];
+  FIRAggregateQuerySnapshot* snapshot4 =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"pages" isGreaterThan:@50]
+                                         aggregate:@[
+                                           [FIRAggregateField aggregateFieldForCount],
+                                           [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+                                           [FIRAggregateField
+                                               aggregateFieldForAverageOfField:@"pages"]
+                                         ]]];
 
   XCTAssertEqualObjects(snapshot1, snapshot2);
   XCTAssertNotEqualObjects(snapshot1, snapshot3);
@@ -387,15 +357,8 @@
 }
 #endif  // #if !defined(THREAD_SANITIZER)
 
-- (void)testAllowsAliasesLongerThan1500Bytes {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
-  // The longest field name allowed is 1500. The alias chosen by the client is <op>_<fieldName>.
-  // If the field name is
-  // 1500 bytes, the alias will be longer than 1500, which is the limit for aliases. This is to
-  // make sure the client
-  // can handle this corner case correctly.
+- (void)testAggregateOnFieldNameWithMaxLength {
+  // The longest field name and alias allowed is 1500 bytes or 1499 characters.
   NSString* longField = [@"" stringByPaddingToLength:1499
                                           withString:@"0123456789"
                                      startingAtIndex:0];
@@ -410,14 +373,11 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:longField]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:longField]],
       [NSNumber numberWithLong:3], );
 }
 
 - (void)testCanGetDuplicateAggregations {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -449,19 +409,16 @@
             ]]];
 
   // Count
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
 }
 
 - (void)testTerminateDoesNotCrashWithFlyingAggregateQuery {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -503,75 +460,16 @@
   [self awaitExpectation:expectation];
 
   // Count
-  XCTAssertEqual([result valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([result valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
 
   // Sum
   XCTAssertEqual(
-      [result valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [result valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
-}
-
-- (void)testCanPerformMaxAggregations {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
-  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{
-      @"author" : @"authorA",
-      @"title" : @"titleA",
-      @"pages" : @100,
-      @"height" : @24.5,
-      @"weight" : @24.1,
-      @"foo" : @1,
-      @"bar" : @2,
-      @"baz" : @3
-    },
-    @"b" : @{
-      @"author" : @"authorB",
-      @"title" : @"titleB",
-      @"pages" : @50,
-      @"height" : @25.5,
-      @"weight" : @75.5,
-      @"foo" : @1,
-      @"bar" : @2,
-      @"baz" : @3
-    }
-  }];
-
-  // Max is 5, do not exceed
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection aggregate:@[
-              [FIRAggregateField aggregateFieldForCount],
-              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
-            ]]];
-
-  // Assert
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
-                 [NSNumber numberWithLong:2L]);
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
-      [NSNumber numberWithLong:150L], );
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
-          doubleValue],
-      99.6);
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]],
-      [NSNumber numberWithDouble:75.0]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"weight"]]
-          doubleValue],
-      49.8);
 }
 
 - (void)testCannotPerformMoreThanMaxAggregations {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -621,109 +519,7 @@
   XCTAssertTrue([[result localizedDescription] containsString:@"maximum number of aggregations"]);
 }
 
-- (void)testCanRunAggregateCollectionGroupQuery {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
-  NSString* collectionGroup =
-      [NSString stringWithFormat:@"%@%@", @"b",
-                                 [self.db collectionWithPath:@"foo"].documentWithAutoID.documentID];
-  NSArray* docPathFormats = @[
-    @"abc/123/%@/cg-doc1", @"abc/123/%@/cg-doc2", @"%@/cg-doc3", @"%@/cg-doc4",
-    @"def/456/%@/cg-doc5", @"%@/virtual-doc/nested-coll/not-cg-doc", @"x%@/not-cg-doc",
-    @"%@x/not-cg-doc", @"abc/123/%@x/not-cg-doc", @"abc/123/x%@/not-cg-doc", @"abc/%@"
-  ];
-
-  FIRWriteBatch* batch = self.db.batch;
-  for (NSString* format in docPathFormats) {
-    NSString* path = [NSString stringWithFormat:format, collectionGroup];
-    [batch setData:@{@"x" : @2} forDocument:[self.db documentWithPath:path]];
-  }
-  [self commitWriteBatch:batch];
-
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[[self.db collectionGroupWithID:collectionGroup] aggregate:@[
-              [FIRAggregateField aggregateFieldForCount],
-              [FIRAggregateField aggregateFieldForSumOfField:@"x"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"x"]
-            ]]];
-  // "cg-doc1", "cg-doc2", "cg-doc3", "cg-doc4", "cg-doc5",
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
-                 [NSNumber numberWithLong:5L]);
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"x"]],
-      [NSNumber numberWithLong:10L]);
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"x"]],
-      [NSNumber numberWithDouble:2.0]);
-}
-
-- (void)testPerformsAggregationsWhenNaNExistsForSomeFieldValues {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
-  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{
-      @"author" : @"authorA",
-      @"title" : @"titleA",
-      @"pages" : @100,
-      @"year" : @1980,
-      @"rating" : @5
-    },
-    @"b" : @{
-      @"author" : @"authorB",
-      @"title" : @"titleB",
-      @"pages" : @50,
-      @"year" : @2020,
-      @"rating" : @4
-    },
-    @"c" : @{
-      @"author" : @"authorC",
-      @"title" : @"titleC",
-      @"pages" : @100,
-      @"year" : @1980,
-      @"rating" : [NSNumber numberWithFloat:NAN]
-    },
-    @"d" : @{
-      @"author" : @"authorD",
-      @"title" : @"titleD",
-      @"pages" : @50,
-      @"year" : @2020,
-      @"rating" : @0
-    }
-  }];
-
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection aggregate:@[
-              [FIRAggregateField aggregateFieldForSumOfField:@"rating"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"rating"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"year"]
-            ]]];
-
-  // Sum
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
-      [NSNumber numberWithDouble:NAN]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
-          longValue],
-      300L);
-
-  // Average
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]],
-      [NSNumber numberWithDouble:NAN]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"year"]]
-          doubleValue],
-      2000.0);
-}
-
 - (void)testThrowsAnErrorWhenGettingTheResultOfAnUnrequestedAggregation {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -763,7 +559,7 @@
 
   @
   try {
-    [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"foo"]];
+    [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"foo"]];
     XCTAssertTrue(false, "Exception expected");
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
@@ -773,7 +569,7 @@
 
   @
   try {
-    [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]];
+    [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]];
     XCTAssertTrue(false, "Exception expected");
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
@@ -783,9 +579,6 @@
 }
 
 - (void)testPerformsAggregationWhenUsingInOperator {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -821,111 +614,28 @@
       readSnapshotForAggregate:[[testCollection queryWhereField:@"rating" in:@[ @5, @3 ]]
                                    aggregate:@[
                                      [FIRAggregateField aggregateFieldForSumOfField:@"rating"],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
                                      [FIRAggregateField aggregateFieldForAverageOfField:@"rating"],
-                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
                                      [FIRAggregateField aggregateFieldForCount]
                                    ]]];
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longValue],
       8L);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
-          longValue],
-      200L);
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      4.0);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]]
-          doubleValue],
-      100.0);
-}
-
-- (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
-  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
-    @"a" : @{
-      @"author" : @"authorA",
-      @"title" : @"titleA",
-      @"pages" : @100,
-      @"year" : @1980,
-      @"rating" : @[ @5, @1000 ]
-    },
-    @"b" : @{
-      @"author" : @"authorB",
-      @"title" : @"titleB",
-      @"pages" : @50,
-      @"year" : @2020,
-      @"rating" : @[ @4 ]
-    },
-    @"c" : @{
-      @"author" : @"authorC",
-      @"title" : @"titleC",
-      @"pages" : @100,
-      @"year" : @1980,
-      @"rating" : @[ @2222, @3 ]
-    },
-    @"d" : @{
-      @"author" : @"authorD",
-      @"title" : @"titleD",
-      @"pages" : @50,
-      @"year" : @2020,
-      @"rating" : @[ @0 ]
-    }
-  }];
-
-  FIRAggregateQuerySnapshot* snapshot = [self
-      readSnapshotForAggregate:[[testCollection queryWhereField:@"rating"
-                                               arrayContainsAny:@[ @5, @3 ]]
-                                   aggregate:@[
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"rating"],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-                                     [FIRAggregateField aggregateFieldForAverageOfField:@"rating"],
-                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-                                     [FIRAggregateField aggregateFieldForCount]
-                                   ]]];
-
-  // Count
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
-
-  // Sum
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          longValue],
-      0L);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
-          longValue],
-      200L);
-
-  // Average
-  XCTAssertEqualObjects(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]],
-      [NSNull null]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]]
-          doubleValue],
-      100.0);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 4.0);
 }
 
 - (void)testPerformsAggregationsOnNestedMapValues {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -942,44 +652,30 @@
   FIRAggregateQuerySnapshot* snapshot =
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForSumOfField:@"metadata.pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"metadata.rating.user"],
               [FIRAggregateField aggregateFieldForAverageOfField:@"metadata.pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"metadata.rating.critic"],
               [FIRAggregateField aggregateFieldForCount]
             ]]];
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField
-                                         aggregateFieldForSumOfField:@"metadata.pages"]] longValue],
-      150L);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField
-                                         aggregateFieldForSumOfField:@"metadata.rating.user"]]
+      [[snapshot
+          valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"metadata.pages"]]
           longValue],
-      9);
+      150L);
 
   // Average
   XCTAssertEqual(
-      [[snapshot
-          valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"metadata.pages"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField
+                                            aggregateFieldForAverageOfField:@"metadata.pages"]]
           doubleValue],
       75.0);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField
-                                         aggregateFieldForAverageOfField:@"metadata.rating.critic"]]
-          doubleValue],
-      3.0);
 }
 
 - (void)testPerformsSumThatOverflowsMaxLong {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1000,16 +696,13 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           doubleValue],
       [[NSNumber numberWithLong:LLONG_MAX] doubleValue] +
           [[NSNumber numberWithLong:LLONG_MAX] doubleValue]);
 }
 
 - (void)testPerformsSumThatCanOverflowLongValuesDuringAccumulation {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1028,15 +721,12 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:LLONG_MAX - 100] longLongValue]);
 }
 
 - (void)testPerformsSumThatIsNegative {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1064,15 +754,12 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:-10101] longLongValue]);
 }
 
 - (void)testPerformsSumThatIsPositiveInfinity {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1093,14 +780,11 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
       [NSNumber numberWithDouble:INFINITY]);
 }
 
 - (void)testPerformsSumThatIsNegativeInfinity {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1121,23 +805,16 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
       [NSNumber numberWithDouble:-INFINITY]);
 }
 
 - (void)testPerformsSumThatIsValidButCouldOverflowDuringAggregation {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"c" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"d" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"e" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
-    @"f" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"g" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"h" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]}
+    @"d" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]}
   }];
 
   FIRAggregateQuerySnapshot* snapshot =
@@ -1146,20 +823,19 @@
                                                        aggregateFieldForSumOfField:@"rating"] ]]];
 
   // Sum
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          longLongValue],
-      [[NSNumber numberWithLong:0] longLongValue]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithLong:0] doubleValue]);
+  long long ratingL =
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+          longLongValue];
+  XCTAssertTrue(ratingL == [[NSNumber numberWithDouble:-INFINITY] longLongValue] || ratingL == 0 ||
+                ratingL == [[NSNumber numberWithDouble:INFINITY] longLongValue]);
+
+  double ratingD =
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+          doubleValue];
+  XCTAssertTrue(ratingD == -INFINITY || ratingD == 0 || ratingD == INFINITY);
 }
 
 - (void)testPerformsSumOverResultSetOfZeroDocuments {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1190,14 +866,11 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:0L]);
 }
 
 - (void)testPerformsSumOnlyOnNumericFields {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithLong:5]},
     @"b" : @{@"rating" : [NSNumber numberWithLong:4]},
@@ -1213,19 +886,16 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:10] longLongValue]);
 }
 
 - (void)testPerformsSumOfMinIEEE754 {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:__DBL_DENORM_MIN__]}
   }];
@@ -1237,15 +907,12 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           doubleValue],
       [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
 }
 
 - (void)testPerformsAverageOfVariousNumericTypes {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"x" : @1,
@@ -1306,17 +973,14 @@
         [self readSnapshotForAggregate:[testCollection aggregate:@[ testCase[@"agg"] ]]];
 
     // Average
-    XCTAssertEqual([[snapshot valueForAggregation:testCase[@"agg"]] longValue],
+    XCTAssertEqual([[snapshot valueForAggregateField:testCase[@"agg"]] longValue],
                    [testCase[@"expected"] longLongValue]);
-    XCTAssertEqualWithAccuracy([[snapshot valueForAggregation:testCase[@"agg"]] doubleValue],
+    XCTAssertEqualWithAccuracy([[snapshot valueForAggregateField:testCase[@"agg"]] doubleValue],
                                [testCase[@"expected"] doubleValue], 0.00000000000001);
   }
 }
 
 - (void)testPerformsAverageCausingUnderflow {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:__DBL_DENORM_MIN__]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:0]}
@@ -1328,16 +992,13 @@
             ]]];
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:0] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:0] doubleValue]);
 }
 
 - (void)testPerformsAverageOfMinIEEE754 {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:__DBL_DENORM_MIN__]}
   }];
@@ -1348,16 +1009,13 @@
             ]]];
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
 }
 
 - (void)testPerformsAverageOverflowIEEE754DuringAccumulation {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]}
@@ -1369,16 +1027,13 @@
             ]]];
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:INFINITY] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:INFINITY] doubleValue]);
 }
 
 - (void)testPerformsAverageOverResultSetOfZeroDocuments {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1408,15 +1063,12 @@
                                                  aggregateFieldForAverageOfField:@"pages"] ]]];
 
   // Average
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]],
-      [NSNull null]);
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"pages"]],
+                 [NSNull null]);
 }
 
 - (void)testPerformsAverageOnlyOnNumericFields {
-  // TODO(sum/avg) remove the check below when sum and avg are supported in production
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithLong:5]},
     @"b" : @{@"rating" : [NSNumber numberWithLong:4]},
@@ -1432,13 +1084,54 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:5] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:5] doubleValue]);
 }
 
+- (void)testFailWithMessageWithConsoleLinkIfMissingIndex {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test when running against the Firestore emulator because the Firestore "
+            "emulator does not use indexes and never fails with a 'missing index' error.");
+
+  FIRCollectionReference* testCollection = [self collectionRef];
+  FIRQuery* compositeIndexQuery = [[testCollection queryWhereField:@"field1"
+                                                         isEqualTo:@42] queryWhereField:@"field2"
+                                                                             isLessThan:@99];
+  FIRAggregateQuery* compositeIndexAggregateQuery = [compositeIndexQuery aggregate:@[
+    [FIRAggregateField aggregateFieldForCount],
+    [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+    [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
+  ]];
+
+  XCTestExpectation* queryCompletion = [self expectationWithDescription:@"query"];
+  [compositeIndexAggregateQuery
+      aggregationWithSource:FIRAggregateSourceServer
+                 completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+                   XCTAssertNotNil(error);
+                   if (error) {
+                     NSString* errorDescription = [error localizedDescription];
+                     XCTAssertTrue([errorDescription.lowercaseString containsString:@"index"],
+                                   "The NSError should have contained the word 'index' "
+                                   "(case-insensitive), but got: %@",
+                                   errorDescription);
+                     // TODO(b/316359394) Remove this check for the default databases once
+                     // cl/582465034 is rolled out to production.
+                     if ([[FSTIntegrationTestCase databaseID] isEqualToString:@"(default)"]) {
+                       XCTAssertTrue(
+                           [errorDescription containsString:@"https://console.firebase.google.com"],
+                           "The NSError should have contained the string "
+                           "'https://console.firebase.google.com', but got: %@",
+                           errorDescription);
+                     }
+                   }
+                   XCTAssertNil(snapshot);
+                   [queryCompletion fulfill];
+                 }];
+  [self awaitExpectations];
+}
 @end

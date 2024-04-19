@@ -267,6 +267,7 @@ if(APPLE)
     firestore_core PUBLIC
     "-framework Foundation"
     "-framework SystemConfiguration"
+    FirebaseAppCheckInterop
     FirebaseAuthInterop
     FirebaseCore
   )
@@ -275,7 +276,7 @@ endif()
 
 ## gRPC Certificates
 
-# Source files should be generated in place so that the XCode build can pick
+# Source files should be generated in place so that the Xcode build can pick
 # them up.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/remote)
 

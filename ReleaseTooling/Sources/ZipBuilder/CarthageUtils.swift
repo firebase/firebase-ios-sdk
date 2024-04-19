@@ -107,7 +107,7 @@ extension CarthageUtils {
 
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
-      if product == "FirebaseAnalyticsSwift" {
+      if product == "FirebaseAnalytics" {
         createFirebaseFramework(version: firebaseVersion,
                                 inDir: fullPath,
                                 rootDir: packagedDir,
@@ -250,10 +250,15 @@ extension CarthageUtils {
                                     withVersion version: String,
                                     to location: URL) {
     let ver = version.components(separatedBy: "-")[0] // remove any version suffix.
+
+    // TODO(paulb777): Does MinimumOSVersion or anything else need
+    // to be adapted for other platforms?
     let plist: [String: String] = ["CFBundleIdentifier": "com.firebase.Firebase-\(name)",
                                    "CFBundleInfoDictionaryVersion": "6.0",
                                    "CFBundlePackageType": "FMWK",
                                    "CFBundleVersion": ver,
+                                   "CFBundleShortVersionString": ver,
+                                   "MinimumOSVersion": Platform.iOS.minimumVersion,
                                    "DTSDKName": "iphonesimulator11.2",
                                    "CFBundleExecutable": name,
                                    "CFBundleName": name]

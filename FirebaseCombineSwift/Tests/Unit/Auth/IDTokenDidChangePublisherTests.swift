@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-import FirebaseCore
+import Combine
 import FirebaseAuth
 import FirebaseCombineSwift
-import Combine
+import FirebaseCore
+import Foundation
 import XCTest
 
 class IDTokenDidChangePublisherTests: XCTestCase {

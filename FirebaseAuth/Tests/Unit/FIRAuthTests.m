@@ -138,6 +138,11 @@ static NSString *const kLocalID = @"LOCAL_ID";
  */
 static NSString *const kDisplayName = @"User Doe";
 
+/** @var kIDToken
+    @brief The fake id token.
+ */
+static NSString *const kIDToken = @"IDToken";
+
 /** @var kFakeGivenName
     @brief The fake user given name.
  */
@@ -428,6 +433,8 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
             });
           });
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
                                   completion:^(NSArray<NSString *> *_Nullable signInMethods,
                                                NSError *_Nullable error) {
@@ -437,6 +444,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
                                     XCTAssertNil(error);
                                     [expectation fulfill];
                                   }];
+#pragma clang diagnostic pop
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
@@ -448,6 +456,8 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
   OCMExpect([_mockBackend createAuthURI:[OCMArg any] callback:[OCMArg any]])
       .andDispatchError2([FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
                                   completion:^(NSArray<NSString *> *_Nullable signInMethods,
                                                NSError *_Nullable error) {
@@ -457,6 +467,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
                                     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
                                     [expectation fulfill];
                                   }];
+#pragma clang diagnostic pop
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
@@ -1818,6 +1829,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kEmail
                                             password:kFakePassword
                                          displayName:kDisplayName
+                                             idToken:kIDToken
                                 requestConfiguration:[FIRAuth auth].requestConfiguration];
   [constRequestWithRecaptchaToken injectRecaptchaFields:kFakeRecaptchaResponse
                                        recaptchaVersion:kFakeRecaptchaVersion];
@@ -1867,6 +1879,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kEmail
                                             password:kFakePassword
                                          displayName:kDisplayName
+                                             idToken:kIDToken
                                 requestConfiguration:[FIRAuth auth].requestConfiguration];
   [constRequestWithRecaptchaToken injectRecaptchaFields:kFakeRecaptchaResponse
                                        recaptchaVersion:kFakeRecaptchaVersion];

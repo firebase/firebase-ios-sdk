@@ -17,30 +17,14 @@
 // MARK: This file is used to evaluate the experience of using Analytics APIs in Swift.
 
 import Foundation
+import StoreKit
 import SwiftUI
 
-@testable import FirebaseAnalyticsSwift
 import FirebaseAnalytics
+import FirebaseAnalyticsSwift
+import SwiftUI
 
 final class AnalyticsAPITests {
-  @available(iOS 13.0, *)
-  func loggedAnalyticsModifierUsage(viewModifier: LoggedAnalyticsModifier,
-                                    content: LoggedAnalyticsModifier.Content) {
-    let _: String = viewModifier.screenName
-    let _: String = viewModifier.screenClass
-    let _: [String: Any] = viewModifier.extraParameters
-    let _: any View = viewModifier.body(content: content)
-  }
-
-  @available(iOS 13.0, *)
-  func viewExtensionUsage(viewModifier: LoggedAnalyticsModifier, view: any View) {
-    let _: any View = view.analyticsScreen(
-      name: "name",
-      class: "class",
-      extraParameters: ["param": 1]
-    )
-  }
-
   func usage() {
     // MARK: - Analytics
 
@@ -54,34 +38,43 @@ final class AnalyticsAPITests {
     Analytics.setDefaultEventParameters(["default": 100])
 
     Analytics.sessionID { sessionID, error in }
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        Task {
-          let _: Int64? = try? await Analytics.sessionID()
-        }
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      Task {
+        let _: Int64? = try? await Analytics.sessionID()
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
+
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    @available(watchOS, unavailable)
+    func logTransactionUsage() {
+      let transaction: StoreKit.Transaction! = nil
+      Analytics.logTransaction(transaction!)
+    }
 
     // MARK: - AppDelegate
 
     Analytics.handleEvents(forBackgroundURLSession: "session_id", completionHandler: {})
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        Task {
-          await Analytics.handleEvents(forBackgroundURLSession: "session_id")
-        }
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      Task {
+        await Analytics.handleEvents(forBackgroundURLSession: "session_id")
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
     Analytics.handleOpen(URL(string: "https://google.com")!)
     Analytics.handleUserActivity(NSUserActivity(activityType: "editing"))
 
     // MARK: - Consent
 
-    Analytics.setConsent([.analyticsStorage: .granted, .adStorage: .denied])
+    Analytics.setConsent([.adPersonalization: .granted,
+                          .adStorage: .denied,
+                          .adUserData: .granted,
+                          .analyticsStorage: .denied])
 
     // MARK: - OnDeviceConversion
 
     Analytics.initiateOnDeviceConversionMeasurement(emailAddress: "test@gmail.com")
+    Analytics.initiateOnDeviceConversionMeasurement(phoneNumber: "+15555555555")
+    Analytics.initiateOnDeviceConversionMeasurement(hashedEmailAddress: Data())
+    Analytics.initiateOnDeviceConversionMeasurement(hashedPhoneNumber: Data())
 
     // MARK: - EventNames
 
@@ -203,5 +196,30 @@ final class AnalyticsAPITests {
       AnalyticsUserPropertyAllowAdPersonalizationSignals,
       AnalyticsUserPropertySignUpMethod,
     ]
+
+    // MARK: - Analytics + SwiftUI
+
+    @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
+    @available(watchOS, unavailable)
+    struct MyView: View {
+      let name: String
+      let klass: String
+      let extraParameters: [String: Any]
+
+      var body: some View {
+        Text("Hello, world!")
+          .analyticsScreen(name: name,
+                           class: klass,
+                           extraParameters: extraParameters)
+        Text("Hello, world!")
+          .analyticsScreen(name: name,
+                           extraParameters: extraParameters)
+        Text("Hello, world!")
+          .analyticsScreen(name: name,
+                           class: klass)
+        Text("Hello, world!")
+          .analyticsScreen(name: name)
+      }
+    }
   }
 }

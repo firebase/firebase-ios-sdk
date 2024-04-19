@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Combine
-import XCTest
 import FirebaseAuth
 import FirebaseAuthTestingSupport
+import Foundation
+import XCTest
 
 class PhoneAuthProviderTests: XCTestCase {
   fileprivate static let phoneNumber = "55555555"

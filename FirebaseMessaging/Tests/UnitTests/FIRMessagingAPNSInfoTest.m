@@ -72,15 +72,20 @@
 - (void)testAPNSInfoEncodingAndDecoding {
   NSDictionary *validDictionary = @{
     kFIRMessagingTokenOptionsAPNSKey : [@"tokenData" dataUsingEncoding:NSUTF8StringEncoding],
-    kFIRMessagingTokenOptionsAPNSIsSandboxKey : @"sandboxValueAsString"
+    kFIRMessagingTokenOptionsAPNSIsSandboxKey : @1234
   };
+  NSError *error;
   FIRMessagingAPNSInfo *info =
       [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:validDictionary];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
-  FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
-#pragma clang diagnostic pop
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info
+                                          requiringSecureCoding:YES
+                                                          error:&error];
+  XCTAssertNil(error);
+  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class, NSData.class ]];
+  FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
+                                                                           fromData:archive
+                                                                              error:&error];
+  XCTAssertNil(error);
   XCTAssertEqualObjects(info.deviceToken, restoredInfo.deviceToken);
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }

@@ -28,7 +28,7 @@ static NSString *const kFIRParameterLabel = @"label";
 static NSString *const kReengagementSource = @"Firebase";
 static NSString *const kReengagementMedium = @"notification";
 static NSString *const kFIREventOriginFCM = @"fcm";
-static const NSTimeInterval kAsyncTestTimout = 0.5;
+static const NSTimeInterval kAsyncTestTimeout = 0.5;
 
 typedef void (^FakeAnalyticsLogEventHandler)(NSString *origin,
                                              NSString *name,
@@ -237,7 +237,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
   [FIRMessagingAnalytics logEvent:kFIRIEventFirebaseCampaign
                  withNotification:notification
                       toAnalytics:analytics];
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 - (void)testParamForEventAndNotification {
   NSDictionary *notification = @{
@@ -373,7 +373,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
         expectation = nil;
       }];
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testConversionTrackingUserProperty {
@@ -401,7 +401,7 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
         [expectation fulfill];
       }];
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 }
 
 - (void)testNoConversionTracking {

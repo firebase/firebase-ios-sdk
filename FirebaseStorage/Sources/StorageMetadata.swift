@@ -15,11 +15,12 @@
 import Foundation
 
 /**
- * Class which represents the metadata on an object in Firebase Storage. This metadata is
+ * Class which represents the metadata on an object in Firebase Storage.
+ *
+ * This metadata is
  * returned on successful operations, and can be used to retrieve download URLs, content types,
- * and a Storage reference to the object in question. Full documentation can be found at the GCS
- * Objects#resource docs.
- * @see https://cloud.google.com/storage/docs/json_api/v1/objects#resource
+ * and a Storage reference to the object in question. Full documentation can be found in the
+ * [GCS documentation](https://cloud.google.com/storage/docs/json_api/v1/objects#resource)
  */
 @objc(FIRStorageMetadata) open class StorageMetadata: NSObject {
   // MARK: - Public APIs
@@ -145,6 +146,10 @@ import Foundation
 
   // MARK: - Public Initializers
 
+  /**
+   * Creates an empty instance of StorageMetadata.
+   * @return An empty instance of StorageMetadata.
+   */
   @objc override public convenience init() {
     self.init(dictionary: [:])
   }
@@ -202,17 +207,17 @@ import Foundation
 
   // MARK: - Internal APIs
 
-  internal func updatedMetadata() -> [String: AnyHashable] {
+  func updatedMetadata() -> [String: AnyHashable] {
     return remove(matchingMetadata: dictionaryRepresentation(), oldMetadata: initialMetadata)
   }
 
-  internal enum StorageMetadataType {
+  enum StorageMetadataType {
     case unknown
     case file
     case folder
   }
 
-  internal var fileType: StorageMetadataType
+  var fileType: StorageMetadataType
 
   // MARK: - Private APIs and data
 
@@ -240,7 +245,7 @@ import Foundation
     return nil
   }
 
-  internal static func RFC3339StringFromDate(_ date: Date) -> String {
+  static func RFC3339StringFromDate(_ date: Date) -> String {
     return dateFormatter.string(from: date)
   }
 

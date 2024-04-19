@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  - Concern 2: Whatever the FIID is, we should send it with the Crash report so we're in sync with
  * Sessions and other Firebase SDKs
  */
-- (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid))block;
+- (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid, NSString *authToken))block;
 
 @end
 

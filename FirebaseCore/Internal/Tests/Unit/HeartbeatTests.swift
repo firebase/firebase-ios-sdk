@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseCoreInternal
+import XCTest
 
 class TimePeriodTests: XCTestCase {
   override func setUpWithError() throws {
@@ -21,7 +21,7 @@ class TimePeriodTests: XCTestCase {
   }
 
   func testTimeIntervals() throws {
-    TimePeriod.allCases.forEach { period in
+    for period in TimePeriod.allCases {
       XCTAssertEqual(period.timeInterval, Double(period.rawValue) * 86400)
     }
   }
@@ -36,6 +36,12 @@ class HeartbeatTests: XCTestCase {
   var heartbeat: Heartbeat!
   var heartbeatData: Data!
 
+  var deterministicEncoder: JSONEncoder = {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = .sortedKeys
+    return encoder
+  }()
+
   override func setUpWithError() throws {
     heartbeat = Heartbeat(
       agent: "dummy_agent",
@@ -43,7 +49,7 @@ class HeartbeatTests: XCTestCase {
       timePeriods: [.daily],
       version: 100
     )
-    heartbeatData = try JSONEncoder().encode(heartbeat)
+    heartbeatData = try deterministicEncoder.encode(heartbeat)
   }
 
   func testHeartbeatCurrentVersion() throws {
@@ -67,7 +73,7 @@ class HeartbeatTests: XCTestCase {
     let decodedHeartbeat = try JSONDecoder()
       .decode(Heartbeat.self, from: data)
 
-    let encodedHeartbeat = try JSONEncoder()
+    let encodedHeartbeat = try deterministicEncoder
       .encode(decodedHeartbeat)
 
     // Then

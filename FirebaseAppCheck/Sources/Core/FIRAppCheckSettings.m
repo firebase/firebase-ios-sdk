@@ -16,6 +16,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,19 +30,17 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 @interface FIRAppCheckSettings ()
 
 @property(nonatomic, weak, readonly) FIRApp *firebaseApp;
-@property(nonatomic, readonly) NSUserDefaults *userDefaults;
+@property(nonatomic, readonly) GULUserDefaults *userDefaults;
 @property(nonatomic, readonly) NSBundle *mainBundle;
 @property(nonatomic, readonly) NSString *userDefaultKey;
-@property(nonatomic, nullable) NSNumber *isTokenAutoRefreshEnabledNumber;
+@property(nonatomic, assign) BOOL isTokenAutoRefreshConfigured;
 
 @end
 
 @implementation FIRAppCheckSettings
 
-@dynamic isTokenAutoRefreshEnabled;
-
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
-                userDefault:(NSUserDefaults *)userDefaults
+                userDefault:(GULUserDefaults *)userDefaults
                  mainBundle:(NSBundle *)mainBundle {
   self = [super init];
   if (self) {
@@ -49,16 +49,18 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     _mainBundle = mainBundle;
     _userDefaultKey = [kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
         stringByAppendingString:firebaseApp.name];
+    [super setIsTokenAutoRefreshEnabled:NO];
+    _isTokenAutoRefreshConfigured = NO;
   }
   return self;
 }
 
 - (BOOL)isTokenAutoRefreshEnabled {
   @synchronized(self) {
-    if (self.isTokenAutoRefreshEnabledNumber != nil) {
+    if (self.isTokenAutoRefreshConfigured) {
       // Return value form the in-memory cache to avoid accessing the user default or bundle when
       // not required.
-      return self.isTokenAutoRefreshEnabledNumber.boolValue;
+      return [super isTokenAutoRefreshEnabled];
     }
 
     // Check user defaults for a value set during the previous launch.
@@ -73,9 +75,10 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 
     if (isTokenAutoRefreshEnabledNumber != nil) {
       // Update in-memory cache.
-      self.isTokenAutoRefreshEnabledNumber = isTokenAutoRefreshEnabledNumber;
+      self.isTokenAutoRefreshConfigured = YES;
+      self.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabledNumber.boolValue;
       // Return the value.
-      return isTokenAutoRefreshEnabledNumber.boolValue;
+      return [super isTokenAutoRefreshEnabled];
     }
 
     // Fallback to the global data collection flag.
@@ -91,8 +94,9 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 
 - (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
   @synchronized(self) {
-    self.isTokenAutoRefreshEnabledNumber = @(isTokenAutoRefreshEnabled);
-    [self.userDefaults setObject:self.isTokenAutoRefreshEnabledNumber forKey:self.userDefaultKey];
+    self.isTokenAutoRefreshConfigured = YES;
+    [super setIsTokenAutoRefreshEnabled:isTokenAutoRefreshEnabled];
+    [self.userDefaults setBool:isTokenAutoRefreshEnabled forKey:self.userDefaultKey];
   }
 }
 

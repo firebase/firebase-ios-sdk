@@ -1,3 +1,67 @@
+# Unreleased
+- [changed] Firebase now requires at least Xcode 15.2. See
+  https://developer.apple.com/news/?id=fxu2qp7b for more info.
+- [Zip Distribution] Update zip integration instructions with tips for
+  preserving symlinks and protecting code signatures.
+
+# Firebase 10.24.0
+- Fix validation issue for macOS and macCatalyst XCFrameworks related to
+  framework directory structure. (#12587)
+- Extend community watchOS support to zip and Carthage distributions. See
+  https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform
+  for the Firebase products included. (#8731)
+- Add code signatures to all of Firebase's binary artifacts (#12238).
+
+# Firebase 10.23.1
+- [Swift Package Manager / CocoaPods] Fixes the macOS/Catalyst xcframework
+  structure issue in Firebase Analytics blocking submission via Xcode 15.3.
+
+# Firebase 10.23.0
+- Fix validation issue for macOS and macCatalyst XCFrameworks. (#12505)
+
+# Firebase 10.22.1
+- [Swift Package Manager / CocoaPods] Fix app validation issues on Xcode 15.3
+  for those using the `FirebaseAnalyticsOnDeviceConversion` SDK. This issue was
+  caused by embedding an incomplete `Info.plist` from a dependency of the SDK.
+  (#12441)
+
+# Firebase 10.22.0
+- [Swift Package Manager] Firebase now enforces a Swift 5.7.1 minimum version,
+  which is aligned with the Xcode 14.1 minimum. (#12350)
+- Revert Firebase 10.20.0 change that removed `Info.plist` files from
+  static xcframeworks (#12390).
+- Added privacy manifests for Firebase SDKs named in
+  https://developer.apple.com/support/third-party-SDK-requirements/. Please
+  review https://firebase.google.com/docs/ios/app-store-data-collection for
+  updated guidance on interpreting Firebase's privacy manifests and completing
+  app Privacy Nutrition Labels. (#11490)
+- Fixed validation issues in Xcode 15.3 that affected binary distributions
+  including Analytics, Firestore (SwiftPM binary distribution), and the
+  Firebase zip distribution. (#12441)
+- [Zip Distribution] The manual integration instructions found in the
+  `Firebase.zip` have been updated for Xcode 15 users. The updated instructions
+  call for embedding SDKs dragged in from the `Firebase.zip`. This will enable
+  Xcode's tooling to detect privacy manifests bundled within the xcframework.
+- [Zip Distribution] Several xcframeworks have been renamed to resolve the above
+  Xcode 15.3 validation issues. Please ensure that the following renamed
+  xcframeworks are removed from your project when upgrading (#12437, #12447):
+    - `abseil.xcframework` to `absl.xcframework`
+    - `BoringSSL-GRPC.xcframework` to `openssl_grpc.xcframework`
+    - `gRPC-Core.xcframework` to `grpc.xcframework`
+    - `gRPC-C++.xcframework` to `grpcpp.xcframework`
+    - `leveldb-library.xcframework` to `leveldb.xcframework`
+    - `PromisesSwift.xcframework` to `Promises.xcframework`
+
+# Firebase 10.21.0
+- Firebase now requires at least CocoaPods version 1.12.0 to enable privacy
+  manifest support.
+
+# Firebase 10.20.0
+- The following change only applies to those using a binary distribution of
+  a Firebase SDK(s): In preparation for supporting Privacy Manifests, each
+  platform framework directory within a static xcframework no longer contains
+  an `Info.plist` file (#12243).
+
 # Firebase 10.14.0
 - For developers building for visionOS, Xcode 15 beta 6 or later is required.
 
@@ -139,7 +203,7 @@
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
   completion for Analytics APIs on macOS and tvOS. (#9032)
 - [added] Firebase now includes community supported Combine publishers. More details can be found
-  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseCombineSwift/README.md). (#7295)
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseCombineSwift/README.md). (#7295)
 
 # Firebase 8.9.0
 - [added] Firebase introduces beta support for tvOS, macOS, and Catalyst.
@@ -266,7 +330,7 @@
 
 # Firebase 6.31.0 FirebaseCore 6.10.1 -- M78
 - [added] Beta release of Swift Package Manager. Details
-  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/main/SwiftPackageManager.md). (#3136)
 - [changed] Firebase's dependencies on nanopb are updated from version 0.3.9.5 to
   version 0.3.9.6 (1.30906.0 in CocoaPods).
 
@@ -300,7 +364,7 @@
 - [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
   `Protobuf.framework` is now separately installable via adding
   `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage usage
-  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/main/Carthage.md#carthage-usage).
   (#5276)
 
 # v6.6.6 -- M68

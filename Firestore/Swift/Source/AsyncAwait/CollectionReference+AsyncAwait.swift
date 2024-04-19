@@ -14,30 +14,32 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 import Foundation
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public extension CollectionReference {
-    /// Adds a new document to this collection with the specified data, assigning it a document ID
-    /// automatically.
-    /// - Parameter data: A `Dictionary` containing the data for the new document.
-    /// - Throws: `Error` if the backend rejected the write.
-    /// - Returns: A `DocumentReference` pointing to the newly created document.
-    @discardableResult
-    func addDocument(data: [String: Any]) async throws -> DocumentReference {
-      return try await withCheckedThrowingContinuation { continuation in
-        var document: DocumentReference?
-        document = self.addDocument(data: data) { error in
-          if let err = error {
-            continuation.resume(throwing: err)
-          } else {
-            // Our callbacks guarantee that we either return an error or a document.
-            continuation.resume(returning: document!)
-          }
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+public extension CollectionReference {
+  /// Adds a new document to this collection with the specified data, assigning it a document ID
+  /// automatically.
+  /// - Parameter data: A `Dictionary` containing the data for the new document.
+  /// - Throws: `Error` if the backend rejected the write.
+  /// - Returns: A `DocumentReference` pointing to the newly created document.
+  @discardableResult
+  func addDocument(data: [String: Any]) async throws -> DocumentReference {
+    return try await withCheckedThrowingContinuation { continuation in
+      var document: DocumentReference?
+      document = self.addDocument(data: data) { error in
+        if let err = error {
+          continuation.resume(throwing: err)
+        } else {
+          // Our callbacks guarantee that we either return an error or a document.
+          continuation.resume(returning: document!)
         }
       }
     }
   }
-#endif
+}

@@ -130,6 +130,7 @@ const std::vector<OrderBy>& Query::normalized_order_bys() const {
     memoized_normalized_order_bys_ = std::move(result);
   }
   return memoized_normalized_order_bys_;
+
 }
 
 LimitType Query::limit_type() const {
@@ -298,23 +299,16 @@ std::string Query::ToString() const {
 }
 
 const Target& Query::ToTarget() const& {
-  if (memoized_target == nullptr) {
-    memoized_target = ToTarget(normalized_order_bys());
-  }
-
-  return *memoized_target;
+  return memoized_target_->memoize(
+      [&]() { return ToTarget(normalized_order_bys()); });
 }
 
 const Target& Query::ToAggregateTarget() const& {
-  if (memoized_aggregate_target == nullptr) {
-    memoized_aggregate_target = ToTarget(explicit_order_bys_);
-  }
-
-  return *memoized_aggregate_target;
+  return memoized_aggregate_target_->memoize(
+      [&]() { return ToTarget(explicit_order_bys_); });
 }
 
-const std::shared_ptr<const Target> Query::ToTarget(
-    const std::vector<OrderBy>& order_bys) const& {
+Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
   if (limit_type_ == LimitType::Last) {
     // Flip the orderBy directions since we want the last results
     std::vector<OrderBy> new_order_bys;
@@ -335,13 +329,11 @@ const std::shared_ptr<const Target> Query::ToTarget(
                                 start_at_->position(), start_at_->inclusive())}
                           : absl::nullopt;
 
-    Target target(path(), collection_group(), filters(), new_order_bys, limit_,
+    return Target(path(), collection_group(), filters(), new_order_bys, limit_,
                   new_start_at, new_end_at);
-    return std::make_shared<Target>(std::move(target));
   } else {
-    Target target(path(), collection_group(), filters(), order_bys, limit_,
+    return Target(path(), collection_group(), filters(), order_bys, limit_,
                   start_at(), end_at());
-    return std::make_shared<Target>(std::move(target));
   }
 }
 

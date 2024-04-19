@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseFirestoreSwift
+import SwiftUI
 
 private struct Fruit: Codable, Identifiable, Equatable {
   @DocumentID var id: String?

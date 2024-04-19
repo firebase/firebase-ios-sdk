@@ -1,3 +1,20 @@
+# Unreleased
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
+# 10.19.1
+- [fixed] Fix bug in apps using both AppCheck and ARCore where AppCheck
+  unnecessarily tries to create tokens for the ARCore SDK. This results in
+  noisy logs containing harmless attestation errors.
+
+# 10.18.0
+- [changed] Extracted core `FirebaseAppCheck` functionality into a new
+  [`AppCheckCore`](https://github.com/google/app-check) dependency. (#12067)
+
+# 10.17.0
+- [fixed] Added invalid key error handling in App Attest key attestation. (#11986)
+- [fixed] Replaced semantic imports (`@import FirebaseAppCheckInterop`) with umbrella header imports
+  (`#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>`) for ObjC++ compatibility (#11916).
+
 # 10.9.0
 - [feature] Added `limitedUseToken(completion:)` for obtaining limited-use tokens for
   protecting non-Firebase backends. (#11086)

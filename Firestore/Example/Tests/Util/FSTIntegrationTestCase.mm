@@ -569,6 +569,22 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   return doc;
 }
 
+- (void)runTransaction:(FIRFirestore *)db
+                 block:(id _Nullable (^)(FIRTransaction *, NSError **error))block
+            completion:
+                (nullable void (^)(id _Nullable result, NSError *_Nullable error))completion {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"runTransaction"];
+  [db runTransactionWithOptions:nil
+                          block:block
+                     completion:^(id _Nullable result, NSError *_Nullable error) {
+                       if (completion) {
+                         completion(result, error);
+                       }
+                       [expectation fulfill];
+                     }];
+  [self awaitExpectation:expectation];
+}
+
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
   XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
   [ref setData:data merge:YES completion:[self completionForExpectation:expectation]];
@@ -602,6 +618,25 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   XCTestExpectation *expectation = [self expectationWithDescription:@"enableNetwork"];
   [self.db enableNetworkWithCompletion:[self completionForExpectation:expectation]];
   [self awaitExpectation:expectation];
+}
+
+/**
+ * Checks that running the query while online (against the backend/emulator) results in the same
+ * documents as running the query while offline. It also checks that both online and offline
+ * query result is equal to the expected documents.
+ *
+ * @param query The query to check.
+ * @param expectedDocs Array of document keys that are expected to match the query.
+ */
+- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
+  FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
+                                                          source:FIRFirestoreSourceServer];
+  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
+                                                         source:FIRFirestoreSourceCache];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
+                        FIRQuerySnapshotGetIDs(docsFromCache));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
 }
 
 - (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {

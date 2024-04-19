@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-import FirebaseInstallations
 import FirebaseCore
+import FirebaseInstallations
+import Foundation
 import UIKit
 
 // Avoids exposing internal APIs to Swift users
@@ -537,7 +537,7 @@ struct FeedbackReport: Codable {
     do {
       return try JSONDecoder().decode(T.self, from: data)
     } catch let thrownError {
-      handleApiParserErorr(thrownError, &error)
+      handleApiParserError(thrownError, &error)
       return nil
     }
   }
@@ -558,12 +558,12 @@ struct FeedbackReport: Codable {
         options: JSONSerialization.ReadingOptions(rawValue: 0)
       ) as? T
     } catch let thrownError {
-      handleApiParserErorr(thrownError, &error)
+      handleApiParserError(thrownError, &error)
       return nil
     }
   }
 
-  static func handleApiParserErorr(_ thrownError: Error, _ error: inout Error?) {
+  static func handleApiParserError(_ thrownError: Error, _ error: inout Error?) {
     let description: String = (thrownError as NSError)
       .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
     error = thrownError

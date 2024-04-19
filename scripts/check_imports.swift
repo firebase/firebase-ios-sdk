@@ -18,7 +18,7 @@
 // Utility script for verifying `import` and `include` syntax. This ensures a
 // consistent style as well as functionality across multiple package managers.
 
-// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/master/HeadersImports.md.
+// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/main/HeadersImports.md.
 
 import Foundation
 
@@ -28,13 +28,14 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "IntegrationTesting/CocoapodsIntegrationTest/",
+                       "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM tests test module imports.
-    "ClientApp", // The ClientApp tests module imports.
+    "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
   ] +
 
@@ -161,7 +162,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
         }
       } else if importFile.first == "<", !isPrivate, !isTestFile, !isBridgingHeader, !isPublic {
         // Verify that double quotes are always used for intra-module imports.
-        if importFileRaw.starts(with: "Firebase") {
+        if importFileRaw.starts(with: "Firebase"),
+           // Allow intra-module imports of FirebaseAppCheckInterop.
+           // TODO: Remove the FirebaseAppCheckInterop exception when it's moved to a separate repo.
+           importFile.range(of: "FirebaseAppCheckInterop/FirebaseAppCheckInterop.h") == nil {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
                        lineNum)

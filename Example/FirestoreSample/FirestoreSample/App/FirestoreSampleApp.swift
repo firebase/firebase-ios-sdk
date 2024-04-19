@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
+import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
-import FirebaseAuth
+import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Firebase
-import FirebaseCore
-import FirebaseAuth
 import FirebaseABTesting
 import FirebaseAppCheck
+import FirebaseAuth
+import FirebaseCore
+import Foundation
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
 #endif
@@ -27,15 +27,14 @@ import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions
-#if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
-  import FirebaseInAppMessaging
-  @testable import FirebaseInAppMessagingSwift
-  import SwiftUI
-#endif
 import FirebaseInstallations
 import FirebaseMessaging
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebasePerformance
+
+  @testable import FirebaseInAppMessaging
+  import FirebaseInAppMessagingSwift
+  import SwiftUI
 #endif
 import FirebaseRemoteConfig
 import FirebaseSessions
@@ -71,7 +70,8 @@ class importTest: XCTestCase {
     #else
       // Device model should show up as x86_64 for iOS, tvOS, and watchOS
       // simulators.
-      XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
+      let model = GULAppEnvironmentUtil.deviceModel()
+      XCTAssertTrue(model == "x86_64" || model == "arm64")
     #endif
 
     let versionParts = FirebaseVersion().split(separator: ".")

@@ -131,8 +131,10 @@ NS_SWIFT_NAME(User)
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn updateEmail:completion:
-    @brief Updates the email address for the user. On success, the cached user profile data is
-        updated.
+    @brief [Deprecated] Updates the email address for the user. On success, the cached user profile
+   data is updated. Throws FIRAuthErrorCodeInvalidCredentials error when [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled.
     @remarks May fail if there is already an account with this email address that was created using
         email and password authentication.
 
@@ -160,7 +162,9 @@ NS_SWIFT_NAME(User)
  */
 - (void)updateEmail:(NSString *)email
          completion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(updateEmail(to:completion:));
+    NS_SWIFT_NAME(updateEmail(to:completion:)) DEPRECATED_MSG_ATTRIBUTE(
+        "This method is deprecated and will be removed in a future release. Use "
+        "sendEmailVerification(beforeUpdatingEmail email: String) instead.");
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.
@@ -257,11 +261,10 @@ NS_SWIFT_NAME(User)
             Auth section of the Firebase console.
         + `AuthErrorCodeEmailAlreadyInUse` -  Indicates the email asserted by the credential
             (e.g. the email in a Facebook access token) is already in use by an existing account,
-            that cannot be authenticated with this method. Call `Auth.fetchSignInMethods(forEmail:)`
-            for this user’s email and then prompt them to sign in with any of the sign-in providers
-            returned. This error will only be thrown if the "One account per email address"
-            setting is enabled in the Firebase console, under Auth settings. Please note that the
-            error code raised in this specific situation may not be the same on Web and Android.
+            that cannot be authenticated with this method. This error will only be thrown if the
+          "One account per email address" setting is enabled in the Firebase console, under Auth
+          settings. Please note that the error code raised in this specific situation may not be
+          the same on Web and Android.
         + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
         + `AuthErrorCodeWrongPassword` - Indicates the user attempted reauthentication with
             an incorrect password, if credential is of the type `EmailPasswordAuthCredential`.
