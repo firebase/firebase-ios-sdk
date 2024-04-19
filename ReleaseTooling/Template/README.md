@@ -24,11 +24,11 @@ Xcode 15.2 or newer is required.
 To integrate a Firebase SDK with your app:
 
 1. Find the desired SDK from the list within `METADATA.md`.
-2. Make sure you have an Xcode project open in Xcode.
-3. In Xcode, hit `⌘-1` to open the Project Navigator pane. It will open on
+1. Make sure you have an Xcode project open in Xcode.
+1. In Xcode, hit `⌘-1` to open the Project Navigator pane. It will open on
    left side of the Xcode window if it wasn't already open.
-4. Remove any existing Firebase xcframeworks from your project.
-5. Drag each xcframework from the "FirebaseAnalytics" directory into the Project
+1. Remove any existing Firebase xcframeworks from your project.
+1. Drag each xcframework from the "FirebaseAnalytics" directory into the Project
    Navigator pane. In the dialog box that appears, make sure the target you
    want the framework to be added to has a checkmark next to it, and that
    you've selected "Copy items if needed".
@@ -36,25 +36,20 @@ To integrate a Firebase SDK with your app:
    > ⚠ To disable AdId support, do not copy
    > `GoogleAppMeasurementIdentitySupport.xcframework`.
 
-6. Drag each framework from the directory named after the SDK into the Project
+1. Drag each framework from the directory named after the SDK into the Project
    Navigator pane. Note that there may be no additional frameworks, in which
    case this directory will be empty. For instance, if you want the Database
    SDK, look in the Database folder for the required frameworks. In the dialog
    box that appears, make sure the target you want this framework to be added to
    has a checkmark next to it, and that you've selected "Copy items if needed."
 
-7. If using Xcode 15, embed each framework that was dragged in. Navigate to the
+1. If using Xcode 15, embed each framework that was dragged in. Navigate to the
    target's _General_ settings and find _Frameworks, Libraries, & Embedded
    Content_. For each framework dragged in from the `Firebase.zip`, select
    **Embed & Sign**. This step will enable privacy manifests to be picked up by
    Xcode's tooling.
 
-8. If the SDK has resources, go into the Resources folders, which will be in
-   the SDK folder. Drag all of those resources into the Project Navigator, just
-   like the frameworks, again making sure that the target you want to add these
-   resources to has a checkmark next to it, and that you've selected "Copy items
-   if needed".
-9. Add the `-ObjC` flag to **Other Linker Settings**:
+1. Add the `-ObjC` flag to **Other Linker Settings**:
 
    a. In your project settings, open the **Settings** panel for your target.
 
@@ -63,7 +58,7 @@ To integrate a Firebase SDK with your app:
 
    c. Double-click the setting, click the '+' button, and add `-ObjC`
 
-10. Add the `-lc++` flag to **Other Linker Settings**:
+1. Add the `-lc++` flag to **Other Linker Settings**:
 
    a. In your project settings, open the **Settings** panel for your target.
 
@@ -72,13 +67,13 @@ To integrate a Firebase SDK with your app:
 
    c. Double-click the setting, click the '+' button, and add `-lc++`
 
-11. Drag the `Firebase.h` header in this directory into your project. This will
+1. Drag the `Firebase.h` header in this directory into your project. This will
    allow you to `#import "Firebase.h"` and start using any Firebase SDK that you
    have.
-12. Drag `module.modulemap` into your project and update the
+1. Drag `module.modulemap` into your project and update the
    "User Header Search Paths" in your project's Build Settings to include the
    directory that contains the added module map.
-13. If your app does not include any Swift implementation, you may need to add
+1. If your app does not include any Swift implementation, you may need to add
    a dummy Swift file to the app to prevent Swift system library missing
    symbol linker errors. See
    https://forums.swift.org/t/using-binary-swift-sdks-from-non-swift-apps/55989.
@@ -86,7 +81,7 @@ To integrate a Firebase SDK with your app:
    > ⚠ If prompted with the option to create a corresponding bridging header
    > for the new Swift file, select **Don't create**.
 
-14. You're done! Build your target and start using Firebase.
+1. You're done! Build your target and start using Firebase.
 
 If you want to add another SDK, repeat the steps above with the xcframeworks for
 the new SDK. You only need to add each framework once, so if you've already
