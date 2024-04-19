@@ -658,6 +658,8 @@ struct FrameworkBuilder {
         includingPropertiesForKeys: nil
       )
       .filter { $0.pathExtension == "bundle" }
+      // Filter out `gRPCCertificates-Cpp.bundle` since it is unused.
+      .filter { $0.lastPathComponent == "gRPCCertificates-Cpp.bundle" }
       // Bundles are moved rather than copied to prevent them from being
       // packaged in a `Resources` directory at the root of the xcframework.
       .forEach { try! fileManager.moveItem(
