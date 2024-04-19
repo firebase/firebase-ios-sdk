@@ -121,6 +121,14 @@ function RunXcodebuild() {
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
+    # If present in the arg list, delete the xcresult bundle so it can be
+    # created again on the next attempt.
+    for arg in "$@"; do
+      if [[ "$arg" =~ \.xcresult$ ]]; then
+        rm -rf "$arg"
+      fi
+    done
+
     result=0
     xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
   fi
@@ -663,6 +671,8 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
+      -resultBundlePath \
+        $(mktemp -d)/$product-$platform-$(date +"%Y.%m.%d_%H:%M:%S")-$(uuidgen).xcresult \
       test
     ;;
 
