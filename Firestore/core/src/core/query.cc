@@ -130,7 +130,6 @@ const std::vector<OrderBy>& Query::normalized_order_bys() const {
     memoized_normalized_order_bys_ = std::move(result);
   }
   return memoized_normalized_order_bys_;
-
 }
 
 LimitType Query::limit_type() const {
