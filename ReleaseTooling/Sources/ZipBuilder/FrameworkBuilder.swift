@@ -665,7 +665,6 @@ struct FrameworkBuilder {
         to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
       ) }
 
-
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
                         frameworkName: framework,
