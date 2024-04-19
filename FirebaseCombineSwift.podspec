@@ -68,9 +68,13 @@ for internal testing only. It should not be published.
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
+    #TODO: Auth unit tests need to be ported from depending on ObjC internal implementation.
     unit_tests.source_files = [
-      'FirebaseCombineSwift/Tests/Unit/**/*.swift',
+      'FirebaseCombineSwift/Tests/Unit/Firestore/*.swift',
+      'FirebaseCombineSwift/Tests/Unit/Storage/*.swift',
       'FirebaseCombineSwift/Tests/Unit/**/*.h',
+      'FirebaseCombineSwift/Tests/Unit/Credentials.swift',
+      'FirebaseCombineSwift/Tests/Unit/FirebaseApp+Tests.swift',
       'SharedTestUtilities/FIROptionsMock.[mh]',
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
     ]
