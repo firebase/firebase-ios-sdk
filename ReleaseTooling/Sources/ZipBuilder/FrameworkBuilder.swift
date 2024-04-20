@@ -653,19 +653,31 @@ struct FrameworkBuilder {
         .resolvingSymlinksInPath()
 
       // Move resource bundles into the platform framework.
-      try? fileManager.contentsOfDirectory(
-        at: frameworkPath.deletingLastPathComponent(),
-        includingPropertiesForKeys: nil
-      )
-      .filter { $0.pathExtension == "bundle" }
-      // Filter out `gRPCCertificates-Cpp.bundle` since it is unused.
-      .filter { $0.lastPathComponent == "gRPCCertificates-Cpp.bundle" }
-      // Bundles are moved rather than copied to prevent them from being
-      // packaged in a `Resources` directory at the root of the xcframework.
-      .forEach { try! fileManager.moveItem(
-        at: $0,
-        to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
-      ) }
+      do {
+        try fileManager.contentsOfDirectory(
+          at: frameworkPath.deletingLastPathComponent(),
+          includingPropertiesForKeys: nil
+        )
+        .filter { $0.pathExtension == "bundle" }
+        // Bundles are moved rather than copied to prevent them from being
+        // packaged in a `Resources` directory at the root of the xcframework.
+        .forEach {
+          // Delete `gRPCCertificates-Cpp.bundle` since it is not needed (#9184).
+          guard $0.lastPathComponent != "gRPCCertificates-Cpp.bundle" else {
+            try fileManager.removeItem(at: $0)
+            return
+          }
+
+          try fileManager.moveItem(
+            at: $0,
+            to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+          )
+        }
+      } catch {
+        fatalError(
+          "Could not move resources for framework \(frameworkPath), platform \(platform). Error: \(error)"
+        )
+      }
 
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
