@@ -670,7 +670,7 @@ struct FrameworkBuilder {
 
           try fileManager.moveItem(
             at: $0,
-            to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+            to: resourceDir.appendingPathComponent($0.lastPathComponent)
           )
         }
       } catch {
