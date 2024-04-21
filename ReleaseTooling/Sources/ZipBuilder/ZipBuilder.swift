@@ -485,7 +485,7 @@ struct ZipBuilder {
           if packageKind == "Firebase" {
             // Move all the bundles in the frameworks out to a common "Resources" directory to
             // match the existing Zip structure.
-            let resourcesDir = productPath.appendingPathComponent("Resources-\(UUID().uuidString)")
+            let resourcesDir = productPath.appendingPathComponent("Resources")
             try fileManager.moveItem(at: xcResourceDir, to: resourcesDir)
 
           } else {
