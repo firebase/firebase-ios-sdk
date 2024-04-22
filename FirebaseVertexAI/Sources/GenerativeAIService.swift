@@ -162,7 +162,7 @@ struct GenerativeAIService {
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(
-      "\(GenerativeAIService.languageTag)",
+      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
