@@ -34,7 +34,7 @@ public class VertexAI: NSObject {
       fatalError("No instance of the default Firebase app was found.")
     }
 
-    return vertexAI(app: app)
+    return vertexAI(app: app, location: location)
   }
 
   /// Creates an instance of `VertexAI` configured with a custom `FirebaseApp`.
