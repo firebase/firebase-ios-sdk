@@ -197,7 +197,7 @@ public struct CitationMetadata: Decodable {
 
 /// A struct describing a source attribution.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct Citation: Decodable {
+public struct Citation {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
 
@@ -207,7 +207,7 @@ public struct Citation: Decodable {
   /// A link to the cited source.
   public let uri: String
 
-  /// The license the cited source work is distributed under.
+  /// The license the cited source work is distributed under, if specified.
   public let license: String?
 }
 
@@ -335,5 +335,25 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     candidatesTokenCount = try container
       .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
+  }
+}
+
+// MARK: - Codable Conformances
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension Citation: Decodable {
+  enum CodingKeys: CodingKey {
+    case startIndex
+    case endIndex
+    case uri
+    case license
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
+    endIndex = try container.decode(Int.self, forKey: .endIndex)
+    uri = try container.decode(String.self, forKey: .uri)
+    license = try container.decodeIfPresent(String.self, forKey: .license)
   }
 }
