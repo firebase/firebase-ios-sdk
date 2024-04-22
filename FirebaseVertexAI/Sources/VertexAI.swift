@@ -25,8 +25,11 @@ public class VertexAI: NSObject {
 
   /// The default `VertexAI` instance.
   ///
+  /// - Parameter location: The region identifier, defaulting to `us-central1`; see [Vertex AI
+  ///   regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions) for a
+  ///   list of supported regions.
   /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
-  public static func vertexAI() -> VertexAI {
+  public static func vertexAI(location: String = "us-central1") -> VertexAI {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -38,14 +41,17 @@ public class VertexAI: NSObject {
   ///
   ///  - Parameters:
   ///   - app: The custom `FirebaseApp` used for initialization.
+  ///   - location: The region identifier, defaulting to `us-central1`; see [Vertex AI
+  ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
+  ///     for a list of supported regions.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
-  public static func vertexAI(app: FirebaseApp) -> VertexAI {
+  public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
                                                                   in: app.container) else {
       fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
     }
 
-    return provider.vertexAI("us-central1")
+    return provider.vertexAI(location)
   }
 
   /// Initializes a generative model with the given parameters.
