@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed bug preventing Remote Config from working with a custom sqlite3
+  dependency (#10884).
+
 # 10.23.0
 - [changed] Add support for other Firebase products to integrate with Remote Config.
 
