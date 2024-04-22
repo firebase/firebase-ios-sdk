@@ -18,8 +18,8 @@ import Foundation
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 struct GenerativeAIService {
-  /// The language of the SDK in the format "gl-<language>/<version>" where version may be blank.
-  static let languageTag = "gl-swift/"
+  /// The language of the SDK in the format "gl-<language>/<version>".
+  static let languageTag = "gl-swift/5"
 
   /// The Firebase SDK version in the format "fire/<version>".
   static let firebaseVersionTag = "fire/\(FirebaseVersion())"
@@ -162,7 +162,7 @@ struct GenerativeAIService {
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
+      "\(GenerativeAIService.languageTag)",
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
