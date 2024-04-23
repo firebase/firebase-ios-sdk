@@ -88,6 +88,8 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
@@ -95,7 +97,7 @@ jobs:
   quickstart_framework_abtesting:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -115,6 +117,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -156,7 +160,7 @@ jobs:
   quickstart_framework_auth:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -176,6 +180,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -209,7 +215,7 @@ jobs:
   quickstart_framework_config:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -229,6 +235,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -260,7 +268,7 @@ jobs:
   quickstart_framework_crashlytics:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -280,6 +288,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -334,7 +344,7 @@ jobs:
   quickstart_framework_database:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -353,6 +363,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -388,7 +400,7 @@ jobs:
   quickstart_framework_dynamiclinks:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -408,6 +420,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -447,7 +461,7 @@ jobs:
   # quickstart_framework_firestore:
   #   # Don't run on private repo.
   #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-  #   needs: package-head
+  #   # needs: package-head
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -464,6 +478,8 @@ jobs:
   #     uses: actions/download-artifact@v4
   #     with:
   #       name: Firebase-actions-dir
+        # github-token: '${{ secrets.GITHUB_TOKEN }}'
+        # run-id: 8787079219
   #   - uses: ruby/setup-ruby@v1
   #   - name: Setup Bundler
   #     run: ./scripts/setup_bundler.sh
@@ -497,7 +513,7 @@ jobs:
   check_framework_firestore_symbols:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-13
@@ -509,6 +525,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
       - uses: ruby/setup-ruby@v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
@@ -528,7 +546,7 @@ jobs:
   quickstart_framework_inappmessaging:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -548,6 +566,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -584,7 +604,7 @@ jobs:
   quickstart_framework_messaging:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -604,6 +624,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -639,7 +661,7 @@ jobs:
   quickstart_framework_storage:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -659,6 +681,8 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
+        github-token: '${{ secrets.GITHUB_TOKEN }}'
+        run-id: 8787079219
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
