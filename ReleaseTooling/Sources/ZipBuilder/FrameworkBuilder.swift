@@ -55,16 +55,8 @@ struct FrameworkBuilder {
                                     setCarthage: Bool,
                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
     let fileManager = FileManager.default
-    let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
     do {
-      // Remove the compiled frameworks directory, this isn't the cache we're using.
-      if fileManager.directoryExists(at: outputDir) {
-        try fileManager.removeItem(at: outputDir)
-      }
-
-      try fileManager.createDirectory(at: outputDir, withIntermediateDirectories: true)
-
       // Create our logs directory if it doesn't exist.
       if !fileManager.directoryExists(at: logsDir) {
         try fileManager.createDirectory(at: logsDir, withIntermediateDirectories: true)
@@ -74,13 +66,12 @@ struct FrameworkBuilder {
     }
 
     if dynamicFrameworks {
-      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir),
+      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir),
               nil)
     } else {
       return buildStaticFrameworks(
         withName: framework,
         logsDir: logsDir,
-        outputDir: outputDir,
         setCarthage: setCarthage,
         podInfo: podInfo
       )
@@ -312,8 +303,7 @@ struct FrameworkBuilder {
   /// - Parameter logsDir: The path to the directory to place build logs.
   /// - Returns: A path to the newly compiled frameworks (with any included Resources embedded).
   private func buildDynamicFrameworks(withName framework: String,
-                                      logsDir: URL,
-                                      outputDir: URL) -> [URL] {
+                                      logsDir: URL) -> [URL] {
     // xcframework doesn't lipo things together but accepts fat frameworks for one target.
     // We group architectures here to deal with this fact.
     var thinFrameworks = [URL]()
@@ -340,7 +330,6 @@ struct FrameworkBuilder {
   /// - Returns: A path to the newly compiled framework, and the Resource URL.
   private func buildStaticFrameworks(withName framework: String,
                                      logsDir: URL,
-                                     outputDir: URL,
                                      setCarthage: Bool,
                                      podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL) {
     // Build every architecture and save the locations in an array to be assembled.
@@ -350,13 +339,6 @@ struct FrameworkBuilder {
     // Create the framework directory in the filesystem for the thin archives to go.
     let fileManager = FileManager.default
     let frameworkName = FrameworkBuilder.frameworkBuildName(framework)
-    let frameworkDir = outputDir.appendingPathComponent("\(frameworkName).framework")
-    do {
-      try fileManager.createDirectory(at: frameworkDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create framework directory while building framework \(frameworkName). " +
-        "\(error)")
-    }
 
     guard let anyPlatform = targetPlatforms.first,
           let archivePath = slicedFrameworks[anyPlatform] else {
@@ -410,7 +392,6 @@ struct FrameworkBuilder {
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let frameworks = groupFrameworks(withName: frameworkName,
                                      isCarthage: setCarthage,
-                                     fromFolder: frameworkDir,
                                      slicedFrameworks: slicedFrameworks,
                                      moduleMapContents: moduleMapContents)
 
@@ -542,18 +523,13 @@ struct FrameworkBuilder {
   /// Groups slices for each platform into a minimal set of frameworks.
   /// - Parameter withName: The framework name.
   /// - Parameter isCarthage: Name the temp directory differently for Carthage.
-  /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
-  /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func groupFrameworks(withName framework: String,
                                isCarthage: Bool,
-                               fromFolder: URL,
                                slicedFrameworks: [TargetPlatform: URL],
                                moduleMapContents: String) -> ([URL]) {
     let fileManager = FileManager.default
-
-    // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
     let platformFrameworksDir = fileManager.temporaryDirectory(
       withName: isCarthage ? "carthage_frameworks" : "platform_frameworks"
     )
