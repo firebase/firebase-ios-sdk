@@ -28,6 +28,13 @@ public struct ModelContent: Equatable {
     /// Data with a specified media type. Not all media types may be supported by the AI model.
     case data(mimetype: String, Data)
 
+    /// URI-based data with a specified media type.
+    ///
+    /// > Note: Supported media types depends on the model; see [supported file formats
+    /// > ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
+    /// > for details.
+    case fileData(mimetype: String, uri: String)
+
     /// A predicted function call returned from the model.
     case functionCall(FunctionCall)
 
@@ -109,6 +116,7 @@ extension ModelContent.Part: Codable {
   enum CodingKeys: String, CodingKey {
     case text
     case inlineData
+    case fileData
     case functionCall
     case functionResponse
   }
@@ -116,6 +124,11 @@ extension ModelContent.Part: Codable {
   enum InlineDataKeys: String, CodingKey {
     case mimeType = "mime_type"
     case bytes = "data"
+  }
+
+  enum FileDataKeys: String, CodingKey {
+    case mimeType = "mime_type"
+    case url = "file_uri"
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -130,6 +143,13 @@ extension ModelContent.Part: Codable {
       )
       try inlineDataContainer.encode(mimetype, forKey: .mimeType)
       try inlineDataContainer.encode(bytes, forKey: .bytes)
+    case let .fileData(mimetype: mimetype, url):
+      var fileDataContainer = container.nestedContainer(
+        keyedBy: FileDataKeys.self,
+        forKey: .fileData
+      )
+      try fileDataContainer.encode(mimetype, forKey: .mimeType)
+      try fileDataContainer.encode(url, forKey: .url)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
