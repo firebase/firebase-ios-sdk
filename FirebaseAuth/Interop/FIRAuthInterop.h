@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @typedef FIRTokenCallback
  @brief The type of block which gets called when a token is ready.
  */
-typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error)
+typedef void (^FIRTokenCallback)(NSString *_Nullable_result token, NSError *_Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Common methods for Auth interoperability.
