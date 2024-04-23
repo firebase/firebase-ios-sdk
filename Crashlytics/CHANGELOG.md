@@ -1,4 +1,4 @@
-# Unreleased
+# 10.25.0
 - [changed] Removed usages of user defaults API from internal Firebase Sessions
   dependency to eliminate required reason impact.
 

@@ -1,4 +1,4 @@
-# Unreleased
+# 10.25.0
 - [fixed] Allow blob of data with zero length. (#11773, #12620)
 - [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
   setter no longer logs a warning since it discouraged valid patterns,

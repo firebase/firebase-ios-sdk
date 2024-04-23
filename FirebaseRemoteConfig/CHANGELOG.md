@@ -1,4 +1,4 @@
-# Unreleased
+# 10.25.0
 - [fixed] Fixed bug preventing Remote Config from working with a custom sqlite3
   dependency (#10884).
 
