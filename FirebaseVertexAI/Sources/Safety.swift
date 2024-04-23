@@ -18,7 +18,7 @@ import Foundation
 /// of this type may be assigned to a category for every model-generated response, not just
 /// responses that exceed a certain threshold.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct SafetyRating: Decodable, Equatable, Hashable {
+public struct SafetyRating: Equatable, Hashable {
   /// The category describing the potential harm a piece of content may pose. See
   /// ``SafetySetting/HarmCategory`` for a list of possible values.
   public let category: SafetySetting.HarmCategory
@@ -38,7 +38,7 @@ public struct SafetyRating: Decodable, Equatable, Hashable {
 
   /// The probability that a given model output falls under a harmful content category. This does
   /// not indicate the severity of harm for a piece of content.
-  public enum HarmProbability: String, Codable {
+  public enum HarmProbability: String {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "UNKNOWN"
 
@@ -57,26 +57,12 @@ public struct SafetyRating: Decodable, Equatable, Hashable {
 
     /// The probability is high. The content described is very likely harmful.
     case high = "HIGH"
-
-    /// Initializes a new `SafetyRating` from a decoder.
-    /// Not for external use. Initializer required for Decodable conformance.
-    public init(from decoder: Decoder) throws {
-      let value = try decoder.singleValueContainer().decode(String.self)
-      guard let decodedProbability = HarmProbability(rawValue: value) else {
-        Logging.default
-          .error("[GoogleGenerativeAI] Unrecognized HarmProbability with value \"\(value)\".")
-        self = .unknown
-        return
-      }
-
-      self = decodedProbability
-    }
   }
 }
 
 /// Safety feedback for an entire request.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct SafetyFeedback: Decodable {
+public struct SafetyFeedback {
   /// Safety rating evaluated from content.
   public let rating: SafetyRating
 
@@ -93,10 +79,10 @@ public struct SafetyFeedback: Decodable {
 /// A type used to specify a threshold for harmful content, beyond which the model will return a
 /// fallback response instead of generated content.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct SafetySetting: Codable {
+public struct SafetySetting {
   /// A type describing safety attributes, which include harmful categories and topics that can
   /// be considered sensitive.
-  public enum HarmCategory: String, Codable {
+  public enum HarmCategory: String {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "HARM_CATEGORY_UNKNOWN"
 
@@ -114,23 +100,10 @@ public struct SafetySetting: Codable {
 
     /// Promotes or enables access to harmful goods, services, or activities.
     case dangerousContent = "HARM_CATEGORY_DANGEROUS_CONTENT"
-
-    /// Do not explicitly use. Initializer required for Decodable conformance.
-    public init(from decoder: Decoder) throws {
-      let value = try decoder.singleValueContainer().decode(String.self)
-      guard let decodedCategory = HarmCategory(rawValue: value) else {
-        Logging.default
-          .error("[GoogleGenerativeAI] Unrecognized HarmCategory with value \"\(value)\".")
-        self = .unknown
-        return
-      }
-
-      self = decodedCategory
-    }
   }
 
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public enum BlockThreshold: String, Codable {
+  public enum BlockThreshold: String {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "UNKNOWN"
 
@@ -148,19 +121,6 @@ public struct SafetySetting: Codable {
 
     /// All content will be allowed.
     case blockNone = "BLOCK_NONE"
-
-    /// Do not explicitly use. Initializer required for Decodable conformance.
-    public init(from decoder: Decoder) throws {
-      let value = try decoder.singleValueContainer().decode(String.self)
-      guard let decodedThreshold = BlockThreshold(rawValue: value) else {
-        Logging.default
-          .error("[GoogleGenerativeAI] Unrecognized BlockThreshold with value \"\(value)\".")
-        self = .unknown
-        return
-      }
-
-      self = decodedThreshold
-    }
   }
 
   enum CodingKeys: String, CodingKey {
@@ -180,3 +140,59 @@ public struct SafetySetting: Codable {
     self.threshold = threshold
   }
 }
+
+// MARK: - Codable Conformances
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension SafetyRating.HarmProbability: Codable {
+  public init(from decoder: Decoder) throws {
+    let value = try decoder.singleValueContainer().decode(String.self)
+    guard let decodedProbability = SafetyRating.HarmProbability(rawValue: value) else {
+      Logging.default
+        .error("[GoogleGenerativeAI] Unrecognized HarmProbability with value \"\(value)\".")
+      self = .unknown
+      return
+    }
+
+    self = decodedProbability
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension SafetyRating: Decodable {}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension SafetyFeedback: Decodable {}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension SafetySetting.HarmCategory: Codable {
+  public init(from decoder: Decoder) throws {
+    let value = try decoder.singleValueContainer().decode(String.self)
+    guard let decodedCategory = SafetySetting.HarmCategory(rawValue: value) else {
+      Logging.default
+        .error("[GoogleGenerativeAI] Unrecognized HarmCategory with value \"\(value)\".")
+      self = .unknown
+      return
+    }
+
+    self = decodedCategory
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension SafetySetting.BlockThreshold: Codable {
+  public init(from decoder: Decoder) throws {
+    let value = try decoder.singleValueContainer().decode(String.self)
+    guard let decodedThreshold = SafetySetting.BlockThreshold(rawValue: value) else {
+      Logging.default
+        .error("[GoogleGenerativeAI] Unrecognized BlockThreshold with value \"\(value)\".")
+      self = .unknown
+      return
+    }
+
+    self = decodedThreshold
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension SafetySetting: Codable {}
