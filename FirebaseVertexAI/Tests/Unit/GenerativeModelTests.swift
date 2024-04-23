@@ -41,6 +41,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
+      auth: nil,
       urlSession: urlSession
     )
   }
@@ -182,6 +183,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
+      auth: nil,
       urlSession: urlSession
     )
 
@@ -266,6 +268,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(token: appCheckToken),
+      auth: nil,
       urlSession: urlSession
     )
     MockURLProtocol
@@ -285,6 +288,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
+      auth: nil,
       urlSession: urlSession
     )
     MockURLProtocol
@@ -598,6 +602,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
+      auth: nil,
       urlSession: urlSession
     )
 
@@ -808,6 +813,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(token: appCheckToken),
+      auth: nil,
       urlSession: urlSession
     )
     MockURLProtocol
@@ -828,6 +834,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
+      auth: nil,
       urlSession: urlSession
     )
     MockURLProtocol
@@ -972,6 +979,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
+      auth: nil,
       urlSession: urlSession
     )
 
@@ -1048,6 +1056,7 @@ final class GenerativeModelTests: XCTestCase {
       tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
+      auth: nil,
       urlSession: urlSession
     )
 
@@ -1067,7 +1076,8 @@ final class GenerativeModelTests: XCTestCase {
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
-      appCheck: nil
+      appCheck: nil,
+      auth: nil
     )
 
     XCTAssertEqual(model.modelResourceName, modelResourceName)
@@ -1081,7 +1091,8 @@ final class GenerativeModelTests: XCTestCase {
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
-      appCheck: nil
+      appCheck: nil,
+      auth: nil
     )
 
     XCTAssertEqual(model.modelResourceName, modelResourceName)
@@ -1095,7 +1106,8 @@ final class GenerativeModelTests: XCTestCase {
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
-      appCheck: nil
+      appCheck: nil,
+      auth: nil
     )
 
     XCTAssertEqual(model.modelResourceName, tunedModelResourceName)
