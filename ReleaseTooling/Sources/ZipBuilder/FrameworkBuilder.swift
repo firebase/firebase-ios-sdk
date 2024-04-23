@@ -651,7 +651,33 @@ struct FrameworkBuilder {
           platform == .catalyst || platform == .macOS ? "Resources" : ""
         )
         .resolvingSymlinksInPath()
-      processPrivacyManifests(fileManager, frameworkPath, resourceDir)
+
+      // Move resource bundles into the platform framework.
+      do {
+        try fileManager.contentsOfDirectory(
+          at: frameworkPath.deletingLastPathComponent(),
+          includingPropertiesForKeys: nil
+        )
+        .filter { $0.pathExtension == "bundle" }
+        // Bundles are moved rather than copied to prevent them from being
+        // packaged in a `Resources` directory at the root of the xcframework.
+        .forEach {
+          // Delete `gRPCCertificates-Cpp.bundle` since it is not needed (#9184).
+          guard $0.lastPathComponent != "gRPCCertificates-Cpp.bundle" else {
+            try fileManager.removeItem(at: $0)
+            return
+          }
+
+          try fileManager.moveItem(
+            at: $0,
+            to: resourceDir.appendingPathComponent($0.lastPathComponent)
+          )
+        }
+      } catch {
+        fatalError(
+          "Could not move resources for framework \(frameworkPath), platform \(platform). Error: \(error)"
+        )
+      }
 
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
@@ -661,39 +687,6 @@ struct FrameworkBuilder {
 
       return platformFrameworkDir
     }
-  }
-
-  /// Process privacy manifests.
-  ///
-  /// Move any privacy manifest-containing resource bundles into the platform framework.
-  func processPrivacyManifests(_ fileManager: FileManager,
-                               _ frameworkPath: URL,
-                               _ platformFrameworkDir: URL) {
-    try? fileManager.contentsOfDirectory(
-      at: frameworkPath.deletingLastPathComponent(),
-      includingPropertiesForKeys: nil
-    )
-    .filter { $0.pathExtension == "bundle" }
-    // TODO(ncooke3): Once the zip is built with Xcode 15, the following
-    // `filter` can be removed. The following block exists to preserve
-    // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
-    .filter { bundleURL in
-      let dirEnum = fileManager.enumerator(atPath: bundleURL.path)
-      var containsPrivacyManifest = false
-      while let relativeFilePath = dirEnum?.nextObject() as? String {
-        if relativeFilePath.hasSuffix("PrivacyInfo.xcprivacy") {
-          containsPrivacyManifest = true
-          break
-        }
-      }
-      return containsPrivacyManifest
-    }
-    // Bundles are moved rather than copied to prevent them from being
-    // packaged in a `Resources` directory at the root of the xcframework.
-    .forEach { try! fileManager.moveItem(
-      at: $0,
-      to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
-    ) }
   }
 
   /// Package the built frameworks into an XCFramework.
