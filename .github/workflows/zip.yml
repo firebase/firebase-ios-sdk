@@ -149,10 +149,8 @@ jobs:
     - name: Remove data before upload
       env:
         LEGACY: true
-      if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_abtesting
         path: quickstart-ios/
@@ -204,10 +202,8 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
-      if: ${{ failure() }}
       run: scripts/remove_data.sh authentiation
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
         path: quickstart-ios/
