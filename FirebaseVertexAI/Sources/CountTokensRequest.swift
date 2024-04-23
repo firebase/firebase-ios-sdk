@@ -22,13 +22,6 @@ struct CountTokensRequest {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-extension CountTokensRequest: Encodable {
-  enum CodingKeys: CodingKey {
-    case contents
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
@@ -48,6 +41,15 @@ public struct CountTokensResponse {
   /// > Important: This does not include billable image, video or other non-text input. See
   /// [Vertex AI pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) for details.
   public let totalBillableCharacters: Int
+}
+
+// MARK: - Codable Conformances
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension CountTokensRequest: Encodable {
+  enum CodingKeys: CodingKey {
+    case contents
+  }
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
