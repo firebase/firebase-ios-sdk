@@ -15,7 +15,7 @@
 import Foundation
 
 /// A predicted function call returned from the model.
-public struct FunctionCall: Equatable, Encodable {
+public struct FunctionCall: Equatable {
   /// The name of the function to call.
   public let name: String
 
@@ -27,7 +27,7 @@ public struct FunctionCall: Equatable, Encodable {
 ///
 /// These types can be objects, but also primitives and arrays. Represents a select subset of an
 /// [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
-public class Schema: Encodable {
+public class Schema {
   /// The data type.
   let type: DataType
 
@@ -51,17 +51,6 @@ public class Schema: Encodable {
 
   /// Required properties of type ``DataType/object``.
   let requiredProperties: [String]?
-
-  enum CodingKeys: String, CodingKey {
-    case type
-    case format
-    case description
-    case nullable
-    case enumValues = "enum"
-    case items
-    case properties
-    case requiredProperties = "required"
-  }
 
   /// Constructs a new `Schema`.
   ///
@@ -98,7 +87,7 @@ public class Schema: Encodable {
 /// A data type.
 ///
 /// Contains the set of OpenAPI [data types](https://spec.openapis.org/oas/v3.0.3#data-types).
-public enum DataType: String, Encodable {
+public enum DataType: String {
   /// A `String` type.
   case string = "STRING"
 
@@ -157,7 +146,7 @@ public struct FunctionDeclaration {
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to
 /// perform an action, or set of actions, outside of knowledge and scope of the model.
-public struct Tool: Encodable {
+public struct Tool {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
 
@@ -178,10 +167,10 @@ public struct Tool: Encodable {
 }
 
 /// Configuration for specifying function calling behavior.
-public struct FunctionCallingConfig: Encodable {
+public struct FunctionCallingConfig {
   /// Defines the execution behavior for function calling by defining the
   /// execution mode.
-  public enum Mode: String, Encodable {
+  public enum Mode: String {
     /// The default behavior for function calling. The model calls functions to answer queries at
     /// its discretion.
     case auto = "AUTO"
@@ -213,8 +202,7 @@ public struct FunctionCallingConfig: Encodable {
 }
 
 /// Tool configuration for any `Tool` specified in the request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct ToolConfig: Encodable {
+public struct ToolConfig {
   let functionCallingConfig: FunctionCallingConfig?
 
   public init(functionCallingConfig: FunctionCallingConfig? = nil) {
@@ -227,7 +215,7 @@ public struct ToolConfig: Encodable {
 /// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCall`` made based on model prediction.
-public struct FunctionResponse: Equatable, Encodable {
+public struct FunctionResponse: Equatable {
   /// The name of the function that was called.
   let name: String
 
@@ -264,6 +252,8 @@ extension FunctionCall: Decodable {
   }
 }
 
+extension FunctionCall: Encodable {}
+
 extension FunctionDeclaration: Encodable {
   enum CodingKeys: String, CodingKey {
     case name
@@ -278,3 +268,28 @@ extension FunctionDeclaration: Encodable {
     try container.encode(parameters, forKey: .parameters)
   }
 }
+
+extension Schema: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case type
+    case format
+    case description
+    case nullable
+    case enumValues = "enum"
+    case items
+    case properties
+    case requiredProperties = "required"
+  }
+}
+
+extension DataType: Encodable {}
+
+extension Tool: Encodable {}
+
+extension FunctionCallingConfig: Encodable {}
+
+extension FunctionCallingConfig.Mode: Encodable {}
+
+extension ToolConfig: Encodable {}
+
+extension FunctionResponse: Encodable {}

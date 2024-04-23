@@ -18,22 +18,10 @@ import Foundation
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct ModelContent: Codable, Equatable {
+public struct ModelContent: Equatable {
   /// A discrete piece of data in a media format intepretable by an AI model. Within a single value
   /// of ``Part``, different data types may not mix.
-  public enum Part: Codable, Equatable {
-    enum CodingKeys: String, CodingKey {
-      case text
-      case inlineData
-      case functionCall
-      case functionResponse
-    }
-
-    enum InlineDataKeys: String, CodingKey {
-      case mimeType = "mime_type"
-      case bytes = "data"
-    }
-
+  public enum Part: Equatable {
     /// Text value.
     case text(String)
 
@@ -56,49 +44,6 @@ public struct ModelContent: Codable, Equatable {
     /// Convenience function for populating a Part with PNG data.
     public static func png(_ data: Data) -> Self {
       return .data(mimetype: "image/png", data)
-    }
-
-    // MARK: Codable Conformance
-
-    public func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: ModelContent.Part.CodingKeys.self)
-      switch self {
-      case let .text(a0):
-        try container.encode(a0, forKey: .text)
-      case let .data(mimetype, bytes):
-        var inlineDataContainer = container.nestedContainer(
-          keyedBy: InlineDataKeys.self,
-          forKey: .inlineData
-        )
-        try inlineDataContainer.encode(mimetype, forKey: .mimeType)
-        try inlineDataContainer.encode(bytes, forKey: .bytes)
-      case let .functionCall(functionCall):
-        try container.encode(functionCall, forKey: .functionCall)
-      case let .functionResponse(functionResponse):
-        try container.encode(functionResponse, forKey: .functionResponse)
-      }
-    }
-
-    public init(from decoder: Decoder) throws {
-      let values = try decoder.container(keyedBy: CodingKeys.self)
-      if values.contains(.text) {
-        self = try .text(values.decode(String.self, forKey: .text))
-      } else if values.contains(.inlineData) {
-        let dataContainer = try values.nestedContainer(
-          keyedBy: InlineDataKeys.self,
-          forKey: .inlineData
-        )
-        let mimetype = try dataContainer.decode(String.self, forKey: .mimeType)
-        let bytes = try dataContainer.decode(Data.self, forKey: .bytes)
-        self = .data(mimetype: mimetype, bytes)
-      } else if values.contains(.functionCall) {
-        self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
-      } else {
-        throw DecodingError.dataCorrupted(.init(
-          codingPath: [CodingKeys.text, CodingKeys.inlineData],
-          debugDescription: "No text, inline data or function call was found."
-        ))
-      }
     }
 
     /// Returns the text contents of this ``Part``, if it contains text.
@@ -151,5 +96,66 @@ public struct ModelContent: Codable, Equatable {
   public init(role: String? = "user", _ parts: [PartsRepresentable]) {
     let content = parts.flatMap { $0.partsValue }
     self.init(role: role, parts: content)
+  }
+}
+
+// MARK: Codable Conformances
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension ModelContent: Codable {}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension ModelContent.Part: Codable {
+  enum CodingKeys: String, CodingKey {
+    case text
+    case inlineData
+    case functionCall
+    case functionResponse
+  }
+
+  enum InlineDataKeys: String, CodingKey {
+    case mimeType = "mime_type"
+    case bytes = "data"
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    switch self {
+    case let .text(a0):
+      try container.encode(a0, forKey: .text)
+    case let .data(mimetype, bytes):
+      var inlineDataContainer = container.nestedContainer(
+        keyedBy: InlineDataKeys.self,
+        forKey: .inlineData
+      )
+      try inlineDataContainer.encode(mimetype, forKey: .mimeType)
+      try inlineDataContainer.encode(bytes, forKey: .bytes)
+    case let .functionCall(functionCall):
+      try container.encode(functionCall, forKey: .functionCall)
+    case let .functionResponse(functionResponse):
+      try container.encode(functionResponse, forKey: .functionResponse)
+    }
+  }
+
+  public init(from decoder: Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    if values.contains(.text) {
+      self = try .text(values.decode(String.self, forKey: .text))
+    } else if values.contains(.inlineData) {
+      let dataContainer = try values.nestedContainer(
+        keyedBy: InlineDataKeys.self,
+        forKey: .inlineData
+      )
+      let mimetype = try dataContainer.decode(String.self, forKey: .mimeType)
+      let bytes = try dataContainer.decode(Data.self, forKey: .bytes)
+      self = .data(mimetype: mimetype, bytes)
+    } else if values.contains(.functionCall) {
+      self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
+    } else {
+      throw DecodingError.dataCorrupted(.init(
+        codingPath: [CodingKeys.text, CodingKeys.inlineData],
+        debugDescription: "No text, inline data or function call was found."
+      ))
+    }
   }
 }

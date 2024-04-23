@@ -74,6 +74,114 @@ public struct GenerateContentResponse {
   }
 }
 
+/// A struct representing a possible reply to a content generation prompt. Each content generation
+/// prompt may produce multiple candidate responses.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+public struct CandidateResponse {
+  /// The response's content.
+  public let content: ModelContent
+
+  /// The safety rating of the response content.
+  public let safetyRatings: [SafetyRating]
+
+  /// The reason the model stopped generating content, if it exists; for example, if the model
+  /// generated a predefined stop sequence.
+  public let finishReason: FinishReason?
+
+  /// Cited works in the model's response content, if it exists.
+  public let citationMetadata: CitationMetadata?
+
+  /// Initializer for SwiftUI previews or tests.
+  public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
+              citationMetadata: CitationMetadata?) {
+    self.content = content
+    self.safetyRatings = safetyRatings
+    self.finishReason = finishReason
+    self.citationMetadata = citationMetadata
+  }
+}
+
+/// A collection of source attributions for a piece of content.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+public struct CitationMetadata {
+  /// A list of individual cited sources and the parts of the content to which they apply.
+  public let citationSources: [Citation]
+}
+
+/// A struct describing a source attribution.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+public struct Citation {
+  /// The inclusive beginning of a sequence in a model response that derives from a cited source.
+  public let startIndex: Int
+
+  /// The exclusive end of a sequence in a model response that derives from a cited source.
+  public let endIndex: Int
+
+  /// A link to the cited source.
+  public let uri: String
+
+  /// The license the cited source work is distributed under, if specified.
+  public let license: String?
+}
+
+/// A value enumerating possible reasons for a model to terminate a content generation request.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+public enum FinishReason: String {
+  case unknown = "FINISH_REASON_UNKNOWN"
+
+  case unspecified = "FINISH_REASON_UNSPECIFIED"
+
+  /// Natural stop point of the model or provided stop sequence.
+  case stop = "STOP"
+
+  /// The maximum number of tokens as specified in the request was reached.
+  case maxTokens = "MAX_TOKENS"
+
+  /// The token generation was stopped because the response was flagged for safety reasons.
+  /// NOTE: When streaming, the Candidate.content will be empty if content filters blocked the
+  /// output.
+  case safety = "SAFETY"
+
+  /// The token generation was stopped because the response was flagged for unauthorized citations.
+  case recitation = "RECITATION"
+
+  /// All other reasons that stopped token generation.
+  case other = "OTHER"
+}
+
+/// A metadata struct containing any feedback the model had on the prompt it was provided.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+public struct PromptFeedback {
+  /// A type describing possible reasons to block a prompt.
+  public enum BlockReason: String {
+    /// The block reason is unknown.
+    case unknown = "UNKNOWN"
+
+    /// The block reason was not specified in the server response.
+    case unspecified = "BLOCK_REASON_UNSPECIFIED"
+
+    /// The prompt was blocked because it was deemed unsafe.
+    case safety = "SAFETY"
+
+    /// All other block reasons.
+    case other = "OTHER"
+  }
+
+  /// The reason a prompt was blocked, if it was blocked.
+  public let blockReason: BlockReason?
+
+  /// The safety ratings of the prompt.
+  public let safetyRatings: [SafetyRating]
+
+  /// Initializer for SwiftUI previews or tests.
+  public init(blockReason: BlockReason?, safetyRatings: [SafetyRating]) {
+    self.blockReason = blockReason
+    self.safetyRatings = safetyRatings
+  }
+}
+
+// MARK: - Codable Conformances
+
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 extension GenerateContentResponse: Decodable {
   enum CodingKeys: CodingKey {
@@ -108,30 +216,20 @@ extension GenerateContentResponse: Decodable {
   }
 }
 
-/// A struct representing a possible reply to a content generation prompt. Each content generation
-/// prompt may produce multiple candidate responses.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct CandidateResponse {
-  /// The response's content.
-  public let content: ModelContent
+extension GenerateContentResponse.UsageMetadata: Decodable {
+  enum CodingKeys: CodingKey {
+    case promptTokenCount
+    case candidatesTokenCount
+    case totalTokenCount
+  }
 
-  /// The safety rating of the response content.
-  public let safetyRatings: [SafetyRating]
-
-  /// The reason the model stopped generating content, if it exists; for example, if the model
-  /// generated a predefined stop sequence.
-  public let finishReason: FinishReason?
-
-  /// Cited works in the model's response content, if it exists.
-  public let citationMetadata: CitationMetadata?
-
-  /// Initializer for SwiftUI previews or tests.
-  public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
-              citationMetadata: CitationMetadata?) {
-    self.content = content
-    self.safetyRatings = safetyRatings
-    self.finishReason = finishReason
-    self.citationMetadata = citationMetadata
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
+    candidatesTokenCount = try container
+      .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
   }
 }
 
@@ -184,161 +282,12 @@ extension CandidateResponse: Decodable {
   }
 }
 
-/// A collection of source attributions for a piece of content.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct CitationMetadata: Decodable {
+extension CitationMetadata: Decodable {
   enum CodingKeys: String, CodingKey {
     case citationSources = "citations"
   }
-
-  /// A list of individual cited sources and the parts of the content to which they apply.
-  public let citationSources: [Citation]
 }
-
-/// A struct describing a source attribution.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct Citation {
-  /// The inclusive beginning of a sequence in a model response that derives from a cited source.
-  public let startIndex: Int
-
-  /// The exclusive end of a sequence in a model response that derives from a cited source.
-  public let endIndex: Int
-
-  /// A link to the cited source.
-  public let uri: String
-
-  /// The license the cited source work is distributed under, if specified.
-  public let license: String?
-}
-
-/// A value enumerating possible reasons for a model to terminate a content generation request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public enum FinishReason: String {
-  case unknown = "FINISH_REASON_UNKNOWN"
-
-  case unspecified = "FINISH_REASON_UNSPECIFIED"
-
-  /// Natural stop point of the model or provided stop sequence.
-  case stop = "STOP"
-
-  /// The maximum number of tokens as specified in the request was reached.
-  case maxTokens = "MAX_TOKENS"
-
-  /// The token generation was stopped because the response was flagged for safety reasons.
-  /// NOTE: When streaming, the Candidate.content will be empty if content filters blocked the
-  /// output.
-  case safety = "SAFETY"
-
-  /// The token generation was stopped because the response was flagged for unauthorized citations.
-  case recitation = "RECITATION"
-
-  /// All other reasons that stopped token generation.
-  case other = "OTHER"
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-extension FinishReason: Decodable {
-  /// Do not explicitly use. Initializer required for Decodable conformance.
-  public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedFinishReason = FinishReason(rawValue: value) else {
-      Logging.default
-        .error("[GoogleGenerativeAI] Unrecognized FinishReason with value \"\(value)\".")
-      self = .unknown
-      return
-    }
-
-    self = decodedFinishReason
-  }
-}
-
-/// A metadata struct containing any feedback the model had on the prompt it was provided.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-public struct PromptFeedback {
-  /// A type describing possible reasons to block a prompt.
-  public enum BlockReason: String, Decodable {
-    /// The block reason is unknown.
-    case unknown = "UNKNOWN"
-
-    /// The block reason was not specified in the server response.
-    case unspecified = "BLOCK_REASON_UNSPECIFIED"
-
-    /// The prompt was blocked because it was deemed unsafe.
-    case safety = "SAFETY"
-
-    /// All other block reasons.
-    case other = "OTHER"
-
-    /// Do not explicitly use. Initializer required for Decodable conformance.
-    public init(from decoder: Decoder) throws {
-      let value = try decoder.singleValueContainer().decode(String.self)
-      guard let decodedBlockReason = BlockReason(rawValue: value) else {
-        Logging.default
-          .error("[GoogleGenerativeAI] Unrecognized BlockReason with value \"\(value)\".")
-        self = .unknown
-        return
-      }
-
-      self = decodedBlockReason
-    }
-  }
-
-  /// The reason a prompt was blocked, if it was blocked.
-  public let blockReason: BlockReason?
-
-  /// The safety ratings of the prompt.
-  public let safetyRatings: [SafetyRating]
-
-  /// Initializer for SwiftUI previews or tests.
-  public init(blockReason: BlockReason?, safetyRatings: [SafetyRating]) {
-    self.blockReason = blockReason
-    self.safetyRatings = safetyRatings
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-extension PromptFeedback: Decodable {
-  enum CodingKeys: CodingKey {
-    case blockReason
-    case safetyRatings
-  }
-
-  /// Do not explicitly use. Initializer required for Decodable conformance.
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    blockReason = try container.decodeIfPresent(
-      PromptFeedback.BlockReason.self,
-      forKey: .blockReason
-    )
-    if let safetyRatings = try container.decodeIfPresent(
-      [SafetyRating].self,
-      forKey: .safetyRatings
-    ) {
-      self.safetyRatings = safetyRatings
-    } else {
-      safetyRatings = []
-    }
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
-extension GenerateContentResponse.UsageMetadata: Decodable {
-  enum CodingKeys: CodingKey {
-    case promptTokenCount
-    case candidatesTokenCount
-    case totalTokenCount
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
-    candidatesTokenCount = try container
-      .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
-    totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
-  }
-}
-
-// MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 extension Citation: Decodable {
@@ -355,5 +304,59 @@ extension Citation: Decodable {
     endIndex = try container.decode(Int.self, forKey: .endIndex)
     uri = try container.decode(String.self, forKey: .uri)
     license = try container.decodeIfPresent(String.self, forKey: .license)
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension FinishReason: Decodable {
+  public init(from decoder: Decoder) throws {
+    let value = try decoder.singleValueContainer().decode(String.self)
+    guard let decodedFinishReason = FinishReason(rawValue: value) else {
+      Logging.default
+        .error("[GoogleGenerativeAI] Unrecognized FinishReason with value \"\(value)\".")
+      self = .unknown
+      return
+    }
+
+    self = decodedFinishReason
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension PromptFeedback.BlockReason: Decodable {
+  public init(from decoder: Decoder) throws {
+    let value = try decoder.singleValueContainer().decode(String.self)
+    guard let decodedBlockReason = PromptFeedback.BlockReason(rawValue: value) else {
+      Logging.default
+        .error("[GoogleGenerativeAI] Unrecognized BlockReason with value \"\(value)\".")
+      self = .unknown
+      return
+    }
+
+    self = decodedBlockReason
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+extension PromptFeedback: Decodable {
+  enum CodingKeys: CodingKey {
+    case blockReason
+    case safetyRatings
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    blockReason = try container.decodeIfPresent(
+      PromptFeedback.BlockReason.self,
+      forKey: .blockReason
+    )
+    if let safetyRatings = try container.decodeIfPresent(
+      [SafetyRating].self,
+      forKey: .safetyRatings
+    ) {
+      self.safetyRatings = safetyRatings
+    } else {
+      safetyRatings = []
+    }
   }
 }
