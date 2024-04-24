@@ -39,6 +39,11 @@ import FirebaseCore
 @objc(FIRStorage) open class Storage: NSObject {
   // MARK: - Public APIs
 
+  // TODO: Revert this change after testing
+  @objc open func fakeNewPublicAPI() -> String {
+    return "Hello, fake API!"
+  }
+
   /// The default `Storage` instance.
   /// - Returns: An instance of `Storage`, configured with the default `FirebaseApp`.
   @objc(storage) open class func storage() -> Storage {
