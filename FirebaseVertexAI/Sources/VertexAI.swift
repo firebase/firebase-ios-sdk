@@ -26,8 +26,9 @@ public class VertexAI: NSObject {
   /// The default `VertexAI` instance.
   ///
   /// - Parameter location: The region identifier, defaulting to `us-central1`; see [Vertex AI
-  ///   regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions) for a
-  ///   list of supported regions.
+  /// regions
+  ///   ](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions)
+  ///   for a list of supported regions.
   /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
   public static func vertexAI(location: String = "us-central1") -> VertexAI {
     guard let app = FirebaseApp.app() else {
@@ -41,8 +42,8 @@ public class VertexAI: NSObject {
   ///
   ///  - Parameters:
   ///   - app: The custom `FirebaseApp` used for initialization.
-  ///   - location: The region identifier, defaulting to `us-central1`; see [Vertex AI
-  ///     regions](https://cloud.google.com/vertex-ai/docs/general/locations#vertex-ai-regions)
+  ///   - location: The region identifier, defaulting to `us-central1`; see [Vertex AI regions
+  ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions)
   ///     for a list of supported regions.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
@@ -117,11 +118,12 @@ public class VertexAI: NSObject {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
-    guard !location.isEmpty else {
+    guard !location.isEmpty && location
+      .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
-      No location specified; see
-      https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions for a
-      list of available regions.
+      Invalid location "\(location)" specified; see \
+      https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions for \
+      a list of available regions.
       """)
     }
 
