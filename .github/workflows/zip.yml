@@ -149,10 +149,12 @@ jobs:
     - name: Remove data before upload
       env:
         LEGACY: true
+      if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
     - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_abtesting
+        name: quickstart_artifacts_abtesting-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_auth:
@@ -202,10 +204,12 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh authentiation
     - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_auth
+        name: quickstart_artifacts_auth-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_config:
@@ -258,7 +262,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_config
+        name: quickstart_artifacts_config-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_crashlytics:
@@ -334,7 +338,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_crashlytics
+        name: quickstart_artifacts_crashlytics-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_database:
@@ -390,7 +394,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts database
+        name: quickstart_artifacts_database-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_dynamiclinks:
@@ -451,7 +455,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_dynamiclinks
+        name: quickstart_artifacts_dynamiclinks-${{ matrix.os }}
         path: quickstart-ios/
 
   # quickstart_framework_firestore:
@@ -503,7 +507,7 @@ jobs:
   #   - uses: actions/upload-artifact@v4
   #     if: ${{ failure() }}
   #     with:
-  #       name: quickstart_artifacts_firestore
+  #       name: quickstart_artifacts_firestore-${{ matrix.os }}
   #       path: quickstart-ios/
 
   check_framework_firestore_symbols:
@@ -594,7 +598,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_inappmessaging
+        name: quickstart_artifacts_inappmessaging-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_messaging:
@@ -651,7 +655,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_messaging
+        name: quickstart_artifacts_messaging-${{ matrix.os }}
         path: quickstart-ios/
 
   quickstart_framework_storage:
@@ -719,5 +723,5 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_storage
+        name: quickstart_artifacts_storage-${{ matrix.os }}
         path: quickstart-ios/
