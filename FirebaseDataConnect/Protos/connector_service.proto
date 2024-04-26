@@ -1,12 +1,17 @@
-
+//adopted from third_party/firebase/dataconnect/emulator/server/api/connector_service.proto
 syntax = "proto3";
 
-package google.firebase.dataconnect.emulator;
+package google.firebase.dataconnect.v1alpha;  
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 import "graphql_error.proto";
+
+option java_package = "com.google.firebase.dataconnect.v1alpha";
+option java_multiple_files = true;
+option java_outer_classname = "ConnectorServiceProto";
+
 
 // Firebase Data Connect provides means to deploy a set of predefined GraphQL
 // operations (queries and mutations) as a Connector.
@@ -23,7 +28,7 @@ service ConnectorService {
   // Execute a predefined query in a Connector.
   rpc ExecuteQuery(ExecuteQueryRequest) returns (ExecuteQueryResponse) {
     option (google.api.http) = {
-      post: "/v1/{name=projects/*/locations/*/services/*/connectors/*}:executeQuery"
+      post: "/v1alpha/{name=projects/*/locations/*/services/*/connectors/*}:executeQuery"
       body: "*"
     };
   }
@@ -32,7 +37,7 @@ service ConnectorService {
   rpc ExecuteMutation(ExecuteMutationRequest)
       returns (ExecuteMutationResponse) {
     option (google.api.http) = {
-      post: "/v1/{name=projects/*/locations/*/services/*/connectors/*}:executeMutation"
+      post: "/v1alpha/{name=projects/*/locations/*/services/*/connectors/*}:executeMutation"
       body: "*"
     };
   }

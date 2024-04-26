@@ -2,5 +2,9 @@
 connector_service.proto is adapted from Data Connect server protos.
 third_party/firebase/dataconnect/emulator/server/api/connector_service.proto
 
+With following changes -
+Follow same changes as specified by the copybara lines.
+Where it says strip, take that line out and follow any replace rules with a replace
+
 The google protos are obtained from https://github.com/googleapis/googleapis/tree/master
 

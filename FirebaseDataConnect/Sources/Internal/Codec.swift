@@ -44,14 +44,14 @@ class Codec {
 
   func createQueryRequestProto<VariableType: OperationVariable>(connectorName: String,
                                request: QueryRequest<VariableType>) throws
-    -> Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest {
+    -> Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
       if let variables = request.variables {
         varStruct = try encode(args: variables)
       }
 
-      let internalRequest = Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest.with { ireq in
+      let internalRequest = Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest.with { ireq in
         ireq.operationName = request.operationName
 
         if let varStruct {
@@ -69,14 +69,14 @@ class Codec {
 
   func createMutationRequestProto<VariableType: OperationVariable>(connectorName: String,
                                   request: MutationRequest<VariableType>) throws
-    -> Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest {
+    -> Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
       if let variables = request.variables {
         varStruct = try encode(args: variables)
       }
 
-      let internalRequest = Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest.with { ireq in
+      let internalRequest = Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest.with { ireq in
         ireq.operationName = request.operationName
 
         if let varStruct {

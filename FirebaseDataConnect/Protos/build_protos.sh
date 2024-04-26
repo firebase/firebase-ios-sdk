@@ -2,6 +2,7 @@
 
 #This is a convenience script to build protos and generate Swift files
 #It requires the Swift grpc and proto plugins which are part of swift-grpc project
+#Script should be run from the folder containing this script
 
 protoc_path="protoc"
 sdk_folder="/Users/aashishp/Code/firebase-private/firebase-ios-sdk"

@@ -38,25 +38,25 @@ import SwiftProtobuf
 /// connector. The auth policies typically define rules on the Firebase Auth
 /// token.
 ///
-/// Usage: instantiate `Google_Firebase_Dataconnect_Emulator_ConnectorServiceClient`, then call methods of this protocol to make API calls.
-public protocol Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol: GRPCClient {
+/// Usage: instantiate `Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClient`, then call methods of this protocol to make API calls.
+public protocol Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientProtocol: GRPCClient {
   var serviceName: String { get }
-  var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? { get }
+  var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? { get }
 
   func executeQuery(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest,
     callOptions: CallOptions?
-  ) -> UnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>
+  ) -> UnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>
 
   func executeMutation(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest,
     callOptions: CallOptions?
-  ) -> UnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>
+  ) -> UnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>
 }
 
-extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol {
+extension Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientProtocol {
   public var serviceName: String {
-    return "google.firebase.dataconnect.emulator.ConnectorService"
+    return "google.firebase.dataconnect.v1alpha.ConnectorService"
   }
 
   /// Execute a predefined query in a Connector.
@@ -66,11 +66,11 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol {
   ///   - callOptions: Call options.
   /// - Returns: A `UnaryCall` with futures for the metadata, status and response.
   public func executeQuery(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest,
     callOptions: CallOptions? = nil
-  ) -> UnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse> {
+  ) -> UnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse> {
     return self.makeUnaryCall(
-      path: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeQuery.path,
+      path: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeQuery.path,
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeExecuteQueryInterceptors() ?? []
@@ -84,11 +84,11 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol {
   ///   - callOptions: Call options.
   /// - Returns: A `UnaryCall` with futures for the metadata, status and response.
   public func executeMutation(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest,
     callOptions: CallOptions? = nil
-  ) -> UnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse> {
+  ) -> UnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse> {
     return self.makeUnaryCall(
-      path: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeMutation.path,
+      path: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeMutation.path,
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeExecuteMutationInterceptors() ?? []
@@ -98,25 +98,25 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol {
 
 #if compiler(>=5.6)
 @available(*, deprecated)
-extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceClient: @unchecked Sendable {}
+extension Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClient: @unchecked Sendable {}
 #endif // compiler(>=5.6)
 
-@available(*, deprecated, renamed: "Google_Firebase_Dataconnect_Emulator_ConnectorServiceNIOClient")
-public final class Google_Firebase_Dataconnect_Emulator_ConnectorServiceClient: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol {
+@available(*, deprecated, renamed: "Google_Firebase_Dataconnect_V1alpha_ConnectorServiceNIOClient")
+public final class Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClient: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientProtocol {
   private let lock = Lock()
   private var _defaultCallOptions: CallOptions
-  private var _interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol?
+  private var _interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol?
   public let channel: GRPCChannel
   public var defaultCallOptions: CallOptions {
     get { self.lock.withLock { return self._defaultCallOptions } }
     set { self.lock.withLockVoid { self._defaultCallOptions = newValue } }
   }
-  public var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? {
+  public var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? {
     get { self.lock.withLock { return self._interceptors } }
     set { self.lock.withLockVoid { self._interceptors = newValue } }
   }
 
-  /// Creates a client for the google.firebase.dataconnect.emulator.ConnectorService service.
+  /// Creates a client for the google.firebase.dataconnect.v1alpha.ConnectorService service.
   ///
   /// - Parameters:
   ///   - channel: `GRPCChannel` to the service host.
@@ -125,7 +125,7 @@ public final class Google_Firebase_Dataconnect_Emulator_ConnectorServiceClient: 
   public init(
     channel: GRPCChannel,
     defaultCallOptions: CallOptions = CallOptions(),
-    interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? = nil
+    interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? = nil
   ) {
     self.channel = channel
     self._defaultCallOptions = defaultCallOptions
@@ -133,12 +133,12 @@ public final class Google_Firebase_Dataconnect_Emulator_ConnectorServiceClient: 
   }
 }
 
-public struct Google_Firebase_Dataconnect_Emulator_ConnectorServiceNIOClient: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientProtocol {
+public struct Google_Firebase_Dataconnect_V1alpha_ConnectorServiceNIOClient: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientProtocol {
   public var channel: GRPCChannel
   public var defaultCallOptions: CallOptions
-  public var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol?
+  public var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol?
 
-  /// Creates a client for the google.firebase.dataconnect.emulator.ConnectorService service.
+  /// Creates a client for the google.firebase.dataconnect.v1alpha.ConnectorService service.
   ///
   /// - Parameters:
   ///   - channel: `GRPCChannel` to the service host.
@@ -147,7 +147,7 @@ public struct Google_Firebase_Dataconnect_Emulator_ConnectorServiceNIOClient: Go
   public init(
     channel: GRPCChannel,
     defaultCallOptions: CallOptions = CallOptions(),
-    interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? = nil
+    interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? = nil
   ) {
     self.channel = channel
     self.defaultCallOptions = defaultCallOptions
@@ -168,37 +168,37 @@ public struct Google_Firebase_Dataconnect_Emulator_ConnectorServiceNIOClient: Go
 /// connector. The auth policies typically define rules on the Firebase Auth
 /// token.
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public protocol Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtocol: GRPCClient {
+public protocol Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClientProtocol: GRPCClient {
   static var serviceDescriptor: GRPCServiceDescriptor { get }
-  var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? { get }
+  var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? { get }
 
   func makeExecuteQueryCall(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest,
     callOptions: CallOptions?
-  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>
+  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>
 
   func makeExecuteMutationCall(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest,
     callOptions: CallOptions?
-  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>
+  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtocol {
+extension Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClientProtocol {
   public static var serviceDescriptor: GRPCServiceDescriptor {
-    return Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.serviceDescriptor
+    return Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.serviceDescriptor
   }
 
-  public var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? {
+  public var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? {
     return nil
   }
 
   public func makeExecuteQueryCall(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest,
     callOptions: CallOptions? = nil
-  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse> {
+  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse> {
     return self.makeAsyncUnaryCall(
-      path: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeQuery.path,
+      path: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeQuery.path,
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeExecuteQueryInterceptors() ?? []
@@ -206,11 +206,11 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtoc
   }
 
   public func makeExecuteMutationCall(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest,
     callOptions: CallOptions? = nil
-  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse> {
+  ) -> GRPCAsyncUnaryCall<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse> {
     return self.makeAsyncUnaryCall(
-      path: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeMutation.path,
+      path: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeMutation.path,
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeExecuteMutationInterceptors() ?? []
@@ -219,13 +219,13 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtoc
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtocol {
+extension Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClientProtocol {
   public func executeQuery(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest,
     callOptions: CallOptions? = nil
-  ) async throws -> Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse {
+  ) async throws -> Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse {
     return try await self.performAsyncUnaryCall(
-      path: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeQuery.path,
+      path: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeQuery.path,
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeExecuteQueryInterceptors() ?? []
@@ -233,11 +233,11 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtoc
   }
 
   public func executeMutation(
-    _ request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest,
+    _ request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest,
     callOptions: CallOptions? = nil
-  ) async throws -> Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse {
+  ) async throws -> Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse {
     return try await self.performAsyncUnaryCall(
-      path: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeMutation.path,
+      path: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeMutation.path,
       request: request,
       callOptions: callOptions ?? self.defaultCallOptions,
       interceptors: self.interceptors?.makeExecuteMutationInterceptors() ?? []
@@ -246,15 +246,15 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtoc
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClient: Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClientProtocol {
+public struct Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClient: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClientProtocol {
   public var channel: GRPCChannel
   public var defaultCallOptions: CallOptions
-  public var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol?
+  public var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol?
 
   public init(
     channel: GRPCChannel,
     defaultCallOptions: CallOptions = CallOptions(),
-    interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol? = nil
+    interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol? = nil
   ) {
     self.channel = channel
     self.defaultCallOptions = defaultCallOptions
@@ -264,35 +264,35 @@ public struct Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncClient: 
 
 #endif // compiler(>=5.6)
 
-public protocol Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientInterceptorFactoryProtocol: GRPCSendable {
+public protocol Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientInterceptorFactoryProtocol: GRPCSendable {
 
   /// - Returns: Interceptors to use when invoking 'executeQuery'.
-  func makeExecuteQueryInterceptors() -> [ClientInterceptor<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>]
+  func makeExecuteQueryInterceptors() -> [ClientInterceptor<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>]
 
   /// - Returns: Interceptors to use when invoking 'executeMutation'.
-  func makeExecuteMutationInterceptors() -> [ClientInterceptor<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>]
+  func makeExecuteMutationInterceptors() -> [ClientInterceptor<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>]
 }
 
-public enum Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata {
+public enum Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata {
   public static let serviceDescriptor = GRPCServiceDescriptor(
     name: "ConnectorService",
-    fullName: "google.firebase.dataconnect.emulator.ConnectorService",
+    fullName: "google.firebase.dataconnect.v1alpha.ConnectorService",
     methods: [
-      Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeQuery,
-      Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata.Methods.executeMutation,
+      Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeQuery,
+      Google_Firebase_Dataconnect_V1alpha_ConnectorServiceClientMetadata.Methods.executeMutation,
     ]
   )
 
   public enum Methods {
     public static let executeQuery = GRPCMethodDescriptor(
       name: "ExecuteQuery",
-      path: "/google.firebase.dataconnect.emulator.ConnectorService/ExecuteQuery",
+      path: "/google.firebase.dataconnect.v1alpha.ConnectorService/ExecuteQuery",
       type: GRPCCallType.unary
     )
 
     public static let executeMutation = GRPCMethodDescriptor(
       name: "ExecuteMutation",
-      path: "/google.firebase.dataconnect.emulator.ConnectorService/ExecuteMutation",
+      path: "/google.firebase.dataconnect.v1alpha.ConnectorService/ExecuteMutation",
       type: GRPCCallType.unary
     )
   }
@@ -311,19 +311,19 @@ public enum Google_Firebase_Dataconnect_Emulator_ConnectorServiceClientMetadata 
 /// token.
 ///
 /// To build a server, implement a class that conforms to this protocol.
-public protocol Google_Firebase_Dataconnect_Emulator_ConnectorServiceProvider: CallHandlerProvider {
-  var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerInterceptorFactoryProtocol? { get }
+public protocol Google_Firebase_Dataconnect_V1alpha_ConnectorServiceProvider: CallHandlerProvider {
+  var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerInterceptorFactoryProtocol? { get }
 
   /// Execute a predefined query in a Connector.
-  func executeQuery(request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>
+  func executeQuery(request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>
 
   /// Execute a predefined mutation in a Connector.
-  func executeMutation(request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>
+  func executeMutation(request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>
 }
 
-extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceProvider {
+extension Google_Firebase_Dataconnect_V1alpha_ConnectorServiceProvider {
   public var serviceName: Substring {
-    return Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerMetadata.serviceDescriptor.fullName[...]
+    return Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerMetadata.serviceDescriptor.fullName[...]
   }
 
   /// Determines, calls and returns the appropriate request handler, depending on the request's method.
@@ -336,8 +336,8 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceProvider {
     case "ExecuteQuery":
       return UnaryServerHandler(
         context: context,
-        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest>(),
-        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>(),
+        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest>(),
+        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>(),
         interceptors: self.interceptors?.makeExecuteQueryInterceptors() ?? [],
         userFunction: self.executeQuery(request:context:)
       )
@@ -345,8 +345,8 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceProvider {
     case "ExecuteMutation":
       return UnaryServerHandler(
         context: context,
-        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest>(),
-        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>(),
+        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest>(),
+        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>(),
         interceptors: self.interceptors?.makeExecuteMutationInterceptors() ?? [],
         userFunction: self.executeMutation(request:context:)
       )
@@ -373,34 +373,34 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceProvider {
 ///
 /// To implement a server, implement an object which conforms to this protocol.
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public protocol Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncProvider: CallHandlerProvider {
+public protocol Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncProvider: CallHandlerProvider {
   static var serviceDescriptor: GRPCServiceDescriptor { get }
-  var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerInterceptorFactoryProtocol? { get }
+  var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerInterceptorFactoryProtocol? { get }
 
   /// Execute a predefined query in a Connector.
   @Sendable func executeQuery(
-    request: Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest,
+    request: Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest,
     context: GRPCAsyncServerCallContext
-  ) async throws -> Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse
+  ) async throws -> Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse
 
   /// Execute a predefined mutation in a Connector.
   @Sendable func executeMutation(
-    request: Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest,
+    request: Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest,
     context: GRPCAsyncServerCallContext
-  ) async throws -> Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse
+  ) async throws -> Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncProvider {
+extension Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncProvider {
   public static var serviceDescriptor: GRPCServiceDescriptor {
-    return Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerMetadata.serviceDescriptor
+    return Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerMetadata.serviceDescriptor
   }
 
   public var serviceName: Substring {
-    return Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerMetadata.serviceDescriptor.fullName[...]
+    return Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerMetadata.serviceDescriptor.fullName[...]
   }
 
-  public var interceptors: Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerInterceptorFactoryProtocol? {
+  public var interceptors: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerInterceptorFactoryProtocol? {
     return nil
   }
 
@@ -412,8 +412,8 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncProvider {
     case "ExecuteQuery":
       return GRPCAsyncServerHandler(
         context: context,
-        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest>(),
-        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>(),
+        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest>(),
+        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>(),
         interceptors: self.interceptors?.makeExecuteQueryInterceptors() ?? [],
         wrapping: self.executeQuery(request:context:)
       )
@@ -421,8 +421,8 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncProvider {
     case "ExecuteMutation":
       return GRPCAsyncServerHandler(
         context: context,
-        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest>(),
-        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>(),
+        requestDeserializer: ProtobufDeserializer<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest>(),
+        responseSerializer: ProtobufSerializer<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>(),
         interceptors: self.interceptors?.makeExecuteMutationInterceptors() ?? [],
         wrapping: self.executeMutation(request:context:)
       )
@@ -435,37 +435,37 @@ extension Google_Firebase_Dataconnect_Emulator_ConnectorServiceAsyncProvider {
 
 #endif // compiler(>=5.6)
 
-public protocol Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerInterceptorFactoryProtocol {
+public protocol Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerInterceptorFactoryProtocol {
 
   /// - Returns: Interceptors to use when handling 'executeQuery'.
   ///   Defaults to calling `self.makeInterceptors()`.
-  func makeExecuteQueryInterceptors() -> [ServerInterceptor<Google_Firebase_Dataconnect_Emulator_ExecuteQueryRequest, Google_Firebase_Dataconnect_Emulator_ExecuteQueryResponse>]
+  func makeExecuteQueryInterceptors() -> [ServerInterceptor<Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteQueryResponse>]
 
   /// - Returns: Interceptors to use when handling 'executeMutation'.
   ///   Defaults to calling `self.makeInterceptors()`.
-  func makeExecuteMutationInterceptors() -> [ServerInterceptor<Google_Firebase_Dataconnect_Emulator_ExecuteMutationRequest, Google_Firebase_Dataconnect_Emulator_ExecuteMutationResponse>]
+  func makeExecuteMutationInterceptors() -> [ServerInterceptor<Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest, Google_Firebase_Dataconnect_V1alpha_ExecuteMutationResponse>]
 }
 
-public enum Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerMetadata {
+public enum Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerMetadata {
   public static let serviceDescriptor = GRPCServiceDescriptor(
     name: "ConnectorService",
-    fullName: "google.firebase.dataconnect.emulator.ConnectorService",
+    fullName: "google.firebase.dataconnect.v1alpha.ConnectorService",
     methods: [
-      Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerMetadata.Methods.executeQuery,
-      Google_Firebase_Dataconnect_Emulator_ConnectorServiceServerMetadata.Methods.executeMutation,
+      Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerMetadata.Methods.executeQuery,
+      Google_Firebase_Dataconnect_V1alpha_ConnectorServiceServerMetadata.Methods.executeMutation,
     ]
   )
 
   public enum Methods {
     public static let executeQuery = GRPCMethodDescriptor(
       name: "ExecuteQuery",
-      path: "/google.firebase.dataconnect.emulator.ConnectorService/ExecuteQuery",
+      path: "/google.firebase.dataconnect.v1alpha.ConnectorService/ExecuteQuery",
       type: GRPCCallType.unary
     )
 
     public static let executeMutation = GRPCMethodDescriptor(
       name: "ExecuteMutation",
-      path: "/google.firebase.dataconnect.emulator.ConnectorService/ExecuteMutation",
+      path: "/google.firebase.dataconnect.v1alpha.ConnectorService/ExecuteMutation",
       type: GRPCCallType.unary
     )
   }

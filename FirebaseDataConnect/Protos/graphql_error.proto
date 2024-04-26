@@ -2,9 +2,13 @@
 
 syntax = "proto3";
 
-package google.firebase.dataconnect.emulator;
+package google.firebase.dataconnect.v1alpha;
 
 import "google/protobuf/struct.proto";
+
+option java_package = "com.google.firebase.dataconnect.v1alpha";
+option java_multiple_files = true;
+option java_outer_classname = "GraphqlErrorProto";
 
 
 // GraphqlError conforms to the GraphQL error spec.
@@ -65,4 +69,3 @@ message GraphqlErrorExtensions {
   // to `File.path` of the provided `Source`.
   string file = 1;
 }
-
