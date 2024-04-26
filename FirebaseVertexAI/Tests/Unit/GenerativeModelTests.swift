@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 import XCTest
 
@@ -299,6 +300,74 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     _ = try await model.generateContent(testPrompt)
+  }
+
+  func testGenerateContent_auth_validAuthToken() async throws {
+    let authToken = "test-valid-token"
+    model = GenerativeModel(
+      name: "my-model",
+      apiKey: "API_KEY",
+      tools: nil,
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      auth: AuthInteropFake(token: authToken),
+      urlSession: urlSession
+    )
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json",
+        authToken: authToken
+      )
+
+    _ = try await model.generateContent(testPrompt)
+  }
+
+  func testGenerateContent_auth_nilAuthToken() async throws {
+    model = GenerativeModel(
+      name: "my-model",
+      apiKey: "API_KEY",
+      tools: nil,
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      auth: AuthInteropFake(token: nil),
+      urlSession: urlSession
+    )
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json",
+        authToken: nil
+      )
+
+    _ = try await model.generateContent(testPrompt)
+  }
+
+  func testGenerateContent_auth_authTokenRefreshError() async throws {
+    model = GenerativeModel(
+      name: "my-model",
+      apiKey: "API_KEY",
+      tools: nil,
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      auth: AuthInteropFake(error: AuthErrorFake()),
+      urlSession: urlSession
+    )
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json",
+        authToken: nil
+      )
+
+    do {
+      _ = try await model.generateContent(testPrompt)
+      XCTFail("Should throw internalError(AuthErrorFake); no error.")
+    } catch GenerateContentError.internalError(_ as AuthErrorFake) {
+      //
+    } catch {
+      XCTFail("Should throw internalError(AuthErrorFake); error thrown: \(error)")
+    }
   }
 
   func testGenerateContent_usageMetadata() async throws {
@@ -1135,7 +1204,8 @@ final class GenerativeModelTests: XCTestCase {
                                   withExtension ext: String,
                                   statusCode: Int = 200,
                                   timeout: TimeInterval = URLRequest.defaultTimeoutInterval(),
-                                  appCheckToken: String? = nil) throws -> ((URLRequest) throws -> (
+                                  appCheckToken: String? = nil,
+                                  authToken: String? = nil) throws -> ((URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
@@ -1149,6 +1219,11 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
       XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
+      if let authToken {
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Firebase \(authToken)")
+      } else {
+        XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
+      }
       let response = try XCTUnwrap(HTTPURLResponse(
         url: requestURL,
         statusCode: statusCode,
