@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
@@ -51,10 +52,12 @@ class VertexAIComponent: NSObject, Library, VertexAIProvider {
 
   static func componentsToRegister() -> [Component] {
     let appCheckInterop = Dependency(with: AppCheckInterop.self, isRequired: false)
+    let authInterop = Dependency(with: AuthInterop.self, isRequired: false)
     return [Component(VertexAIProvider.self,
                       instantiationTiming: .lazy,
                       dependencies: [
                         appCheckInterop,
+                        authInterop,
                       ]) { container, isCacheable in
         guard let app = container.app else { return nil }
         isCacheable.pointee = true

@@ -1369,6 +1369,7 @@ let package = Package(
       name: "FirebaseVertexAI",
       dependencies: [
         "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
