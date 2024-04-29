@@ -58,10 +58,15 @@
   NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
 
   dispatch_sync(FIRCLSGetLoggingQueue(), ^{
-    [rolloutsFile seekToEndOfFile];
-    [rolloutsFile writeData:rollouts];
-    NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
-    [rolloutsFile writeData:newLineData];
+    @try {
+      [rolloutsFile seekToEndOfFile];
+      NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
+      [rolloutsWithNewLineData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+      [rolloutsFile writeData:rolloutsWithNewLineData];
+    } @catch (NSException *exception) {
+      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
+                     exception.name, exception.reason);
+    }
   });
 }
 
