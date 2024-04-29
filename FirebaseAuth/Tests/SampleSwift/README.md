@@ -1,10 +1,10 @@
 
-# Firebase Auth Quickstart
+# Firebase Swift Sample App
 
+This Sample App is used for manual and automated Firebase Auth integration testing.
 
-This Firebase quickstart is written in Swift and aims to showcase how Firebase Auth can help manage user authentication. You can read more about Firebase Auth [here](https://firebase.google.com/docs/auth)!
-
-To view the older Objective-C and Swift quickstarts, view the [`LegacyAuthQuickstart`](https://github.com/firebase/quickstart-ios/blob/master/authentication/LegacyAuthQuickstart) directory.
+It's implementation is based on the quickstart that can be found
+[here](https://github.com/firebase/quickstart-ios/tree/main/authentication)
 
 ## Getting Started
 
@@ -16,11 +16,6 @@ Clone this project and `cd` into the `AuthenticationExample` directory. Run `pod
 
 ### Terminal commands to clone and open the project!
 ```bash
-
-$ git clone https://github.com/firebase/quickstart-ios.git
-
-$ cd authentication/
-
 $ pod install --repo-update
 
 $ open AuthenticationExample.xcworkspace
@@ -181,8 +176,6 @@ See the [Getting Started with Password-based Sign In guide](https://firebase.goo
 
 Email Link authentication, which is also referred to as Passwordless authentication, works by sending a verification email to a user requesting to sign in. This verification email contains a special **Dynamic Link** that links the user back to your app, completing authentication in the process. In order to configure this method of authentication, we will use [Firebase Dynamic Links](https://firebase.google.com/docs/dynamic-links), which we will need to set up.
 
-If this is your first time working with Dynamic Links, here's a great [introduction video](https://www.youtube.com/watch?v=KLBjAg6HvG0) from Firebase's Firecast series on YouTube. Note, we will outline most of the steps covered in this tutorial below!
-
 #### Start by going to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:
   - Select the **Auth** panel and then click the **Sign In Method** tab.
   - Click **Email/Password** and ensure it is enabled.
@@ -208,7 +201,7 @@ As we mentioned above, we will need to configure dynamic links for this auth flo
   - Dynamic links use your app's bundle identifier as a url scheme by default. In Xcode, [add a custom URL scheme for your **bundle identifier**](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
   - Last todo! Navigate to [`sendSignInLink()`](https://github.com/firebase/quickstart-ios/blob/master/authentication/AuthenticationExample/View%20Controllers/Other%20Auth%20Method%20Controllers/PasswordlessViewController.swift#L39) in [`PasswordlessViewController.swift`](https://github.com/firebase/quickstart-ios/blob/master/authentication/AuthenticationExample/View%20Controllers/Other%20Auth%20Method%20Controllers/PasswordlessViewController.swift). Within the method, there is a `stringURL` constant. Paste in the long deeplink you created from the steps above for the `authroizedDomain` property above the method. It should look something like:
 ```swift
-    let stringURL = "https://\(authorizedDomain).firebaseapp.com/login?email=\(email)"
+    let stringURL = "https://\(authorizedDomain)/login"
 ```
 
 - Run the app on your device or simulator.
