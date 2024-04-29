@@ -60,9 +60,9 @@
   dispatch_sync(FIRCLSGetLoggingQueue(), ^{
     @try {
       [rolloutsFile seekToEndOfFile];
-      [rolloutsFile writeData:rollouts];
-      NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
-      [rolloutsFile writeData:newLineData];
+      NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
+      [rolloutsWithNewLineData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+      [rolloutsFile writeData:rolloutsWithNewLineData];
     } @catch (NSException *exception) {
       FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
                      exception.name, exception.reason);
