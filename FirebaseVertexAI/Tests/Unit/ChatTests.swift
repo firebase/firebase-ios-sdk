@@ -53,6 +53,7 @@ final class ChatTests: XCTestCase {
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
+      auth: nil,
       urlSession: urlSession
     )
     let chat = Chat(model: model, history: [])

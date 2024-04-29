@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
@@ -29,11 +30,14 @@ struct GenerativeAIService {
 
   private let appCheck: AppCheckInterop?
 
+  private let auth: AuthInterop?
+
   private let urlSession: URLSession
 
-  init(apiKey: String, appCheck: AppCheckInterop?, urlSession: URLSession) {
+  init(apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?, urlSession: URLSession) {
     self.apiKey = apiKey
     self.appCheck = appCheck
+    self.auth = auth
     self.urlSession = urlSession
   }
 
@@ -174,6 +178,10 @@ struct GenerativeAIService {
         Logging.default
           .debug("[GoogleGenerativeAI] Failed to fetch AppCheck token. Error: \(error)")
       }
+    }
+
+    if let auth, let authToken = try await auth.getToken(forcingRefresh: false) {
+      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
     let encoder = JSONEncoder()

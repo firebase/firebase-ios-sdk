@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
@@ -92,7 +93,8 @@ public class VertexAI: NSObject {
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
       requestOptions: requestOptions,
-      appCheck: appCheck
+      appCheck: appCheck,
+      auth: auth
     )
   }
 
@@ -103,12 +105,15 @@ public class VertexAI: NSObject {
 
   private let appCheck: AppCheckInterop?
 
+  private let auth: AuthInterop?
+
   let location: String
 
   init(app: FirebaseApp, location: String) {
     self.app = app
     self.location = location
     appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
+    auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
   }
 
   private func modelResourceName(modelName: String, location: String) -> String {

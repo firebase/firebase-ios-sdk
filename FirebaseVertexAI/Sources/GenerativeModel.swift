@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import Foundation
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
@@ -69,11 +70,13 @@ public final class GenerativeModel {
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        appCheck: AppCheckInterop?,
+       auth: AuthInterop?,
        urlSession: URLSession = .shared) {
     modelResourceName = GenerativeModel.modelResourceName(name: name)
     generativeAIService = GenerativeAIService(
       apiKey: apiKey,
       appCheck: appCheck,
+      auth: auth,
       urlSession: urlSession
     )
     self.generationConfig = generationConfig
