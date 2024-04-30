@@ -55,16 +55,8 @@ struct FrameworkBuilder {
                                     setCarthage: Bool,
                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
     let fileManager = FileManager.default
-    let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
     do {
-      // Remove the compiled frameworks directory, this isn't the cache we're using.
-      if fileManager.directoryExists(at: outputDir) {
-        try fileManager.removeItem(at: outputDir)
-      }
-
-      try fileManager.createDirectory(at: outputDir, withIntermediateDirectories: true)
-
       // Create our logs directory if it doesn't exist.
       if !fileManager.directoryExists(at: logsDir) {
         try fileManager.createDirectory(at: logsDir, withIntermediateDirectories: true)
@@ -74,13 +66,12 @@ struct FrameworkBuilder {
     }
 
     if dynamicFrameworks {
-      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir),
+      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir),
               nil)
     } else {
       return buildStaticFrameworks(
         withName: framework,
         logsDir: logsDir,
-        outputDir: outputDir,
         setCarthage: setCarthage,
         podInfo: podInfo
       )
@@ -312,8 +303,7 @@ struct FrameworkBuilder {
   /// - Parameter logsDir: The path to the directory to place build logs.
   /// - Returns: A path to the newly compiled frameworks (with any included Resources embedded).
   private func buildDynamicFrameworks(withName framework: String,
-                                      logsDir: URL,
-                                      outputDir: URL) -> [URL] {
+                                      logsDir: URL) -> [URL] {
     // xcframework doesn't lipo things together but accepts fat frameworks for one target.
     // We group architectures here to deal with this fact.
     var thinFrameworks = [URL]()
@@ -340,7 +330,6 @@ struct FrameworkBuilder {
   /// - Returns: A path to the newly compiled framework, and the Resource URL.
   private func buildStaticFrameworks(withName framework: String,
                                      logsDir: URL,
-                                     outputDir: URL,
                                      setCarthage: Bool,
                                      podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL) {
     // Build every architecture and save the locations in an array to be assembled.
@@ -350,13 +339,6 @@ struct FrameworkBuilder {
     // Create the framework directory in the filesystem for the thin archives to go.
     let fileManager = FileManager.default
     let frameworkName = FrameworkBuilder.frameworkBuildName(framework)
-    let frameworkDir = outputDir.appendingPathComponent("\(frameworkName).framework")
-    do {
-      try fileManager.createDirectory(at: frameworkDir, withIntermediateDirectories: true)
-    } catch {
-      fatalError("Could not create framework directory while building framework \(frameworkName). " +
-        "\(error)")
-    }
 
     guard let anyPlatform = targetPlatforms.first,
           let archivePath = slicedFrameworks[anyPlatform] else {
@@ -410,7 +392,6 @@ struct FrameworkBuilder {
     let moduleMapContents = moduleMapContentsTemplate.get(umbrellaHeader: umbrellaHeader)
     let frameworks = groupFrameworks(withName: frameworkName,
                                      isCarthage: setCarthage,
-                                     fromFolder: frameworkDir,
                                      slicedFrameworks: slicedFrameworks,
                                      moduleMapContents: moduleMapContents)
 
@@ -542,18 +523,13 @@ struct FrameworkBuilder {
   /// Groups slices for each platform into a minimal set of frameworks.
   /// - Parameter withName: The framework name.
   /// - Parameter isCarthage: Name the temp directory differently for Carthage.
-  /// - Parameter fromFolder: The almost complete framework folder. Includes Headers, Info.plist,
-  /// and Resources.
   /// - Parameter slicedFrameworks: All the frameworks sliced by platform.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
   private func groupFrameworks(withName framework: String,
                                isCarthage: Bool,
-                               fromFolder: URL,
                                slicedFrameworks: [TargetPlatform: URL],
                                moduleMapContents: String) -> ([URL]) {
     let fileManager = FileManager.default
-
-    // Create a `.framework` for each of the thinArchives using the `fromFolder` as the base.
     let platformFrameworksDir = fileManager.temporaryDirectory(
       withName: isCarthage ? "carthage_frameworks" : "platform_frameworks"
     )
@@ -651,7 +627,33 @@ struct FrameworkBuilder {
           platform == .catalyst || platform == .macOS ? "Resources" : ""
         )
         .resolvingSymlinksInPath()
-      processPrivacyManifests(fileManager, frameworkPath, resourceDir)
+
+      // Move resource bundles into the platform framework.
+      do {
+        try fileManager.contentsOfDirectory(
+          at: frameworkPath.deletingLastPathComponent(),
+          includingPropertiesForKeys: nil
+        )
+        .filter { $0.pathExtension == "bundle" }
+        // Bundles are moved rather than copied to prevent them from being
+        // packaged in a `Resources` directory at the root of the xcframework.
+        .forEach {
+          // Delete `gRPCCertificates-Cpp.bundle` since it is not needed (#9184).
+          guard $0.lastPathComponent != "gRPCCertificates-Cpp.bundle" else {
+            try fileManager.removeItem(at: $0)
+            return
+          }
+
+          try fileManager.moveItem(
+            at: $0,
+            to: resourceDir.appendingPathComponent($0.lastPathComponent)
+          )
+        }
+      } catch {
+        fatalError(
+          "Could not move resources for framework \(frameworkPath), platform \(platform). Error: \(error)"
+        )
+      }
 
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
@@ -661,39 +663,6 @@ struct FrameworkBuilder {
 
       return platformFrameworkDir
     }
-  }
-
-  /// Process privacy manifests.
-  ///
-  /// Move any privacy manifest-containing resource bundles into the platform framework.
-  func processPrivacyManifests(_ fileManager: FileManager,
-                               _ frameworkPath: URL,
-                               _ platformFrameworkDir: URL) {
-    try? fileManager.contentsOfDirectory(
-      at: frameworkPath.deletingLastPathComponent(),
-      includingPropertiesForKeys: nil
-    )
-    .filter { $0.pathExtension == "bundle" }
-    // TODO(ncooke3): Once the zip is built with Xcode 15, the following
-    // `filter` can be removed. The following block exists to preserve
-    // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
-    .filter { bundleURL in
-      let dirEnum = fileManager.enumerator(atPath: bundleURL.path)
-      var containsPrivacyManifest = false
-      while let relativeFilePath = dirEnum?.nextObject() as? String {
-        if relativeFilePath.hasSuffix("PrivacyInfo.xcprivacy") {
-          containsPrivacyManifest = true
-          break
-        }
-      }
-      return containsPrivacyManifest
-    }
-    // Bundles are moved rather than copied to prevent them from being
-    // packaged in a `Resources` directory at the root of the xcframework.
-    .forEach { try! fileManager.moveItem(
-      at: $0,
-      to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
-    ) }
   }
 
   /// Package the built frameworks into an XCFramework.
@@ -709,10 +678,16 @@ struct FrameworkBuilder {
       .appendingPathComponent(frameworkBuildName(name) + ".xcframework")
 
     // The arguments for the frameworks need to be separated.
-    var frameworkArgs: [String] = []
-    for frameworkBuilt in frameworks {
-      frameworkArgs.append("-framework")
-      frameworkArgs.append(frameworkBuilt.path)
+    let frameworkArgs = frameworks.flatMap { frameworkPath in
+      do {
+        // Xcode 15.0-15.2: Return the canonical path to work around issue
+        // https://forums.swift.org/t/67439
+        let frameworkCanonicalPath = try frameworkPath.resourceValues(forKeys: [.canonicalPathKey])
+          .canonicalPath!
+        return ["-framework", frameworkCanonicalPath]
+      } catch {
+        fatalError("Failed to get canonical path for \(frameworkPath): \(error)")
+      }
     }
 
     let outputArgs = ["-output", xcframework.path]
