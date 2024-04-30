@@ -194,7 +194,7 @@ As we mentioned above, we will need to configure dynamic links for this auth flo
     - Setup your short URL. Feel free to put whatever here, like "demo", "login, or "passwordless" for example. Click **Next**.
     - For the Deep Link URL, configure the URL to look like:
     >        https://[insert an authorized domain]/login?email=email
-    >For the authorized domain ⬆, go to the the Authentication tab, then click the "Sign-in method", and scroll down to the "Authorized domains" section. Copy the domain that looks like `[the app's name].firebaseapp.com`. Paste this entire domain into the Deep Link we are creating above. You can also instead allowlist the dynamic links URL prefix and use that here as well.
+    >For the authorized domain ⬆, go to the the Authentication tab, then click the "Settings" tab, and select the "Authorized domains" section. Copy the domain that looks like `[the app's name].firebaseapp.com`. Paste this entire domain into the Deep Link we are creating above. You can also instead allowlist the dynamic links URL prefix and use that here as well.
     - On step 3, **Define link behavior for iOS**, select **Open the deep link in your iOS App** and make sure your app is selected in the drop down.
     - Configure the following steps as you please and then hit **Create**!
 
@@ -224,11 +224,7 @@ When the user receives the verification email, they can open the link contained 
 
 private func handleIncomingDynamicLink(_ incomingURL: URL) {
 
-    DynamicLinks.dynamicLinks().handleUniversalLink(incomingURL) { (dynamicLink, error) in
-
-    // Handle the potential `error`
-
-    guard let link = dynamicLink?.url?.absoluteString else { return }
+    let link = incomingURL.absoluteString
 
     // Here, we check if our dynamic link is a sign-link (the one we emailed our user!)
     if Auth.auth().isSignIn(withEmailLink: link) {
@@ -238,7 +234,6 @@ private func handleIncomingDynamicLink(_ incomingURL: URL) {
 
         // Post a notification to the PasswordlessViewController to resume authentication
         NotificationCenter.default.post(Notification(name: Notification.Name("PasswordlessEmailNotificationSuccess")))
-        }
     }
 }
 ```
