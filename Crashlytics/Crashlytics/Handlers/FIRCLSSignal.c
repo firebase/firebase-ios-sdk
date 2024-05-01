@@ -24,7 +24,6 @@
 static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {
     SIGABRT, SIGBUS, SIGFPE, SIGILL,
     SIGSEGV, SIGSYS, SIGTRAP,
-    
     // SIGTERM can be caught and is usually sent by iOS and variants
     // when Apple wants to try and gracefully shutdown the app
     // before sending a SIGKILL (which can't be caught).
@@ -32,8 +31,7 @@ static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {
     // - When the OS updates an app.
     // - In some circumstances for Watchdog Events.
     // - Resource overuse (CPU, Disk, ...).
-    SIGTERM
-};
+    SIGTERM};
 
 #if CLS_USE_SIGALTSTACK
 static void FIRCLSSignalInstallAltStack(FIRCLSSignalReadContext *roContext);
