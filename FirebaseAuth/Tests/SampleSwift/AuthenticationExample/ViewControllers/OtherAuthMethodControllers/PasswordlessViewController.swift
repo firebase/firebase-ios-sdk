@@ -31,7 +31,7 @@ class PasswordlessViewController: OtherAuthViewController {
 
   // MARK: - Firebase 🔥
 
-  private let authorizedDomain: String = "paulb888.page.link"
+  private let authorizedDomain: String = "ENTER AUTHORIZED DOMAIN"
 
   private func sendSignInLink(to email: String) {
     let actionCodeSettings = ActionCodeSettings()
