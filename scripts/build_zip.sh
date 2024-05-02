@@ -36,11 +36,12 @@ BUILD_MODE="$3"
 LINKING_TYPE="$4"
 
 if [[ "$BUILD_MODE" == "build-head" ]]; then
+  echo "Building zip from head."
   build_head_option="--local-podspec-path"
   build_head_value="$REPO"
   carthage_version_check="--disable-carthage-version-check"
 elif [[ "$BUILD_MODE" == "build-release" ]]; then
-  # Do nothing.
+  echo "Building zip from release tag."
 else
   echo "Defaulting to `build_release`."
 fi
