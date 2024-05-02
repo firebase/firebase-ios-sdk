@@ -93,7 +93,7 @@ jobs:
            ${{ matrix.linking_type }}
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.linking_type == 'static' ? 'firebase-actions-head' : 'firebase-actions-head-dynamic' }}
+        name: ${{ matrix.linking_type == 'static' ? 'Firebase-actions-dir' : 'Firebase-actions-dir-dynamic' }}
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
