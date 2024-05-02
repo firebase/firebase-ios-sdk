@@ -69,9 +69,11 @@ struct FunctionCallingScreen: View {
       InputField("Message...", text: $userPrompt) {
         Image(systemName: viewModel.busy ? "stop.circle.fill" : "arrow.up.circle.fill")
           .font(.title)
+          .padding(.bottom, 3)
       }
       .focused($focusedField, equals: .message)
       .onSubmit { sendOrStop() }
+      .padding(.bottom, 5)
     }
     .toolbar {
       ToolbarItem(placement: .primaryAction) {

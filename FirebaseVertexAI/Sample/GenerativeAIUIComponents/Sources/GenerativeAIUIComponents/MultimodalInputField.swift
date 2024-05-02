@@ -52,6 +52,9 @@ public struct MultimodalInputField: View {
   }
 
   private func submit() {
+    // MARK: Close Keyboard
+    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+      
     if let submitHandler {
       submitHandler()
     }
@@ -69,7 +72,7 @@ public struct MultimodalInputField: View {
         Button(action: showChooseAttachmentTypePicker) {
           Image(systemName: "plus")
         }
-        .padding(.top, 4)
+        .padding(.top, 10)
 
         VStack(alignment: .leading) {
           TextField(
@@ -110,7 +113,7 @@ public struct MultimodalInputField: View {
         Button(action: submit) {
           Text("Go")
         }
-        .padding(.top, 4)
+        .padding(.top, 8)
       }
     }
     .padding(.horizontal)
