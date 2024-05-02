@@ -156,7 +156,7 @@ class FunctionCallingViewModel: ObservableObject {
       case let .functionCall(functionCall):
         messages.insert(functionCall.chatMessage(), at: messages.count - 1)
         functionCalls.append(functionCall)
-      case .data, .functionResponse:
+      case .data, .fileData, .functionResponse:
         fatalError("Unsupported response content.")
       }
     }
