@@ -90,6 +90,10 @@ final class VertexAIAPITests: XCTestCase {
     let _ = try await genAI.generateContent(str)
     let _ = try await genAI.generateContent([str])
     let _ = try await genAI.generateContent(str, "abc", "def")
+    let _ = try await genAI.generateContent(
+      str,
+      ModelContent.Part.fileData(mimetype: "image/jpeg", uri: "gs://test-bucket/image.jpg")
+    )
     #if canImport(UIKit)
       _ = try await genAI.generateContent(UIImage())
       _ = try await genAI.generateContent([UIImage()])

@@ -128,7 +128,7 @@ extension ModelContent.Part: Codable {
 
   enum FileDataKeys: String, CodingKey {
     case mimeType = "mime_type"
-    case url = "file_uri"
+    case uri = "file_uri"
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -149,7 +149,7 @@ extension ModelContent.Part: Codable {
         forKey: .fileData
       )
       try fileDataContainer.encode(mimetype, forKey: .mimeType)
-      try fileDataContainer.encode(url, forKey: .url)
+      try fileDataContainer.encode(url, forKey: .uri)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
