@@ -38,3 +38,4 @@ struct VertexAISampleApp: App {
     }
   }
 }
+
