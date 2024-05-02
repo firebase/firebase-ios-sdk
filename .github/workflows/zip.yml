@@ -43,7 +43,9 @@ jobs:
       run: |
          mkdir -p release_zip_dir
          sh -x scripts/build_zip.sh release_zip_dir \
-           "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}"
+           "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}" \
+           build-release \
+           static
     - uses: actions/upload-artifact@v4
       with:
         name: Firebase-release-zip-zip
@@ -68,6 +70,9 @@ jobs:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: build
+    strategy:
+      matrix:
+        linking_type: [static, dynamic]
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
@@ -84,9 +89,11 @@ jobs:
          mkdir -p zip_output_dir
          sh -x scripts/build_zip.sh \
            zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
-           build-head
+           build-head \
+           ${{ matrix.linking_type }}
     - uses: actions/upload-artifact@v4
       with:
+        name: ${{ matrix.linking_type == 'static' ? 'firebase-actions-head' : 'firebase-actions-head-dynamic' }}
         name: Firebase-actions-dir
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
