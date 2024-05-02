@@ -65,6 +65,7 @@ struct SummarizeScreen: View {
 
   private func onSummarizeTapped() {
     // MARK: Close Keyboard
+
     UIApplication.shared.sendAction(
       #selector(UIResponder.resignFirstResponder),
       to: nil,
