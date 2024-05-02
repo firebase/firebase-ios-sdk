@@ -28,22 +28,22 @@ struct SummarizeScreen: View {
 
   var body: some View {
     VStack {
-        VStack(alignment: .leading) {
-            Text("Enter some text, then tap on _Go_ to summarize it.")
-                .padding(.horizontal, 6)
-            HStack(alignment: .top) {
-                TextField("Enter text summarize", text: $userInput, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit {
-                        onSummarizeTapped()
-                    }
-                Button("Go") {
-                    onSummarizeTapped()
-                }
-                .padding(.top, 4)
+      VStack(alignment: .leading) {
+        Text("Enter some text, then tap on _Go_ to summarize it.")
+          .padding(.horizontal, 6)
+        HStack(alignment: .top) {
+          TextField("Enter text summarize", text: $userInput, axis: .vertical)
+            .textFieldStyle(.roundedBorder)
+            .onSubmit {
+              onSummarizeTapped()
             }
+          Button("Go") {
+            onSummarizeTapped()
+          }
+          .padding(.top, 4)
         }
-        .padding(.horizontal, 16)
+      }
+      .padding(.horizontal, 16)
 
       List {
         HStack(alignment: .top) {
@@ -65,7 +65,12 @@ struct SummarizeScreen: View {
 
   private func onSummarizeTapped() {
     // MARK: Close Keyboard
-    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder),
+      to: nil,
+      from: nil,
+      for: nil
+    )
 
     Task {
       await viewModel.summarize(inputText: userInput)
