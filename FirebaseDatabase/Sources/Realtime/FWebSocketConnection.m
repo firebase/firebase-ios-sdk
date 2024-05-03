@@ -101,42 +101,45 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                                                    googleAppID:googleAppID
                                                  appCheckToken:appCheckToken];
 
-        if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *)) {
-          // Regular NSURLSession websocket.
-          NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
-          opQueue.underlyingQueue = queue;
-          NSURLSession *session = [NSURLSession
-                                   sessionWithConfiguration:[NSURLSessionConfiguration
-                                                             defaultSessionConfiguration]
-                                   delegate:self
-                                   delegateQueue:opQueue];
-          NSURLSessionWebSocketTask *task =
-          [session webSocketTaskWithRequest:req];
-          self.webSocketTask = task;
+        if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0,
+                       watchOS 6.0, *)) {
+            // Regular NSURLSession websocket.
+            NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
+            opQueue.underlyingQueue = queue;
+            NSURLSession *session = [NSURLSession
+                sessionWithConfiguration:[NSURLSessionConfiguration
+                                             defaultSessionConfiguration]
+                                delegate:self
+                           delegateQueue:opQueue];
+            NSURLSessionWebSocketTask *task =
+                [session webSocketTaskWithRequest:req];
+            self.webSocketTask = task;
 
-          if (@available(watchOS 7.0, *)) {
-            [[NSNotificationCenter defaultCenter]
-             addObserverForName:UIApplicationWillResignActiveNotification
-             object:nil
-             queue:opQueue
-             usingBlock:^(NSNotification *_Nonnull note) {
-              FFLog(@"I-RDB083015",
-                    @"Received watchOS background notification, "
-                    @"closing web socket.");
-              [self onClosed];
-            }];
-          }
+            if (@available(watchOS 7.0, *)) {
+                [[NSNotificationCenter defaultCenter]
+                    addObserverForName:UIApplicationWillResignActiveNotification
+                                object:nil
+                                 queue:opQueue
+                            usingBlock:^(NSNotification *_Nonnull note) {
+                              FFLog(
+                                  @"I-RDB083015",
+                                  @"Received watchOS background notification, "
+                                  @"closing web socket.");
+                              [self onClosed];
+                            }];
+            }
         }
 #if !TARGET_OS_WATCH
         else {
-          // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket as
-          // they are passed via NSURLRequest.
-          self.webSocket = [[FSRWebSocket alloc] initWithURLRequest:req
-                                                              queue:queue
-                                                        googleAppID:googleAppID
-                                                       andUserAgent:userAgent];
-          [self.webSocket setDelegateDispatchQueue:queue];
-          self.webSocket.delegate = self;
+            // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket
+            // as they are passed via NSURLRequest.
+            self.webSocket =
+                [[FSRWebSocket alloc] initWithURLRequest:req
+                                                   queue:queue
+                                             googleAppID:googleAppID
+                                            andUserAgent:userAgent];
+            [self.webSocket setDelegateDispatchQueue:queue];
+            self.webSocket.delegate = self;
         }
 #endif // TARGET_OS_WATCH
     }
@@ -199,16 +202,17 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     assert(delegate);
     everConnected = NO;
     // TODO Assert url
-  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *)) {
-    [self.webSocketTask resume];
-    // We need to request data from the web socket in order for it to start
-    // sending data.
-    [self receiveWebSocketData];
-  }
+    if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0,
+                   watchOS 6.0, *)) {
+        [self.webSocketTask resume];
+        // We need to request data from the web socket in order for it to start
+        // sending data.
+        [self receiveWebSocketData];
+    }
 #if !TARGET_OS_WATCH
-  else {
-    [self.webSocket open];
-  }
+    else {
+        [self.webSocket open];
+    }
 #endif // TARGET_OS_WATCH
     dispatch_time_t when = dispatch_time(
         DISPATCH_TIME_NOW, kWebsocketConnectTimeout * NSEC_PER_SEC);
@@ -221,15 +225,16 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
           self.connectionId);
     isClosed = YES;
-  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *)) {
-    [self.webSocketTask
-     cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
-     reason:nil];
-  }
+    if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0,
+                   watchOS 6.0, *)) {
+        [self.webSocketTask
+            cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
+                         reason:nil];
+    }
 #if !TARGET_OS_WATCH
-  else {
-    [self.webSocket close];
-  }
+    else {
+        [self.webSocket close];
+    }
 #endif // TARGET_OS_WATCH
 }
 
@@ -422,23 +427,25 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 /** Sends a string through the open web socket. */
 - (void)sendStringToWebSocket:(NSString *)string {
-  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *)) {
-    // Use built-in URLSessionWebSocket functionality.
-    [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
-                                     initWithString:string]
-                  completionHandler:^(NSError *_Nullable error) {
-      if (error) {
-        FFWarn(@"I-RDB083016",
-               @"Error sending web socket data: %@.", error);
-        return;
-      }
-    }];
-  }
+    if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0,
+                   watchOS 6.0, *)) {
+        // Use built-in URLSessionWebSocket functionality.
+        [self.webSocketTask
+                  sendMessage:[[NSURLSessionWebSocketMessage alloc]
+                                  initWithString:string]
+            completionHandler:^(NSError *_Nullable error) {
+              if (error) {
+                  FFWarn(@"I-RDB083016", @"Error sending web socket data: %@.",
+                         error);
+                  return;
+              }
+            }];
+    }
 #if !TARGET_OS_WATCH
-  else {
-    // Use existing SocketRocket implementation.
-    [self.webSocket send:string];
-  }
+    else {
+        // Use existing SocketRocket implementation.
+        [self.webSocket send:string];
+    }
 #endif // !TARGET_OS_WATCH
 }
 
@@ -458,15 +465,17 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     if (!everConnected) {
         FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect",
               self.connectionId);
-      if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *)) {
-        [self.webSocketTask
-         cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNoStatusReceived
-         reason:nil];
-      }
+        if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0,
+                       watchOS 6.0, *)) {
+            [self.webSocketTask
+                cancelWithCloseCode:
+                    NSURLSessionWebSocketCloseCodeNoStatusReceived
+                             reason:nil];
+        }
 #if !TARGET_OS_WATCH
-      else {
-        [self.webSocket close];
-      }
+        else {
+            [self.webSocket close];
+        }
 #endif // TARGET_OS_WATCH
     }
 }
