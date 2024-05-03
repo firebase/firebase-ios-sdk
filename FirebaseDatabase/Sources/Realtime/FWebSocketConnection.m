@@ -506,7 +506,10 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
         FFLog(@"I-RDB083013", @"Websocket is closing itself");
         [self shutdown];
     }
-    self.webSocketTask = nil;
+    if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0,
+                   watchOS 6.0, *)) {
+        self.webSocketTask = nil;
+    }
 #if !TARGET_OS_WATCH
     self.webSocket = nil;
 #endif // TARGET_OS_WATCH
