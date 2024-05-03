@@ -171,6 +171,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -182,7 +183,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -224,6 +225,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -235,7 +237,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -275,6 +277,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -286,7 +289,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -350,6 +353,7 @@ jobs:
       matrix:
         os: [macos-13]
         xcode: [Xcode_15.2]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
           # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
           # - os: macos-13
           #   xcode: Xcode_15.2
@@ -359,7 +363,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -403,6 +407,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -414,7 +419,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -463,6 +468,7 @@ jobs:
   #     matrix:
   #       # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
   #       os: [macos-13]
+  #       artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
   #       xcode: [Xcode_15.2]
   #   runs-on: ${{ matrix.os }}
   #   steps:
@@ -470,7 +476,7 @@ jobs:
   #   - name: Get framework dir
   #     uses: actions/download-artifact@v4
   #     with:
-  #       name: Firebase-actions-dir
+  #       name: ${{ matrix.artifact }}
   #   - uses: ruby/setup-ruby@v1
   #   - name: Setup Bundler
   #     run: ./scripts/setup_bundler.sh
@@ -515,7 +521,7 @@ jobs:
       - name: Get framework dir
         uses: actions/download-artifact@v4
         with:
-          name: Firebase-actions-dir
+          name: ${{ matrix.artifact }}
       - uses: ruby/setup-ruby@v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
@@ -543,6 +549,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -554,7 +561,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -599,6 +606,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -610,7 +618,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -654,6 +662,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -665,7 +674,7 @@ jobs:
     - name: Get framework dir
       uses: actions/download-artifact@v4
       with:
-        name: Firebase-actions-dir
+        name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
