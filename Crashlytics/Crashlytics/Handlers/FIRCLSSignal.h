@@ -54,4 +54,7 @@ bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext* roConte
 void FIRCLSSignalNameLookup(int number, int code, const char** name, const char** codeName);
 
 void FIRCLSSignalEnumerateHandledSignals(void (^block)(int idx, int signal));
+
+void FIRCLSSignalReportOutOfProcessTermination(const char* path);
+
 #endif
