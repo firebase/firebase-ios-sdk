@@ -26,15 +26,15 @@
 #import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV ||                                           \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 #import <UIKit/UIKit.h>
-#endif // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) &&
-       // TARGET_OS_VISION)
 
-#if TARGET_OS_WATCH
+#elif TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
-#endif // TARGET_OS_WATCH
+
+#elif TARGET_OS_OSX
+#import <AppKit/NSApplication.h>
+#endif
 
 #import <Network/Network.h>
 
@@ -53,7 +53,9 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)onClosed;
 - (void)closeIfNeverConnected;
 
-@property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
+@property(nonatomic, strong)
+    NSURLSessionWebSocketTask *webSocketTask API_AVAILABLE(
+        macos(10.15), ios(13.0), watchos(6.0), tvos(13.0));
 #if !TARGET_OS_WATCH
 @property(nonatomic, strong) FSRWebSocket *webSocket;
 #endif // TARGET_OS_WATCH
@@ -350,20 +352,23 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 - (void)URLSession:(NSURLSession *)session
           webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
-    didOpenWithProtocol:(NSString *)protocol {
+    didOpenWithProtocol:(NSString *)protocol
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) {
     [self webSocketDidOpen];
 }
 
 - (void)URLSession:(NSURLSession *)session
        webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
     didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode
-              reason:(NSData *)reason {
+              reason:(NSData *)reason
+    API_AVAILABLE(macos(10.15), ios(13.0), watchos(6.0), tvos(13.0)) {
     FFLog(@"I-RDB083011", @"(wsc:%@) didCloseWithCode: %ld %@",
           self.connectionId, (long)closeCode, reason);
     [self onClosed];
 }
 
-- (void)receiveWebSocketData {
+- (void)receiveWebSocketData API_AVAILABLE(macos(10.15), ios(13.0),
+                                           watchos(6.0), tvos(13.0)) {
     __weak __auto_type weakSelf = self;
     [self.webSocketTask receiveMessageWithCompletionHandler:^(
                             NSURLSessionWebSocketMessage *_Nullable message,
