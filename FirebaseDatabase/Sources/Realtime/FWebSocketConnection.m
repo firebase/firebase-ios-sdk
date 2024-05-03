@@ -115,9 +115,18 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                 [session webSocketTaskWithRequest:req];
             self.webSocketTask = task;
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION || TARGET_OS_MACCATALYST
+            NSString *resignName = UIApplicationWillResignActiveNotification;
+#elif TARGET_OS_OSX
+            NSString *resignName = NSApplicationWillResignActiveNotification;
+#elif TARGET_OS_WATCH
+            NSString *resignName = WKApplicationWillResignActiveNotification;
+#elif
+#error("missing platform")
+#endif
             if (@available(watchOS 7.0, *)) {
                 [[NSNotificationCenter defaultCenter]
-                    addObserverForName:UIApplicationWillResignActiveNotification
+                    addObserverForName:resignName
                                 object:nil
                                  queue:opQueue
                             usingBlock:^(NSNotification *_Nonnull note) {
