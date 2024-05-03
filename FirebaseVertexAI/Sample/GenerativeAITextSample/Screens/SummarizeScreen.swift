@@ -33,6 +33,7 @@ struct SummarizeScreen: View {
           .padding(.horizontal, 6)
         HStack(alignment: .top) {
           TextField("Enter text summarize", text: $userInput, axis: .vertical)
+            .focused($focusedField, equals: .message)
             .textFieldStyle(.roundedBorder)
             .onSubmit {
               onSummarizeTapped()
@@ -66,12 +67,7 @@ struct SummarizeScreen: View {
   private func onSummarizeTapped() {
     // MARK: Close Keyboard
 
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder),
-      to: nil,
-      from: nil,
-      for: nil
-    )
+    focusedField = nil
 
     Task {
       await viewModel.summarize(inputText: userInput)

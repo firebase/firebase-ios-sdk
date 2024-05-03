@@ -52,15 +52,6 @@ public struct MultimodalInputField: View {
   }
 
   private func submit() {
-    // MARK: Close Keyboard
-
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder),
-      to: nil,
-      from: nil,
-      for: nil
-    )
-
     if let submitHandler {
       submitHandler()
     }
