@@ -1,3 +1,21 @@
+# 10.25.0
+- [fixed] Allow blob of data with zero length. (#11773, #12620)
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  setter no longer logs a warning since it discouraged valid patterns,
+  e.g., updating the document ID after the document is created in Firestore. (#12756)
+
+# 10.24.0
+- [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
+
+# 10.23.0
+- [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
+- [fixed] Update gRPC dependency to 1.62.* (#12098, #12021)
+- [feature] Firestore's binary Swift Package Manager distribution uses
+  XCFrameworks with code signatures (#12238).
+
+# 10.22.0
+- [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
+
 # 10.21.0
 - Add an error when trying to build Firestore's binary SPM distribution for
   visionOS (#12279). See Firestore's 10.12.0 release note for a supported

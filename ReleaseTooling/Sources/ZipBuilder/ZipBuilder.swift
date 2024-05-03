@@ -243,7 +243,11 @@ struct ZipBuilder {
                                                                          podInfo: podInfo)
             carthageGoogleUtilitiesFrameworks += cdFrameworks
           }
-          if resourceContents != nil {
+          let fileManager = FileManager.default
+          if let resourceContents,
+             let contents = try? fileManager.contentsOfDirectory(at: resourceContents,
+                                                                 includingPropertiesForKeys: nil),
+             !contents.isEmpty {
             resources[podName] = resourceContents
           }
         } else if podsBuilt[podName] == nil {
@@ -498,14 +502,32 @@ struct ZipBuilder {
                 guard fileManager.isDirectory(at: frameworkPath),
                       frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
-                try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
+                  .resolvingSymlinksInPath()
+                // On macOS platforms, this directory will already be there, so
+                // ignore error that it already exists.
+                try? fileManager.createDirectory(
+                  at: resourcesDir,
+                  withIntermediateDirectories: true
+                )
+
+                let xcResourceDirContents = try fileManager.contentsOfDirectory(
+                  at: xcResourceDir,
+                  includingPropertiesForKeys: nil
+                )
+
+                for file in xcResourceDirContents {
+                  try fileManager.copyItem(
+                    at: file,
+                    to: resourcesDir.appendingPathComponent(file.lastPathComponent)
+                  )
+                }
               }
             }
             try fileManager.removeItem(at: xcResourceDir)
           }
         }
       } catch {
-        fatalError("Could not setup Resources for \(pod) for \(packageKind) \(error)")
+        fatalError("Could not setup Resources for \(pod.key) for \(packageKind) \(error)")
       }
 
       // Special case for Crashlytics:
@@ -668,11 +690,21 @@ struct ZipBuilder {
     result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
-    // string.
+    // string. At this point, resources will be at the root of XCFrameworks.
     do {
       let fileManager = FileManager.default
-      let resourceDirs = try fileManager.recursivelySearch(for: .directories(name: "Resources"),
-                                                           in: dir)
+      let resourceDirs = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      ).flatMap {
+        try fileManager.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.isDirectoryKey]
+        )
+      }.filter {
+        $0.lastPathComponent == "Resources"
+      }
+
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
         result += "\n" // Separate from next pod in listing for text version.

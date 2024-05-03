@@ -14,6 +14,7 @@
 
 @testable import FirebaseCoreInternal
 import XCTest
+
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 

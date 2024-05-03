@@ -14,6 +14,12 @@
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
+#if SWIFT_PACKAGE
+@import FirebaseCrashlyticsSwift;
+#else  // Swift Package Manager
+#import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
+#endif  // CocoaPods
+
 #import <XCTest/XCTest.h>
 
 @interface FIRCLSFileTests : XCTestCase
@@ -167,6 +173,31 @@
                         @"Hex encoded string written to and retrieved from file does not match "
                         @"input in %@buffered case",
                         buffered ? @"" : @"un");
+}
+
+// This is the test to compare FIRCLSwiftFileUtility.stringToHexConverter(for:) and
+// FIRCLSFileWriteHexEncodedString return the same hex encoding value
+- (void)testHexEncodingStringObjcAndSwiftResultsSame {
+  NSString *testedValueString = @"是themis的测试数据，输入中文";
+
+  FIRCLSFile *unbufferedFile = &_unbufferedFile;
+  FIRCLSFileWriteHashStart(unbufferedFile);
+  FIRCLSFileWriteHashEntryHexEncodedString(unbufferedFile, "hex", [testedValueString UTF8String]);
+  FIRCLSFileWriteHashEnd(unbufferedFile);
+  NSString *contentsFromObjcHexEncoding = [self contentsOfFileAtPath:self.unbufferedPath];
+
+  FIRCLSFile *bufferedFile = &_bufferedFile;
+  NSString *encodedValue = [FIRCLSwiftFileUtility stringToHexConverterFor:testedValueString];
+  FIRCLSFileWriteHashStart(bufferedFile);
+  FIRCLSFileWriteHashKey(bufferedFile, "hex");
+  FIRCLSFileWriteStringUnquoted(bufferedFile, "\"");
+  FIRCLSFileWriteStringUnquoted(bufferedFile, [encodedValue UTF8String]);
+  FIRCLSFileWriteStringUnquoted(bufferedFile, "\"");
+  FIRCLSFileWriteHashEnd(bufferedFile);
+  FIRCLSFileFlushWriteBuffer(bufferedFile);
+  NSString *contentsFromSwiftHexEncoding = [self contentsOfFileAtPath:self.bufferedPath];
+
+  XCTAssertTrue([contentsFromObjcHexEncoding isEqualToString:contentsFromSwiftHexEncoding]);
 }
 
 #pragma mark -

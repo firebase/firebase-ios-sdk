@@ -185,6 +185,40 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
+  func testDataBlob() throws {
+    struct Model: Encodable {
+      var name: String
+      var data: Data
+      var emptyData: Data
+    }
+    let model = Model(
+      name: "name",
+      data: Data([1, 2, 3, 4]),
+      emptyData: Data()
+    )
+
+    let docToWrite = documentRef()
+
+    for flavor in allFlavors {
+      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+      let data = readDocument(forRef: docToWrite)
+
+      XCTAssertEqual(data["data"] as! Data, Data([1, 2, 3, 4]), "Failed with flavor \(flavor)")
+      XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor \(flavor)")
+    }
+
+    disableNetwork()
+    defer {
+      enableNetwork()
+    }
+
+    try docToWrite.setData(from: model)
+    let data = readDocument(forRef: docToWrite)
+    XCTAssertEqual(data["data"] as! Data, Data([1, 2, 3, 4]), "Failed with flavor offline docRef")
+    XCTAssertEqual(data["emptyData"] as! Data, Data(), "Failed with flavor offline docRef")
+  }
+
   func testExplicitNull() throws {
     struct Model: Encodable {
       var name: String

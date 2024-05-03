@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '10.22.0'
+  s.version          = '10.27.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -35,6 +35,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'FirebaseCore/Sources/**/*.[mh]',
     'FirebaseCore/Extension/*.h'
   ]
+
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseCore/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
 
   s.swift_version = '5.3'
 

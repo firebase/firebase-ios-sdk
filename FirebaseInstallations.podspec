@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '10.22.0'
+  s.version          = '10.27.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -40,6 +40,9 @@ Pod::Spec.new do |s|
   s.public_header_files = [
     base_dir + 'Library/Public/FirebaseInstallations/*.h',
   ]
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseInstallations/Source/Library/Resources/PrivacyInfo.xcprivacy'
+  }
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 10.0'

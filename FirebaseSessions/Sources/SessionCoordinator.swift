@@ -67,11 +67,13 @@ class SessionCoordinator: SessionCoordinatorProtocol {
                             -> Void) {
     installations.installationID { result in
       switch result {
-      case let .success(fiid):
-        event.setInstallationID(installationId: fiid)
+      case let .success(installationsInfo):
+        event.setInstallationID(installationId: installationsInfo.0)
+        event.setAuthenticationToken(authenticationToken: installationsInfo.1)
         callback(.success(()))
       case let .failure(error):
         event.setInstallationID(installationId: "")
+        event.setAuthenticationToken(authenticationToken: "")
         callback(.failure(FirebaseSessionsError.SessionInstallationsError(error)))
       }
     }

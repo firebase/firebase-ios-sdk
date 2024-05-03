@@ -1,5 +1,23 @@
 # Unreleased
+- [added] Added support for catching the SIGTERM signal (#12881).
+
+# 10.25.0
+- [changed] Removed usages of user defaults API from internal Firebase Sessions
+  dependency to eliminate required reason impact.
+
+# 10.24.0
+- [fixed] Fix `'FirebaseCrashlytics/FirebaseCrashlytics-Swift.h' file not found`
+  errors (#12611).
+- [changed] Remove usages of `mach_absolute_time` to reduce required reason impact.
+
+# 10.23.0
+- [added] Updated upload-symbols to 13.7 with VisionPro build phase support. (#12306)
+- [changed] Added support for Crashlytics to report metadata about Remote Config keys and values.
+
+# 10.22.0
+- [fixed] Force validation or rotation of FIDs for FirebaseSessions.
 - [changed] Removed calls to statfs in the Crashlytics SDK to comply with Apple Privacy Manifests. This change removes support for collecting Disk Space Free in Crashlytics reports.
+- [fixed] Fixed FirebaseSessions crash on startup that occurs in release mode in Xcode 15.3 and other build configurations. (#11403)
 
 # 10.16.0
 - [fixed] Fixed a memory leak regression when generating session events (#11725).

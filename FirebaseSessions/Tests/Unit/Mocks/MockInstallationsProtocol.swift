@@ -19,9 +19,24 @@
 
 class MockInstallationsProtocol: InstallationsProtocol {
   static let testInstallationId = "testInstallationId"
-  var result: Result<String, Error> = .success(testInstallationId)
+  static let testAuthToken = "testAuthToken"
+  var result: Result<(String, String), Error> = .success((testInstallationId, testAuthToken))
+  var installationIdFinished = false
+  var authTokenFinished = false
 
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
-    completion(result)
+  func installationID(completion: @escaping (String?, Error?) -> Void) {
+    installationIdFinished = true
+    switch result {
+    case let .success(success):
+      completion(success.0, nil)
+    case let .failure(failure):
+      completion(nil, failure)
+    }
+  }
+
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
+    Thread.sleep(forTimeInterval: 0.1)
+    authTokenFinished = true
+    completion(nil, nil)
   }
 }

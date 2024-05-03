@@ -314,9 +314,10 @@ This test flakes frequently on the emulator on travis and almost always on GHA w
           ios - sdk / firebase - ios -
           sdk / Example / Database / Tests / Helpers /
               FEventTester
-                  .m : 123 because it was raised inside test case -[FEventTester(null)] which has no
-                      associated XCTestRun object.This may happen when test cases are
-                          constructed and invoked independently of standard XCTest infrastructure,
+                  .m : 123 because it was raised inside test case -
+              [FEventTester(
+                  null)] which has no associated XCTestRun object.This may happen when test cases
+                  are constructed and invoked independently of standard XCTest infrastructure,
       or when the test has already finished
                       ." - Expected http://localhost:9000/-M8IJYWb68MuqQKKz2IY/a aa (0) to match "
                        "http://localhost:9000/-M8IJYWb68MuqQKKz2IY/a (null) (4)' from "

@@ -44,7 +44,7 @@ protocol MockSubscriberSDKProtocol {
 
     let sessions = ComponentType<SessionsProvider>.instance(for: SessionsProvider.self,
                                                             in: app.container)
-    sessions.register(subscriber: self)
+    sessions?.register(subscriber: self)
   }
 
   // MARK: - Library Conformance

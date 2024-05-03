@@ -1,4 +1,5 @@
-// Copyright 2019 Google
+//
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,19 +12,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 
-#pragma once
+import Foundation
+import SwiftUI
 
-#include <stdint.h>
-
-typedef uint64_t FIRCLSProfileMark;
-
-__BEGIN_DECLS
-
-// high-resolution timing, returning the results in seconds
-FIRCLSProfileMark FIRCLSProfilingStart(void);
-double FIRCLSProfileEnd(FIRCLSProfileMark mark);
-
-void FIRCLSProfileBlock(const char* label, void (^block)(void));
-
-__END_DECLS
+struct ContentView: View {
+  var body: some View {
+    RemoteConfigButtonView()
+      .padding()
+  }
+}

@@ -21,7 +21,7 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "10.22.0",
+  version: "10.27.0",
   pods: [
     Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreInternal"),
@@ -32,9 +32,10 @@ public let shared = Manifest(
     Pod("FirebaseMessagingInterop"),
     Pod("FirebaseInstallations"),
     Pod("FirebaseSessions"),
-    Pod("GoogleAppMeasurement", isClosedSource: true),
+    Pod("FirebaseRemoteConfigInterop"),
+    Pod("GoogleAppMeasurement", isClosedSource: true, platforms: ["ios", "macos", "tvos"]),
     Pod("GoogleAppMeasurementOnDeviceConversion", isClosedSource: true, platforms: ["ios"]),
-    Pod("FirebaseAnalytics", isClosedSource: true, zip: true),
+    Pod("FirebaseAnalytics", isClosedSource: true, platforms: ["ios", "macos", "tvos"], zip: true),
     Pod("FirebaseAnalyticsOnDeviceConversion", platforms: ["ios"], zip: true),
     Pod("FirebaseABTesting", zip: true),
     Pod("FirebaseAppCheck", zip: true),
@@ -42,17 +43,17 @@ public let shared = Manifest(
     Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
-    Pod("FirebaseDatabase", zip: true),
+    Pod("FirebaseDatabase", platforms: ["ios", "macos", "tvos"], zip: true),
     Pod("FirebaseDynamicLinks", platforms: ["ios"], zip: true),
-    Pod("FirebaseFirestoreInternal", allowWarnings: true),
-    Pod("FirebaseFirestore", allowWarnings: true, zip: true),
+    Pod("FirebaseFirestoreInternal", allowWarnings: true, platforms: ["ios", "macos", "tvos"]),
+    Pod("FirebaseFirestore", allowWarnings: true, platforms: ["ios", "macos", "tvos"], zip: true),
     Pod("FirebaseFunctions", zip: true),
     Pod("FirebaseInAppMessaging", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseMessaging", zip: true),
     Pod("FirebasePerformance", platforms: ["ios", "tvos"], zip: true),
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
-    Pod("Firebase", allowWarnings: true, zip: true),
+    Pod("Firebase", allowWarnings: true, platforms: ["ios", "tvos", "macos"], zip: true),
   ]
 )
 

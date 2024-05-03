@@ -132,7 +132,7 @@ To develop Firebase software, **install**:
    To install [clang-format] and [mint] using [Homebrew]:
 
     ```console
-    brew install clang-format@17
+    brew install clang-format@18
     brew install mint
     ```
 
@@ -361,7 +361,7 @@ viewing the [documentation][xcode-debugging].
 ### Testing
 
 Tests are an essential part to building Firebase. Many of the tests
-for Firebase run as part of our continous integration (CI) setup with
+for Firebase run as part of our continuous integration (CI) setup with
 [GitHub Actions].
 
 * _Fixing a bug?_ Add a test to catch potential regressions in

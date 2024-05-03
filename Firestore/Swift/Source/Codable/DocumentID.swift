@@ -121,12 +121,7 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
 
   public var wrappedValue: Value? {
     get { value }
-    set {
-      if let someNewValue = newValue {
-        logIgnoredValueWarning(value: someNewValue)
-      }
-      value = newValue
-    }
+    set { value = newValue }
   }
 
   private func logIgnoredValueWarning(value: Value) {

@@ -18,6 +18,7 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
@@ -47,8 +48,6 @@ NSString *const kFIRAppCheckTokenNotificationKey = @"FIRAppCheckTokenNotificatio
 NSString *const kFIRAppCheckAppNameNotificationKey = @"FIRAppCheckAppNameNotificationKey";
 
 static id<FIRAppCheckProviderFactory> _providerFactory;
-
-static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 @interface FIRAppCheck () <FIRAppCheckInterop, GACAppCheckTokenDelegate>
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
@@ -94,7 +93,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       [[FIRInternalAppCheckProvider alloc] initWithAppCheckProvider:appCheckProvider];
   FIRAppCheckSettings *settings =
       [[FIRAppCheckSettings alloc] initWithApp:app
-                                   userDefault:[NSUserDefaults standardUserDefaults]
+                                   userDefault:[GULUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
 
   GACAppCheck *appCheckCore = [[GACAppCheck alloc] initWithServiceName:serviceName

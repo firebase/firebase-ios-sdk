@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Requires Xcode 14.1 or above
+- Requires Xcode 15.2 or above
 - Analytics requires clients to add `-ObjC` linker option.
 - See [Package.swift](Package.swift) for supported platform versions.
 
