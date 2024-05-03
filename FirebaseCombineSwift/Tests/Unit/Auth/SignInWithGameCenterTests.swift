@@ -73,7 +73,7 @@ class SignInWithGameCenterTests: XCTestCase {
                         body: Data?, contentType: String,
                         completionHandler handler: @escaping FIRAuthBackendRPCIssuerCompletionHandler) {
       requestURL = URL
-      if let body = body {
+      if let body {
         requestData = body
         let json = try! JSONSerialization
           .jsonObject(with: body, options: []) as! [String: Any]

@@ -286,7 +286,7 @@ import Foundation
                                    queue: storage.dispatchQueue,
                                    file: fileURL)
 
-    if let completion = completion {
+    if let completion {
       task.completionURL = completion
       let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
 
@@ -330,7 +330,7 @@ import Foundation
 
     var paginatedCompletion: ((_: StorageListResult?, _: Error?) -> Void)?
     paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
-      if let error = error {
+      if let error {
         completion(nil, error)
         return
       }
@@ -531,7 +531,7 @@ import Foundation
   open func delete() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.delete { error in
-        if let error = error {
+        if let error {
           continuation.resume(throwing: error)
         } else {
           continuation.resume()
@@ -595,7 +595,7 @@ import Foundation
 
   private func startAndObserveUploadTask(task: StorageUploadTask,
                                          completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
-    if let completion = completion {
+    if let completion {
       task.completionMetadata = completion
       let callbackQueue = storage.fetcherServiceForApp.callbackQueue ?? DispatchQueue.main
 

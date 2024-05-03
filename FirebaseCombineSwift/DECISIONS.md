@@ -28,9 +28,9 @@ extension Auth {
                            password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { /* [weak self]  <-- not required */ promise in
         self?.createUser(withEmail: email, password: password) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }

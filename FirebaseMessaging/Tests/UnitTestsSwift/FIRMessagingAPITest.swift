@@ -94,7 +94,7 @@ func apis() {
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
   messaging.unsubscribe(fromTopic: topic, completion: { error in
-    if let error = error {
+    if let error {
       switch error {
       // Handle errors in the new format.
       case MessagingError.timeout:

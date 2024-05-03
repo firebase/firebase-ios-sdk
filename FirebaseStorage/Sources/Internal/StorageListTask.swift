@@ -92,11 +92,11 @@ class StorageListTask: StorageTask, StorageTaskManagement {
       // items
       // to return per page. This removes the need to backfill results if Firebase Storage filters
       // objects that are considered invalid (such as items with two consecutive slashes).
-      if let pageSize = self.pageSize {
+      if let pageSize {
         queryParams["maxResults"] = "\(pageSize)"
       }
 
-      if let previousPageToken = self.previousPageToken {
+      if let previousPageToken {
         queryParams["pageToken"] = previousPageToken
       }
 
@@ -116,10 +116,10 @@ class StorageListTask: StorageTask, StorageTaskManagement {
       self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
         guard let self = self else { return }
         var listResult: StorageListResult?
-        if let error = error, self.error == nil {
+        if let error, self.error == nil {
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
         } else {
-          if let data = data,
+          if let data,
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: Any] {
             listResult = StorageListResult(with: responseDictionary, reference: self.reference)

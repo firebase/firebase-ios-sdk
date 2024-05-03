@@ -56,7 +56,7 @@ class SettingsDownloader: SettingsDownloadClient {
       case let .success(installationsInfo):
         let request = self.buildRequest(url: validURL, fiid: installationsInfo.0)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-          if let data = data {
+          if let data {
             if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
               completion(.success(dict))
             } else {
@@ -64,7 +64,7 @@ class SettingsDownloader: SettingsDownloadClient {
                 .JSONParseError("Failed to parse JSON to dictionary")
               ))
             }
-          } else if let error = error {
+          } else if let error {
             completion(.failure(.URLSessionError(error.localizedDescription)))
           }
         }

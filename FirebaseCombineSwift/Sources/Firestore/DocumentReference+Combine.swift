@@ -39,7 +39,7 @@
     func setData(_ documentData: [String: Any]) -> Future<Void, Error> {
       Future { promise in
         self.setData(documentData) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -62,7 +62,7 @@
     func setData(_ documentData: [String: Any], merge: Bool) -> Future<Void, Error> {
       Future { promise in
         self.setData(documentData, merge: merge) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -88,7 +88,7 @@
     func setData(_ documentData: [String: Any], mergeFields: [Any]) -> Future<Void, Error> {
       Future { promise in
         self.setData(documentData, mergeFields: mergeFields) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -117,7 +117,7 @@
         Future { promise in
           do {
             try self.setData(from: value, encoder: encoder) { error in
-              if let error = error {
+              if let error {
                 promise(.failure(error))
               } else {
                 promise(.success(()))
@@ -151,7 +151,7 @@
         Future { promise in
           do {
             try self.setData(from: value, merge: merge, encoder: encoder) { error in
-              if let error = error {
+              if let error {
                 promise(.failure(error))
               } else {
                 promise(.success(()))
@@ -186,7 +186,7 @@
         Future { promise in
           do {
             try self.setData(from: value, mergeFields: mergeFields, encoder: encoder) { error in
-              if let error = error {
+              if let error {
                 promise(.failure(error))
               } else {
                 promise(.success(()))
@@ -214,7 +214,7 @@
     func updateData(_ documentData: [String: Any]) -> Future<Void, Error> {
       Future { promise in
         self.updateData(documentData) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -233,7 +233,7 @@
     func delete() -> Future<Void, Error> {
       Future { promise in
         self.delete { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -254,9 +254,9 @@
       -> Future<DocumentSnapshot, Error> {
       Future { promise in
         self.getDocument(source: source) { snapshot, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let snapshot = snapshot {
+          } else if let snapshot {
             promise(.success(snapshot))
           }
         }
@@ -275,9 +275,9 @@
       let subject = PassthroughSubject<DocumentSnapshot, Error>()
       let listenerHandle =
         addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
-          if let error = error {
+          if let error {
             subject.send(completion: .failure(error))
-          } else if let snapshot = snapshot {
+          } else if let snapshot {
             subject.send(snapshot)
           }
         }
