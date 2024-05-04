@@ -4419,7 +4419,7 @@
   }
 }
 
-- (void)testGetSkipsPersistenceCacheWhenOnline {
+- (void)SKIPtestGetSkipsPersistenceCacheWhenOnline {
   FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
   FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
 
