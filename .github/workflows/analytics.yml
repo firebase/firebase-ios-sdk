@@ -42,8 +42,6 @@ jobs:
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
     - name: FirebaseAnalytics
       run: scripts/third_party/travis/retry.sh pod spec lint FirebaseAnalytics.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
-    - name: FirebaseAnalyticsSwift
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --allow-warnings --platforms=${{ matrix.target }}
     # The following steps are only run on `ios` due to product availability.
     - name: GoogleAppMeasurementOnDeviceConversion
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurementOnDeviceConversion.podspec --platforms=ios --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
