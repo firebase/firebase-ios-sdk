@@ -521,7 +521,7 @@ jobs:
       - name: Get framework dir
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: Firebase-actions-dir
       - uses: ruby/setup-ruby@v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
