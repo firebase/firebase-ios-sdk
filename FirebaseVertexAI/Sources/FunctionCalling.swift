@@ -131,7 +131,7 @@ public struct FunctionDeclaration {
   ///   the values are ``Schema`` objects describing them.
   ///   - requiredParameters: A list of required parameters by name.
   public init(name: String, description: String, parameters: [String: Schema]?,
-              requiredParameters: [String]?) {
+              requiredParameters: [String]? = nil) {
     self.name = name
     self.description = description
     self.parameters = Schema(
