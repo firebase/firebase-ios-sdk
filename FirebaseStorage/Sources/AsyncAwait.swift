@@ -73,7 +73,6 @@ public extension StorageReference {
   }
 
   /// Asynchronously uploads a file to the currently specified StorageReference.
-  /// `putDataAsync` should be used instead of `putFileAsync` in Extensions.
   ///
   /// - Parameters:
   ///   - url: A URL representing the system file path of the object to be uploaded.

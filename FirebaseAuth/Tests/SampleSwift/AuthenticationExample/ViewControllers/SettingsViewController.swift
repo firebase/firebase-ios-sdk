@@ -22,6 +22,8 @@ enum SettingsAction: String {
   case toggleSecureTokenAPI = "Secure Token"
   case toggleActiveApp = "Active App"
   case toggleAccessGroup = "Current Access Group"
+  case toggleAPNSToken = "APNs Token"
+  case toggleAppCredential = "App Credential"
   case setAuthLanugage = "Auth Language"
   case useAppLanguage = "Use App Language"
   case togglePhoneAppVerification = "Disable App Verification (Phone)"
@@ -79,6 +81,10 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       setAuthLanguage()
     case .useAppLanguage:
       auth.useAppLanguage()
+    case .toggleAPNSToken:
+      clearAPNSToken()
+    case .toggleAppCredential:
+      clearAppCredential()
     case .togglePhoneAppVerification:
       guard let settings = auth.settings else {
         fatalError("Unset auth.settings")
@@ -115,6 +121,37 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.auth().userAccessGroup = group + "com.google.firebase.auth.keychainGroup1"
     } else {
       AppManager.shared.auth().userAccessGroup = nil
+    }
+  }
+
+  func clearAPNSToken() {
+    guard let token = AppManager.shared.auth().tokenManager.token else {
+      return
+    }
+
+    let tokenType = token.type == .prod ? "Production" : "Sandbox"
+    let message = "token: \(token.string)\ntype: \(tokenType)"
+
+    let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
+                                   preferredStyle: .alert)
+    let okAction = UIAlertAction(title: "OK", style: .default) { action in
+      AppManager.shared.auth().tokenManager.token = nil
+      self.updateUI()
+    }
+    prompt.addAction(okAction)
+    present(prompt, animated: true)
+  }
+
+  func clearAppCredential() {
+    if let credential = AppManager.shared.auth().appCredentialManager.credential {
+      let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
+                                     preferredStyle: .alert)
+      let okAction = UIAlertAction(title: "OK", style: .default) { action in
+        AppManager.shared.auth().appCredentialManager.clearCredential()
+        self.updateUI()
+      }
+      prompt.addAction(okAction)
+      present(prompt, animated: true)
     }
   }
 
@@ -198,29 +235,21 @@ extension AuthSettings: DataSourceProvidable {
     return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
   }
 
-  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool,
-                           completion: @escaping (Bool, String?) -> Void) {
-    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+  func truncatedString(string: String, length: Int) -> String {
+    guard string.count > length else { return string }
 
-    alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-      let userInput = alertController.textFields?.first?.text
-      completion(true, userInput)
-    }))
+    let half = (length - 3) / 2
+    let startIndex = string.startIndex
+    let midIndex = string.index(startIndex, offsetBy: half) // Ensure correct mid index
+    let endIndex = string.index(startIndex, offsetBy: string.count - half)
 
-    if showCancelButton {
-      alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
-        completion(false, nil)
-      }))
-    }
-
-    alertController.addTextField(configurationHandler: nil)
+    return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
   }
 
-  // TODO: Add ability to click and clear both of these fields.
   private var phoneAuthSection: Section {
     let items = [Item(title: APNSTokenString(), detailTitle: "APNs Token"),
                  Item(title: appCredentialString(), detailTitle: "App Credential")]
-    return Section(headerDescription: "Phone Auth - TODO toggle off", items: items)
+    return Section(headerDescription: "Phone Auth", items: items)
   }
 
   func APNSTokenString() -> String {
@@ -229,37 +258,11 @@ extension AuthSettings: DataSourceProvidable {
     }
 
     let truncatedToken = truncatedString(string: token.string, length: 19)
-    let tokenType = token.type == .prod ? "P" : "S"
+    let tokenType = token.type == .prod ? "Production" : "Sandbox"
     return "\(truncatedToken)(\(tokenType))"
   }
 
-  func clearAPNSToken() {
-    guard let token = AppManager.shared.auth().tokenManager.token else {
-      return
-    }
-
-    let tokenType = token.type == .prod ? "Production" : "Sandbox"
-    let message = "token: \(token.string)\ntype: \(tokenType)"
-
-    showPromptWithTitle("Clear APNs Token?", message: message,
-                        showCancelButton: true) { userPressedOK, userInput in
-      if userPressedOK {
-        AppManager.shared.auth().tokenManager.token = nil
-      }
-    }
-  }
-
   func appCredentialString() -> String {
-    if let credential = AppManager.shared.auth().appCredentialManager.credential {
-      let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
-      let truncatedSecret = truncatedString(string: credential.secret ?? "", length: 13)
-      return "\(truncatedReceipt)/\(truncatedSecret)"
-    } else {
-      return "No App Credential"
-    }
-  }
-
-  func clearAppCredential() {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
       let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
 
@@ -269,6 +272,12 @@ extension AuthSettings: DataSourceProvidable {
           AppManager.shared.auth().appCredentialManager.clearCredential()
         }
       }
+    }
+      let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
+      let truncatedSecret = truncatedString(string: credential.secret ?? "", length: 13)
+      return "\(truncatedReceipt)/\(truncatedSecret)"
+    } else {
+      return "No App Credential"
     }
   }
 

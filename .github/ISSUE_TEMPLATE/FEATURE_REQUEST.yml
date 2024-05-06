@@ -64,5 +64,6 @@ body:
         - Performance
         - Remote Config
         - Storage
+        - Vertex AI
     validations:
       required: true

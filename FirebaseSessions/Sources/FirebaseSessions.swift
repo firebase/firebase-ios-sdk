@@ -18,7 +18,14 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
-@_implementationOnly import Promises
+
+#if swift(>=6.0)
+  internal import Promises
+#elseif swift(>=5.10)
+  import Promises
+#else
+  @_implementationOnly import Promises
+#endif
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
@@ -142,8 +149,8 @@ private enum GoogleDataTransportConfig {
 
     super.init()
 
-    SessionsDependencies.dependencies.forEach { subscriberName in
-      self.subscriberPromises[subscriberName] = Promise<Void>.pending()
+    for subscriberName in SessionsDependencies.dependencies {
+      subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
     Logger
@@ -226,10 +233,10 @@ private enum GoogleDataTransportConfig {
   }
 
   func addSubscriberFields(event: SessionStartEvent) {
-    subscribers.forEach { subscriber in
+    for subscriber in subscribers {
       event.set(subscriber: subscriber.sessionsSubscriberName,
                 isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo: self.appInfo)
+                appInfo: appInfo)
     }
   }
 

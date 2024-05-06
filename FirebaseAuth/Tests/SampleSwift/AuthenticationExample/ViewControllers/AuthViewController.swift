@@ -1,5 +1,5 @@
-// For Sign in with Facebook
-import FBSDKLoginKit
+@testable import FirebaseAuth
+
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +13,15 @@ import FBSDKLoginKit
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-@testable import FirebaseAuth
 // [START auth_import]
 import FirebaseCore
+
+// For Sign in with Facebook
+import FBSDKLoginKit
+
+// For Sign in with Game Center
 import GameKit
+
 // For Sign in with Google
 // [START google_import]
 import GoogleSignIn
@@ -935,13 +940,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     let saveHandler: (UIAlertAction) -> Void = { _ in
       let text = editController.textFields?.first?.text ?? ""
-      completion?(text)
-      // completion?()
+      if let completion {
+        completion(text)
+      }
     }
 
     let cancelHandler: (UIAlertAction) -> Void = { _ in
-      completion?("")
-      // completion?()
+      if let completion {
+        completion("")
+      }
     }
 
     editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler))
@@ -990,8 +997,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     // Add actions
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
     let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
-      if let text = alertController.textFields?.first?.text {
-        completion?(text)
+      if let completion,
+         let text = alertController.textFields?.first?.text {
+        completion(text)
       }
     }
 

@@ -17,6 +17,8 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -44,7 +46,7 @@ static NSTimeInterval kMaxFetchWaitTimeInSeconds = 3 * 24 * 60 * 60;
 @property(nonatomic) double lastDisplayTime;
 @property(nonatomic) double lastFetchTime;
 @property(nonatomic) double nextFetchWaitTime;
-@property(nonatomic, nonnull) NSUserDefaults *defaults;
+@property(nonatomic, nonnull) GULUserDefaults *defaults;
 @end
 
 @interface FIRIAMImpressionRecord ()
@@ -85,7 +87,7 @@ static NSTimeInterval kMaxFetchWaitTimeInSeconds = 3 * 24 * 60 * 60;
 
 @implementation FIRIAMBookKeeperViaUserDefaults
 
-- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults {
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults {
   if (self = [super init]) {
     _defaults = userDefaults;
 
