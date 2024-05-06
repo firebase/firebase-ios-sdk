@@ -1,22 +1,22 @@
-// Copyright 2023 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+  // Copyright 2023 Google LLC
+  //
+  // Licensed under the Apache License, Version 2.0 (the "License");
+  // you may not use this file except in compliance with the License.
+  // You may obtain a copy of the License at
+  //
+  //      http://www.apache.org/licenses/LICENSE-2.0
+  //
+  // Unless required by applicable law or agreed to in writing, software
+  // distributed under the License is distributed on an "AS IS" BASIS,
+  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  // See the License for the specific language governing permissions and
+  // limitations under the License.
 
 @testable import FirebaseAuth
 import FirebaseCore
 import UIKit
 
-/// Namespace for performable actions on a Auth Settings view
+  /// Namespace for performable actions on a Auth Settings view
 enum SettingsAction: String {
   case toggleIdentityTokenAPI = "Identity Toolkit"
   case toggleSecureTokenAPI = "Secure Token"
@@ -31,43 +31,43 @@ enum SettingsAction: String {
 
 class SettingsViewController: UIViewController, DataSourceProviderDelegate {
   var dataSourceProvider: DataSourceProvider<AuthSettings>!
-
+  
   var tableView: UITableView { view as! UITableView }
-
+  
   private var _settings: AuthSettings?
   var settings: AuthSettings? {
     get { AppManager.shared.auth().settings }
     set { _settings = newValue }
   }
-
-  // MARK: - UIViewController Life Cycle
-
+  
+    // MARK: - UIViewController Life Cycle
+  
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
   }
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     configureNavigationBar()
   }
-
+  
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     configureDataSourceProvider()
   }
-
-  // MARK: - DataSourceProviderDelegate
-
+  
+    // MARK: - DataSourceProviderDelegate
+  
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
-
+    
     guard let actionName = item.detailTitle,
           let action = SettingsAction(rawValue: actionName) else {
-      // The row tapped has no affiliated action.
+        // The row tapped has no affiliated action.
       return
     }
     let auth = AppManager.shared.auth()
-
+    
     switch action {
     case .toggleSecureTokenAPI:
       toggleSecureTokenAPI()
@@ -93,9 +93,9 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
     }
     updateUI()
   }
-
-  // MARK: - Firebase 🔥
-
+  
+    // MARK: - Firebase 🔥
+  
   private func toggleIdentityTokenAPI() {
     if IdentityToolkitRequest.host == "www.googleapis.com" {
       IdentityToolkitRequest.setHost("staging-www.sandbox.googleapis.com")
@@ -103,7 +103,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       IdentityToolkitRequest.setHost("www.googleapis.com")
     }
   }
-
+  
   private func toggleSecureTokenAPI() {
     if SecureTokenRequest.host == "securetoken.googleapis.com" {
       SecureTokenRequest.setHost("staging-securetoken.sandbox.googleapis.com")
@@ -111,7 +111,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       SecureTokenRequest.setHost("securetoken.googleapis.com")
     }
   }
-
+  
   private func toggleAccessGroup() {
     if AppManager.shared.auth().userAccessGroup == nil {
       guard let bundleDictionary = Bundle.main.infoDictionary,
@@ -123,15 +123,15 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.auth().userAccessGroup = nil
     }
   }
-
+  
   func clearAPNSToken() {
     guard let token = AppManager.shared.auth().tokenManager.token else {
       return
     }
-
+    
     let tokenType = token.type == .prod ? "Production" : "Sandbox"
     let message = "token: \(token.string)\ntype: \(tokenType)"
-
+    
     let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
                                    preferredStyle: .alert)
     let okAction = UIAlertAction(title: "OK", style: .default) { action in
@@ -141,7 +141,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
     prompt.addAction(okAction)
     present(prompt, animated: true)
   }
-
+  
   func clearAppCredential() {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
       let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
@@ -154,7 +154,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       present(prompt, animated: true)
     }
   }
-
+  
   private func setAuthLanguage() {
     let prompt = UIAlertController(title: nil, message: "Enter Language Code For Auth:",
                                    preferredStyle: .alert)
@@ -164,12 +164,12 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       self.updateUI()
     }
     prompt.addAction(okAction)
-
+    
     present(prompt, animated: true)
   }
-
-  // MARK: - Private Helpers
-
+  
+    // MARK: - Private Helpers
+  
   private func configureNavigationBar() {
     navigationItem.title = "Settings"
     guard let navigationBar = navigationController?.navigationBar else { return }
@@ -177,7 +177,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
     navigationBar.titleTextAttributes = [.foregroundColor: UIColor.systemOrange]
     navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.systemOrange]
   }
-
+  
   private func configureDataSourceProvider() {
     dataSourceProvider = DataSourceProvider(
       dataSource: settings?.sections,
@@ -186,34 +186,16 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
     )
     dataSourceProvider.delegate = self
   }
-
+  
   private func updateUI() {
     configureDataSourceProvider()
     animateUpdates(for: tableView)
   }
-
+  
   private func animateUpdates(for tableView: UITableView) {
     UIView.transition(with: tableView, duration: 0.2,
                       options: .transitionCrossDissolve,
                       animations: { tableView.reloadData() })
-  }
-
-  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool,
-                           completion: @escaping (Bool, String?) -> Void) {
-    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-
-    alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-      let userInput = alertController.textFields?.first?.text
-      completion(true, userInput)
-    }))
-
-    if showCancelButton {
-      alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
-        completion(false, nil)
-      }))
-    }
-
-    alertController.addTextField(configurationHandler: nil)
   }
 }
 
@@ -224,72 +206,54 @@ extension AuthSettings: DataSourceProvidable {
     let items = [Item(title: FirebaseVersion(), detailTitle: "FirebaseAuth")]
     return Section(headerDescription: "Versions", items: items)
   }
-
+  
   private var apiHostSection: Section {
     let items = [Item(title: IdentityToolkitRequest.host, detailTitle: "Identity Toolkit"),
                  Item(title: SecureTokenRequest.host, detailTitle: "Secure Token")]
     return Section(headerDescription: "API Hosts", items: items)
   }
-
+  
   private var appsSection: Section {
     let items = [Item(title: AppManager.shared.app.options.projectID, detailTitle: "Active App")]
     return Section(headerDescription: "Firebase Apps", items: items)
   }
-
+  
   private var keychainSection: Section {
     let items = [Item(title: AppManager.shared.auth().userAccessGroup ?? "[none]",
                       detailTitle: "Current Access Group")]
     return Section(headerDescription: "Keychain Access Groups", items: items)
   }
-
+  
   func truncatedString(string: String, length: Int) -> String {
     guard string.count > length else { return string }
-
+    
     let half = (length - 3) / 2
     let startIndex = string.startIndex
     let midIndex = string.index(startIndex, offsetBy: half) // Ensure correct mid index
     let endIndex = string.index(startIndex, offsetBy: string.count - half)
-
+    
     return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
   }
-
-  // TODO: Add ability to click and clear both of these fields.
+  
+    // TODO: Add ability to click and clear both of these fields.
   private var phoneAuthSection: Section {
     let items = [Item(title: APNSTokenString(), detailTitle: "APNs Token"),
                  Item(title: appCredentialString(), detailTitle: "App Credential")]
     return Section(headerDescription: "Phone Auth", items: items)
   }
-
+  
   func APNSTokenString() -> String {
     guard let token = AppManager.shared.auth().tokenManager.token else {
       return "No APNs token"
     }
-
+    
     let truncatedToken = truncatedString(string: token.string, length: 19)
     let tokenType = token.type == .prod ? "Production" : "Sandbox"
     return "\(truncatedToken)(\(tokenType))"
   }
-
+  
   func appCredentialString() -> String {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
-      let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
-
-      showPromptWithTitle("Clear App Credential?", message: message,
-                          showCancelButton: true) { userPressedOK, _ in
-        if userPressedOK {
-          AppManager.shared.auth().appCredentialManager.clearCredential()
-        }
-      }
-    }
-      let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
-
-      showPromptWithTitle("Clear App Credential?", message: message,
-                          showCancelButton: true) { userPressedOK, _ in
-        if userPressedOK {
-          AppManager.shared.auth().appCredentialManager.clearCredential()
-        }
-      }
-    }
       let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
       let truncatedSecret = truncatedString(string: credential.secret ?? "", length: 13)
       return "\(truncatedReceipt)/\(truncatedSecret)"
@@ -297,14 +261,14 @@ extension AuthSettings: DataSourceProvidable {
       return "No App Credential"
     }
   }
-
+  
   private var languageSection: Section {
     let languageCode = AppManager.shared.auth().languageCode
     let items = [Item(title: languageCode ?? "[none]", detailTitle: "Auth Language"),
                  Item(title: "Click to Use App Language", detailTitle: "Use App Language")]
     return Section(headerDescription: "Language", items: items)
   }
-
+  
   private var disableSection: Section {
     guard let settings = AppManager.shared.auth().settings else {
       fatalError("Missing auth settings")
@@ -313,7 +277,7 @@ extension AuthSettings: DataSourceProvidable {
     let items = [Item(title: disabling, detailTitle: "Disable App Verification (Phone)")]
     return Section(headerDescription: "Auth Settings", items: items)
   }
-
+  
   var sections: [Section] {
     [
       versionSection,
