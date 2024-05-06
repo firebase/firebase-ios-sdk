@@ -1,5 +1,3 @@
-// For Sign in with Facebook
-import FBSDKLoginKit
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +11,16 @@ import FBSDKLoginKit
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-@testable import FirebaseAuth
 // [START auth_import]
 import FirebaseCore
+@testable import FirebaseAuth
+
+// For Sign in with Facebook
+import FBSDKLoginKit
+
+// For Sign in with Game Center
 import GameKit
+
 // For Sign in with Google
 // [START google_import]
 import GoogleSignIn
@@ -94,9 +98,6 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .twitter, .microsoft, .gitHub, .yahoo:
       performOAuthLoginFlow(for: provider)
-
-    case .gameCenter:
-      performGameCenterLoginFlow()
 
     case .gameCenter:
       performGameCenterLoginFlow()
@@ -285,42 +286,6 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       guard error == nil else { return self.displayError(error) }
       guard let credential = credential else { return }
       self.signin(with: credential)
-    }
-  }
-
-  private func performGameCenterLoginFlow() {
-    // Step 1: System Game Center Login
-    GKLocalPlayer.local.authenticateHandler = { viewController, error in
-      if let error = error {
-        // Handle Game Center login error
-        print("Error logging into Game Center: \(error.localizedDescription)")
-      } else if let authViewController = viewController {
-        // Present Game Center login UI if needed
-        self.present(authViewController, animated: true)
-      } else {
-        // Game Center login successful, proceed to Firebase
-        self.linkGameCenterToFirebase()
-      }
-    }
-  }
-
-  // Step 2: Link to Firebase
-  private func linkGameCenterToFirebase() {
-    GameCenterAuthProvider.getCredential { credential, error in
-      if let error = error {
-        // Handle Firebase credential retrieval error
-        print("Error getting Game Center credential: \(error.localizedDescription)")
-      } else if let credential = credential {
-        Auth.auth().signIn(with: credential) { authResult, error in
-          if let error = error {
-            // Handle Firebase sign-in error
-            print("Error signing into Firebase with Game Center: \(error.localizedDescription)")
-          } else {
-            // Firebase sign-in successful
-            print("Successfully linked Game Center to Firebase")
-          }
-        }
-      }
     }
   }
 
