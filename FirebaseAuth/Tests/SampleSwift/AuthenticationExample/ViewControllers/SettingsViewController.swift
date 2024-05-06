@@ -123,31 +123,31 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.auth().userAccessGroup = nil
     }
   }
-  
+
   func clearAPNSToken() {
     guard let token = AppManager.shared.auth().tokenManager.token else {
       return
     }
-    
+
     let tokenType = token.type == .prod ? "Production" : "Sandbox"
     let message = "token: \(token.string)\ntype: \(tokenType)"
-    
+
     let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
                                    preferredStyle: .alert)
     let okAction = UIAlertAction(title: "OK", style: .default) { action in
-      AppManager.shared.auth().tokenManager.token = nil;
+      AppManager.shared.auth().tokenManager.token = nil
       self.updateUI()
     }
     prompt.addAction(okAction)
     present(prompt, animated: true)
   }
-  
+
   func clearAppCredential() {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
       let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
                                      preferredStyle: .alert)
       let okAction = UIAlertAction(title: "OK", style: .default) { action in
-        AppManager.shared.auth().appCredentialManager.clearCredential();
+        AppManager.shared.auth().appCredentialManager.clearCredential()
         self.updateUI()
       }
       prompt.addAction(okAction)
@@ -197,22 +197,22 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
                       options: .transitionCrossDissolve,
                       animations: { tableView.reloadData() })
   }
-  
+
   func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool,
                            completion: @escaping (Bool, String?) -> Void) {
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-    
+
     alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
       let userInput = alertController.textFields?.first?.text
       completion(true, userInput)
     }))
-    
+
     if showCancelButton {
       alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
         completion(false, nil)
       }))
     }
-    
+
     alertController.addTextField(configurationHandler: nil)
   }
 }
