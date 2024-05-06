@@ -77,7 +77,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
 
-    let providerName = item.isEditable ? item.detailTitle! : item.title!
+    guard let providerName = item.title else {
+      fatalError("Invalid item name")
+    }
 
     guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
@@ -171,6 +173,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .verifyPasswordResetCode:
       verifyPasswordResetCode()
+
+    case .phoneEnroll:
+      phoneEnroll()
+
+    case .totpEnroll:
+      totpEnroll()
+
+    case .multifactorUnenroll:
+      mfaUnenroll()
     }
   }
 
@@ -718,6 +729,202 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     showTextInputPrompt(with: "OOB Code: ") {
       oobCode in
       AppManager.shared.auth().verifyPasswordResetCode(oobCode, completion: completionHandler)
+    }
+  }
+
+  private func phoneEnroll() {
+    guard let user = AppManager.shared.auth().currentUser else {
+      showAlert(for: "No user logged in!")
+      print("Error: User must be logged in first.")
+      return
+    }
+
+    showTextInputPrompt(with: "Phone Number:") { phoneNumber in
+      user.multiFactor.getSessionWithCompletion { session, error in
+        guard let session = session else { return }
+        guard error == nil else {
+          self.showAlert(for: "Enrollment failed")
+          print("Multi factor start enroll failed. Error: \(error!)")
+          return
+        }
+
+        PhoneAuthProvider.provider()
+          .verifyPhoneNumber(phoneNumber, multiFactorSession: session) { verificationID, error in
+            guard error == nil else {
+              self.showAlert(for: "Enrollment failed")
+              print("Multi factor start enroll failed. Error: \(error!)")
+              return
+            }
+
+            self.showTextInputPrompt(with: "Verification Code: ") { verificationCode in
+              let credential = PhoneAuthProvider.provider().credential(
+                withVerificationID: verificationID!,
+                verificationCode: verificationCode
+              )
+              let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
+
+              self.showTextInputPrompt(with: "Display Name:") { displayName in
+                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
+                  if let error = error {
+                    self.showAlert(for: "Enrollment failed")
+                    print("Multi factor finalize enroll failed. Error: \(error)")
+                  } else {
+                    self.showAlert(for: "Successfully enrolled: \(displayName)")
+                    print("Multi factor finalize enroll succeeded.")
+                  }
+                }
+              }
+            }
+          }
+      }
+    }
+  }
+
+  private func totpEnroll() {
+    guard let user = AppManager.shared.auth().currentUser else {
+      print("Error: User must be logged in first.")
+      return
+    }
+
+    user.multiFactor.getSessionWithCompletion { session, error in
+      guard let session = session, error == nil else {
+        if let error = error {
+          self.showAlert(for: "Enrollment failed")
+          print("Multi factor start enroll failed. Error: \(error.localizedDescription)")
+        } else {
+          self.showAlert(for: "Enrollment failed")
+          print("Multi factor start enroll failed with unknown error.")
+        }
+        return
+      }
+
+      TOTPMultiFactorGenerator.generateSecret(with: session) { secret, error in
+        guard let secret = secret, error == nil else {
+          if let error = error {
+            self.showAlert(for: "Enrollment failed")
+            print("Error generating TOTP secret. Error: \(error.localizedDescription)")
+          } else {
+            self.showAlert(for: "Enrollment failed")
+            print("Error generating TOTP secret.")
+          }
+          return
+        }
+
+        guard let accountName = user.email, let issuer = Auth.auth().app?.name else {
+          self.showAlert(for: "Enrollment failed")
+          print("Multi factor finalize enroll failed. Could not get account details.")
+          return
+        }
+
+        DispatchQueue.main.async {
+          let url = secret.generateQRCodeURL(withAccountName: accountName, issuer: issuer)
+
+          guard !url.isEmpty else {
+            self.showAlert(for: "Enrollment failed")
+            print("Multi factor finalize enroll failed. Could not generate URL.")
+            return
+          }
+
+          secret.openInOTPApp(withQRCodeURL: url)
+
+          self
+            .showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:",
+                                           url: url) { oneTimePassword in
+              guard !oneTimePassword.isEmpty else {
+                self.showAlert(for: "Display name must not be empty")
+                print("OTP not entered.")
+                return
+              }
+
+              let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
+                with: secret,
+                oneTimePassword: oneTimePassword
+              )
+
+              self.showTextInputPrompt(with: "Display Name") { displayName in
+                guard !displayName.isEmpty else {
+                  self.showAlert(for: "Display name must not be empty")
+                  print("Display name not entered.")
+                  return
+                }
+
+                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
+                  if let error = error {
+                    self.showAlert(for: "Enrollment failed")
+                    print(
+                      "Multi factor finalize enroll failed. Error: \(error.localizedDescription)"
+                    )
+                  } else {
+                    self.showAlert(for: "Successfully enrolled: \(displayName)")
+                    print("Multi factor finalize enroll succeeded.")
+                  }
+                }
+              }
+            }
+        }
+      }
+    }
+  }
+
+  func mfaUnenroll() {
+    var displayNames: [String] = []
+
+    guard let currentUser = Auth.auth().currentUser else {
+      print("Error: No current user")
+      return
+    }
+
+    for factorInfo in currentUser.multiFactor.enrolledFactors {
+      if let displayName = factorInfo.displayName {
+        displayNames.append(displayName)
+      }
+    }
+
+    let alertController = UIAlertController(
+      title: "Select Multi Factor to Unenroll",
+      message: nil,
+      preferredStyle: .actionSheet
+    )
+
+    for displayName in displayNames {
+      let action = UIAlertAction(title: displayName, style: .default) { _ in
+        self.unenrollFactor(with: displayName)
+      }
+      alertController.addAction(action)
+    }
+
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    alertController.addAction(cancelAction)
+
+    present(alertController, animated: true, completion: nil)
+  }
+
+  private func unenrollFactor(with displayName: String) {
+    guard let currentUser = Auth.auth().currentUser else {
+      showAlert(for: "User must be logged in")
+      print("Error: No current user")
+      return
+    }
+
+    var factorInfoToUnenroll: MultiFactorInfo?
+
+    for factorInfo in currentUser.multiFactor.enrolledFactors {
+      if factorInfo.displayName == displayName {
+        factorInfoToUnenroll = factorInfo
+        break
+      }
+    }
+
+    if let factorInfo = factorInfoToUnenroll {
+      currentUser.multiFactor.unenroll(withFactorUID: factorInfo.uid) { error in
+        if let error = error {
+          self.showAlert(for: "Failed to unenroll factor: \(displayName)")
+          print("Multi factor unenroll failed. Error: \(error.localizedDescription)")
+        } else {
+          self.showAlert(for: "Successfully unenrolled: \(displayName)")
+          print("Multi factor unenroll succeeded.")
+        }
+      }
     }
   }
 
