@@ -32,11 +32,19 @@ enum AuthMenu: String {
   case custom
   case initRecaptcha
   case customAuthDomain
+  case getToken
+  case getTokenForceRefresh
+  case addAuthStateChangeListener
+  case removeLastAuthStateChangeListener
+  case addIdTokenChangeListener
+  case removeLastIdTokenChangeListener
+  case verifyClient
+  case deleteApp
 
-  /// More intuitively named getter for `rawValue`.
+  // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
 
-  /// The UI friendly name of the `AuthMenu`. Used for display.
+  // The UI friendly name of the `AuthMenu`. Used for display.
   var name: String {
     switch self {
     case .settings:
@@ -71,11 +79,27 @@ enum AuthMenu: String {
       return "Initialize reCAPTCHA Enterprise"
     case .customAuthDomain:
       return "Set Custom Auth Domain"
+    case .getToken:
+      return "Get Token"
+    case .getTokenForceRefresh:
+      return "Get Token Force Refresh"
+    case .addAuthStateChangeListener:
+      return "Add Auth State Change Listener"
+    case .removeLastAuthStateChangeListener:
+      return "Remove Last Auth State Change Listener"
+    case .addIdTokenChangeListener:
+      return "Add ID Token Change Listener"
+    case .removeLastIdTokenChangeListener:
+      return "Remove Last ID Token Change Listener"
+    case .verifyClient:
+      return "Verify Client"
+    case .deleteApp:
+      return "Delete App"
     }
   }
 
-  /// Failable initializer to create an `AuthMenu` from it's corresponding `name` value.
-  /// - Parameter rawValue: String value representing `AuthMenu`'s name or type.
+  // Failable initializer to create an `AuthMenu` from its corresponding `name` value.
+  // - Parameter rawValue: String value representing `AuthMenu`'s name or type.
   init?(rawValue: String) {
     switch rawValue {
     case "Settings":
@@ -110,7 +134,24 @@ enum AuthMenu: String {
       self = .initRecaptcha
     case "Set Custom Auth Domain":
       self = .customAuthDomain
-    default: return nil
+    case "Get Token":
+      self = .getToken
+    case "Get Token Force Refresh":
+      self = .getTokenForceRefresh
+    case "Add Auth State Change Listener":
+      self = .addAuthStateChangeListener
+    case "Remove Last Auth State Change Listener":
+      self = .removeLastAuthStateChangeListener
+    case "Add ID Token Change Listener":
+      self = .addIdTokenChangeListener
+    case "Remove Last ID Token Change Listener":
+      self = .removeLastIdTokenChangeListener
+    case "Verify Client":
+      self = .verifyClient
+    case "Delete App":
+      self = .deleteApp
+    default:
+      return nil
     }
   }
 }
@@ -172,9 +213,24 @@ extension AuthMenu: DataSourceProvidable {
     return Section(headerDescription: header, items: [item])
   }
 
+  static var appSection: Section {
+    let header = "APP"
+    let items: [Item] = [
+      Item(title: getToken.name),
+      Item(title: getTokenForceRefresh.name),
+      Item(title: addAuthStateChangeListener.name),
+      Item(title: removeLastAuthStateChangeListener.name),
+      Item(title: addIdTokenChangeListener.name),
+      Item(title: removeLastIdTokenChangeListener.name),
+      Item(title: verifyClient.name),
+      Item(title: deleteApp.name),
+    ]
+    return Section(headerDescription: header, items: items)
+  }
+
   static var sections: [Section] {
     [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection]
+     customAuthDomainSection, appSection]
   }
 
   static var authLinkSections: [Section] {

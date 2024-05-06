@@ -14,7 +14,7 @@
 
 // For Sign in with Facebook
 import FBSDKLoginKit
-import FirebaseAuth
+@testable import FirebaseAuth
 
 // [START auth_import]
 import FirebaseCore
@@ -33,6 +33,8 @@ private let kFacebookAppID = "ENTER APP ID HERE"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
   var dataSourceProvider: DataSourceProvider<AuthMenu>!
+  var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
+  var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
 
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
@@ -95,6 +97,30 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .customAuthDomain:
       performCustomAuthDomainFlow()
+
+    case .getToken:
+      getUserTokenResult(force: false)
+
+    case .getTokenForceRefresh:
+      getUserTokenResult(force: true)
+
+    case .addAuthStateChangeListener:
+      addAuthStateListener()
+
+    case .removeLastAuthStateChangeListener:
+      removeAuthStateListener()
+
+    case .addIdTokenChangeListener:
+      addIDTokenListener()
+
+    case .removeLastIdTokenChangeListener:
+      removeIDTokenListener()
+
+    case .verifyClient:
+      verifyClient()
+
+    case .deleteApp:
+      deleteApp()
     }
   }
 
@@ -314,6 +340,142 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
     prompt.addAction(okAction)
     present(prompt, animated: true)
+  }
+
+  private func getUserTokenResult(force: Bool) {
+    guard let currentUser = Auth.auth().currentUser else {
+      print("Error: No user logged in")
+      return
+    }
+
+    currentUser.getIDTokenResult(forcingRefresh: force, completion: { tokenResult, error in
+      if error != nil {
+        print("Error: Error refreshing token")
+        return // Handle error case, returning early
+      }
+
+      if let tokenResult = tokenResult, let claims = tokenResult.claims as? [String: Any] {
+        var message = "Token refresh succeeded\n\n"
+        for (key, value) in claims {
+          message += "\(key): \(value)\n"
+        }
+        self.displayInfo(title: "Info", message: message, style: .alert)
+      } else {
+        print("Error: Unable to access claims.")
+      }
+    })
+  }
+
+  private func addAuthStateListener() {
+    weak var weakSelf = self
+    let index = authStateDidChangeListeners.count
+    print("Auth State Did Change Listener #\(index) was added.")
+    let handle = Auth.auth().addStateDidChangeListener { [weak weakSelf] auth, user in
+      guard weakSelf != nil else { return }
+      print("Auth State Did Change Listener #\(index) was invoked on user '\(user?.uid ?? "nil")'")
+    }
+    authStateDidChangeListeners.append(handle)
+  }
+
+  private func removeAuthStateListener() {
+    guard !authStateDidChangeListeners.isEmpty else {
+      print("No remaining Auth State Did Change Listeners.")
+      return
+    }
+    let index = authStateDidChangeListeners.count - 1
+    let handle = authStateDidChangeListeners.last!
+    Auth.auth().removeStateDidChangeListener(handle)
+    authStateDidChangeListeners.removeLast()
+    print("Auth State Did Change Listener #\(index) was removed.")
+  }
+
+  private func addIDTokenListener() {
+    weak var weakSelf = self
+    let index = IDTokenDidChangeListeners.count
+    print("ID Token Did Change Listener #\(index) was added.")
+    let handle = Auth.auth().addIDTokenDidChangeListener { [weak weakSelf] auth, user in
+      guard weakSelf != nil else { return }
+      print("ID Token Did Change Listener #\(index) was invoked on user '\(user?.uid ?? "")'.")
+    }
+    IDTokenDidChangeListeners.append(handle)
+  }
+
+  func removeIDTokenListener() {
+    guard !IDTokenDidChangeListeners.isEmpty else {
+      print("No remaining ID Token Did Change Listeners.")
+      return
+    }
+    let index = IDTokenDidChangeListeners.count - 1
+    let handle = IDTokenDidChangeListeners.last!
+    Auth.auth().removeIDTokenDidChangeListener(handle)
+    IDTokenDidChangeListeners.removeLast()
+    print("ID Token Did Change Listener #\(index) was removed.")
+  }
+
+  func verifyClient() {
+    AppManager.shared.auth().tokenManager.getTokenInternal { token, error in
+      if token == nil {
+        print("Verify iOS Client failed.")
+        return
+      }
+      let request = VerifyClientRequest(
+        withAppToken: token?.string,
+        isSandbox: token?.type == .sandbox,
+        requestConfiguration: AppManager.shared.auth().requestConfiguration
+      )
+
+      Task {
+        do {
+          let verifyResponse = try await AuthBackend.call(with: request)
+
+          guard let receipt = verifyResponse.receipt,
+                let timeoutDate = verifyResponse.suggestedTimeOutDate else {
+            print("Internal Auth Error: invalid VerifyClientResponse.")
+            return
+          }
+
+          let timeout = timeoutDate.timeIntervalSinceNow
+          do {
+            let credential = await AppManager.shared.auth().appCredentialManager
+              .didStartVerification(
+                withReceipt: receipt,
+                timeout: timeout
+              )
+
+            guard credential.secret != nil else {
+              print("Failed to receive remote notification to verify App ID.")
+              return
+            }
+
+            let testPhoneNumber = "+16509964692"
+            let request = SendVerificationCodeRequest(
+              phoneNumber: testPhoneNumber,
+              codeIdentity: CodeIdentity.credential(credential),
+              requestConfiguration: AppManager.shared.auth().requestConfiguration
+            )
+
+            do {
+              _ = try await AuthBackend.call(with: request)
+              print("Verify iOS client succeeded")
+            } catch {
+              print("Verify iOS Client failed: \(error.localizedDescription)")
+            }
+          }
+        } catch {
+          print("Verify iOS Client failed: \(error.localizedDescription)")
+        }
+      }
+    }
+  }
+
+  func deleteApp() {
+    AppManager.shared.app.delete { success in
+      if success {
+        print("App deleted successfully.")
+      } else {
+        print("Failed to delete app.")
+      }
+    }
   }
 
   // MARK: - Private Helpers

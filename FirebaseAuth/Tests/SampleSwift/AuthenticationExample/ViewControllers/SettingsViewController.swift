@@ -272,6 +272,15 @@ extension AuthSettings: DataSourceProvidable {
 
   func appCredentialString() -> String {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
+      let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
+
+      showPromptWithTitle("Clear App Credential?", message: message,
+                          showCancelButton: true) { userPressedOK, _ in
+        if userPressedOK {
+          AppManager.shared.auth().appCredentialManager.clearCredential()
+        }
+      }
+    }
       let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
       let truncatedSecret = truncatedString(string: credential.secret ?? "", length: 13)
       return "\(truncatedReceipt)/\(truncatedSecret)"
