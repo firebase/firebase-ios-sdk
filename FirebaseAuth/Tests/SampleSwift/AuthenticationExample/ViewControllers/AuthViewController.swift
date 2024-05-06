@@ -733,13 +733,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     let saveHandler: (UIAlertAction) -> Void = { _ in
       let text = editController.textFields?.first?.text ?? ""
-      completion?(text)
-      // completion?()
+      if let completion {
+        completion(text)
+      }
     }
 
     let cancelHandler: (UIAlertAction) -> Void = { _ in
-      completion?("")
-      // completion?()
+      if let completion {
+        completion("")
+      }
     }
 
     editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler))
