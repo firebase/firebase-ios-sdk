@@ -1,6 +1,6 @@
 //
 //  FIRCLSAppMemoryManager.h
-//  
+//
 //
 //  Created by Alexander Cohen on 5/6/24.
 //

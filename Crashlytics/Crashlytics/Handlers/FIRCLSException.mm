@@ -253,28 +253,25 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
 // This is here to fake a frame when we write out
 // an OOM exception file.
 static void __OUT_PROCESS_APP_TERMINATION_OOM__() __attribute__((noinline));
-static void __OUT_PROCESS_APP_TERMINATION_OOM__()
-{
-    __asm__ __volatile__(""); // no tail-call optimization
+static void __OUT_PROCESS_APP_TERMINATION_OOM__() {
+  __asm__ __volatile__("");  // no tail-call optimization
 }
 
-void FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(const char *path)
-{
-    FIRCLSFile file;
-    
-    if (!FIRCLSFileInitWithPath(&file, path, false)) {
-        FIRCLSSDKLog("Unable to open exception file\n");
-        return;
-    }
-    
-    FIRCLSExceptionWrite(&file,
-                         FIRCLSExceptionTypeCustom,
-                         "Out-Of-Memory",
-                         "Ran out of memory.",
-                         @[[FIRStackFrame stackFrameWithAddress:(uintptr_t)&__OUT_PROCESS_APP_TERMINATION_OOM__]],
-                         nil);
-    
-    FIRCLSFileClose(&file);
+void FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(const char *path) {
+  FIRCLSFile file;
+
+  if (!FIRCLSFileInitWithPath(&file, path, false)) {
+    FIRCLSSDKLog("Unable to open exception file\n");
+    return;
+  }
+
+  FIRCLSExceptionWrite(
+      &file, FIRCLSExceptionTypeCustom, "Out-Of-Memory",
+      "The app was terminated by the OS in order to free up memory.",
+      @[ [FIRStackFrame stackFrameWithAddress:(uintptr_t)&__OUT_PROCESS_APP_TERMINATION_OOM__] ],
+      nil);
+
+  FIRCLSFileClose(&file);
 }
 
 // Prepares a new active report for on-demand delivery and returns the path to the report.

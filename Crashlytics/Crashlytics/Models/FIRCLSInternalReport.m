@@ -17,14 +17,14 @@
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
+#import "Crashlytics/Crashlytics/Components/FIRCLSAppMemory.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#import "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
-#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
-#import "Crashlytics/Crashlytics/Components/FIRCLSAppMemory.h"
-#import "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
-#import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 
 NSString *const FIRCLSCustomFatalIndicatorFile = @"custom_fatal.clsrecord";
 NSString *const FIRCLSReportBinaryImageFile = @"binary_images.clsrecord";
@@ -80,26 +80,25 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 
   _identifier = [identifier copy];
 
-    [self _checkAndWriteOOMOfRequired];
+  [self _checkAndWriteOOMOfRequired];
 
   return self;
 }
 
 // Load the reports internal kv store
-- (NSDictionary<NSString *, NSString *> *)_loadInternalBreadcrumbs
-{
-    NSString *path = [self.path stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
-    NSArray *sections = FIRCLSFileReadSections(path.UTF8String, true, ^NSObject *(id obj) {
-        NSDictionary *dict = [obj objectForKey:@"kv"];
-        NSString *key = FIRCLSFileHexDecodeString(((NSString *)dict[@"key"]).UTF8String);
-        NSString *value = FIRCLSFileHexDecodeString(((NSString *)dict[@"value"]).UTF8String);
-        return (key && value) ? @{key: value} : @{};
-    });
-    NSMutableDictionary* res = [NSMutableDictionary dictionary];
-    for (NSDictionary *kv in sections) {
-        [res addEntriesFromDictionary:kv];
-    }
-    return [res copy];
+- (NSDictionary<NSString *, NSString *> *)_loadInternalBreadcrumbs {
+  NSString *path = [self.path stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
+  NSArray *sections = FIRCLSFileReadSections(path.UTF8String, true, ^NSObject *(id obj) {
+    NSDictionary *dict = [obj objectForKey:@"kv"];
+    NSString *key = FIRCLSFileHexDecodeString(((NSString *)dict[@"key"]).UTF8String);
+    NSString *value = FIRCLSFileHexDecodeString(((NSString *)dict[@"value"]).UTF8String);
+    return (key && value) ? @{key : value} : @{};
+  });
+  NSMutableDictionary *res = [NSMutableDictionary dictionary];
+  for (NSDictionary *kv in sections) {
+    [res addEntriesFromDictionary:kv];
+  }
+  return [res copy];
 }
 
 // An OOM is pretty simple.
@@ -114,21 +113,20 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 // this one doesn't show up either. There must be something blocking
 // it server side.
 // see: https://github.com/firebase/firebase-ios-sdk/discussions/12897
-- (void)_checkAndWriteOOMOfRequired
-{
-    NSString *path = [self pathForContentFile:FIRCLSReportExceptionFile];
-    if ([NSFileManager.defaultManager fileExistsAtPath:path]) {
-        return;
-    }
-    
-    // first check if we need to build one
-    // we look for all internal breabcrumbs
-    NSDictionary<NSString *, NSString *> *breadcrumbs = [self _loadInternalBreadcrumbs];
-    FIRCLSAppMemory *memoryInfo = [[FIRCLSAppMemory alloc] initWithJSONObject:breadcrumbs];
-    if (memoryInfo.isOutOfMemory) {
-        FIRCLSInfoLog(@"Writing OOM record to %@", path);
-        FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(path.UTF8String);
-    }
+- (void)_checkAndWriteOOMOfRequired {
+  NSString *path = [self pathForContentFile:FIRCLSReportExceptionFile];
+  if ([NSFileManager.defaultManager fileExistsAtPath:path]) {
+    return;
+  }
+
+  // first check if we need to build one
+  // we look for all internal breabcrumbs
+  NSDictionary<NSString *, NSString *> *breadcrumbs = [self _loadInternalBreadcrumbs];
+  FIRCLSAppMemory *memoryInfo = [[FIRCLSAppMemory alloc] initWithJSONObject:breadcrumbs];
+  if (memoryInfo.isOutOfMemory) {
+    FIRCLSInfoLog(@"Writing OOM record to %@", path);
+    FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(path.UTF8String);
+  }
 }
 
 /**
@@ -206,7 +204,7 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 
   for (NSString *fileName in files) {
     NSString *path = [self pathForContentFile:fileName];
-      
+
     if ([manager fileExistsAtPath:path]) {
       return YES;
     }

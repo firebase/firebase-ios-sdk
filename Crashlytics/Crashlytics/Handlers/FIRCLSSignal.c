@@ -249,9 +249,6 @@ void FIRCLSSignalNameLookup(int number, int code, const char **name, const char 
     case SIGTERM:
       *name = "SIGTERM";
       break;
-    case SIGKILL:
-          *name = "SIGKILL";
-          break;
     default:
       *name = "UNKNOWN";
       break;
@@ -345,45 +342,6 @@ static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {
 
   // restore errno
   errno = savedErrno;
-}
-
-void FIRCLSSignalReportOutOfProcessTermination(const char* path)
-{
-    FIRCLSFile file;
-    
-    if (!FIRCLSFileInitWithPath(&file, path, false)) {
-        FIRCLSSDKLog("Unable to open signal file\n");
-        return;
-    }
-    
-    FIRCLSFileWriteSectionStart(&file, "signal");
-    
-    FIRCLSFileWriteHashStart(&file);
-    
-    //
-    FIRCLSFileWriteHashEntryUint64(&file, "number", SIGKILL);
-    FIRCLSFileWriteHashEntryUint64(&file, "code", 0);
-    FIRCLSFileWriteHashEntryUint64(&file, "address", 0);
-    
-    const char *name = NULL;
-    const char *codeName = NULL;
-    
-    FIRCLSSignalNameLookup(SIGKILL, 0, &name, &codeName);
-    
-    FIRCLSFileWriteHashEntryString(&file, "name", name);
-    FIRCLSFileWriteHashEntryString(&file, "code_name", codeName);
-    //
-    
-    FIRCLSFileWriteHashEntryUint64(&file, "errno", 0);
-    FIRCLSFileWriteHashEntryUint64(&file, "time", time(NULL));
-    
-    FIRCLSFileWriteHashEnd(&file);
-    
-    FIRCLSFileWriteSectionEnd(&file);
-    
-    //FIRCLSHandler(&file, mach_thread_self(), uapVoid);
-    
-    FIRCLSFileClose(&file);
 }
 
 #endif
