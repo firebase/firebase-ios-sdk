@@ -67,7 +67,16 @@
     NSBundle *containingBundle;
     NSURL *bundleURL;
     // The containing bundle is different whether FIAM is statically or dynamically linked.
-    for (containingBundle in @[ [NSBundle mainBundle], [NSBundle bundleForClass:myClass] ]) {
+    for (containingBundle in @[
+           // Statically linked.
+           [NSBundle mainBundle],
+           // Dynamically linked.
+           [NSBundle bundleForClass:myClass],
+           // Embedded static framework (zip distribution).
+           [NSBundle bundleWithURL:[NSBundle.mainBundle.bundleURL
+                                       URLByAppendingPathComponent:
+                                           @"Frameworks/FirebaseInAppMessaging.framework"]]
+         ]) {
       bundleURL = [containingBundle URLForResource:bundledResource withExtension:@"bundle"];
       if (bundleURL != nil) break;
     }

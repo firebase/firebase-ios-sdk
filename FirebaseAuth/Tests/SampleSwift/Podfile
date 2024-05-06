@@ -17,9 +17,6 @@ target 'AuthenticationExample' do
 
   pod 'RecaptchaEnterprise', '~> 18.3'
 
-  ### For Email Link/Passwordless Auth
-  pod 'FirebaseDynamicLinks', :path => '../../..'
-
   ## Pod for Sign in with Google
   pod 'GoogleSignIn'
 

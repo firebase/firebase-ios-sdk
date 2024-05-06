@@ -1,3 +1,11 @@
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason
+  impact.
+- [changed] When installing In App Messaging via the zip distribution, its UI
+  resource bundle is now embedded within the In App Messaging framework.
+  Choose _Embed & Sign_ when integrating the framework. See the zip
+  distribution's README.md for more instructions.
+
 # 10.22.0
 - [fixed] Fixed an `objc_retain` crash. (#12393)
 

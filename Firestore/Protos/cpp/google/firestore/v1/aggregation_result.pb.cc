@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,351 +20,351 @@
 #include "google/firestore/v1/aggregation_result.pb.h"
 
 #include <algorithm>
-
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/extension_set.h>
-#include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/generated_message_reflection.h>
-#include <google/protobuf/reflection_ops.h>
-#include <google/protobuf/wire_format.h>
+#include "google/protobuf/io/coded_stream.h"
+#include "google/protobuf/extension_set.h"
+#include "google/protobuf/wire_format_lite.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/reflection_ops.h"
+#include "google/protobuf/wire_format.h"
+#include "google/protobuf/generated_message_tctable_impl.h"
 // @@protoc_insertion_point(includes)
-#include <google/protobuf/port_def.inc>
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AggregationResult_AggregateFieldsEntry_DoNotUse_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto;
+
+// Must be included last.
+#include "google/protobuf/port_def.inc"
+PROTOBUF_PRAGMA_INIT_SEG
+namespace _pb = ::google::protobuf;
+namespace _pbi = ::google::protobuf::internal;
+namespace _fl = ::google::protobuf::internal::field_layout;
 namespace google {
 namespace firestore {
 namespace v1 {
-class AggregationResult_AggregateFieldsEntry_DoNotUseDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AggregationResult_AggregateFieldsEntry_DoNotUse> _instance;
-} _AggregationResult_AggregateFieldsEntry_DoNotUse_default_instance_;
-class AggregationResultDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AggregationResult> _instance;
-} _AggregationResult_default_instance_;
+      template <typename>
+PROTOBUF_CONSTEXPR AggregationResult_AggregateFieldsEntry_DoNotUse::AggregationResult_AggregateFieldsEntry_DoNotUse(::_pbi::ConstantInitialized) {}
+struct AggregationResult_AggregateFieldsEntry_DoNotUseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR AggregationResult_AggregateFieldsEntry_DoNotUseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~AggregationResult_AggregateFieldsEntry_DoNotUseDefaultTypeInternal() {}
+  union {
+    AggregationResult_AggregateFieldsEntry_DoNotUse _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 AggregationResult_AggregateFieldsEntry_DoNotUseDefaultTypeInternal _AggregationResult_AggregateFieldsEntry_DoNotUse_default_instance_;
+
+inline constexpr AggregationResult::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : aggregate_fields_{},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR AggregationResult::AggregationResult(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct AggregationResultDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR AggregationResultDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~AggregationResultDefaultTypeInternal() {}
+  union {
+    AggregationResult _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 AggregationResultDefaultTypeInternal _AggregationResult_default_instance_;
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
-static void InitDefaultsscc_info_AggregationResult_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
+static ::_pb::Metadata file_level_metadata_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto[2];
+static constexpr const ::_pb::EnumDescriptor**
+    file_level_enum_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = nullptr;
+static constexpr const ::_pb::ServiceDescriptor**
+    file_level_service_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = nullptr;
+const ::uint32_t TableStruct_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
+    protodesc_cold) = {
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, _has_bits_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, key_),
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, value_),
+    0,
+    1,
+    ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult, _impl_.aggregate_fields_),
+};
 
-  {
-    void* ptr = &::google::firestore::v1::_AggregationResult_default_instance_;
-    new (ptr) ::google::firestore::v1::AggregationResult();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::google::firestore::v1::AggregationResult::InitAsDefaultInstance();
+static const ::_pbi::MigrationSchema
+    schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+        {0, 10, -1, sizeof(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse)},
+        {12, -1, -1, sizeof(::google::firestore::v1::AggregationResult)},
+};
+
+static const ::_pb::Message* const file_default_instances[] = {
+    &::google::firestore::v1::_AggregationResult_AggregateFieldsEntry_DoNotUse_default_instance_._instance,
+    &::google::firestore::v1::_AggregationResult_default_instance_._instance,
+};
+const char descriptor_table_protodef_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+    "\n,google/firestore/v1/aggregation_result"
+    ".proto\022\023google.firestore.v1\032\"google/fire"
+    "store/v1/document.proto\"\276\001\n\021AggregationR"
+    "esult\022U\n\020aggregate_fields\030\002 \003(\0132;.google"
+    ".firestore.v1.AggregationResult.Aggregat"
+    "eFieldsEntry\032R\n\024AggregateFieldsEntry\022\013\n\003"
+    "key\030\001 \001(\t\022)\n\005value\030\002 \001(\0132\032.google.firest"
+    "ore.v1.Value:\0028\001B\317\001\n\027com.google.firestor"
+    "e.v1B\026AggregationResultProtoP\001Z<google.g"
+    "olang.org/genproto/googleapis/firestore/"
+    "v1;firestore\242\002\004GCFS\252\002\031Google.Cloud.Fires"
+    "tore.V1\312\002\031Google\\Cloud\\Firestore\\V1\352\002\034Go"
+    "ogle::Cloud::Firestore::V1b\006proto3"
+};
+static const ::_pbi::DescriptorTable* const descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_deps[1] =
+    {
+        &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
+};
+static ::absl::once_flag descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_once;
+const ::_pbi::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = {
+    false,
+    false,
+    514,
+    descriptor_table_protodef_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto,
+    "google/firestore/v1/aggregation_result.proto",
+    &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_once,
+    descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_deps,
+    1,
+    2,
+    schemas,
+    file_default_instances,
+    TableStruct_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto::offsets,
+    file_level_metadata_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto,
+    file_level_enum_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto,
+    file_level_service_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto,
+};
+
+// This function exists to be marked as weak.
+// It can significantly speed up compilation by breaking up LLVM's SCC
+// in the .pb.cc translation units. Large translation units see a
+// reduction of more than 35% of walltime for optimized builds. Without
+// the weak attribute all the messages in the file, including all the
+// vtables and everything they use become part of the same SCC through
+// a cycle like:
+// GetMetadata -> descriptor table -> default instances ->
+//   vtables -> GetMetadata
+// By adding a weak function here we break the connection from the
+// individual vtables back into the descriptor table.
+PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_getter() {
+  return &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto;
 }
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AggregationResult_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_AggregationResult_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto}, {
-      &scc_info_AggregationResult_AggregateFieldsEntry_DoNotUse_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto.base,}};
-
-static void InitDefaultsscc_info_AggregationResult_AggregateFieldsEntry_DoNotUse_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::google::firestore::v1::_AggregationResult_AggregateFieldsEntry_DoNotUse_default_instance_;
-    new (ptr) ::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse();
-  }
-  ::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_AggregationResult_AggregateFieldsEntry_DoNotUse_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_AggregationResult_AggregateFieldsEntry_DoNotUse_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto}, {
-      &scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto.base,}};
-
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto[2];
-static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = nullptr;
-
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse, value_),
-  0,
-  1,
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::AggregationResult, aggregate_fields_),
-};
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 7, sizeof(::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse)},
-  { 9, -1, sizeof(::google::firestore::v1::AggregationResult)},
-};
-
-static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_AggregationResult_AggregateFieldsEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::google::firestore::v1::_AggregationResult_default_instance_),
-};
-
-const char descriptor_table_protodef_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n,google/firestore/v1/aggregation_result"
-  ".proto\022\023google.firestore.v1\032\"google/fire"
-  "store/v1/document.proto\"\276\001\n\021AggregationR"
-  "esult\022U\n\020aggregate_fields\030\002 \003(\0132;.google"
-  ".firestore.v1.AggregationResult.Aggregat"
-  "eFieldsEntry\032R\n\024AggregateFieldsEntry\022\013\n\003"
-  "key\030\001 \001(\t\022)\n\005value\030\002 \001(\0132\032.google.firest"
-  "ore.v1.Value:\0028\001B\317\001\n\027com.google.firestor"
-  "e.v1B\026AggregationResultProtoP\001Z<google.g"
-  "olang.org/genproto/googleapis/firestore/"
-  "v1;firestore\242\002\004GCFS\252\002\031Google.Cloud.Fires"
-  "tore.V1\312\002\031Google\\Cloud\\Firestore\\V1\352\002\034Go"
-  "ogle::Cloud::Firestore::V1b\006proto3"
-  ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_deps[1] = {
-  &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
-};
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_sccs[2] = {
-  &scc_info_AggregationResult_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto.base,
-  &scc_info_AggregationResult_AggregateFieldsEntry_DoNotUse_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto.base,
-};
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_once;
-static bool descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_initialized = false;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto, "google/firestore/v1/aggregation_result.proto", 514,
-  &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_deps, 2, 1,
-  schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto::offsets,
-  file_level_metadata_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto, 2, file_level_enum_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto,
-};
-
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto = (  ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto), true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2
+static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto(&descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto);
 namespace google {
 namespace firestore {
 namespace v1 {
-
 // ===================================================================
 
 AggregationResult_AggregateFieldsEntry_DoNotUse::AggregationResult_AggregateFieldsEntry_DoNotUse() {}
-AggregationResult_AggregateFieldsEntry_DoNotUse::AggregationResult_AggregateFieldsEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+AggregationResult_AggregateFieldsEntry_DoNotUse::AggregationResult_AggregateFieldsEntry_DoNotUse(::google::protobuf::Arena* arena)
     : SuperType(arena) {}
-void AggregationResult_AggregateFieldsEntry_DoNotUse::MergeFrom(const AggregationResult_AggregateFieldsEntry_DoNotUse& other) {
-  MergeFromInternal(other);
+::google::protobuf::Metadata AggregationResult_AggregateFieldsEntry_DoNotUse::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto[0]);
 }
-::PROTOBUF_NAMESPACE_ID::Metadata AggregationResult_AggregateFieldsEntry_DoNotUse::GetMetadata() const {
-  return GetMetadataStatic();
-}
-void AggregationResult_AggregateFieldsEntry_DoNotUse::MergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
-  ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
-}
-
-
 // ===================================================================
 
-void AggregationResult::InitAsDefaultInstance() {
-}
 class AggregationResult::_Internal {
  public:
 };
 
 void AggregationResult::clear_aggregate_fields() {
-  aggregate_fields_.Clear();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.aggregate_fields_.Clear();
 }
-AggregationResult::AggregationResult()
-  : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:google.firestore.v1.AggregationResult)
+AggregationResult::AggregationResult(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:google.firestore.v1.AggregationResult)
 }
-AggregationResult::AggregationResult(const AggregationResult& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  aggregate_fields_.MergeFrom(from.aggregate_fields_);
+inline PROTOBUF_NDEBUG_INLINE AggregationResult::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : aggregate_fields_{visibility, arena, from.aggregate_fields_},
+        _cached_size_{0} {}
+
+AggregationResult::AggregationResult(
+    ::google::protobuf::Arena* arena,
+    const AggregationResult& from)
+    : ::google::protobuf::Message(arena) {
+  AggregationResult* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+
   // @@protoc_insertion_point(copy_constructor:google.firestore.v1.AggregationResult)
 }
+inline PROTOBUF_NDEBUG_INLINE AggregationResult::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : aggregate_fields_{visibility, arena},
+        _cached_size_{0} {}
 
-void AggregationResult::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_AggregationResult_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto.base);
+inline void AggregationResult::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
 }
-
 AggregationResult::~AggregationResult() {
   // @@protoc_insertion_point(destructor:google.firestore.v1.AggregationResult)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   SharedDtor();
 }
-
-void AggregationResult::SharedDtor() {
+inline void AggregationResult::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.~Impl_();
 }
 
-void AggregationResult::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const AggregationResult& AggregationResult::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_AggregationResult_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void AggregationResult::Clear() {
+PROTOBUF_NOINLINE void AggregationResult::Clear() {
 // @@protoc_insertion_point(message_clear_start:google.firestore.v1.AggregationResult)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  aggregate_fields_.Clear();
-  _internal_metadata_.Clear();
+  _impl_.aggregate_fields_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
-const char* AggregationResult::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // map<string, .google.firestore.v1.Value> aggregate_fields = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(&aggregate_fields_, ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag, &_internal_metadata_, ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
+const char* AggregationResult::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
   return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* AggregationResult::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 2, 62, 2> AggregationResult::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967293,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    2,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_AggregationResult_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // map<string, .google.firestore.v1.Value> aggregate_fields = 2;
+    {PROTOBUF_FIELD_OFFSET(AggregationResult, _impl_.aggregate_fields_), 0, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMap)},
+  }}, {{
+    {::_pbi::TcParser::GetMapAuxInfo<
+        decltype(AggregationResult()._impl_.aggregate_fields_)>(
+        1, 0, 0, 9,
+        11)},
+    {::_pbi::TcParser::CreateInArenaStorageCb<::google::firestore::v1::Value>},
+  }}, {{
+    "\45\20\0\0\0\0\0\0"
+    "google.firestore.v1.AggregationResult"
+    "aggregate_fields"
+  }},
+};
+
+::uint8_t* AggregationResult::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:google.firestore.v1.AggregationResult)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
   // map<string, .google.firestore.v1.Value> aggregate_fields = 2;
-  if (!this->_internal_aggregate_fields().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "google.firestore.v1.AggregationResult.AggregateFieldsEntry.key");
-      }
-    };
+  if (!_internal_aggregate_fields().empty()) {
+    using MapType = ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>;
+    using WireHelper = _pbi::MapEntryFuncs<std::string, ::google::firestore::v1::Value,
+                                   _pbi::WireFormatLite::TYPE_STRING,
+                                   _pbi::WireFormatLite::TYPE_MESSAGE>;
+    const auto& field = _internal_aggregate_fields();
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_aggregate_fields().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_aggregate_fields().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->_internal_aggregate_fields().begin();
-          it != this->_internal_aggregate_fields().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        target = AggregationResult_AggregateFieldsEntry_DoNotUse::Funcs::InternalSerialize(2, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
+    if (stream->IsSerializationDeterministic() && field.size() > 1) {
+      for (const auto& entry : ::google::protobuf::internal::MapSorterPtr<MapType>(field)) {
+        target = WireHelper::InternalSerialize(
+            2, entry.first, entry.second, target, stream);
+        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            entry.first.data(), static_cast<int>(entry.first.length()),
+ ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.AggregationResult.aggregate_fields");
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-          it = this->_internal_aggregate_fields().begin();
-          it != this->_internal_aggregate_fields().end(); ++it) {
-        target = AggregationResult_AggregateFieldsEntry_DoNotUse::Funcs::InternalSerialize(2, it->first, it->second, target, stream);
-        Utf8Check::Check(&(*it));
+      for (const auto& entry : field) {
+        target = WireHelper::InternalSerialize(
+            2, entry.first, entry.second, target, stream);
+        ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            entry.first.data(), static_cast<int>(entry.first.length()),
+ ::google::protobuf::internal::WireFormatLite::SERIALIZE, "google.firestore.v1.AggregationResult.aggregate_fields");
       }
     }
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target, stream);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:google.firestore.v1.AggregationResult)
   return target;
 }
 
-size_t AggregationResult::ByteSizeLong() const {
+::size_t AggregationResult::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:google.firestore.v1.AggregationResult)
-  size_t total_size = 0;
+  ::size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // map<string, .google.firestore.v1.Value> aggregate_fields = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_aggregate_fields_size());
-  for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::google::firestore::v1::Value >::const_iterator
-      it = this->_internal_aggregate_fields().begin();
-      it != this->_internal_aggregate_fields().end(); ++it) {
-    total_size += AggregationResult_AggregateFieldsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::google::protobuf::internal::FromIntSize(_internal_aggregate_fields_size());
+  for (const auto& entry : _internal_aggregate_fields()) {
+    total_size += _pbi::MapEntryFuncs<std::string, ::google::firestore::v1::Value,
+                                   _pbi::WireFormatLite::TYPE_STRING,
+                                   _pbi::WireFormatLite::TYPE_MESSAGE>::ByteSizeLong(entry.first, entry.second);
   }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
-void AggregationResult::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:google.firestore.v1.AggregationResult)
-  GOOGLE_DCHECK_NE(&from, this);
-  const AggregationResult* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<AggregationResult>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:google.firestore.v1.AggregationResult)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:google.firestore.v1.AggregationResult)
-    MergeFrom(*source);
-  }
+const ::google::protobuf::Message::ClassData AggregationResult::_class_data_ = {
+    AggregationResult::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* AggregationResult::GetClassData() const {
+  return &_class_data_;
 }
 
-void AggregationResult::MergeFrom(const AggregationResult& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.AggregationResult)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void AggregationResult::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<AggregationResult*>(&to_msg);
+  auto& from = static_cast<const AggregationResult&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:google.firestore.v1.AggregationResult)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  aggregate_fields_.MergeFrom(from.aggregate_fields_);
-}
-
-void AggregationResult::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:google.firestore.v1.AggregationResult)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _this->_impl_.aggregate_fields_.MergeFrom(from._impl_.aggregate_fields_);
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void AggregationResult::CopyFrom(const AggregationResult& from) {
@@ -374,33 +374,31 @@ void AggregationResult::CopyFrom(const AggregationResult& from) {
   MergeFrom(from);
 }
 
-bool AggregationResult::IsInitialized() const {
+PROTOBUF_NOINLINE bool AggregationResult::IsInitialized() const {
   return true;
 }
 
-void AggregationResult::InternalSwap(AggregationResult* other) {
+::_pbi::CachedSize* AggregationResult::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void AggregationResult::InternalSwap(AggregationResult* PROTOBUF_RESTRICT other) {
   using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  aggregate_fields_.Swap(&other->aggregate_fields_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.aggregate_fields_.InternalSwap(&other->_impl_.aggregate_fields_);
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata AggregationResult::GetMetadata() const {
-  return GetMetadataStatic();
+::google::protobuf::Metadata AggregationResult::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_getter, &descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto_once,
+      file_level_metadata_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto[1]);
 }
-
-
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace v1
 }  // namespace firestore
 }  // namespace google
-PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse* Arena::CreateMaybeMessage< ::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::AggregationResult_AggregateFieldsEntry_DoNotUse >(arena);
-}
-template<> PROTOBUF_NOINLINE ::google::firestore::v1::AggregationResult* Arena::CreateMaybeMessage< ::google::firestore::v1::AggregationResult >(Arena* arena) {
-  return Arena::CreateInternal< ::google::firestore::v1::AggregationResult >(arena);
-}
-PROTOBUF_NAMESPACE_CLOSE
-
+namespace google {
+namespace protobuf {
+}  // namespace protobuf
+}  // namespace google
 // @@protoc_insertion_point(global_scope)
-#include <google/protobuf/port_undef.inc>
+#include "google/protobuf/port_undef.inc"

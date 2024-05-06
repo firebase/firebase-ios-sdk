@@ -24,7 +24,10 @@
 			<key>CFBundleURLName</key>
 			<string></string>
 			<key>CFBundleURLSchemes</key>
-			<array/>
+			<array>
+				<string>app-1-1085102361755-ios-2b9d4a82e5df229f</string>
+				<string>app-1-1085102361755-ios-74df231d8a2072e45dca3e</string>
+			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>

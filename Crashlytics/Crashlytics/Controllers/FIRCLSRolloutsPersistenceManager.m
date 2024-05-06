@@ -21,9 +21,14 @@
 
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
-#else  // Swift Package Manager
+#elif __has_include(<FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>)
 #import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
-#endif  // CocoaPods
+#elif __has_include("FirebaseCrashlytics-Swift.h")
+// If frameworks are not available, fall back to importing the header as it
+// should be findable from a header search path pointing to the build
+// directory. See #12611 for more context.
+#import "FirebaseCrashlytics-Swift.h"
+#endif
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
 @property(nonatomic, readonly) FIRCLSFileManager *fileManager;
@@ -53,10 +58,15 @@
   NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
 
   dispatch_sync(FIRCLSGetLoggingQueue(), ^{
-    [rolloutsFile seekToEndOfFile];
-    [rolloutsFile writeData:rollouts];
-    NSData *newLineData = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
-    [rolloutsFile writeData:newLineData];
+    @try {
+      [rolloutsFile seekToEndOfFile];
+      NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
+      [rolloutsWithNewLineData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+      [rolloutsFile writeData:rolloutsWithNewLineData];
+    } @catch (NSException *exception) {
+      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
+                     exception.name, exception.reason);
+    }
   });
 }
 

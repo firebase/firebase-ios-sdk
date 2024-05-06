@@ -70,7 +70,8 @@ class importTest: XCTestCase {
     #else
       // Device model should show up as x86_64 for iOS, tvOS, and watchOS
       // simulators.
-      XCTAssertEqual(GULAppEnvironmentUtil.deviceModel(), "x86_64")
+      let model = GULAppEnvironmentUtil.deviceModel()
+      XCTAssertTrue(model == "x86_64" || model == "arm64")
     #endif
 
     let versionParts = FirebaseVersion().split(separator: ".")

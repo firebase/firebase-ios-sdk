@@ -26,7 +26,7 @@
 static NSString *const kAPIKey = @"myfakeapikey";
 const NSInteger kJSONParsingErrorCode = 3840;
 static NSString *const kURLScheme = @"gindeeplinkurl";
-static const NSTimeInterval kAsyncTestTimout = 5.0;
+static const NSTimeInterval kAsyncTestTimeout = 5.0;
 
 @interface FIRDynamicLinkNetworkingTests : XCTestCase
 
@@ -90,7 +90,7 @@ static const NSTimeInterval kAsyncTestTimout = 5.0;
                         [expectation fulfill];
                       }];
 
-  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
+  [self waitForExpectationsWithTimeout:kAsyncTestTimeout handler:nil];
 
   [GULSwizzler unswizzleClass:[FIRDynamicLinkNetworking class]
                      selector:executeRequestSelector
