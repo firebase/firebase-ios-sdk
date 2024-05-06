@@ -1,3 +1,5 @@
+@testable import FirebaseAuth
+
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +15,6 @@
 // limitations under the License.
 // [START auth_import]
 import FirebaseCore
-@testable import FirebaseAuth
 
 // For Sign in with Facebook
 import FBSDKLoginKit
