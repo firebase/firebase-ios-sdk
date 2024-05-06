@@ -200,7 +200,7 @@
 
 #pragma mark - File/Directory Handling
 - (void)testCreatesNewReportOnStart {
-  FBLPromise<NSNumber *> *promise = [self->_reportManager startWithProfilingMark:0];
+  FBLPromise<NSNumber *> *promise = [self->_reportManager startWithProfiling];
 
   XCTestExpectation *expectation =
       [[XCTestExpectation alloc] initWithDescription:@"waiting on promise"];
@@ -244,7 +244,7 @@
 
 - (FBLPromise<NSNumber *> *)startReportManagerWithDataCollectionEnabled:(BOOL)enabled {
   [self.dataArbiter setCrashlyticsCollectionEnabled:enabled];
-  return [self.reportManager startWithProfilingMark:0];
+  return [self.reportManager startWithProfiling];
 }
 
 - (void)processReports:(BOOL)send andExpectReports:(BOOL)reportsExpected {

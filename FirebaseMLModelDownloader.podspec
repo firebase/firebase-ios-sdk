@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '10.23.0-beta'
+  s.version          = '10.25.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
 
   s.description      = <<-DESC
@@ -40,7 +40,8 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   # TODO: Revisit this dependency
-  s.dependency 'GoogleUtilities/Logger', '~> 7.8'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.13'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
   s.dependency 'SwiftProtobuf', '~> 1.19'
 
   s.pod_target_xcconfig = {

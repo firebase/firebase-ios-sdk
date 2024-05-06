@@ -14,6 +14,12 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -87,6 +93,10 @@ import Foundation
       } else if let fileURL = self.fileURL {
         uploadFetcher.uploadFileURL = fileURL
         uploadFetcher.comment = "File UploadTask"
+
+        if GULAppEnvironmentUtil.isAppExtension() {
+          uploadFetcher.useBackgroundSession = false
+        }
       }
       uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
 

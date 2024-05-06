@@ -50,7 +50,7 @@ typedef void (^FIRFADGenerateAuthTokenCompletion)(
 // Label exceptions from AppDistributionApi calls.
 FOUNDATION_EXPORT NSString *const kFIRFADApiErrorDomain;
 
-// A service encapsulating calls to the App Distribtuion Tester API
+// A service encapsulating calls to the App Distribution Tester API
 @interface FIRFADApiService : NSObject
 
 // Fetch releases from the AppDistribution Tester API

@@ -16,6 +16,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -28,7 +30,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 @interface FIRAppCheckSettings ()
 
 @property(nonatomic, weak, readonly) FIRApp *firebaseApp;
-@property(nonatomic, readonly) NSUserDefaults *userDefaults;
+@property(nonatomic, readonly) GULUserDefaults *userDefaults;
 @property(nonatomic, readonly) NSBundle *mainBundle;
 @property(nonatomic, readonly) NSString *userDefaultKey;
 @property(nonatomic, assign) BOOL isTokenAutoRefreshConfigured;
@@ -38,7 +40,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 @implementation FIRAppCheckSettings
 
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
-                userDefault:(NSUserDefaults *)userDefaults
+                userDefault:(GULUserDefaults *)userDefaults
                  mainBundle:(NSBundle *)mainBundle {
   self = [super init];
   if (self) {
