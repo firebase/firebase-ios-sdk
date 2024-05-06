@@ -235,17 +235,7 @@ extension AuthSettings: DataSourceProvidable {
     return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
   }
 
-  func truncatedString(string: String, length: Int) -> String {
-    guard string.count > length else { return string }
-
-    let half = (length - 3) / 2
-    let startIndex = string.startIndex
-    let midIndex = string.index(startIndex, offsetBy: half) // Ensure correct mid index
-    let endIndex = string.index(startIndex, offsetBy: string.count - half)
-
-    return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
-  }
-
+  // TODO: Add ability to click and clear both of these fields.
   private var phoneAuthSection: Section {
     let items = [Item(title: APNSTokenString(), detailTitle: "APNs Token"),
                  Item(title: appCredentialString(), detailTitle: "App Credential")]
@@ -264,15 +254,6 @@ extension AuthSettings: DataSourceProvidable {
 
   func appCredentialString() -> String {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
-      let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
-
-      showPromptWithTitle("Clear App Credential?", message: message,
-                          showCancelButton: true) { userPressedOK, _ in
-        if userPressedOK {
-          AppManager.shared.auth().appCredentialManager.clearCredential()
-        }
-      }
-    }
       let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
       let truncatedSecret = truncatedString(string: credential.secret ?? "", length: 13)
       return "\(truncatedReceipt)/\(truncatedSecret)"
