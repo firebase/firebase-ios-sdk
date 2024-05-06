@@ -1,8 +1,7 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSAppMemory.h"
-#import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 
 #import <mach/mach.h>
 #import <mach/task.h>
@@ -37,49 +36,27 @@ NS_ASSUME_NONNULL_BEGIN
  See: https://github.com/naftaly/Footprint
  */
 
-@interface FIRCrashlytics ()
-@property(nonatomic, strong) FIRCLSAnalyticsManager *analyticsManager;
-@end
+typedef NS_ENUM(NSUInteger, FIRCLSAppMemoryTrackerChangeType) {
+    FIRCLSAppMemoryTrackerChangeTypeNone,
+    FIRCLSAppMemoryTrackerChangeTypeLevel,
+    FIRCLSAppMemoryTrackerChangeTypePressure
+};
 
-@interface FIRCLSAppMemoryTracker : NSObject {
+@interface FIRCLSAppMemoryTracker () {
     dispatch_queue_t _heartbeatQueue;
     dispatch_source_t _pressureSource;
     dispatch_source_t _limitSource;
     std::atomic<FIRCLSAppMemoryPressure> _pressure;
     std::atomic<FIRCLSAppMemoryLevel> _level;
 }
-
-+ (instancetype)shared;
-
-@property (atomic, readonly) FIRCLSAppMemoryPressure pressure;
-
 @end
 
 @implementation FIRCLSAppMemoryTracker
 
-// For memory tracking to be useful it needs to start early.
-// This adds a dash of startup time.
-// For simplicity sake, I've strted it here for now.
-+ (void)load
-{
-    (void)FIRCLSAppMemoryTracker.shared;
-}
-
-+ (instancetype)shared
-{
-    static FIRCLSAppMemoryTracker *sTracker;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sTracker = [FIRCLSAppMemoryTracker new];
-        [sTracker start];
-    });
-    return sTracker;
-}
-
 - (instancetype)init
 {
     if (self = [super init]) {
-        _heartbeatQueue = dispatch_queue_create_with_target("io.sentry.memory.heartbeat", DISPATCH_QUEUE_SERIAL, dispatch_get_global_queue(QOS_CLASS_UTILITY, 0));
+        _heartbeatQueue = dispatch_queue_create_with_target("com.firebase.crashlytics.memory.heartbeat", DISPATCH_QUEUE_SERIAL, dispatch_get_global_queue(QOS_CLASS_UTILITY, 0));
         _level = FIRCLSAppMemoryLevelNormal;
         _pressure = FIRCLSAppMemoryPressureNormal;
     }
@@ -120,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
     id<NSObject> observer;
     observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull notification) {
         [[NSNotificationCenter defaultCenter] removeObserver:observer];
-        [self _handleMemoryChange:FIRCLSAppMemory.current];
+        [self _handleMemoryChange:[self currentAppMemory] type:FIRCLSAppMemoryTrackerChangeTypeNone];
     }];
 }
 
@@ -137,23 +114,81 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)_handleMemoryChange:(FIRCLSAppMemory *)memory
+- (nullable FIRCLSAppMemory *)currentAppMemory
+{
+    task_vm_info_data_t         info = {};
+    mach_msg_type_number_t      count = TASK_VM_INFO_COUNT;
+    kern_return_t               err = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&info, &count);
+    if (err != KERN_SUCCESS) {
+        return nil;
+    }
+    
+    uint64_t remaining = info.limit_bytes_remaining;
+#if TARGET_OS_SIMULATOR
+    // in simulator, remaining is always 0. So let's fake it.
+    // How about a limit of 3GB.
+    uint64_t limit = 3000000000;
+    remaining = limit < info.phys_footprint ? 0 : limit - info.phys_footprint;
+#endif
+    
+    return [[FIRCLSAppMemory alloc] initWithFootprint:info.phys_footprint
+                                 remaining:remaining
+                                  pressure:_pressure];
+}
+
+static void __OUT_PROCESS_APP_TERMINATION_OOM__() __attribute__((noinline));
+static void __OUT_PROCESS_APP_TERMINATION_OOM__()
+{
+    __asm__ __volatile__(""); // no tail-call optimization
+}
+
+- (void)_handleMemoryChange:(FIRCLSAppMemory *)memory type:(FIRCLSAppMemoryTrackerChangeType)type
 {
     NSDictionary<NSString *, id> *const kv = memory.serialize;
     for (NSString *key in kv) {
         FIRCLSUserLoggingRecordInternalKeyValue(key, kv[key]);
     }
     FIRCLSUserLoggingRecordUserKeysAndValues(kv);
+    
+    if (type == FIRCLSAppMemoryTrackerChangeTypeLevel && memory.level >= FIRCLSAppMemoryLevelCritical) {
+        
+        NSString *level = FIRCLSAppMemoryLevelToString(memory.level).uppercaseString;
+        NSString *reason = [NSString stringWithFormat:@"Memory Level Is %@", level];
+        
+        FIRExceptionModel *model = [[FIRExceptionModel alloc] initWithName:@"memory_level" reason:reason];
+        model.stackTrace = @[
+            [FIRStackFrame stackFrameWithAddress:(uintptr_t)&__OUT_PROCESS_APP_TERMINATION_OOM__]
+        ];
+        FIRCLSExceptionRecordModel(model, nil);
+        /*
+        FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom,
+                              "memory_level",
+                              reason.UTF8String,
+                              @[[FIRStackFrame stackFrameWithAddress:(uintptr_t)&__OUT_PROCESS_APP_TERMINATION_OOM__]],
+                              nil);
+         */
+        
+    } else if (type == FIRCLSAppMemoryTrackerChangeTypePressure && memory.pressure >= FIRCLSAppMemoryPressureCritical) {
+        
+        NSString *pressure = FIRCLSAppMemoryPressureToString(memory.pressure).uppercaseString;
+        NSString *reason = [NSString stringWithFormat:@"Memory Pressure Is %@", pressure];
+        FIRExceptionModel *model = [[FIRExceptionModel alloc] initWithName:@"memory_pressure" reason:reason];
+        model.stackTrace = @[
+            [FIRStackFrame stackFrameWithAddress:(uintptr_t)&__OUT_PROCESS_APP_TERMINATION_OOM__]
+        ];
+        FIRCLSExceptionRecordModel(model, nil);
+    }
+    
 }
 
 - (void)_heartbeat:(BOOL)sendObservers
 {
     // This handles the memory limit.
-    FIRCLSAppMemory *memory = [FIRCLSAppMemory current];
+    FIRCLSAppMemory *memory = [self currentAppMemory];
     FIRCLSAppMemoryLevel newLevel = memory.level;
     FIRCLSAppMemoryLevel oldLevel = _level.exchange(newLevel);
     if (newLevel != oldLevel && sendObservers) {
-        [self _handleMemoryChange:memory];
+        [self _handleMemoryChange:memory type:FIRCLSAppMemoryTrackerChangeTypeLevel];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:FIRCLSAppMemoryLevelChangedNotification object:self userInfo:@{
                 FIRCLSAppMemoryNewValueKey: @(newLevel),
@@ -190,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     FIRCLSAppMemoryPressure oldPressure = _pressure.exchange(pressure);
     if (oldPressure != pressure && sendObservers) {
-        [self _handleMemoryChange:[FIRCLSAppMemory current]];
+        [self _handleMemoryChange:[self currentAppMemory] type:FIRCLSAppMemoryTrackerChangeTypePressure];
         [[NSNotificationCenter defaultCenter] postNotificationName:FIRCLSAppMemoryPressureChangedNotification object:self userInfo:@{
             FIRCLSAppMemoryNewValueKey: @(pressure),
             FIRCLSAppMemoryOldValueKey: @(oldPressure)
@@ -212,28 +247,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRCLSAppMemory
 
-+ (nullable instancetype)current
-{
-    task_vm_info_data_t         info = {};
-    mach_msg_type_number_t      count = TASK_VM_INFO_COUNT;
-    kern_return_t               err = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&info, &count);
-    if (err != KERN_SUCCESS) {
-        return nil;
-    }
-    
-    uint64_t remaining = info.limit_bytes_remaining;
-#if TARGET_OS_SIMULATOR
-    // in simulator, remaining is always 0. So let's fake it. 
-    // How about a limit of 3GB.
-    uint64_t limit = 3000000000;
-    remaining = limit < info.phys_footprint ? 0 : limit - info.phys_footprint;
-#endif
-    
-    return [[self alloc] initWithFootprint:info.phys_footprint
-                                 remaining:remaining
-                                  pressure:FIRCLSAppMemoryTracker.shared.pressure];
-}
-
 - (instancetype)initWithFootprint:(uint64_t)footprint remaining:(uint64_t)remaining pressure:(FIRCLSAppMemoryPressure)pressure
 {
     if (self = [super init]) {
@@ -246,9 +259,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject
 {
-    NSNumber *const footprintRef = jsonObject[@"footprint"];
-    NSNumber *const remainingRef = jsonObject[@"remaining"];
-    NSString *const pressureRef = jsonObject[@"pressure"];
+    NSNumber *const footprintRef = jsonObject[@"memory_footprint"];
+    NSNumber *const remainingRef = jsonObject[@"memory_remaining"];
+    NSString *const pressureRef = jsonObject[@"memory_pressure"];
     
     uint64_t footprint = 0;
     if ([footprintRef isKindOfClass:NSNumber.class]) {
@@ -292,11 +305,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (nonnull NSDictionary<NSString *,id> *)serialize
 {
     return @{
-        @"footprint": @(self.footprint),
-        @"remaining": @(self.remaining),
-        @"limit": @(self.limit),
-        @"level": FIRCLSAppMemoryLevelToString(self.level),
-        @"pressure": FIRCLSAppMemoryPressureToString(self.pressure)
+        @"memory_footprint": @(self.footprint),
+        @"memory_remaining": @(self.remaining),
+        @"memory_limit": @(self.limit),
+        @"memory_level": FIRCLSAppMemoryLevelToString(self.level),
+        @"memory_pressure": FIRCLSAppMemoryPressureToString(self.pressure)
     };
 }
 
@@ -315,7 +328,7 @@ NS_ASSUME_NONNULL_BEGIN
     usedRatio < 0.95 ? FIRCLSAppMemoryLevelCritical : FIRCLSAppMemoryLevelTerminal;
 }
 
-- (BOOL)isLikelyOutOfMemory
+- (BOOL)isOutOfMemory
 {
     return self.level >= FIRCLSAppMemoryLevelCritical || self.pressure >= FIRCLSAppMemoryPressureCritical;
 }

@@ -77,6 +77,9 @@ NSString* FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
                                         BOOL fatal,
                                         int previousRecordedOnDemandExceptions,
                                         int previousDroppedOnDemandExceptions);
+
+void FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(const char *path);
+
 #endif
 
 __END_DECLS

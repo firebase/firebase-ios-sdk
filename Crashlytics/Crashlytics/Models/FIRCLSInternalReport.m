@@ -24,6 +24,7 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSAppMemory.h"
 #import "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
+#import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 
 NSString *const FIRCLSCustomFatalIndicatorFile = @"custom_fatal.clsrecord";
 NSString *const FIRCLSReportBinaryImageFile = @"binary_images.clsrecord";
@@ -79,11 +80,12 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 
   _identifier = [identifier copy];
 
-    [self _buildMemoryFileIfNeeded];
+    [self _checkAndWriteOOMOfRequired];
 
   return self;
 }
 
+// Load the reports internal kv store
 - (NSDictionary<NSString *, NSString *> *)_loadInternalBreadcrumbs
 {
     NSString *path = [self.path stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
@@ -100,15 +102,32 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
     return [res copy];
 }
 
-- (void)_buildMemoryFileIfNeeded
+// An OOM is pretty simple.
+// If the data in this report shows an OOM,
+// then write an exception file to disk.
+// That will be picked up by the normal reporting system.
+//
+// NOTE:
+// I'd like to write a signal SIGKILL file, or some other
+// kind of OOM file, but up to now I have not been able to have
+// it show up in the Firebase crashlytics console. As a matter of fact,
+// this one doesn't show up either. There must be something blocking
+// it server side.
+// see: https://github.com/firebase/firebase-ios-sdk/discussions/12897
+- (void)_checkAndWriteOOMOfRequired
 {
+    NSString *path = [self pathForContentFile:FIRCLSReportExceptionFile];
+    if ([NSFileManager.defaultManager fileExistsAtPath:path]) {
+        return;
+    }
+    
     // first check if we need to build one
     // we look for all internal breabcrumbs
     NSDictionary<NSString *, NSString *> *breadcrumbs = [self _loadInternalBreadcrumbs];
     FIRCLSAppMemory *memoryInfo = [[FIRCLSAppMemory alloc] initWithJSONObject:breadcrumbs];
-    if (memoryInfo.isLikelyOutOfMemory) {
-        NSString *path = [self pathForContentFile:FIRCLSReportSignalFile];
-        FIRCLSSignalReportOutOfProcessTermination(path.UTF8String);
+    if (memoryInfo.isOutOfMemory) {
+        FIRCLSInfoLog(@"Writing OOM record to %@", path);
+        FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(path.UTF8String);
     }
 }
 

@@ -27,8 +27,8 @@ FOUNDATION_EXPORT FIRCLSAppMemoryPressure FIRCLSAppMemoryPressureFromString(NSSt
 
 @interface FIRCLSAppMemory : NSObject
 
-+ (nullable instancetype)current;
-- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @property (readonly, nonatomic, assign) uint64_t footprint;
 @property (readonly, nonatomic, assign) uint64_t remaining;
@@ -36,14 +36,27 @@ FOUNDATION_EXPORT FIRCLSAppMemoryPressure FIRCLSAppMemoryPressureFromString(NSSt
 @property (readonly, nonatomic, assign) FIRCLSAppMemoryLevel level;
 @property (readonly, nonatomic, assign) FIRCLSAppMemoryPressure pressure;
 
-- (BOOL)isLikelyOutOfMemory;
+- (BOOL)isOutOfMemory;
 - (nonnull NSDictionary<NSString *,id> *)serialize;
 
 @end
 
 // Internal and for tests.
 @interface FIRCLSAppMemory ()
-- (instancetype)initWithFootprint:(uint64_t)footprint remaining:(uint64_t)remaining pressure:(FIRCLSAppMemoryPressure)pressure;
+- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
+- (instancetype)initWithFootprint:(uint64_t)footprint remaining:(uint64_t)remaining pressure:(FIRCLSAppMemoryPressure)pressure NS_DESIGNATED_INITIALIZER;
+@end
+
+@interface FIRCLSAppMemoryTracker : NSObject
+
+@property (atomic, readonly) FIRCLSAppMemoryPressure pressure;
+@property (atomic, readonly) FIRCLSAppMemoryLevel level;
+
+- (void)start;
+- (void)stop;
+
+- (nullable FIRCLSAppMemory *)currentAppMemory;
+
 @end
 
 NS_ASSUME_NONNULL_END

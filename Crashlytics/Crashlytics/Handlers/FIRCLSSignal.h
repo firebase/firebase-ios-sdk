@@ -55,6 +55,4 @@ void FIRCLSSignalNameLookup(int number, int code, const char** name, const char*
 
 void FIRCLSSignalEnumerateHandledSignals(void (^block)(int idx, int signal));
 
-void FIRCLSSignalReportOutOfProcessTermination(const char* path);
-
 #endif

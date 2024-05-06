@@ -41,6 +41,7 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSAppMemoryManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
@@ -144,6 +145,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
 #if CLS_METRICKIT_SUPPORTED
 @property(nonatomic, strong) FIRCLSMetricKitManager *metricKitManager;
 #endif
+@property(nonatomic, strong) FIRCLSAppMemoryManager *appMemoryManager;
 
 @end
 
@@ -187,6 +189,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   _notificationManager = [[FIRCLSNotificationManager alloc] init];
 
+  _appMemoryManager = [[FIRCLSAppMemoryManager alloc] init];
+    
   // This needs to be called before any values are read from settings
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings reloadFromCacheWithGoogleAppID:self.googleAppID currentTimestamp:currentTimestamp];
