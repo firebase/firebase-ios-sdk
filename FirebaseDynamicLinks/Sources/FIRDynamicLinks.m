@@ -698,7 +698,7 @@ static NSString *kSelfDiagnoseOutputFooter =
   NSDictionary *plistMap = (NSDictionary *)plistData;
 
   // analyze entitlements and print diagnostic information
-  // we can't detect erorrs, information p[rinted here may hint developer or will help support
+  // we can't detect errors, information p[rinted here may hint developer or will help support
   // to identify the issue
   NSMutableString *outputString = [[NSMutableString alloc] init];
 

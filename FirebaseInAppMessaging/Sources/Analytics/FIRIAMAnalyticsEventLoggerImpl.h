@@ -19,6 +19,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMAnalyticsEventLogger.h"
 
 @class FIRIAMClearcutLogger;
+@class GULUserDefaults;
 @protocol FIRIAMTimeFetcher;
 @protocol FIRAnalyticsInterop;
 
@@ -34,12 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *
  *  @param userDefaults needed for tracking upload timing info persistently.If nil, using
- *    NSUserDefaults standardUserDefaults. It's defined as a parameter to help with
+ *    GULUserDefaults standardUserDefaults. It's defined as a parameter to help with
  *    unit testing mocking
  */
 - (instancetype)initWithClearcutLogger:(FIRIAMClearcutLogger *)ctLogger
                       usingTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                     usingUserDefaults:(nullable NSUserDefaults *)userDefaults
+                     usingUserDefaults:(nullable GULUserDefaults *)userDefaults
                              analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 @end
 NS_ASSUME_NONNULL_END

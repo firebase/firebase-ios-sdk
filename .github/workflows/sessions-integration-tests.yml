@@ -25,6 +25,7 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    #TODO(#12771): Fix macos-14 build issues
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v4

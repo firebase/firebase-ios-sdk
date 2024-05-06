@@ -160,6 +160,10 @@ unset(RANDOM_FILE CACHE)
 set(CARES_INSTALL OFF CACHE BOOL "Disabled")
 
 set(protobuf_BUILD_TESTS OFF CACHE BOOL "Disabled")
+# See https://github.com/protocolbuffers/protobuf/issues/12185#issuecomment-1887892723
+set(protobuf_INSTALL OFF)
+set(utf8_range_ENABLE_INSTALL OFF)
+
 if(IOS OR ANDROID)
   # C-Ares includes a number of example binaries (e.g. `ahost`) that fail to
   # build when compiling for non-host targets.
@@ -206,17 +210,6 @@ set(CARES_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/cares)
 set(PROTOBUF_ROOT_DIR ${FIREBASE_EXTERNAL_SOURCE_DIR}/protobuf)
 
 add_external_subdirectory(grpc)
-
-
-# Fix up targets included by gRPC
-if(CXX_CLANG)
-  target_compile_options(
-    absl_time_zone PRIVATE
-    -Wno-unused-template
-    -Wno-shadow
-    -Wno-tautological-type-limit-compare
-  )
-endif()
 
 # Fix up targets included by boringssl (ver: b9232f9e27e5668bc0414879dcdedb2a59ea75f2)
 # We might be able to remove this with newer versions.

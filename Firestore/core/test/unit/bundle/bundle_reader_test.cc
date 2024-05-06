@@ -45,8 +45,8 @@ namespace firestore {
 namespace bundle {
 namespace {
 
+using google::protobuf::Message;
 using google::protobuf::util::MessageDifferencer;
-using google::protobuf::util::MessageToJsonString;
 using ProtoBundledDocumentMetadata = ::firestore::BundledDocumentMetadata;
 using ProtoBundleElement = ::firestore::BundleElement;
 using ProtoBundleMetadata = ::firestore::BundleMetadata;
@@ -58,6 +58,11 @@ using model::DatabaseId;
 using nanopb::ProtobufParse;
 using util::ByteStream;
 using util::ByteStreamCpp;
+
+void MessageToJsonString(const Message& message, std::string* output) {
+  auto status = google::protobuf::util::MessageToJsonString(message, output);
+  HARD_ASSERT(status.ok());
+}
 
 class BundleReaderTest : public ::testing::Test {
  public:
