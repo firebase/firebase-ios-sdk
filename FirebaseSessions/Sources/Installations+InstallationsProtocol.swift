@@ -16,6 +16,7 @@
 import Foundation
 
 @_implementationOnly import FirebaseInstallations
+
 protocol InstallationsProtocol {
   var installationsWaitTimeInSecond: Int { get }
 

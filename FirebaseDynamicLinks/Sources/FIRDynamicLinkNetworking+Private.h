@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The key for the DL URL. */
 FOUNDATION_EXPORT NSString *const kFDLResolvedLinkDeepLinkURLKey;
-/** The key for the mininum iOS app version. */
+/** The key for the minimum iOS app version. */
 FOUNDATION_EXPORT NSString *const kFDLResolvedLinkMinAppVersionKey;
 
 // Private interface for testing.

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 
 @interface FIRIAMSDKModeManagerTests : XCTestCase
-@property(nonatomic) NSUserDefaults *mockUserDefaults;
+@property(nonatomic) GULUserDefaults *mockUserDefaults;
 @property(nonatomic) id<FIRIAMTestingModeListener> mockTestingModeListener;
 @end
 
@@ -28,7 +29,7 @@
 
 - (void)setUp {
   [super setUp];
-  self.mockUserDefaults = OCMClassMock(NSUserDefaults.class);
+  self.mockUserDefaults = OCMClassMock(GULUserDefaults.class);
   self.mockTestingModeListener = OCMStrictProtocolMock(@protocol(FIRIAMTestingModeListener));
 }
 

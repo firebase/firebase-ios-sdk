@@ -213,7 +213,7 @@ NSString *const TestFIID = @"TestFIID";
   [self runUploadPackagedReportWithUrgency:YES];
 }
 
-- (void)testUrgentWaitUntillUpload {
+- (void)testUrgentWaitUntilUpload {
   self.mockDataTransport.async = YES;
 
   [self runUploadPackagedReportWithUrgency:YES];
@@ -221,7 +221,7 @@ NSString *const TestFIID = @"TestFIID";
   XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
 }
 
-- (void)testUrgentWaitUntillUploadWithError {
+- (void)testUrgentWaitUntilUploadWithError {
   self.mockDataTransport.async = YES;
   self.mockDataTransport.sendDataEvent_error = [[NSError alloc] initWithDomain:@"domain"
                                                                           code:1
@@ -234,7 +234,7 @@ NSString *const TestFIID = @"TestFIID";
   XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
 }
 
-- (void)testUrgentWaitUntillUploadWithWritingError {
+- (void)testUrgentWaitUntilUploadWithWritingError {
   self.mockDataTransport.async = YES;
   self.mockDataTransport.sendDataEvent_wasWritten = NO;
 

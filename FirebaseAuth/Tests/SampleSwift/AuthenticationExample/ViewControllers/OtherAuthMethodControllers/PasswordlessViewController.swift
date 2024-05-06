@@ -35,7 +35,9 @@ class PasswordlessViewController: OtherAuthViewController {
 
   private func sendSignInLink(to email: String) {
     let actionCodeSettings = ActionCodeSettings()
-    let stringURL = "https://\(authorizedDomain).firebaseapp.com/login?email=\(email)"
+
+    // Update "demo" to match the path defined in the dynamic link.
+    let stringURL = "https://\(authorizedDomain)/demo"
     actionCodeSettings.url = URL(string: stringURL)
     // The sign-in operation must be completed in the app.
     actionCodeSettings.handleCodeInApp = true
@@ -47,6 +49,7 @@ class PasswordlessViewController: OtherAuthViewController {
 
         // Set `email` property as it will be used to complete sign in after opening email link
         self.email = email
+        print("successfully sent email")
       }
   }
 
