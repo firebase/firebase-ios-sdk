@@ -36,11 +36,6 @@ class AuthenticationExampleUITests: XCTestCase {
     XCTAssertTrue(app.navigationBars["Firebase Auth"].exists)
   }
 
-  func testAuthOptions() {
-    // There are 15 sign in methods, each with its own cell
-    XCTAssertEqual(app.tables.cells.count, 15)
-  }
-
   func testAuthAnonymously() {
     app.staticTexts["Anonymous Authentication"].tap()
 

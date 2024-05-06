@@ -18,6 +18,7 @@ import FirebaseAuth
 
 // [START auth_import]
 import FirebaseCore
+import GameKit
 
 // For Sign in with Google
 // [START google_import]
@@ -70,6 +71,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .twitter, .microsoft, .gitHub, .yahoo:
       performOAuthLoginFlow(for: provider)
+
+    case .gameCenter:
+      performGameCenterLoginFlow()
 
     case .emailPassword:
       performDemoEmailPasswordLoginFlow()
@@ -207,6 +211,42 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       guard error == nil else { return self.displayError(error) }
       guard let credential = credential else { return }
       self.signin(with: credential)
+    }
+  }
+
+  private func performGameCenterLoginFlow() {
+    // Step 1: System Game Center Login
+    GKLocalPlayer.local.authenticateHandler = { viewController, error in
+      if let error = error {
+        // Handle Game Center login error
+        print("Error logging into Game Center: \(error.localizedDescription)")
+      } else if let authViewController = viewController {
+        // Present Game Center login UI if needed
+        self.present(authViewController, animated: true)
+      } else {
+        // Game Center login successful, proceed to Firebase
+        self.linkGameCenterToFirebase()
+      }
+    }
+  }
+
+  // Step 2: Link to Firebase
+  private func linkGameCenterToFirebase() {
+    GameCenterAuthProvider.getCredential { credential, error in
+      if let error = error {
+        // Handle Firebase credential retrieval error
+        print("Error getting Game Center credential: \(error.localizedDescription)")
+      } else if let credential = credential {
+        Auth.auth().signIn(with: credential) { authResult, error in
+          if let error = error {
+            // Handle Firebase sign-in error
+            print("Error signing into Firebase with Game Center: \(error.localizedDescription)")
+          } else {
+            // Firebase sign-in successful
+            print("Successfully linked Game Center to Firebase")
+          }
+        }
+      }
     }
   }
 
