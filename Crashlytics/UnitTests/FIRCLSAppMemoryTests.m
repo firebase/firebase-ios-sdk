@@ -22,29 +22,30 @@
 @implementation FIRCLSAppMemoryTests
 
 static FIRCLSAppMemory *AppMemoryLevel(uint64_t footprint, uint64_t limit) {
-    return [[FIRCLSAppMemory alloc] initWithFootprint:footprint
-                                            remaining: limit-footprint
-                                             pressure: FIRCLSAppMemoryPressureNormal];
+  return [[FIRCLSAppMemory alloc] initWithFootprint:footprint
+                                          remaining:limit - footprint
+                                           pressure:FIRCLSAppMemoryPressureNormal];
 }
 
-- (void)testSerialize
-{
-    FIRCLSAppMemory *const appMemory = AppMemoryLevel(50, 100);
-    NSDictionary<NSString *, id> *const actual = [appMemory serialize];
-    
-    XCTAssertEqual(appMemory.footprint, ((NSNumber *)actual[@"memory_footprint"]).unsignedLongLongValue);
-    XCTAssertEqual(appMemory.remaining, ((NSNumber *)actual[@"memory_remaining"]).unsignedLongLongValue);
-    XCTAssertEqual(appMemory.limit, ((NSNumber *)actual[@"memory_limit"]).unsignedLongLongValue);
-    XCTAssertEqual(appMemory.level, FIRCLSAppMemoryLevelFromString(actual[@"memory_level"]));
-                   XCTAssertEqual(appMemory.pressure, FIRCLSAppMemoryPressureFromString(actual[@"memory_pressure"]));
+- (void)testSerialize {
+  FIRCLSAppMemory *const appMemory = AppMemoryLevel(50, 100);
+  NSDictionary<NSString *, id> *const actual = [appMemory serialize];
+
+  XCTAssertEqual(appMemory.footprint,
+                 ((NSNumber *)actual[@"memory_footprint"]).unsignedLongLongValue);
+  XCTAssertEqual(appMemory.remaining,
+                 ((NSNumber *)actual[@"memory_remaining"]).unsignedLongLongValue);
+  XCTAssertEqual(appMemory.limit, ((NSNumber *)actual[@"memory_limit"]).unsignedLongLongValue);
+  XCTAssertEqual(appMemory.level, FIRCLSAppMemoryLevelFromString(actual[@"memory_level"]));
+  XCTAssertEqual(appMemory.pressure, FIRCLSAppMemoryPressureFromString(actual[@"memory_pressure"]));
 }
 
 - (void)testLevelCalculations {
-    XCTAssertEqual(AppMemoryLevel(0, 100).level, FIRCLSAppMemoryLevelNormal);
-    XCTAssertEqual(AppMemoryLevel(25, 100).level, FIRCLSAppMemoryLevelWarn);
-    XCTAssertEqual(AppMemoryLevel(50, 100).level, FIRCLSAppMemoryLevelUrgent);
-    XCTAssertEqual(AppMemoryLevel(75, 100).level, FIRCLSAppMemoryLevelCritical);
-    XCTAssertEqual(AppMemoryLevel(95, 100).level, FIRCLSAppMemoryLevelTerminal);
+  XCTAssertEqual(AppMemoryLevel(0, 100).level, FIRCLSAppMemoryLevelNormal);
+  XCTAssertEqual(AppMemoryLevel(25, 100).level, FIRCLSAppMemoryLevelWarn);
+  XCTAssertEqual(AppMemoryLevel(50, 100).level, FIRCLSAppMemoryLevelUrgent);
+  XCTAssertEqual(AppMemoryLevel(75, 100).level, FIRCLSAppMemoryLevelCritical);
+  XCTAssertEqual(AppMemoryLevel(95, 100).level, FIRCLSAppMemoryLevelTerminal);
 }
 
 @end
