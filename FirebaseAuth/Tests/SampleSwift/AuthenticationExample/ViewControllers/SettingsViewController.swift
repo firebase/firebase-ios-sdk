@@ -197,24 +197,6 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
                       options: .transitionCrossDissolve,
                       animations: { tableView.reloadData() })
   }
-
-  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool,
-                           completion: @escaping (Bool, String?) -> Void) {
-    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-
-    alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-      let userInput = alertController.textFields?.first?.text
-      completion(true, userInput)
-    }))
-
-    if showCancelButton {
-      alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
-        completion(false, nil)
-      }))
-    }
-
-    alertController.addTextField(configurationHandler: nil)
-  }
 }
 
 // MARK: - Extending a `AuthSettings` to conform to `DataSourceProvidable`
@@ -272,15 +254,6 @@ extension AuthSettings: DataSourceProvidable {
 
   func appCredentialString() -> String {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
-      let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
-
-      showPromptWithTitle("Clear App Credential?", message: message,
-                          showCancelButton: true) { userPressedOK, _ in
-        if userPressedOK {
-          AppManager.shared.auth().appCredentialManager.clearCredential()
-        }
-      }
-    }
       let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
       let truncatedSecret = truncatedString(string: credential.secret ?? "", length: 13)
       return "\(truncatedReceipt)/\(truncatedSecret)"

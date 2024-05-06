@@ -28,7 +28,7 @@ import AuthenticationServices
 import CryptoKit
 
 class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate {
-  var dataSourceProvider: DataSourceProvider<AuthMenu>!
+  var dataSourceProvider: DataSourceProvider<AuthMenuData>!
 
   var tableView: UITableView { view as! UITableView }
 
@@ -466,7 +466,7 @@ extension AccountLinkingViewController: DataSourceProvidable {
   var sections: [Section] { buildSections() }
 
   private func buildSections() -> [Section] {
-    var section = AuthMenu.authLinkSections.first!
+    var section = AuthMenuData.authLinkSections.first!
     section.items = section.items.compactMap { item -> Item? in
       var item = item
       item.hasNestedContent = false

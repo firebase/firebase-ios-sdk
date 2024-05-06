@@ -40,6 +40,14 @@ enum AuthMenu: String {
   case removeLastIdTokenChangeListener
   case verifyClient
   case deleteApp
+  case actionType
+  case continueURL
+  case requestVerifyEmail
+  case requestPasswordReset
+  case resetPassword
+  case checkActionCode
+  case applyActionCode
+  case verifyPasswordResetCode
 
   // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -95,6 +103,23 @@ enum AuthMenu: String {
       return "Verify Client"
     case .deleteApp:
       return "Delete App"
+    // OOB
+    case .actionType:
+      return "Action Type"
+    case .continueURL:
+      return "Continue URL"
+    case .requestVerifyEmail:
+      return "Request Verify Email"
+    case .requestPasswordReset:
+      return "Request Password Reset"
+    case .resetPassword:
+      return "Reset Password"
+    case .checkActionCode:
+      return "Check Action Code"
+    case .applyActionCode:
+      return "Apply Action Code"
+    case .verifyPasswordResetCode:
+      return "Verify Password Reset Code"
     }
   }
 
@@ -150,6 +175,52 @@ enum AuthMenu: String {
       self = .verifyClient
     case "Delete App":
       self = .deleteApp
+    case "Action Type":
+      self = .actionType
+    case "Continue URL":
+      self = .continueURL
+    case "Request Verify Email":
+      self = .requestVerifyEmail
+    case "Request Password Reset":
+      self = .requestPasswordReset
+    case "Reset Password":
+      self = .resetPassword
+    case "Check Action Code":
+      self = .checkActionCode
+    case "Apply Action Code":
+      self = .applyActionCode
+    case "Verify Password Reset Code":
+      self = .verifyPasswordResetCode
+    default:
+      return nil
+    }
+  }
+}
+
+enum ActionCodeRequestType: String {
+  case email
+  case `continue`
+  case inApp
+
+  var name: String {
+    switch self {
+    case .email:
+      return "Email Only"
+    case .inApp:
+      return "In-App + Continue URL"
+    case .continue:
+      return "Continue URL"
+    }
+  }
+
+  init?(rawValue: String) {
+    switch rawValue {
+    case "Email Only":
+      self = .email
+    case "In-App + Continue URL":
+      self = .inApp
+    case "Continue URL":
+      self = .continue
     default:
       return nil
     }
@@ -158,14 +229,14 @@ enum AuthMenu: String {
 
 // MARK: DataSourceProvidable
 
-extension AuthMenu: DataSourceProvidable {
+class AuthMenuData: DataSourceProvidable {
   private static var providers: [AuthMenu] {
     [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook, .gameCenter]
   }
 
   static var settingsSection: Section {
     let header = "Auth Settings"
-    let item = Item(title: settings.name, hasNestedContent: true)
+    let item = Item(title: AuthMenu.settings.name, hasNestedContent: true)
     return Section(headerDescription: header, items: [item])
   }
 
@@ -179,7 +250,7 @@ extension AuthMenu: DataSourceProvidable {
   static var emailPasswordSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Email and Password Login"
-    let item = Item(title: emailPassword.name, hasNestedContent: true, image: image)
+    let item = Item(title: AuthMenu.emailPassword.name, hasNestedContent: true, image: image)
     return Section(headerDescription: header, items: [item])
   }
 
@@ -190,10 +261,10 @@ extension AuthMenu: DataSourceProvidable {
     let shieldSymbol = UIImage.systemImage("lock.shield.fill", tintColor: .systemOrange)
 
     let otherOptions = [
-      Item(title: passwordless.name, image: lockSymbol),
-      Item(title: phoneNumber.name, image: phoneSymbol),
-      Item(title: anonymous.name, image: anonSymbol),
-      Item(title: custom.name, image: shieldSymbol),
+      Item(title: AuthMenu.passwordless.name, image: lockSymbol),
+      Item(title: AuthMenu.phoneNumber.name, image: phoneSymbol),
+      Item(title: AuthMenu.anonymous.name, image: anonSymbol),
+      Item(title: AuthMenu.custom.name, image: shieldSymbol),
     ]
     let header = "Other Authentication Methods"
     return Section(headerDescription: header, items: otherOptions)
@@ -202,44 +273,58 @@ extension AuthMenu: DataSourceProvidable {
   static var recaptchaSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Initialize reCAPTCHA Enterprise"
-    let item = Item(title: initRecaptcha.name, hasNestedContent: false, image: image)
+    let item = Item(title: AuthMenu.initRecaptcha.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
 
   static var customAuthDomainSection: Section {
     let image = UIImage(named: "firebaseIcon")
     let header = "Custom Auth Domain"
-    let item = Item(title: customAuthDomain.name, hasNestedContent: false, image: image)
+    let item = Item(title: AuthMenu.customAuthDomain.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
 
   static var appSection: Section {
     let header = "APP"
     let items: [Item] = [
-      Item(title: getToken.name),
-      Item(title: getTokenForceRefresh.name),
-      Item(title: addAuthStateChangeListener.name),
-      Item(title: removeLastAuthStateChangeListener.name),
-      Item(title: addIdTokenChangeListener.name),
-      Item(title: removeLastIdTokenChangeListener.name),
-      Item(title: verifyClient.name),
-      Item(title: deleteApp.name),
+      Item(title: AuthMenu.getToken.name),
+      Item(title: AuthMenu.getTokenForceRefresh.name),
+      Item(title: AuthMenu.addAuthStateChangeListener.name),
+      Item(title: AuthMenu.removeLastAuthStateChangeListener.name),
+      Item(title: AuthMenu.addIdTokenChangeListener.name),
+      Item(title: AuthMenu.removeLastIdTokenChangeListener.name),
+      Item(title: AuthMenu.verifyClient.name),
+      Item(title: AuthMenu.deleteApp.name),
     ]
     return Section(headerDescription: header, items: items)
   }
 
-  static var sections: [Section] {
-    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection, appSection]
+  static var oobSection: Section {
+    let header = "OOB"
+    let items: [Item] = [
+      Item(title: AuthMenu.actionType.name, detailTitle: ActionCodeRequestType.inApp.name),
+      Item(title: AuthMenu.continueURL.name, detailTitle: "--", isEditable: true),
+      Item(title: AuthMenu.requestVerifyEmail.name),
+      Item(title: AuthMenu.requestPasswordReset.name),
+      Item(title: AuthMenu.resetPassword.name),
+      Item(title: AuthMenu.checkActionCode.name),
+      Item(title: AuthMenu.applyActionCode.name),
+      Item(title: AuthMenu.verifyPasswordResetCode.name),
+    ]
+    return Section(headerDescription: header, items: items)
   }
 
+  static var sections: [Section] =
+    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
+     customAuthDomainSection, appSection, oobSection]
+
   static var authLinkSections: [Section] {
-    let allItems = AuthMenu.sections.flatMap { $0.items }
+    let allItems = AuthMenuData.sections.flatMap { $0.items }
     let header = "Manage linking between providers"
     let footer =
       "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
     return [Section(headerDescription: header, footerDescription: footer, items: allItems)]
   }
 
-  var sections: [Section] { AuthMenu.sections }
+  var sections: [Section] = AuthMenuData.sections
 }

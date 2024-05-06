@@ -43,6 +43,10 @@ class DataSourceProvider<DataSource: DataSourceProvidable>: NSObject, UITableVie
     return sectionItem(at: indexPath)
   }
 
+  public func updateItem(at indexPath: IndexPath, item: Item) -> DataSource.Section.Item {
+    return editSectionItem(at: indexPath, item: item)
+  }
+
   // MARK: - UITableViewDataSource
 
   func numberOfSections(in tableView: UITableView) -> Int {
@@ -99,6 +103,11 @@ class DataSourceProvider<DataSource: DataSourceProvidable>: NSObject, UITableVie
 
   private func sectionItem(at indexPath: IndexPath) -> DataSource.Section.Item {
     return sections[indexPath.section].items[indexPath.row]
+  }
+
+  private func editSectionItem(at indexPath: IndexPath, item: Item) -> DataSource.Section.Item {
+    sections[indexPath.section].items[indexPath.row] = item as! DataSource.Section.Item
+    return sectionItem(at: indexPath)
   }
 
   private func config(_ label: inout UILabel, for section: DataSource.Section) {
