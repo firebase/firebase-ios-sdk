@@ -141,13 +141,13 @@ typedef NS_ENUM(NSUInteger, FIRCLSAppMemoryTrackerChangeType) {
                                            pressure:_pressure];
 }
 
-static void __MEMORY_PRESSURE_HIGH_OOM_IS_IMMINIENT__() __attribute__((noinline));
-static void __MEMORY_PRESSURE_HIGH_OOM_IS_IMMINIENT__() {
+static void __MEMORY_PRESSURE_HIGH_OOM_IS_IMMINENT__() __attribute__((noinline));
+static void __MEMORY_PRESSURE_HIGH_OOM_IS_IMMINENT__() {
   __asm__ __volatile__("");  // no tail-call optimization
 }
 
-static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINIENT__() __attribute__((noinline));
-static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINIENT__() {
+static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINENT__() __attribute__((noinline));
+static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINENT__() {
   __asm__ __volatile__("");  // no tail-call optimization
 }
 
@@ -171,7 +171,7 @@ static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINIENT__() {
     FIRExceptionModel *model = [[FIRExceptionModel alloc] initWithName:@"Memry Level"
                                                                 reason:reason];
     model.stackTrace = @[ [FIRStackFrame
-        stackFrameWithAddress:(uintptr_t)&__MEMORY_LEVEL_HIGH_OOM_IS_IMMINIENT__] ];
+        stackFrameWithAddress:(uintptr_t)&__MEMORY_LEVEL_HIGH_OOM_IS_IMMINENT__] ];
     FIRCLSExceptionRecordModel(model, nil);
 
   } else if (type == FIRCLSAppMemoryTrackerChangeTypePressure &&
@@ -181,7 +181,7 @@ static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINIENT__() {
     FIRExceptionModel *model = [[FIRExceptionModel alloc] initWithName:@"Memory Pressure"
                                                                 reason:reason];
     model.stackTrace = @[ [FIRStackFrame
-        stackFrameWithAddress:(uintptr_t)&__MEMORY_PRESSURE_HIGH_OOM_IS_IMMINIENT__] ];
+        stackFrameWithAddress:(uintptr_t)&__MEMORY_PRESSURE_HIGH_OOM_IS_IMMINENT__] ];
     FIRCLSExceptionRecordModel(model, nil);
   }
 }
