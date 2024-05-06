@@ -21,7 +21,7 @@ public enum ServiceRegion: String {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct ConnectorConfig {
+public struct ConnectorConfig: Hashable, Equatable {
   public private(set) var serviceId: String
   public private(set) var location: ServiceRegion
   public private(set) var connector: String
@@ -30,5 +30,17 @@ public struct ConnectorConfig {
     self.serviceId = serviceId
     self.location = location
     self.connector = connector
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(serviceId)
+    hasher.combine(location)
+    hasher.combine(connector)
+  }
+
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    return lhs.serviceId == rhs.serviceId &&
+    lhs.location == rhs.location &&
+    lhs.connector == rhs.connector
   }
 }

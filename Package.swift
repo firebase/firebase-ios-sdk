@@ -193,7 +193,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
     .package(
       url: "https://github.com/grpc/grpc-swift.git",
       from: "1.19.1" // TODO: Constrain to a range at time of release
@@ -670,7 +670,7 @@ let package = Package(
       name: "FirebaseDataConnect",
       dependencies: [
         .product(name: "GRPC", package: "grpc-swift"),
-        "FirebaseAuthInterop",
+        "FirebaseAuth",
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseSharedSwift",

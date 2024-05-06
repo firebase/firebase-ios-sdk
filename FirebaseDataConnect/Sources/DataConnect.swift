@@ -14,60 +14,44 @@
 
 import Foundation
 
+import FirebaseAuth
 import FirebaseCore
+
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class DataConnect {
-  private var app: FirebaseApp
-  fileprivate var settings: DataConnectSettings = .defaults
   private var connectorConfig: ConnectorConfig
+  private var app: FirebaseApp
+  fileprivate var settings: DataConnectSettings
+
 
   private var emulatorSettings: DataConnectSettings?
 
   private var grpcClient: GrpcClient
   private var operationsManager: OperationsManager
 
+
+  // MARK: Static Creation
+
+  public class func dataConnect(connectorConfig: ConnectorConfig, app: FirebaseApp? = FirebaseApp.app(), settings: DataConnectSettings = DataConnectSettings()) -> DataConnect {
+
+    guard let app = app else {
+      fatalError("No Firebase App present")
+    }
+
+    return DataConnect(connectorConfig: connectorConfig, app: app, settings: settings)
+  }
+
+  public class func useEmulator(connectorConfig: ConnectorConfig, app: FirebaseApp? = FirebaseApp.app(), host: String = "localhost",
+                                port: Int = 9510) -> DataConnect {
+    let emulatorSettings = DataConnectSettings(host: host, port: port, sslEnabled: false)
+    return DataConnect.dataConnect(connectorConfig: connectorConfig, app: app, settings: emulatorSettings)
+  }
+
+
   // MARK: Init
 
-  public class func dataConnect(app: FirebaseApp, connectorConfig: ConnectorConfig, settings: DataConnectSettings) -> DataConnect {
-    let dataConnect = DataConnect(
-      app: app,
-      connectorConfig: connectorConfig,
-      settings: settings
-    )
-    return dataConnect
-  }
-
-  public class func dataConnect(settings: DataConnectSettings,
-                                connectorConfig: ConnectorConfig) throws -> DataConnect {
-    guard let app = FirebaseApp.app() else {
-      throw DataConnectError.appNotConfigured
-    }
-
-    return DataConnect(app: app, connectorConfig: connectorConfig, settings: settings)
-  }
-
-  public class func dataConnect(connectorConfig: ConnectorConfig) -> DataConnect {
-    guard let app = FirebaseApp.app() else {
-      fatalError("No default Firebase App present")
-    }
-
-    return DataConnect(
-      app: app,
-      connectorConfig: connectorConfig,
-      settings: DataConnectSettings.defaults
-    )
-  }
-
-  public class func dataConnect(app: FirebaseApp, connectorConfig: ConnectorConfig) -> DataConnect {
-    return DataConnect(
-      app: app,
-      connectorConfig: connectorConfig,
-      settings: DataConnectSettings.defaults
-    )
-  }
-
-  init(app: FirebaseApp, connectorConfig: ConnectorConfig, settings: DataConnectSettings) {
+  init(connectorConfig: ConnectorConfig, app: FirebaseApp,  settings: DataConnectSettings) {
     self.app = app
     self.settings = settings
     self.connectorConfig = connectorConfig
@@ -79,27 +63,8 @@ public class DataConnect {
     grpcClient = GrpcClient(
       projectId: projectID,
       settings: settings,
-      connectorConfig: connectorConfig
-    )
-    operationsManager = OperationsManager(grpcClient: grpcClient)
-  }
-
-  public func useEmulator(host: String = "localhost",
-                          port: Int = 9400) {
-    emulatorSettings = DataConnectSettings(hostName: host, port: port, sslEnabled: false)
-
-    // TODO: - shutdown grpc client
-    // self.grpcClient.close
-    // self.operations.close
-
-    guard let projectID = app.options.projectID else {
-      fatalError("Firebase DataConnect requires the projectID to be set in the app options")
-    }
-
-    grpcClient = GrpcClient(
-      projectId: projectID,
-      settings: emulatorSettings!,
-      connectorConfig: connectorConfig
+      connectorConfig: connectorConfig,
+      auth: Auth.auth(app: app)
     )
     operationsManager = OperationsManager(grpcClient: grpcClient)
   }

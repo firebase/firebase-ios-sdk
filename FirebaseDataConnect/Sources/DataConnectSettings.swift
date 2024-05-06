@@ -15,16 +15,33 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct DataConnectSettings {
-  public private(set) var hostName: String
+public struct DataConnectSettings: Hashable, Equatable {
+  public private(set) var host: String
   public private(set) var port: Int
   public private(set) var sslEnabled: Bool
 
-  static var defaults: DataConnectSettings {
-    return DataConnectSettings(
-      hostName: "firebasedataconnect.googleapis.com",
-      port: 443,
-      sslEnabled: true
-    )
+  public init(host: String, port: Int, sslEnabled: Bool) {
+    self.host = host
+    self.port = port
+    self.sslEnabled = sslEnabled
   }
+
+  public init() {
+    self.host = "firebasedataconnect.googleapis.com"
+    self.port = 443
+    self.sslEnabled = true
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(host)
+    hasher.combine(port)
+    hasher.combine(sslEnabled)
+  }
+
+  public static func == (lhs: DataConnectSettings, rhs: DataConnectSettings) -> Bool {
+    return lhs.host == rhs.host &&
+    lhs.port == rhs.port &&
+    lhs.sslEnabled == rhs.sslEnabled
+  }
+
 }
