@@ -788,8 +788,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     // Add actions
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
     let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
-      if let text = alertController.textFields?.first?.text {
-        completion?(text)
+      if let completion,
+         let text = alertController.textFields?.first?.text {
+        completion(text)
       }
     }
 
