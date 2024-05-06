@@ -91,7 +91,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     case .facebook:
       performFacebookAccountLink()
 
-    case .twitter, .microsoft, .gitHub, .yahoo:
+    case .twitter, .microsoft, .gitHub, .yahoo, .linkedIn:
       performOAuthAccountLink(for: provider)
 
     case .gameCenter:
@@ -204,7 +204,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     }
   }
 
-  // MARK: - Twitter, Microsoft, GitHub, Yahoo Account Linking 🔥
+  // MARK: - Twitter, Microsoft, GitHub, Yahoo, LinkedIn Account Linking 🔥
 
   // Maintain a strong reference to an OAuthProvider for login
   private var oauthProvider: OAuthProvider!
