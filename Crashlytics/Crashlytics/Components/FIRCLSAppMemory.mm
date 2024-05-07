@@ -8,7 +8,9 @@
 #import <mach/task.h>
 #import <atomic>
 
+#if CLS_TARGET_OS_HAS_UIKIT
 #import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
