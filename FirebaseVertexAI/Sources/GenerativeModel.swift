@@ -104,7 +104,7 @@ public final class GenerativeModel {
   /// [zero-shot](https://developers.google.com/machine-learning/glossary/generative#zero-shot-prompting)
   /// or "direct" prompts. For
   /// [few-shot](https://developers.google.com/machine-learning/glossary/generative#few-shot-prompting)
-  /// prompts, see ``generateContent(_:)``.
+  /// prompts, see `generateContent(_ content: @autoclosure () throws -> [ModelContent])`.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt (see
   /// ``ThrowingPartsRepresentable``
@@ -163,7 +163,7 @@ public final class GenerativeModel {
   /// [zero-shot](https://developers.google.com/machine-learning/glossary/generative#zero-shot-prompting)
   /// or "direct" prompts. For
   /// [few-shot](https://developers.google.com/machine-learning/glossary/generative#few-shot-prompting)
-  /// prompts, see ``generateContent(_:)``.
+  /// prompts, see `generateContentStream(_ content: @autoclosure () throws -> [ModelContent])`.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt (see
   /// ``ThrowingPartsRepresentable``
@@ -252,7 +252,7 @@ public final class GenerativeModel {
   /// [zero-shot](https://developers.google.com/machine-learning/glossary/generative#zero-shot-prompting)
   /// or "direct" prompts. For
   /// [few-shot](https://developers.google.com/machine-learning/glossary/generative#few-shot-prompting)
-  /// input, see ``countTokens(_:)``.
+  /// input, see `countTokens(_ content: @autoclosure () throws -> [ModelContent])`.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt (see
   /// ``ThrowingPartsRepresentable``
@@ -306,7 +306,7 @@ public final class GenerativeModel {
   }
 }
 
-/// See ``GenerativeModel/countTokens(_:)``.
+/// An error thrown in `GenerativeModel.countTokens(_:)`.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public enum CountTokensError: Error {
   case internalError(underlying: Error)

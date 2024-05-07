@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseVertexAI'
-  s.version          = '0.1.0'
+  s.version          = '10.26.0'
   s.summary          = 'Firebase VertexAI'
 
   s.description      = <<-DESC
@@ -13,7 +13,8 @@ Pod::Spec.new do |s|
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'vertexai-preview-0.1.0'
+    # TODO: this should be `'CocoaPods-' + s.version.to_s` (after May 14 2024)
+    :tag => 'release-10.26'
   }
 
   s.social_media_url = 'https://twitter.com/Firebase'
@@ -43,6 +44,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension'
+  s.dependency 'FirebaseAuthInterop'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
 
   s.pod_target_xcconfig = {
