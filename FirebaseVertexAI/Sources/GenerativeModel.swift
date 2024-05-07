@@ -49,7 +49,7 @@ public final class GenerativeModel {
   /// Initializes a new remote model with the given parameters.
   ///
   /// - Parameters:
-  ///   - name: The name of the model to use, e.g., `"gemini-1.0-pro"`; see
+  ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`; see
   ///     [Gemini models](https://ai.google.dev/models/gemini) for a list of supported model names.
   ///   - apiKey: The API key for your project.
   ///   - generationConfig: The content generation parameters your model should use.
@@ -101,7 +101,7 @@ public final class GenerativeModel {
   /// [zero-shot](https://developers.google.com/machine-learning/glossary/generative#zero-shot-prompting)
   /// or "direct" prompts. For
   /// [few-shot](https://developers.google.com/machine-learning/glossary/generative#few-shot-prompting)
-  /// prompts, see ``generateContent(_:)-58rm0``.
+  /// prompts, see ``generateContent(_:)``.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt (see
   /// ``ThrowingPartsRepresentable``
@@ -160,7 +160,7 @@ public final class GenerativeModel {
   /// [zero-shot](https://developers.google.com/machine-learning/glossary/generative#zero-shot-prompting)
   /// or "direct" prompts. For
   /// [few-shot](https://developers.google.com/machine-learning/glossary/generative#few-shot-prompting)
-  /// prompts, see ``generateContent(_:)-58rm0``.
+  /// prompts, see ``generateContent(_:)``.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt (see
   /// ``ThrowingPartsRepresentable``
@@ -249,7 +249,7 @@ public final class GenerativeModel {
   /// [zero-shot](https://developers.google.com/machine-learning/glossary/generative#zero-shot-prompting)
   /// or "direct" prompts. For
   /// [few-shot](https://developers.google.com/machine-learning/glossary/generative#few-shot-prompting)
-  /// input, see ``countTokens(_:)-9spwl``.
+  /// input, see ``countTokens(_:)``.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt (see
   /// ``ThrowingPartsRepresentable``
@@ -303,7 +303,7 @@ public final class GenerativeModel {
   }
 }
 
-/// See ``GenerativeModel/countTokens(_:)-9spwl``.
+/// See ``GenerativeModel/countTokens(_:)``.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public enum CountTokensError: Error {
   case internalError(underlying: Error)
