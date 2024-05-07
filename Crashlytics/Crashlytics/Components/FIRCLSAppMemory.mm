@@ -1,4 +1,5 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSAppMemory.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
@@ -96,17 +97,22 @@ typedef NS_ENUM(NSUInteger, FIRCLSAppMemoryTrackerChangeType) {
                             NSEC_PER_SEC / 10);
   dispatch_activate(_limitSource);
 
-  id<NSObject> observer;
-  observer = [[NSNotificationCenter defaultCenter]
-      addObserverForName:UIApplicationDidFinishLaunchingNotification
-                  object:nil
-                   queue:nil
-              usingBlock:^(NSNotification *_Nonnull notification) {
-                [[NSNotificationCenter defaultCenter] removeObserver:observer];
-                [self _handleMemoryChange:[self currentAppMemory]
-                                     type:FIRCLSAppMemoryTrackerChangeTypeNone];
-              }];
+#if CLS_TARGET_OS_HAS_UIKIT
+  // We won't always hit this depending on how Crashlytics is setup in the app,
+  // but at least we can try.
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(_appDidFinishLaunching)
+                                               name:UIApplicationDidFinishLaunchingNotification
+                                             object:nil];
+#endif
+  [self _handleMemoryChange:[self currentAppMemory] type:FIRCLSAppMemoryTrackerChangeTypeNone];
 }
+
+#if CLS_TARGET_OS_HAS_UIKIT
+- (void)_appDidFinishLaunching {
+  [self _handleMemoryChange:[self currentAppMemory] type:FIRCLSAppMemoryTrackerChangeTypeNone];
+}
+#endif
 
 - (void)stop {
   if (_pressureSource) {
@@ -128,12 +134,13 @@ typedef NS_ENUM(NSUInteger, FIRCLSAppMemoryTrackerChangeType) {
     return nil;
   }
 
-  uint64_t remaining = info.limit_bytes_remaining;
 #if TARGET_OS_SIMULATOR
   // in simulator, remaining is always 0. So let's fake it.
   // How about a limit of 3GB.
   uint64_t limit = 3000000000;
-  remaining = limit < info.phys_footprint ? 0 : limit - info.phys_footprint;
+  uint64_t remaining = limit < info.phys_footprint ? 0 : limit - info.phys_footprint;
+#else
+  uint64_t remaining = info.limit_bytes_remaining;
 #endif
 
   return [[FIRCLSAppMemory alloc] initWithFootprint:info.phys_footprint
@@ -158,10 +165,12 @@ static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINENT__() {
 - (void)_handleMemoryChange:(FIRCLSAppMemory *)memory type:(FIRCLSAppMemoryTrackerChangeType)type {
   // KV pushes
   NSDictionary<NSString *, id> *const kv = memory.serialize;
-  for (NSString *key in kv) {
-    FIRCLSUserLoggingRecordInternalKeyValue(key, kv[key]);
+  if (FIRCLSContextIsInitialized()) {
+    for (NSString *key in kv) {
+      FIRCLSUserLoggingRecordInternalKeyValue(key, kv[key]);
+    }
+    FIRCLSUserLoggingRecordUserKeysAndValues(kv);
   }
-  FIRCLSUserLoggingRecordUserKeysAndValues(kv);
 
   // non-fatals
   if (type == FIRCLSAppMemoryTrackerChangeTypeLevel &&
@@ -173,9 +182,10 @@ static void __MEMORY_LEVEL_HIGH_OOM_IS_IMMINENT__() {
     model.stackTrace = @[ [FIRStackFrame
         stackFrameWithAddress:(uintptr_t)&__MEMORY_LEVEL_HIGH_OOM_IS_IMMINENT__] ];
     FIRCLSExceptionRecordModel(model, nil);
+  }
 
-  } else if (type == FIRCLSAppMemoryTrackerChangeTypePressure &&
-             memory.pressure >= FIRCLSAppMemoryPressureCritical) {
+  if (type == FIRCLSAppMemoryTrackerChangeTypePressure &&
+      memory.pressure >= FIRCLSAppMemoryPressureCritical) {
     NSString *pressure = FIRCLSAppMemoryPressureToString(memory.pressure).uppercaseString;
     NSString *reason = [NSString stringWithFormat:@"Memory Pressure Is %@", pressure];
     FIRExceptionModel *model = [[FIRExceptionModel alloc] initWithName:@"Memory Pressure"
