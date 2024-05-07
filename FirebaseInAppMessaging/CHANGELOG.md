@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed crash at app start that affected SwiftPM users and CocoaPods
+  users using static frameworks (#12882).
+
 # 10.25.0
 - [changed] Removed usages of user defaults API to eliminate required reason
   impact.
