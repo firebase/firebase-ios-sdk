@@ -20,6 +20,7 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
+/// The Vertex AI service for Firebase.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public class VertexAI: NSObject {
   // MARK: - Public APIs
@@ -59,9 +60,8 @@ public class VertexAI: NSObject {
   /// Initializes a generative model with the given parameters.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, e.g., `"gemini-1.0-pro"`; see
-  ///     [Gemini
-  ///     models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models)
+  ///   - modelName: The name of the model to use, for example `"gemini-1.0-pro"`; see
+  ///     [Gemini models](https://firebase.google.com/docs/vertex-ai/gemini-model#available-models)
   ///     for a list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
