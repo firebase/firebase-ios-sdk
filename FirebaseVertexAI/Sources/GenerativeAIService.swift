@@ -19,10 +19,10 @@ import Foundation
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 struct GenerativeAIService {
-  /// The language of the SDK in the format "gl-<language>/<version>".
+  /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"
 
-  /// The Firebase SDK version in the format "fire/<version>".
+  /// The Firebase SDK version in the format `fire/<version>`.
   static let firebaseVersionTag = "fire/\(FirebaseVersion())"
 
   /// Gives permission to talk to the backend.
