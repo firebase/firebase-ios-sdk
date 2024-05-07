@@ -343,5 +343,4 @@ static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid) {
   // restore errno
   errno = savedErrno;
 }
-
 #endif
