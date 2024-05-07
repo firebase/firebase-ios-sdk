@@ -511,9 +511,11 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
     } else {
       // Calling sqlite3_open should create the database, since the file doesn't exist.
-      int result = sqlite3_open_v2(
-          [path UTF8String], &self -> _database,
-          SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FILEPROTECTION_NONE, NULL);
+          int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+#ifdef SQLITE_OPEN_FILEPROTECTION_NONE
+          flags |= SQLITE_OPEN_FILEPROTECTION_NONE;
+#endif
+          int result = sqlite3_open_v2([path UTF8String], &self -> _database, flags, NULL);
       if (result != SQLITE_OK) {
         NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
         NSString *errorMessage =
