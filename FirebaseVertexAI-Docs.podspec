@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Firebase VertexAI'
 
   s.description      = <<-DESC
-  Placeholder podspec for docsgen only.
+  Placeholder podspec for docsgen only. Do not use this pod.
                         DESC
 
   s.homepage         = 'https://firebase.google.com'
