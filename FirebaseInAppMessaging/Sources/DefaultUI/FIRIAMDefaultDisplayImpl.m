@@ -72,10 +72,12 @@
            [NSBundle mainBundle],
            // Dynamically linked.
            [NSBundle bundleForClass:myClass],
+#if !SWIFT_PACKAGE
            // Embedded static framework (zip distribution).
            [NSBundle bundleWithURL:[NSBundle.mainBundle.bundleURL
                                        URLByAppendingPathComponent:
                                            @"Frameworks/FirebaseInAppMessaging.framework"]]
+#endif
          ]) {
       bundleURL = [containingBundle URLForResource:bundledResource withExtension:@"bundle"];
       if (bundleURL != nil) break;
