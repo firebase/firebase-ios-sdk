@@ -64,21 +64,35 @@
     bundledResource = @"InAppMessagingDisplayResources";
 #endif  // SWIFT_PACKAGE
 
+    NSMutableArray *bundles = [NSMutableArray array];
+
+    // Resources may be in main bundle when statically linked.
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    if (mainBundle) {
+      [bundles addObject:mainBundle];
+    }
+    // Resources may be in the bundle associated with this class when
+    // dynamically linked.
+    NSBundle *bundleForClass = [NSBundle bundleForClass:myClass];
+    if (bundleForClass) {
+      [bundles addObject:bundleForClass];
+    }
+    // When embedding static frameworks from the zip distribution, the Xcode
+    // will copy the resources into the framework's directory.
+    // TODO(Firebase 11): Remove when Firebase.zip is composed of dynamic
+    // frameworks.
+    NSBundle *frameworkBundle = [NSBundle
+        bundleWithURL:
+            [NSBundle.mainBundle.bundleURL
+                URLByAppendingPathComponent:@"Frameworks/FirebaseInAppMessaging.framework"]];
+    if (frameworkBundle) {
+      [bundles addObject:frameworkBundle];
+    }
+
     NSBundle *containingBundle;
     NSURL *bundleURL;
     // The containing bundle is different whether FIAM is statically or dynamically linked.
-    for (containingBundle in @[
-           // Statically linked.
-           [NSBundle mainBundle],
-           // Dynamically linked.
-           [NSBundle bundleForClass:myClass],
-#if FIREBASE_BUILD_ZIP_FILE
-           // Embedded static framework (zip distribution).
-           [NSBundle bundleWithURL:[NSBundle.mainBundle.bundleURL
-                                       URLByAppendingPathComponent:
-                                           @"Frameworks/FirebaseInAppMessaging.framework"]]
-#endif  // FIREBASE_BUILD_ZIP_FILE
-         ]) {
+    for (containingBundle in bundles) {
       bundleURL = [containingBundle URLForResource:bundledResource withExtension:@"bundle"];
       if (bundleURL != nil) break;
     }
