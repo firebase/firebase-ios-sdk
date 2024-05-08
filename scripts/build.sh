@@ -301,19 +301,19 @@ case "$product-$platform-$method" in
   Auth-*-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
+        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
         -scheme "ObjCApiTests" \
         "${xcb_flags[@]}" \
         test
 
       RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
+        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
         -scheme "SwiftApiTests" \
         "${xcb_flags[@]}" \
         test
 
       RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
+        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
         -scheme "AuthenticationExampleUITests" \
         "${xcb_flags[@]}" \
         build \

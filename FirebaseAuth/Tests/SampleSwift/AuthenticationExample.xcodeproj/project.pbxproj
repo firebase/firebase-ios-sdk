@@ -3,11 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8848764F29D3149200780FA6 /* GoogleService-Info.plist */; };
+		DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B636E2BEC2DC300607B82 /* FirebaseAuth */; };
+		DE8B63722BEC2FB900607B82 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63712BEC2FB900607B82 /* GoogleSignIn */; };
+		DE8B63742BEC2FB900607B82 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */; };
+		DE8B63772BEC302200607B82 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63762BEC302200607B82 /* FacebookLogin */; };
+		DE8B637A2BEC342000607B82 /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63792BEC342000607B82 /* GTMSessionFetcher */; };
+		DE8B637D2BEC35F000607B82 /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B637C2BEC35F000607B82 /* GTMSessionFetcher */; };
 		DE8FD46F2A7D660B00B6831A /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4682A7D660A00B6831A /* Credentials.swift */; };
 		DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */; };
 		DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */; };
@@ -142,6 +148,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE8B637D2BEC35F000607B82 /* GTMSessionFetcher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,6 +156,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE8B63772BEC302200607B82 /* FacebookLogin in Frameworks */,
+				DE8B63742BEC2FB900607B82 /* GoogleSignInSwift in Frameworks */,
+				DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */,
+				DE8B63722BEC2FB900607B82 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,6 +167,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE8B637A2BEC342000607B82 /* GTMSessionFetcher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,11 +181,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2EBFAC992DA393BBD4494A15 /* Pods */ = {
+		DE8B637B2BEC35F000607B82 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
-			path = Pods;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		DE8FD47B2A7D96B900B6831A /* ObjCApiTests */ = {
@@ -273,7 +285,7 @@
 				EAE4CBE524855E3E00245E92 /* AuthenticationExampleUITests */,
 				DE8FD47B2A7D96B900B6831A /* ObjCApiTests */,
 				EAE4CBC224855E3A00245E92 /* Products */,
-				2EBFAC992DA393BBD4494A15 /* Pods */,
+				DE8B637B2BEC35F000607B82 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -351,6 +363,9 @@
 				DE8FD47F2A7D96B900B6831A /* PBXTargetDependency */,
 			);
 			name = ObjCApiTests;
+			packageProductDependencies = (
+				DE8B637C2BEC35F000607B82 /* GTMSessionFetcher */,
+			);
 			productName = ObjCApiTests;
 			productReference = DE8FD47A2A7D96B900B6831A /* ObjCApiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -368,6 +383,12 @@
 			dependencies = (
 			);
 			name = AuthenticationExample;
+			packageProductDependencies = (
+				DE8B636E2BEC2DC300607B82 /* FirebaseAuth */,
+				DE8B63712BEC2FB900607B82 /* GoogleSignIn */,
+				DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */,
+				DE8B63762BEC302200607B82 /* FacebookLogin */,
+			);
 			productName = "Swifty Auth";
 			productReference = EAE4CBC124855E3A00245E92 /* AuthenticationExample.app */;
 			productType = "com.apple.product-type.application";
@@ -386,6 +407,9 @@
 				EAE4CBD924855E3E00245E92 /* PBXTargetDependency */,
 			);
 			name = SwiftApiTests;
+			packageProductDependencies = (
+				DE8B63792BEC342000607B82 /* GTMSessionFetcher */,
+			);
 			productName = "Swifty AuthTests";
 			productReference = EAE4CBD724855E3E00245E92 /* SwiftApiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -420,6 +444,7 @@
 				TargetAttributes = {
 					DE8FD4792A7D96B900B6831A = {
 						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1530;
 						TestTargetID = EAE4CBC024855E3A00245E92;
 					};
 					EAE4CBC024855E3A00245E92 = {
@@ -445,6 +470,12 @@
 				Base,
 			);
 			mainGroup = EAE4CBB824855E3A00245E92;
+			packageReferences = (
+				DE8B636D2BEC2DC300607B82 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */,
+				DE8B63702BEC2FB900607B82 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				DE8B63752BEC302200607B82 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
+				DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
+			);
 			productRefGroup = EAE4CBC224855E3A00245E92 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -590,15 +621,18 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W24VCQN5P5;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ObjCApiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthenticationExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AuthenticationExample";
 			};
@@ -610,15 +644,17 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W24VCQN5P5;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ObjCApiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthenticationExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AuthenticationExample";
 			};
@@ -745,7 +781,7 @@
 				CODE_SIGN_ENTITLEMENTS = AuthenticationExample/AuthenticationExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AuthenticationExample/SwiftApplication.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -768,7 +804,7 @@
 				CODE_SIGN_ENTITLEMENTS = AuthenticationExample/AuthenticationExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AuthenticationExample/SwiftApplication.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -924,6 +960,72 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		DE8B636D2BEC2DC300607B82 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../../firebase-ios-sdk";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DE8B63702BEC2FB900607B82 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.1.0;
+			};
+		};
+		DE8B63752BEC302200607B82 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 14.1.0;
+			};
+		};
+		DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/gtm-session-fetcher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DE8B636E2BEC2DC300607B82 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAuth;
+		};
+		DE8B63712BEC2FB900607B82 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE8B63702BEC2FB900607B82 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE8B63702BEC2FB900607B82 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		DE8B63762BEC302200607B82 /* FacebookLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE8B63752BEC302200607B82 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookLogin;
+		};
+		DE8B63792BEC342000607B82 /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+		DE8B637C2BEC35F000607B82 /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = EAE4CBB924855E3A00245E92 /* Project object */;
 }

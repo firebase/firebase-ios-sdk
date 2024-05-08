@@ -28,10 +28,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FirebaseApp.configure()
     // [END firebase_configure]
 
-    ApplicationDelegate.shared.application(
-      application,
-      didFinishLaunchingWithOptions: launchOptions
-    )
+    // TODO: Reenable Facebook login integration.
+//    ApplicationDelegate.shared.application(
+//      application,
+//      didFinishLaunchingWithOptions: launchOptions
+//    )
 
     return true
   }
