@@ -30,7 +30,8 @@ final class VertexAIAPITests: XCTestCase {
                                   topK: 16,
                                   candidateCount: 4,
                                   maxOutputTokens: 256,
-                                  stopSequences: ["..."])
+                                  stopSequences: ["..."],
+                                  responseMIMEType: "text/plain")
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
     let systemInstruction = ModelContent(role: "system", parts: [.text("Talk like a pirate.")])
 
