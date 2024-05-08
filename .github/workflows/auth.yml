@@ -66,11 +66,6 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: integration-tests${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Prereqs
-      run: scripts/install_prereqs.sh Auth iOS
     - name: Install Secrets
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \

@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthApiTestsBase.h"
-#import "FirebaseAuth-Swift.h"
+@import FirebaseAuth;
 
 /** The testing email address for testCreateAccountWithEmailAndPassword. */
 static NSString *const kNewEmailToCreateUser = @"user+email_new_user@example.com";

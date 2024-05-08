@@ -16,7 +16,7 @@
 
 import FirebaseAuth
 import Foundation
-import GTMSessionFetcher
+import GTMSessionFetcherCore
 import XCTest
 
 class GoogleTests: TestsBase {

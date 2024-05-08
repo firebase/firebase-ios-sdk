@@ -16,7 +16,7 @@
 
 import FirebaseAuth
 import Foundation
-import GTMSessionFetcher
+import GTMSessionFetcherCore
 import XCTest
 
 // TODO(#10752) - Update and fix the Facebook login Sample app and tests.

@@ -71,12 +71,6 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
-  Auth-*)
-    # Install the workspace for integration testing.
-    install_xcpretty
-    bundle exec pod install --project-directory=FirebaseAuth/Tests/SampleSwift --repo-update
-    ;;
-
   Crashlytics-*)
     ;;
 
