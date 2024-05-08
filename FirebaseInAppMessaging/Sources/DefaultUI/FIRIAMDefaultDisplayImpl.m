@@ -92,7 +92,7 @@
     NSBundle *containingBundle;
     NSURL *bundleURL;
     // The containing bundle is different whether FIAM is statically or dynamically linked.
-    for (containingBundle in [bundles copy]) {
+    for (containingBundle in bundles) {
       bundleURL = [containingBundle URLForResource:bundledResource withExtension:@"bundle"];
       if (bundleURL != nil) break;
     }
