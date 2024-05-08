@@ -132,10 +132,10 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                                 object:nil
                                  queue:opQueue
                             usingBlock:^(NSNotification *_Nonnull note) {
-                              FFLog(
-                                  @"I-RDB083015",
-                                  @"Received notification that application will resign, "
-                                  @"closing web socket.");
+                              FFLog(@"I-RDB083015",
+                                    @"Received notification that application "
+                                    @"will resign, "
+                                    @"closing web socket.");
                               [self onClosed];
                             }];
             }
