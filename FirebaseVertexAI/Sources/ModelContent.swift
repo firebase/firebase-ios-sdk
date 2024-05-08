@@ -19,7 +19,7 @@ import Foundation
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 public struct ModelContent: Equatable {
-  /// A discrete piece of data in a media format intepretable by an AI model. Within a single value
+  /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
   /// of ``Part``, different data types may not mix.
   public enum Part: Equatable {
     /// Text value.
