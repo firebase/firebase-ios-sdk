@@ -134,7 +134,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                             usingBlock:^(NSNotification *_Nonnull note) {
                               FFLog(
                                   @"I-RDB083015",
-                                  @"Received watchOS background notification, "
+                                  @"Received notification that application will resign, "
                                   @"closing web socket.");
                               [self onClosed];
                             }];
