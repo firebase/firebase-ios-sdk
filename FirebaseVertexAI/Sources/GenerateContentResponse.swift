@@ -45,11 +45,17 @@ public struct GenerateContentResponse {
       Logging.default.error("Could not get text from a response that had no candidates.")
       return nil
     }
-    guard let text = candidate.content.parts.first?.text else {
+    let textValues: [String] = candidate.content.parts.compactMap { part in
+      guard case let .text(text) = part else {
+        return nil
+      }
+      return text
+    }
+    guard textValues.count > 0 else {
       Logging.default.error("Could not get a text part from the first candidate.")
       return nil
     }
-    return text
+    return textValues.joined(separator: " ")
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
