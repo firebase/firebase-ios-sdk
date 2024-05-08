@@ -261,6 +261,40 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.functionCalls, [functionCall])
   }
 
+  func testGenerateContent_success_functionCall_parallelCalls() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-function-call-parallel-calls",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 3)
+    let functionCalls = response.functionCalls
+    XCTAssertEqual(functionCalls.count, 3)
+  }
+
+  func testGenerateContent_success_functionCall_mixedContent() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-function-call-mixed-content",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 4)
+    let functionCalls = response.functionCalls
+    XCTAssertEqual(functionCalls.count, 2)
+    let text = try XCTUnwrap(response.text)
+    XCTAssertEqual(text, "The sum of [1, 2, 3] is")
+  }
+
   func testGenerateContent_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(

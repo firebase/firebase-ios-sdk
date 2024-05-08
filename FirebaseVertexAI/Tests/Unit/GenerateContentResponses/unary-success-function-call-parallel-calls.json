@@ -1,0 +1,40 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "functionCall": {
+              "name": "sum",
+              "args": {
+                "y": 1,
+                "x": 2
+              }
+            }
+          },
+          {
+            "functionCall": {
+              "name": "sum",
+              "args": {
+                "y": 3,
+                "x": 4
+              }
+            }
+          },
+          {
+            "functionCall": {
+              "name": "sum",
+              "args": {
+                "y": 5,
+                "x": 6
+              }
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ]
+}
