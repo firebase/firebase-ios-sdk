@@ -71,14 +71,16 @@
     if (mainBundle) {
       [bundles addObject:mainBundle];
     }
-    // Resources may be in the bundle associated when dynamically linked.
+    // Resources may be in the bundle associated with this class when
+    // dynamically linked.
     NSBundle *bundleForClass = [NSBundle bundleForClass:myClass];
     if (bundleForClass) {
       [bundles addObject:bundleForClass];
     }
     // When embedding static frameworks from the zip distribution, the Xcode
-    // will	copy the resources into the framework's directory.
-    // TODO: Remove when Firebase.zip is composed of dynamic frameworks.
+    // will copy the resources into the framework's directory.
+    // TODO(Firebase 11): Remove when Firebase.zip is composed of dynamic
+    // frameworks.
     NSBundle *frameworkBundle = [NSBundle
         bundleWithURL:
             [NSBundle.mainBundle.bundleURL
