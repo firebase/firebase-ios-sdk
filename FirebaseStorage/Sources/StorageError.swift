@@ -76,7 +76,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
    */
   static func error(withInvalidRequest request: Data?) -> NSError {
     var requestString: String
-    if let request = request {
+    if let request {
       requestString = String(data: request, encoding: .utf8) ?? "<unstringable data>"
     } else {
       requestString = "<nil request returned from server>"

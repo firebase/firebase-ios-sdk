@@ -438,7 +438,7 @@ extension ModelDownloader {
         case let .modelInfo(remoteModelInfo):
           // Progress handler for model file download.
           let taskProgressHandler: ModelDownloadTask.ProgressHandler = { progress in
-            if let progressHandler = progressHandler {
+            if let progressHandler {
               self.asyncOnMainQueue(progressHandler(progress))
             }
           }

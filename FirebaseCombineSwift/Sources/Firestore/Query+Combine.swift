@@ -32,9 +32,9 @@
     func getDocuments(source: FirestoreSource = .default) -> Future<QuerySnapshot, Error> {
       Future { promise in
         self.getDocuments(source: source) { snapshot, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let snapshot = snapshot {
+          } else if let snapshot {
             promise(.success(snapshot))
           }
         }
@@ -53,9 +53,9 @@
       let subject = PassthroughSubject<QuerySnapshot, Error>()
       let listenerHandle =
         addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
-          if let error = error {
+          if let error {
             subject.send(completion: .failure(error))
-          } else if let snapshot = snapshot {
+          } else if let snapshot {
             subject.send(snapshot)
           }
         }

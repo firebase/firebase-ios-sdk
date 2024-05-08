@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        podspec: [FirebaseInAppMessaging.podspec, FirebaseInAppMessagingSwift.podspec --allow-warnings]
+        podspec: [FirebaseInAppMessaging.podspec]
         os: [macos-14, macos-13]
         include:
           - os: macos-14

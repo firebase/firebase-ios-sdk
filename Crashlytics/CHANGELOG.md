@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added support for catching the SIGTERM signal (#12881).
+
 # 10.25.0
 - [changed] Removed usages of user defaults API from internal Firebase Sessions
   dependency to eliminate required reason impact.

@@ -362,7 +362,6 @@ jobs:
         podspec: [
           'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
         ]
 
     steps:
@@ -391,7 +390,6 @@ jobs:
         podspec: [
           'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
         ]
         platforms: [
           'macos',

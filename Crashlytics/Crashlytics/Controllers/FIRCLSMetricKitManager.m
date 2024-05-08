@@ -438,6 +438,8 @@
       return @"SIGSYS";
     case SIGTRAP:
       return @"SIGTRAP";
+    case SIGTERM:
+      return @"SIGTERM";
     default:
       return @"UNKNOWN";
   }

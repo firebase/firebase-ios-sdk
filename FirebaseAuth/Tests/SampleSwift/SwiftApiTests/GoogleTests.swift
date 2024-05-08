@@ -67,7 +67,7 @@ class GoogleTests: TestsBase {
     fetcher.setRequestValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     let expectation = self.expectation(description: "Exchanging Google account tokens finished.")
     fetcher.beginFetch { data, error in
-      if let error = error {
+      if let error {
         XCTFail("Exchanging Google account tokens finished with error: \(error)")
       } else {
         do {
@@ -84,6 +84,7 @@ class GoogleTests: TestsBase {
     return returnValue
   }
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   /// Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
   /// access token.
   /// Returns a dictionary that constains "access_token", "token_type", "expires_in" and sometimes

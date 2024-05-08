@@ -65,12 +65,12 @@ class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
       self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
         guard let self = self else { return }
         var metadata: StorageMetadata?
-        if let error = error {
+        if let error {
           if self.error == nil {
             self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           }
         } else {
-          if let data = data,
+          if let data,
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: AnyHashable] {
             metadata = StorageMetadata(dictionary: responseDictionary)

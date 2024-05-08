@@ -45,7 +45,7 @@ class StorageTestHelpers: XCTestCase {
 
   func waitForExpectation(test: XCTest) {
     waitForExpectations(timeout: 10) { error in
-      if let error = error {
+      if let error {
         print("Error \(error)")
       }
     }
@@ -54,7 +54,7 @@ class StorageTestHelpers: XCTestCase {
   func successBlock(withMetadata metadata: StorageMetadata? = nil)
     -> GTMSessionFetcherTestBlock {
     var data: Data?
-    if let metadata = metadata {
+    if let metadata {
       data = try? JSONSerialization.data(withJSONObject: metadata.dictionaryRepresentation())
     }
     return block(forData: data, url: nil, statusCode: 200)
@@ -99,7 +99,7 @@ class StorageTestHelpers: XCTestCase {
                      statusCode code: Int) -> GTMSessionFetcherTestBlock {
     let block = { (fetcher: GTMSessionFetcher, response: GTMSessionFetcherTestResponse) in
       let fetcherURL = fetcher.request?.url!
-      if let url = url {
+      if let url {
         XCTAssertEqual(url, fetcherURL)
       }
       let httpResponse = HTTPURLResponse(
@@ -111,7 +111,7 @@ class StorageTestHelpers: XCTestCase {
       var error: NSError?
       if code >= 400 {
         var userInfo: [String: Any]?
-        if let data = data {
+        if let data {
           userInfo = ["data": data]
         }
         error = NSError(domain: "com.google.HTTPStatus", code: code, userInfo: userInfo)

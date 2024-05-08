@@ -306,18 +306,14 @@ struct FrameworkBuilder {
                                       logsDir: URL) -> [URL] {
     // xcframework doesn't lipo things together but accepts fat frameworks for one target.
     // We group architectures here to deal with this fact.
-    var thinFrameworks = [URL]()
-    for targetPlatform in TargetPlatform.allCases {
-      let buildDir = projectDir.appendingPathComponent(targetPlatform.buildName)
-      let slicedFramework = buildSlicedFramework(
-        withName: FrameworkBuilder.frameworkBuildName(framework),
+    return targetPlatforms.map { targetPlatform in
+      buildSlicedFramework(
+        withName: framework,
         targetPlatform: targetPlatform,
-        buildDir: buildDir,
+        buildDir: projectDir.appendingPathComponent(targetPlatform.buildName),
         logRoot: logsDir
       )
-      thinFrameworks.append(slicedFramework)
     }
-    return thinFrameworks
   }
 
   /// Compiles the specified framework in a temporary directory and writes the build logs to file.
@@ -565,17 +561,6 @@ struct FrameworkBuilder {
           "\(framework): \(error)")
       }
 
-      // CocoaPods creates a `_CodeSignature` directory. Delete it.
-      // Note that the build only produces a `_CodeSignature` directory for
-      // macOS and macCatalyst, but we try to delete it for other platforms
-      // just in case it were to appear.
-      let codeSignatureDir = platformFrameworkDir
-        .appendingPathComponent(
-          platform == .catalyst || platform == .macOS ? "Versions/A/" : ""
-        )
-        .appendingPathComponent("_CodeSignature")
-      try? fileManager.removeItem(at: codeSignatureDir)
-
       // The minimum OS version is set to 100.0 to work around b/327020913.
       // TODO(ncooke3): Revert this logic once b/327020913 is fixed.
       // TODO(ncooke3): Does this need to happen on macOS?
@@ -604,23 +589,6 @@ struct FrameworkBuilder {
         )
       }
 
-      // The macOS slice's `PrivateHeaders` directory may have a
-      // `PrivateHeaders` file in it that symbolically links to nowhere. Delete
-      // it here to avoid putting it in the zip or crashing the Carthage hash
-      // generation. Because this will throw an error for cases where the file
-      // does not exist, the error is ignored.
-      let privateHeadersDir = platformFrameworkDir.appendingPathComponent("PrivateHeaders")
-      if fileManager.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
-        try? fileManager
-          .removeItem(at: privateHeadersDir.resolvingSymlinksInPath()
-            .appendingPathComponent("PrivateHeaders"))
-      } else {
-        try? fileManager.removeItem(at: privateHeadersDir)
-      }
-      let headersDir = platformFrameworkDir.appendingPathComponent("Headers")
-        .resolvingSymlinksInPath()
-      try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
-
       // Move privacy manifest containing resource bundles into the framework.
       let resourceDir = platformFrameworkDir
         .appendingPathComponent(
@@ -638,12 +606,6 @@ struct FrameworkBuilder {
         // Bundles are moved rather than copied to prevent them from being
         // packaged in a `Resources` directory at the root of the xcframework.
         .forEach {
-          // Delete `gRPCCertificates-Cpp.bundle` since it is not needed (#9184).
-          guard $0.lastPathComponent != "gRPCCertificates-Cpp.bundle" else {
-            try fileManager.removeItem(at: $0)
-            return
-          }
-
           try fileManager.moveItem(
             at: $0,
             to: resourceDir.appendingPathComponent($0.lastPathComponent)

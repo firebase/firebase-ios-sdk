@@ -113,7 +113,7 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
   private var value: Value? = nil
 
   public init(wrappedValue value: Value?) {
-    if let value = value {
+    if let value {
       logIgnoredValueWarning(value: value)
     }
     self.value = value
@@ -141,7 +141,7 @@ public struct DocumentID<Value: DocumentIDWrappable & Codable>:
 
 extension DocumentID: DocumentIDProtocol {
   init(from documentReference: DocumentReference?) throws {
-    if let documentReference = documentReference {
+    if let documentReference {
       value = try Value.wrap(documentReference)
     } else {
       value = nil

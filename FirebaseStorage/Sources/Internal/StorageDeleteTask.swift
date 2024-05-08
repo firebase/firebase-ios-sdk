@@ -63,7 +63,7 @@ class StorageDeleteTask: StorageTask, StorageTaskManagement {
 
       self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
         guard let self = self else { return }
-        if let error = error, self.error == nil {
+        if let error, self.error == nil {
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
         }
         self.taskCompletion?(self.error)
