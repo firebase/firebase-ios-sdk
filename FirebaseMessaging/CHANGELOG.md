@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed bug preventing Messaging from working with a custom sqlite3
+  dependency (#12900).
+
 # 10.23.0
 - [fixed] [CocoaPods] Fix "no rule" warning when running `pod install`. (#12511)
 
