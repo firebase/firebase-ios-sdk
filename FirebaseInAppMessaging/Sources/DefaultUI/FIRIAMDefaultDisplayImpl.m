@@ -79,8 +79,6 @@
     }
     // When embedding static frameworks from the zip distribution, the Xcode
     // will copy the resources into the framework's directory.
-    // TODO(Firebase 11): Remove when Firebase.zip is composed of dynamic
-    // frameworks.
     NSBundle *frameworkBundle = [NSBundle
         bundleWithURL:
             [NSBundle.mainBundle.bundleURL
