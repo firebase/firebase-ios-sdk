@@ -1,0 +1,37 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "The sum of [1, 2,"
+          },
+          {
+            "functionCall": {
+              "name": "sum",
+              "args": {
+                "y": 1,
+                "x": 2
+              }
+            }
+          },
+          {
+            "text": "3] is"
+          },
+          {
+            "functionCall": {
+              "name": "sum",
+              "args": {
+                "y": 3,
+                "x": 3
+              }
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ]
+}
