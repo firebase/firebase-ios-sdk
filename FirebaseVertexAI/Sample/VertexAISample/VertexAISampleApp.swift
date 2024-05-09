@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAppCheck
 import FirebaseCore
 import SwiftUI
 
@@ -20,6 +21,7 @@ struct VertexAISampleApp: App {
   init() {
     // Recommendation: Protect your Vertex AI API resources from abuse by preventing unauthorized
     // clients using App Check; see https://firebase.google.com/docs/app-check#get_started.
+    AppCheck.setAppCheckProviderFactory(AppCheckNotConfiguredFactory())
 
     FirebaseApp.configure()
 
@@ -38,3 +40,19 @@ struct VertexAISampleApp: App {
     }
   }
 }
+
+/// Placeholder App Check provider factory that returns a simple ``AppCheckNotConfigured`` error.
+private class AppCheckNotConfiguredFactory: NSObject, AppCheckProviderFactory {
+  private class AppCheckNotConfiguredProvider: NSObject, AppCheckProvider {
+    func getToken() async throws -> AppCheckToken {
+      throw AppCheckNotConfigured()
+    }
+  }
+
+  func createProvider(with app: FirebaseApp) -> (any AppCheckProvider)? {
+    return AppCheckNotConfiguredProvider()
+  }
+}
+
+/// Error indicating that App Check is not configured in the sample app.
+struct AppCheckNotConfigured: Error {}
