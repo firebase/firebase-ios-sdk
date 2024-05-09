@@ -43,6 +43,7 @@ class DataSourceProvider<DataSource: DataSourceProvidable>: NSObject, UITableVie
     return sectionItem(at: indexPath)
   }
 
+  @discardableResult
   public func updateItem(at indexPath: IndexPath, item: Item) -> DataSource.Section.Item {
     return editSectionItem(at: indexPath, item: item)
   }

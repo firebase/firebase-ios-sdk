@@ -132,7 +132,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
     let tokenType = token.type == .prod ? "Production" : "Sandbox"
     let message = "token: \(token.string)\ntype: \(tokenType)"
 
-    let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
+    let prompt = UIAlertController(title: "Clear APNs Token?", message: message,
                                    preferredStyle: .alert)
     let okAction = UIAlertAction(title: "OK", style: .default) { action in
       AppManager.shared.auth().tokenManager.token = nil
@@ -144,7 +144,8 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
 
   func clearAppCredential() {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
-      let prompt = UIAlertController(title: nil, message: "Clear APNs Token?",
+      let message = "receipt:\(credential.receipt) secret:\(credential.secret ?? "nil")"
+      let prompt = UIAlertController(title: "Clear App Credential", message: message,
                                      preferredStyle: .alert)
       let okAction = UIAlertAction(title: "OK", style: .default) { action in
         AppManager.shared.auth().appCredentialManager.clearCredential()

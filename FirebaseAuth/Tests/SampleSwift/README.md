@@ -12,15 +12,7 @@ Firebase Auth offers multiple ways to authenticate users. In this sample, we dem
 
 Ready? Let's get started! 🏎💨
 
-Run `pod install`. This command will install all of the required cocoapods for this sample and generate a `.xcworkspace` project. Go ahead and open the `AuthenticationExample.xcworkspace` project.
-
-### Terminal commands to clone and open the project!
-```bash
-$ pod install --repo-update
-
-$ open AuthenticationExample.xcworkspace
-
-```
+Open the `AuthenticationExample.xcodeproj` project.
 
 ## Connecting to the [Firebase Console](https://console.firebase.google.com)
 
