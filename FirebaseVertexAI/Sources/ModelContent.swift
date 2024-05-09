@@ -28,11 +28,19 @@ public struct ModelContent: Equatable {
     /// Data with a specified media type. Not all media types may be supported by the AI model.
     case data(mimetype: String, Data)
 
-    /// URI-based data with a specified media type.
+    /// File data stored in Cloud Storage for Firebase, referenced by URI.
     ///
-    /// > Note: Supported media types depends on the model; see [supported file formats
+    /// > Note: Supported media types depends on the model; see [media requirements
     /// > ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
     /// > for details.
+    ///
+    /// - Parameters:
+    ///   - mimetype: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
+    ///     or `"video/mp4"`; see [media requirements
+    ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
+    ///     for supported values.
+    ///   - uri: The `"gs://"`-prefixed URI of the file in Cloud Storage for Firebase, for example,
+    ///     `"gs://bucket-name/path/image.jpg"`.
     case fileData(mimetype: String, uri: String)
 
     /// A predicted function call returned from the model.
