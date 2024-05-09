@@ -408,7 +408,8 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         return // Handle error case, returning early
       }
 
-      if let tokenResult = tokenResult, let claims = tokenResult.claims as? [String: Any] {
+      if let tokenResult = tokenResult {
+        let claims = tokenResult.claims
         var message = "Token refresh succeeded\n\n"
         for (key, value) in claims {
           message += "\(key): \(value)\n"
@@ -612,7 +613,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       if self.actionCodeRequestType == .email {
         AppManager.shared.auth().sendPasswordReset(withEmail: email, completion: completionHandler)
       } else {
-        guard let actionCodeContinueURL = self.actionCodeContinueURL else {
+        guard self.actionCodeContinueURL != nil else {
           print("Error: Action code continue URL is nil.")
           return
         }
@@ -684,9 +685,8 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       print("Check action code succeeded")
       let email = info.email
       let previousEmail = info.previousEmail
-      let message = previousEmail != nil ? "\(previousEmail!) -> \(email)" : email
       let operation = self.nameForActionCodeOperation(info.operation)
-      showAlert(for: operation)
+      showAlert(for: operation, message: previousEmail ?? email)
     }
     showTextInputPrompt(with: "OOB Code:") {
       oobCode in
@@ -724,7 +724,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         return
       }
       print("Verify password resest code succeeded.")
-      showAlert(for: "Code verified for email: \(email)")
+      showAlert(for: "Code verified for email: \(email ?? "missing email")")
     }
     showTextInputPrompt(with: "OOB Code: ") {
       oobCode in
@@ -1030,7 +1030,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     return nil
   }
 
-  func showAlert(for message: String) {
+  func showAlert(for title: String, message: String? = nil) {
     let alertController = UIAlertController(
       title: message,
       message: nil,
