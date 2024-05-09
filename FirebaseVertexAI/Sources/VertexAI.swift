@@ -44,9 +44,9 @@ public class VertexAI: NSObject {
   ///
   ///  - Parameters:
   ///   - app: The custom `FirebaseApp` used for initialization.
-  ///   - location: The region identifier, defaulting to `us-central1`; see [Vertex AI regions
-  ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions)
-  ///     for a list of supported regions.
+  ///   - location: The region identifier, defaulting to `us-central1`; see
+  ///     [Vertex AI locations](https://firebase.google.com/docs/vertex-ai/locations?platform=ios)
+  ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
     guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
@@ -117,18 +117,23 @@ public class VertexAI: NSObject {
   }
 
   private func modelResourceName(modelName: String, location: String) -> String {
-    if modelName.contains("/") {
-      return modelName
-    }
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
+    }
+    guard !modelName.isEmpty && modelName
+      .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
+      fatalError("""
+      Invalid model name "\(modelName)" specified; see \
+      https://firebase.google.com/docs/vertex-ai/gemini-model#available-models for a list of \
+      available models.
+      """)
     }
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
       Invalid location "\(location)" specified; see \
-      https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions for \
-      a list of available regions.
+      https://firebase.google.com/docs/vertex-ai/locations?platform=ios for a list of available \
+      locations.
       """)
     }
 
