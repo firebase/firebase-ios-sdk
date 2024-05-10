@@ -56,9 +56,9 @@ struct GenerativeAIService {
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
-      Logging.default.error("[GoogleGenerativeAI] The server responded with an error: \(response)")
+      Logging.default.error("[FirebaseVertexAI] The server responded with an error: \(response)")
       if let responseString = String(data: data, encoding: .utf8) {
-        Logging.network.error("[GoogleGenerativeAI] Response payload: \(responseString)")
+        Logging.network.error("[FirebaseVertexAI] Response payload: \(responseString)")
       }
 
       throw parseError(responseData: data)
@@ -105,13 +105,13 @@ struct GenerativeAIService {
         // Verify the status code is 200
         guard response.statusCode == 200 else {
           Logging.default
-            .error("[GoogleGenerativeAI] The server responded with an error: \(response)")
+            .error("[FirebaseVertexAI] The server responded with an error: \(response)")
           var responseBody = ""
           for try await line in stream.lines {
             responseBody += line + "\n"
           }
 
-          Logging.network.error("[GoogleGenerativeAI] Response payload: \(responseBody)")
+          Logging.network.error("[FirebaseVertexAI] Response payload: \(responseBody)")
           continuation.finish(throwing: parseError(responseBody: responseBody))
 
           return
@@ -123,7 +123,7 @@ struct GenerativeAIService {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         for try await line in stream.lines {
-          Logging.network.debug("[GoogleGenerativeAI] Stream response: \(line)")
+          Logging.network.debug("[FirebaseVertexAI] Stream response: \(line)")
 
           if line.hasPrefix("data:") {
             // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
@@ -176,7 +176,7 @@ struct GenerativeAIService {
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
         Logging.default
-          .debug("[GoogleGenerativeAI] Failed to fetch AppCheck token. Error: \(error)")
+          .debug("[FirebaseVertexAI] Failed to fetch AppCheck token. Error: \(error)")
       }
     }
 
@@ -200,7 +200,7 @@ struct GenerativeAIService {
     guard let response = urlResponse as? HTTPURLResponse else {
       Logging.default
         .error(
-          "[GoogleGenerativeAI] Response wasn't an HTTP response, internal error \(urlResponse)"
+          "[FirebaseVertexAI] Response wasn't an HTTP response, internal error \(urlResponse)"
         )
       throw NSError(
         domain: "com.google.generative-ai",
@@ -248,9 +248,9 @@ struct GenerativeAIService {
       return try JSONDecoder().decode(type, from: data)
     } catch {
       if let json = String(data: data, encoding: .utf8) {
-        Logging.network.error("[GoogleGenerativeAI] JSON response: \(json)")
+        Logging.network.error("[FirebaseVertexAI] JSON response: \(json)")
       }
-      Logging.default.error("[GoogleGenerativeAI] Error decoding server JSON: \(error)")
+      Logging.default.error("[FirebaseVertexAI] Error decoding server JSON: \(error)")
       throw error
     }
   }
@@ -278,7 +278,7 @@ struct GenerativeAIService {
     private func printCURLCommand(from request: URLRequest) {
       let command = cURLCommand(from: request)
       Logging.verbose.debug("""
-      [GoogleGenerativeAI] Creating request with the equivalent cURL command:
+      [FirebaseVertexAI] Creating request with the equivalent cURL command:
       ----- cURL command -----
       \(command, privacy: .private)
       ------------------------

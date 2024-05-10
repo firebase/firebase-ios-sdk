@@ -86,14 +86,23 @@ public final class GenerativeModel {
     self.systemInstruction = systemInstruction
     self.requestOptions = requestOptions
 
-    Logging.default.info("""
-    [GoogleGenerativeAI] Model \(
-      name,
-      privacy: .public
-    ) initialized. To enable additional logging, add \
-    `\(Logging.enableArgumentKey, privacy: .public)` as a launch argument in Xcode.
-    """)
-    Logging.verbose.debug("[GoogleGenerativeAI] Verbose logging enabled.")
+    if Logging.additionalLoggingEnabled() {
+      if ProcessInfo.processInfo.arguments.contains(Logging.migrationEnableArgumentKey) {
+        Logging.verbose.debug("""
+        [FirebaseVertexAI] Verbose logging enabled with the \
+        \(Logging.migrationEnableArgumentKey, privacy: .public) launch argument; please migrate to \
+        the \(Logging.enableArgumentKey, privacy: .public) argument to ensure future compatibility.
+        """)
+      } else {
+        Logging.verbose.debug("[FirebaseVertexAI] Verbose logging enabled.")
+      }
+    } else {
+      Logging.default.info("""
+      [FirebaseVertexAI] To enable additional logging, add \
+      `\(Logging.enableArgumentKey, privacy: .public)` as a launch argument in Xcode.
+      """)
+    }
+    Logging.default.debug("[FirebaseVertexAI] Model \(name, privacy: .public) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
