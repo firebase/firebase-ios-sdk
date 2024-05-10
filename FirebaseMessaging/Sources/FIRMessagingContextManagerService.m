@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 ||                                          \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14 || __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || \
-    __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_3_0 || TARGET_OS_MACCATALYST
+
 #import <UserNotifications/UserNotifications.h>
-#endif
 
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
 

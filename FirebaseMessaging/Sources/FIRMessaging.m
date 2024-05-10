@@ -49,13 +49,8 @@
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
 
-#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
-#else
-NSString *const FIRMessagingRegistrationTokenRefreshedNotification =
-    @"com.firebase.messaging.notif.fcm-token-refreshed";
-#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
