@@ -474,6 +474,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.artifact }}
+        github-token: ${{ github.token }}
         run-id: 8946534031
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
