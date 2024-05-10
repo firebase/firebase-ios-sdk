@@ -105,7 +105,6 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        # TODO(#12769): Update to macos-14 which doesn't include Python 3.7
         os: [macos-14, ubuntu-latest]
 
     env:
@@ -153,7 +152,6 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(#12769): Update to macos-14 which doesn't include Python 3.7
         os: [macos-14]
         databaseId: [(default), test-db]
 
@@ -241,7 +239,6 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(#12769): Update to macos-14 which doesn't include Python 3.7
         os: [macos-14]
         sanitizer: [asan, tsan]
 
