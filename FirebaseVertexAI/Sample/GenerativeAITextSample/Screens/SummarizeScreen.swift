@@ -65,8 +65,6 @@ struct SummarizeScreen: View {
   }
 
   private func onSummarizeTapped() {
-    // MARK: Close Keyboard
-
     focusedField = nil
 
     Task {
