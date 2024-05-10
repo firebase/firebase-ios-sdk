@@ -66,7 +66,7 @@ struct FunctionCallingScreen: View {
           }
         })
         .onTapGesture {
-            focusedField = nil
+          focusedField = nil
         }
       }
       InputField("Message...", text: $userPrompt) {

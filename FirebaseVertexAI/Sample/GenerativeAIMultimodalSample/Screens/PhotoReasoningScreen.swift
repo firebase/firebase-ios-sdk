@@ -19,7 +19,7 @@ import SwiftUI
 
 struct PhotoReasoningScreen: View {
   @StateObject var viewModel = PhotoReasoningViewModel()
-    
+
   enum FocusedField: Hashable {
     case message
   }
@@ -64,7 +64,7 @@ struct PhotoReasoningScreen: View {
 
   private func onSendTapped() {
     focusedField = nil
-      
+
     Task {
       await viewModel.reason()
     }
