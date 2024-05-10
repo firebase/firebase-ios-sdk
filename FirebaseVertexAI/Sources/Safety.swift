@@ -148,7 +148,7 @@ extension SafetyRating.HarmProbability: Codable {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedProbability = SafetyRating.HarmProbability(rawValue: value) else {
       Logging.default
-        .error("[GoogleGenerativeAI] Unrecognized HarmProbability with value \"\(value)\".")
+        .error("[FirebaseVertexAI] Unrecognized HarmProbability with value \"\(value)\".")
       self = .unknown
       return
     }
@@ -169,7 +169,7 @@ extension SafetySetting.HarmCategory: Codable {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedCategory = SafetySetting.HarmCategory(rawValue: value) else {
       Logging.default
-        .error("[GoogleGenerativeAI] Unrecognized HarmCategory with value \"\(value)\".")
+        .error("[FirebaseVertexAI] Unrecognized HarmCategory with value \"\(value)\".")
       self = .unknown
       return
     }
@@ -184,7 +184,7 @@ extension SafetySetting.BlockThreshold: Codable {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedThreshold = SafetySetting.BlockThreshold(rawValue: value) else {
       Logging.default
-        .error("[GoogleGenerativeAI] Unrecognized BlockThreshold with value \"\(value)\".")
+        .error("[FirebaseVertexAI] Unrecognized BlockThreshold with value \"\(value)\".")
       self = .unknown
       return
     }

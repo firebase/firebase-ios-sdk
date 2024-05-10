@@ -42,7 +42,8 @@ public struct GenerateContentResponse {
   /// The response's content as text, if it exists.
   public var text: String? {
     guard let candidate = candidates.first else {
-      Logging.default.error("Could not get text from a response that had no candidates.")
+      Logging.default
+        .error("[FirebaseVertexAI] Could not get text from a response that had no candidates.")
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
@@ -52,7 +53,8 @@ public struct GenerateContentResponse {
       return text
     }
     guard textValues.count > 0 else {
-      Logging.default.error("Could not get a text part from the first candidate.")
+      Logging.default
+        .error("[FirebaseVertexAI] Could not get a text part from the first candidate.")
       return nil
     }
     return textValues.joined(separator: " ")
@@ -319,7 +321,7 @@ extension FinishReason: Decodable {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedFinishReason = FinishReason(rawValue: value) else {
       Logging.default
-        .error("[GoogleGenerativeAI] Unrecognized FinishReason with value \"\(value)\".")
+        .error("[FirebaseVertexAI] Unrecognized FinishReason with value \"\(value)\".")
       self = .unknown
       return
     }
@@ -334,7 +336,7 @@ extension PromptFeedback.BlockReason: Decodable {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedBlockReason = PromptFeedback.BlockReason(rawValue: value) else {
       Logging.default
-        .error("[GoogleGenerativeAI] Unrecognized BlockReason with value \"\(value)\".")
+        .error("[FirebaseVertexAI] Unrecognized BlockReason with value \"\(value)\".")
       self = .unknown
       return
     }
