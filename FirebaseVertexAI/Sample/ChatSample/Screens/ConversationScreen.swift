@@ -71,7 +71,6 @@ struct ConversationScreen: View {
       }
       .focused($focusedField, equals: .message)
       .onSubmit { sendOrStop() }
-      .padding(.bottom, 5)
     }
     .toolbar {
       ToolbarItem(placement: .primaryAction) {
