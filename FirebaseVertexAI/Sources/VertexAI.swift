@@ -45,7 +45,8 @@ public class VertexAI: NSObject {
   ///  - Parameters:
   ///   - app: The custom `FirebaseApp` used for initialization.
   ///   - location: The region identifier, defaulting to `us-central1`; see
-  ///     [Vertex AI locations](https://firebase.google.com/docs/vertex-ai/locations?platform=ios)
+  ///     [Vertex AI locations]
+  ///     (https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
@@ -132,8 +133,8 @@ public class VertexAI: NSObject {
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
       Invalid location "\(location)" specified; see \
-      https://firebase.google.com/docs/vertex-ai/locations?platform=ios for a list of available \
-      locations.
+      https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations \
+      for a list of available locations.
       """)
     }
 
