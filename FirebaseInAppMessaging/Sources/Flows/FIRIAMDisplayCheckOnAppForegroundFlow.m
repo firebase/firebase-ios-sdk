@@ -33,7 +33,6 @@
          selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground:)
              name:UIApplicationWillEnterForegroundNotification
            object:nil];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter]
         addObserver:self
@@ -41,7 +40,6 @@
                name:UISceneWillEnterForegroundNotification
              object:nil];
   }
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 }
 
 - (void)checkAndDisplayNextAppForegroundMessageFromForeground:(NSNotification *)notification {
