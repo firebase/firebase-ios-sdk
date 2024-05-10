@@ -124,9 +124,7 @@
   CGFloat maxImageViewHeight = self.view.window.frame.size.height - minimalMargine * 2;
 
   // Factor in space for the top notch on iPhone X*.
-  if (@available(iOS 11.0, *)) {
-    maxImageViewHeight -= self.view.safeAreaInsets.top;
-  }
+  maxImageViewHeight -= self.view.safeAreaInsets.top;
 
   CGFloat adjustedImageViewHeight = self.imageOriginalSize.height;
   CGFloat adjustedImageViewWidth = self.imageOriginalSize.width;

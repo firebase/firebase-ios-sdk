@@ -288,9 +288,7 @@ struct TitleBodyButtonHeightInfo {
                           TopBottomPaddingAroundMsgCard * 2;
 
     // Factor in space for the top notch on iPhone X*.
-    if (@available(iOS 11.0, *)) {
-      heightCalcReference -= self.view.safeAreaInsets.top;
-    }
+    heightCalcReference -= self.view.safeAreaInsets.top;
   }
 
   FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300004",
