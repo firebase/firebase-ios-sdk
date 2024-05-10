@@ -32,7 +32,7 @@ class SummarizeViewModel: ObservableObject {
   private var model: GenerativeModel?
 
   init() {
-    model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.0-pro")
+    model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.5-pro-preview-0409")
   }
 
   func summarize(inputText: String) async {
