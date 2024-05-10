@@ -354,9 +354,6 @@ jobs:
         os: [macos-13]
         xcode: [Xcode_15.2]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-          # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
-          # - os: macos-13
-          #   xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
