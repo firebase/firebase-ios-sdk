@@ -249,7 +249,7 @@ private extension FunctionResponse {
     }
     let messageText = "Function response returned by app:\n```\n\(json)\n```"
 
-    return ChatMessage(message: messageText, participant: .user)
+    return ChatMessage(message: messageText, participant: .system)
   }
 }
 
