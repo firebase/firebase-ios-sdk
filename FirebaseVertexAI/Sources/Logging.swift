@@ -18,13 +18,19 @@ import OSLog
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 struct Logging {
   /// Subsystem that should be used for all Loggers.
-  static let subsystem = "com.google.generative-ai"
+  static let subsystem = "com.google.firebase.vertex-ai"
 
   /// Default category used for most loggers, unless specialized.
   static let defaultCategory = ""
 
   /// The argument required to enable additional logging.
-  static let enableArgumentKey = "-GoogleGenerativeAIDebugLogEnabled"
+  static let enableArgumentKey = "-FIRDebugEnabled"
+
+  /// The argument required to enable additional logging in the Google AI SDK; used for migration.
+  ///
+  /// To facillitate migration between the SDKs, this launch argument is also accepted to enable
+  /// additional logging at this time, though it is expected to be removed in the future.
+  static let migrationEnableArgumentKey = "-GoogleGenerativeAIDebugLogEnabled"
 
   // No initializer available.
   @available(*, unavailable)
@@ -36,7 +42,7 @@ struct Logging {
 
   /// A non default
   static var network: Logger = {
-    if ProcessInfo.processInfo.arguments.contains(enableArgumentKey) {
+    if additionalLoggingEnabled() {
       return Logger(subsystem: subsystem, category: "NetworkResponse")
     } else {
       // Return a valid logger that's using `OSLog.disabled` as the logger, hiding everything.
@@ -46,11 +52,20 @@ struct Logging {
 
   ///
   static var verbose: Logger = {
-    if ProcessInfo.processInfo.arguments.contains(enableArgumentKey) {
+    if additionalLoggingEnabled() {
       return Logger(subsystem: subsystem, category: defaultCategory)
     } else {
       // Return a valid logger that's using `OSLog.disabled` as the logger, hiding everything.
       return Logger(.disabled)
     }
   }()
+
+  /// Returns `true` if additional logging has been enabled via a launch argument.
+  static func additionalLoggingEnabled() -> Bool {
+    let arguments = ProcessInfo.processInfo.arguments
+    if arguments.contains(enableArgumentKey) || arguments.contains(migrationEnableArgumentKey) {
+      return true
+    }
+    return false
+  }
 }
