@@ -5,6 +5,9 @@ Pod::Spec.new do |s|
 
   s.description      = <<-DESC
   Placeholder podspec for docsgen only. Do not use this pod.
+
+  NOTE: Rename the file extension from `.not_podspec` to `.podspec` before
+        running `pod gen` for docs generation.
                         DESC
 
   s.homepage         = 'https://firebase.google.com'
