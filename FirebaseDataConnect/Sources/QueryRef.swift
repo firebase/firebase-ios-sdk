@@ -130,6 +130,15 @@ public protocol ObservableQueryRef: QueryRef {
 
 }
 
+/*
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+extension ObservableQueryRef {
+  public func subscribe() async throws -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never> {
+    //return Empty<Result<ResultDataType, DataConnectError>, Never>()
+  }
+}
+*/
+
 // QueryRef class used with ObservableObject protocol
 // data: Published variable that contains bindable results of the query.
 // lastError: Published variable that contains DataConnectError if last fetch had error.

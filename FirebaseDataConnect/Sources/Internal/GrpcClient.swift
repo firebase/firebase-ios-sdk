@@ -71,9 +71,9 @@ actor GrpcClient {
     self.auth = auth
 
     self.connectorName =
-      "projects/\(projectId)/locations/\(connectorConfig.location.rawValue)/services/\(connectorConfig.serviceId)/connectors/\(connectorConfig.connector)"
+      "projects/\(projectId)/locations/\(connectorConfig.location)/services/\(connectorConfig.serviceId)/connectors/\(connectorConfig.connector)"
 
-    self.googRequestHeaderValue = "location=\(self.connectorConfig.location.rawValue)&frontend=data"
+    self.googRequestHeaderValue = "location=\(self.connectorConfig.location)&frontend=data"
   }
 
   func executeQuery<ResultType: Codable, VariableType: OperationVariable>(request: QueryRequest<VariableType>,
@@ -140,9 +140,11 @@ actor GrpcClient {
     headers.add(name: RequestHeaders.googRequestParamsHeader, value: self.googRequestHeaderValue)
 
     // add token if available
+
     do {
       if let token = try await auth.currentUser?.getIDToken() {
         headers.add(name: RequestHeaders.authorizationHeader, value: "\(token)")
+        //headers.add(name: RequestHeaders.authorizationHeader, value: "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJwcm92aWRlcl9pZCI6ImFub255bW91cyIsImF1dGhfdGltZSI6MTcxNTI4NTk1OCwidXNlcl9pZCI6IlE2bVVNallyWnlFZjJEazhaRDZid1ZLS0tyeGkiLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7fSwic2lnbl9pbl9wcm92aWRlciI6ImFub255bW91cyJ9LCJpYXQiOjE3MTUyODU5NTgsImV4cCI6MTcxNTI4OTU1OCwiYXVkIjoiZGF0YWNvbm5lY3QtZGVtbyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhY29ubmVjdC1kZW1vIiwic3ViIjoiUTZtVU1qWXJaeUVmMkRrOFpENmJ3VktLS3J4aSJ9.")
         print("added token \(token)")
         
       } else {

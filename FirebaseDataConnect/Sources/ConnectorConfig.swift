@@ -15,18 +15,12 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public enum ServiceRegion: String {
-  case USCentral1 = "us-central1"
-  case USWest1 = "us-west1"
-}
-
-@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public struct ConnectorConfig: Hashable, Equatable {
   public private(set) var serviceId: String
-  public private(set) var location: ServiceRegion
+  public private(set) var location: String
   public private(set) var connector: String
 
-  public init(serviceId: String, location: ServiceRegion, connector: String) {
+  public init(serviceId: String, location: String, connector: String) {
     self.serviceId = serviceId
     self.location = location
     self.connector = connector
