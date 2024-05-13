@@ -490,6 +490,14 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  VertexSample-*-*)
+    RunXcodebuild \
+      -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
+      -scheme "VertexAISample" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   Sessions-*-integration)
     # Perform "pod install" to install the relevant dependencies
     # ./FirebaseSessions/generate_testapp.sh

@@ -137,6 +137,10 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+    .library(
+      name: "FirebaseVertexAI-Preview",
+      targets: ["FirebaseVertexAI"]
+    ),
   ],
   dependencies: [
     .package(
@@ -172,7 +176,6 @@ let package = Package(
       url: "https://github.com/paulb777/ocmock.git",
       revision: "173955e93e6ee6999a10729ab67e4b4efdd1db6d"
     ),
-//    .package(
 //      url: "https://github.com/erikdoe/ocmock.git",
 //      revision: "c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110"
 //    ),
@@ -1356,6 +1359,31 @@ let package = Package(
       path: "FirebaseTestingSupport/Firestore/Tests",
       cSettings: [
         .headerSearchPath("../../.."),
+      ]
+    ),
+
+    // MARK: - Firebase Vertex AI
+
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+      ],
+      path: "FirebaseVertexAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("CountTokenResponses"),
+        .process("GenerateContentResponses"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
       ]
     ),
   ] + firestoreTargets(),
