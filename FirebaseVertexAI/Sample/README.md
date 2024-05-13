@@ -8,34 +8,32 @@ from your app, rather than server-side, using the
 
 ### Clone and open the sample project
 
-1. Clone this repo and checkout the `release-10.26` branch.
+1. Clone this repo.
 1. Change into the `FirebaseVertexAI/Sample` directory.
 1. Open `VertexAISample.xcodeproj` using Xcode.
 
 ```bash
-$ git clone https://github.com/firebase/firebase-ios-sdk.git
-$ cd firebase-ios-sdk
-$ git checkout release-10.26
-$ cd FirebaseVertexAI/Sample
-$ open VertexAISample.xcodeproj
+git clone https://github.com/firebase/firebase-ios-sdk.git
+cd firebase-ios-sdk
+cd FirebaseVertexAI/Sample
+open VertexAISample.xcodeproj
 ```
 
 ### Connect the sample to your Firebase project
 
-- To have a functional application, you will need to connect the Vertex AI for
-  Firebase sample app to your Firebase project using the
-  [Firebase Console](https://console.firebase.google.com).
-- For an in-depth explanation, see
-  [Add Firebase to your Apple project](https://firebase.google.com/docs/ios/setup).
-  Below is a summary of the main steps:
-  1. Visit the [Firebase Console](https://console.firebase.google.com).
-  2. Add an iOS+ app to the project. Make sure the `Bundle Identifier` you set
-     matches that of the one in the sample.
+To have a functional application, you will need to connect the Vertex AI for
+Firebase sample app to your Firebase project (or create a new project):
+
+1. Follow the instructions in
+   [Set up a Firebase project and connect your app to Firebase](https://firebase.google.com/docs/vertex-ai/get-started?platform=ios#set-up-firebase).
+2. Add an iOS+ app to your project. Make sure the `Bundle Identifier` you set
+   matches the one in the sample.
      - The default bundle ID is `com.google.firebase.VertexAISample`
-  3. Download the `GoogleService-Info.plist` when prompted and save it to the
-     `FirebaseVertexAI/Sample` directory, overwriting the placeholder file with
-     the same name.
-- Now you should be able to build and run the sample!
+3. Download the `GoogleService-Info.plist` for the app when prompted and save
+   it to the `FirebaseVertexAI/Sample` directory, overwriting the placeholder
+   file with the same name.
+
+You should now be able to build and run the sample!
 
 ## Documentation
 
