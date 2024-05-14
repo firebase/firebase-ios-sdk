@@ -20,9 +20,17 @@ import SwiftUI
 struct PhotoReasoningScreen: View {
   @StateObject var viewModel = PhotoReasoningViewModel()
 
+  enum FocusedField: Hashable {
+    case message
+  }
+
+  @FocusState
+  var focusedField: FocusedField?
+
   var body: some View {
     VStack {
       MultimodalInputField(text: $viewModel.userInput, selection: $viewModel.selectedItems)
+        .focused($focusedField, equals: .message)
         .onSubmit {
           onSendTapped()
         }
@@ -47,11 +55,16 @@ struct PhotoReasoningScreen: View {
       }
     }
     .navigationTitle("Multimodal sample")
+    .onAppear {
+      focusedField = .message
+    }
   }
 
   // MARK: - Actions
 
   private func onSendTapped() {
+    focusedField = nil
+
     Task {
       await viewModel.reason()
     }

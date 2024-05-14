@@ -65,6 +65,9 @@ struct FunctionCallingScreen: View {
             }
           }
         })
+        .onTapGesture {
+          focusedField = nil
+        }
       }
       InputField("Message...", text: $userPrompt) {
         Image(systemName: viewModel.busy ? "stop.circle.fill" : "arrow.up.circle.fill")

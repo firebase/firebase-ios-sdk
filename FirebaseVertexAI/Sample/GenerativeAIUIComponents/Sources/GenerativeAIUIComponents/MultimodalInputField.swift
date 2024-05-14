@@ -69,7 +69,7 @@ public struct MultimodalInputField: View {
         Button(action: showChooseAttachmentTypePicker) {
           Image(systemName: "plus")
         }
-        .padding(.top, 4)
+        .padding(.top, 10)
 
         VStack(alignment: .leading) {
           TextField(
@@ -110,7 +110,7 @@ public struct MultimodalInputField: View {
         Button(action: submit) {
           Text("Go")
         }
-        .padding(.top, 4)
+        .padding(.top, 8)
       }
     }
     .padding(.horizontal)

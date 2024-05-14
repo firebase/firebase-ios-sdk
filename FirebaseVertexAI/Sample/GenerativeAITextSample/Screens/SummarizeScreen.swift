@@ -28,19 +28,23 @@ struct SummarizeScreen: View {
 
   var body: some View {
     VStack {
-      Text("Enter some text, then tap on _Go_ to summarize it.")
-      HStack(alignment: .top) {
-        TextField("Enter text summarize", text: $userInput, axis: .vertical)
-          .textFieldStyle(.roundedBorder)
-          .onSubmit {
+      VStack(alignment: .leading) {
+        Text("Enter some text, then tap on _Go_ to summarize it.")
+          .padding(.horizontal, 6)
+        HStack(alignment: .top) {
+          TextField("Enter text summarize", text: $userInput, axis: .vertical)
+            .focused($focusedField, equals: .message)
+            .textFieldStyle(.roundedBorder)
+            .onSubmit {
+              onSummarizeTapped()
+            }
+          Button("Go") {
             onSummarizeTapped()
           }
-        Button("Go") {
-          onSummarizeTapped()
+          .padding(.top, 4)
         }
-        .padding(.top, 4)
       }
-      .padding([.horizontal, .bottom])
+      .padding(.horizontal, 16)
 
       List {
         HStack(alignment: .top) {
@@ -61,6 +65,8 @@ struct SummarizeScreen: View {
   }
 
   private func onSummarizeTapped() {
+    focusedField = nil
+
     Task {
       await viewModel.summarize(inputText: userInput)
     }
