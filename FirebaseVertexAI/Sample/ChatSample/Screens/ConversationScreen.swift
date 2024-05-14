@@ -95,6 +95,7 @@ struct ConversationScreen: View {
 
   private func sendOrStop() {
     focusedField = nil
+
     if viewModel.busy {
       viewModel.stop()
     } else {
