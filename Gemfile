@@ -1,6 +1,5 @@
 # To update, change version below, run bundle install, test,
 # commit Gemfile and Gemfile.lock.
-
 source 'https://rubygems.org'
 
 # To test CocoaPods pre-releases, update to a relevant commit or tag like below
