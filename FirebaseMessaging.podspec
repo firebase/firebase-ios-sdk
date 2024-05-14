@@ -38,6 +38,7 @@ device, and it is completely free.
   base_dir = "FirebaseMessaging/"
   s.source_files = [
     base_dir + 'Sources/**/*',
+    base_dir + 'Sources/LiveActivities/*.{swift,h,m}',
     base_dir + 'Sources/Protogen/nanopb/*.h',
     base_dir + 'Interop/*.h',
     'Interop/Analytics/Public/*.h',
@@ -46,6 +47,9 @@ device, and it is completely free.
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
   s.library = 'sqlite3'
+#  s.prepare_command = <<-CMD
+#        echo "Bridging header has been created"
+#    CMD
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
@@ -53,6 +57,7 @@ device, and it is completely free.
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+#    'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseMessaging/Sources/LiveActivities/FirebaseMessaging-Bridging-Header.h',
   }
   s.ios.framework = 'SystemConfiguration'
   s.tvos.framework = 'SystemConfiguration'
