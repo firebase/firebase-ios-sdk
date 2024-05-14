@@ -363,8 +363,10 @@
         return;
       }
       self.alertWindow = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+#if TARGET_OS_IOS || TARGET_OS_TV
     } else {
       self.alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#endif
     }
     UIViewController *alertViewController = [[UIViewController alloc] init];
     self.alertWindow.rootViewController = alertViewController;
