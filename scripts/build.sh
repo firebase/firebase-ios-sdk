@@ -304,7 +304,7 @@ case "$product-$platform-$method" in
         -project 'FirebaseAuth/Tests/MultiPlatformSample/MultiPlatformSample.xcodeproj' \
         -scheme "MultiPlatformSample" \
         "${xcb_flags[@]}" \
-        test
+        build
     fi
     ;;
 
