@@ -301,7 +301,7 @@ case "$product-$platform-$method" in
   Auth-*-multiplatform)
     if check_secrets; then
       RunXcodebuild \
-        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
+        -project 'FirebaseAuth/Tests/MultiPlatformSample/MultiPlatformSample.xcodeproj' \
         -scheme "MultiPlatformSample" \
         "${xcb_flags[@]}" \
         test
