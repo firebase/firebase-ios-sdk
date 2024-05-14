@@ -411,12 +411,16 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  # TODO: This is actually building for iOS instead of watchOS. Update to use
+  # watchOS xcb_flags along with the watchOS sdk option. Also nanopb and promises
+  # podspecs need minimum version updates.
+
   MessagingSampleStandaloneWatchApp-*-*)
     if check_secrets; then
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        "${xcb_flags[@]}" \
+        -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)' \
         build
     fi
     ;;
