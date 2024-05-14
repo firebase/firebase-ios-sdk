@@ -169,9 +169,11 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 watchos_flags=(
+  -sdk 'watchsimulator'
   -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
 )
 visionos_flags=(
+  -sdk 'xrsimulator'
   -destination 'platform=visionOS Simulator'
 )
 catalyst_flags=(
