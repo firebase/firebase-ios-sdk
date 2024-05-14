@@ -21,8 +21,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]? = nil) -> Bool {
     // Recommendation: Protect your Vertex AI API resources from abuse by preventing unauthorized
-    // clients using App Check; see https://firebase.google.com/docs/app-check#get_started.
+    // clients using App Check; see https://firebase.google.com/docs/app-check#get_started. Choose
+    // one of the options below to pick between the Debug, DeviceCheck or App Attest providers.
     AppCheck.setAppCheckProviderFactory(AppCheckNotConfiguredFactory())
+
+    // Option 1: Uncomment the following line to use the App Check Debug Provider; see
+    // https://firebase.google.com/docs/app-check/ios/debug-provider#simulator for configuration
+    // instructions.
+    // AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+
+    // Option 2: Uncomment the following line to use the DeviceCheck Provider; see
+    // https://firebase.google.com/docs/app-check/ios/devicecheck-provider#project-setup for
+    // configuration instructions.
+    // AppCheck.setAppCheckProviderFactory(DeviceCheckProviderFactory())
+
+    // Option 3: Uncomment the following line to use the App Attest Provider; see
+    // https://firebase.google.com/docs/app-check/ios/app-attest-provider#project-setup for
+    // configuration instructions.
+    // AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
 
     FirebaseApp.configure()
 
@@ -47,6 +63,12 @@ struct VertexAISampleApp: App {
     WindowGroup {
       ContentView()
     }
+  }
+}
+
+class AppAttestProviderFactory: NSObject, AppCheckProviderFactory {
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    return AppAttestProvider(app: app)
   }
 }
 
