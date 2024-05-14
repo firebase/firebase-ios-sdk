@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.27.0"
+let firebaseVersion = "0.1.0-vertexai-preview"
 
 let package = Package(
   name: "Firebase",
@@ -191,7 +191,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
   ],
   targets: [
     .target(

@@ -60,10 +60,10 @@ public struct InputField<Label>: View where Label: View {
         }
 
         Button(action: submit, label: label)
-          .padding(.top, 4)
+          .padding(.bottom, 4)
       }
     }
-    .padding(.horizontal)
+    .padding(8)
   }
 }
 
