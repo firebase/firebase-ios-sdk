@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !os(macOS) && !os(watchOS)
+#if !os(macOS) && !os(watchOS) && !os(visionOS)
   import Foundation
   import UIKit
 
-  /// A class represents a credential that proves the identity of the app.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthNotificationManager: NSObject {
     /// The key to locate payload data in the remote notification.
