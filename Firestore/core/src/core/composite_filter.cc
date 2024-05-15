@@ -143,14 +143,14 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
 
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
-  return memoized_flattened_filters_->memoize([&]() {
-    std::vector<FieldFilter> flattened_filters;
-    for (const auto& filter : filters())
+  if (Filter::Rep::memoized_flattened_filters_.empty() && !filters().empty()) {
+    for (const auto& filter : filters()) {
       std::copy(filter.GetFlattenedFilters().begin(),
                 filter.GetFlattenedFilters().end(),
-                std::back_inserter(flattened_filters));
-    return flattened_filters;
-  });
+                std::back_inserter(Filter::Rep::memoized_flattened_filters_));
+    }
+  }
+  return Filter::Rep::memoized_flattened_filters_;
 }
 
 }  // namespace core
