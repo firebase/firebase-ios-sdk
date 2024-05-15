@@ -29,8 +29,21 @@ private let kSecretKey = "iosSecret"
 /// The key for the reCAPTCHAToken parameter in the request.
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
+  /// The key for the "captchaResponse" value in the request.
+private let kCaptchaResponseKey = "captchaResponse"
+
+  /// The key for the "clientType" value in the request.
+private let kClientType = "clientType"
+
+  /// The key for the "recaptchaVersion" value in the request.
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
+
+let clientType = "CLIENT_TYPE_IOS"
+
+let reCAPTCHAVersion = "RECAPTCHA_ENTERPRISE"
 
 ///  A verification code can be an appCredential or a reCaptcha Token
 enum CodeIdentity {
@@ -49,11 +62,14 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The credential or reCAPTCHA token to prove the identity of the app in order to send the
   /// verification code.
   let codeIdentity: CodeIdentity
+  
+  let CAPTCHAResponse : String
 
-  init(phoneNumber: String, codeIdentity: CodeIdentity,
+  init(phoneNumber: String, codeIdentity: CodeIdentity, captchaReponse: String,
        requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
     self.codeIdentity = codeIdentity
+    self.CAPTCHAResponse = captchaReponse
     super.init(
       endpoint: kSendVerificationCodeEndPoint,
       requestConfiguration: requestConfiguration
@@ -71,6 +87,9 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty: break
     }
+    postBody[kCAPTCHAResponse] = CAPTCHAResponse
+    postBody[kClientType] = clientType
+    postBody[kreCAPTCHAVersion] = reCAPTCHAVersion
 
     if let tenantID {
       postBody[kTenantIDKey] = tenantID
