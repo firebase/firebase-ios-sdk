@@ -680,7 +680,8 @@ let package = Package(
     .testTarget(
       name: "FirebaseDataConnectTests",
       dependencies: ["FirebaseDataConnect"],
-      path: "FirebaseDataConnect/Tests"
+      path: "FirebaseDataConnect/Tests",
+      resources: [.process("Tests/Resources")]
     ),
     .target(
       name: "FirebaseSharedSwift",

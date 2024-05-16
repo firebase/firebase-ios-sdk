@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import FirebaseCore
 @testable import FirebaseDataConnect
 import XCTest
 
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 class InstanceTests: XCTestCase {
 
   var defaultApp: FirebaseApp?
@@ -18,25 +20,38 @@ class InstanceTests: XCTestCase {
   var fakeConnectorConfigOne = ConnectorConfig(serviceId: "dataconnect", location: "us-central1", connector: "kitchensink")
   var fakeConnectorConfigTwo = ConnectorConfig(serviceId: "dataconnect", location: "us-central1", connector: "blogs")
 
+  override func setUp() {
 
-  override func setup() {
+    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                  gcmSenderID: "00000000000000000-00000000000-000000000")
+    options.projectID = "fdc-test"
+    FirebaseApp.configure(options: options)
     defaultApp = FirebaseApp.app()
 
-    //let serviceInfoFile = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist")
-    //var options = FirebaseOptions(contentsOfFile: service)
-    //defaultApp?.options = options
-
+    let optionsTwo = FirebaseOptions(googleAppID: "0:0000000000001:ios:0000000000000001", gcmSenderID: "00000000000000000-00000000000-000000001")
+    optionsTwo.projectID = "fdc-test"
+    FirebaseApp.configure(name: "app-two", options: optionsTwo)
     appTwo = FirebaseApp.app(name: "app-two")
-    var optionsTwo = FirebaseOptions(googleAppID: "gcm-app-two", gcmSenderID: "00010111")
-
+   
   }
 
-  func testSameInstance() {
+  // same connector config, same app, instance returned should be same
+  func testSameInstance() throws {
     let dcOne = DataConnect.dataConnect(connectorConfig: fakeConnectorConfigOne)
 
     let dcTwo = DataConnect.dataConnect(connectorConfig: fakeConnectorConfigOne)
 
-    XCTAssertEqual(dcOne, dcTwo)
+    let isSameInstance = dcOne === dcTwo
+    XCTAssertTrue(isSameInstance)
+  }
+
+  // same connector config, different apps, instances should be different
+  func testDifferentInstanceDifferentApps() throws {
+    let dcOne = DataConnect.dataConnect(connectorConfig: fakeConnectorConfigOne)
+    let dcTwo = DataConnect.dataConnect(app: appTwo, connectorConfig: fakeConnectorConfigTwo)
+
+    let isDifferent = dcOne !== dcTwo
+    XCTAssertTrue(isDifferent)
   }
 
 }
