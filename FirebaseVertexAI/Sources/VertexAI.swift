@@ -60,10 +60,14 @@ public class VertexAI: NSObject {
 
   /// Initializes a generative model with the given parameters.
   ///
+  /// - Note: Refer to [Gemini models](https://firebase.google.com/docs/vertex-ai/gemini-models) for
+  /// guidance on choosing an appropriate model for your use case.
+  ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example `"gemini-1.0-pro"`; see
-  ///     [Gemini models](https://firebase.google.com/docs/vertex-ai/gemini-model#available-models)
-  ///     for a list of supported model names.
+  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash-preview-0514"`;
+  ///     see [available model names
+  ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
+  ///     list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
