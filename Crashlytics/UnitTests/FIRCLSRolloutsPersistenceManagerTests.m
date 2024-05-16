@@ -90,9 +90,6 @@ NSString *reportId = @"1234567";
       @"\"636f6e74726f6c\"}]}";
 
   NSData *data = [encodedStateString dataUsingEncoding:NSUTF8StringEncoding];
-  NSString *rolloutsFilePath =
-      [[[self.fileManager activePath] stringByAppendingPathComponent:reportId]
-          stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
 
   // Clog up the queue with a long running operation. This sleep time
   // must be longer than the expectation timeout.
