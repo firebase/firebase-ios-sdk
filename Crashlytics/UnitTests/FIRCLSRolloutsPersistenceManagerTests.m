@@ -53,7 +53,7 @@ NSString *reportId = @"1234567";
 
 - (void)testUpdateRolloutsStateToPersistenceWithRollouts {
   XCTestExpectation *expectation = [[XCTestExpectation alloc]
-                                   initWithDescription:@"Expect updating rollouts to finish writing."];
+      initWithDescription:@"Expect updating rollouts to finish writing."];
 
   NSString *encodedStateString =
       @"{rollouts:[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":"
@@ -74,15 +74,15 @@ NSString *reportId = @"1234567";
     [expectation fulfill];
   });
 
-  [self waitForExpectations:@[expectation] timeout:3];
+  [self waitForExpectations:@[ expectation ] timeout:3];
 
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
 }
 
 - (void)testUpdateRolloutsStateToPersistenceEnsureNoHang {
   dispatch_queue_t testQueue = dispatch_queue_create("TestQueue", DISPATCH_QUEUE_SERIAL);
-  XCTestExpectation *expectation = [[XCTestExpectation alloc]
-                                   initWithDescription:@"Expect updating rollouts to return."];
+  XCTestExpectation *expectation =
+      [[XCTestExpectation alloc] initWithDescription:@"Expect updating rollouts to return."];
   NSString *encodedStateString =
       @"{rollouts:[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":"
       @"\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\","
@@ -107,7 +107,7 @@ NSString *reportId = @"1234567";
     [expectation fulfill];
   });
 
-  [self waitForExpectations:@[expectation] timeout:3];
+  [self waitForExpectations:@[ expectation ] timeout:3];
 }
 
 @end
