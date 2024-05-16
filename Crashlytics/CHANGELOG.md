@@ -1,5 +1,6 @@
 # Unreleased
 - [added] Added support for catching the SIGTERM signal (#12881).
+- [fixed] Fixed a hang when persisting Remote Config Rollouts to disk (#12913).
 
 # 10.25.0
 - [changed] Removed usages of user defaults API from internal Firebase Sessions
