@@ -57,7 +57,7 @@
 
   NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
 
-  dispatch_sync(FIRCLSGetLoggingQueue(), ^{
+  dispatch_async(FIRCLSGetLoggingQueue(), ^{
     @try {
       [rolloutsFile seekToEndOfFile];
       NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];

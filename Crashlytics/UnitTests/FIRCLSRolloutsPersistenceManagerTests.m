@@ -16,6 +16,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSRolloutsPersistenceManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
@@ -51,6 +52,9 @@ NSString *reportId = @"1234567";
 }
 
 - (void)testUpdateRolloutsStateToPersistenceWithRollouts {
+  XCTestExpectation *expectation = [[XCTestExpectation alloc]
+                                   initWithDescription:@"Expect updating rollouts to finish writing."];
+
   NSString *encodedStateString =
       @"{rollouts:[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":"
       @"\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\","
@@ -64,7 +68,46 @@ NSString *reportId = @"1234567";
 
   [self.rolloutsPersistenceManager updateRolloutsStateToPersistenceWithRollouts:data
                                                                        reportID:reportId];
+
+  // Wait for the logging queue to finish.
+  dispatch_async(FIRCLSGetLoggingQueue(), ^{
+    [expectation fulfill];
+  });
+
+  [self waitForExpectations:@[expectation] timeout:3];
+
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
+}
+
+- (void)testUpdateRolloutsStateToPersistenceEnsureNoHang {
+  dispatch_queue_t testQueue = dispatch_queue_create("TestQueue", DISPATCH_QUEUE_SERIAL);
+  XCTestExpectation *expectation = [[XCTestExpectation alloc]
+                                   initWithDescription:@"Expect updating rollouts to return."];
+  NSString *encodedStateString =
+      @"{rollouts:[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":"
+      @"\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\","
+      @"\"rollout_id\":\"726f6c6c6f75745f31\",\"template_version\":1,\"variant_id\":"
+      @"\"636f6e74726f6c\"}]}";
+
+  NSData *data = [encodedStateString dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *rolloutsFilePath =
+      [[[self.fileManager activePath] stringByAppendingPathComponent:reportId]
+          stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
+
+  // Clog up the queue with a long running operation. This sleep time
+  // must be longer than the expectation timeout.
+  dispatch_async(FIRCLSGetLoggingQueue(), ^{
+    sleep(10);
+  });
+
+  dispatch_async(testQueue, ^{
+    // Ensure that calling this returns quickly so we don't hang
+    [self.rolloutsPersistenceManager updateRolloutsStateToPersistenceWithRollouts:data
+                                                                         reportID:reportId];
+    [expectation fulfill];
+  });
+
+  [self waitForExpectations:@[expectation] timeout:3];
 }
 
 @end
