@@ -158,6 +158,12 @@ class CompositeFilter : public Filter {
     /** The type of and/or operator in the composite filter. */
     Operator op_;
 
+    /**
+     * A list of all field filters that are contained within this composite
+     * filter.
+     */
+    std::vector<FieldFilter> flattened_filters_;
+
     friend class CompositeFilter;
   };
 

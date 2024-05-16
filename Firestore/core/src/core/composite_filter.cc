@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/composite_filter.h"
 
 #include <algorithm>
+#include <iterator>
 #include <utility>
 
 #include "Firestore/core/src/core/field_filter.h"
@@ -58,6 +59,11 @@ CompositeFilter::CompositeFilter(std::shared_ptr<const Filter::Rep>&& rep)
 
 CompositeFilter::Rep::Rep(std::vector<Filter>&& filters, Operator op)
     : filters_(std::move(filters)), op_(op) {
+  for (const auto& filter : filters_) {
+    std::copy(filter.GetFlattenedFilters().begin(),
+              filter.GetFlattenedFilters().end(),
+              std::back_inserter(flattened_filters_));
+  }
 }
 
 CompositeFilter::CompositeFilter(const Filter& other) : Filter(other) {
@@ -143,14 +149,7 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
 
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
-  if (Filter::Rep::memoized_flattened_filters_.empty() && !filters().empty()) {
-    for (const auto& filter : filters()) {
-      std::copy(filter.GetFlattenedFilters().begin(),
-                filter.GetFlattenedFilters().end(),
-                std::back_inserter(Filter::Rep::memoized_flattened_filters_));
-    }
-  }
-  return Filter::Rep::memoized_flattened_filters_;
+  return flattened_filters_;
 }
 
 }  // namespace core
