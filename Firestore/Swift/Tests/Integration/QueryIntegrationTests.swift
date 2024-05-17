@@ -166,6 +166,17 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
       matchesResult: ["doc2"])
   }
 
+  func testFailedWriteBatch() throws {
+    let batch = db.batch()
+      .updateData(["a": 1, "b": 0], forDocument: documentRef())
+    let a = expectation(description: "wait for mutation")
+    batch.commit { [weak self] err in
+      XCTAssert(err != nil)
+      a.fulfill()
+    }
+    awaitExpectation(a)
+  }
+
   func testOrQueriesWithIn() throws {
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": 0],
