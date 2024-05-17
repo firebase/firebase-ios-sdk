@@ -63,6 +63,7 @@
       NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
       [rolloutsWithNewLineData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
       [rolloutsFile writeData:rolloutsWithNewLineData];
+      [rolloutsFile closeFile];
     } @catch (NSException *exception) {
       FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
                      exception.name, exception.reason);

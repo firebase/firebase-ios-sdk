@@ -52,6 +52,9 @@ NSString *reportId = @"1234567";
 }
 
 - (void)testUpdateRolloutsStateToPersistenceWithRollouts {
+  XCTestExpectation *expectation = [[XCTestExpectation alloc]
+      initWithDescription:@"Expect updating rollouts to finish writing."];
+
   NSString *encodedStateString =
       @"{rollouts:[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":"
       @"\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\","
@@ -65,6 +68,13 @@ NSString *reportId = @"1234567";
 
   [self.rolloutsPersistenceManager updateRolloutsStateToPersistenceWithRollouts:data
                                                                        reportID:reportId];
+
+  // Wait for the logging queue to finish.
+  dispatch_async(FIRCLSGetLoggingQueue(), ^{
+    [expectation fulfill];
+  });
+
+  [self waitForExpectations:@[ expectation ] timeout:3];
 
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
 }
