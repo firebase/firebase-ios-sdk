@@ -37,7 +37,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: FirebaseDynamicLinks
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --allow-warnings
 
   spm:
     # Don't run on private repo unless it is a PR.
@@ -80,7 +80,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=ios ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDynamicLinks.podspec --platforms=ios ${{ matrix.flags }}  --allow-warnings
 
   quickstart:
     # Don't run on private repo unless it is a PR.

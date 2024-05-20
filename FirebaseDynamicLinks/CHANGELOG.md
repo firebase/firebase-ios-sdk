@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added deprecation warning in advance of August 25, 2025 Dynamic Links service shutdown. (#12995)
+
 # 10.3.0
 - [fixed] Fixes issue where `utmParametersDictionary` / `minimumAppVersion` were not provided and their value were set to `[NSNull null]` instead of `nil`.
 
