@@ -84,6 +84,19 @@
       return false
     }
 
+    // MARK: SFSafariViewControllerDelegate
+
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+      kAuthGlobalWorkQueue.async {
+        if controller == self.safariViewController {
+          // TODO: Ensure that the SFSafariViewController is actually removed from the screen
+          // before invoking finishPresentation
+          self.finishPresentation(withURL: nil,
+                                  error: AuthErrorUtils.webContextCancelledError(message: nil))
+        }
+      }
+    }
+
     // MARK: AuthWebViewControllerDelegate
 
     func webViewControllerDidCancel(_ controller: AuthWebViewController) {
@@ -156,8 +169,8 @@
       let webViewController = self.webViewController
       self.webViewController = nil
       if safariViewController != nil || webViewController != nil {
-        uiDelegate?.dismiss(animated: true) {
-          kAuthGlobalWorkQueue.async {
+        DispatchQueue.main.async {
+          uiDelegate?.dismiss(animated: true) {
             self.isPresenting = false
             if let completion {
               completion(url, error)
