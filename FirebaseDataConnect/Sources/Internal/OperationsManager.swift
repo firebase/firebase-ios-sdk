@@ -29,8 +29,8 @@ class OperationsManager {
 
       switch publisher {
       case .auto, .observation:
-        if #available(iOS 17, *) {
-          return QueryRefObservation<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+        if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+            return QueryRefObservation<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
         } else {
           return QueryRefObservableObject<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
         }
