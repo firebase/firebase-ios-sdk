@@ -38,6 +38,7 @@ final class GenerativeModelTests: XCTestCase {
     urlSession = try XCTUnwrap(URLSession(configuration: configuration))
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -180,6 +181,7 @@ final class GenerativeModelTests: XCTestCase {
     let model = GenerativeModel(
       // Model name is prefixed with "models/".
       name: "models/test-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -299,6 +301,7 @@ final class GenerativeModelTests: XCTestCase {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -319,6 +322,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -340,6 +344,7 @@ final class GenerativeModelTests: XCTestCase {
     let authToken = "test-valid-token"
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -360,6 +365,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_nilAuthToken() async throws {
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -380,6 +386,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_authTokenRefreshError() async throws {
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -435,6 +442,29 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
+      return
+    } catch {
+      XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
+    }
+  }
+
+  func testGenerateContent_failure_firebaseMLAPINotEnabled() async throws {
+    let expectedStatusCode = 403
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-failure-firebaseml-api-not-enabled",
+        withExtension: "json",
+        statusCode: expectedStatusCode
+      )
+
+    do {
+      _ = try await model.generateContent(testPrompt)
+      XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
+    } catch let GenerateContentError.internalError(error as RPCError) {
+      XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
+      XCTAssertEqual(error.status, .permissionDenied)
+      XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
+      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
       return
     } catch {
       XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
@@ -701,6 +731,7 @@ final class GenerativeModelTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: requestOptions,
@@ -732,6 +763,31 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
+      return
+    }
+
+    XCTFail("Should have caught an error.")
+  }
+
+  func testGenerateContentStream_failure_firebaseMLAPINotEnabled() async throws {
+    let expectedStatusCode = 403
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-failure-firebaseml-api-not-enabled",
+        withExtension: "json",
+        statusCode: expectedStatusCode
+      )
+
+    do {
+      let stream = model.generateContentStream(testPrompt)
+      for try await _ in stream {
+        XCTFail("No content is there, this shouldn't happen.")
+      }
+    } catch let GenerateContentError.internalError(error as RPCError) {
+      XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
+      XCTAssertEqual(error.status, .permissionDenied)
+      XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
+      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
       return
     }
 
@@ -912,6 +968,7 @@ final class GenerativeModelTests: XCTestCase {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -933,6 +990,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -1078,6 +1136,7 @@ final class GenerativeModelTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: requestOptions,
@@ -1155,6 +1214,7 @@ final class GenerativeModelTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: requestOptions,
@@ -1176,6 +1236,7 @@ final class GenerativeModelTests: XCTestCase {
 
     model = GenerativeModel(
       name: modelName,
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -1191,6 +1252,7 @@ final class GenerativeModelTests: XCTestCase {
 
     model = GenerativeModel(
       name: modelResourceName,
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),
@@ -1206,6 +1268,7 @@ final class GenerativeModelTests: XCTestCase {
 
     model = GenerativeModel(
       name: tunedModelResourceName,
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),

@@ -51,6 +51,7 @@ public final class GenerativeModel {
   ///
   /// - Parameters:
   ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
+  ///   - projectID: The project ID from the Firebase console.
   ///   - apiKey: The API key for your project.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
@@ -61,6 +62,7 @@ public final class GenerativeModel {
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
   init(name: String,
+       projectID: String,
        apiKey: String,
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
@@ -73,6 +75,7 @@ public final class GenerativeModel {
        urlSession: URLSession = .shared) {
     modelResourceName = GenerativeModel.modelResourceName(name: name)
     generativeAIService = GenerativeAIService(
+      projectID: projectID,
       apiKey: apiKey,
       appCheck: appCheck,
       auth: auth,
