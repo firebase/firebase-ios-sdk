@@ -1,4 +1,4 @@
-# Unreleased
+# 10.27.0
 - [added] Added deprecation warning in advance of August 25, 2025 Dynamic Links service shutdown. (#12995)
 
 # 10.3.0
