@@ -100,12 +100,6 @@
           delegate.application?(self.application,
                                 didReceiveRemoteNotification: proberNotification) { _ in
           }
-        } else if let delegate = self.application.delegate,
-                  delegate
-                  .responds(to: #selector(UIApplicationDelegate
-                      .application(_:didReceiveRemoteNotification:))) {
-          delegate.application?(self.application,
-                                didReceiveRemoteNotification: proberNotification)
         } else {
           AuthLog.logWarning(
             code: "I-AUT000015",

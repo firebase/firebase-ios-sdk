@@ -66,12 +66,6 @@ import FirebaseCoreExtension
       completionHandler(UIBackgroundFetchResult.noData)
     }
 
-    // TODO(#11693): This deprecated API is temporarily needed for Phone Auth.
-    open func application(_ application: UIApplication,
-                          didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
-      _ = canHandleNotification(userInfo)
-    }
-
     open func application(_ application: UIApplication,
                           open url: URL,
                           options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
