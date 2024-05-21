@@ -23,13 +23,12 @@ extension UserInfoImpl: NSSecureCoding {}
   /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
-    guard let providerID = providerUserInfo.providerID,
-          let uid = providerUserInfo.federatedID else {
+    guard let providerID = providerUserInfo.providerID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?
-      fatalError("Missing providerID or uid from GetAccountInfoResponseProviderUserInfo")
+      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
-                        userID: uid,
+                        userID: providerUserInfo.federatedID ?? "",
                         displayName: providerUserInfo.displayName,
                         photoURL: providerUserInfo.photoURL,
                         email: providerUserInfo.email,

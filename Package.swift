@@ -154,7 +154,9 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.12.1" ..< "8.0.0"
+      branch: "pb-rm-deprecated-didReceive"
+      // TODO: Update to 8.0.0 when ready.
+      // "7.12.1" ..< "8.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
