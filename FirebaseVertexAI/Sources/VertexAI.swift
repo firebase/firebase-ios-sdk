@@ -83,7 +83,15 @@ public class VertexAI: NSObject {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    let modelResourceName = modelResourceName(modelName: modelName, location: location)
+    guard let projectID = app.options.projectID else {
+      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
+    }
+
+    let modelResourceName = modelResourceName(
+      modelName: modelName,
+      projectID: projectID,
+      location: location
+    )
 
     guard let apiKey = app.options.apiKey else {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
@@ -91,6 +99,7 @@ public class VertexAI: NSObject {
 
     return GenerativeModel(
       name: modelResourceName,
+      projectID: projectID,
       apiKey: apiKey,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
@@ -121,10 +130,7 @@ public class VertexAI: NSObject {
     auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
   }
 
-  private func modelResourceName(modelName: String, location: String) -> String {
-    guard let projectID = app.options.projectID else {
-      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
-    }
+  private func modelResourceName(modelName: String, projectID: String, location: String) -> String {
     guard !modelName.isEmpty && modelName
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""

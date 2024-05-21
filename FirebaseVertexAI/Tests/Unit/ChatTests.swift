@@ -49,6 +49,7 @@ final class ChatTests: XCTestCase {
 
     let model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),

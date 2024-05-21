@@ -30,6 +30,10 @@ struct RPCError: Error {
     self.status = status
     self.details = details
   }
+
+  func isFirebaseMLServiceDisabledError() -> Bool {
+    return details.contains { $0.isFirebaseMLServiceDisabledErrorDetails() }
+  }
 }
 
 extension RPCError: Decodable {
@@ -76,9 +80,26 @@ struct ErrorDetails {
   let type: String
   let reason: String?
   let domain: String?
+  let metadata: [String: String]?
 
   func isErrorInfo() -> Bool {
     return type == ErrorDetails.errorInfoType
+  }
+
+  func isFirebaseMLServiceDisabledErrorDetails() -> Bool {
+    guard isErrorInfo() else {
+      return false
+    }
+    guard reason == "SERVICE_DISABLED" else {
+      return false
+    }
+    guard domain == "googleapis.com" else {
+      return false
+    }
+    guard let metadata, metadata["service"] == "firebaseml.googleapis.com" else {
+      return false
+    }
+    return true
   }
 }
 
@@ -87,6 +108,7 @@ extension ErrorDetails: Decodable, Equatable {
     case type = "@type"
     case reason
     case domain
+    case metadata
   }
 }
 

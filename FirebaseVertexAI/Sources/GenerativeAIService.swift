@@ -25,6 +25,8 @@ struct GenerativeAIService {
   /// The Firebase SDK version in the format `fire/<version>`.
   static let firebaseVersionTag = "fire/\(FirebaseVersion())"
 
+  private let projectID: String
+
   /// Gives permission to talk to the backend.
   private let apiKey: String
 
@@ -34,7 +36,9 @@ struct GenerativeAIService {
 
   private let urlSession: URLSession
 
-  init(apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?, urlSession: URLSession) {
+  init(projectID: String, apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?,
+       urlSession: URLSession) {
+    self.projectID = projectID
     self.apiKey = apiKey
     self.appCheck = appCheck
     self.auth = auth
@@ -236,10 +240,27 @@ struct GenerativeAIService {
 
   private func parseError(responseData: Data) -> Error {
     do {
-      return try JSONDecoder().decode(RPCError.self, from: responseData)
+      let rpcError = try JSONDecoder().decode(RPCError.self, from: responseData)
+      logRPCError(rpcError)
+      return rpcError
     } catch {
       // TODO: Return an error about an unrecognized error payload with the response body
       return error
+    }
+  }
+
+  // Log specific RPC errors that cannot be mitigated or handled by user code.
+  // These errors do not produce specific GenerateContentError or CountTokensError cases.
+  private func logRPCError(_ error: RPCError) {
+    if error.isFirebaseMLServiceDisabledError() {
+      Logging.default.error("""
+      The Vertex AI for Firebase SDK requires the Firebase ML API `firebaseml.googleapis.com` to \
+      be enabled for your project. Get started in the Firebase Console \
+      (https://console.firebase.google.com/project/\(projectID)/genai/vertex) or verify that the \
+      API is enabled in the Google Cloud Console \
+      (https://console.developers.google.com/apis/api/firebaseml.googleapis.com/overview?project=\
+      \(projectID)).
+      """)
     }
   }
 
