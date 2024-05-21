@@ -60,9 +60,9 @@ struct GenerativeAIService {
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
-      Logging.default.error("[FirebaseVertexAI] The server responded with an error: \(response)")
+      Logging.network.error("[FirebaseVertexAI] The server responded with an error: \(response)")
       if let responseString = String(data: data, encoding: .utf8) {
-        Logging.network.error("[FirebaseVertexAI] Response payload: \(responseString)")
+        Logging.default.error("[FirebaseVertexAI] Response payload: \(responseString)")
       }
 
       throw parseError(responseData: data)
@@ -108,14 +108,14 @@ struct GenerativeAIService {
 
         // Verify the status code is 200
         guard response.statusCode == 200 else {
-          Logging.default
+          Logging.network
             .error("[FirebaseVertexAI] The server responded with an error: \(response)")
           var responseBody = ""
           for try await line in stream.lines {
             responseBody += line + "\n"
           }
 
-          Logging.network.error("[FirebaseVertexAI] Response payload: \(responseBody)")
+          Logging.default.error("[FirebaseVertexAI] Response payload: \(responseBody)")
           continuation.finish(throwing: parseError(responseBody: responseBody))
 
           return
