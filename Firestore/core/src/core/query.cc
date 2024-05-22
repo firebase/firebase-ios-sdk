@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <ostream>
+#include <vector>
 
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/operator.h"
@@ -70,9 +71,18 @@ bool Query::MatchesAllDocuments() const {
 const std::set<model::FieldPath> Query::InequalityFilterFields() const {
   std::set<FieldPath> result;
   for (const Filter& filter : filters_) {
-    for (const FieldFilter& subFilter : filter.GetFlattenedFilters()) {
-      if (subFilter.IsInequality()) {
-        result.emplace(subFilter.field());
+    HARD_ASSERT(filter.IsAFieldFilter() || filter.IsACompositeFilter(),
+                "Unrecognized filter type %s", filter.ToString());
+    std::vector<FieldFilter> field_filters;
+    if (filter.IsAFieldFilter()) {
+      field_filters.emplace_back(filter);
+    }
+    for (const FieldFilter& sub_filter :
+         filter.IsAFieldFilter()
+             ? field_filters
+             : CompositeFilter(filter).GetFlattenedFilters()) {
+      if (sub_filter.IsInequality()) {
+        result.emplace(sub_filter.field());
       }
     }
   }
@@ -82,7 +92,16 @@ const std::set<model::FieldPath> Query::InequalityFilterFields() const {
 absl::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
-    for (const auto& field_filter : filter.GetFlattenedFilters()) {
+    HARD_ASSERT(filter.IsAFieldFilter() || filter.IsACompositeFilter(),
+                "Unrecognized filter type %s", filter.ToString());
+    std::vector<FieldFilter> field_filters;
+    if (filter.IsAFieldFilter()) {
+      field_filters.emplace_back(filter);
+    }
+    for (const FieldFilter& field_filter :
+         filter.IsAFieldFilter()
+             ? field_filters
+             : CompositeFilter(filter).GetFlattenedFilters()) {
       if (absl::c_linear_search(ops, field_filter.op())) {
         return field_filter.op();
       }

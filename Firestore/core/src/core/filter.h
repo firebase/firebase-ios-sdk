@@ -95,13 +95,6 @@ class Filter {
   }
 
   /**
-   * Returns a list of all field filters that are contained within this filter.
-   */
-  const std::vector<FieldFilter>& GetFlattenedFilters() const {
-    return rep_->GetFlattenedFilters();
-  }
-
-  /**
    * Returns a list of all filters that are contained within this filter
    */
   std::vector<Filter> GetFilters() const {
@@ -144,15 +137,7 @@ class Filter {
 
     virtual bool IsEmpty() const = 0;
 
-    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
-
     virtual std::vector<Filter> GetFilters() const = 0;
-
-    /**
-     * Memoized list of all field filters that can be found by
-     * traversing the tree of filters contained in this composite filter.
-     */
-    mutable std::vector<FieldFilter> memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {

@@ -67,8 +67,17 @@ bool Target::IsDocumentQuery() const {
 size_t Target::GetSegmentCount() const {
   std::set<FieldPath> fields;
   bool has_array_segment = false;
-  for (const Filter& filter : filters_) {
-    for (const FieldFilter& sub_filter : filter.GetFlattenedFilters()) {
+  for (const auto& filter : filters_) {
+    HARD_ASSERT(filter.IsAFieldFilter() || filter.IsACompositeFilter(),
+                "Unrecognized filter type %s", filter.ToString());
+    std::vector<FieldFilter> field_filters;
+    if (filter.IsAFieldFilter()) {
+      field_filters.emplace_back(filter);
+    }
+    for (const FieldFilter& sub_filter :
+         filter.IsAFieldFilter()
+             ? field_filters
+             : CompositeFilter(filter).GetFlattenedFilters()) {
       // __name__ is not an explicit segment of any index, so we don't need to
       // count it.
       if (sub_filter.field().IsKeyFieldPath()) {

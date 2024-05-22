@@ -60,9 +60,16 @@ CompositeFilter::CompositeFilter(std::shared_ptr<const Filter::Rep>&& rep)
 CompositeFilter::Rep::Rep(std::vector<Filter>&& filters, Operator op)
     : filters_(std::move(filters)), op_(op) {
   for (const auto& filter : filters_) {
-    std::copy(filter.GetFlattenedFilters().begin(),
-              filter.GetFlattenedFilters().end(),
-              std::back_inserter(flattened_filters_));
+    if (filter.IsAFieldFilter()) {
+      flattened_filters_.emplace_back(filter);
+    } else if (filter.IsACompositeFilter()) {
+      const CompositeFilter compositeFilter(filter);
+      std::copy(compositeFilter.GetFlattenedFilters().begin(),
+                compositeFilter.GetFlattenedFilters().end(),
+                std::back_inserter(flattened_filters_));
+    } else {
+      HARD_FAIL("Unrecognized filter type %s", filter.ToString());
+    }
   }
 }
 

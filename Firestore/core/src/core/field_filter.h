@@ -117,8 +117,6 @@ class FieldFilter : public Filter {
       return false;
     }
 
-    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
-
     std::vector<Filter> GetFilters() const override;
 
    protected:

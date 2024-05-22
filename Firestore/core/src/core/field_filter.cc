@@ -123,12 +123,6 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
     : Filter(std::move(rep)) {
 }
 
-const std::vector<FieldFilter>& FieldFilter::Rep::GetFlattenedFilters() const {
-  // This is already a field filter, so we return a vector of size one.
-  return std::vector<FieldFilter>{
-      FieldFilter(std::make_shared<const Rep>(*this))};
-}
-
 std::vector<Filter> FieldFilter::Rep::GetFilters() const {
   // This is the only filter within this object, so we return a list of size
   // one.
