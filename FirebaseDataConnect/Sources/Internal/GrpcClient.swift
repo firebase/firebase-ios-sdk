@@ -20,10 +20,20 @@ import GRPC
 import NIOCore
 import NIOHPACK
 import NIOPosix
+import OSLog
 import SwiftProtobuf
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 actor GrpcClient {
+  lazy var description: String = """
+      GrpcClient: \
+      projectId=\(projectId) \
+      connector=\(connectorConfig.connector) \
+      host=\(serverSettings.host) \
+      port=\(serverSettings.port) \
+      ssl=\(serverSettings.sslEnabled)
+  """
+
   private let projectId: String
 
   private let threadPoolSize = 1
@@ -45,6 +55,7 @@ actor GrpcClient {
 
   private lazy var client: Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClient? = {
     do {
+      FirebaseOSLog.dataConnect.debug("\(self.description) initialization starts.")
       let group = PlatformSupport.makeEventLoopGroup(loopCount: threadPoolSize)
       let channel = try GRPCChannelPool.with(
         target: .host(serverSettings.host, port: serverSettings.port),
@@ -53,14 +64,10 @@ actor GrpcClient {
           .plaintext,
         eventLoopGroup: group
       )
-      print(
-        "Created Channel \(channel) for host \(serverSettings.host) port \(serverSettings.port) ssl \(serverSettings.sslEnabled)"
-      )
+      FirebaseOSLog.dataConnect.debug("\(self.description) has been created.")
       return Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClient(channel: channel)
-
     } catch {
-      // TODO: Convert to using logger
-      print("Error initing GRPC client \(error)")
+      FirebaseOSLog.dataConnect.error("Error:\(error) when creating \(self.description).")
       return nil
     }
   }()
@@ -84,6 +91,8 @@ actor GrpcClient {
                                        .Type)
     async throws -> OperationResult<ResultType> {
     guard let client else {
+      FirebaseOSLog.dataConnect
+        .error("When calling executeQuery(), grpc client has not been configured.")
       throw DataConnectError.grpcNotConfigured
     }
 
@@ -94,19 +103,25 @@ actor GrpcClient {
     )
 
     do {
-      print("calling execute query in grpcClient")
+      try FirebaseOSLog.dataConnect
+        .debug("executeQuery() sends grpc request: \(grpcRequest.jsonString()).")
       let results = try await client.executeQuery(grpcRequest, callOptions: createCallOptions())
-      print("done calling executeQuery")
-
+      try FirebaseOSLog.dataConnect
+        .debug("executeQuery() receives response: \(results.jsonString()).")
       // Not doing error decoding here
-      if let decodedResults = try codec.decode(result: results.data, asType: resultType) {
+        if let decodedResults = try codec.decode(result: results.data, asType: resultType) {
         return OperationResult(data: decodedResults)
       } else {
         // In future, set this as error in OperationResult
+        try FirebaseOSLog.dataConnect
+          .error("executeQuery() response: \(results.jsonString()) decode failed.")
         throw DataConnectError.decodeFailed
       }
     } catch {
-      print("Error executing query \(error)")
+      try FirebaseOSLog.dataConnect
+        .error(
+          "executeQuery() with request: \(grpcRequest.jsonString()) grpc call FAILED with \(error)."
+        )
       throw error
     }
   }
@@ -117,6 +132,8 @@ actor GrpcClient {
                                        .Type)
     async throws -> OperationResult<ResultType> {
     guard let client else {
+      FirebaseOSLog.dataConnect
+        .error("When calling executeMutation(), grpc client has not been configured.")
       throw DataConnectError.grpcNotConfigured
     }
 
@@ -127,15 +144,23 @@ actor GrpcClient {
     )
 
     do {
+      try FirebaseOSLog.dataConnect
+        .debug("executeMutation() sends grpc request: \(grpcRequest.jsonString()).")
       let results = try await client.executeMutation(grpcRequest, callOptions: createCallOptions())
-      print("executed mutation \(results)")
+      try FirebaseOSLog.dataConnect
+        .debug("executeMutation() receives response: \(results.jsonString()).")
       if let decodedResults = try codec.decode(result: results.data, asType: resultType) {
         return OperationResult(data: decodedResults)
       } else {
+        try FirebaseOSLog.dataConnect
+          .error("executeMutation() response: \(results.jsonString()) decode failed.")
         throw DataConnectError.decodeFailed
       }
     } catch {
-      print("Error executing mutation \(error)")
+      try FirebaseOSLog.dataConnect
+        .error(
+          "executeMutation() with request: \(grpcRequest.jsonString()) grpc call FAILED with \(error)."
+        )
       throw error
     }
   }
@@ -154,10 +179,11 @@ actor GrpcClient {
         print("added token \(token)")
 
       } else {
-        print("No auth token available. Not adding auth header")
+        FirebaseOSLog.dataConnect.debug("No auth token available. Not adding auth header.")
       }
     } catch {
-      print("Error getting auth token. Not adding it. \(error)")
+      FirebaseOSLog.dataConnect
+        .debug("Cannot get auth token successfully due to: \(error). Not adding auth header.")
     }
 
     let options = CallOptions(customMetadata: headers)
