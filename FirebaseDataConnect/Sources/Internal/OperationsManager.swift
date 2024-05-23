@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 class OperationsManager {
   private var grpcClient: GrpcClient
@@ -23,27 +22,40 @@ class OperationsManager {
     self.grpcClient = grpcClient
   }
 
-  func queryRef<ResultDataType: Codable, VariableType: OperationVariable>(for request: QueryRequest<VariableType>,
-                                                                          with resultType: ResultDataType
-    .Type, publisher: ResultsPublisherType = .auto) -> any ObservableQueryRef {
-
-      switch publisher {
-      case .auto, .observation:
-        if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
-            return QueryRefObservation<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
-        } else {
-          return QueryRefObservableObject<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
-        }
-      case .observableObject:
-        return QueryRefObservableObject<ResultDataType, VariableType>(request: request, dataType: resultType, grpcClient: self.grpcClient) as! (any ObservableQueryRef)
+  func queryRef<ResultDataType: Codable,
+    VariableType: OperationVariable>(for request: QueryRequest<VariableType>,
+                                     with resultType: ResultDataType
+                                       .Type,
+                                     publisher: ResultsPublisherType = .auto)
+    -> any ObservableQueryRef {
+    switch publisher {
+    case .auto, .observation:
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+        return QueryRefObservation<ResultDataType, VariableType>(
+          request: request,
+          dataType: resultType,
+          grpcClient: self.grpcClient
+        ) as! (any ObservableQueryRef)
+      } else {
+        return QueryRefObservableObject<ResultDataType, VariableType>(
+          request: request,
+          dataType: resultType,
+          grpcClient: grpcClient
+        ) as! (any ObservableQueryRef)
       }
+    case .observableObject:
+      return QueryRefObservableObject<ResultDataType, VariableType>(
+        request: request,
+        dataType: resultType,
+        grpcClient: grpcClient
+      ) as! (any ObservableQueryRef)
     }
+  }
 
-  func mutationRef<ResultDataType: Codable, VariableType: OperationVariable>(for request: MutationRequest<VariableType>,
-                                          with resultType: ResultDataType
-  .Type) -> MutationRef<ResultDataType, VariableType> {
+  func mutationRef<ResultDataType: Codable,
+    VariableType: OperationVariable>(for request: MutationRequest<VariableType>,
+                                     with resultType: ResultDataType
+                                       .Type) -> MutationRef<ResultDataType, VariableType> {
     return MutationRef(request: request, grpcClient: grpcClient)
   }
 }
-
-

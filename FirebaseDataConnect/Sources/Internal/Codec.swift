@@ -43,7 +43,9 @@ class Codec {
   }
 
   func createQueryRequestProto<VariableType: OperationVariable>(connectorName: String,
-                               request: QueryRequest<VariableType>) throws
+                                                                request: QueryRequest<
+                                                                  VariableType
+                                                                >) throws
     -> Google_Firebase_Dataconnect_V1alpha_ExecuteQueryRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
@@ -68,7 +70,9 @@ class Codec {
   }
 
   func createMutationRequestProto<VariableType: OperationVariable>(connectorName: String,
-                                  request: MutationRequest<VariableType>) throws
+                                                                   request: MutationRequest<
+                                                                     VariableType
+                                                                   >) throws
     -> Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
@@ -76,18 +80,19 @@ class Codec {
         varStruct = try encode(args: variables)
       }
 
-      let internalRequest = Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest.with { ireq in
-        ireq.operationName = request.operationName
+      let internalRequest = Google_Firebase_Dataconnect_V1alpha_ExecuteMutationRequest
+        .with { ireq in
+          ireq.operationName = request.operationName
 
-        if let varStruct {
-          ireq.variables = varStruct
-        } else {
-          // always provide an empty struct otherwise request fails.
-          ireq.variables = Google_Protobuf_Struct()
+          if let varStruct {
+            ireq.variables = varStruct
+          } else {
+            // always provide an empty struct otherwise request fails.
+            ireq.variables = Google_Protobuf_Struct()
+          }
+
+          ireq.name = connectorName
         }
-
-        ireq.name = connectorName
-      }
 
       return internalRequest
     }

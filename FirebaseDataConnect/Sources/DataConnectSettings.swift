@@ -27,9 +27,9 @@ public struct DataConnectSettings: Hashable, Equatable {
   }
 
   public init() {
-    self.host = "firebasedataconnect.googleapis.com"
-    self.port = 443
-    self.sslEnabled = true
+    host = "firebasedataconnect.googleapis.com"
+    port = 443
+    sslEnabled = true
   }
 
   public func hash(into hasher: inout Hasher) {
@@ -40,8 +40,7 @@ public struct DataConnectSettings: Hashable, Equatable {
 
   public static func == (lhs: DataConnectSettings, rhs: DataConnectSettings) -> Bool {
     return lhs.host == rhs.host &&
-    lhs.port == rhs.port &&
-    lhs.sslEnabled == rhs.sslEnabled
+      lhs.port == rhs.port &&
+      lhs.sslEnabled == rhs.sslEnabled
   }
-
 }
