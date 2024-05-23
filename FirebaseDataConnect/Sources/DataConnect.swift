@@ -19,7 +19,6 @@ import FirebaseCore
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class DataConnect {
-
   private var connectorConfig: ConnectorConfig
   private var app: FirebaseApp
   private var settings: DataConnectSettings
@@ -29,11 +28,12 @@ public class DataConnect {
 
   private static var instanceStore = InstanceStore()
 
-
   // MARK: Static Creation
 
-  public class func dataConnect(app: FirebaseApp? = FirebaseApp.app(), connectorConfig: ConnectorConfig, settings: DataConnectSettings = DataConnectSettings()) -> DataConnect {
-
+  public class func dataConnect(app: FirebaseApp? = FirebaseApp.app(),
+                                connectorConfig: ConnectorConfig,
+                                settings: DataConnectSettings = DataConnectSettings())
+    -> DataConnect {
     guard let app = app else {
       fatalError("No Firebase App present")
     }
@@ -45,23 +45,24 @@ public class DataConnect {
 
   public func useEmulator(host: String = "localhost",
                           port: Int = 9510) {
-      settings = DataConnectSettings(host: host, port: port, sslEnabled: false)
+    settings = DataConnectSettings(host: host, port: port, sslEnabled: false)
 
-      // TODO: - shutdown grpc client
-      // self.grpcClient.close
-      // self.operations.close
+    // TODO: - shutdown grpc client
+    // self.grpcClient.close
+    // self.operations.close
 
-      guard let projectID = app.options.projectID else {
-        fatalError("Firebase DataConnect requires the projectID to be set in the app options")
-      }
+    guard let projectID = app.options.projectID else {
+      fatalError("Firebase DataConnect requires the projectID to be set in the app options")
+    }
 
-      grpcClient = GrpcClient(
-        projectId: projectID,
-        settings: settings,
-        connectorConfig: connectorConfig,
-        auth: Auth.auth(app: self.app))
+    grpcClient = GrpcClient(
+      projectId: projectID,
+      settings: settings,
+      connectorConfig: connectorConfig,
+      auth: Auth.auth(app: app)
+    )
 
-      operationsManager = OperationsManager(grpcClient: grpcClient)
+    operationsManager = OperationsManager(grpcClient: grpcClient)
   }
 
   // MARK: Init
@@ -84,24 +85,29 @@ public class DataConnect {
     operationsManager = OperationsManager(grpcClient: grpcClient)
   }
 
-
   // MARK: Operations
 
-  public func query<ResultDataType: Codable, Variable: OperationVariable>(request: QueryRequest<Variable>,
-                                                   resultsDataType: ResultDataType
-    .Type, publisher: ResultsPublisherType = .observableObject) -> any ObservableQueryRef {
+  public func query<ResultDataType: Codable,
+    Variable: OperationVariable>(request: QueryRequest<Variable>,
+                                 resultsDataType: ResultDataType
+                                   .Type,
+                                 publisher: ResultsPublisherType = .observableObject)
+    -> any ObservableQueryRef {
     return operationsManager.queryRef(for: request, with: resultsDataType, publisher: publisher)
   }
 
-  public func mutation<ResultDataType: Codable, VariableType: OperationVariable>(request: MutationRequest<VariableType>,
-                                                      resultsDataType: ResultDataType
-                                                        .Type) -> MutationRef<ResultDataType, VariableType> {
+  public func mutation<ResultDataType: Codable,
+    VariableType: OperationVariable>(request: MutationRequest<VariableType>,
+                                     resultsDataType: ResultDataType
+                                       .Type)
+    -> MutationRef<ResultDataType,
+      VariableType> {
     return operationsManager.mutationRef(for: request, with: resultsDataType)
   }
 }
 
-
 // MARK: Instance Creation
+
 // Support for creating or reusing DataConnect instances.
 // Instances are keyed by ConnectorConfig and FirebaseApp (projectID)
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
@@ -123,11 +129,15 @@ private struct InstanceKey: Hashable, Equatable {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 private class InstanceStore {
-  let accessQ = DispatchQueue(label: "firebase.dataconnect.instanceQ", autoreleaseFrequency: .workItem)
+  let accessQ = DispatchQueue(
+    label: "firebase.dataconnect.instanceQ",
+    autoreleaseFrequency: .workItem
+  )
 
   var instances = [InstanceKey: DataConnect]()
 
-  func instance(for app: FirebaseApp, config: ConnectorConfig, settings: DataConnectSettings) -> DataConnect {
+  func instance(for app: FirebaseApp, config: ConnectorConfig,
+                settings: DataConnectSettings) -> DataConnect {
     accessQ.sync {
       let key = InstanceKey(app: app, config: config)
       if let inst = instances[key] {

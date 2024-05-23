@@ -34,7 +34,7 @@ public struct ConnectorConfig: Hashable, Equatable {
 
   public static func == (lhs: Self, rhs: Self) -> Bool {
     return lhs.serviceId == rhs.serviceId &&
-    lhs.location == rhs.location &&
-    lhs.connector == rhs.connector
+      lhs.location == rhs.location &&
+      lhs.connector == rhs.connector
   }
 }

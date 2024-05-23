@@ -14,14 +14,13 @@
 
 import Foundation
 
+import FirebaseAuth
+import FirebaseCoreInternal
 import GRPC
 import NIOCore
 import NIOHPACK
 import NIOPosix
 import SwiftProtobuf
-import FirebaseCoreInternal
-import FirebaseAuth
-
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 actor GrpcClient {
@@ -54,7 +53,9 @@ actor GrpcClient {
           .plaintext,
         eventLoopGroup: group
       )
-      print("Created Channel \(channel) for host \(serverSettings.host) port \(serverSettings.port) ssl \(serverSettings.sslEnabled)")
+      print(
+        "Created Channel \(channel) for host \(serverSettings.host) port \(serverSettings.port) ssl \(serverSettings.sslEnabled)"
+      )
       return Google_Firebase_Dataconnect_V1alpha_ConnectorServiceAsyncClient(channel: channel)
 
     } catch {
@@ -64,21 +65,24 @@ actor GrpcClient {
     }
   }()
 
-  init(projectId: String, settings: DataConnectSettings, connectorConfig: ConnectorConfig, auth: Auth) {
+  init(projectId: String, settings: DataConnectSettings, connectorConfig: ConnectorConfig,
+       auth: Auth) {
     self.projectId = projectId
-    self.serverSettings = settings
+    serverSettings = settings
     self.connectorConfig = connectorConfig
     self.auth = auth
 
-    self.connectorName =
+    connectorName =
       "projects/\(projectId)/locations/\(connectorConfig.location)/services/\(connectorConfig.serviceId)/connectors/\(connectorConfig.connector)"
 
-    self.googRequestHeaderValue = "location=\(self.connectorConfig.location)&frontend=data"
+    googRequestHeaderValue = "location=\(self.connectorConfig.location)&frontend=data"
   }
 
-  func executeQuery<ResultType: Codable, VariableType: OperationVariable>(request: QueryRequest<VariableType>,
-                                         resultType: ResultType.Type)
-  async throws -> OperationResult<ResultType> {
+  func executeQuery<ResultType: Codable,
+    VariableType: OperationVariable>(request: QueryRequest<VariableType>,
+                                     resultType: ResultType
+                                       .Type)
+    async throws -> OperationResult<ResultType> {
     guard let client else {
       throw DataConnectError.grpcNotConfigured
     }
@@ -91,7 +95,7 @@ actor GrpcClient {
 
     do {
       print("calling execute query in grpcClient")
-      let results = try await client.executeQuery(grpcRequest,callOptions: createCallOptions())
+      let results = try await client.executeQuery(grpcRequest, callOptions: createCallOptions())
       print("done calling executeQuery")
 
       // Not doing error decoding here
@@ -107,9 +111,11 @@ actor GrpcClient {
     }
   }
 
-  func executeMutation<ResultType: Codable, VariableType: OperationVariable>(request: MutationRequest<VariableType>,
-                                                                             resultType: ResultType.Type)
-  async throws -> OperationResult<ResultType> {
+  func executeMutation<ResultType: Codable,
+    VariableType: OperationVariable>(request: MutationRequest<VariableType>,
+                                     resultType: ResultType
+                                       .Type)
+    async throws -> OperationResult<ResultType> {
     guard let client else {
       throw DataConnectError.grpcNotConfigured
     }
@@ -137,16 +143,16 @@ actor GrpcClient {
   private func createCallOptions() async -> CallOptions {
     var headers = HPACKHeaders()
 
-    headers.add(name: RequestHeaders.googRequestParamsHeader, value: self.googRequestHeaderValue)
+    headers.add(name: RequestHeaders.googRequestParamsHeader, value: googRequestHeaderValue)
 
     // add token if available
 
     do {
       if let token = try await auth.currentUser?.getIDToken() {
         headers.add(name: RequestHeaders.authorizationHeader, value: "\(token)")
-        //headers.add(name: RequestHeaders.authorizationHeader, value: "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJwcm92aWRlcl9pZCI6ImFub255bW91cyIsImF1dGhfdGltZSI6MTcxNTI4NTk1OCwidXNlcl9pZCI6IlE2bVVNallyWnlFZjJEazhaRDZid1ZLS0tyeGkiLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7fSwic2lnbl9pbl9wcm92aWRlciI6ImFub255bW91cyJ9LCJpYXQiOjE3MTUyODU5NTgsImV4cCI6MTcxNTI4OTU1OCwiYXVkIjoiZGF0YWNvbm5lY3QtZGVtbyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhY29ubmVjdC1kZW1vIiwic3ViIjoiUTZtVU1qWXJaeUVmMkRrOFpENmJ3VktLS3J4aSJ9.")
+        // headers.add(name: RequestHeaders.authorizationHeader, value: "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJwcm92aWRlcl9pZCI6ImFub255bW91cyIsImF1dGhfdGltZSI6MTcxNTI4NTk1OCwidXNlcl9pZCI6IlE2bVVNallyWnlFZjJEazhaRDZid1ZLS0tyeGkiLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7fSwic2lnbl9pbl9wcm92aWRlciI6ImFub255bW91cyJ9LCJpYXQiOjE3MTUyODU5NTgsImV4cCI6MTcxNTI4OTU1OCwiYXVkIjoiZGF0YWNvbm5lY3QtZGVtbyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhY29ubmVjdC1kZW1vIiwic3ViIjoiUTZtVU1qWXJaeUVmMkRrOFpENmJ3VktLS3J4aSJ9.")
         print("added token \(token)")
-        
+
       } else {
         print("No auth token available. Not adding auth header")
       }
