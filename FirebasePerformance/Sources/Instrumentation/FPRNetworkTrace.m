@@ -427,18 +427,20 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 + (void)addNetworkTrace:(FPRNetworkTrace *)networkTrace toObject:(id)object {
   if (object != nil && networkTrace != nil) {
-    [GULObjectSwizzler setAssociatedObject:object
-                                       key:kFPRNetworkTracePropertyName
-                                     value:networkTrace
-                               association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
+    [GULObjectSwizzler
+        setAssociatedObject:object
+                        key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName
+                      value:networkTrace
+                association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
   }
 }
 
 + (FPRNetworkTrace *)networkTraceFromObject:(id)object {
   FPRNetworkTrace *networkTrace = nil;
   if (object != nil) {
-    id traceObject = [GULObjectSwizzler getAssociatedObject:object
-                                                        key:kFPRNetworkTracePropertyName];
+    id traceObject = [GULObjectSwizzler
+        getAssociatedObject:object
+                        key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName];
     if ([traceObject isKindOfClass:[FPRNetworkTrace class]]) {
       networkTrace = (FPRNetworkTrace *)traceObject;
     }
@@ -449,10 +451,11 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 + (void)removeNetworkTraceFromObject:(id)object {
   if (object != nil) {
-    [GULObjectSwizzler setAssociatedObject:object
-                                       key:kFPRNetworkTracePropertyName
-                                     value:nil
-                               association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
+    [GULObjectSwizzler
+        setAssociatedObject:object
+                        key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName
+                      value:nil
+                association:GUL_ASSOCIATION_RETAIN_NONATOMIC];
   }
 }
 
