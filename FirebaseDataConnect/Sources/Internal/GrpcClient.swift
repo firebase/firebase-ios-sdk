@@ -25,15 +25,8 @@ import OSLog
 import SwiftProtobuf
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-actor GrpcClient {
-  lazy var description: String = """
-      GrpcClient: \
-      projectId=\(projectId) \
-      connector=\(connectorConfig.connector) \
-      host=\(serverSettings.host) \
-      port=\(serverSettings.port) \
-      ssl=\(serverSettings.sslEnabled)
-  """
+actor GrpcClient: CustomStringConvertible {
+  nonisolated let description: String
 
   private let projectId: String
 
@@ -84,6 +77,15 @@ actor GrpcClient {
       "projects/\(projectId)/locations/\(connectorConfig.location)/services/\(connectorConfig.serviceId)/connectors/\(connectorConfig.connector)"
 
     googRequestHeaderValue = "location=\(self.connectorConfig.location)&frontend=data"
+
+    description = """
+        GrpcClient: \
+        projectId=\(projectId) \
+        connector=\(connectorConfig.connector) \
+        host=\(serverSettings.host) \
+        port=\(serverSettings.port) \
+        ssl=\(serverSettings.sslEnabled)
+    """
   }
 
   func executeQuery<ResultType: Codable,
