@@ -29,7 +29,7 @@ class OperationsManager {
                                      publisher: ResultsPublisherType = .auto)
     -> any ObservableQueryRef {
     switch publisher {
-    case .auto, .observation:
+    case .auto, .observableMacro:
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         return QueryRefObservation<ResultDataType, VariableType>(
           request: request,

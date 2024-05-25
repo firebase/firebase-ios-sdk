@@ -150,7 +150,6 @@ actor GrpcClient {
     do {
       if let token = try await auth.currentUser?.getIDToken() {
         headers.add(name: RequestHeaders.authorizationHeader, value: "\(token)")
-        // headers.add(name: RequestHeaders.authorizationHeader, value: "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJwcm92aWRlcl9pZCI6ImFub255bW91cyIsImF1dGhfdGltZSI6MTcxNTI4NTk1OCwidXNlcl9pZCI6IlE2bVVNallyWnlFZjJEazhaRDZid1ZLS0tyeGkiLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7fSwic2lnbl9pbl9wcm92aWRlciI6ImFub255bW91cyJ9LCJpYXQiOjE3MTUyODU5NTgsImV4cCI6MTcxNTI4OTU1OCwiYXVkIjoiZGF0YWNvbm5lY3QtZGVtbyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhY29ubmVjdC1kZW1vIiwic3ViIjoiUTZtVU1qWXJaeUVmMkRrOFpENmJ3VktLS3J4aSJ9.")
         print("added token \(token)")
 
       } else {

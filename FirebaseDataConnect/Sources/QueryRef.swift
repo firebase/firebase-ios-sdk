@@ -21,7 +21,7 @@ import Observation
 public enum ResultsPublisherType {
   case auto // automatically determine ObservableQueryRef
   case observableObject // pre-iOS 17 ObservableObject
-  case observation // iOS 17+ Observation framework
+  case observableMacro // iOS 17+ Observation framework
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
