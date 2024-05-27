@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
+#import "FirebaseCore/Sources/FIRTimestampInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
