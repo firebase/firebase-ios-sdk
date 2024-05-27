@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class FirebaseLog {
+public class FirebaseLogger {
   let subsystem: String = "com.google.firebase"
 
   let category: String
