@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import OSLog
 
 public class FirebaseLogger {
   let subsystem: String = "com.google.firebase"
@@ -23,7 +24,7 @@ public class FirebaseLogger {
     if #available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *) {
       return FirebaseInternalLogger(subsystem: subsystem, category: category)
     } else {
-      return FirebaseInternalOSLog(subsystem: subsystem, category: category)
+      return OSLog(subsystem: subsystem, category: category)
     }
   }()
 

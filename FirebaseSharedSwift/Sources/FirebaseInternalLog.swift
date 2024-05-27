@@ -16,8 +16,6 @@ import Foundation
 import OSLog
 
 protocol FirebaseInternalLog {
-  init(subsystem: String, category: String)
-
   func notice(_ message: String)
 
   func info(_ message: String)
@@ -31,35 +29,29 @@ protocol FirebaseInternalLog {
   func fault(_ message: String)
 }
 
-class FirebaseInternalOSLog: FirebaseInternalLog {
-  private let osLog: OSLog
-
-  required init(subsystem: String, category: String) {
-    osLog = OSLog(subsystem: subsystem, category: category)
-  }
-
+extension OSLog: FirebaseInternalLog {
   func notice(_ message: String) {
-    os_log("%s", log: osLog, type: .default, message)
+    os_log("%s", log: self, type: .default, message)
   }
 
   func info(_ message: String) {
-    os_log("%s", log: osLog, type: .info, message)
+    os_log("%s", log: self, type: .info, message)
   }
 
   func debug(_ message: String) {
-    os_log("%s", log: osLog, type: .debug, message)
+    os_log("%s", log: self, type: .debug, message)
   }
 
   func warning(_ message: String) {
-    os_log("%s", log: osLog, type: .default, message)
+    os_log("%s", log: self, type: .default, message)
   }
 
   func error(_ message: String) {
-    os_log("%s", log: osLog, type: .error, message)
+    os_log("%s", log: self, type: .error, message)
   }
 
   func fault(_ message: String) {
-    os_log("%s", log: osLog, type: .fault, message)
+    os_log("%s", log: self, type: .fault, message)
   }
 }
 
