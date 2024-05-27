@@ -167,19 +167,11 @@ static NSString *const kEventExtensionJson = @"extension_js";
   id fetchedClearcutRetryRecords;
   NSData *data = [NSData dataWithContentsOfFile:filePath];
   if (data) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      fetchedClearcutRetryRecords = [NSKeyedUnarchiver
-          unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMClearcutLogRecord class],
-                                                          [NSMutableArray class], nil]
-                           fromData:data
-                              error:nil];
-    } else {
-      // Fallback on earlier versions
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-#pragma clang diagnostic pop
-    }
+    fetchedClearcutRetryRecords = [NSKeyedUnarchiver
+        unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMClearcutLogRecord class],
+                                                        [NSMutableArray class], nil]
+                         fromData:data
+                            error:nil];
   }
   if (fetchedClearcutRetryRecords) {
     @synchronized(self) {

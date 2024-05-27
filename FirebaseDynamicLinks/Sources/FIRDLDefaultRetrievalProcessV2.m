@@ -176,6 +176,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSURL *)uniqueMatchLinkToCheck {
   _clipboardContentAtMatchProcessStart = nil;
   NSString *pasteboardContents = [self retrievePasteboardContents];
+  if (!pasteboardContents) {
+    return nil;
+  }
   NSInteger linkStringMinimumLength =
       expectedCopiedLinkStringSuffix.length + /* ? or & */ 1 + /* http:// */ 7;
   if ((pasteboardContents.length >= linkStringMinimumLength) &&
@@ -201,21 +204,17 @@ NS_ASSUME_NONNULL_BEGIN
   return nil;
 }
 
-- (NSString *)retrievePasteboardContents {
+- (nullable NSString *)retrievePasteboardContents {
   if (![self isPasteboardRetrievalEnabled]) {
     // Pasteboard check for dynamic link is disabled by user.
-    return @"";
+    return nil;
   }
 
-  NSString *pasteboardContents = @"";
-  if (@available(iOS 10.0, *)) {
-    if ([[UIPasteboard generalPasteboard] hasURLs]) {
-      pasteboardContents = [UIPasteboard generalPasteboard].string;
-    }
+  if ([[UIPasteboard generalPasteboard] hasURLs]) {
+    return [UIPasteboard generalPasteboard].string;
   } else {
-    pasteboardContents = [UIPasteboard generalPasteboard].string;
+    return nil;
   }
-  return pasteboardContents;
 }
 
 /**
