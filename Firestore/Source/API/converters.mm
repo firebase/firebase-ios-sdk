@@ -18,8 +18,8 @@
 
 #include <utility>
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import "FIRGeoPoint.h"
-#import "FIRTimestamp.h"
 
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"

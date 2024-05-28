@@ -16,7 +16,7 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
-#import <FirebaseFirestore/FIRTimestamp.h>
+#import <FirebaseCore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #include <memory>

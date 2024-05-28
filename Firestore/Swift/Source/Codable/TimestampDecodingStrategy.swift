@@ -16,9 +16,9 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported import FirebaseCoreExtension
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported import FirebaseCore
 #endif // SWIFT_PACKAGE
 import FirebaseSharedSwift
 
