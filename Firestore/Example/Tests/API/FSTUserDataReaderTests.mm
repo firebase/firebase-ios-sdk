@@ -16,10 +16,11 @@
 
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
-#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <XCTest/XCTest.h>
+
+#import "FirebaseCore/FIRTimestamp.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/converters.h"

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
+
+#import "FirebaseCore/FIRTimestamp.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
