@@ -43,7 +43,7 @@ class AccountInfoTests: TestsBase {
     let auth = Auth.auth()
     let expectation1 = expectation(description: "Created account with email and password.")
     auth.createUser(withEmail: kOldUserEmail, password: "password") { user, error in
-      if let error = error {
+      if let error {
         XCTAssertEqual((error as NSError).code,
                        AuthErrorCode.emailAlreadyInUse.rawValue,
                        "Created a user despite it already exiting.")

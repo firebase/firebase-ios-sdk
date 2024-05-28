@@ -1,0 +1,14 @@
+# 10.27.0
+- [changed] Removed uses of the `gemini-1.5-pro-preview-0409` model in docs and
+  samples. Developers should now use `gemini-1.5-pro-preview-0514` or
+  `gemini-1.5-flash-preview-0514`; see
+  [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+  for more details. (#12979)
+- [changed] Logged additional details when required APIs for Vertex AI are
+  not enabled or response payloads when requests fail. (#13007, #13009)
+
+# 10.26.0
+- [feature] Initial release of the Vertex AI for Firebase SDK (public preview).
+  Learn how to
+  [get started](https://firebase.google.com/docs/vertex-ai/get-started?platform=ios)
+  with the SDK in your app.

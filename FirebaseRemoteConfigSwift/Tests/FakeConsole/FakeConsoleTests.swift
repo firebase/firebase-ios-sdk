@@ -28,7 +28,7 @@ class FakeConsoleTests: APITestBase {
   func testChangedActivateWillNotFlag() {
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
-      if let error = error {
+      if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
@@ -46,7 +46,7 @@ class FakeConsoleTests: APITestBase {
 
     let expectation2 = self.expectation(description: #function + "2")
     config.fetch { status, error in
-      if let error = error {
+      if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
@@ -64,7 +64,7 @@ class FakeConsoleTests: APITestBase {
     let kFIRStorageIntegrationTestTimeout = 10.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { error in
-                          if let error = error {
+                          if let error {
                             print(error)
                           }
                         })

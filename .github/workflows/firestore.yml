@@ -105,8 +105,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        # TODO(#12769): Update to macos-14 which doesn't include Python 3.7
-        os: [macos-12, ubuntu-latest]
+        os: [macos-14, ubuntu-latest]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -132,7 +131,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.10'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -153,8 +152,7 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(#12769): Update to macos-14 which doesn't include Python 3.7
-        os: [macos-12]
+        os: [macos-14]
         databaseId: [(default), test-db]
 
     env:
@@ -183,7 +181,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.10'
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
@@ -241,8 +239,7 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(#12769): Update to macos-14 which doesn't include Python 3.7
-        os: [macos-12]
+        os: [macos-14]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
@@ -263,7 +260,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.10'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -362,7 +359,6 @@ jobs:
         podspec: [
           'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
         ]
 
     steps:
@@ -391,7 +387,6 @@ jobs:
         podspec: [
           'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
         ]
         platforms: [
           'macos',

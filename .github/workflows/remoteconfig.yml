@@ -60,7 +60,7 @@ jobs:
       matrix:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
-        podspec: [FirebaseRemoteConfig.podspec, FirebaseRemoteConfigSwift.podspec --allow-warnings --skip-tests]
+        podspec: [FirebaseRemoteConfig.podspec]
         os: [macos-14, macos-13]
         include:
           - os: macos-14

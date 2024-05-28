@@ -1,0 +1,22 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "functionCall": {
+              "name": "sum",
+              "args": {
+                "y": 5,
+                "x": 4
+              }
+            }
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ]
+}

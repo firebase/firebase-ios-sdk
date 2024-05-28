@@ -99,7 +99,7 @@ class FUNSerializer: NSObject {
       }
 
       // Throw the internal error that popped up, if it did.
-      if let decodeError = decodeError {
+      if let decodeError {
         throw decodeError
       }
       return decoded

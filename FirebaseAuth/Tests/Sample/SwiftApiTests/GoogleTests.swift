@@ -29,7 +29,7 @@ class GoogleTests: TestsBase {
                                                    accessToken: googleAccessToken)
     let expectation = self.expectation(description: "Signing in with Google finished.")
     auth.signIn(with: credential) { result, error in
-      if let error = error {
+      if let error {
         print("Signing in with Google had error: \(error)")
       }
       expectation.fulfill()
@@ -65,7 +65,7 @@ class GoogleTests: TestsBase {
     fetcher.setRequestValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     let expectation = self.expectation(description: "Exchanging Google account tokens finished.")
     fetcher.beginFetch { data, error in
-      if let error = error {
+      if let error {
         XCTFail("Exchanging Google account tokens finished with error: \(error)")
       } else {
         do {

@@ -347,12 +347,12 @@ enum FunctionsConstants {
     assert(!name.isEmpty, "Name cannot be empty")
 
     // Check if we're using the emulator
-    if let emulatorOrigin = emulatorOrigin {
+    if let emulatorOrigin {
       return "\(emulatorOrigin)/\(projectID)/\(region)/\(name)"
     }
 
     // Check the custom domain.
-    if let customDomain = customDomain {
+    if let customDomain {
       return "\(customDomain)/\(name)"
     }
 
@@ -368,7 +368,7 @@ enum FunctionsConstants {
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else {
         let url = self.urlWithName(name)
@@ -391,7 +391,7 @@ enum FunctionsConstants {
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else {
         self.callFunction(url: url,
@@ -480,7 +480,7 @@ enum FunctionsConstants {
           localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
         }
         // If there was an error, report it to the user and stop.
-        if let localError = localError {
+        if let localError {
           completion(.failure(localError))
         } else {
           completion(.failure(error))

@@ -29,7 +29,7 @@ class EmailPasswordTests: TestsBase {
     let auth = Auth.auth()
     let expectation = self.expectation(description: "Created account with email and password.")
     auth.createUser(withEmail: kNewEmailToCreateUser, password: "password") { result, error in
-      if let error = error {
+      if let error {
         print("createUserWithEmail has error: \(error)")
       }
       expectation.fulfill()

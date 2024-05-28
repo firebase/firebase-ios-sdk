@@ -135,7 +135,7 @@ jobs:
     runs-on: macos-14
     strategy:
       matrix:
-        podspec: [FirebaseDatabase.podspec, FirebaseDatabaseSwift.podspec --allow-warnings]
+        podspec: [FirebaseDatabase.podspec]
         target: [ios, tvos, macos]
         flags: [
           '--skip-tests --use-static-frameworks'

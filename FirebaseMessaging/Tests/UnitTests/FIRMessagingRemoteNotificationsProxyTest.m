@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 || \
-    __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
-#import <UserNotifications/UserNotifications.h>
-#endif
 #import <OCMock/OCMock.h>
+#import <UserNotifications/UserNotifications.h>
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
@@ -95,8 +92,6 @@
 
 @end
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 || \
-    __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14
 #pragma mark - Incompete UNUserNotificationCenterDelegate
 @interface IncompleteUserNotificationCenterDelegate : NSObject <UNUserNotificationCenterDelegate>
 @end
@@ -126,8 +121,6 @@
 }
 #endif
 @end
-
-#endif
 
 @interface GULAppDelegateSwizzler (FIRMessagingRemoteNotificationsProxyTest)
 + (void)resetProxyOriginalDelegateOnceToken;
