@@ -16,6 +16,7 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"

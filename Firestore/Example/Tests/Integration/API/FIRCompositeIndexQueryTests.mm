@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include "Firestore/core/src/util/autoid.h"

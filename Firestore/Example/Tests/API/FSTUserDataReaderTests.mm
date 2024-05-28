@@ -16,9 +16,9 @@
 
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
-#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"

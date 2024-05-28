@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <FirebaseCore/FIRTimestamp.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
