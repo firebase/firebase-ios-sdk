@@ -155,19 +155,11 @@ static NSString *const kDetailArchiveKey = @"detail";
   id fetchedActivityRecords;
   NSData *data = [NSData dataWithContentsOfFile:filePath];
   if (data) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      fetchedActivityRecords = [NSKeyedUnarchiver
-          unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMActivityRecord class],
-                                                          [NSMutableArray class], nil]
-                           fromData:data
-                              error:nil];
-    } else {
-      // Fallback on earlier versions
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      fetchedActivityRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-#pragma clang diagnostic pop
-    }
+    fetchedActivityRecords = [NSKeyedUnarchiver
+        unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMActivityRecord class],
+                                                        [NSMutableArray class], nil]
+                         fromData:data
+                            error:nil];
   }
   if (fetchedActivityRecords) {
     @synchronized(self) {
