@@ -19,6 +19,8 @@
 #include <utility>
 #include <vector>
 
+#import "FirebaseCore/FIRTimestamp.h"
+
 #include "Firestore/core/src/util/warnings.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -26,7 +28,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FIRTimestamp+Internal.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
 #import "Firestore/Source/API/converters.h"
 

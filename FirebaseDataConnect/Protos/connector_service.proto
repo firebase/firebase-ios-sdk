@@ -1,7 +1,7 @@
 //adopted from third_party/firebase/dataconnect/emulator/server/api/connector_service.proto
 syntax = "proto3";
 
-package google.firebase.dataconnect.v1alpha;  
+package google.firebase.dataconnect.v1alpha;
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";

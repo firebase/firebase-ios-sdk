@@ -18,6 +18,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebaseCore/FIRTimestamp.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRCursorTests : FSTIntegrationTestCase
