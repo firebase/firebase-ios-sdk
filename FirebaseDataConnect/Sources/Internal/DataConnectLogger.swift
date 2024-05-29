@@ -15,5 +15,5 @@
 import FirebaseSharedSwift
 
 extension FirebaseLogger {
-  static let dataConnect = FirebaseLogger(category: "DataConnect")
+  static let dataConnect = FirebaseLogger(category: "data_connect")
 }
