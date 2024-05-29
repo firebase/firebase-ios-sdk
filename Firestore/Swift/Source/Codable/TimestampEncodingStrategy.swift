@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseCoreExtension
-#else
-  @_exported import FirebaseCore
-#endif // SWIFT_PACKAGE
-
+import FirebaseCore
 import FirebaseSharedSwift
 import Foundation
 

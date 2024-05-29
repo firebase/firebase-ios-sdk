@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import Foundation
-#if SWIFT_PACKAGE
-  @_exported import FirebaseCoreExtension
-#else
-  @_exported import FirebaseCore
-#endif // SWIFT_PACKAGE
+import FirebaseCore
 import FirebaseSharedSwift
 
 public extension FirebaseDataDecoder.DateDecodingStrategy {
