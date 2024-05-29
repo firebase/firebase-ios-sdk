@@ -63,11 +63,9 @@ class ModelFileDownloader: NSObject, FileDownloader {
     self.conditions = conditions
     configuration = URLSessionConfiguration.ephemeral
     /// Wait for network connectivity.
-    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
-      self.configuration.waitsForConnectivity = true
-      /// Wait for 10 minutes.
-      self.configuration.timeoutIntervalForResource = 600
-    }
+    configuration.waitsForConnectivity = true
+    /// Wait for 10 minutes.
+    configuration.timeoutIntervalForResource = 600
     configuration.allowsCellularAccess = conditions.allowsCellularAccess
   }
 

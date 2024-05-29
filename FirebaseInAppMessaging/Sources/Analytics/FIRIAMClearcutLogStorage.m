@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import <UIKit/UIKit.h>
 
@@ -95,14 +95,12 @@ static NSString *const kEventExtensionJson = @"extension_js";
                                              selector:@selector(appWillBecomeInactive:)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, tvOS 13.0, *)) {
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(appWillBecomeInactive:)
                                                    name:UISceneWillDeactivateNotification
                                                  object:nil];
     }
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 
     @try {
       [self loadFromCachePath:cachePath];
@@ -169,19 +167,11 @@ static NSString *const kEventExtensionJson = @"extension_js";
   id fetchedClearcutRetryRecords;
   NSData *data = [NSData dataWithContentsOfFile:filePath];
   if (data) {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-      fetchedClearcutRetryRecords = [NSKeyedUnarchiver
-          unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMClearcutLogRecord class],
-                                                          [NSMutableArray class], nil]
-                           fromData:data
-                              error:nil];
-    } else {
-      // Fallback on earlier versions
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-#pragma clang diagnostic pop
-    }
+    fetchedClearcutRetryRecords = [NSKeyedUnarchiver
+        unarchivedObjectOfClasses:[NSSet setWithObjects:[FIRIAMClearcutLogRecord class],
+                                                        [NSMutableArray class], nil]
+                         fromData:data
+                            error:nil];
   }
   if (fetchedClearcutRetryRecords) {
     @synchronized(self) {
@@ -209,4 +199,4 @@ static NSString *const kEventExtensionJson = @"extension_js";
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

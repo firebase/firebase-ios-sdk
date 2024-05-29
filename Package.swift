@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.27.0"
+let firebaseVersion = "10.28.0"
 
 let package = Package(
   name: "Firebase",
@@ -137,6 +137,10 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+    .library(
+      name: "FirebaseVertexAI-Preview",
+      targets: ["FirebaseVertexAI"]
+    ),
   ],
   dependencies: [
     .package(
@@ -174,7 +178,6 @@ let package = Package(
       url: "https://github.com/paulb777/ocmock.git",
       revision: "173955e93e6ee6999a10729ab67e4b4efdd1db6d"
     ),
-//    .package(
 //      url: "https://github.com/erikdoe/ocmock.git",
 //      revision: "c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110"
 //    ),
@@ -322,8 +325,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.25.0/FirebaseAnalytics.zip",
-      checksum: "b2a313c4d58a6eee38b4e5b50462a889fbeb5bc9c1fd35d5f1579ec8e0b68463"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.27.0/FirebaseAnalytics.zip",
+      checksum: "0d5e3c63e34a5e0a8f782641ca128b3bb3be74b1eb58f55a9a4b40064cd84e88"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -1367,6 +1370,31 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+
+    // MARK: - Firebase Vertex AI
+
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+      ],
+      path: "FirebaseVertexAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("CountTokenResponses"),
+        .process("GenerateContentResponses"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
@@ -1383,7 +1411,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.25.0")
+  return .package(url: appMeasurementURL, exact: "10.27.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1553,8 +1581,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.25.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "afa9ec6af0712406a1fcd4a69d01d31156308de23d3a8e2622721c72fd72485e"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/10.27.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "38f6d1bb13fabca97f53c0ef5bf283b2fbbbf460eac8fa875cd3faab597097b8"
       )
     }
   }()

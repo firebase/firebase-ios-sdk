@@ -21,7 +21,7 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "10.27.0",
+  version: "10.28.0",
   pods: [
     Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreInternal"),
@@ -44,7 +44,7 @@ public let shared = Manifest(
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
     Pod("FirebaseDatabase", platforms: ["ios", "macos", "tvos"], zip: true),
-    Pod("FirebaseDynamicLinks", platforms: ["ios"], zip: true),
+    Pod("FirebaseDynamicLinks", allowWarnings: true, platforms: ["ios"], zip: true),
     Pod("FirebaseFirestoreInternal", allowWarnings: true, platforms: ["ios", "macos", "tvos"]),
     Pod("FirebaseFirestore", allowWarnings: true, platforms: ["ios", "macos", "tvos"], zip: true),
     Pod("FirebaseFunctions", zip: true),

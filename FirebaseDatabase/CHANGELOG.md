@@ -1,4 +1,4 @@
-# Unreleased
+# 10.27.0
 - [changed] Update internal socket implementation to use `NSURLSessionWebSocket` where
   available. (#12883)
 

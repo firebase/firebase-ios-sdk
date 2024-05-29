@@ -60,6 +60,8 @@ if [ $SDK == "FirebasePerformance" ]; then
 elif [ $SDK == "FirebaseFirestore" ]; then
   scripts/install_prereqs.sh Firestore ${PLATFORM} xcodebuild
   scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${PLATFORM} xcodebuild
+elif [ $SDK == "FirebaseDynamicLinks" ]; then
+  scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb "${SDK}".podspec --verbose --allow-warnings --platforms="$(tr '[:upper:]' '[:lower:]'<<<${PLATFORM})" --test-specs="${TEST_SPEC}"
 else
   # Run unit tests of pods and put xcresult bundles into OUTPUT_PATH, which
   # should be a targeted dir of actions/upload-artifact in workflows.
