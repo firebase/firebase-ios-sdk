@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#import <Foundation/Foundation.h>
-
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
-/// An object representing a Firebase App Check token.
-NS_SWIFT_NAME(AppCheckToken)
-@interface FIRAppCheckToken : NSObject <FIRAppCheckTokenProtocol>
+NS_SWIFT_NAME(AppCheckTokenProtocol)
+@protocol FIRAppCheckTokenProtocol <NSObject>
 
 /// A Firebase App Check token.
 @property(nonatomic, readonly) NSString *token;
@@ -30,13 +24,5 @@ NS_SWIFT_NAME(AppCheckToken)
 /// The App Check token's expiration date in the device's local time.
 @property(nonatomic, readonly) NSDate *expirationDate;
 
-- (instancetype)init NS_UNAVAILABLE;
-
-/// The default initializer.
-/// @param token A Firebase App Check token.
-/// @param expirationDate A Firebase App Check token expiration date in the device local time.
-- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
-
 @end
-
 NS_ASSUME_NONNULL_END
