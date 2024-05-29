@@ -21,7 +21,7 @@ public struct OperationResult<ResultDataType: Codable> {
 
 // notional protocol that denotes a variable.
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public protocol OperationVariable: Codable, Hashable, Equatable {}
+public protocol OperationVariable: Encodable, Hashable, Equatable {}
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public protocol OperationRequest {

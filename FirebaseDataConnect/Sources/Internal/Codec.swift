@@ -19,7 +19,7 @@ import SwiftProtobuf
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 class Codec {
   // Encode Codable to Protos
-  func encode(args: any Codable) throws -> Google_Protobuf_Struct {
+  func encode(args: any Encodable) throws -> Google_Protobuf_Struct {
     do {
       let jsonEncoder = JSONEncoder()
       let jsonData = try jsonEncoder.encode(args)
