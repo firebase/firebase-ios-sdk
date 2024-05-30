@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
   s.framework = 'Foundation'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'GoogleDataTransport', '~> 9.2'
+  s.dependency 'GoogleDataTransport', '~> 10.0'
   # TODO: Revisit this dependency
   s.dependency 'GoogleUtilities/Logger', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'

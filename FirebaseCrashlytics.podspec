@@ -64,7 +64,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseSessions', '~> 10.5'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 10.23'
   s.dependency 'PromisesObjC', '~> 2.1'
-  s.dependency 'GoogleDataTransport', '~> 9.2'
+  s.dependency 'GoogleDataTransport', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
 
