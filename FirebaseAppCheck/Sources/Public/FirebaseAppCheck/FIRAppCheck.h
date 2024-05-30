@@ -89,7 +89,8 @@ NS_SWIFT_NAME(AppCheck)
 /// @param handler The completion handler. Includes the app check token if the request succeeds,
 /// or an error if the request fails.
 - (void)tokenForcingRefresh:(BOOL)forcingRefresh
-                 completion:(void (^)(FIRAppCheckToken *token, NSError *_Nullable error))handler
+                 completion:
+                     (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
     NS_SWIFT_NAME(token(forcingRefresh:completion:));
 
 /// Requests a limited-use Firebase App Check token. This method should be used only if you need to
