@@ -367,7 +367,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 #pragma mark - API: Development Platform
-// These two methods are depercated by our own API, so
+// These two methods are deprecated by our own API, so
 // its ok to implement them
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
