@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.8'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {
