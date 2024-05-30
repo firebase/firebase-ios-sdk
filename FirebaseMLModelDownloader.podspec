@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   # TODO: Revisit this dependency
-  s.dependency 'GoogleUtilities/Logger', '~> 7.13'
+  s.dependency 'GoogleUtilities/Logger', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
   s.dependency 'SwiftProtobuf', '~> 1.19'
 

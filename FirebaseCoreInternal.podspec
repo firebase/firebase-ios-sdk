@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.3'
 
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
 
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
