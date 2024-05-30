@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import FirebaseCore
 
 public extension FirebaseDataEncoder.DateEncodingStrategy {
   /// Encode the `Date` as a Firestore `Timestamp`.
