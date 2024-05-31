@@ -8,6 +8,7 @@ target 'ClientApp-CocoaPods' do
   use_frameworks!
 
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseSharedSwift', :path => '../../'
   pod 'FirebaseCoreInternal', :path => '../../'
   pod 'FirebaseCoreExtension', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
@@ -24,6 +25,7 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseDatabaseSwift', :path => '../../'
   pod 'FirebaseDynamicLinks', :path => '../../'
+  pod 'FirebaseFirestoreInternal', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
   pod 'FirebaseFirestoreSwift', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'
