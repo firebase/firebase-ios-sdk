@@ -37,7 +37,7 @@ struct FirebaseReleaser: ParsableCommand {
   @Option(default: false,
           help: "Initialize the release branch")
   var initBranch: Bool
-    
+
   /// Set this option when starting a release.
   @Option(default: "main",
           help: "The base branch to use. Defaults to `main`.")

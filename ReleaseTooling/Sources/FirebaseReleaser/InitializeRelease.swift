@@ -35,7 +35,10 @@ enum InitializeRelease {
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
     let branch = "version-\(minorVersion)"
-    Shell.executeCommand("git checkout \(branch) 2>/dev/null || git checkout -b \(branch)", workingDir: path)
+    Shell.executeCommand(
+      "git checkout \(branch) 2>/dev/null || git checkout -b \(branch)",
+      workingDir: path
+    )
     return branch
   }
 
@@ -47,19 +50,29 @@ enum InitializeRelease {
         updateFirebasePodspec(path: path, manifest: manifest)
       } else {
         updatePodspecVersion(pod: pod, version: version, path: path)
-        
+
         // Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
         // should pin the dependency to the new version.
         if pod.name.hasPrefix("GoogleAppMeasurement") || pod.name == "FirebaseFirestoreInternal" {
-          updateDependenciesToLatest(dependency: pod.name, pods: manifest.pods, version: version, path: path)
+          updateDependenciesToLatest(
+            dependency: pod.name,
+            pods: manifest.pods,
+            version: version,
+            path: path
+          )
         } else if version.hasSuffix(".0.0") {
           let patchlessVersion = String(version[..<version.lastIndex(of: ".")!])
-          updateDependenciesToLatest(dependency: pod.name, pods: manifest.pods, version: patchlessVersion, path: path)
+          updateDependenciesToLatest(
+            dependency: pod.name,
+            pods: manifest.pods,
+            version: patchlessVersion,
+            path: path
+          )
         }
       }
     }
   }
-  
+
   private static func updatePodspecVersion(pod: Pod,
                                            version: String,
                                            path: URL) {
@@ -75,7 +88,7 @@ enum InitializeRelease {
                                                  pods: [Pod],
                                                  version: String,
                                                  path: URL) {
-    let script: String =
+    let script =
       #"-e "s|(\.dependency '"# + dependency + #"(/.*)?',[[:space:]]*'[^0-9]*).*|\1\#(version)'|""#
     let podspecs = pods.map { $0.podspecName() }.joined(separator: " ")
     let command = "sed -i.bak -E \(script) \(podspecs)"
