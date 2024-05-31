@@ -270,7 +270,7 @@ struct SpecRepoBuilder: ParsableCommand {
   func pushPodspec(forPod pod: URL, sdkRepo: String, sources: [String],
                    flags: [String], shell: Shell = Shell.shared) throws -> Int32 {
     let sourcesArg = sources.joined(separator: ",")
-    let flagsArgArr = allowWarnings ?flags + ["--allow-warnings"] : flags
+    let flagsArgArr = allowWarnings ? flags + ["--allow-warnings"] : flags
     let flagsArg = flagsArgArr.joined(separator: " ")
 
     do {

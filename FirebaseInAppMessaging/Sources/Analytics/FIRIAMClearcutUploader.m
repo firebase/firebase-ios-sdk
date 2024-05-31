@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import <GoogleUtilities/GULUserDefaults.h>
 #import <UIKit/UIKit.h>
@@ -102,14 +102,12 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                                              selector:@selector(scheduleNextSendFromForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, tvOS 13.0, *)) {
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(scheduleNextSendFromForeground:)
                                                    name:UISceneWillEnterForegroundNotification
                                                  object:nil];
     }
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     _userDefaults = userDefaults ? userDefaults : [GULUserDefaults standardUserDefaults];
     // it would be 0 if it does not exist, which is equvilent to saying that
     // you can send now
@@ -246,4 +244,4 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
 
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

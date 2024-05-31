@@ -523,18 +523,10 @@ extension ModelInfoRetriever {
 
   /// Parse date from string - used to get download URL expiry time.
   private static func getDateFromString(_ strDate: String) -> Date? {
-    if #available(iOS 11, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
-      let dateFormatter = ISO8601DateFormatter()
-      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-      dateFormatter.formatOptions = [.withFractionalSeconds]
-      return dateFormatter.date(from: strDate)
-    } else {
-      let dateFormatter = DateFormatter()
-      dateFormatter.locale = Locale(identifier: "en-US_POSIX")
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-      return dateFormatter.date(from: strDate)
-    }
+    let dateFormatter = ISO8601DateFormatter()
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    dateFormatter.formatOptions = [.withFractionalSeconds]
+    return dateFormatter.date(from: strDate)
   }
 
   /// Return model info created from server response.

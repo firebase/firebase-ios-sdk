@@ -35,6 +35,8 @@ class APITestBase: XCTestCase {
       #if USE_REAL_CONSOLE
         useFakeConfig = false
         FirebaseApp.configure()
+        // Sleep for 1 minute between test files to avoid exceeding rate limit.
+        sleep(60)
       #else
         useFakeConfig = true
         let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",

@@ -1,3 +1,6 @@
+# 10.27.0
+- [fixed] [CocoaPods] missing symbol error for FIRGetLoggerLevel. (#12899)
+
 # 10.25.0
 - [changed] Removed usages of user defaults API to eliminate required reason impact.
 

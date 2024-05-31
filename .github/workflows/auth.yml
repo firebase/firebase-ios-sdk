@@ -60,6 +60,7 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v4

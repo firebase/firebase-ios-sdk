@@ -169,10 +169,12 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 watchos_flags=(
+  -sdk 'watchsimulator'
   -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
 )
 visionos_flags=(
-  -destination 'platform=visionOS Simulator'
+  -sdk 'xrsimulator'
+  -destination 'platform=visionOS Simulator,name=Apple Vision Pro'
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
@@ -416,12 +418,16 @@ case "$product-$platform-$method" in
     fi
     ;;
 
+  # TODO: This is actually building for iOS instead of watchOS. Update to use
+  # watchOS xcb_flags along with the watchOS sdk option. Also nanopb and promises
+  # podspecs need minimum version updates.
+
   MessagingSampleStandaloneWatchApp-*-*)
     if check_secrets; then
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        "${xcb_flags[@]}" \
+        -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)' \
         build
     fi
     ;;
@@ -493,6 +499,14 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp.xcworkspace' \
       -scheme "RemoteConfigSampleApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  VertexSample-*-*)
+    RunXcodebuild \
+      -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
+      -scheme "VertexAISample" \
       "${xcb_flags[@]}" \
       build
     ;;

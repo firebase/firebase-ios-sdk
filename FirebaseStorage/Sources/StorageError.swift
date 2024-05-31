@@ -82,13 +82,10 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
       requestString = "<nil request returned from server>"
     }
     let invalidDataString = "Invalid data returned from the server:\(requestString)"
-    var localizedFailureKey: String
-    if #available(OSX 10.13, iOS 11.0, watchOS 4.0, tvOS 11.0, *) {
-      localizedFailureKey = NSLocalizedFailureErrorKey
-    } else {
-      localizedFailureKey = "NSLocalizedFailure"
-    }
-    return error(withCode: .unknown, infoDictionary: [localizedFailureKey: invalidDataString])
+    return error(
+      withCode: .unknown,
+      infoDictionary: [NSLocalizedFailureErrorKey: invalidDataString]
+    )
   }
 
   /**

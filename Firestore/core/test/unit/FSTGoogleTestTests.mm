@@ -235,12 +235,8 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     XCTAssertTrue(true);
     return;
   } else if (result->Skipped()) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130400 || \
-    __TV_OS_VERSION_MAX_ALLOWED >= 130400 ||     \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101504
     // Let Xcode know that the test was skipped.
     XCTSkip();
-#endif
   }
 
   // Test failed :-(. Record the failure such that Xcode will navigate directly
@@ -251,9 +247,6 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     const char* path = part.file_name() ? part.file_name() : "";
     int line = part.line_number() > 0 ? part.line_number() : 0;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 || \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    // Xcode 12
     auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
                                                           lineNumber:line];
     auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
@@ -264,15 +257,6 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
                                  associatedError:nil
                                      attachments:@[]];
     [self recordIssue:issue];
-
-#else
-    // Xcode 11 and prior. recordFailureWithDescription:inFile:atLine:expected:
-    // is deprecated in Xcode 12.
-    [self recordFailureWithDescription:@(part.message())
-                                inFile:@(path)
-                                atLine:line
-                              expected:true];
-#endif
   }
 }
 

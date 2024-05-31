@@ -830,6 +830,7 @@ static FIRApp *sDefaultApp;
     @"FIRAuthComponent" : @"fire-auth",
     @"FIRFunctionsComponent" : @"fire-fun",
     @"FIRStorageComponent" : @"fire-str",
+    @"FIRVertexAIComponent" : @"fire-vertex",
   };
   for (NSString *className in swiftComponents.allKeys) {
     Class klass = NSClassFromString(className);
@@ -856,7 +857,7 @@ static FIRApp *sDefaultApp;
 #pragma mark - App Life Cycle
 
 - (void)subscribeForAppDidBecomeActiveNotifications {
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   NSNotificationName notificationName = UIApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_OSX
   NSNotificationName notificationName = NSApplicationDidBecomeActiveNotification;
