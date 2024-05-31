@@ -50,7 +50,7 @@ enum InitializeRelease {
         
         // Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
         // should pin the dependency to the new version.
-        if pod.name == "GoogleAppMeasurement" || pod.name == "FirebaseFirestoreInternal" {
+        if pod.name.hasPrefix("GoogleAppMeasurement") || pod.name == "FirebaseFirestoreInternal" {
           updateDependenciesToLatest(dependency: pod.name, pods: manifest.pods, version: version, path: path)
         } else if version.hasSuffix(".0.0") {
           let patchlessVersion = String(version[..<version.lastIndex(of: ".")!])

@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 
     s.cocoapods_version = '>= 1.12.0'
 
-    s.dependency 'GoogleAppMeasurementOnDeviceConversion', '11.0'
+    s.dependency 'GoogleAppMeasurementOnDeviceConversion', '11.0.0'
 
     s.static_framework = true
 
