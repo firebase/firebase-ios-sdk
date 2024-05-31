@@ -37,6 +37,11 @@ struct FirebaseReleaser: ParsableCommand {
   @Option(default: false,
           help: "Initialize the release branch")
   var initBranch: Bool
+    
+  /// Set this option when starting a release.
+  @Option(default: "main",
+          help: "The base branch to use. Defaults to `main`.")
+  var baseBranch: String
 
   /// Set this option to output the commands to generate the ordered `pod trunk push` commands.
   @Option(default: false,
@@ -66,6 +71,10 @@ struct FirebaseReleaser: ParsableCommand {
     if logOnly {
       Shell.setLogOnly()
     }
+
+    Shell.executeCommand("git checkout \(baseBranch)", workingDir: gitRoot)
+    Shell.executeCommand("git pull origin \(baseBranch)", workingDir: gitRoot)
+
     if initBranch {
       let branch = InitializeRelease.setupRepo(gitRoot: gitRoot)
       let version = FirebaseManifest.shared.version
