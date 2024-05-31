@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurement'
-    s.version          = '11.0.0'
+    s.version          = '10.28.0'
     s.summary          = 'Shared measurement methods for Google libraries. Not intended for direct use.'
 
     s.description      = <<-DESC
