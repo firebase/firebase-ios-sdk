@@ -105,11 +105,13 @@ enum InitializeRelease {
         updateVersion(&contents, in: range, to: version)
 
       } else {
+          print("foo")
         // Iterate through all the ranges of `pod`'s occurrences.
         for range in contents.ranges(of: pod) {
           // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
           updateVersion(&contents, in: range, to: version)
         }
+          print("baz")
       }
     }
     do {
@@ -127,15 +129,19 @@ enum InitializeRelease {
   ///   - version: The version string to update to.
   private static func updateVersion(_ contents: inout String, in range: Range<String.Index>,
                                     to version: String) {
+      print("bar1")
     var versionStartIndex = contents.index(after: range.upperBound)
     while !contents[versionStartIndex].isWholeNumber {
       versionStartIndex = contents.index(after: versionStartIndex)
     }
+      print("bar2")
     var versionEndIndex = contents.index(after: versionStartIndex)
     while contents[versionEndIndex] != "'" {
       versionEndIndex = contents.index(after: versionEndIndex)
     }
+      print("bar3")
     contents.replaceSubrange(versionStartIndex ..< versionEndIndex, with: version)
+      print("bar3")
   }
 
   private static func updatePodfiles(path: URL, version: String) {
