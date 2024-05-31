@@ -77,7 +77,7 @@ enum InitializeRelease {
                                                  version: String,
                                                  path: URL) {
     let script: String =
-      #"-e "s|(\.dependency '"# + dependency + #"/?.*',[[:space:]]*'[^0-9]*).*|\1\#(version)'|""#
+      #"-e "s|(\.dependency '"# + dependency + #"(/.*)?',[[:space:]]*'[^0-9]*).*|\1\#(version)'|""#
     let podspecs = pods.map { $0.podspecName() }.joined(separator: " ")
     let command = "sed -i.bak -E \(script) \(podspecs)"
     Shell.executeCommand(command, workingDir: path)
