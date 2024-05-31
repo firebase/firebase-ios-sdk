@@ -25,7 +25,6 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseDatabaseSwift', :path => '../../'
   pod 'FirebaseDynamicLinks', :path => '../../'
-  pod 'FirebaseFirestoreInternal', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
   pod 'FirebaseFirestoreSwift', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'
