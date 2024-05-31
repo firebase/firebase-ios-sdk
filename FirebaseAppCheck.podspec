@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '11.0.0'
+  s.version          = '10.28.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -45,8 +45,8 @@ Pod::Spec.new do |s|
   s.tvos.weak_framework = 'DeviceCheck'
 
   s.dependency 'AppCheckCore', '~> 10.19'
-  s.dependency 'FirebaseAppCheckInterop', '~> 11.0.0'
-  s.dependency 'FirebaseCore', '~> 11.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
+  s.dependency 'FirebaseCore', '~> 10.18'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
