@@ -85,6 +85,7 @@ enum InitializeRelease {
   // TODO: If we keep Swift, consider using Scanner.
   private static func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
     let podspecFile = path
+      print(podspecFile)
     var contents = ""
     do {
       contents = try String(contentsOfFile: podspecFile.path, encoding: .utf8)
