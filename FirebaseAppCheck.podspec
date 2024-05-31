@@ -48,8 +48,8 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.18'
   s.dependency 'PromisesObjC', '~> 2.1'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

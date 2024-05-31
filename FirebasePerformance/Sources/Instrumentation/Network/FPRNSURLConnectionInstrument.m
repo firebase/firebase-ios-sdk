@@ -98,13 +98,13 @@ void InstrumentInitWithRequestDelegate(FPRClassInstrumentor *instrumentor,
       [delegateInstrument registerClass:[delegate class]];
       [delegateInstrument registerObject:delegate];
       [GULObjectSwizzler setAssociatedObject:connection
-                                         key:kFPRDelegateKey
+                                         key:(__bridge const void *_Nonnull)kFPRDelegateKey
                                        value:delegate
                                  association:GUL_ASSOCIATION_ASSIGN];
     } else {
       delegate = [[FPRNSURLConnectionDelegate alloc] init];
       [GULObjectSwizzler setAssociatedObject:connection
-                                         key:kFPRDelegateKey
+                                         key:(__bridge const void *_Nonnull)kFPRDelegateKey
                                        value:delegate
                                  association:GUL_ASSOCIATION_ASSIGN];
     }
@@ -133,13 +133,13 @@ void InstrumentInitWithRequestDelegateStartImmediately(
       [delegateInstrument registerObject:delegate];
 
       [GULObjectSwizzler setAssociatedObject:connection
-                                         key:kFPRDelegateKey
+                                         key:(__bridge const void *_Nonnull)kFPRDelegateKey
                                        value:delegate
                                  association:GUL_ASSOCIATION_ASSIGN];
     } else {
       delegate = [[FPRNSURLConnectionDelegate alloc] init];
       [GULObjectSwizzler setAssociatedObject:connection
-                                         key:kFPRDelegateKey
+                                         key:(__bridge const void *_Nonnull)kFPRDelegateKey
                                        value:delegate
                                  association:GUL_ASSOCIATION_ASSIGN];
     }
@@ -161,7 +161,8 @@ void InstrumentConnectionStart(FPRClassInstrumentor *instrumentor) {
   [selectorInstrumentor setReplacingBlock:^(id object) {
     typedef void (*OriginalImp)(id, SEL);
     NSURLConnection *connection = (NSURLConnection *)object;
-    if ([GULObjectSwizzler getAssociatedObject:connection key:kFPRDelegateKey]) {
+    if ([GULObjectSwizzler getAssociatedObject:connection
+                                           key:(__bridge const void *_Nonnull)kFPRDelegateKey]) {
       FPRNetworkTrace *trace =
           [[FPRNetworkTrace alloc] initWithURLRequest:connection.originalRequest];
       [trace start];
