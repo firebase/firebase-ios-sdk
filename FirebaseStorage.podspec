@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '11.0.0'
+  s.version          = '10.28.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -37,10 +37,10 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Typedefs/*.h',
   ]
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseAuthInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.0'
+  s.dependency 'FirebaseAuthInterop', '~> 10.25'
+  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
 
@@ -57,7 +57,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    objc_tests.dependency 'FirebaseAuth', '~> 11.0'
+    objc_tests.dependency 'FirebaseAuth', '~> 10.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
@@ -86,6 +86,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 11.0'
+    int_tests.dependency 'FirebaseAuth', '~> 10.0'
   end
 end
