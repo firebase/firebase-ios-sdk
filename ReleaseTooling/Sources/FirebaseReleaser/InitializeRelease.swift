@@ -43,14 +43,22 @@ enum InitializeRelease {
   private static func updatePodspecs(path: URL, manifest: FirebaseManifest.Manifest) {
     for pod in manifest.pods {
       let version = manifest.versionString(pod)
-      if pod.name == "Firebase" {
-        updateFirebasePodspec(path: path, manifest: manifest)
+      let podspecPath = path.appendingPathComponent("\(pod.name).podspec")
+      if pod.name == "Firebase" || version.hasSuffix(".0.0") {
+        updateFirebasePodspec(path: podspecPath, manifest: manifest)
       } else {
         // Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
         // should pin the dependency to the new version.
         for dep in ["GoogleAppMeasurement", "FirebaseFirestoreInternal"] {
           updateDependenciesToLatest(dependency: dep, pod: pod, version: version, path: path)
         }
+//
+//        if version.hasSuffix(".0.0") {
+//          print("mango: It's a major version update!")
+//          path.appendingPathComponent("\().podspec")
+//          updateFirebasePodspec(path: <#T##URL#>, manifest: <#T##Manifest#>)
+//        }
+//
       }
     }
   }
@@ -76,7 +84,7 @@ enum InitializeRelease {
   // TODO: Choose one or the other mechanism.
   // TODO: If we keep Swift, consider using Scanner.
   private static func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
-    let podspecFile = path.appendingPathComponent("Firebase.podspec")
+    let podspecFile = path
     var contents = ""
     do {
       contents = try String(contentsOfFile: podspecFile.path, encoding: .utf8)
