@@ -54,8 +54,8 @@ enum InitializeRelease {
         }
 
         if version.hasSuffix(".0.0") {
-          print("mango: It's a major version update!")
-          updateDependenciesToLatest(dependency: "Firebase.*", pod: pod, version: version, path: path)
+          let patchlessVersion = String(version[..<version.lastIndex(of: ".")!])
+          updateDependenciesToLatest(dependency: "Firebase.*", pod: pod, version: patchlessVersion, path: path)
         }
 
       }
