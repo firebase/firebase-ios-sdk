@@ -111,7 +111,7 @@ class AuthWebUtils: NSObject {
 
     // Look up an authorized domain ends with one of the supportedAuthDomains.
     // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
-    // The searching ends once the first valid suportedAuthDomain is found.
+    // The searching ends once the first valid supportedAuthDomain is found.
     var authDomain: String?
 
     if let customAuthDomain = requestConfiguration.auth?.customAuthDomain {
@@ -127,8 +127,8 @@ class AuthWebUtils: NSObject {
           "configured custom domain is not allowlisted."
       )
     }
-    for domain in response.authorizedDomains ?? [] {
-      for supportedAuthDomain in Self.supportedAuthDomains {
+    for supportedAuthDomain in Self.supportedAuthDomains {
+      for domain in response.authorizedDomains ?? [] {
         let index = domain.count - supportedAuthDomain.count
         if index >= 2, domain.hasSuffix(supportedAuthDomain),
            domain.count >= supportedAuthDomain.count + 2 {

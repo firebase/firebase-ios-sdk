@@ -22,6 +22,7 @@ import FirebaseCore
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class OAuthProviderTests: RPCBaseTests {
     static let kFakeAuthorizedDomain = "test.firebaseapp.com"
+    static let kFakeAuthorizedWebDomain = "test.web.app"
     private let kFakeAccessToken = "fakeAccessToken"
     private let kFakeIDToken = "fakeIDToken"
     private let kFakeProviderID = "fakeProviderID"
@@ -306,8 +307,9 @@ import FirebaseCore
             do {
               // 5. Send the response from the fake backend.
               try self.rpcIssuer?
-                .respond(withJSON: ["authorizedDomains": [OAuthProviderTests
-                    .kFakeAuthorizedDomain]])
+                .respond(withJSON: ["authorizedDomains": [
+                  OAuthProviderTests.kFakeAuthorizedWebDomain,
+                  OAuthProviderTests.kFakeAuthorizedDomain]])
             } catch {
               XCTFail("Failure sending response: \(error)")
             }
