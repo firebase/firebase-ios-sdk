@@ -43,9 +43,8 @@ enum InitializeRelease {
   private static func updatePodspecs(path: URL, manifest: FirebaseManifest.Manifest) {
     for pod in manifest.pods {
       let version = manifest.versionString(pod)
-      let podspecPath = path.appendingPathComponent("\(pod.name).podspec")
       if pod.name == "Firebase" {
-        updateFirebasePodspec(path: podspecPath, manifest: manifest)
+        updateFirebasePodspec(path: path, manifest: manifest)
       } else {
         updatePodspecVersion(pod: pod, version: version, path: path)
         
@@ -88,8 +87,7 @@ enum InitializeRelease {
   // TODO: Choose one or the other mechanism.
   // TODO: If we keep Swift, consider using Scanner.
   private static func updateFirebasePodspec(path: URL, manifest: FirebaseManifest.Manifest) {
-    let podspecFile = path
-      print(podspecFile)
+    let podspecFile = path.appendingPathComponent("Firebase.podspec")
     var contents = ""
     do {
       contents = try String(contentsOfFile: podspecFile.path, encoding: .utf8)
@@ -109,15 +107,11 @@ enum InitializeRelease {
         updateVersion(&contents, in: range, to: version)
 
       } else {
-          print("foo")
         // Iterate through all the ranges of `pod`'s occurrences.
-          print(pod)
         for range in contents.ranges(of: pod) {
-            print(range)
           // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
           updateVersion(&contents, in: range, to: version)
         }
-          print("baz")
       }
     }
     do {
@@ -135,19 +129,15 @@ enum InitializeRelease {
   ///   - version: The version string to update to.
   private static func updateVersion(_ contents: inout String, in range: Range<String.Index>,
                                     to version: String) {
-      print("bar1")
     var versionStartIndex = contents.index(after: range.upperBound)
     while !contents[versionStartIndex].isWholeNumber {
       versionStartIndex = contents.index(after: versionStartIndex)
     }
-      print("bar2")
     var versionEndIndex = contents.index(after: versionStartIndex)
     while contents[versionEndIndex] != "'" {
       versionEndIndex = contents.index(after: versionEndIndex)
     }
-      print("bar3")
     contents.replaceSubrange(versionStartIndex ..< versionEndIndex, with: version)
-      print("bar3")
   }
 
   private static func updatePodfiles(path: URL, version: String) {
