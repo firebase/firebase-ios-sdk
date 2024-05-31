@@ -69,7 +69,7 @@ enum InitializeRelease {
                                                  version: String,
                                                  path: URL) {
     let scripts: String = [
-      #"-e "s|(\.dependency '"# + dependency + #"/?.*',).*|\1 '\#(version)'|""#,
+      #"-e "s|(\.dependency '"# + dependency + #"/?.*',\s*'[^\d]*).*|\1\#(version)'|""#,
       // Replace the pod's `version` attribute with the new version.
       #"-e "s|(\.version.*=[[:space:]]*) '.*|\1 '\#(version)'|""#,
     ].joined(separator: " ")
