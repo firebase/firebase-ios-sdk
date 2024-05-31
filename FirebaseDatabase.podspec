@@ -48,9 +48,9 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
-  s.dependency 'FirebaseSharedSwift', '~> 10.0'
+  s.dependency 'FirebaseCore', '11.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '11.0.0'
+  s.dependency 'FirebaseSharedSwift', '11.0.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -73,7 +73,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
-    unit_tests.dependency 'FirebaseAppCheckInterop', '~> 10.16'
+    unit_tests.dependency 'FirebaseAppCheckInterop', '11.0.0'
     unit_tests.dependency 'OCMock'
     unit_tests.resources = 'FirebaseDatabase/Tests/Resources/syncPointSpec.json',
                            'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'

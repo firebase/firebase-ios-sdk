@@ -34,5 +34,5 @@ Pod::Spec.new do |s|
       "#{s.module_name}_Privacy" => 'FirebaseCore/Extension/Resources/PrivacyInfo.xcprivacy'
     }
 
-    s.dependency 'FirebaseCore', '~> 10.0'
+    s.dependency 'FirebaseCore', '11.0.0'
   end
