@@ -107,7 +107,9 @@ enum InitializeRelease {
       } else {
           print("foo")
         // Iterate through all the ranges of `pod`'s occurrences.
+          print(pod)
         for range in contents.ranges(of: pod) {
+            print(range)
           // Replace version in string like ss.dependency 'FirebaseCore', '6.3.0'.
           updateVersion(&contents, in: range, to: version)
         }
