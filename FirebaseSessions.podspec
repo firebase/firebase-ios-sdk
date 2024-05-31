@@ -42,9 +42,9 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'GoogleDataTransport', '~> 9.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
+  s.dependency 'GoogleDataTransport', '~> 10.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
   s.dependency 'PromisesSwift', '~> 2.1'
 
