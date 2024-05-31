@@ -23,4 +23,7 @@ public enum DataConnectError: Error {
 
   // failed to decode results from server
   case decodeFailed
+
+  // uuid string length is not correct.
+  case invalidUUID
 }
