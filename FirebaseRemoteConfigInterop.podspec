@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfigInterop'
-  s.version          = '11.0'
+  s.version          = '10.28.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Remote Config functionality.'
 
   s.description      = <<-DESC
