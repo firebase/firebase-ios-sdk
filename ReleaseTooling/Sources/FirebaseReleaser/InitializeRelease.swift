@@ -44,7 +44,7 @@ enum InitializeRelease {
     for pod in manifest.pods {
       let version = manifest.versionString(pod)
       let podspecPath = path.appendingPathComponent("\(pod.name).podspec")
-      if pod.name == "Firebase" || version.hasSuffix(".0.0") {
+      if pod.name == "Firebase" {
         updateFirebasePodspec(path: podspecPath, manifest: manifest)
       } else {
         // Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
@@ -52,13 +52,12 @@ enum InitializeRelease {
         for dep in ["GoogleAppMeasurement", "FirebaseFirestoreInternal"] {
           updateDependenciesToLatest(dependency: dep, pod: pod, version: version, path: path)
         }
-//
-//        if version.hasSuffix(".0.0") {
-//          print("mango: It's a major version update!")
-//          path.appendingPathComponent("\().podspec")
-//          updateFirebasePodspec(path: <#T##URL#>, manifest: <#T##Manifest#>)
-//        }
-//
+
+        if version.hasSuffix(".0.0") {
+          print("mango: It's a major version update!")
+          updateDependenciesToLatest(dependency: "Firebase.*", pod: pod, version: version, path: path)
+        }
+
       }
     }
   }
