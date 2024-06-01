@@ -61,11 +61,7 @@ import FirebaseCore
   /// - Parameter app: The custom `FirebaseApp` used for initialization.
   /// - Returns: A `Storage` instance, configured with the custom `FirebaseApp`.
   @objc(storageForApp:) open class func storage(app: FirebaseApp) -> Storage {
-    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                                 in: app.container) else {
-      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
-    }
-    return provider.storage(for: Storage.bucket(for: app))
+    return storage(app: app, bucket: Storage.bucket(for: app))
   }
 
   /// Creates an instance of `Storage`, configured with a custom `FirebaseApp` and a custom storage
@@ -77,11 +73,19 @@ import FirebaseCore
   /// URL.
   @objc(storageForApp:URL:)
   open class func storage(app: FirebaseApp, url: String) -> Storage {
-    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                                 in: app.container) else {
-      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
+    return storage(app: app, bucket: Storage.bucket(for: app, urlString: url))
+  }
+
+  private class func storage(app: FirebaseApp, bucket: String) -> Storage {
+    os_unfair_lock_lock(&instancesLock)
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    if let instance = instances[bucket] {
+      return instance
     }
-    return provider.storage(for: Storage.bucket(for: app, urlString: url))
+    let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
+    instances[bucket] = newInstance
+    return newInstance
   }
 
   /// The `FirebaseApp` associated with this Storage instance.
@@ -342,6 +346,14 @@ import FirebaseCore
   private let appCheck: AppCheckInterop?
   private let storageBucket: String
   private var usesEmulator: Bool = false
+
+  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
+  /// containing all instances of Storage associated with the given app.
+  private static var instances: [String: Storage] = [:]
+
+  /// Lock to manage access to the instances array to avoid race conditions.
+  private static var instancesLock: os_unfair_lock = .init()
+
   var host: String
   var scheme: String
   var port: Int

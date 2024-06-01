@@ -335,7 +335,6 @@ enum FunctionsConstants {
       fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
     }
     self.init(projectID: projectID,
-
               region: region,
               customDomain: customDomain,
               auth: auth,
