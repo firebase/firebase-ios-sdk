@@ -29,13 +29,13 @@ private let kSecretKey = "iosSecret"
 /// The key for the reCAPTCHAToken parameter in the request.
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
-  /// The key for the "captchaResponse" value in the request.
+/// The key for the "captchaResponse" value in the request.
 private let kCaptchaResponseKey = "captchaResponse"
 
-  /// The key for the "clientType" value in the request.
+/// The key for the "clientType" value in the request.
 private let kClientType = "clientType"
 
-  /// The key for the "recaptchaVersion" value in the request.
+/// The key for the "recaptchaVersion" value in the request.
 private let kRecaptchaVersion = "recaptchaVersion"
 
 /// The key for the tenant id value in the request.
@@ -85,7 +85,7 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty: break
     }
-    //postBody[kCaptchaResponseKey] = captchaResponse
+    // postBody[kCaptchaResponseKey] = captchaResponse
     postBody[kClientType] = clientType
     postBody[kRecaptchaVersion] = reCAPTCHAVersion
 

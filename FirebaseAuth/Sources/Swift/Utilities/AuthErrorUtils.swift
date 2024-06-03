@@ -242,11 +242,11 @@ class AuthErrorUtils: NSObject {
   static func invalidVerificationIDError(message: String?) -> Error {
     error(code: .invalidVerificationID, message: message)
   }
-  
+
   static func missingRecaptchaToken(message: String?) -> Error {
     error(code: .missingRecaptchaToken, message: message)
   }
-  
+
   static func invalidRecaptchaToken(message: String?) -> Error {
     error(code: .invalidRecaptchaToken, message: message)
   }

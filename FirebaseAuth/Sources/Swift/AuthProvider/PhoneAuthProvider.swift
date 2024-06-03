@@ -20,21 +20,21 @@ import Foundation
 /// This class is available on iOS only.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject {
-    /// A string constant identifying the phone identity provider.
+  /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
-#if os(iOS)
+  #if os(iOS)
     /// Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
-  @objc(provider) open class func provider() -> PhoneAuthProvider {
-    return PhoneAuthProvider(auth: Auth.auth())
-  }
-  
+    @objc(provider) open class func provider() -> PhoneAuthProvider {
+      return PhoneAuthProvider(auth: Auth.auth())
+    }
+
     /// Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
     /// - Parameter auth: The auth object to associate with the phone auth provider instance.
-  @objc(providerWithAuth:)
-  open class func provider(auth: Auth) -> PhoneAuthProvider {
-    return PhoneAuthProvider(auth: auth)
-  }
-  
+    @objc(providerWithAuth:)
+    open class func provider(auth: Auth) -> PhoneAuthProvider {
+      return PhoneAuthProvider(auth: auth)
+    }
+
     /// Starts the phone number authentication flow by sending a verification code to the
     /// specified phone number.
     ///
@@ -49,16 +49,16 @@ import Foundation
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
     /// retained by this method until the completion block is executed.
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
-  @objc(verifyPhoneNumber:UIDelegate:completion:)
-  open func verifyPhoneNumber(_ phoneNumber: String,
-                              uiDelegate: AuthUIDelegate? = nil,
-                              completion: ((_: String?, _: Error?) -> Void)?) {
-    verifyPhoneNumber(phoneNumber,
-                      uiDelegate: uiDelegate,
-                      multiFactorSession: nil,
-                      completion: completion)
-  }
-  
+    @objc(verifyPhoneNumber:UIDelegate:completion:)
+    open func verifyPhoneNumber(_ phoneNumber: String,
+                                uiDelegate: AuthUIDelegate? = nil,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
+      verifyPhoneNumber(phoneNumber,
+                        uiDelegate: uiDelegate,
+                        multiFactorSession: nil,
+                        completion: completion)
+    }
+
     /// Verify ownership of the second factor phone number by the current user.
     /// - Parameter phoneNumber: The phone number to be verified.
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
@@ -67,56 +67,57 @@ import Foundation
     /// identifies the user trying to enroll. For sign-in, this identifies that the user already
     /// passed the first factor challenge.
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
-  @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
-  open func verifyPhoneNumber(_ phoneNumber: String,
-                              uiDelegate: AuthUIDelegate? = nil,
-                              multiFactorSession: MultiFactorSession? = nil,
-                              completion: ((_: String?, _: Error?) -> Void)?) {
-    
-    guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-                                                  urlTypes: auth.mainBundleUrlTypes) else {
-      fatalError(
-        "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-      )
-    }
-    kAuthGlobalWorkQueue.async {
-      Task {
-        do {
-          let verificationID = try await self.internalVerify(
-            phoneNumber: phoneNumber,
-            uiDelegate: uiDelegate,
-            multiFactorSession: multiFactorSession
-          )
-          Auth.wrapMainAsync(callback: completion, withParam: verificationID, error: nil)
-        } catch {
-          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+    @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
+    open func verifyPhoneNumber(_ phoneNumber: String,
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession? = nil,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
+      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+                                                    urlTypes: auth.mainBundleUrlTypes) else {
+        fatalError(
+          "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
+        )
+      }
+      kAuthGlobalWorkQueue.async {
+        Task {
+          do {
+            let verificationID = try await self.internalVerify(
+              phoneNumber: phoneNumber,
+              uiDelegate: uiDelegate,
+              multiFactorSession: multiFactorSession
+            )
+            Auth.wrapMainAsync(callback: completion, withParam: verificationID, error: nil)
+          } catch {
+            Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          }
         }
       }
     }
-  }
-  
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-  func verifyPhoneNumberWithRCE(_ phoneNumber: String,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                enforcement: AuthRecaptchaEnablementState) async throws -> String {
-    let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
-                                              codeIdentity: CodeIdentity.empty,
-                                              requestConfiguration: auth.requestConfiguration)
-    let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-    try await auth.injectRecaptcha(request: request,
-                                                      provider: AuthRecaptchaProvider.phoneAuth,
-                                                      action: AuthRecaptchaAction.sendVerificationCode)
-    do {
-      let response = try await AuthBackend.call(with: request)
-      guard let verificationID = response.verificationID, !verificationID.isEmpty else{
-        throw AuthErrorUtils.missingVerificationIDError(message: nil)
+
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    func verifyPhoneNumberWithRCE(_ phoneNumber: String,
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  enforcement: AuthRecaptchaEnablementState) async throws
+      -> String {
+      let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
+                                                codeIdentity: CodeIdentity.empty,
+                                                requestConfiguration: auth.requestConfiguration)
+      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+      try await auth.injectRecaptcha(request: request,
+                                     provider: AuthRecaptchaProvider.phoneAuth,
+                                     action: AuthRecaptchaAction
+                                       .sendVerificationCode)
+      do {
+        let response = try await AuthBackend.call(with: request)
+        guard let verificationID = response.verificationID, !verificationID.isEmpty else {
+          throw AuthErrorUtils.missingVerificationIDError(message: nil)
+        }
+        return verificationID
+      } catch {
+        throw error
       }
-      return verificationID
-    } catch {
-      throw error
     }
-  }
-  
+
     /// Verify ownership of the second factor phone number by the current user.
     /// - Parameter phoneNumber: The phone number to be verified.
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
@@ -125,53 +126,61 @@ import Foundation
     /// identifies the user trying to enroll. For sign-in, this identifies that the user already
     /// passed the first factor challenge.
     /// - Returns: The verification ID
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-  open func verifyPhoneNumber(_ phoneNumber: String,
-                              uiDelegate: AuthUIDelegate? = nil,
-                              multiFactorSession: MultiFactorSession? = nil) async throws -> String {
-    let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-    let recaptchaEnforcementStatus = recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.phoneAuth)
-    
-    if (recaptchaEnforcementStatus != AuthRecaptchaEnablementState.off) {
-      do {
-        let response = try await verifyPhoneNumberWithRCE(phoneNumber, uiDelegate: uiDelegate, enforcement: recaptchaEnforcementStatus)
-        return response
-      } catch {
-        let rceError = error as NSError
-        if(recaptchaEnforcementStatus == .audit && (rceError.code == AuthErrorCode.missingRecaptchaToken.rawValue || rceError.code == AuthErrorCode.invalidRecaptchaToken.rawValue)) {
-          return try await withCheckedThrowingContinuation {
-            continuation in
-            self.verifyPhoneNumber(phoneNumber,
-                                   uiDelegate: uiDelegate,
-                                   multiFactorSession: multiFactorSession) {
-              result, error in
-              if let error = error {
-                continuation.resume(throwing: error)
-              } else if let result = result {
-                continuation.resume(returning: result)
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    open func verifyPhoneNumber(_ phoneNumber: String,
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession? = nil) async throws
+      -> String {
+      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+      let recaptchaEnforcementStatus = recaptchaVerifier
+        .enablementStatus(forProvider: AuthRecaptchaProvider.phoneAuth)
+
+      if recaptchaEnforcementStatus != AuthRecaptchaEnablementState.off {
+        do {
+          let response = try await verifyPhoneNumberWithRCE(
+            phoneNumber,
+            uiDelegate: uiDelegate,
+            enforcement: recaptchaEnforcementStatus
+          )
+          return response
+        } catch {
+          let rceError = error as NSError
+          if recaptchaEnforcementStatus == .audit &&
+            (rceError.code == AuthErrorCode.missingRecaptchaToken.rawValue || rceError
+              .code == AuthErrorCode.invalidRecaptchaToken.rawValue) {
+            return try await withCheckedThrowingContinuation {
+              continuation in
+              self.verifyPhoneNumber(phoneNumber,
+                                     uiDelegate: uiDelegate,
+                                     multiFactorSession: multiFactorSession) {
+                result, error in
+                if let error = error {
+                  continuation.resume(throwing: error)
+                } else if let result = result {
+                  continuation.resume(returning: result)
+                }
               }
             }
+          } else {
+            throw error
           }
-        } else {
-          throw error
         }
-      }
-    } else {
-      return try await withCheckedThrowingContinuation { 
-        continuation in
-        self.verifyPhoneNumber(phoneNumber, 
-                               uiDelegate: uiDelegate,
-                               multiFactorSession: multiFactorSession) {
-          result, error in
-          if let error = error {
-            continuation.resume(throwing: error)
-          } else if let result = result {
-            continuation.resume(returning: result)
+      } else {
+        return try await withCheckedThrowingContinuation {
+          continuation in
+          self.verifyPhoneNumber(phoneNumber,
+                                 uiDelegate: uiDelegate,
+                                 multiFactorSession: multiFactorSession) {
+            result, error in
+            if let error = error {
+              continuation.resume(throwing: error)
+            } else if let result = result {
+              continuation.resume(returning: result)
+            }
           }
         }
       }
     }
-  }
 
     /// Verify ownership of the second factor phone number by the current user.
     /// - Parameter multiFactorInfo: The phone multi factor whose number need to be verified.
@@ -264,8 +273,8 @@ import Foundation
                                                  uiDelegate: AuthUIDelegate?) async throws
       -> String? {
       let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
-        let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
-                                                  codeIdentity: codeIdentity,
+      let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
+                                                codeIdentity: codeIdentity,
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
 

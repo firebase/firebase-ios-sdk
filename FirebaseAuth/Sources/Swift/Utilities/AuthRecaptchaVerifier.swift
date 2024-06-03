@@ -29,13 +29,13 @@
     }
   }
 
-enum AuthRecaptchaEnablementState {
-  case enforce
-  case audit
-  case off
-}
+  enum AuthRecaptchaEnablementState {
+    case enforce
+    case audit
+    case off
+  }
 
-enum AuthRecaptchaProvider: CaseIterable {
+  enum AuthRecaptchaProvider: CaseIterable {
     case password
     case phoneAuth
   }
@@ -57,19 +57,19 @@ enum AuthRecaptchaProvider: CaseIterable {
 
     private static let _shared = AuthRecaptchaVerifier()
     private let stateToStringMap = [
-      AuthRecaptchaEnablementState.enforce : "ENFORCE",
-      AuthRecaptchaEnablementState.audit : "AUDIT",
-      AuthRecaptchaEnablementState.off : "OFF"
+      AuthRecaptchaEnablementState.enforce: "ENFORCE",
+      AuthRecaptchaEnablementState.audit: "AUDIT",
+      AuthRecaptchaEnablementState.off: "OFF",
     ]
     private let providerToStringMap = [
       AuthRecaptchaProvider.password: "EMAIL_PASSWORD_PROVIDER",
-      AuthRecaptchaProvider.phoneAuth: "PHONE_PROVIDER"
+      AuthRecaptchaProvider.phoneAuth: "PHONE_PROVIDER",
     ]
     private let actionToStringMap = [
       AuthRecaptchaAction.signInWithPassword: "signInWithPassword",
       AuthRecaptchaAction.getOobCode: "getOobCode",
       AuthRecaptchaAction.signUpPassword: "signUpPassword",
-      AuthRecaptchaAction.sendVerificationCode: "sendVerificationCode"
+      AuthRecaptchaAction.sendVerificationCode: "sendVerificationCode",
     ]
     private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
     private init() {}
@@ -93,7 +93,8 @@ enum AuthRecaptchaProvider: CaseIterable {
       return agentConfig?.siteKey
     }
 
-    func enablementStatus(forProvider provider: AuthRecaptchaProvider) -> AuthRecaptchaEnablementState {
+    func enablementStatus(forProvider provider: AuthRecaptchaProvider)
+      -> AuthRecaptchaEnablementState {
       guard let providerString = providerToStringMap[provider] else {
         return AuthRecaptchaEnablementState.off
       }
@@ -178,7 +179,8 @@ enum AuthRecaptchaProvider: CaseIterable {
       if let enforcementState = response.enforcementState {
         for state in enforcementState {
           if let provider = state["provider"],
-             provider == providerToStringMap[AuthRecaptchaProvider.password] || provider == providerToStringMap[AuthRecaptchaProvider.phoneAuth]{
+             provider == providerToStringMap[AuthRecaptchaProvider.password] || provider ==
+             providerToStringMap[AuthRecaptchaProvider.phoneAuth] {
             if let enforcement = state["enforcementState"] {
               if enforcement == stateToStringMap[.enforce] {
                 enablementStatus[provider] = AuthRecaptchaEnablementState.enforce
@@ -204,7 +206,7 @@ enum AuthRecaptchaProvider: CaseIterable {
                                provider: AuthRecaptchaProvider,
                                action: AuthRecaptchaAction) async throws {
       try await retrieveRecaptchaConfig(forceRefresh: false)
-      if enablementStatus(forProvider: provider) != AuthRecaptchaEnablementState.off{
+      if enablementStatus(forProvider: provider) != AuthRecaptchaEnablementState.off {
         let token = try await verify(forceRefresh: false, action: action)
         request.injectRecaptchaFields(recaptchaResponse: token, recaptchaVersion: kRecaptchaVersion)
       } else {

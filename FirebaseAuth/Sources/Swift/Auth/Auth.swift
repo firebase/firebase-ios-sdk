@@ -2276,7 +2276,7 @@ extension Auth: AuthInterop {
                                                         )) {
       Task {
         do {
-          let response = try await injectRecaptcha(request: request, 
+          let response = try await injectRecaptcha(request: request,
                                                    provider: AuthRecaptchaProvider.password,
                                                    action: action)
           callback(response, nil)
@@ -2291,7 +2291,7 @@ extension Auth: AuthInterop {
                                             action: AuthRecaptchaAction) async throws -> T
       .Response {
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: self)
-        if (recaptchaVerifier.enablementStatus(forProvider: provider) != .off) {
+      if recaptchaVerifier.enablementStatus(forProvider: provider) != .off {
         try await recaptchaVerifier.injectRecaptchaFields(request: request,
                                                           provider: AuthRecaptchaProvider.password,
                                                           action: action)

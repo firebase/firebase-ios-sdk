@@ -456,8 +456,10 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .missingIosBundleIDError(message: serverDetailErrorMessage)
     case "MISSING_ANDROID_PACKAGE_NAME": return AuthErrorUtils
       .missingAndroidPackageNameError(message: serverDetailErrorMessage)
-    case "MISSING_RECAPTCHA_TOKEN": return AuthErrorUtils.missingRecaptchaToken(message: serverDetailErrorMessage)
-    case "INVALID_RECAPTCHA_TOKEN": return AuthErrorUtils.invalidRecaptchaToken(message: serverDetailErrorMessage)
+    case "MISSING_RECAPTCHA_TOKEN": return AuthErrorUtils
+      .missingRecaptchaToken(message: serverDetailErrorMessage)
+    case "INVALID_RECAPTCHA_TOKEN": return AuthErrorUtils
+      .invalidRecaptchaToken(message: serverDetailErrorMessage)
     case "UNAUTHORIZED_DOMAIN": return AuthErrorUtils
       .unauthorizedDomainError(message: serverDetailErrorMessage)
     case "INVALID_CONTINUE_URI": return AuthErrorUtils
