@@ -134,7 +134,7 @@ class StorageTests: XCTestCase {
 
   func testUseEmulator() throws {
     let app = try getApp(bucket: "bucket-for-testUseEmulator")
-    let storage = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
+    let storage = Storage.storage(app: app)
     storage.useEmulator(withHost: "localhost", port: 8080)
     XCTAssertNoThrow(storage.reference())
   }

@@ -36,62 +36,28 @@ class VertexComponentTests: XCTestCase {
     }
   }
 
-  // MARK: Interoperability Tests
-
-  /// Tests that the right number of components are being provided for the container.
+  /// Test that the objc class is available for the component system to update the user agent.
   func testComponentsBeingRegistered() throws {
-    let components = VertexAIComponent.componentsToRegister()
-    XCTAssert(components.count == 1)
+    XCTAssertNotNil(NSClassFromString("FIRVertexAIComponent"))
   }
 
-  /// Tests that a vertex instance can be created properly by the VertexAIComponent.
+  /// Tests that a vertex instance can be created properly.
   func testVertexInstanceCreation() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let component = VertexAIComponent(app: app)
-    let vertex = component.vertexAI("my-location")
+    let vertex = VertexAI.vertexAI(app: app, location: "my-location")
     XCTAssertNotNil(vertex)
   }
 
-  /// Tests that the component container caches instances of VertexAIComponent.
+  /// Tests that a vertex instances are reused properly.
   func testMultipleComponentInstancesCreated() throws {
-    let registrants = NSMutableSet(array: [VertexAIComponent.self])
-    let container = FirebaseComponentContainer(
-      app: VertexComponentTests.app,
-      registrants: registrants
-    )
-
-    let provider1 = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
-                                                             in: container)
-    XCTAssertNotNil(provider1)
-
-    let provider2 = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
-                                                             in: container)
-    XCTAssertNotNil(provider2)
-
-    // Ensure they're the same instance.
-    XCTAssert(provider1 === provider2)
-  }
-
-  /// Tests that instances of vertex created are different.
-  func testMultipleVertexInstancesCreated() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let registrants = NSMutableSet(array: [VertexAIComponent.self])
-    let container = FirebaseComponentContainer(app: app, registrants: registrants)
-
-    let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
-                                                            in: container)
-    XCTAssertNotNil(provider)
-
-    let vertex1 = provider?.vertexAI("randomLocation")
-    let vertex2 = provider?.vertexAI("randomLocation")
-    XCTAssertNotNil(vertex1)
+    let vertex1 = VertexAI.vertexAI(app: app, location: "my-location")
+    let vertex2 = VertexAI.vertexAI(app: app, location: "my-location")
 
     // Ensure they're the same instance.
     XCTAssert(vertex1 === vertex2)
 
-    let vertex3 = provider?.vertexAI("differentLocation")
-    XCTAssertNotNil(vertex3)
-
+    let vertex3 = VertexAI.vertexAI(app: app, location: "differentLocation")
     XCTAssert(vertex1 !== vertex3)
   }
 
