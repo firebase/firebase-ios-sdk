@@ -38,7 +38,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c',
     'FirebaseDatabase/Swift/Sources/**/*.swift',
-    'FirebaseAuth/Interop/*.h',
+    'FirebaseAuth/Interop/**/*.h',
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
