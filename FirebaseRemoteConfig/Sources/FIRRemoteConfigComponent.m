@@ -118,12 +118,9 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
 #pragma mark - Interoperability
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
   FIRComponent *rcProvider = [FIRComponent
       componentWithProtocol:@protocol(FIRRemoteConfigProvider)
         instantiationTiming:FIRInstantiationTimingAlwaysEager
-               dependencies:@[ analyticsDep ]
               creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
                 // Cache the component so instances of Remote Config are cached.
                 *isCacheable = YES;
@@ -135,7 +132,6 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
   FIRComponent *rcInterop = [FIRComponent
       componentWithProtocol:@protocol(FIRRemoteConfigInterop)
         instantiationTiming:FIRInstantiationTimingAlwaysEager
-               dependencies:@[]
               creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
                 // Cache the component so instances of Remote Config are cached.
                 *isCacheable = YES;
