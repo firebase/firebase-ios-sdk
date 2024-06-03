@@ -45,6 +45,7 @@ final class AppCheckProtocolAPITests {
     }
   }
 
+  @available(iOS 13, macOS 10.15, macCatalyst 13, tvOS 13, *)
   func usage_async() async {
     do {
       let token: AppCheckTokenProtocol = try await appCheck.token(forcingRefresh: false)

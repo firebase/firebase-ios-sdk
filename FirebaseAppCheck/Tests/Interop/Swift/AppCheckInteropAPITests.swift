@@ -49,6 +49,7 @@ final class AppCheckInteropAPITests {
     }
   }
 
+  @available(iOS 13, macOS 10.15, macCatalyst 13, tvOS 13, *)
   func usage_async() async {
     let result: FIRAppCheckTokenResultInterop =
       await appCheckInterop.getToken(forcingRefresh: false)
