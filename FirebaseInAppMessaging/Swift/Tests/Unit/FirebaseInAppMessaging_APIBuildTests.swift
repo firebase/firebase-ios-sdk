@@ -15,13 +15,10 @@
 import XCTest
 
 import FirebaseInAppMessaging
-import FirebaseInAppMessagingSwift
 import SwiftUI
 
-final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
+final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
   func usage() throws {
-    // MARK: - FirebaseInAppMessaging
-
     let inAppMessaging = FirebaseInAppMessaging.InAppMessaging.inAppMessaging()
 
     let _: Bool = inAppMessaging.messageDisplaySuppressed
@@ -207,13 +204,11 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
     let display: FirebaseInAppMessaging.InAppMessagingDisplay! = nil
     display.displayMessage(displayMessage, displayDelegate: delegate!)
 
-    // MARK: - FirebaseInAppMessagingSwift
-
     if #available(iOS 13, tvOS 13, *) {
       let nullableImage: UIImage? = nil
       let nullableColor: UIColor? = nil
       let nullableAppData: [String: String]? = nil
-      let _: FirebaseInAppMessaging.InAppMessagingCardDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingCardDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.cardMessage(
           campaignName: nonnullText,
           title: nonnullText,
@@ -233,9 +228,9 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
           appData: nullableAppData
         )
 
-      let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.modalMessage()
-      let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.modalMessage(
           campaignName: nonnullText,
           title: nonnullText,
@@ -250,9 +245,9 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
           appData: nullableAppData
         )
 
-      let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.bannerMessage()
-      let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.bannerMessage(
           campaignName: nonnullText,
           title: nonnullText,
@@ -264,9 +259,9 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
           appData: nullableAppData
         )
 
-      let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.imageOnlyMessage(image: UIImage())
-      let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
+      let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessaging
         .InAppMessagingPreviewHelpers.imageOnlyMessage(
           campaignName: nonnullText,
           image: UIImage(),
@@ -274,7 +269,7 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
           appData: nullableAppData
         )
 
-      let swiftDelegate = FirebaseInAppMessagingSwift.InAppMessagingPreviewHelpers.Delegate()
+      let swiftDelegate = FirebaseInAppMessaging.InAppMessagingPreviewHelpers.Delegate()
       _ = swiftDelegate as InAppMessagingDisplayDelegate
     }
 
