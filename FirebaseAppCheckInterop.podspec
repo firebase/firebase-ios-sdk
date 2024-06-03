@@ -34,6 +34,17 @@ Pod::Spec.new do |s|
   s.source_files = 'FirebaseAppCheck/Interop/**/*.[hm]'
   s.public_header_files = 'FirebaseAppCheck/Interop/Public/FirebaseAppCheckInterop/*.h'
 
+  s.test_spec 'objc-unit' do |unit_tests|
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = [
+      'FirebaseAppCheck/Tests/Interop/ObjC/**/*.[hm]',
+    ]
+  end
+
   s.test_spec 'swift-unit' do |swift_unit_tests|
     swift_unit_tests.platforms = {
       :ios => ios_deployment_target,
