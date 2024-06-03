@@ -1537,6 +1537,7 @@ extension User: NSSecureCoding {}
               fatalError("Internal Auth error: missing auth instance on user")
             }
             let response = try await auth.injectRecaptcha(request: request,
+                                                          provider: AuthRecaptchaProvider.password,
                                                           action: AuthRecaptchaAction
                                                             .signUpPassword)
           #else

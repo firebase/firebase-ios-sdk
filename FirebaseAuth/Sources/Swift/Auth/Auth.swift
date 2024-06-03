@@ -393,6 +393,7 @@ extension Auth: AuthInterop {
     }
     #if os(iOS)
       let response = try await injectRecaptcha(request: request,
+                                               provider: AuthRecaptchaProvider.password,
                                                action: AuthRecaptchaAction.signInWithPassword)
     #else
       let response = try await AuthBackend.call(with: request)
@@ -2275,7 +2276,9 @@ extension Auth: AuthInterop {
                                                         )) {
       Task {
         do {
-          let response = try await injectRecaptcha(request: request, action: action)
+          let response = try await injectRecaptcha(request: request, 
+                                                   provider: AuthRecaptchaProvider.password,
+                                                   action: action)
           callback(response, nil)
         } catch {
           callback(nil, error)
@@ -2284,10 +2287,11 @@ extension Auth: AuthInterop {
     }
 
     func injectRecaptcha<T: AuthRPCRequest>(request: T,
+                                            provider: AuthRecaptchaProvider,
                                             action: AuthRecaptchaAction) async throws -> T
       .Response {
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: self)
-      if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) {
+        if (recaptchaVerifier.enablementStatus(forProvider: provider) != .off) {
         try await recaptchaVerifier.injectRecaptchaFields(request: request,
                                                           provider: AuthRecaptchaProvider.password,
                                                           action: action)

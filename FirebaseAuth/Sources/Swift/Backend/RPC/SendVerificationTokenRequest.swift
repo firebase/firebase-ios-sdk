@@ -62,14 +62,11 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The credential or reCAPTCHA token to prove the identity of the app in order to send the
   /// verification code.
   let codeIdentity: CodeIdentity
-  
-  let CAPTCHAResponse : String
 
-  init(phoneNumber: String, codeIdentity: CodeIdentity, captchaReponse: String,
+  init(phoneNumber: String, codeIdentity: CodeIdentity,
        requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
     self.codeIdentity = codeIdentity
-    self.CAPTCHAResponse = captchaReponse
     super.init(
       endpoint: kSendVerificationCodeEndPoint,
       requestConfiguration: requestConfiguration
@@ -84,12 +81,13 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
       postBody[kReceiptKey] = appCredential.receipt
       postBody[kSecretKey] = appCredential.secret
     case let .recaptcha(reCAPTCHAToken):
+      postBody[kCaptchaResponseKey] = reCAPTCHAToken
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty: break
     }
-    postBody[kCAPTCHAResponse] = CAPTCHAResponse
+    //postBody[kCaptchaResponseKey] = captchaResponse
     postBody[kClientType] = clientType
-    postBody[kreCAPTCHAVersion] = reCAPTCHAVersion
+    postBody[kRecaptchaVersion] = reCAPTCHAVersion
 
     if let tenantID {
       postBody[kTenantIDKey] = tenantID
