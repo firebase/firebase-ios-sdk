@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import FirebaseCoreExtension;
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
