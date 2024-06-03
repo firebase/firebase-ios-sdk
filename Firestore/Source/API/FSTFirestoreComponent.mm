@@ -162,7 +162,6 @@ NS_ASSUME_NONNULL_BEGIN
   FIRComponent *firestoreProvider = [FIRComponent
       componentWithProtocol:@protocol(FSTFirestoreMultiDBProvider)
         instantiationTiming:FIRInstantiationTimingLazy
-               dependencies:@[ auth ]
               creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
                 FSTFirestoreComponent *multiDBComponent =
                     [[FSTFirestoreComponent alloc] initWithApp:container.app];
