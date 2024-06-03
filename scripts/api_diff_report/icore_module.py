@@ -101,9 +101,7 @@ def get_scheme(module_name):
     Get scheme from module name in .podspecs Assume the scheme is the
     same as the module name:
     """
-  MODULE_SCHEME_PATCH = {
-      # Example: 'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
-  }
+  MODULE_SCHEME_PATCH = {}
   if module_name in MODULE_SCHEME_PATCH:
     return MODULE_SCHEME_PATCH[module_name]
   return module_name
