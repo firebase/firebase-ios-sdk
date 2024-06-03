@@ -50,7 +50,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
-    'FirebaseAuth/Interop/*.h',
+    'FirebaseAuth/Interop/**/*.h',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal
