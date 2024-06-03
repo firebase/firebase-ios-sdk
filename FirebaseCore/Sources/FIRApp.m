@@ -843,6 +843,9 @@ static FIRApp *sDefaultApp;
     @"FIRCombineFirestoreLibrary" : @"comb-firestore",
     @"FIRCombineFunctionsLibrary" : @"comb-functions",
     @"FIRCombineStorageLibrary" : @"comb-storage",
+    @"FIRFunctions" : @"fire-fun",
+    @"FIRStorage" : @"fire-str",
+    @"FIRVertexAIComponent" : @"fire-vertex",
   };
   for (NSString *className in swiftLibraries.allKeys) {
     Class klass = NSClassFromString(className);
