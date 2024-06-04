@@ -43,8 +43,8 @@ public class DataConnect {
 
   // MARK: Emulator
 
-  public func useEmulator(host: String = "localhost",
-                          port: Int = 9510) {
+  public func useEmulator(host: String = "127.0.0.1",
+                          port: Int = 9399) {
     settings = DataConnectSettings(host: host, port: port, sslEnabled: false)
 
     // TODO: - shutdown grpc client
