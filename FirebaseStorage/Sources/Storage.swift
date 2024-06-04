@@ -347,8 +347,8 @@ import FirebaseCore
   private let storageBucket: String
   private var usesEmulator: Bool = false
 
-  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
-  /// containing all instances of Storage associated with the given app.
+  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
+  /// instances of Storage associated with the given app.
   private static var instances: [String: Storage] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
