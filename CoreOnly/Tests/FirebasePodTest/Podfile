@@ -22,7 +22,6 @@ target 'FirebasePodTest' do
   pod 'FirebaseFirestoreSwift', :path => '../../../'
   pod 'FirebaseFunctions', :path => '../../../'
   pod 'FirebaseInAppMessaging', :path => '../../../'
-  pod 'FirebaseInAppMessagingSwift', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseMessaging', :path => '../../../'
   pod 'FirebasePerformance', :path => '../../../'

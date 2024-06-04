@@ -20,6 +20,5 @@ import FirebaseAuth
 #endif // SWIFT_PACKAGE
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebaseInAppMessaging
-  import FirebaseInAppMessagingSwift
 #endif
 import FirebaseStorage

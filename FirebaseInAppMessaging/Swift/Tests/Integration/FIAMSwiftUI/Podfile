@@ -11,5 +11,4 @@ pod 'FirebaseInAppMessaging', :path => '../../../../..'
 
 target 'FIAMSwiftUI (iOS)' do
   platform :ios, '13.0'
-  pod 'FirebaseInAppMessagingSwift', :path => '../../../../..'
 end
