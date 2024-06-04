@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import FirebaseCore
 import FirebaseFirestore
 @testable import FirebaseFirestoreSwift
 import Foundation

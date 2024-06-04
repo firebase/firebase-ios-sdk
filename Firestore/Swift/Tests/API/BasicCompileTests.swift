@@ -20,6 +20,7 @@
 import Foundation
 import XCTest
 
+import FirebaseCore
 import FirebaseFirestore
 
 class BasicCompileTests: XCTestCase {
