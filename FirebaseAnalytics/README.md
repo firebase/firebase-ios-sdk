@@ -1,4 +1,4 @@
-# Firebase Analytics Swift SDK
+# Firebase Analytics SDK
 
 Introduce a manual screen view event logging API that enable developers to log individual views in SwiftUI lifecycle.
 
