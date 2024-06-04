@@ -25,7 +25,6 @@ MODULE_LIST = [
     'FirebaseABTesting',
     'FirebaseAnalytics',  # Not buildable from source
     'FirebaseAnalyticsOnDeviceConversion',  # Not buildable.
-    'FirebaseAnalyticsSwift',
     'FirebaseAppCheck',
     'FirebaseAppDistribution',
     'FirebaseAuth',
