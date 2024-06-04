@@ -685,7 +685,6 @@ let package = Package(
     ),
     .target(
       name: "FirebaseSharedSwift",
-      dependencies: ["FirebaseCore"],
       path: "FirebaseSharedSwift/Sources",
       exclude: [
         "third_party/FirebaseDataEncoder/LICENSE",

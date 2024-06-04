@@ -37,8 +37,6 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
     'FirebaseSharedSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '~> 10.0'
-
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {
       :ios => ios_deployment_target,

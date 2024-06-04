@@ -15,14 +15,15 @@
  */
 
 import FirebaseCore
+import FirebaseSharedSwift
+import Foundation
 
-public extension FirebaseDataDecoder.DateDecodingStrategy {
-  /// Decode the `Date` from a Firestore `Timestamp`
-  static var timestamp: FirebaseDataDecoder.DateDecodingStrategy {
-    return .custom { decoder in
-      let container = try decoder.singleValueContainer()
-      let value = try container.decode(Timestamp.self)
-      return value.dateValue()
+public extension FirebaseDataEncoder.DateEncodingStrategy {
+  /// Encode the `Date` as a Firestore `Timestamp`.
+  static var timestamp: FirebaseDataEncoder.DateEncodingStrategy {
+    return .custom { date, encoder in
+      var container = encoder.singleValueContainer()
+      try container.encode(Timestamp(date: date))
     }
   }
 }
