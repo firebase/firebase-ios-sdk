@@ -26,4 +26,7 @@ public enum DataConnectError: Error {
 
   // uuid string length is not correct.
   case invalidUUID
+
+  // date components specified to initialize LocalDate are invalid
+  case invalidLocalDateFormat
 }

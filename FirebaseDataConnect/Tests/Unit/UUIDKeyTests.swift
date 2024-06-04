@@ -14,7 +14,7 @@
 
 import XCTest
 
-import FirebaseDataConnect
+@testable import FirebaseDataConnect
 import Foundation
 
 final class UUIDKeyTests: XCTestCase {
