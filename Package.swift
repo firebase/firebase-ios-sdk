@@ -82,10 +82,6 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDatabaseSwift",
-      targets: ["FirebaseDatabaseSwift"]
-    ),
-    .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
     ),
@@ -653,16 +649,6 @@ let package = Package(
       name: "FirebaseDatabase",
       dependencies: ["FirebaseDatabaseInternal", "FirebaseSharedSwift"],
       path: "FirebaseDatabase/Swift/Sources"
-    ),
-    .target(
-      name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase"],
-      path: "FirebaseDatabaseSwift/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseDatabaseSwiftTests",
-      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
-      path: "FirebaseDatabaseSwift/Tests/"
     ),
     .target(
       name: "FirebaseSharedSwift",
