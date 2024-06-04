@@ -33,7 +33,6 @@ import FirebaseMessaging
   import FirebasePerformance
 
   @testable import FirebaseInAppMessaging
-  import FirebaseInAppMessagingSwift
   import SwiftUI
 #endif
 import FirebaseRemoteConfig

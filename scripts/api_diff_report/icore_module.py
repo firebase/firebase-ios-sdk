@@ -38,7 +38,6 @@ MODULE_LIST = [
     'FirebaseFirestoreSwift',
     'FirebaseFunctions',
     'FirebaseInAppMessaging'
-    'FirebaseInAppMessagingSwift',
     'FirebaseInstallations',
     'FirebaseMessaging',
     'FirebaseMLModelDownloader',
@@ -102,9 +101,7 @@ def get_scheme(module_name):
     Get scheme from module name in .podspecs Assume the scheme is the
     same as the module name:
     """
-  MODULE_SCHEME_PATCH = {
-      'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
-  }
+  MODULE_SCHEME_PATCH = {}
   if module_name in MODULE_SCHEME_PATCH:
     return MODULE_SCHEME_PATCH[module_name]
   return module_name
@@ -135,7 +132,6 @@ def get_root_dir(module_name, source_files):
       'FirebaseFirestore': 'Firestore/Source',
       'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
       'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
-      'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
   }
   if module_name in MODULE_ROOT_PATCH:
     return MODULE_ROOT_PATCH[module_name]
