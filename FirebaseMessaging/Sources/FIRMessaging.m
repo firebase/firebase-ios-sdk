@@ -437,9 +437,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called,
     // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
-// TODO(Xcode 15): When Xcode 15 is the minimum supported Xcode version, it will be unnecessary to
-// check if `TARGET_OS_VISION` is defined.
-#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
+#if TARGET_OS_IOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application

@@ -143,32 +143,29 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   BOOL needsMigration = NO;
   // These value cannot be nil
 
-  id authorizedEntity = [aDecoder decodeObjectForKey:kFIRInstanceIDAuthorizedEntityKey];
-  if (![authorizedEntity isKindOfClass:[NSString class]]) {
+  NSString *authorizedEntity = [aDecoder decodeObjectOfClass:[NSString class]
+                                                      forKey:kFIRInstanceIDAuthorizedEntityKey];
+  if (!authorizedEntity) {
     return nil;
   }
 
-  id scope = [aDecoder decodeObjectForKey:kFIRInstanceIDScopeKey];
-  if (![scope isKindOfClass:[NSString class]]) {
+  NSString *scope = [aDecoder decodeObjectOfClass:[NSString class] forKey:kFIRInstanceIDScopeKey];
+  if (!scope) {
     return nil;
   }
 
-  id token = [aDecoder decodeObjectForKey:kFIRInstanceIDTokenKey];
-  if (![token isKindOfClass:[NSString class]]) {
+  NSString *token = [aDecoder decodeObjectOfClass:[NSString class] forKey:kFIRInstanceIDTokenKey];
+  if (!token) {
     return nil;
   }
 
-  // These values are nullable, so only fail the decode if the type does not match
+  // These values are nullable, so don't fail on nil.
 
-  id appVersion = [aDecoder decodeObjectForKey:kFIRInstanceIDAppVersionKey];
-  if (appVersion && ![appVersion isKindOfClass:[NSString class]]) {
-    return nil;
-  }
+  NSString *appVersion = [aDecoder decodeObjectOfClass:[NSString class]
+                                                forKey:kFIRInstanceIDAppVersionKey];
+  NSString *firebaseAppID = [aDecoder decodeObjectOfClass:[NSString class]
+                                                   forKey:kFIRInstanceIDFirebaseAppIDKey];
 
-  id firebaseAppID = [aDecoder decodeObjectForKey:kFIRInstanceIDFirebaseAppIDKey];
-  if (firebaseAppID && ![firebaseAppID isKindOfClass:[NSString class]]) {
-    return nil;
-  }
   NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class ]];
   FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes
                                                                forKey:kFIRInstanceIDAPNSInfoKey];
