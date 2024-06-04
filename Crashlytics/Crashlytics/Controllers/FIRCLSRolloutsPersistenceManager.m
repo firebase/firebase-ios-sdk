@@ -64,20 +64,22 @@
 
   NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
 
-  if (_rolloutsLoggingQueue) {
-    dispatch_async(_rolloutsLoggingQueue, ^{
-      @try {
-        [rolloutsFile seekToEndOfFile];
-        NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
-        [rolloutsWithNewLineData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-        [rolloutsFile writeData:rolloutsWithNewLineData];
-        [rolloutsFile closeFile];
-      } @catch (NSException *exception) {
-        FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
-                       exception.name, exception.reason);
-      }
-    });
+  if (!_rolloutsLoggingQueue) {
+    FIRCLSDebugLog(@"Rollouts logging queue is dealloccated");
   }
+
+  dispatch_async(_rolloutsLoggingQueue, ^{
+    @try {
+      [rolloutsFile seekToEndOfFile];
+      NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
+      [rolloutsWithNewLineData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+      [rolloutsFile writeData:rolloutsWithNewLineData];
+      [rolloutsFile closeFile];
+    } @catch (NSException *exception) {
+      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
+                     exception.name, exception.reason);
+    }
+  });
 }
 
 - (void)debugLogWithMessage:(NSString *_Nonnull)message {
