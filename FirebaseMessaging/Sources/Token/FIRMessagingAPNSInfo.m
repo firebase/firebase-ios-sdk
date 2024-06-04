@@ -75,10 +75,12 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  id deviceToken = [aDecoder decodeObjectForKey:kFIRInstanceIDAPNSInfoTokenKey];
-  if (![deviceToken isKindOfClass:[NSData class]]) {
+  NSData *deviceToken = [aDecoder decodeObjectOfClass:[NSData class]
+                                               forKey:kFIRInstanceIDAPNSInfoTokenKey];
+  if (!deviceToken) {
     return nil;
   }
+
   BOOL isSandbox = [aDecoder decodeBoolForKey:kFIRInstanceIDAPNSInfoSandboxKey];
   return [self initWithDeviceToken:(NSData *)deviceToken isSandbox:isSandbox];
 }
