@@ -49,8 +49,6 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:YES];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time fiam is called.
@@ -62,7 +60,6 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
   FIRComponent *fiamProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInAppMessagingInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
 
   return @[ fiamProvider ];

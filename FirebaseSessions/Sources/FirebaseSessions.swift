@@ -272,8 +272,7 @@ private enum GoogleDataTransportConfig {
 
   static func componentsToRegister() -> [Component] {
     return [Component(SessionsProvider.self,
-                      instantiationTiming: .alwaysEager,
-                      dependencies: []) { container, isCacheable in
+                      instantiationTiming: .alwaysEager) { container, isCacheable in
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true

@@ -49,10 +49,8 @@ class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
       isCacheable.pointee = true
       return Auth(app: app)
     }
-    let appCheckInterop = Dependency(with: AppCheckInterop.self, isRequired: false)
     let authInterop = Component(AuthInterop.self,
                                 instantiationTiming: .alwaysEager,
-                                dependencies: [appCheckInterop],
                                 creationBlock: authCreationBlock)
     return [authInterop]
   }
