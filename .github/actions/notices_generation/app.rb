@@ -83,7 +83,7 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
       # pod 'Firebase', '~> 9.0.0'
       # TODO: Re-enable below line post 10.28.0
       # output += `pod search "#{pod}" | grep "pod.*" -m 1`
-      output += "pod \'#{pod}\', \'~> 11.0.0\'\n"
+      output += "pod \'#{pod}\', \'~> 10.28.0\'\n"
     else
       output += "pod \'#{pod}\'\n"
     end
