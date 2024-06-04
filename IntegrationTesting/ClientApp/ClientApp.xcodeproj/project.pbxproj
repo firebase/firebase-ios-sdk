@@ -30,7 +30,6 @@
 		EA5A629F2A99498500F5711A /* objc-header-import-test.m in Sources */ = {isa = PBXBuildFile; fileRef = EA05C7DF29F0911400D1014F /* objc-header-import-test.m */; };
 		EA7DF54329EF20B9005664A7 /* swift-import-test.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7DF54229EF20B9005664A7 /* swift-import-test.swift */; };
 		EA7DF58329EF3326005664A7 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF58229EF3326005664A7 /* FirebaseAnalytics */; };
-		EA7DF58729EF3326005664A7 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF58629EF3326005664A7 /* FirebaseAnalyticsSwift */; };
 		EA7DF58929EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF58829EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		EA7DF58B29EF3326005664A7 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF58A29EF3326005664A7 /* FirebaseAppCheck */; };
 		EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */; };
@@ -58,7 +57,6 @@
 		EAA0A9BC2AD84E0900C28FCD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAA0A9BB2AD84E0900C28FCD /* Preview Assets.xcassets */; };
 		EAA0A9C12AD84E5600C28FCD /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = EAA0A9C02AD84E5600C28FCD /* FirebaseInAppMessaging-Beta */; };
 		EAA0A9C52AD84E5D00C28FCD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EAA0A9C42AD84E5D00C28FCD /* FirebaseAnalytics */; };
-		EAA0A9C72AD84E5D00C28FCD /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EAA0A9C62AD84E5D00C28FCD /* FirebaseAnalyticsSwift */; };
 		EAA0A9C82AD84E6A00C28FCD /* swift-import-test.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA0A9A82AD84C2A00C28FCD /* swift-import-test.swift */; };
 		EAA0A9C92AD84E7000C28FCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269B729EDF98A00D79E66 /* Assets.xcassets */; };
 		EAA0A9CA2AD84E7000C28FCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B329EDF98800D79E66 /* AppDelegate.swift */; };
@@ -100,7 +98,6 @@
 				EA7DF59529EF3326005664A7 /* FirebaseDatabase in Frameworks */,
 				EA7DF5A329EF3327005664A7 /* FirebaseFunctionsCombine-Community in Frameworks */,
 				EA7DF59B29EF3326005664A7 /* FirebaseFirestore in Frameworks */,
-				EA7DF58729EF3326005664A7 /* FirebaseAnalyticsSwift in Frameworks */,
 				EA0BC0FF29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				EA7DF58329EF3326005664A7 /* FirebaseAnalytics in Frameworks */,
 				EA7DF59F29EF3327005664A7 /* FirebaseFirestoreSwift in Frameworks */,
@@ -141,7 +138,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EAA0A9C72AD84E5D00C28FCD /* FirebaseAnalyticsSwift in Frameworks */,
 				EABBCF6F2B45B46500232BAF /* FirebaseAuthCombine-Community in Frameworks */,
 				EABBCF6D2B45B44100232BAF /* FirebaseAuth in Frameworks */,
 				DE305B702B7BE0B5000595B3 /* FirebaseStorage in Frameworks */,
@@ -312,7 +308,6 @@
 			name = ClientApp;
 			packageProductDependencies = (
 				EA7DF58229EF3326005664A7 /* FirebaseAnalytics */,
-				EA7DF58629EF3326005664A7 /* FirebaseAnalyticsSwift */,
 				EA7DF58829EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport */,
 				EA7DF58A29EF3326005664A7 /* FirebaseAppCheck */,
 				EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */,
@@ -389,7 +384,6 @@
 			packageProductDependencies = (
 				EAA0A9C02AD84E5600C28FCD /* FirebaseInAppMessaging-Beta */,
 				EAA0A9C42AD84E5D00C28FCD /* FirebaseAnalytics */,
-				EAA0A9C62AD84E5D00C28FCD /* FirebaseAnalyticsSwift */,
 				EABBCF6C2B45B44100232BAF /* FirebaseAuth */,
 				EABBCF6E2B45B46500232BAF /* FirebaseAuthCombine-Community */,
 				DE305B6F2B7BE0B5000595B3 /* FirebaseStorage */,
@@ -1032,10 +1026,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalytics;
 		};
-		EA7DF58629EF3326005664A7 /* FirebaseAnalyticsSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseAnalyticsSwift;
-		};
 		EA7DF58829EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalyticsWithoutAdIdSupport;
@@ -1123,10 +1113,6 @@
 		EAA0A9C42AD84E5D00C28FCD /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalytics;
-		};
-		EAA0A9C62AD84E5D00C28FCD /* FirebaseAnalyticsSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseAnalyticsSwift;
 		};
 		EABBCF6C2B45B44100232BAF /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

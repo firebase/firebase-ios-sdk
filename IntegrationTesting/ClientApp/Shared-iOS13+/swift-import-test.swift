@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import FirebaseAnalytics
-import FirebaseAnalyticsSwift
 import FirebaseAuth
 #if SWIFT_PACKAGE
   import FirebaseAuthCombineSwift

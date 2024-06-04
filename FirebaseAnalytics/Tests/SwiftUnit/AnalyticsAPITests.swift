@@ -21,7 +21,6 @@ import StoreKit
 import SwiftUI
 
 import FirebaseAnalytics
-import FirebaseAnalyticsSwift
 import SwiftUI
 
 final class AnalyticsAPITests {
