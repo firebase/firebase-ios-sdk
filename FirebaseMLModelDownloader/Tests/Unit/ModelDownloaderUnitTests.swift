@@ -1330,18 +1330,18 @@
     }
   }
 
-  extension NSUserDefaults {
+  extension UserDefaults {
     /// Returns a new instance of user defaults.
-    static func createUnitTestInstance(testName: String) -> NSUserDefaults {
+    static func createUnitTestInstance(testName: String) -> UserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      let defaults = NSUserDefaults(suiteName: suiteName)
-      return defaults
+      let defaults = UserDefaults(suiteName: suiteName)
+      return defaults ?? UserDefaults.standard
     }
 
     /// Returns the existing user defaults instance.
-    static func getUnitTestInstance(testName: String) -> NSUserDefaults {
+    static func getUnitTestInstance(testName: String) -> UserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      return NSUserDefaults(suiteName: suiteName)
+      return UserDefaults(suiteName: suiteName) ?? UserDefaults.standard
     }
   }
 
