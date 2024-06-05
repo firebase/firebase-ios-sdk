@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
 
     s.cocoapods_version = '>= 1.12.0'
 
-    s.ios.deployment_target  = '10.0'
+    s.ios.deployment_target  = '12.0'
 
     s.libraries  = 'c++'
 
