@@ -35,7 +35,6 @@
 		EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */; };
 		EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59229EF3326005664A7 /* FirebaseCrashlytics */; };
 		EA7DF59529EF3326005664A7 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59429EF3326005664A7 /* FirebaseDatabase */; };
-		EA7DF59729EF3326005664A7 /* FirebaseDatabaseSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59629EF3326005664A7 /* FirebaseDatabaseSwift */; };
 		EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */; };
 		EA7DF59B29EF3326005664A7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59A29EF3326005664A7 /* FirebaseFirestore */; };
 		EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */; };
@@ -108,7 +107,6 @@
 				EA7DF5B329EF3328005664A7 /* FirebaseRemoteConfigSwift in Frameworks */,
 				EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */,
 				EA7DF5A529EF3327005664A7 /* FirebaseInAppMessaging-Beta in Frameworks */,
-				EA7DF59729EF3326005664A7 /* FirebaseDatabaseSwift in Frameworks */,
 				EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */,
 				EA7DF5B129EF3328005664A7 /* FirebaseRemoteConfig in Frameworks */,
 				EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */,
@@ -313,7 +311,6 @@
 				EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */,
 				EA7DF59229EF3326005664A7 /* FirebaseCrashlytics */,
 				EA7DF59429EF3326005664A7 /* FirebaseDatabase */,
-				EA7DF59629EF3326005664A7 /* FirebaseDatabaseSwift */,
 				EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */,
 				EA7DF59A29EF3326005664A7 /* FirebaseFirestore */,
 				EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */,
@@ -1045,10 +1042,6 @@
 		EA7DF59429EF3326005664A7 /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseDatabase;
-		};
-		EA7DF59629EF3326005664A7 /* FirebaseDatabaseSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseDatabaseSwift;
 		};
 		EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */ = {
 			isa = XCSwiftPackageProductDependency;
