@@ -1026,7 +1026,7 @@ let package = Package(
         .process("Defaults-testInfo.plist"),
       ],
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("../../../"),
       ]
     ),
     .target(
