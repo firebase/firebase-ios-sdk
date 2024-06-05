@@ -1,3 +1,14 @@
+# Firebase 11.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 11 |
+      | ------------- | ------------- |
+      | iOS  | **13.0**  |
+      | tvOS  | **13.0**  |
+      | macOS  | **10.15**  |
+      | watchOS  | 7.0  |
+  - FirebaseAnalytics and FirebaseCrashlytics also continue to support iOS 12.0.
+
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See
   https://developer.apple.com/news/?id=fxu2qp7b for more info.

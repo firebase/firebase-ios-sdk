@@ -25,7 +25,9 @@ Pod::Spec.new do |s|
   s.prefix_header_file = false
 
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '13.0'
+
+  # The ios deployment target must support Crashlytics.
+  s.ios.deployment_target = '12.0'
   s.osx.deployment_target = '10.15'
   s.tvos.deployment_target = '13.0'
   s.watchos.deployment_target = '7.0'
