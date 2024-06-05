@@ -16,7 +16,6 @@
 
 import FirebaseAnalytics
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigSwift
 import SwiftUI
 
 struct Recipe: Decodable {

@@ -40,11 +40,11 @@ jobs:
       run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+          FirebaseRemoteConfig/Tests/Swift/SwiftAPI/GoogleService-Info.plist "$plist_secret"
     - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
-          FirebaseRemoteConfigSwift/Tests/AccessToken.json)
+          FirebaseRemoteConfig/Tests/Swift/AccessToken.json)
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
     - name: IntegrationTest
