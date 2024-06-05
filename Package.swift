@@ -1,4 +1,4 @@
-// swift-tools-version:5.7.1
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -690,7 +690,7 @@ let package = Package(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
                              condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
-                                                          .firebaseVisionOS]))],
+                                                          .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
@@ -903,7 +903,7 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
-                             condition: .when(platforms: [.iOS, .tvOS, .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
     .target(
@@ -1424,8 +1424,7 @@ func firestoreWrapperTarget() -> Target {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS,
-                                                          .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1503,9 +1502,9 @@ func firestoreTargets() -> [Target] {
         linkerSettings: [
           .linkedFramework(
             "SystemConfiguration",
-            .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+            .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
-          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
+          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1602,20 +1601,4 @@ func firestoreTargets() -> [Target] {
     ),
     firestoreInternalTarget,
   ]
-}
-
-extension Platform {
-  // Xcode dependent value for the visionOS platform. Namespaced with
-  // "firebase" prefix to prevent any API collisions (such issues should not
-  // arise as the manifest APIs should be confined to the `Package.swift`).
-  static var firebaseVisionOS: Self {
-    #if swift(>=5.9)
-      // For Xcode 15, return the available `visionOS` platform.
-      return .visionOS
-    #else
-      // For Xcode 14, return `iOS` as visionOS is unavailable. Since all targets
-      // support iOS, this acts as a no-op.
-      return .iOS
-    #endif // swift(>=5.9)
-  }
 }
