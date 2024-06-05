@@ -16,7 +16,6 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
-#import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
@@ -226,7 +225,9 @@ static NSString *const kPendingSubscriptionsListKey =
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList {
   GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
   NSError *error;
-  NSData *pendingData = [GULSecureCoding archivedDataWithRootObject:topicsList error:&error];
+  NSData *pendingData = [NSKeyedArchiver archivedDataWithRootObject:topicsList
+                                              requiringSecureCoding:YES
+                                                              error:&error];
   if (error) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubArchiveError,
                             @"Failed to archive topic list data %@", error);
@@ -242,7 +243,7 @@ static NSString *const kPendingSubscriptionsListKey =
   FIRMessagingPendingTopicsList *subscriptions;
   if (pendingData) {
     NSError *error;
-    subscriptions = [GULSecureCoding
+    subscriptions = [NSKeyedUnarchiver
         unarchivedObjectOfClasses:[NSSet setWithObjects:FIRMessagingPendingTopicsList.class, nil]
                          fromData:pendingData
                             error:&error];
