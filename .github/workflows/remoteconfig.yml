@@ -65,7 +65,8 @@ jobs:
         include:
           - os: macos-14
             xcode: Xcode_15.3
-            tests:
+            # TODO(#13078): Fix testing infra to enforce warnings again.
+            tests: --allow-warnings
           # Flaky tests on CI
           - os: macos-13
             xcode: Xcode_15.2
