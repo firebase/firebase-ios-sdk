@@ -27,7 +27,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false

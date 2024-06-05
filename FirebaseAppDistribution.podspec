@@ -15,9 +15,9 @@ iOS SDK for App Distribution for Firebase.
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '13.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
