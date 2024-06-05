@@ -16,7 +16,6 @@
 
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinService.h"
 
@@ -92,15 +91,15 @@ static NSString *const kCheckinKeychainContentSeparatorString = @"|";
   int64_t timeSinceLastCheckinInMillis = currentTimestampInMillis - self.lastCheckinTimestampMillis;
 
   BOOL hasCheckinInfo = [self hasCheckinInfo];
-  NSString *lastLocale = [[GULUserDefaults standardUserDefaults]
+  NSString *lastLocale = [[NSUserDefaults standardUserDefaults]
       stringForKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
   // If it's app's first time open and checkin is already fetched and no locale information is
   // stored, then checkin info is valid. We should not checkin again because locale is considered
   // "changed".
   if (hasCheckinInfo && !lastLocale) {
     NSString *currentLocale = FIRMessagingCurrentLocale();
-    [[GULUserDefaults standardUserDefaults] setObject:currentLocale
-                                               forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
+    [[NSUserDefaults standardUserDefaults] setObject:currentLocale
+                                              forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
     return YES;
   }
 
@@ -108,8 +107,8 @@ static NSString *const kCheckinKeychainContentSeparatorString = @"|";
   // Also update locale information if changed. (Only do it here not in token refresh)
   if (FIRMessagingHasLocaleChanged()) {
     NSString *currentLocale = FIRMessagingCurrentLocale();
-    [[GULUserDefaults standardUserDefaults] setObject:currentLocale
-                                               forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
+    [[NSUserDefaults standardUserDefaults] setObject:currentLocale
+                                              forKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
     return NO;
   }
 

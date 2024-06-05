@@ -17,8 +17,6 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import <GoogleUtilities/GULUserDefaults.h>
-
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -40,7 +38,7 @@ NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode) {
 }
 
 @interface FIRIAMSDKModeManager ()
-@property(nonatomic, nonnull, readonly) GULUserDefaults *userDefaults;
+@property(nonatomic, nonnull, readonly) NSUserDefaults *userDefaults;
 // Make it weak so that we don't depend on its existence to avoid circular reference.
 @property(nonatomic, readonly, weak) id<FIRIAMTestingModeListener> testingModeListener;
 @end
@@ -54,7 +52,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
   NSInteger _fetchCount;
 }
 
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults
+- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                  testingModeListener:(id<FIRIAMTestingModeListener>)testingModeListener {
   if (self = [super init]) {
     _userDefaults = userDefaults;

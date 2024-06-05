@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h"
 
 @interface FIRIAMBookKeeperViaUserDefaultsTests : XCTestCase
-@property(nonatomic) GULUserDefaults *userDefaultsForTesting;
+@property(nonatomic) NSUserDefaults *userDefaultsForTesting;
 @end
 
 extern NSString *FIRIAM_UserDefaultsKeyForImpressions;
@@ -35,7 +34,7 @@ static NSString *const kSuiteName = @"FIRIAMBookKeeperViaUserDefaultsTests";
 @implementation FIRIAMBookKeeperViaUserDefaultsTests
 - (void)setUp {
   [super setUp];
-  self.userDefaultsForTesting = [[GULUserDefaults alloc] initWithSuiteName:kSuiteName];
+  self.userDefaultsForTesting = [[NSUserDefaults alloc] initWithSuiteName:kSuiteName];
 }
 
 - (void)tearDown {

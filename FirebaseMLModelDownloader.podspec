@@ -41,7 +41,6 @@ Pod::Spec.new do |s|
   s.dependency 'GoogleDataTransport', '~> 10.0'
   # TODO: Revisit this dependency
   s.dependency 'GoogleUtilities/Logger', '~> 8.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
   s.dependency 'SwiftProtobuf', '~> 1.19'
 
   s.pod_target_xcconfig = {

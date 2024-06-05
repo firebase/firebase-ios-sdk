@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 
 #import <GoogleUtilities/GULKeychainStorage.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FBLPromise+Testing.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
@@ -32,7 +31,7 @@
 @property(nonatomic) NSString *accessGroup;
 @property(nonatomic) FIRInstallationsStore *store;
 @property(nonatomic) id mockSecureStorage;
-@property(nonatomic) GULUserDefaults *userDefaults;
+@property(nonatomic) NSUserDefaults *userDefaults;
 @end
 
 @implementation FIRInstallationsStoreTests
@@ -45,7 +44,7 @@
 
   // TODO: Replace real user defaults by an injected mock or a test specific user defaults instance
   // with a specific suite name.
-  self.userDefaults = [[GULUserDefaults alloc] initWithSuiteName:self.accessGroup];
+  self.userDefaults = [[NSUserDefaults alloc] initWithSuiteName:self.accessGroup];
 }
 
 - (void)tearDown {

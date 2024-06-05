@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class GULUserDefaults;
+@class NSUserDefaults;
 
 @interface FIRIAMImpressionRecord : NSObject
 @property(nonatomic, readonly, copy) NSString *messageID;
@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMBookKeeperViaUserDefaults : NSObject <FIRIAMBookKeeper>
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults NS_DESIGNATED_INITIALIZER;
 
 // for testing, don't use them for production purpose
 - (void)cleanupImpressions;

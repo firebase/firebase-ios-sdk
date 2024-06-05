@@ -17,7 +17,6 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"

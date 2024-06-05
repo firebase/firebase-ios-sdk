@@ -171,7 +171,7 @@
 - [added] Adding community support for tvOS. (#2428)
 
 # 3.3.2
-- [fixed] Replaced `NSUserDefaults` with `GULUserDefaults` to avoid potential crashes. (#2443)
+- [fixed] Replaced `NSUserDefaults` with `NSUserDefaults` to avoid potential crashes. (#2443)
 
 # 3.3.1
 - [changed] Internal code cleanup.

@@ -17,7 +17,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class GULUserDefaults;
+@class NSUserDefaults;
 
 /** List of gauges the gauge manager controls. */
 typedef NS_OPTIONS(NSUInteger, FPRConfigurationSource) {
@@ -38,7 +38,7 @@ typedef NS_OPTIONS(NSUInteger, FPRConfigurationSource) {
 @property(nonatomic) Class FIRAppClass;
 
 /** @brief User defaults used for user preference config fetches . */
-@property(nonatomic) GULUserDefaults *userDefaults;
+@property(nonatomic) NSUserDefaults *userDefaults;
 
 /** @brief The main bundle identifier used by config system. */
 @property(nonatomic) NSString *mainBundleIdentifier;

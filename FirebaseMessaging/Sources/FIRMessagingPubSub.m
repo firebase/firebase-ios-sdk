@@ -16,7 +16,6 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
@@ -223,7 +222,7 @@ static NSString *const kPendingSubscriptionsListKey =
 #pragma mark - Storing Pending Topics
 
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList {
-  GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   NSError *error;
   NSData *pendingData = [NSKeyedArchiver archivedDataWithRootObject:topicsList
                                               requiringSecureCoding:YES
@@ -238,7 +237,7 @@ static NSString *const kPendingSubscriptionsListKey =
 }
 
 - (void)restorePendingTopicsList {
-  GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   NSData *pendingData = [defaults objectForKey:kPendingSubscriptionsListKey];
   FIRMessagingPendingTopicsList *subscriptions;
   if (pendingData) {

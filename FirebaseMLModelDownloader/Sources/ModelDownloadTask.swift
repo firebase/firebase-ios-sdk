@@ -13,11 +13,6 @@
 // limitations under the License.
 
 import Foundation
-#if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_UserDefaults
-#else
-  @_implementationOnly import GoogleUtilities
-#endif // SWIFT_PACKAGE
 
 /// Task to download model file to device.
 class ModelDownloadTask {
@@ -28,7 +23,7 @@ class ModelDownloadTask {
   private(set) var remoteModelInfo: RemoteModelInfo
 
   /// User defaults to which local model info should ultimately be written.
-  private let defaults: GULUserDefaults
+  private let defaults: UserDefaults
 
   /// Keeps track of download associated with this model download task.
   private(set) var downloadStatus: ModelDownloadStatus = .ready
@@ -49,7 +44,7 @@ class ModelDownloadTask {
 
   init(remoteModelInfo: RemoteModelInfo,
        appName: String,
-       defaults: GULUserDefaults,
+       defaults: UserDefaults,
        downloader: FileDownloader,
        progressHandler: ProgressHandler? = nil,
        completion: @escaping Completion,

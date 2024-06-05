@@ -14,7 +14,6 @@
 #import <Foundation/Foundation.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
@@ -60,7 +59,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
 - (BOOL)isTesterSignedIn {
-  BOOL signInState = [[GULUserDefaults standardUserDefaults] boolForKey:kFIRFADSignInStateKey];
+  BOOL signInState = [[NSUserDefaults standardUserDefaults] boolForKey:kFIRFADSignInStateKey];
   FIRFADInfoLog(@"Tester is %@signed in.", signInState ? @"" : @"not ");
   return signInState;
 }
@@ -176,7 +175,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
           return;
         }
 
-        [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
         completion(nil);
       }];
 }
@@ -207,7 +206,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)signOutTester {
   FIRFADDebugLog(@"Tester is signed out.");
-  [[GULUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
+  [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kFIRFADSignInStateKey];
 }
 
 - (NSError *)NSErrorForErrorCodeAndMessage:(FIRAppDistributionError)errorCode

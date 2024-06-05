@@ -19,7 +19,7 @@
 #import <AppCheckCore/AppCheckCore.h>
 
 @class FIRApp;
-@class GULUserDefaults;
+@class NSUserDefaults;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +33,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKe
 @property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
 
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
-                userDefault:(GULUserDefaults *)userDefaults
+                userDefault:(NSUserDefaults *)userDefaults
                  mainBundle:(NSBundle *)mainBundle NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;

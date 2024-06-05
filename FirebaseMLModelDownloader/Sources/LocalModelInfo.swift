@@ -13,11 +13,6 @@
 // limitations under the License.
 
 import Foundation
-#if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_UserDefaults
-#else
-  @_implementationOnly import GoogleUtilities
-#endif // SWIFT_PACKAGE
 
 /// Model info object with details about downloaded and locally available model.
 class LocalModelInfo {
@@ -46,7 +41,7 @@ class LocalModelInfo {
   }
 
   /// Convenience init to create local model info from stored info in user defaults.
-  convenience init?(fromDefaults defaults: GULUserDefaults, name: String, appName: String) {
+  convenience init?(fromDefaults defaults: UserDefaults, name: String, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     guard let modelHash = defaults.string(forKey: "\(defaultsPrefix).model-hash") else {
       return nil
@@ -65,13 +60,13 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
   }
 
   /// Write local model info to user defaults.
-  func writeToDefaults(_ defaults: GULUserDefaults, appName: String) {
+  func writeToDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
-    defaults.setObject(modelHash, forKey: "\(defaultsPrefix).model-hash")
-    defaults.setObject(size, forKey: "\(defaultsPrefix).model-size")
+    defaults.set(modelHash, forKey: "\(defaultsPrefix).model-hash")
+    defaults.set(size, forKey: "\(defaultsPrefix).model-size")
   }
 
-  func removeFromDefaults(_ defaults: GULUserDefaults, appName: String) {
+  func removeFromDefaults(_ defaults: UserDefaults, appName: String) {
     let defaultsPrefix = LocalModelInfo.getUserDefaultsKeyPrefix(appName: appName, modelName: name)
     defaults.removeObject(forKey: "\(defaultsPrefix).model-hash")
     defaults.removeObject(forKey: "\(defaultsPrefix).model-size")
@@ -79,8 +74,8 @@ extension LocalModelInfo: DownloaderUserDefaultsWriteable {
 }
 
 /// Named user defaults for FirebaseML.
-extension GULUserDefaults {
-  static var firebaseMLDefaults: GULUserDefaults {
-    return GULUserDefaults(suiteName: "com.google.firebase.ml")
+extension UserDefaults {
+  static var firebaseMLDefaults: UserDefaults {
+    return UserDefaults(suiteName: "com.google.firebase.ml") ?? UserDefaults.standard
   }
 }

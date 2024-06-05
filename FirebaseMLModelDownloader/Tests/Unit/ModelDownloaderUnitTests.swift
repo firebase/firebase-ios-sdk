@@ -24,7 +24,6 @@
   import XCTest
   #if SWIFT_PACKAGE
     @_implementationOnly import GoogleUtilities_Logger
-    @_implementationOnly import GoogleUtilities_UserDefaults
   #else
     @_implementationOnly import GoogleUtilities
   #endif // SWIFT_PACKAGE
@@ -1331,18 +1330,18 @@
     }
   }
 
-  extension GULUserDefaults {
+  extension NSUserDefaults {
     /// Returns a new instance of user defaults.
-    static func createUnitTestInstance(testName: String) -> GULUserDefaults {
+    static func createUnitTestInstance(testName: String) -> NSUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      let defaults = GULUserDefaults(suiteName: suiteName)
+      let defaults = NSUserDefaults(suiteName: suiteName)
       return defaults
     }
 
     /// Returns the existing user defaults instance.
-    static func getUnitTestInstance(testName: String) -> GULUserDefaults {
+    static func getUnitTestInstance(testName: String) -> NSUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      return GULUserDefaults(suiteName: suiteName)
+      return NSUserDefaults(suiteName: suiteName)
     }
   }
 

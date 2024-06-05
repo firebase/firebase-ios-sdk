@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
@@ -29,7 +28,7 @@
 @property(nonatomic) FIRIAMClearcutLogger *mockClearcutLogger;
 @property(nonatomic) id<FIRIAMTimeFetcher> mockTimeFetcher;
 @property(nonatomic) id mockFirebaseAnalytics;
-@property(nonatomic) GULUserDefaults *mockUserDefaults;
+@property(nonatomic) NSUserDefaults *mockUserDefaults;
 
 @end
 
@@ -141,7 +140,7 @@ typedef void (^FakeAnalyticsLastNotificationHandler)(NSString *origin, LastNotif
   [super setUp];
   self.mockClearcutLogger = OCMClassMock(FIRIAMClearcutLogger.class);
   self.mockTimeFetcher = OCMProtocolMock(@protocol(FIRIAMTimeFetcher));
-  self.mockUserDefaults = OCMClassMock(GULUserDefaults.class);
+  self.mockUserDefaults = OCMClassMock(NSUserDefaults.class);
 }
 
 - (void)tearDown {

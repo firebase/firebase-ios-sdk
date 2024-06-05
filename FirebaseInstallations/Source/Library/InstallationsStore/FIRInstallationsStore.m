@@ -16,8 +16,6 @@
 
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h"
 
-#import <GoogleUtilities/GULUserDefaults.h>
-
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>
 #else
@@ -36,7 +34,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 @property(nonatomic, readonly) GULKeychainStorage *secureStorage;
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 @property(nonatomic, readonly) dispatch_queue_t queue;
-@property(nonatomic, readonly) GULUserDefaults *userDefaults;
+@property(nonatomic, readonly) NSUserDefaults *userDefaults;
 @end
 
 @implementation FIRInstallationsStore
@@ -50,7 +48,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
     _queue = dispatch_queue_create("com.firebase.FIRInstallationsStore", DISPATCH_QUEUE_SERIAL);
 
     NSString *userDefaultsSuiteName = _accessGroup ?: kFIRInstallationsStoreUserDefaultsID;
-    _userDefaults = [[GULUserDefaults alloc] initWithSuiteName:userDefaultsSuiteName];
+    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:userDefaultsSuiteName];
   }
   return self;
 }

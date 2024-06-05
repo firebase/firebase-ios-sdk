@@ -17,7 +17,6 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <UIKit/UIKit.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -67,7 +66,7 @@
 @property(nonatomic, readonly) FIRIAMClearcutLogStorage *logStorage;
 
 @property(nonatomic, readonly) FIRIAMClearcutStrategy *strategy;
-@property(nonatomic, readonly) GULUserDefaults *userDefaults;
+@property(nonatomic, readonly) NSUserDefaults *userDefaults;
 @end
 
 static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
@@ -90,7 +89,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                           timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
                            logStorage:(FIRIAMClearcutLogStorage *)logStorage
                         usingStrategy:(FIRIAMClearcutStrategy *)strategy
-                    usingUserDefaults:(nullable GULUserDefaults *)userDefaults {
+                    usingUserDefaults:(nullable NSUserDefaults *)userDefaults {
   if (self = [super init]) {
     _nextSendScheduled = NO;
     _timeFetcher = timeFetcher;
@@ -108,7 +107,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                                                    name:UISceneWillEnterForegroundNotification
                                                  object:nil];
     }
-    _userDefaults = userDefaults ? userDefaults : [GULUserDefaults standardUserDefaults];
+    _userDefaults = userDefaults ? userDefaults : [NSUserDefaults standardUserDefaults];
     // it would be 0 if it does not exist, which is equvilent to saying that
     // you can send now
     _nextValidSendTimeInMills = (int64_t)

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
@@ -28,7 +27,7 @@
 @property(nonatomic) FIRIAMClearcutHttpRequestSender *mockRequestSender;
 @property(nonatomic) FIRIAMClearcutLogStorage *mockLogStorage;
 @property(nonatomic) FIRIAMClearcutStrategy *defaultStrategy;
-@property(nonatomic) GULUserDefaults *mockUserDefaults;
+@property(nonatomic) NSUserDefaults *mockUserDefaults;
 @property(nonatomic) NSString *cachePath;
 @end
 
@@ -66,7 +65,7 @@
                                                           failureBackoffTimeInMills:1000
                                                                       batchSendSize:10];
 
-  self.mockUserDefaults = OCMClassMock(GULUserDefaults.class);
+  self.mockUserDefaults = OCMClassMock(NSUserDefaults.class);
   self.cachePath = [self generatedCachePath];
   OCMStub([self.mockUserDefaults integerForKey:[OCMArg any]]).andReturn(0);
 }

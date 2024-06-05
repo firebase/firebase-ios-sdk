@@ -23,7 +23,6 @@
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Interop/FIRMessagingInterop.h"
@@ -105,7 +104,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
-@property(nonatomic, readwrite, strong) GULUserDefaults *messagingUserDefaults;
+@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 @property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 @property(nonatomic, readwrite, strong) FIRHeartbeatLogger *heartbeatLogger;
@@ -140,7 +139,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return extensionHelper;
 }
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                     userDefaults:(GULUserDefaults *)defaults
+                     userDefaults:(NSUserDefaults *)defaults
                   heartbeatLogger:(FIRHeartbeatLogger *)heartbeatLogger {
   self = [super init];
   if (self != nil) {
@@ -179,7 +178,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     FIRMessaging *messaging =
         [[FIRMessaging alloc] initWithAnalytics:analytics
-                                   userDefaults:[GULUserDefaults standardUserDefaults]
+                                   userDefaults:[NSUserDefaults standardUserDefaults]
                                 heartbeatLogger:container.app.heartbeatLogger];
     [messaging start];
     [messaging configureMessagingWithOptions:container.app.options];
@@ -473,7 +472,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 /// entry without context of which FIRApp instance is being used.
 /// ** THIS METHOD IS DEPENDED ON INTERNALLY BY IID USING REFLECTION. PLEASE DO NOT CHANGE THE
 ///  SIGNATURE, AS IT WOULD BREAK AUTOINIT FUNCTIONALITY WITHIN IID. **
-+ (BOOL)isAutoInitEnabledWithUserDefaults:(GULUserDefaults *)userDefaults {
++ (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults {
   // Check storage
   id isAutoInitEnabledObject =
       [userDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];

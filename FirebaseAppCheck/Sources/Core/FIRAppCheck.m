@@ -18,7 +18,6 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
@@ -93,7 +92,7 @@ static id<FIRAppCheckProviderFactory> _providerFactory;
       [[FIRInternalAppCheckProvider alloc] initWithAppCheckProvider:appCheckProvider];
   FIRAppCheckSettings *settings =
       [[FIRAppCheckSettings alloc] initWithApp:app
-                                   userDefault:[GULUserDefaults standardUserDefaults]
+                                   userDefault:[NSUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
 
   GACAppCheck *appCheckCore = [[GACAppCheck alloc] initWithServiceName:serviceName

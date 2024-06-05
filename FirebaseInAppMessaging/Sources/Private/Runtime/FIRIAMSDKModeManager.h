@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class GULUserDefaults;
+@class NSUserDefaults;
 
 extern NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode;
 
@@ -58,8 +58,8 @@ extern NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-// having GULUserDefaults as passed-in to help with unit testing
-- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults
+// having NSUserDefaults as passed-in to help with unit testing
+- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                  testingModeListener:(id<FIRIAMTestingModeListener>)testingModeListener;
 
 // returns the current SDK mode

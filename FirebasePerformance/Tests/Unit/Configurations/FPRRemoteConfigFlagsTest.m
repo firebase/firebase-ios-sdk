@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <GoogleUtilities/GULUserDefaults.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
@@ -50,7 +49,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  configFlags.userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  configFlags.userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
 
   // Provide expected remote config values
   FIRRemoteConfigValue *boolRCValueFromRemote =
@@ -265,7 +264,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
@@ -282,7 +281,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -317,7 +316,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_log_source"];
@@ -334,7 +333,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -371,7 +370,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -389,7 +388,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -424,7 +423,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -442,7 +441,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -477,7 +476,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -495,7 +494,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -530,7 +529,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString
@@ -548,7 +547,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -583,7 +582,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString
@@ -601,7 +600,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -638,7 +637,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -656,7 +655,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -691,7 +690,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString
@@ -709,7 +708,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -746,7 +745,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -764,7 +763,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -799,7 +798,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -819,7 +818,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -859,7 +858,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -879,7 +878,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -919,7 +918,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -940,7 +939,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -981,7 +980,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -1002,7 +1001,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -1043,7 +1042,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey =
@@ -1061,7 +1060,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   [configFlags resetCache];
@@ -1096,7 +1095,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSSet<NSString *> *versionSet =
@@ -1118,7 +1117,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *sdkVersions = @"1.0.2;1.0.3";
@@ -1155,7 +1154,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] initWithSuiteName:nil];
+  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:nil];
   configFlags.userDefaults = userDefaults;
 
   NSString *sdkVersions = @" 1.0.2 ; 1.0.3 ";

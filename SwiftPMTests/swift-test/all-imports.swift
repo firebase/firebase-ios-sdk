@@ -45,7 +45,6 @@ import GoogleUtilities_Logger
 import GoogleUtilities_Network
 import GoogleUtilities_NSData
 import GoogleUtilities_Reachability
-import GoogleUtilities_UserDefaults
 import nanopb
 
 import XCTest

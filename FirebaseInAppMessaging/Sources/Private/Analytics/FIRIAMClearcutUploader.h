@@ -19,7 +19,7 @@
 @class FIRIAMClearcutLogRecord;
 @class FIRIAMClearcutHttpRequestSender;
 @class FIRIAMClearcutLogStorage;
-@class GULUserDefaults;
+@class NSUserDefaults;
 
 @protocol FIRIAMTimeFetcher;
 
@@ -59,14 +59,14 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *
  * @param userDefaults needed for tracking upload timing info persistently.If nil, using
- * GULUserDefaults standardUserDefaults. It's defined as a parameter to help with
+ * NSUserDefaults standardUserDefaults. It's defined as a parameter to help with
  * unit testing mocking
  */
 - (instancetype)initWithRequestSender:(FIRIAMClearcutHttpRequestSender *)requestSender
                           timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
                            logStorage:(FIRIAMClearcutLogStorage *)retryStorage
                         usingStrategy:(FIRIAMClearcutStrategy *)strategy
-                    usingUserDefaults:(nullable GULUserDefaults *)userDefaults;
+                    usingUserDefaults:(nullable NSUserDefaults *)userDefaults;
 /**
  * This should return very quickly without blocking on and actual log uploading to
  * clearcut server, which is done asynchronously

@@ -17,12 +17,11 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
-    @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults
+    @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in NSUserDefaults
 static NSString *const kFIRMessagingAPNSSandboxPrefix = @"s_";
 static NSString *const kFIRMessagingAPNSProdPrefix = @"p_";
 
@@ -261,7 +260,7 @@ NSString *FIRMessagingCurrentLocale(void) {
 }
 
 BOOL FIRMessagingHasLocaleChanged(void) {
-  NSString *lastLocale = [[GULUserDefaults standardUserDefaults]
+  NSString *lastLocale = [[NSUserDefaults standardUserDefaults]
       stringForKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
   NSString *currentLocale = FIRMessagingCurrentLocale();
   if (lastLocale) {

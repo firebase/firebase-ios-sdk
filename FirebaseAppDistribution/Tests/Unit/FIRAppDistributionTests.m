@@ -17,7 +17,6 @@
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionMachO.h"
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
@@ -112,7 +111,7 @@
 
 - (void)tearDown {
   [super tearDown];
-  [[GULUserDefaults standardUserDefaults] removeObjectForKey:@"FIRFADSignInState"];
+  [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"FIRFADSignInState"];
   [_mockFIRAppClass stopMocking];
   [_mockFIRFADApiService stopMocking];
   [_mockFIRAppDistributionUIService stopMocking];
@@ -368,7 +367,7 @@
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockFetchReleasesCompletion:nil error:mockError];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
-  [[GULUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
   XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch latest release fails."];
@@ -395,7 +394,7 @@
                       userInfo:@{NSLocalizedDescriptionKey : @"This is unfortunate."}];
   [self mockFetchReleasesCompletion:nil error:mockError];
   OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
-  [[GULUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"FIRFADSignInState"];
   XCTAssertTrue([[self appDistribution] isTesterSignedIn]);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch latest release fails."];

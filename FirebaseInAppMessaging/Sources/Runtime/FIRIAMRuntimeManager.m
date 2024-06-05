@@ -17,8 +17,6 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
-#import <GoogleUtilities/GULUserDefaults.h>
-
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
@@ -96,7 +94,7 @@ static NSString *const _userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetti
 }
 
 - (FIRIAMAutoDataCollectionSetting)FIAMProgrammaticAutoDataCollectionSetting {
-  id settingEntry = [[GULUserDefaults standardUserDefaults]
+  id settingEntry = [[NSUserDefaults standardUserDefaults]
       objectForKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
 
   if (![settingEntry isKindOfClass:[NSNumber class]]) {
@@ -190,7 +188,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 
 - (void)resume {
   // persist the setting
-  [[GULUserDefaults standardUserDefaults]
+  [[NSUserDefaults standardUserDefaults]
       setObject:@(YES)
          forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
 
@@ -211,7 +209,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 
 - (void)pause {
   // persist the setting
-  [[GULUserDefaults standardUserDefaults]
+  [[NSUserDefaults standardUserDefaults]
       setObject:@(NO)
          forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
 
@@ -264,7 +262,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.responseParser = [[FIRIAMFetchResponseParser alloc] initWithTimeFetcher:timeFetcher];
 
   self.bookKeeper = [[FIRIAMBookKeeperViaUserDefaults alloc]
-      initWithUserDefaults:[GULUserDefaults standardUserDefaults]];
+      initWithUserDefaults:[NSUserDefaults standardUserDefaults]];
 
   self.messageCache = [[FIRIAMMessageClientCache alloc] initWithBookkeeper:self.bookKeeper
                                                        usingResponseParser:self.responseParser];
@@ -326,7 +324,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                    analytics:[FIRInAppMessaging inAppMessaging].analytics];
 
   FIRIAMSDKModeManager *sdkModeManager =
-      [[FIRIAMSDKModeManager alloc] initWithUserDefaults:GULUserDefaults.standardUserDefaults
+      [[FIRIAMSDKModeManager alloc] initWithUserDefaults:NSUserDefaults.standardUserDefaults
                                      testingModeListener:self];
 
   FIRIAMActionURLFollower *actionFollower = [FIRIAMActionURLFollower actionURLFollower];

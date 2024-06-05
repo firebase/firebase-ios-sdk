@@ -21,7 +21,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
-@class GULUserDefaults;
+@class NSUserDefaults;
 @class XCTestCase;
 
 NS_ASSUME_NONNULL_BEGIN

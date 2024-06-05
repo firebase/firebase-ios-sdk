@@ -39,7 +39,7 @@ FOUNDATION_EXPORT NSSearchPathDirectory FIRMessagingSupportedDirectory(void);
 #pragma mark - Device Info
 FOUNDATION_EXPORT NSString *FIRMessagingCurrentLocale(void);
 FOUNDATION_EXPORT BOOL FIRMessagingHasLocaleChanged(void);
-/// locale key stored in GULUserDefaults
+/// locale key stored in NSUserDefaults
 FOUNDATION_EXPORT NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale;
 
 FOUNDATION_EXPORT NSString *FIRMessagingStringForAPNSDeviceToken(NSData *deviceToken);
