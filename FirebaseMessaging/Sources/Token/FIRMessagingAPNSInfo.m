@@ -68,7 +68,7 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
   return clone;
 }
 
-#pragma mark - NSCoding
+#pragma mark - NSSecureCoding
 
 + (BOOL)supportsSecureCoding {
   return YES;
