@@ -191,10 +191,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     }
   }
 
-  id cacheTime = [aDecoder decodeObjectForKey:kFIRInstanceIDCacheTimeKey];
-  if (cacheTime && ![cacheTime isKindOfClass:[NSDate class]]) {
-    return nil;
-  }
+  NSDate *cacheTime = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kFIRInstanceIDCacheTimeKey];
 
   self = [super init];
   if (self) {
