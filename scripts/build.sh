@@ -485,7 +485,7 @@ case "$product-$platform-$method" in
     # Add AccessToken to generated Test Wrapper App.
     ruby ./scripts/update_xcode_target.rb gen/FirebaseRemoteConfig/Pods/Pods.xcodeproj \
       AppHost-FirebaseRemoteConfig-Unit-Tests \
-      ../../../FirebaseRemoteConfig/Tests/AccessToken.json
+      ../../../FirebaseRemoteConfig/Tests/Swift/AccessToken.json
 
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
