@@ -28,7 +28,6 @@ import FirebaseAppCheck
 import FirebaseCore
 import FirebaseCrashlytics
 import FirebaseDatabase
-import FirebaseDatabaseSwift
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseDynamicLinks
 #endif
