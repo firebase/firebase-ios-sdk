@@ -117,7 +117,8 @@ public class VertexAI: NSObject {
     )
   }
 
-  /// Class to enable VertexAI to register via the Objective-C based Firebase component system.
+  /// Class to enable VertexAI to register via the Objective-C based Firebase component system
+  /// to include VertexAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
 
   // MARK: - Private

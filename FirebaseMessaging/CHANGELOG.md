@@ -1,3 +1,6 @@
+# 11.0.0
+- [fixed] Completed Messaging's transition to NSSecureCoding (#12343).
+
 # 10.27.0
 - [fixed] Fixed bug preventing Messaging from working with a custom sqlite3
   dependency (#12900).

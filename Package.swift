@@ -1,4 +1,4 @@
-// swift-tools-version:5.7.1
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -23,7 +23,7 @@ let firebaseVersion = "11.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
+  platforms: [.iOS(.v12), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -40,10 +40,6 @@ let package = Package(
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
       targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
-    ),
-    .library(
-      name: "FirebaseAnalyticsSwift",
-      targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
     .library(
       name: "FirebaseAuth",
@@ -320,26 +316,15 @@ let package = Package(
       url: "https://dl.google.com/firebase/ios/swiftpm/10.27.0/FirebaseAnalytics.zip",
       checksum: "0d5e3c63e34a5e0a8f782641ca128b3bb3be74b1eb58f55a9a4b40064cd84e88"
     ),
-    .target(
-      name: "FirebaseAnalyticsSwiftTarget",
-      dependencies: [.target(name: "FirebaseAnalyticsSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
-    ),
-    .target(
-      name: "FirebaseAnalyticsSwift",
-      dependencies: ["FirebaseAnalyticsWrapper"],
-      path: "FirebaseAnalyticsSwift/Sources"
-    ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
-      dependencies: ["FirebaseAnalyticsSwift"],
-      path: "FirebaseAnalyticsSwift/Tests/SwiftUnit"
+      dependencies: ["FirebaseAnalytics"],
+      path: "FirebaseAnalytics/Tests/SwiftUnit"
     ),
     .testTarget(
       name: "AnalyticsObjCAPI",
-      dependencies: ["FirebaseAnalyticsSwift"],
-      path: "FirebaseAnalyticsSwift/Tests/ObjCAPI"
+      dependencies: ["FirebaseAnalytics"],
+      path: "FirebaseAnalytics/Tests/ObjCAPI"
     ),
 
     .target(
@@ -691,7 +676,7 @@ let package = Package(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
                              condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
-                                                          .firebaseVisionOS]))],
+                                                          .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
@@ -904,7 +889,7 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
-                             condition: .when(platforms: [.iOS, .tvOS, .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
     .target(
@@ -1194,7 +1179,6 @@ let package = Package(
         "FirebaseAppCheck",
         "FirebaseABTesting",
         "FirebaseAnalytics",
-        "FirebaseAnalyticsSwift",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
@@ -1224,7 +1208,6 @@ let package = Package(
     .testTarget(
       name: "analytics-import-test",
       dependencies: [
-        "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
         "Firebase",
       ],
@@ -1427,8 +1410,7 @@ func firestoreWrapperTarget() -> Target {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS,
-                                                          .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1506,9 +1488,9 @@ func firestoreTargets() -> [Target] {
         linkerSettings: [
           .linkedFramework(
             "SystemConfiguration",
-            .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+            .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
-          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
+          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1605,20 +1587,4 @@ func firestoreTargets() -> [Target] {
     ),
     firestoreInternalTarget,
   ]
-}
-
-extension Platform {
-  // Xcode dependent value for the visionOS platform. Namespaced with
-  // "firebase" prefix to prevent any API collisions (such issues should not
-  // arise as the manifest APIs should be confined to the `Package.swift`).
-  static var firebaseVisionOS: Self {
-    #if swift(>=5.9)
-      // For Xcode 15, return the available `visionOS` platform.
-      return .visionOS
-    #else
-      // For Xcode 14, return `iOS` as visionOS is unavailable. Since all targets
-      // support iOS, this acts as a no-op.
-      return .iOS
-    #endif // swift(>=5.9)
-  }
 }

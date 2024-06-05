@@ -15,7 +15,6 @@
  */
 
 import FirebaseAnalytics
-import FirebaseAnalyticsSwift
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
 import SwiftUI
