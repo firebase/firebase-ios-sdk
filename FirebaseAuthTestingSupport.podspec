@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
     base_dir + 'Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseAuth', '~> 10.22'
+  s.dependency 'FirebaseAuth', '~> 11.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
