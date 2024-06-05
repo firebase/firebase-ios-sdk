@@ -188,12 +188,7 @@ class APITests: APITestBase {
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-
-      if let configValue = self.config.configValue(forKey: Constants.jedi).stringValue {
-        XCTAssertEqual(configValue, Constants.obiwan)
-      } else {
-        XCTFail("Could not unwrap config value for key: \(Constants.jedi)")
-      }
+      XCTAssertEqual(self.config.configValue(forKey: Constants.jedi).stringValue, Constants.obiwan)
       expectation.fulfill()
     }
     waitForExpectations()
@@ -204,13 +199,7 @@ class APITests: APITestBase {
     let expectation2 = self.expectation(description: #function + "2")
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-
-      if let configValue = self.config.configValue(forKey: Constants.jedi).stringValue {
-        XCTAssertEqual(configValue, Constants.yoda)
-      } else {
-        XCTFail("Could not unwrap config value for key: \(Constants.jedi)")
-      }
-
+      XCTAssertEqual(self.config.configValue(forKey: Constants.jedi).stringValue, Constants.yoda)
       expectation2.fulfill()
     }
     waitForExpectations()
@@ -239,13 +228,10 @@ class APITests: APITestBase {
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-
-      if let configValue = self.config.configValue(forKey: Constants.sith).stringValue {
-        XCTAssertEqual(configValue, Constants.darthSidious)
-      } else {
-        XCTFail("Could not unwrap config value for key: \(Constants.sith)")
-      }
-
+      XCTAssertEqual(
+        self.config.configValue(forKey: Constants.sith).stringValue,
+        Constants.darthSidious
+      )
       expectation2.fulfill()
     }
     waitForExpectations()
@@ -258,12 +244,7 @@ class APITests: APITestBase {
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-
-      if let configValue = self.config.configValue(forKey: Constants.jedi).stringValue {
-        XCTAssertEqual(configValue, Constants.obiwan)
-      } else {
-        XCTFail("Could not unwrap config value for key: \(Constants.jedi)")
-      }
+      XCTAssertEqual(self.config.configValue(forKey: Constants.jedi).stringValue, Constants.obiwan)
       expectation.fulfill()
     }
     waitForExpectations()

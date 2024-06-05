@@ -35,7 +35,7 @@ struct FirebaseRemoteConfigValueDecoderHelper: FirebaseRemoteConfigValueDecoding
   }
 
   func stringValue() -> String {
-    return value.stringValue ?? ""
+    return value.stringValue
   }
 
   func dataValue() -> Data {
