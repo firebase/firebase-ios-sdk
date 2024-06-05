@@ -469,7 +469,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
-      -scheme "FirebaseRemoteConfig-Unit-fake-console-tests" \
       "${xcb_flags[@]}" \
       build \
       test
