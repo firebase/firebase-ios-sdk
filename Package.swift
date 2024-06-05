@@ -1035,7 +1035,7 @@ let package = Package(
       path: "FirebaseRemoteConfig/Tests/Swift/ObjC",
       publicHeadersPath: ".",
       cSettings: [
-        .headerSearchPath("../../../"),
+        .headerSearchPath("../../../../"),
       ]
     ),
     // Internal headers only for consuming from other SDK.
