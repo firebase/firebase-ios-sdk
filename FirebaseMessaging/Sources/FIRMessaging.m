@@ -139,12 +139,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   });
   return extensionHelper;
 }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                      userDefaults:(GULUserDefaults *)defaults
                   heartbeatLogger:(FIRHeartbeatLogger *)heartbeatLogger {
-#pragma clang diagnostic pop
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
@@ -180,13 +177,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRMessaging *messaging =
         [[FIRMessaging alloc] initWithAnalytics:analytics
                                    userDefaults:[GULUserDefaults standardUserDefaults]
                                 heartbeatLogger:container.app.heartbeatLogger];
-#pragma clang diagnostic pop
     [messaging start];
     [messaging configureMessagingWithOptions:container.app.options];
 
@@ -431,26 +425,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
           restorationHandler:^(NSArray *_Nullable restorableObjects){
               // Do nothing, as we don't support the app calling this block
           }];
-
-  } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
-    [appDelegate application:application openURL:url options:@{}];
-    // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called,
-    // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
-  } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
-#if TARGET_OS_IOS
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appDelegate application:application
-                     openURL:url
-           sourceApplication:FIRMessagingAppIdentifier()
-                  annotation:@{}];
-#pragma clang diagnostic pop
-  } else if ([appDelegate respondsToSelector:handleOpenURLSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appDelegate application:application handleOpenURL:url];
-#pragma clang diagnostic pop
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 }
