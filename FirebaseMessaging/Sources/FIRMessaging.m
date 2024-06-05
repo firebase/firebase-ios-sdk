@@ -403,14 +403,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   SEL continueUserActivitySelector = @selector(application:
                                       continueUserActivity:restorationHandler:);
 
-  SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
-  SEL openURLWithSourceApplicationSelector = @selector(application:
-                                                           openURL:sourceApplication:annotation:);
-// TODO(Xcode 15): When Xcode 15 is the minimum supported Xcode version, it will be unnecessary to
-// check if `TARGET_OS_VISION` is defined.
-#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
-  SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
   // |application:continueUserActivity:restorationHandler:|. A warning will be displayed to the user
