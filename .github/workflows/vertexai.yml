@@ -64,8 +64,7 @@ jobs:
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120
-        # TODO: Increase to 3 attempts after initial testing
-        max_attempts: 1
+        max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
         command: scripts/build.sh FirebaseVertexAIIntegration ${{ matrix.target }} spm
