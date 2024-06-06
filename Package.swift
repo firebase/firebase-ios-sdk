@@ -134,7 +134,9 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.3.0" ..< "10.0.0"
+      branch: "release-10.0"
+      // TODO: Update to 10.0.0 when ready.
+      // "10.0.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",

@@ -18,6 +18,7 @@ target 'FirebasePodTest' do
   pod 'FirebaseDatabase', :path => '../../../'
   pod 'FirebaseDynamicLinks', :path => '../../../'
   pod 'FirebaseFirestore', :path => '../../../'
+  pod 'FirebaseFirestoreInternal', :path => '../../../'
   pod 'FirebaseFunctions', :path => '../../../'
   pod 'FirebaseInAppMessaging', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
