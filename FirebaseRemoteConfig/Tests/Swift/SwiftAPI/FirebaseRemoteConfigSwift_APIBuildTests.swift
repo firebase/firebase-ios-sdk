@@ -17,9 +17,8 @@ import XCTest
 import FirebaseCore
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigInterop
-import FirebaseRemoteConfigSwift
 
-final class FirebaseRemoteConfigSwift_APIBuildTests: XCTestCase {
+final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
   func usage() throws {
     // MARK: - FirebaseRemoteConfig
 
@@ -194,28 +193,22 @@ final class FirebaseRemoteConfigSwift_APIBuildTests: XCTestCase {
         }
       )
 
-    // MARK: - FirebaseRemoteConfigSwift
-
-    let valueError: FirebaseRemoteConfigSwift
+    let valueError: FirebaseRemoteConfig
       .RemoteConfigValueCodableError = .unsupportedType("foo")
     switch valueError {
     case .unsupportedType: break
     }
 
-    let error: FirebaseRemoteConfigSwift.RemoteConfigCodableError = .invalidSetDefaultsInput("foo")
+    let error: FirebaseRemoteConfig.RemoteConfigCodableError = .invalidSetDefaultsInput("foo")
     switch error {
     case .invalidSetDefaultsInput: break
     }
 
     @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
     struct PropertyWrapperTester {
-      @FirebaseRemoteConfigSwift.RemoteConfigProperty(key: "", fallback: "")
+      @FirebaseRemoteConfig.RemoteConfigProperty(key: "", fallback: "")
       var stringValue: String!
     }
-
-    // This should not build because `FirebaseRemoteConfigSwift` does not
-    // re-export `FirebaseRemoteConfig`.
-    //    let _: FirebaseRemoteConfigSwift.RemoteConfig
 
     struct MyDecodableValue: Decodable {}
     let _: MyDecodableValue? = config[decodedValue: ""]

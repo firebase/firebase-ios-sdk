@@ -47,7 +47,6 @@
 		EA7DF5AD29EF3327005664A7 /* FirebaseMLModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */; };
 		EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, tvos, ); productRef = EA7DF5AE29EF3328005664A7 /* FirebasePerformance */; };
 		EA7DF5B129EF3328005664A7 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */; };
-		EA7DF5B329EF3328005664A7 /* FirebaseRemoteConfigSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */; };
 		EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */; };
 		EAA0A99A2AD8495000C28FCD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAA0A9992AD8495000C28FCD /* Preview Assets.xcassets */; };
 		EAA0A9A52AD849E600C28FCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B329EDF98800D79E66 /* AppDelegate.swift */; };
@@ -104,7 +103,6 @@
 				EA7DF58B29EF3326005664A7 /* FirebaseAppCheck in Frameworks */,
 				EA7DF58929EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				EA7DF5AB29EF3327005664A7 /* FirebaseMessaging in Frameworks */,
-				EA7DF5B329EF3328005664A7 /* FirebaseRemoteConfigSwift in Frameworks */,
 				EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */,
 				EA7DF5A529EF3327005664A7 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */,
@@ -323,7 +321,6 @@
 				EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */,
 				EA7DF5AE29EF3328005664A7 /* FirebasePerformance */,
 				EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */,
-				EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */,
 				EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */,
 				EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */,
 			);
@@ -1090,10 +1087,6 @@
 		EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseRemoteConfig;
-		};
-		EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseRemoteConfigSwift;
 		};
 		EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */ = {
 			isa = XCSwiftPackageProductDependency;

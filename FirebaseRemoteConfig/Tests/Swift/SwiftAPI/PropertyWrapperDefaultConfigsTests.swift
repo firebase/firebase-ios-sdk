@@ -48,7 +48,7 @@ class PropertyWrapperDefaultConfigsTests: XCTestCase {
       let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",
                                     gcmSenderID: "correct_gcm_sender_id")
       options.apiKey = "A23456789012345678901234567890123456789"
-      options.projectID = "Fake Project"
+      options.projectID = "Fake_Project"
       FirebaseApp.configure(options: options)
     }
   }

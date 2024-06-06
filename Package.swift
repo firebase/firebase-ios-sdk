@@ -118,10 +118,6 @@ let package = Package(
       targets: ["FirebaseRemoteConfig"]
     ),
     .library(
-      name: "FirebaseRemoteConfigSwift",
-      targets: ["FirebaseRemoteConfigSwift"]
-    ),
-    .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
@@ -1016,19 +1012,11 @@ let package = Package(
       path: "FirebaseRemoteConfig/Swift",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")]
     ),
-    .target(
-      name: "FirebaseRemoteConfigSwift",
-      dependencies: [
-        "FirebaseRemoteConfig",
-      ],
-      path: "FirebaseRemoteConfigSwift/Sources"
-    ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
       dependencies: ["FirebaseRemoteConfig",
-                     "FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC"],
-      path: "FirebaseRemoteConfigSwift/Tests",
+      path: "FirebaseRemoteConfig/Tests/Swift",
       exclude: [
         "AccessToken.json",
         "README.md",
@@ -1038,16 +1026,16 @@ let package = Package(
         .process("Defaults-testInfo.plist"),
       ],
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("../../../"),
       ]
     ),
     .target(
       name: "RemoteConfigFakeConsoleObjC",
       dependencies: [.product(name: "OCMock", package: "ocmock")],
-      path: "FirebaseRemoteConfigSwift/Tests/ObjC",
+      path: "FirebaseRemoteConfig/Tests/Swift/ObjC",
       publicHeadersPath: ".",
       cSettings: [
-        .headerSearchPath("../../../"),
+        .headerSearchPath("../../../../"),
       ]
     ),
     // Internal headers only for consuming from other SDK.
