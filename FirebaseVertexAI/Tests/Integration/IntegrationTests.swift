@@ -16,54 +16,62 @@ import FirebaseCore
 import FirebaseVertexAI
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
-final class IntegrationTests: XCTestCase {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+// These tests are functional on other platforms but are compiled-out of non-macOS platforms to
+// avoid re-running them as part of `swift-build-run` job (iOS-only) in the `spm` workflow on CI:
+// https://github.com/firebase/firebase-ios-sdk/blob/0492e83cb22833ec548e61d854bb7b830e83b826/.github/workflows/spm.yml#L57
+// Since these requests are billed, we are running them more sparsely than the unit tests.
+#if os(macOS)
 
-  var vertex: VertexAI!
-  var model: GenerativeModel!
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+  final class IntegrationTests: XCTestCase {
+    // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
+    let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
-  override func setUp() async throws {
-    let plistPath = try XCTUnwrap(Bundle.module.path(
-      forResource: "GoogleService-Info",
-      ofType: "plist"
-    ))
-    let options = try XCTUnwrap(FirebaseOptions(contentsOfFile: plistPath))
-    FirebaseApp.configure(options: options)
+    var vertex: VertexAI!
+    var model: GenerativeModel!
 
-    vertex = VertexAI.vertexAI()
-    model = vertex.generativeModel(
-      modelName: "gemini-1.5-flash",
-      generationConfig: generationConfig
-    )
-  }
+    override func setUp() async throws {
+      let plistPath = try XCTUnwrap(Bundle.module.path(
+        forResource: "GoogleService-Info",
+        ofType: "plist"
+      ))
+      let options = try XCTUnwrap(FirebaseOptions(contentsOfFile: plistPath))
+      FirebaseApp.configure(options: options)
 
-  override func tearDown() async throws {
-    if let app = FirebaseApp.app() {
-      await app.delete()
+      vertex = VertexAI.vertexAI()
+      model = vertex.generativeModel(
+        modelName: "gemini-1.5-flash",
+        generationConfig: generationConfig
+      )
+    }
+
+    override func tearDown() async throws {
+      if let app = FirebaseApp.app() {
+        await app.delete()
+      }
+    }
+
+    // MARK: - Generate Content
+
+    func testGenerateContent() async throws {
+      let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+      let response = try await model.generateContent(prompt)
+
+      let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+      XCTAssertEqual(text, "Mountain View")
+    }
+
+    // MARK: - Count Tokens
+
+    func testCountTokens() async throws {
+      let prompt = "Why is the sky blue?"
+
+      let response = try await model.countTokens(prompt)
+
+      XCTAssertEqual(response.totalTokens, 6)
+      XCTAssertEqual(response.totalBillableCharacters, 16)
     }
   }
 
-  // MARK: - Generate Content
-
-  func testGenerateContent() async throws {
-    let prompt = "Where is Google headquarters located? Answer with the city name only."
-
-    let response = try await model.generateContent(prompt)
-
-    let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    XCTAssertEqual(text, "Mountain View")
-  }
-
-  // MARK: - Count Tokens
-
-  func testCountTokens() async throws {
-    let prompt = "Why is the sky blue?"
-
-    let response = try await model.countTokens(prompt)
-
-    XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.totalBillableCharacters, 16)
-  }
-}
+#endif // os(macOS)

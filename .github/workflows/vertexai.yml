@@ -19,9 +19,9 @@ jobs:
     strategy:
       matrix:
         target: [iOS, macOS, catalyst]
-        os: [macos-13]
+        os: [macos-14]
         include:
-          - os: macos-13
+          - os: macos-14
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     env:
@@ -43,10 +43,10 @@ jobs:
   spm-integration:
     strategy:
       matrix:
-        target: [iOS]
-        os: [macos-13]
+        target: [macOS]
+        os: [macos-14]
         include:
-          - os: macos-13
+          - os: macos-14
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     env:
