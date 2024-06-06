@@ -1,3 +1,9 @@
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseInAppMessagingSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+
 # 10.27.0
 - [fixed] Fixed crash at app start that affected CocoaPods users using static
   frameworks (#12882).
