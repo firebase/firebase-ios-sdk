@@ -328,7 +328,6 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 }
 
 - (void)dealloc {
-  
   if (@available(iOS 12, *)) {
     nw_path_monitor_cancel(self.monitor);
   }
