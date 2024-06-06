@@ -33,7 +33,6 @@ MODULE_LIST = [
     'FirebaseDatabase',
     'FirebaseDynamicLinks',
     'FirebaseFirestore',
-    'FirebaseFirestoreSwift',
     'FirebaseFunctions',
     'FirebaseInAppMessaging'
     'FirebaseInstallations',

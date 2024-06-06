@@ -50,7 +50,6 @@ jobs:
               # Podspec
               - 'FirebaseFirestoreInternal.podspec'
               - 'FirebaseFirestore.podspec'
-              - 'FirebaseFirestoreSwift.podspec'
 
               # CMake
               - '**CMakeLists.txt'

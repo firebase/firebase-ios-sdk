@@ -25,7 +25,6 @@ import FirebaseCrashlytics
 import FirebaseDatabase
 import FirebaseDynamicLinks
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseInstallations
 import FirebaseMessaging
