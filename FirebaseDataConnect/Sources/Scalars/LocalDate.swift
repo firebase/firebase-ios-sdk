@@ -21,7 +21,6 @@ import Foundation
  */
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public struct LocalDate: Codable, Equatable, CustomStringConvertible {
-
   private var calendar = Calendar(identifier: .gregorian)
   private var dateFormatter = DateFormatter()
   private var date = Date()
@@ -30,23 +29,23 @@ public struct LocalDate: Codable, Equatable, CustomStringConvertible {
 
   // default initializing here to suppress a false compiler error of "used before initializing"
   // the date components will get actually initialized in various initializers.
-  private var dateComponents: DateComponents = DateComponents()
+  private var dateComponents: DateComponents = .init()
 
   public init(year: Int, month: Int, day: Int) throws {
-    dateComponents = DateComponents(year: year, month: month , day: day)
+    dateComponents = DateComponents(year: year, month: month, day: day)
     dateComponents.calendar = calendar
     guard dateComponents.isValidDate,
-            let date = dateComponents.date else {
+          let date = dateComponents.date else {
       throw DataConnectError.invalidLocalDateFormat
     }
     self.date = date
-    
+
     setupDateFormat()
   }
 
   public init(date: Date) {
-    self.dateComponents = calendar.dateComponents(components, from: date)
-    self.date = calendar.date(from: self.dateComponents)!
+    dateComponents = calendar.dateComponents(components, from: date)
+    self.date = calendar.date(from: dateComponents)!
 
     setupDateFormat()
   }
@@ -55,20 +54,21 @@ public struct LocalDate: Codable, Equatable, CustomStringConvertible {
   public init(localDateString: String) throws {
     setupDateFormat()
 
-    self.date = try convert(dateString: localDateString)
-    self.dateComponents = calendar.dateComponents(components, from: self.date)
+    date = try convert(dateString: localDateString)
+    dateComponents = calendar.dateComponents(components, from: date)
   }
 
   public var description: String {
-    return dateFormatter.string(from: self.date)
+    return dateFormatter.string(from: date)
   }
 
   // MARK: Private
+
   private func setupDateFormat() {
     dateFormatter.dateFormat = "yyyy-MM-dd"
   }
 
-  private func convert(dateString: String) throws -> Date  {
+  private func convert(dateString: String) throws -> Date {
     guard let date = dateFormatter.date(from: dateString) else {
       throw DataConnectError.invalidLocalDateFormat
     }
@@ -79,23 +79,23 @@ public struct LocalDate: Codable, Equatable, CustomStringConvertible {
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension LocalDate: Codable {
   public init(from decoder: any Decoder) throws {
-
     let container = try decoder.singleValueContainer()
     let localDateString = try container.decode(String.self)
 
     setupDateFormat()
-    self.date = try convert(dateString: localDateString)
-    self.dateComponents = calendar.dateComponents(components, from: self.date)
+    date = try convert(dateString: localDateString)
+    dateComponents = calendar.dateComponents(components, from: date)
   }
 
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.singleValueContainer()
-    let formattedDate = dateFormatter.string(from: self.date)
+    let formattedDate = dateFormatter.string(from: date)
     try container.encode(formattedDate)
   }
 }
 
 // MARK: Equatable, Comparable
+
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension LocalDate: Comparable, Equatable {
   public static func < (lhs: LocalDate, rhs: LocalDate) -> Bool {
@@ -108,9 +108,10 @@ extension LocalDate: Comparable, Equatable {
 }
 
 // MARK: Hashable
+
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension LocalDate: Hashable {
   public func hash(into hasher: inout Hasher) {
-    hasher.combine(self.date)
+    hasher.combine(date)
   }
 }

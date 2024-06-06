@@ -1,12 +1,11 @@
 //
-//  File.swift
-//  
+//  CodecHelper.swift
+//
 //
 //  Created by Aashish Patil on 6/4/24.
 //
 
 import Foundation
-
 
 /*
  *** IMPORTANT ***
@@ -18,11 +17,10 @@ import Foundation
  */
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class CodecHelper<K: CodingKey> {
-
   // MARK: Encoding
-  
-  public func encode(_ value: Encodable, forKey: K, container: inout KeyedEncodingContainer<K>) throws {
 
+  public func encode(_ value: Encodable, forKey: K,
+                     container: inout KeyedEncodingContainer<K>) throws {
     switch value {
     case let int64Value as Int64:
       let int64Value = "\(value)"
@@ -40,8 +38,9 @@ public class CodecHelper<K: CodingKey> {
   }
 
   // MARK: Decoding
-  
-  public func decode<T: Decodable>(_ type: T.Type, forKey: K, container: inout KeyedDecodingContainer<K>) throws -> T {
+
+  public func decode<T: Decodable>(_ type: T.Type, forKey: K,
+                                   container: inout KeyedDecodingContainer<K>) throws -> T {
     if type == Int64.self {
       let int64String = try container.decode(String.self, forKey: forKey)
       guard let int64Value = Int64(int64String) else {
@@ -84,6 +83,4 @@ public class CodecHelper<K: CodingKey> {
   }
 
   public init() {}
-
 }
-

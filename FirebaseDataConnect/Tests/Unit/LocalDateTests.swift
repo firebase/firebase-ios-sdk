@@ -30,7 +30,6 @@ final class LocalDateTests: XCTestCase {
   }
 
   func testEqualitySameDayInstances() throws {
-
     let calendar = Calendar(identifier: .gregorian)
     let dc = DateComponents(calendar: calendar, year: 2024, month: 6, day: 1, hour: 6, minute: 5)
 
@@ -38,7 +37,7 @@ final class LocalDateTests: XCTestCase {
 
     let ld1 = LocalDate(date: date)
 
-    let date2 = date.addingTimeInterval(72.0) //add 60 seconds. Should be same day
+    let date2 = date.addingTimeInterval(72.0) // add 60 seconds. Should be same day
     let ld2 = LocalDate(date: date2)
 
     XCTAssertEqual(ld1, ld2)
