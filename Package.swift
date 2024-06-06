@@ -86,10 +86,6 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwiftTarget"]
-    ),
-    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -474,7 +470,6 @@ let package = Package(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -668,21 +663,6 @@ let package = Package(
     ),
 
     firestoreWrapperTarget(),
-    .target(
-      name: "FirebaseFirestoreSwiftTarget",
-      dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
-                                                          .visionOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
-    ),
-
-    .target(
-      name: "FirebaseFirestoreSwift",
-      dependencies: [
-        "FirebaseFirestoreTarget",
-      ],
-      path: "FirebaseFirestoreSwift/Sources"
-    ),
 
     // MARK: - Firebase Functions
 
@@ -1178,7 +1158,6 @@ let package = Package(
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
