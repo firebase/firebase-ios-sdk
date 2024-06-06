@@ -35,7 +35,6 @@
 
 static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
     NSString *methodString);
-static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(void);
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
 static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void);
 #endif
