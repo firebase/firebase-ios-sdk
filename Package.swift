@@ -1386,6 +1386,14 @@ let package = Package(
         .headerSearchPath("../../../"),
       ]
     ),
+    .testTarget(
+      name: "FirebaseVertexAIIntegration",
+      dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
+      path: "FirebaseVertexAI/Tests/Integration",
+      resources: [
+        .process("Resources"),
+      ]
+    ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
