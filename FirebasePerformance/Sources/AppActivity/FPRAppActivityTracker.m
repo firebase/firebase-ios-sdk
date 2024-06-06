@@ -171,7 +171,6 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     self.monitor = nw_path_monitor_create();
     nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
     nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
-      nw_path_status_t status = nw_path_get_status(path);
       BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
       BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
       BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
