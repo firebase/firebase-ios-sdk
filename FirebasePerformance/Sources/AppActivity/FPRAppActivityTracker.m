@@ -328,7 +328,10 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 }
 
 - (void)dealloc {
-  nw_path_monitor_cancel(self.monitor);
+  
+  if (@available(iOS 12, *)) {
+    nw_path_monitor_cancel(self.monitor);
+  }
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
