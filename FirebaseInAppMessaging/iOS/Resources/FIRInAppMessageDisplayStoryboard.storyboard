@@ -462,6 +462,7 @@
                                             </view>
                                         </subviews>
                                         <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="110" id="2Ot-jE-M4N"/>
                                             <constraint firstItem="elG-N9-aqH" firstAttribute="width" secondItem="Tmr-ar-k7h" secondAttribute="width" id="9ne-k6-iRF"/>
                                             <constraint firstItem="FCm-ce-mVR" firstAttribute="leading" secondItem="Tmr-ar-k7h" secondAttribute="leading" id="aCR-bL-PKW"/>
                                             <constraint firstItem="FCm-ce-mVR" firstAttribute="top" secondItem="Tmr-ar-k7h" secondAttribute="top" id="nCk-nR-XPF"/>
