@@ -19,7 +19,7 @@ import XCTest
 
 @testable import FirebaseVertexAI
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 final class GenerativeModelTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
@@ -1347,7 +1347,7 @@ private extension URLRequest {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 class AppCheckInteropFake: NSObject, AppCheckInterop {
   /// The placeholder token value returned when an error occurs
   static let placeholderTokenValue = "placeholder-token"
@@ -1397,7 +1397,7 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
 
 struct AppCheckErrorFake: Error {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 extension SafetyRating: Comparable {
   public static func < (lhs: FirebaseVertexAI.SafetyRating,
                         rhs: FirebaseVertexAI.SafetyRating) -> Bool {

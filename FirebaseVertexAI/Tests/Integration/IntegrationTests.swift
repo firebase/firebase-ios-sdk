@@ -22,7 +22,7 @@ import XCTest
 // Since these requests are billed, we are running them more sparsely than the unit tests.
 #if os(macOS)
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   final class IntegrationTests: XCTestCase {
     // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
     let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)

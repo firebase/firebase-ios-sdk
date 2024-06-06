@@ -17,7 +17,7 @@ import XCTest
 
 @testable import FirebaseVertexAI
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 final class ChatTests: XCTestCase {
   var urlSession: URLSession!
 
