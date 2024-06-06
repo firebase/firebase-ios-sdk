@@ -51,6 +51,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      FOO_VARIABLE: foo
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
     - uses: actions/checkout@v4

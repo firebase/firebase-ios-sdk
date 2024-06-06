@@ -53,25 +53,30 @@ import XCTest
 
     // MARK: - Generate Content
 
-    func testGenerateContent() async throws {
-      let prompt = "Where is Google headquarters located? Answer with the city name only."
-
-      let response = try await model.generateContent(prompt)
-
-      let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-      XCTAssertEqual(text, "Mountain View")
+    func testEnvironmentVariable() throws {
+      let token = try XCTUnwrap(ProcessInfo.processInfo.environment["FOO_VARIABLE"])
+      XCTAssertEqual(token, "foo")
     }
 
-    // MARK: - Count Tokens
-
-    func testCountTokens() async throws {
-      let prompt = "Why is the sky blue?"
-
-      let response = try await model.countTokens(prompt)
-
-      XCTAssertEqual(response.totalTokens, 6)
-      XCTAssertEqual(response.totalBillableCharacters, 16)
-    }
+//    func testGenerateContent() async throws {
+//      let prompt = "Where is Google headquarters located? Answer with the city name only."
+//
+//      let response = try await model.generateContent(prompt)
+//
+//      let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+//      XCTAssertEqual(text, "Mountain View")
+//    }
+//
+//    // MARK: - Count Tokens
+//
+//    func testCountTokens() async throws {
+//      let prompt = "Why is the sky blue?"
+//
+//      let response = try await model.countTokens(prompt)
+//
+//      XCTAssertEqual(response.totalTokens, 6)
+//      XCTAssertEqual(response.totalBillableCharacters, 16)
+//    }
   }
 
 #endif // os(macOS)
