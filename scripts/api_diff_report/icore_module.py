@@ -32,6 +32,7 @@ MODULE_LIST = [
     'FirebaseCrashlytics',
     'FirebaseDatabase',
     'FirebaseDynamicLinks',
+    'FirebaseFirestoreInternal',
     'FirebaseFirestore',
     'FirebaseFunctions',
     'FirebaseInAppMessaging'
@@ -125,8 +126,8 @@ def get_root_dir(module_name, source_files):
     {module_name}/Sources or {module_name}/Source
     """
   MODULE_ROOT_PATCH = {
-      'FirebaseFirestore': 'Firestore/Source',
-      'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
+      'FirebaseFirestoreInternal': 'Firestore/Source',
+      'FirebaseFirestore': 'Firestore/Swift/Source',
       'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
   }
   if module_name in MODULE_ROOT_PATCH:
