@@ -24,7 +24,7 @@ public class CodecHelper<K: CodingKey> {
     switch value {
     case let int64Value as Int64:
       let int64Value = "\(value)"
-      try container.encode(value, forKey: forKey)
+      try container.encode(int64Value, forKey: forKey)
     case let uuidValue as UUID:
       let noDashUUID = convertToNoDashUUID(uuid: uuidValue)
       try container.encode(noDashUUID, forKey: forKey)
