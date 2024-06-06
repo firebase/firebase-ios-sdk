@@ -22,7 +22,7 @@ class OperationsManager {
     self.grpcClient = grpcClient
   }
 
-  func queryRef<ResultDataType: Codable,
+  func queryRef<ResultDataType: Decodable,
     VariableType: OperationVariable>(for request: QueryRequest<VariableType>,
                                      with resultType: ResultDataType
                                        .Type,
@@ -52,7 +52,7 @@ class OperationsManager {
     }
   }
 
-  func mutationRef<ResultDataType: Codable,
+  func mutationRef<ResultDataType: Decodable,
     VariableType: OperationVariable>(for request: MutationRequest<VariableType>,
                                      with resultType: ResultDataType
                                        .Type) -> MutationRef<ResultDataType, VariableType> {

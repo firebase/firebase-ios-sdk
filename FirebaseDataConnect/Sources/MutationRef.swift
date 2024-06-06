@@ -26,7 +26,7 @@ public struct MutationRequest<VariableType: OperationVariable>: OperationRequest
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class MutationRef<ResultDataType: Codable, VariableType: OperationVariable>: OperationRef {
+public class MutationRef<ResultDataType: Decodable, VariableType: OperationVariable>: OperationRef {
   public var request: any OperationRequest
 
   private var grpcClient: GrpcClient

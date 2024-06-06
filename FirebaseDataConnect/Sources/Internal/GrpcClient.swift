@@ -88,7 +88,7 @@ actor GrpcClient: CustomStringConvertible {
     """
   }
 
-  func executeQuery<ResultType: Codable,
+  func executeQuery<ResultType: Decodable,
     VariableType: OperationVariable>(request: QueryRequest<VariableType>,
                                      resultType: ResultType
                                        .Type)
@@ -129,7 +129,7 @@ actor GrpcClient: CustomStringConvertible {
     }
   }
 
-  func executeMutation<ResultType: Codable,
+  func executeMutation<ResultType: Decodable,
     VariableType: OperationVariable>(request: MutationRequest<VariableType>,
                                      resultType: ResultType
                                        .Type)

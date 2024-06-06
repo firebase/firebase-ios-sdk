@@ -68,7 +68,7 @@ public protocol QueryRef: OperationRef {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-actor GenericQueryRef<ResultDataType: Codable, VariableType: OperationVariable>: QueryRef {
+actor GenericQueryRef<ResultDataType: Decodable, VariableType: OperationVariable>: QueryRef {
   private var resultsPublisher = PassthroughSubject<Result<ResultDataType, DataConnectError>,
     Never>()
 
@@ -137,7 +137,7 @@ public protocol ObservableQueryRef: QueryRef {
 //            If last fetch was successful, this variable is cleared
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class QueryRefObservableObject<
-  ResultDataType: Codable,
+  ResultDataType: Decodable,
   VariableType: OperationVariable
 >: ObservableObject, ObservableQueryRef {
   private var request: QueryRequest<VariableType>
@@ -194,7 +194,7 @@ public class QueryRefObservableObject<
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
 @Observable
 public class QueryRefObservation<
-  ResultDataType: Codable,
+  ResultDataType: Decodable,
   VariableType: OperationVariable
 >: ObservableQueryRef {
   @ObservationIgnored

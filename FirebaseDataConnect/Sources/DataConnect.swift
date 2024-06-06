@@ -87,7 +87,7 @@ public class DataConnect {
 
   // MARK: Operations
 
-  public func query<ResultDataType: Codable,
+  public func query<ResultDataType: Decodable,
     Variable: OperationVariable>(request: QueryRequest<Variable>,
                                  resultsDataType: ResultDataType
                                    .Type,
@@ -96,7 +96,7 @@ public class DataConnect {
     return operationsManager.queryRef(for: request, with: resultsDataType, publisher: publisher)
   }
 
-  public func mutation<ResultDataType: Codable,
+  public func mutation<ResultDataType: Decodable,
     VariableType: OperationVariable>(request: MutationRequest<VariableType>,
                                      resultsDataType: ResultDataType
                                        .Type)

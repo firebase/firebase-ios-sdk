@@ -29,7 +29,7 @@ class Codec {
   }
 
   // Decode Protos to Codable
-  func decode<T: Codable>(result: Google_Protobuf_Struct, asType: T.Type) throws -> T? {
+  func decode<T: Decodable>(result: Google_Protobuf_Struct, asType: T.Type) throws -> T? {
     do {
       let jsonData = try result.jsonUTF8Data()
       let jsonDecoder = JSONDecoder()

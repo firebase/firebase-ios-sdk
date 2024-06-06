@@ -15,7 +15,7 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct OperationResult<ResultDataType: Codable> {
+public struct OperationResult<ResultDataType: Decodable> {
   public var data: ResultDataType
 }
 
@@ -32,7 +32,7 @@ public protocol OperationRequest {
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public protocol OperationRef {
-  associatedtype ResultDataType: Codable
+  associatedtype ResultDataType: Decodable
 
   func execute() async throws -> OperationResult<ResultDataType>
 }
