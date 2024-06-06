@@ -8,6 +8,11 @@
       | macOS  | **10.15**  |
       | watchOS  | 7.0  |
   - FirebaseAnalytics and FirebaseCrashlytics also continue to support iOS 12.0.
+- [removed] **Breaking change**: The deprecated Swift extension SDKs for
+  Analytics, Firestore, Database, Remote Config and In App Messaging have
+  been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
 
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See
