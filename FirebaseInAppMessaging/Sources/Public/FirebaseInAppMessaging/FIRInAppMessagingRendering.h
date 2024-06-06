@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
   FIRInAppMessagingDisplayMessageTypeImageOnly,
   /// Card style.
   FIRInAppMessagingDisplayMessageTypeCard
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDisplayMessageType) API_UNAVAILABLE(macos, watchos);
 
 /// Represents how an in-app message should be triggered to appear.  This enum is unavailable on
 /// macOS, macOS Catalyst, and watchOS.
@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
   FIRInAppMessagingDisplayTriggerTypeOnAppForeground,
   /// Triggered from an analytics event being fired.
   FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDisplayTriggerType) API_UNAVAILABLE(macos, watchos);
 
 /** Contains the display information for an action button.  This class is unavailable on macOS,
  * macOS Catalyst, and watchOS.
