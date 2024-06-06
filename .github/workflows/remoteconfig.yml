@@ -27,7 +27,7 @@ jobs:
     runs-on: macos-14
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -46,7 +46,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
           FirebaseRemoteConfig/Tests/Swift/AccessToken.json)
     - name: Fake Console API Tests
-      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
+      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
     - name: IntegrationTest
       if: matrix.target == 'iOS'
       # No retry to avoid exhausting AccessToken quota.
