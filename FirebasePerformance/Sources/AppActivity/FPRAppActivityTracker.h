@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 #import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
+#import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToUI;

@@ -15,8 +15,8 @@
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <Network/Network.h>
+#import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -60,10 +60,10 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 @property(nonatomic, readwrite) firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType;
 
 /** Network monitor object to track network movements. */
-@property (nonatomic, readwrite) nw_path_monitor_t monitor;
+@property(nonatomic, readwrite) nw_path_monitor_t monitor;
 
 /** Queue used to track the network monitoring changes. */
-@property (nonatomic, readwrite) dispatch_queue_t monitorQueue;
+@property(nonatomic, readwrite) dispatch_queue_t monitorQueue;
 
 /** Trace to measure the app start performance. */
 @property(nonatomic) FIRTrace *appStartTrace;
@@ -164,10 +164,8 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
   if (@available(iOS 12, *)) {
-    dispatch_queue_attr_t attrs = 
-      dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
-                                              QOS_CLASS_UTILITY,
-                                              DISPATCH_QUEUE_PRIORITY_DEFAULT);
+    dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
     self.monitorQueue = dispatch_queue_create("com.example.network.monitor", attrs);
 
     self.monitor = nw_path_monitor_create();
@@ -337,7 +335,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 - (void)dealloc {
   nw_path_monitor_cancel(self.monitor);
-  
+
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];

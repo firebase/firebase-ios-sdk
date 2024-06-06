@@ -20,13 +20,13 @@
 #endif
 #import <SystemConfiguration/SystemConfiguration.h>
 
+#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/FIRPerformance+Internal.h"
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
-#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
