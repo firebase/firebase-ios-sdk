@@ -25,11 +25,11 @@ public enum ResultsPublisherType {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct QueryRequest<VariableType: OperationVariable>: OperationRequest, Hashable, Equatable {
+public struct QueryRequest<Variable: OperationVariable>: OperationRequest, Hashable, Equatable {
   public private(set) var operationName: String
-  public private(set) var variables: VariableType?
+  public private(set) var variables: Variable?
 
-  public init(operationName: String, variables: VariableType? = nil) {
+  public init(operationName: String, variables: Variable? = nil) {
     self.operationName = operationName
     self.variables = variables
   }
@@ -64,26 +64,26 @@ public struct QueryRequest<VariableType: OperationVariable>: OperationRequest, H
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public protocol QueryRef: OperationRef {
   // This call starts query execution and publishes data
-  func subscribe() async throws -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never>
+  func subscribe() async throws -> AnyPublisher<Result<ResultData, DataConnectError>, Never>
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-actor GenericQueryRef<ResultDataType: Decodable, VariableType: OperationVariable>: QueryRef {
-  private var resultsPublisher = PassthroughSubject<Result<ResultDataType, DataConnectError>,
+actor GenericQueryRef<ResultData: Decodable, Variable: OperationVariable>: QueryRef {
+  private var resultsPublisher = PassthroughSubject<Result<ResultData, DataConnectError>,
     Never>()
 
-  var request: QueryRequest<VariableType>
+  var request: QueryRequest<Variable>
 
   private var grpcClient: GrpcClient
 
-  init(request: QueryRequest<VariableType>, grpcClient: GrpcClient) {
+  init(request: QueryRequest<Variable>, grpcClient: GrpcClient) {
     self.request = request
     self.grpcClient = grpcClient
   }
 
   // This call starts query execution and publishes data to data var
   // In v0, it simply reloads query results
-  public func subscribe() -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never> {
+  public func subscribe() -> AnyPublisher<Result<ResultData, DataConnectError>, Never> {
     Task {
       do {
         _ = try await reloadResults()
@@ -94,21 +94,21 @@ actor GenericQueryRef<ResultDataType: Decodable, VariableType: OperationVariable
 
   // one-shot execution. It will fetch latest data, update any caches
   // and updates the published data var
-  public func execute() async throws -> OperationResult<ResultDataType> {
+  public func execute() async throws -> OperationResult<ResultData> {
     let resultData = try await reloadResults()
     return OperationResult(data: resultData)
   }
 
-  private func reloadResults() async throws -> ResultDataType {
+  private func reloadResults() async throws -> ResultData {
     let results = try await grpcClient.executeQuery(
       request: request,
-      resultType: ResultDataType.self
+      resultType: ResultData.self
     )
     await updateData(data: results.data)
     return results.data
   }
 
-  func updateData(data: ResultDataType) async {
+  func updateData(data: ResultData) async {
     resultsPublisher.send(.success(data))
   }
 }
@@ -116,7 +116,7 @@ actor GenericQueryRef<ResultDataType: Decodable, VariableType: OperationVariable
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public protocol ObservableQueryRef: QueryRef {
   // results of fetch.
-  var data: ResultDataType? { get }
+  var data: ResultData? { get }
 
   // last error received. if last fetch was successful this is cleared
   var lastError: DataConnectError? { get }
@@ -137,16 +137,16 @@ public protocol ObservableQueryRef: QueryRef {
 //            If last fetch was successful, this variable is cleared
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class QueryRefObservableObject<
-  ResultDataType: Decodable,
-  VariableType: OperationVariable
+  ResultData: Decodable,
+  Variable: OperationVariable
 >: ObservableObject, ObservableQueryRef {
-  private var request: QueryRequest<VariableType>
+  private var request: QueryRequest<Variable>
 
-  private var baseRef: GenericQueryRef<ResultDataType, VariableType>
+  private var baseRef: GenericQueryRef<ResultData, Variable>
 
   private var resultsCancellable: AnyCancellable?
 
-  init(request: QueryRequest<VariableType>, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  init(request: QueryRequest<Variable>, dataType: ResultData.Type, grpcClient: GrpcClient) {
     self.request = request
     baseRef = GenericQueryRef(request: request, grpcClient: grpcClient)
     setupSubscription()
@@ -170,19 +170,19 @@ public class QueryRefObservableObject<
 
   // ObservableQueryRef implementation
 
-  @Published public private(set) var data: ResultDataType?
+  @Published public private(set) var data: ResultData?
 
   @Published public private(set) var lastError: DataConnectError?
 
   // QueryRef implementation
 
-  public func execute() async throws -> OperationResult<ResultDataType> {
+  public func execute() async throws -> OperationResult<ResultData> {
     let result = try await baseRef.execute()
     return result
   }
 
   public func subscribe() async throws
-    -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never> {
+    -> AnyPublisher<Result<ResultData, DataConnectError>, Never> {
     return await baseRef.subscribe()
   }
 }
@@ -194,19 +194,19 @@ public class QueryRefObservableObject<
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, *)
 @Observable
 public class QueryRefObservation<
-  ResultDataType: Decodable,
-  VariableType: OperationVariable
+  ResultData: Decodable,
+  Variable: OperationVariable
 >: ObservableQueryRef {
   @ObservationIgnored
-  private var request: QueryRequest<VariableType>
+  private var request: QueryRequest<Variable>
 
   @ObservationIgnored
-  private var baseRef: GenericQueryRef<ResultDataType, VariableType>
+  private var baseRef: GenericQueryRef<ResultData, Variable>
 
   @ObservationIgnored
   private var resultsCancellable: AnyCancellable?
 
-  init(request: QueryRequest<VariableType>, dataType: ResultDataType.Type, grpcClient: GrpcClient) {
+  init(request: QueryRequest<Variable>, dataType: ResultData.Type, grpcClient: GrpcClient) {
     self.request = request
     baseRef = GenericQueryRef(request: request, grpcClient: grpcClient)
     setupSubscription()
@@ -230,19 +230,19 @@ public class QueryRefObservation<
 
   // ObservableQueryRef implementation
 
-  public private(set) var data: ResultDataType?
+  public private(set) var data: ResultData?
 
   public private(set) var lastError: DataConnectError?
 
   // QueryRef implementation
 
-  public func execute() async throws -> OperationResult<ResultDataType> {
+  public func execute() async throws -> OperationResult<ResultData> {
     let result = try await baseRef.execute()
     return result
   }
 
   public func subscribe() async throws
-    -> AnyPublisher<Result<ResultDataType, DataConnectError>, Never> {
+    -> AnyPublisher<Result<ResultData, DataConnectError>, Never> {
     return await baseRef.subscribe()
   }
 }

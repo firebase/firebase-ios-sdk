@@ -15,18 +15,18 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct MutationRequest<VariableType: OperationVariable>: OperationRequest {
+public struct MutationRequest<Variable: OperationVariable>: OperationRequest {
   public var operationName: String
-  public var variables: VariableType?
+  public var variables: Variable?
 
-  public init(operationName: String, variables: VariableType? = nil) {
+  public init(operationName: String, variables: Variable? = nil) {
     self.operationName = operationName
     self.variables = variables
   }
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public class MutationRef<ResultDataType: Decodable, VariableType: OperationVariable>: OperationRef {
+public class MutationRef<ResultData: Decodable, Variable: OperationVariable>: OperationRef {
   public var request: any OperationRequest
 
   private var grpcClient: GrpcClient
@@ -36,10 +36,10 @@ public class MutationRef<ResultDataType: Decodable, VariableType: OperationVaria
     self.grpcClient = grpcClient
   }
 
-  public func execute() async throws -> OperationResult<ResultDataType> {
+  public func execute() async throws -> OperationResult<ResultData> {
     let results = try await grpcClient.executeMutation(
-      request: request as! MutationRequest<VariableType>,
-      resultType: ResultDataType.self
+      request: request as! MutationRequest<Variable>,
+      resultType: ResultData.self
     )
     return results
   }
