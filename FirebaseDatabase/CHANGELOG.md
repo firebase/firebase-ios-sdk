@@ -1,3 +1,9 @@
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseDatabase` module has
+  been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+
 # 10.27.0
 - [changed] Update internal socket implementation to use `NSURLSessionWebSocket` where
   available. (#12883)
