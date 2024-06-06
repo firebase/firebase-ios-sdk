@@ -30,7 +30,9 @@ jobs:
       matrix:
         #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
         platform: [iOS]
-        scheme: [ClientApp, ClientApp-iOS13]
+        scheme: [ClientApp-iOS13]
+        # TODO(ncooke3): Re-enable after updating Firestore binary.
+        #scheme: [ClientApp, ClientApp-iOS13]
     steps:
       - uses: actions/checkout@v4
       - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
