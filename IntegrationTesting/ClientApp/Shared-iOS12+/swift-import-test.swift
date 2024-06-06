@@ -35,7 +35,6 @@ import FirebaseFirestore
 #if SWIFT_PACKAGE
   import FirebaseFirestoreCombineSwift
 #endif // SWIFT_PACKAGE
-import FirebaseFirestoreSwift
 import FirebaseFunctions
 #if SWIFT_PACKAGE
   import FirebaseFunctionsCombineSwift
