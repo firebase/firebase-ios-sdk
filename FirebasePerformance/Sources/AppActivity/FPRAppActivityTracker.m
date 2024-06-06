@@ -175,10 +175,6 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
       BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
       BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
       BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
-      BOOL isExpensive = nw_path_is_expensive(path);
-      BOOL hasIPv4 = nw_path_has_ipv4(path);
-      BOOL hasIPv6 = nw_path_has_ipv6(path);
-      BOOL hasNewDNS = nw_path_has_dns(path);
 
       if (isWiFi) {
         self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
@@ -186,8 +182,6 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
         self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
       } else if (isEthernet) {
         self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
-      } else if (hasIPv4) {
-        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
       }
     });
 
