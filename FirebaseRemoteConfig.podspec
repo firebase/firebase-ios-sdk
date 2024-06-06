@@ -112,7 +112,7 @@ app update.
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/Swift/ObjC/Bridging-Header.h',
-      'OTHER_SWIFT_FLAGS' => '$(inherited) -D USE_REAL_CONSOLE',
+      'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('USE_REAL_CONSOLE') ? '-D USE_REAL_CONSOLE' : ''}",
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
     swift_api.dependency 'OCMock'
