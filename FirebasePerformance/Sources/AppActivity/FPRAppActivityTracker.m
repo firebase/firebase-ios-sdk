@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <Network/Network.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
@@ -54,6 +55,15 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 /** Current running state of the application. */
 @property(nonatomic, readwrite) FPRApplicationState applicationState;
+
+/** Current network connection type of the application. */
+@property(nonatomic, readwrite) firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType;
+
+/** Network monitor object to track network movements. */
+@property (nonatomic, readwrite) nw_path_monitor_t monitor;
+
+/** Queue used to track the network monitoring changes. */
+@property (nonatomic, readwrite) dispatch_queue_t monitorQueue;
 
 /** Trace to measure the app start performance. */
 @property(nonatomic) FIRTrace *appStartTrace;
@@ -122,9 +132,12 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
  */
 - (instancetype)initAppActivityTracker {
   self = [super init];
-  _applicationState = FPRApplicationStateUnknown;
-  _appStartGaugeMetricDispatched = NO;
-  _configurations = [FPRConfigurations sharedInstance];
+  if (self != nil) {
+    _applicationState = FPRApplicationStateUnknown;
+    _appStartGaugeMetricDispatched = NO;
+    _configurations = [FPRConfigurations sharedInstance];
+    [self startTrackingNetwork];
+  }
   return self;
 }
 
@@ -145,6 +158,43 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     return self.foregroundSessionTrace;
   }
   return self.backgroundSessionTrace;
+}
+
+- (void)startTrackingNetwork {
+  self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
+
+  if (@available(iOS 12, *)) {
+    dispatch_queue_attr_t attrs = 
+      dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL,
+                                              QOS_CLASS_UTILITY,
+                                              DISPATCH_QUEUE_PRIORITY_DEFAULT);
+    self.monitorQueue = dispatch_queue_create("com.example.network.monitor", attrs);
+
+    self.monitor = nw_path_monitor_create();
+    nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
+    nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
+      nw_path_status_t status = nw_path_get_status(path);
+      BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
+      BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
+      BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
+      BOOL isExpensive = nw_path_is_expensive(path);
+      BOOL hasIPv4 = nw_path_has_ipv4(path);
+      BOOL hasIPv6 = nw_path_has_ipv6(path);
+      BOOL hasNewDNS = nw_path_has_dns(path);
+
+      if (isWiFi) {
+        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
+      } else if (isCellular) {
+        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
+      } else if (isEthernet) {
+        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
+      } else if (hasIPv4) {
+        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
+      }
+    });
+
+    nw_path_monitor_start(self.monitor);
+  }
 }
 
 /**
@@ -286,6 +336,8 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 }
 
 - (void)dealloc {
+  nw_path_monitor_cancel(self.monitor);
+  
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];

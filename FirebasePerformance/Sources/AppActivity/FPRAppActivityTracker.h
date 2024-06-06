@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRTrace.h"
+#import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartTraceName;
 FOUNDATION_EXTERN NSString *__nonnull const kFPRAppStartStageNameTimeToUI;
@@ -49,6 +50,9 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 /** Current running state of the application. */
 @property(nonatomic, readonly) FPRApplicationState applicationState;
+
+/** Current network connection type of the application. */
+@property(nonatomic, readonly) firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType;
 
 /** Accesses the singleton instance.
  *  @return Reference to the shared object if successful; <code>nil</code> if not.

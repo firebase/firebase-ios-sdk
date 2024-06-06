@@ -26,6 +26,7 @@
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
+#import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeData.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeData.h"
@@ -70,36 +71,6 @@ static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
     return firebase_perf_v1_NetworkRequestMetric_HttpMethod_HTTP_METHOD_UNKNOWN;
   }
   return HTTPMethod.intValue;
-}
-
-/** Get the current network connection type in firebase_perf_v1_NetworkConnectionInfo_NetworkType
- * format.
- *  @return Current network connection type.
- */
-static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(
-    void) {
-  firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType =
-      firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
-
-  static SCNetworkReachabilityRef reachabilityRef = 0;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    reachabilityRef = SCNetworkReachabilityCreateWithName(kCFAllocatorSystemDefault, "google.com");
-  });
-
-  SCNetworkReachabilityFlags reachabilityFlags = 0;
-  SCNetworkReachabilityGetFlags(reachabilityRef, &reachabilityFlags);
-
-  // Parse the network flags to set the network type.
-  if (reachabilityFlags & kSCNetworkReachabilityFlagsReachable) {
-    if (reachabilityFlags & kSCNetworkReachabilityFlagsIsWWAN) {
-      networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
-    } else {
-      networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
-    }
-  }
-
-  return networkType;
 }
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
@@ -233,7 +204,8 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void) {
   iosAppInfo.bundle_short_version =
       FPREncodeString([mainBundle infoDictionary][@"CFBundleShortVersionString"]);
   iosAppInfo.sdk_version = FPREncodeString([NSString stringWithUTF8String:kFPRSDKVersion]);
-  iosAppInfo.network_connection_info.network_type = FPRNetworkConnectionInfoNetworkType();
+  iosAppInfo.network_connection_info.network_type =
+      [FPRAppActivityTracker sharedInstance].networkType;
   iosAppInfo.has_network_connection_info = true;
   iosAppInfo.network_connection_info.has_network_type = true;
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
