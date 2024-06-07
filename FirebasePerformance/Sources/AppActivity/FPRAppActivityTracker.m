@@ -164,11 +164,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
   __weak FPRAppActivityTracker *weakSelf = self;
-#if TARGET_OS_IOS
-  if (@available(iOS 12, *)) {
-#elif TARGET_OS_TV
-  if (@available(tvOS 12, *)) {
-#endif
+  if (@available(iOS 12, tvOS 12, *)) {
     dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
     weakSelf.monitorQueue =
@@ -333,11 +329,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 }
 
 - (void)dealloc {
-#if TARGET_OS_IOS
-  if (@available(iOS 12, *)) {
-#elif TARGET_OS_TV
-  if (@available(tvOS 12, *)) {
-#endif
+  if (@available(iOS 12, tvOS 12, *)) {
     nw_path_monitor_cancel(self.monitor);
   }
 
