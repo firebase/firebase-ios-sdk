@@ -39,7 +39,7 @@ class FunctionCallingViewModel: ObservableObject {
 
   init() {
     model = VertexAI.vertexAI().generativeModel(
-      modelName: "gemini-1.5-flash-preview-0514",
+      modelName: "gemini-1.5-flash",
       tools: [Tool(functionDeclarations: [
         FunctionDeclaration(
           name: "get_exchange_rate",
