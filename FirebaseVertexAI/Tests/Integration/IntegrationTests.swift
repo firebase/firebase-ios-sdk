@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAppCheck
 import FirebaseCore
 import FirebaseVertexAI
 import XCTest
@@ -29,6 +30,8 @@ final class IntegrationTests: XCTestCase {
     Vertex AI integration tests skipped; to enable them, set the VertexAIRunIntegrationTests \
     environment variable in Xcode or CI jobs.
     """)
+
+    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
 
     let plistPath = try XCTUnwrap(Bundle.module.path(
       forResource: "GoogleService-Info",

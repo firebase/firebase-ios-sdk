@@ -51,6 +51,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TEST_RUNNER_VertexAIRunIntegrationTests: 1
+      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
