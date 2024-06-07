@@ -1,6 +1,7 @@
 # 11.0.0
 - [fixed] Fixed auth domain matching code to prioritize matching `firebaseapp.com` over `web.app`
   even if the server returns the `web.app` domain listed first. (#7992)
+- [added] Introduced the Swift enum `AuthProviderID` for the Auth Provider IDs. (#9236)
 
 # 10.21.0
 - [fixed] Fixed multifactor resolver to use the correct Auth instance instead of
