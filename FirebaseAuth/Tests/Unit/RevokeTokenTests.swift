@@ -42,7 +42,7 @@ class RevokeTokenTests: RPCBaseTests {
       value: kFakeToken
     )
     let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
-    XCTAssertEqual(requestDictionary[kFakeProviderIDKey], AuthProviderString.apple.rawValue)
+    XCTAssertEqual(requestDictionary[kFakeProviderIDKey], AuthProviderID.apple.rawValue)
     XCTAssertEqual(requestDictionary[kFakeTokenTypeKey], "3")
   }
 

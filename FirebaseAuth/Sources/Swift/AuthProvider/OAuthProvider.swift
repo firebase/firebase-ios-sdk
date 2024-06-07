@@ -55,7 +55,7 @@ import Foundation
         fatalError("Sign in with Facebook is not supported via generic IDP; the Facebook TOS " +
           "dictate that you must use the Facebook iOS SDK for Facebook login.")
       }
-      if providerID == AuthProviderString.apple.rawValue {
+      if providerID == AuthProviderID.apple.rawValue {
         fatalError("Sign in with Apple is not supported via generic IDP; You must use the Apple SDK" +
           " for Sign in with Apple.")
       }
@@ -247,7 +247,7 @@ import Foundation
   public static func appleCredential(withIDToken idToken: String,
                                      rawNonce: String?,
                                      fullName: PersonNameComponents?) -> OAuthCredential {
-    return OAuthCredential(withProviderID: AuthProviderString.apple.rawValue,
+    return OAuthCredential(withProviderID: AuthProviderID.apple.rawValue,
                            idToken: idToken,
                            rawNonce: rawNonce,
                            fullName: fullName)

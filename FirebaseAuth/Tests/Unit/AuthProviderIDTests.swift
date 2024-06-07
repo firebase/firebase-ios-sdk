@@ -21,14 +21,14 @@ final class AuthProviderIDTests: XCTestCase {
   // Verify that AuthProviderID enum values match the class values published for Objective C
   // compatibility.
   func testAuthProviderIDEnumRawValue() {
-    XCTAssertEqual(AuthProviderString.apple.rawValue, "apple.com")
-    XCTAssertEqual(AuthProviderString.email.rawValue, EmailAuthProvider.id)
-    XCTAssertEqual(AuthProviderString.facebook.rawValue, FacebookAuthProvider.id)
+    XCTAssertEqual(AuthProviderID.apple.rawValue, "apple.com")
+    XCTAssertEqual(AuthProviderID.email.rawValue, EmailAuthProvider.id)
+    XCTAssertEqual(AuthProviderID.facebook.rawValue, FacebookAuthProvider.id)
     #if !os(watchOS)
-      XCTAssertEqual(AuthProviderString.gameCenter.rawValue, GameCenterAuthProvider.id)
+      XCTAssertEqual(AuthProviderID.gameCenter.rawValue, GameCenterAuthProvider.id)
     #endif
-    XCTAssertEqual(AuthProviderString.gitHub.rawValue, GitHubAuthProvider.id)
-    XCTAssertEqual(AuthProviderString.google.rawValue, GoogleAuthProvider.id)
-    XCTAssertEqual(AuthProviderString.phone.rawValue, PhoneAuthProvider.id)
+    XCTAssertEqual(AuthProviderID.gitHub.rawValue, GitHubAuthProvider.id)
+    XCTAssertEqual(AuthProviderID.google.rawValue, GoogleAuthProvider.id)
+    XCTAssertEqual(AuthProviderID.phone.rawValue, PhoneAuthProvider.id)
   }
 }
