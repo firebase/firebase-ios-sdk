@@ -163,6 +163,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 - (void)startTrackingNetwork {
   self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
+  __weak FPRAppActivityTracker *weakSelf = self;
 #if TARGET_OS_IOS
   if (@available(iOS 12, *)) {
 #elif TARGET_OS_TV
@@ -170,21 +171,22 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 #endif
     dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
-    self.monitorQueue = dispatch_queue_create("com.google.perf.network.monitor", attrs);
+    weakSelf.monitorQueue =
+        dispatch_queue_create("com.google.firebase.perf.network.monitor", attrs);
 
-    self.monitor = nw_path_monitor_create();
-    nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
-    nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
+    weakSelf.monitor = nw_path_monitor_create();
+    nw_path_monitor_set_queue(weakSelf.monitor, weakSelf.monitorQueue);
+    nw_path_monitor_set_update_handler(weakSelf.monitor, ^(nw_path_t _Nonnull path) {
       BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
       BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
       BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
 
       if (isWiFi) {
-        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
+        weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
       } else if (isCellular) {
-        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
+        weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
       } else if (isEthernet) {
-        self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
+        weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
       }
     });
 
