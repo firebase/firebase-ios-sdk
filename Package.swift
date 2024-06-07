@@ -125,7 +125,7 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/google/promises.git",
-      "2.1.0" ..< "3.0.0"
+      "2.4.0" ..< "3.0.0"
     ),
     .package(
       url: "https://github.com/apple/swift-protobuf.git",
@@ -134,7 +134,9 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.3.0" ..< "10.0.0"
+      branch: "release-10.0"
+      // TODO: Update to 10.0.0 when ready.
+      // "10.0.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
@@ -144,7 +146,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "2.1.0" ..< "4.0.0"
+      "3.4.1" ..< "4.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
@@ -173,7 +175,10 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git",
+             branch: "release-11.0"),
+    // TODO: Update to 11.0.0 when ready.
+    // "11.0.0" ..< "12.0.0",
   ],
   targets: [
     .target(

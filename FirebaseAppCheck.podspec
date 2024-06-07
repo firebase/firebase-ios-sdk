@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
   s.dependency 'AppCheckCore', '~> 11.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseCore', '~> 11.0'
-  s.dependency 'PromisesObjC', '~> 2.1'
+  s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
 
