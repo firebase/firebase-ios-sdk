@@ -1381,14 +1381,11 @@ let package = Package(
       resources: [
         .process("CountTokenResponses"),
         .process("GenerateContentResponses"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
       ]
     ),
     .testTarget(
       name: "FirebaseVertexAIIntegration",
-      dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
+      dependencies: ["FirebaseVertexAI"],
       path: "FirebaseVertexAI/Tests/Integration",
       resources: [
         .process("Resources"),
