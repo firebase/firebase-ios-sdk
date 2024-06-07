@@ -1381,6 +1381,9 @@ let package = Package(
       resources: [
         .process("CountTokenResponses"),
         .process("GenerateContentResponses"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
       ]
     ),
     .testTarget(
