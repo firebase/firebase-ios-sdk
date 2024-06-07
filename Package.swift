@@ -1387,7 +1387,7 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseVertexAIIntegration",
-      dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
+      dependencies: ["FirebaseVertexAI"],
       path: "FirebaseVertexAI/Tests/Integration",
       resources: [
         .process("Resources"),
