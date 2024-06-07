@@ -165,7 +165,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 #if TARGET_OS_IOS
   if (@available(iOS 12, *)) {
-#elif TARGET_OS_TVOS
+#elif TARGET_OS_TV
   if (@available(tvOS 12, *)) {
 #endif
     dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
@@ -333,7 +333,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 - (void)dealloc {
 #if TARGET_OS_IOS
   if (@available(iOS 12, *)) {
-#elif TARGET_OS_TVOS
+#elif TARGET_OS_TV
   if (@available(tvOS 12, *)) {
 #endif
     nw_path_monitor_cancel(self.monitor);
