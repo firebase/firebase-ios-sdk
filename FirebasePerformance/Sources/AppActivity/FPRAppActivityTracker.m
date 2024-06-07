@@ -163,10 +163,14 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 - (void)startTrackingNetwork {
   self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
+#if TARGET_OS_IOS
   if (@available(iOS 12, *)) {
+#elif TARGET_OS_TVOS
+  if (@available(tvOS 12, *)) {
+#endif
     dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
-    self.monitorQueue = dispatch_queue_create("com.example.network.monitor", attrs);
+    self.monitorQueue = dispatch_queue_create("com.google.perf.network.monitor", attrs);
 
     self.monitor = nw_path_monitor_create();
     nw_path_monitor_set_queue(self.monitor, self.monitorQueue);

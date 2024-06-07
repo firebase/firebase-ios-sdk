@@ -949,7 +949,6 @@ let package = Package(
         .define("FIRPerformance_LIB_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("QuartzCore", .when(platforms: [.iOS, .tvOS])),
       ]

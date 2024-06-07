@@ -18,7 +18,6 @@
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
-#import <SystemConfiguration/SystemConfiguration.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
