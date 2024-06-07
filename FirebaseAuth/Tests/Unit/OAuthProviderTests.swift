@@ -64,8 +64,11 @@ import FirebaseCore
       // 'AuthProviderID' in coercion
 //      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
 //                                                accessToken: kFakeAccessToken)
-      let credential = OAuthProvider.credential(withProviderID: "id" as AuthProviderID,
+
+      let credential = OAuthProvider.credential(withProviderID: "id",
                                                 accessToken: kFakeAccessToken)
+      let _ = OAuthProvider.credential(withProviderID: "id" as AuthProviderID,
+                                       accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
       XCTAssertEqual(credential.provider, kFakeProviderID)
       XCTAssertNil(credential.idToken)
