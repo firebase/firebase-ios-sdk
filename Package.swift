@@ -175,7 +175,10 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git",
+             branch: "release-11.0"),
+    // TODO: Update to 11.0.0 when ready.
+    // "11.0.0" ..< "12.0.0",
   ],
   targets: [
     .target(
