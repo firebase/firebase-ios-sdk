@@ -3,7 +3,7 @@
   samples. Developers should now use the auto-updated versions, `gemini-1.5-pro`
   or `gemini-1.5-flash`, or a specific stable version; see
   [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
-  for more details.
+  for more details. (#13099)
 
 # 10.27.0
 - [changed] Removed uses of the `gemini-1.5-pro-preview-0409` model in docs and
