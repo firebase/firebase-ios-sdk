@@ -74,27 +74,29 @@ final class PartsRepresentableTests: XCTestCase {
   }
 
   #if canImport(UIKit)
-    func testModelContentFromInvalidUIImageThrows() throws {
-      let image = UIImage()
-      do {
-        _ = try image.tryPartsValue()
-      } catch {
-        guard let imageError = (error as? ImageConversionError) else {
-          XCTFail("Got unexpected error type: \(error)")
-          return
+    #if !os(visionOS)
+      func testModelContentFromInvalidUIImageThrows() throws {
+        let image = UIImage()
+        do {
+          _ = try image.tryPartsValue()
+        } catch {
+          guard let imageError = (error as? ImageConversionError) else {
+            XCTFail("Got unexpected error type: \(error)")
+            return
+          }
+          switch imageError {
+          case let .couldNotConvertToJPEG(source):
+            // String(describing:) works around a type error.
+            XCTAssertEqual(String(describing: source), String(describing: image))
+            return
+          case _:
+            XCTFail("Expected image conversion error, got \(imageError) instead")
+            return
+          }
         }
-        switch imageError {
-        case let .couldNotConvertToJPEG(source):
-          // String(describing:) works around a type error.
-          XCTAssertEqual(String(describing: source), String(describing: image))
-          return
-        case _:
-          XCTFail("Expected image conversion error, got \(imageError) instead")
-          return
-        }
+        XCTFail("Expected model content from invlaid image to error")
       }
-      XCTFail("Expected model content from invlaid image to error")
-    }
+    #endif // !os(visionOS)
 
     func testModelContentFromUIImageIsNotEmpty() throws {
       let coreImage = CIImage(color: CIColor.red)

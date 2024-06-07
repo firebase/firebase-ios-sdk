@@ -18,14 +18,11 @@ jobs:
   spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst]
+        target: [iOS, macOS, catalyst, visionOS]
         os: [macos-14]
         include:
           - os: macos-14
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: visionOS
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
