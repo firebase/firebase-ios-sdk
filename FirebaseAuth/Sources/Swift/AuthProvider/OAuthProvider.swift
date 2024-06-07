@@ -105,8 +105,14 @@ import Foundation
   /// - Returns: An AuthCredential.
   @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:accessToken:)
+  public static func credential(withProviderID providerID: NSString,
+                                accessToken: NSString) -> OAuthCredential {
+    return OAuthCredential(withProviderID: providerID as String, accessToken: accessToken as String)
+  }
+    
+  @available(*, deprecated, message: "Use API with AuthProviderID parameter instead.")
   public static func credential(withProviderID providerID: String,
-                                accessToken: String) -> OAuthCredential {
+                                  accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
   }
 

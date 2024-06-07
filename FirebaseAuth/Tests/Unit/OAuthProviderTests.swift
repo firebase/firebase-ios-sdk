@@ -62,8 +62,8 @@ import FirebaseCore
 
       // It needs to be a string literal. Cannot convert value of type 'String' to type
       // 'AuthProviderID' in coercion
-//      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
-//                                                accessToken: kFakeAccessToken)
+      let credential2 = OAuthProvider.credential(withProviderID: kFakeProviderID,
+                                                accessToken: kFakeAccessToken)
 
       let credential = OAuthProvider.credential(withProviderID: "id",
                                                 accessToken: kFakeAccessToken)
