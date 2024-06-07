@@ -24,7 +24,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_15.4
             target: visionOS
     runs-on: ${{ matrix.os }}
     env:
