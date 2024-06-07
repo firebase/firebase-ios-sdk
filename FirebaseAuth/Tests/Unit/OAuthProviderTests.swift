@@ -69,6 +69,8 @@ import FirebaseCore
                                                 accessToken: kFakeAccessToken)
       let _ = OAuthProvider.credential(withProviderID: "id" as AuthProviderID,
                                        accessToken: kFakeAccessToken)
+      let _ = OAuthProvider.credential(withProviderID: .gitHub,
+                                       accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
       XCTAssertEqual(credential.provider, kFakeProviderID)
       XCTAssertNil(credential.idToken)
