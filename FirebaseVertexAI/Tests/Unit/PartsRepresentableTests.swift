@@ -74,37 +74,36 @@ final class PartsRepresentableTests: XCTestCase {
   }
 
   #if canImport(UIKit)
-    #if !os(visionOS)
-      func testModelContentFromInvalidUIImageThrows() throws {
-        let image = UIImage()
-        do {
-          _ = try image.tryPartsValue()
-        } catch {
-          guard let imageError = (error as? ImageConversionError) else {
-            XCTFail("Got unexpected error type: \(error)")
-            return
-          }
-          switch imageError {
-          case let .couldNotConvertToJPEG(source):
-            // String(describing:) works around a type error.
-            XCTAssertEqual(String(describing: source), String(describing: image))
-            return
-          case _:
-            XCTFail("Expected image conversion error, got \(imageError) instead")
-            return
-          }
+    func testModelContentFromInvalidUIImageThrows() throws {
+      let image = UIImage()
+      do {
+        _ = try image.tryPartsValue()
+      } catch {
+        guard let imageError = (error as? ImageConversionError) else {
+          XCTFail("Got unexpected error type: \(error)")
+          return
         }
-        XCTFail("Expected model content from invlaid image to error")
+        switch imageError {
+        case let .couldNotConvertToJPEG(source):
+          // String(describing:) works around a type error.
+          XCTAssertEqual(String(describing: source), String(describing: image))
+          return
+        case _:
+          XCTFail("Expected image conversion error, got \(imageError) instead")
+          return
+        }
       }
+      XCTFail("Expected model content from invlaid image to error")
+    }
 
-      func testModelContentFromUIImageIsNotEmpty() throws {
-        let coreImage = CIImage(color: CIColor.red)
-          .cropped(to: CGRect(origin: CGPointZero, size: CGSize(width: 16, height: 16)))
-        let image = UIImage(ciImage: coreImage)
-        let modelContent = try image.tryPartsValue()
-        XCTAssert(modelContent.count > 0, "Expected non-empty model content for UIImage: \(image)")
-      }
-    #endif // !os(visionOS)
+    func testModelContentFromUIImageIsNotEmpty() throws {
+      let coreImage = CIImage(color: CIColor.red)
+        .cropped(to: CGRect(origin: CGPointZero, size: CGSize(width: 16, height: 16)))
+      let image = UIImage(ciImage: coreImage)
+      let modelContent = try image.tryPartsValue()
+      XCTAssert(modelContent.count > 0, "Expected non-empty model content for UIImage: \(image)")
+    }
+
   #elseif canImport(AppKit)
     func testModelContentFromNSImageIsNotEmpty() throws {
       let coreImage = CIImage(color: CIColor.red)
