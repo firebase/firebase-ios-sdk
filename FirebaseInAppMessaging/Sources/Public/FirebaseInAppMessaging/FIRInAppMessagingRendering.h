@@ -436,7 +436,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDismissType) {
   FIRInAppMessagingDismissTypeAuto,
   /// Dismiss method unknown.
   FIRInAppMessagingDismissUnspecified,
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDismissType) API_UNAVAILABLE(macos, watchos);
 
 /// Error code for an in-app message that failed to display.
 /// This enum is unavailable on macOS, macOS Catalyst, and watchOS.
@@ -445,7 +445,7 @@ typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
   FIAMDisplayRenderErrorTypeImageDataInvalid,
   /// Unexpected error.
   FIAMDisplayRenderErrorTypeUnspecifiedError,
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDisplayRenderErrorType) API_UNAVAILABLE(macos, watchos);
 
 /**
  * A protocol defining those callbacks to be triggered by the message display component
