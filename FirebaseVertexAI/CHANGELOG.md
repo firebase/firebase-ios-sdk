@@ -1,7 +1,7 @@
 # 10.28.0
-- [changed] Removed uses of the `gemini-1.5-pro-preview-0514` model in docs and
-  samples. Developers should now use the auto-updated versions, `gemini-1.5-pro`
-  or `gemini-1.5-flash`, or a specific stable version; see
+- [changed] Removed uses of the `gemini-1.5-flash-preview-0514` model in docs
+  and samples. Developers should now use the auto-updated versions,
+  `gemini-1.5-pro` or `gemini-1.5-flash`, or a specific stable version; see
   [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
   for more details. (#13099)
 
