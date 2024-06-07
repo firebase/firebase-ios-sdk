@@ -70,8 +70,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     @unknown default: break
     }
 
-    _ = FirebaseInAppMessaging.DisplayRenderErrorType.RawValue()
-    let errorType: FirebaseInAppMessaging.DisplayRenderErrorType! = nil
+    _ = FirebaseInAppMessaging.InAppMessagingDisplayRenderErrorType.RawValue()
+    let errorType: FirebaseInAppMessaging.InAppMessagingDisplayRenderErrorType! = nil
     switch errorType! {
     case .imageDataInvalid: break
     case .unspecifiedError: break
@@ -163,8 +163,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
       triggerType: triggerType
     )
     let _: FirebaseInAppMessaging.InAppMessagingCampaignInfo = displayMessage.campaignInfo
-    let _: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType = displayMessage.type
-    let _: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType = displayMessage.triggerType
+    let _: FirebaseInAppMessaging.InAppMessagingDisplayMessageType = displayMessage.type
+    let _: FirebaseInAppMessaging.InAppMessagingDisplayTriggerType = displayMessage.triggerType
     let _: [AnyHashable: Any]? = displayMessage.appData
 
     let imageOnlyDisplay = FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay(
