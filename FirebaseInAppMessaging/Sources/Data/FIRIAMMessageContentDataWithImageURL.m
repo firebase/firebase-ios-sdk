@@ -23,6 +23,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentData.h"
 #import "FirebaseInAppMessaging/Sources/Private/Data/FIRIAMMessageContentDataWithImageURL.h"
 #import "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKRuntimeErrorCodes.h"
+#import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
 
 static NSInteger const SuccessHTTPStatusCode = 200;
 
@@ -170,7 +171,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                   FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM000004", @"%@", errorDesc);
 
                   NSError *error =
-                      [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+                      [NSError errorWithDomain:FIRInAppMessagingErrorDomain
                                           code:FIRIAMSDKRuntimeErrorNonImageMimetypeFromImageURL
                                       userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
                   block(nil, error);

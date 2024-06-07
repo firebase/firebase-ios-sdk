@@ -18,8 +18,17 @@ import FirebaseInAppMessaging
 import SwiftUI
 
 final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
+  func throwError() throws {
+  }
+
   func usage() throws {
     let inAppMessaging = FirebaseInAppMessaging.InAppMessaging.inAppMessaging()
+
+    do {
+      try throwError() // Call a throwing method to suppress warnings.
+    } catch InAppMessagingDisplayRenderError.imageDataInvalid {
+    } catch InAppMessagingDisplayRenderError.unspecifiedError {
+    }
 
     let _: Bool = inAppMessaging.messageDisplaySuppressed
     inAppMessaging.messageDisplaySuppressed = true
@@ -67,14 +76,6 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     case .banner: break
     case .imageOnly: break
     case .card: break
-    @unknown default: break
-    }
-
-    _ = FirebaseInAppMessaging.InAppMessagingDisplayRenderErrorType.RawValue()
-    let errorType: FirebaseInAppMessaging.InAppMessagingDisplayRenderErrorType! = nil
-    switch errorType! {
-    case .imageDataInvalid: break
-    case .unspecifiedError: break
     @unknown default: break
     }
 

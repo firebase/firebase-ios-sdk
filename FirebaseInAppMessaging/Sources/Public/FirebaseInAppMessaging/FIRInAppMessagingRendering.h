@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRInAppMessagingErrors.h"
+
 @class UIColor;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -440,12 +442,12 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDismissType) {
 
 /// Error code for an in-app message that failed to display.
 /// This enum is unavailable on macOS, macOS Catalyst, and watchOS.
-typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
-  /// The image data for this in-app message is invalid.
-  FIAMDisplayRenderErrorTypeImageDataInvalid,
-  /// Unexpected error.
-  FIAMDisplayRenderErrorTypeUnspecifiedError,
-} NS_SWIFT_NAME(InAppMessagingDisplayRenderErrorType) API_UNAVAILABLE(macos, watchos);
+typedef NS_ERROR_ENUM(FIRInAppMessagingErrorDomain, FIAMDisplayRenderErrorType){
+    /// The image data for this in-app message is invalid.
+    FIAMDisplayRenderErrorTypeImageDataInvalid,
+    /// Unexpected error.
+    FIAMDisplayRenderErrorTypeUnspecifiedError,
+} NS_SWIFT_NAME(InAppMessagingDisplayRenderError) API_UNAVAILABLE(macos, watchos);
 
 /**
  * A protocol defining those callbacks to be triggered by the message display component

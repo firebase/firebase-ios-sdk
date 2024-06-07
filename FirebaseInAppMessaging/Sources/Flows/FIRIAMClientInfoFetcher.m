@@ -48,7 +48,7 @@
   if (!self.installations) {
     NSString *errorDesc = @"Couldn't generate Firebase Installation info";
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM190010", @"%@", errorDesc);
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+    NSError *error = [NSError errorWithDomain:FIRInAppMessagingErrorDomain
                                          code:FIRIAMSDKRuntimeErrorNoFirebaseInstallationsObject
                                      userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
     completion(nil, nil, error);
