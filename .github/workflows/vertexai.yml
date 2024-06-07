@@ -50,7 +50,7 @@ jobs:
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     env:
-      VERTEXAI_RUN_INTEGRATION_TESTS: 1
+      TEST_RUNNER_VertexAIRunIntegrationTests: 1
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:

@@ -496,15 +496,6 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  FirebaseVertexAIIntegration-*-*)
-    if [[ -n "${VERTEXAI_RUN_INTEGRATION_TESTS:-}" ]]; then
-      RunXcodebuild \
-        -scheme "$product" \
-        "${xcb_flags[@]}" \
-        test
-    fi
-    ;;
-
   VertexSample-*-*)
     RunXcodebuild \
       -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
