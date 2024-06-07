@@ -50,7 +50,6 @@ jobs:
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     env:
-      TEST_RUNNER_VertexAIRunIntegrationTests: 1
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
@@ -68,7 +67,8 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: scripts/build.sh FirebaseVertexAIIntegration ${{ matrix.target }} spm
+        command: TEST_RUNNER_VertexAIRunIntegrationTests=1 scripts/build.sh \
+          FirebaseVertexAIIntegration ${{ matrix.target }} spm
 
   sample:
     strategy:
