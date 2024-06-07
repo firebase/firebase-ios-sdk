@@ -27,7 +27,7 @@ public enum AuthProviderID: String, ExpressibleByStringLiteral {
   public init(stringLiteral: String) {
     self.init(rawValue: stringLiteral)! // Crash if string doesn't map to a valid case.
 
-    // Could also create a catch-all catch to elicit errors
+    // Could also create a catch-all case to elicit errors
     // elsewhere in the SDK.
     // self.init(rawValue: stringLiteral) ?? Self.other
   }
