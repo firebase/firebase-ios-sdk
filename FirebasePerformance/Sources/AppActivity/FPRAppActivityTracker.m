@@ -163,16 +163,15 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 - (void)startTrackingNetwork {
   self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
-  __weak FPRAppActivityTracker *weakSelf = self;
   if (@available(iOS 12, tvOS 12, *)) {
     dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
         DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
-    weakSelf.monitorQueue =
-        dispatch_queue_create("com.google.firebase.perf.network.monitor", attrs);
+    self.monitorQueue = dispatch_queue_create("com.google.firebase.perf.network.monitor", attrs);
 
-    weakSelf.monitor = nw_path_monitor_create();
-    nw_path_monitor_set_queue(weakSelf.monitor, weakSelf.monitorQueue);
-    nw_path_monitor_set_update_handler(weakSelf.monitor, ^(nw_path_t _Nonnull path) {
+    self.monitor = nw_path_monitor_create();
+    nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
+    __weak FPRAppActivityTracker *weakSelf = self;
+    nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
       BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
       BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
       BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
