@@ -25,11 +25,6 @@ final class IntegrationTests: XCTestCase {
   var model: GenerativeModel!
 
   override func setUp() async throws {
-    try XCTSkipIf(ProcessInfo.processInfo.environment["VERTEXAI_RUN_INTEGRATION_TESTS"] == nil, """
-    Vertex AI integration tests skipped; to enable them, set the VERTEXAI_RUN_INTEGRATION_TESTS \
-    environment variable in Xcode or CI jobs.
-    """)
-
     let plistPath = try XCTUnwrap(Bundle.module.path(
       forResource: "GoogleService-Info",
       ofType: "plist"
