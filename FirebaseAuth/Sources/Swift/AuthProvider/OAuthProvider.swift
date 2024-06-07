@@ -103,10 +103,16 @@ import Foundation
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
   /// - Parameter accessToken: The access token associated with the Auth credential be created
   /// - Returns: An AuthCredential.
+  @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
+  }
+
+  public static func credential(withProviderID providerID: AuthProviderID,
+                                accessToken: String) -> OAuthCredential {
+    return OAuthCredential(withProviderID: providerID.rawValue, accessToken: accessToken)
   }
 
   /// Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID

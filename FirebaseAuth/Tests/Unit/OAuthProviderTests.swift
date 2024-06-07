@@ -55,7 +55,16 @@ import FirebaseCore
      */
     func testObtainingOAuthCredentialNoIDToken() throws {
       initApp(#function)
-      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
+      // The ObjC signature is not available ('credential(withProviderID:accessToken:)' is
+      // unavailable)
+//        let sig: (String, String) -> OAuthCredential =
+//        OAuthProvider.credential(withProviderID:accessToken:)
+
+      // It needs to be a string literal. Cannot convert value of type 'String' to type
+      // 'AuthProviderID' in coercion
+//      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
+//                                                accessToken: kFakeAccessToken)
+      let credential = OAuthProvider.credential(withProviderID: "id" as AuthProviderID,
                                                 accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
       XCTAssertEqual(credential.provider, kFakeProviderID)

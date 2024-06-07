@@ -15,7 +15,7 @@
 import Foundation
 
 /// Enumeration of the available Auth Provider IDs.
-public enum AuthProviderID: String {
+public enum AuthProviderID: String, ExpressibleByStringLiteral {
   case apple = "apple.com"
   case email = "password"
   case facebook = "facebook.com"
@@ -23,4 +23,12 @@ public enum AuthProviderID: String {
   case gitHub = "github.com"
   case google = "google.com"
   case phone
+
+  public init(stringLiteral: String) {
+    self.init(rawValue: stringLiteral)! // Crash if string doesn't map to a valid case.
+
+    // Could also create a catch-all catch to elicit errors
+    // elsewhere in the SDK.
+    // self.init(rawValue: stringLiteral) ?? Self.other
+  }
 }
