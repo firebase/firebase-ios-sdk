@@ -36,7 +36,7 @@ class ConversationViewModel: ObservableObject {
   private var chatTask: Task<Void, Never>?
 
   init() {
-    model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.5-flash-preview-0514")
+    model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.5-flash")
     chat = model.startChat()
   }
 
