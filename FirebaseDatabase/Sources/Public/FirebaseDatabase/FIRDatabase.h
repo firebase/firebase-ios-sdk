@@ -32,7 +32,7 @@ NS_SWIFT_NAME(Database) __attribute__((availability(
               "Use the Firebase Database REST API instead. See "
               "github.com/firebase/firebase-ios-sdk/issues/10195 "
               "for more details.")))
-API_AVAILABLE(ios(12.0), macos(10.15), macCatalyst(15), tvos(13.0),
+API_AVAILABLE(ios(12.0), macos(10.15), macCatalyst(13), tvos(13.0),
               watchos(7.0)) @interface FIRDatabase : NSObject
 
 /**

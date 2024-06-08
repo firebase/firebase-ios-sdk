@@ -23,7 +23,7 @@ let firebaseVersion = "11.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v12), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
+  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -424,7 +424,7 @@ let package = Package(
       ],
       path: "FirebaseAuth/Sources",
       exclude: [
-        "ObjC", "Public"
+        "ObjC", "Public",
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
@@ -436,7 +436,7 @@ let package = Package(
       name: "FirebaseAuthInternal",
       path: "FirebaseAuth/Sources",
       exclude: [
-        "Swift", "Resources"
+        "Swift", "Resources",
       ],
       publicHeadersPath: "Public",
       cSettings: [
