@@ -422,7 +422,10 @@ let package = Package(
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
-      path: "FirebaseAuth/Sources/Swift",
+      path: "FirebaseAuth/Sources",
+      exclude: [
+        "ObjC", "Public"
+      ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -433,7 +436,7 @@ let package = Package(
       name: "FirebaseAuthInternal",
       path: "FirebaseAuth/Sources",
       exclude: [
-        "Swift",
+        "Swift", "Resources"
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -585,9 +588,7 @@ let package = Package(
       path: "FirebaseDatabase/Sources",
       exclude: [
         "third_party/Wrap-leveldb/LICENSE",
-        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
-        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
