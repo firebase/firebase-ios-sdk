@@ -109,14 +109,18 @@ import Foundation
                                 accessToken: NSString) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID as String, accessToken: accessToken as String)
   }
-    
-  @available(*, deprecated, message: "Use API with AuthProviderID parameter instead.")
+
+  @available(
+    *,
+    deprecated,
+    message: "Use `credential(providerID: AuthProviderID, accessToken: String) -> OAuthCredential` instead."
+  )
   public static func credential(withProviderID providerID: String,
-                                  accessToken: String) -> OAuthCredential {
+                                accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
   }
 
-  public static func credential(withProviderID providerID: AuthProviderID,
+  public static func credential(providerID: AuthProviderID,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID.rawValue, accessToken: accessToken)
   }

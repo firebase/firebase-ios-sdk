@@ -472,8 +472,16 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let provider = OAuthProvider(providerID: "id", auth: FirebaseAuth.Auth.auth())
     _ = provider.providerID
     #if os(iOS)
+      // The ObjC signature is not available ('credential(withProviderID:accessToken:)' is
+      // unavailable)
+//      let _: (NSString, NSString) -> OAuthCredential =
+//      OAuthProvider.credential(withProviderID:accessToken:)
+      let _: (AuthProviderID, String) -> OAuthCredential = OAuthProvider
+        .credential(providerID:accessToken:)
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToden", accessToken: "token")
       _ = OAuthProvider.credential(withProviderID: "id", accessToken: "token")
+      let _: (String, String) -> OAuthCredential = OAuthProvider
+        .credential(withProviderID:accessToken:)
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
                                    accessToken: "token")
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
