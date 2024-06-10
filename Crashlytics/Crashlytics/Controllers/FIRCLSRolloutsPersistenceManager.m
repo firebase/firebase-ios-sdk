@@ -59,6 +59,7 @@
     if (![_fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
       FIRCLSDebugLog(@"Could not create rollouts.clsrecord file. Error was code: %d - message: %s",
                      errno, strerror(errno));
+      return;
     }
   }
 
@@ -66,6 +67,7 @@
 
   if (!_rolloutsLoggingQueue) {
     FIRCLSDebugLog(@"Rollouts logging queue is dealloccated");
+    return;
   }
 
   dispatch_async(_rolloutsLoggingQueue, ^{
