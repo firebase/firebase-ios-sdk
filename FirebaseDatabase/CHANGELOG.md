@@ -3,6 +3,8 @@
   been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
+- [removed] Socket Rocket has been removed from the implementation. There should
+  be no impact on functionality. (#13100)
 
 # 10.27.0
 - [changed] Update internal socket implementation to use `NSURLSessionWebSocket` where

@@ -553,24 +553,6 @@ typedef enum {
     [self.realtime open];
 }
 
-#if !TARGET_OS_WATCH
-static void reachabilityCallback(SCNetworkReachabilityRef ref,
-                                 SCNetworkReachabilityFlags flags, void *info) {
-    if (flags & kSCNetworkReachabilityFlagsReachable) {
-        FFLog(@"I-RDB034014",
-              @"Network became reachable. Trigger a connection attempt");
-        FPersistentConnection *self = (__bridge FPersistentConnection *)info;
-        // Reset reconnect delay
-        [self.retryHelper signalSuccess];
-        if (self->connectionState == ConnectionStateDisconnected) {
-            [self tryScheduleReconnect];
-        }
-    } else {
-        FFLog(@"I-RDB034015", @"Network is not reachable");
-    }
-}
-#endif // !TARGET_OS_WATCH
-
 - (void)enteringForeground {
     dispatch_async(self.dispatchQueue, ^{
       // Reset reconnect delay
@@ -583,45 +565,15 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 
 - (void)setupNotifications {
 #if TARGET_OS_WATCH
-    if (@available(watchOS 7.0, *)) {
-        __weak FPersistentConnection *weakSelf = self;
-        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-        [center addObserverForName:WKApplicationWillEnterForegroundNotification
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          [weakSelf enteringForeground];
-                        }];
-    }
-#else
-    NSString *const *foregroundConstant = (NSString *const *)dlsym(
-        RTLD_DEFAULT, "UIApplicationWillEnterForegroundNotification");
-    if (foregroundConstant) {
-        [[NSNotificationCenter defaultCenter]
-            addObserver:self
-               selector:@selector(enteringForeground)
-                   name:*foregroundConstant
-                 object:nil];
-    }
-    // An empty address is interpreted a generic internet access
-    struct sockaddr_in zeroAddress;
-    bzero(&zeroAddress, sizeof(zeroAddress));
-    zeroAddress.sin_len = sizeof(zeroAddress);
-    zeroAddress.sin_family = AF_INET;
-    reachability = SCNetworkReachabilityCreateWithAddress(
-        kCFAllocatorDefault, (const struct sockaddr *)&zeroAddress);
-    SCNetworkReachabilityContext ctx = {0, (__bridge void *)(self), NULL, NULL,
-                                        NULL};
-    if (SCNetworkReachabilitySetCallback(reachability, reachabilityCallback,
-                                         &ctx)) {
-        SCNetworkReachabilitySetDispatchQueue(reachability, self.dispatchQueue);
-    } else {
-        FFLog(@"I-RDB034016",
-              @"Failed to set up network reachability monitoring");
-        CFRelease(reachability);
-        reachability = NULL;
-    }
-#endif // !TARGET_OS_WATCH
+    __weak FPersistentConnection *weakSelf = self;
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserverForName:WKApplicationWillEnterForegroundNotification
+                        object:nil
+                         queue:nil
+                    usingBlock:^(NSNotification *_Nonnull note) {
+                      [weakSelf enteringForeground];
+                    }];
+#endif // TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {
