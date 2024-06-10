@@ -4,6 +4,7 @@
   `gemini-1.5-pro` or `gemini-1.5-flash`, or a specific stable version; see
   [available model names](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
   for more details. (#13099)
+- [feature] Added community support for tvOS and visionOS. (#13090, #13092)
 
 # 10.27.0
 - [changed] Removed uses of the `gemini-1.5-pro-preview-0409` model in docs and
