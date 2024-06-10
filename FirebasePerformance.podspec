@@ -58,7 +58,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
 
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
-  s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'FirebaseRemoteConfig', '~> 10.0'
