@@ -18,7 +18,7 @@ jobs:
   spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst, visionOS]
+        target: [iOS, macOS, catalyst, tvOS, visionOS]
         os: [macos-14]
         include:
           - os: macos-14
@@ -43,13 +43,14 @@ jobs:
   spm-integration:
     strategy:
       matrix:
-        target: [macOS]
+        target: [iOS]
         os: [macos-14]
         include:
           - os: macos-14
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     env:
+      TEST_RUNNER_VertexAIRunIntegrationTests: 1
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:

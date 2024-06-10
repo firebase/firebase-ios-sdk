@@ -17,7 +17,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 struct GenerativeAIService {
   /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"

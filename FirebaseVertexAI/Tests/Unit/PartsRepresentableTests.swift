@@ -22,7 +22,7 @@ import XCTest
   import AppKit
 #endif
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 final class PartsRepresentableTests: XCTestCase {
   func testModelContentFromCGImageIsNotEmpty() throws {
     // adapted from https://forums.swift.org/t/creating-a-cgimage-from-color-array/18634/2

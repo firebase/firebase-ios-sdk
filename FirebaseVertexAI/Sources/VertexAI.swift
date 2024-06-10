@@ -21,7 +21,7 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 public class VertexAI: NSObject {
   // MARK: - Public APIs
 
@@ -64,8 +64,8 @@ public class VertexAI: NSObject {
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash-preview-0514"`;
-  ///     see [available model names
+  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash"`; see
+  ///     [available model names
   ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
   ///     list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
