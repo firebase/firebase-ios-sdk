@@ -36,24 +36,17 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
   case downloadSizeExceeded = -13032
   case cancelled = -13040
   case invalidArgument = -13050
+  case bucketMismatch = -13051
+  case internalError = -13052
+  case pathError = -13053
 
   /**
-   * Creates a Firebase Storage error from a specific GCS error and FIRIMPLStorageReference.
+   * Creates a Firebase Storage error from a specific GCS error and StorageReference.
    * @param serverError Server error to wrap and return as a Firebase Storage error.
    * @param ref StorageReference which provides context about the request being made.
    * @return Returns a Firebase Storage error.
    */
   static func error(withServerError serverError: NSError, ref: StorageReference) -> NSError {
-    var errorCode: StorageErrorCode
-    switch serverError.code {
-    case 400: errorCode = .unknown
-    case 401: errorCode = .unauthenticated
-    case 402: errorCode = .quotaExceeded
-    case 403: errorCode = .unauthorized
-    case 404: errorCode = .objectNotFound
-    default: errorCode = .unknown
-    }
-
     var errorDictionary = serverError.userInfo
     errorDictionary["ResponseErrorDomain"] = serverError.domain
     errorDictionary["ResponseErrorCode"] = serverError.code
@@ -66,7 +59,22 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     if let data = (errorDictionary["data"] as? Data) {
       errorDictionary["ResponseBody"] = String(data: data, encoding: .utf8)
     }
-    return error(withCode: errorCode, infoDictionary: errorDictionary)
+    var storageError: StorageError
+    switch serverError.code {
+    case 400: storageError = StorageError.unknown("Unknown 400 error from backend", errorDictionary)
+    case 401: storageError = StorageError.unauthenticated(errorDictionary)
+    case 402: storageError = StorageError.quotaExceeded(ref.path.bucket, errorDictionary)
+    case 403: storageError = StorageError.unauthorized(
+        ref.path.bucket, ref.path.object ?? "<object-entity-internal-error>", errorDictionary
+      )
+    case 404: storageError = StorageError.objectNotFound(
+        ref.path.object ?? "<object-entity-internal-error>", errorDictionary
+      )
+    default: storageError = StorageError.unknown(
+        "Unexpected \(serverError.code) code from backend", errorDictionary
+      )
+    }
+    return storageError as NSError
   }
 
   /** Creates a Firebase Storage error from an invalid request.
@@ -82,71 +90,18 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
       requestString = "<nil request returned from server>"
     }
     let invalidDataString = "Invalid data returned from the server:\(requestString)"
-    return error(
-      withCode: .unknown,
-      infoDictionary: [NSLocalizedFailureErrorKey: invalidDataString]
-    )
-  }
-
-  /**
-   * Creates a Firebase Storage error from a specific FIRStorageErrorCode while adding
-   * custom info from an optionally provided info dictionary.
-   */
-  static func error(withCode code: StorageErrorCode,
-                    infoDictionary: [String: Any]? = nil) -> NSError {
-    var dictionary = infoDictionary ?? [:]
-    var errorMessage: String
-    switch code {
-    case .objectNotFound:
-      let object = dictionary["object"] ?? "<object-entity-internal-error>"
-      errorMessage = "Object \(object) does not exist."
-    case .bucketNotFound:
-      let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
-      errorMessage = "Bucket \(bucket) does not exist."
-    case .projectNotFound:
-      let project = dictionary["project"] ?? "<project-entity-internal-error>"
-      errorMessage = "Project \(project) does not exist."
-    case .quotaExceeded:
-      let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
-      errorMessage =
-        "Quota for bucket \(bucket) exceeded, please view quota on firebase.google.com."
-    case .downloadSizeExceeded:
-      let total = "\(dictionary["totalSize"] ?? "unknown")"
-      let size = "\(dictionary["maxAllowedSize"] ?? "unknown")"
-      errorMessage = "Attempted to download object with size of \(total) bytes, " +
-        "which exceeds the maximum size of \(size) bytes. " +
-        "Consider raising the maximum download size, or using StorageReference.write"
-    case .unauthenticated:
-      errorMessage = "User is not authenticated, please authenticate using Firebase " +
-        "Authentication and try again."
-    case .unauthorized:
-      let bucket = dictionary["bucket"] ?? "<bucket-entity-internal-error>"
-      let object = dictionary["object"] ?? "<object-entity-internal-error>"
-      errorMessage = "User does not have permission to access gs://\(bucket)/\(object)."
-    case .retryLimitExceeded:
-      errorMessage = "Max retry time for operation exceeded, please try again."
-    case .nonMatchingChecksum:
-      // TODO: replace with actual checksum strings when we choose to implement.
-      errorMessage = "Uploaded/downloaded object TODO has checksum: TODO " +
-        "which does not match server checksum: TODO. Please retry the upload/download."
-    case .cancelled:
-      errorMessage = "User cancelled the upload/download."
-    case .unknown, .invalidArgument: // invalidArgument fell through in the old Objective-C code.
-      errorMessage = "An unknown error occurred, please check the server response."
-    }
-    dictionary[NSLocalizedDescriptionKey] = errorMessage
-    return NSError(domain: StorageErrorDomain, code: code.rawValue, userInfo: dictionary)
+    return StorageError.internalError(invalidDataString) as NSError
   }
 }
 
-public enum StorageError: Error {
-  case unknown(String)
-  case objectNotFound(String)
+public enum StorageError: Error, CustomNSError {
+  case unknown(String, [String: Any])
+  case objectNotFound(String, [String: Any])
   case bucketNotFound(String)
   case projectNotFound(String)
-  case quotaExceeded(String)
-  case unauthenticated
-  case unauthorized(String, String)
+  case quotaExceeded(String, [String: Any])
+  case unauthenticated([String: Any])
+  case unauthorized(String, String, [String: Any])
   case retryLimitExceeded
   case nonMatchingChecksum
   case downloadSizeExceeded(Int64, Int64)
@@ -156,68 +111,100 @@ public enum StorageError: Error {
   case bucketMismatch(String)
   case pathError(String)
 
-  static func swiftConvert(objcError: NSError) -> StorageError {
-    let userInfo = objcError.userInfo
+  // MARK: - CustomNSError
 
-    switch objcError.code {
-    case StorageErrorCode.unknown.rawValue:
-      return StorageError.unknown(objcError.localizedDescription)
-    case StorageErrorCode.objectNotFound.rawValue:
-      guard let object = userInfo["object"] as? String else {
-        return StorageError
-          .internalError(
-            "Failed to decode object not found error: \(objcError.localizedDescription)"
-          )
-      }
-      return StorageError.objectNotFound(object)
-    case StorageErrorCode.bucketNotFound.rawValue:
-      guard let bucket = userInfo["bucket"] as? String else {
-        return StorageError
-          .internalError(
-            "Failed to decode bucket not found error: \(objcError.localizedDescription)"
-          )
-      }
-      return StorageError.bucketNotFound(bucket)
-    case StorageErrorCode.projectNotFound.rawValue:
-      guard let project = userInfo["project"] as? String else {
-        return StorageError
-          .internalError(
-            "Failed to decode project not found error: \(objcError.localizedDescription)"
-          )
-      }
-      return StorageError.projectNotFound(project)
-    case StorageErrorCode.quotaExceeded.rawValue:
-      guard let bucket = userInfo["bucket"] as? String else {
-        return StorageError
-          .internalError("Failed to decode quota exceeded error: \(objcError.localizedDescription)")
-      }
-      return StorageError.quotaExceeded(bucket)
-    case StorageErrorCode.unauthenticated.rawValue: return StorageError.unauthenticated
-    case StorageErrorCode.unauthorized.rawValue:
-      guard let bucket = userInfo["bucket"] as? String,
-            let object = userInfo["object"] as? String else {
-        return StorageError
-          .internalError(
-            "Failed to decode unauthorized error: \(objcError.localizedDescription)"
-          )
-      }
-      return StorageError.unauthorized(bucket, object)
-    case StorageErrorCode.retryLimitExceeded.rawValue: return StorageError.retryLimitExceeded
-    case StorageErrorCode.nonMatchingChecksum.rawValue: return StorageError
-      .nonMatchingChecksum
-    case StorageErrorCode.downloadSizeExceeded.rawValue:
-      guard let total = userInfo["totalSize"] as? Int64,
-            let maxSize = userInfo["maxAllowedSize"] as? Int64 else {
-        return StorageError
-          .internalError(
-            "Failed to decode downloadSizeExceeded error: \(objcError.localizedDescription)"
-          )
-      }
-      return StorageError.downloadSizeExceeded(total, maxSize)
-    case StorageErrorCode.cancelled.rawValue: return StorageError.cancelled
-    case StorageErrorCode.invalidArgument.rawValue: return StorageError
-      .invalidArgument(objcError.localizedDescription)
-    default: return StorageError.internalError("Internal error converting ObjC Error to Swift")
+  /// Default domain of the error.
+  public static var errorDomain: String { return StorageErrorDomain }
+
+  /// The error code within the given domain.
+  public var errorCode: Int {
+    switch self {
+    case .unknown:
+      return StorageErrorCode.unknown.rawValue
+    case .objectNotFound:
+      return StorageErrorCode.objectNotFound.rawValue
+    case .bucketNotFound:
+      return StorageErrorCode.bucketNotFound.rawValue
+    case .projectNotFound:
+      return StorageErrorCode.projectNotFound.rawValue
+    case .quotaExceeded:
+      return StorageErrorCode.quotaExceeded.rawValue
+    case .unauthenticated:
+      return StorageErrorCode.unauthenticated.rawValue
+    case .unauthorized:
+      return StorageErrorCode.unauthorized.rawValue
+    case .retryLimitExceeded:
+      return StorageErrorCode.retryLimitExceeded.rawValue
+    case .nonMatchingChecksum:
+      return StorageErrorCode.nonMatchingChecksum.rawValue
+    case .downloadSizeExceeded:
+      return StorageErrorCode.downloadSizeExceeded.rawValue
+    case .cancelled:
+      return StorageErrorCode.cancelled.rawValue
+    case .invalidArgument:
+      return StorageErrorCode.invalidArgument.rawValue
+    case .internalError:
+      return StorageErrorCode.internalError.rawValue
+    case .bucketMismatch:
+      return StorageErrorCode.bucketMismatch.rawValue
+    case .pathError:
+      return StorageErrorCode.pathError.rawValue
+    }
+  }
+
+  /// The default user-info dictionary.
+  public var errorUserInfo: [String: Any] {
+    switch self {
+    case let .unknown(message, serverError):
+      var dictionary = serverError
+      dictionary[NSLocalizedDescriptionKey] = message
+      return dictionary
+    case let .objectNotFound(object, serverError):
+      var dictionary = serverError
+      dictionary[NSLocalizedDescriptionKey] = "Object \(object) does not exist."
+      return dictionary
+    case let .bucketNotFound(bucket):
+      return [NSLocalizedDescriptionKey: "Bucket \(bucket) does not exist."]
+    case let .projectNotFound(project):
+      return [NSLocalizedDescriptionKey: "Project \(project) does not exist."]
+    case let .quotaExceeded(bucket, serverError):
+      var dictionary = serverError
+      dictionary[NSLocalizedDescriptionKey] =
+        "Quota for bucket \(bucket) exceeded, please view quota on firebase.google.com."
+      return dictionary
+    case let .unauthenticated(serverError):
+      var dictionary = serverError
+      dictionary[NSLocalizedDescriptionKey] = "User is not authenticated, please " +
+        "authenticate using Firebase Authentication and try again."
+      return dictionary
+    case let .unauthorized(bucket, object, serverError):
+      var dictionary = serverError
+      dictionary[NSLocalizedDescriptionKey] =
+        "User does not have permission to access gs://\(bucket)/\(object)."
+      return dictionary
+    case .retryLimitExceeded:
+      return [NSLocalizedDescriptionKey: "Max retry time for operation exceeded, please try again."]
+    case .nonMatchingChecksum:
+      // TODO: replace with actual checksum strings when we choose to implement.
+      return [NSLocalizedDescriptionKey: "Uploaded/downloaded object TODO has checksum: TODO " +
+        "which does not match server checksum: TODO. Please retry the upload/download."]
+    case let .downloadSizeExceeded(total, maxSize):
+      var dictionary: [String: Any] = ["totalSize": total, "maxAllowedSize": maxSize]
+      dictionary[NSLocalizedDescriptionKey] = "Attempted to download object with size of " +
+        "\(total) bytes, " +
+        "which exceeds the maximum size of \(maxSize) bytes. " +
+        "Consider raising the maximum download maxSize, or using StorageReference.write"
+      return dictionary
+    case .cancelled:
+      return [NSLocalizedDescriptionKey: "User cancelled the upload/download."]
+    case let .invalidArgument(message):
+      return [NSLocalizedDescriptionKey: message]
+    case let .internalError(message):
+      return [NSLocalizedDescriptionKey: message]
+    case let .bucketMismatch(message):
+      return [NSLocalizedDescriptionKey: message]
+    case let .pathError(message):
+      return [NSLocalizedDescriptionKey: message]
     }
   }
 }

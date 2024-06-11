@@ -67,8 +67,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    * Cancels a task.
    */
   @objc open func cancel() {
-    let error = StorageErrorCode.error(withCode: .cancelled)
-    cancel(withError: error)
+    cancel(withError: StorageError.cancelled as NSError)
   }
 
   /**

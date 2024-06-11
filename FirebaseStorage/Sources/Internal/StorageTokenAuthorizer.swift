@@ -45,12 +45,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
           var errorDictionary = error.userInfo
           errorDictionary["ResponseErrorDomain"] = error.domain
           errorDictionary["ResponseErrorCode"] = error.code
-          errorDictionary[NSLocalizedDescriptionKey] =
-            "User is not authenticated, please authenticate" +
-            " using Firebase Authentication and try again."
-          tokenError = NSError(domain: "FIRStorageErrorDomain",
-                               code: StorageErrorCode.unauthenticated.rawValue,
-                               userInfo: errorDictionary)
+          tokenError = StorageError.unauthenticated(errorDictionary) as NSError
         } else if let token {
           let firebaseToken = "Firebase \(token)"
           request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")

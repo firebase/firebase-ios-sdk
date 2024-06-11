@@ -201,7 +201,7 @@ class StorageResultTests: StorageIntegrationCommon {
         XCTFail("Unexpected success from unauthorized putData")
       case let .failure(error as StorageError):
         switch error {
-        case let .unauthorized(bucket, object):
+        case let .unauthorized(bucket, object, serverError):
           XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
           XCTAssertEqual(object, file)
           expectation.fulfill()

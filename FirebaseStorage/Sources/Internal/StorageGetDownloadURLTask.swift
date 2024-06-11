@@ -74,10 +74,10 @@ class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
              .jsonObject(with: data) as? [String: Any] {
             downloadURL = self.downloadURLFromMetadataDictionary(responseDictionary)
             if downloadURL == nil {
-              self.error = NSError(domain: StorageErrorDomain,
-                                   code: StorageErrorCode.unknown.rawValue,
-                                   userInfo: [NSLocalizedDescriptionKey:
-                                     "Failed to retrieve a download URL."])
+              self.error = StorageError.unknown(
+                "Failed to retrieve a download URL.",
+                [:]
+              ) as NSError
             }
           } else {
             self.error = StorageErrorCode.error(withInvalidRequest: data)

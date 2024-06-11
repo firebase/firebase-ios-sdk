@@ -399,11 +399,9 @@ import Foundation
   open func list(maxResults: Int64,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
-      completion(nil,
-                 NSError(domain: StorageErrorDomain,
-                         code: StorageErrorCode.invalidArgument.rawValue,
-                         userInfo: [NSLocalizedDescriptionKey:
-                           "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
+      completion(nil, StorageError.invalidArgument(
+        "Argument 'maxResults' must be between 1 and 1000 inclusive."
+      ))
     } else {
       let fetcherService = storage.fetcherServiceForApp
       let task = StorageListTask(reference: self,
@@ -437,11 +435,9 @@ import Foundation
                  pageToken: String,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
-      completion(nil,
-                 NSError(domain: StorageErrorDomain,
-                         code: StorageErrorCode.invalidArgument.rawValue,
-                         userInfo: [NSLocalizedDescriptionKey:
-                           "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
+      completion(nil, StorageError.invalidArgument(
+        "Argument 'maxResults' must be between 1 and 1000 inclusive."
+      ))
     } else {
       let fetcherService = storage.fetcherServiceForApp
       let task = StorageListTask(reference: self,
@@ -584,11 +580,7 @@ import Foundation
   /// For maxSize API, return an error if the size is exceeded.
   private func checkSizeOverflow(task: StorageTask, maxSize: Int64) -> NSError? {
     if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
-      return StorageErrorCode.error(withCode: .downloadSizeExceeded,
-                                    infoDictionary: [
-                                      "totalSize": task.progress.totalUnitCount,
-                                      "maxAllowedSize": maxSize,
-                                    ])
+      return StorageError.downloadSizeExceeded(task.progress.totalUnitCount, maxSize) as NSError
     }
     return nil
   }
