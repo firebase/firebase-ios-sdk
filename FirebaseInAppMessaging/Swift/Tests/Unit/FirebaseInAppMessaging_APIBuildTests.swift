@@ -23,6 +23,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
   func usage() throws {
     let inAppMessaging = FirebaseInAppMessaging.InAppMessaging.inAppMessaging()
 
+    let _: String = InAppMessagingErrorDomain
+
     do {
       try throwError() // Call a throwing method to suppress warnings.
     } catch InAppMessagingDisplayRenderError.imageDataInvalid {
