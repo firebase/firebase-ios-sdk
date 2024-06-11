@@ -1,4 +1,4 @@
-# Unreleased
+# 10.28.0
 - Fix Crash from InstrumentUploadTaskWithStreamedRequest (#12983).
 - Replace SystemConfiguration with a more available network monitoring API by Apple (#13079).
 
