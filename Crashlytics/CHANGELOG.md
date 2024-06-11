@@ -1,4 +1,4 @@
-# # Unreleased
+# # 10.28.0
 - [fixed] Created a new queue for rollouts persistence writes and made sure rollouts logging queue is not nil while dispatching (#12913).
 
 # 10.27.0
