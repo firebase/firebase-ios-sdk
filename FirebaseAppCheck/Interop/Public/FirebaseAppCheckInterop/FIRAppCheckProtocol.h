@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRAppCheckToken;
+@protocol FIRAppCheckTokenProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,8 +38,8 @@ NS_SWIFT_NAME(AppCheckProtocol)
 /// @param handler The completion handler. Includes the app check token if the request succeeds,
 /// or an error if the request fails.
 - (void)tokenForcingRefresh:(BOOL)forcingRefresh
-                 completion:
-                     (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
+                 completion:(void (^)(id<FIRAppCheckTokenProtocol> _Nullable token,
+                                      NSError *_Nullable error))handler
     NS_SWIFT_NAME(token(forcingRefresh:completion:));
 
 /// Requests a limited-use Firebase App Check token. This method should be used only if you need to
@@ -50,7 +50,7 @@ NS_SWIFT_NAME(AppCheckProtocol)
 /// Protection](https://firebase.google.com/docs/app-check/custom-resource-backend#replay-protection).
 /// This method does not affect the token generation behavior of the
 /// ``tokenForcingRefresh()`` method.
-- (void)limitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
+- (void)limitedUseTokenWithCompletion:(void (^)(id<FIRAppCheckTokenProtocol> _Nullable token,
                                                 NSError *_Nullable error))handler;
 
 @end
