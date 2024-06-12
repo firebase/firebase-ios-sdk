@@ -100,7 +100,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
   NSString *identifier = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
 
   return
-      [FBLPromise wrapBoolOrErrorCompletion:^(FBLPromiseBoolOrErrorCompletion _Nonnull handler) {
+      [FBLPromise wrapErrorCompletion:^(FBLPromiseErrorCompletion _Nonnull handler) {
         [self.secureStorage removeObjectForKey:identifier
                                    accessGroup:self.accessGroup
                              completionHandler:handler];
