@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#import <Foundation/Foundation.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(AppCheckTokenProtocol)
@@ -25,4 +28,5 @@ NS_SWIFT_NAME(AppCheckTokenProtocol)
 @property(nonatomic, readonly) NSDate *expirationDate;
 
 @end
+
 NS_ASSUME_NONNULL_END
