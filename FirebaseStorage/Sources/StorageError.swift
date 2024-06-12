@@ -89,8 +89,8 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     } else {
       requestString = "<nil request returned from server>"
     }
-    let invalidDataString = "Invalid data returned from the server:\(requestString)"
-    return StorageError.internalError(invalidDataString) as NSError
+    let invalidDataString = "Invalid data returned from the server: \(requestString)"
+    return StorageError.unknown(invalidDataString, [:]) as NSError
   }
 }
 

@@ -181,7 +181,9 @@ class StorageGetMetadataTests: StorageTestHelpers {
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { metadata, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unknown.rawValue)
+      XCTAssertNil(metadata)
+      let nsError = try! XCTUnwrap(error as? NSError)
+      XCTAssertEqual(nsError.code, StorageErrorCode.unknown.rawValue)
       expectation.fulfill()
     }
     task.enqueue()
