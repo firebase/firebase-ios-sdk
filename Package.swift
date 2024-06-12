@@ -23,7 +23,7 @@ let firebaseVersion = "11.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v12), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
+  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -86,10 +86,6 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwiftTarget"]
-    ),
-    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -129,7 +125,7 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/google/promises.git",
-      "2.1.0" ..< "3.0.0"
+      "2.4.0" ..< "3.0.0"
     ),
     .package(
       url: "https://github.com/apple/swift-protobuf.git",
@@ -138,7 +134,9 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.3.0" ..< "10.0.0"
+      branch: "release-10.0"
+      // TODO: Update to 10.0.0 when ready.
+      // "10.0.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
@@ -148,7 +146,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "2.1.0" ..< "4.0.0"
+      "3.4.1" ..< "4.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
@@ -177,7 +175,10 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git",
+             branch: "release-11.0"),
+    // TODO: Update to 11.0.0 when ready.
+    // "11.0.0" ..< "12.0.0",
   ],
   targets: [
     .target(
@@ -421,7 +422,10 @@ let package = Package(
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
-      path: "FirebaseAuth/Sources/Swift",
+      path: "FirebaseAuth/Sources",
+      exclude: [
+        "ObjC", "Public",
+      ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -432,7 +436,7 @@ let package = Package(
       name: "FirebaseAuthInternal",
       path: "FirebaseAuth/Sources",
       exclude: [
-        "Swift",
+        "Swift", "Resources",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -474,7 +478,6 @@ let package = Package(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -585,9 +588,7 @@ let package = Package(
       path: "FirebaseDatabase/Sources",
       exclude: [
         "third_party/Wrap-leveldb/LICENSE",
-        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
-        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -668,21 +669,6 @@ let package = Package(
     ),
 
     firestoreWrapperTarget(),
-    .target(
-      name: "FirebaseFirestoreSwiftTarget",
-      dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
-                                                          .visionOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
-    ),
-
-    .target(
-      name: "FirebaseFirestoreSwift",
-      dependencies: [
-        "FirebaseFirestoreTarget",
-      ],
-      path: "FirebaseFirestoreSwift/Sources"
-    ),
 
     // MARK: - Firebase Functions
 
@@ -1178,7 +1164,6 @@ let package = Package(
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),

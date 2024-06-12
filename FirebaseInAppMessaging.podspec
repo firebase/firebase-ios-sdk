@@ -85,7 +85,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseABTesting', '~> 11.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
+  s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }
