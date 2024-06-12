@@ -94,22 +94,23 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
   }
 }
 
+/// Firebase Storage errors
 public enum StorageError: Error, CustomNSError {
-  case unknown(String, [String: Any])
-  case objectNotFound(String, [String: Any])
-  case bucketNotFound(String)
-  case projectNotFound(String)
-  case quotaExceeded(String, [String: Any])
-  case unauthenticated([String: Any])
-  case unauthorized(String, String, [String: Any])
+  case unknown(_ message: String, _ serverError: [String: Any])
+  case objectNotFound(_ object: String, _ serverError: [String: Any])
+  case bucketNotFound(_ bucket: String)
+  case projectNotFound(_ project: String)
+  case quotaExceeded(_ bucket: String, _ serverError: [String: Any])
+  case unauthenticated(_ serverError: [String: Any])
+  case unauthorized(_ bucket: String, _ object: String, _ serverError: [String: Any])
   case retryLimitExceeded
   case nonMatchingChecksum
-  case downloadSizeExceeded(Int64, Int64)
+  case downloadSizeExceeded(_ total: Int64, _ maxSize: Int64)
   case cancelled
-  case invalidArgument(String)
-  case internalError(String)
-  case bucketMismatch(String)
-  case pathError(String)
+  case invalidArgument(_ message: String)
+  case internalError(_ message: String)
+  case bucketMismatch(_ message: String)
+  case pathError(_ message: String)
 
   // MARK: - CustomNSError
 
