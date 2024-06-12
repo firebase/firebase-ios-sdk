@@ -189,7 +189,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
-      "100.0.0" ..< "101.0.0"
+      branch: "ah/app-check-interop"
     ),
     .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
   ],
@@ -436,8 +436,8 @@ let package = Package(
     .target(
       name: "FirebaseAuth",
       dependencies: [
-        "FirebaseAppCheckInterop",
         "FirebaseCore",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
@@ -596,9 +596,9 @@ let package = Package(
     .target(
       name: "FirebaseDatabaseInternal",
       dependencies: [
-        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseDatabase/Sources",
@@ -717,23 +717,25 @@ let package = Package(
     .target(
       name: "FirebaseFunctions",
       dependencies: [
-        "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseMessagingInterop",
         "FirebaseSharedSwift",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
       path: "FirebaseFunctions/Sources"
     ),
     .testTarget(
       name: "FirebaseFunctionsUnit",
-      dependencies: ["FirebaseFunctions",
-                     "FirebaseAppCheckInterop",
-                     "FirebaseAuthInterop",
-                     "FirebaseMessagingInterop",
-                     "SharedTestUtilities"],
+      dependencies: [
+        "FirebaseFunctions",
+        "FirebaseAuthInterop",
+        "FirebaseMessagingInterop",
+        "SharedTestUtilities",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+      ],
       path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
@@ -977,12 +979,14 @@ let package = Package(
 
     .target(
       name: "SharedTestUtilities",
-      dependencies: ["FirebaseCore",
-                     "FirebaseAppCheckInterop",
-                     "FirebaseAuthInterop",
-                     "FirebaseMessagingInterop",
-                     "GoogleDataTransport",
-                     .product(name: "OCMock", package: "ocmock")],
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseAuthInterop",
+        "FirebaseMessagingInterop",
+        "GoogleDataTransport",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+        .product(name: "OCMock", package: "ocmock"),
+      ],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
       cSettings: [
@@ -1168,10 +1172,10 @@ let package = Package(
     .target(
       name: "FirebaseStorage",
       dependencies: [
-        "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
@@ -1287,10 +1291,10 @@ let package = Package(
 
     .target(name: "FirebaseAppCheck",
             dependencies: [
-              "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "FBLPromises", package: "Promises"),
+              .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
@@ -1305,18 +1309,6 @@ let package = Package(
                 .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
               ),
             ]),
-    // Internal headers only for consuming from Swift.
-    .target(
-      name: "FirebaseAppCheckInterop",
-      path: "FirebaseAppCheck/Interop",
-      exclude: [
-        "CMakeLists.txt",
-      ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
     .testTarget(
       name: "FirebaseAppCheckUnit",
       dependencies: [
@@ -1366,10 +1358,10 @@ let package = Package(
     .target(
       name: "FirebaseVertexAI",
       dependencies: [
-        "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseVertexAI/Sources"
     ),
@@ -1472,12 +1464,12 @@ func firestoreTargets() -> [Target] {
       .target(
         name: "FirebaseFirestoreInternalWrapper",
         dependencies: [
-          "FirebaseAppCheckInterop",
           "FirebaseCore",
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
           .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
           .product(name: "gRPC-cpp", package: "grpc-ios"),
+          .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         ],
         path: "Firestore",
         exclude: [
@@ -1604,7 +1596,7 @@ func firestoreTargets() -> [Target] {
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
         ),
         .product(name: "nanopb", package: "nanopb"),
-        "FirebaseAppCheckInterop",
+        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         "FirebaseCore",
         "FirebaseCoreExtension",
         "leveldb",
