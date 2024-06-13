@@ -21,7 +21,9 @@ import Foundation
 #endif
 
 private import FirebaseCore
+
 private import FirebaseCoreExtension
+
 private import FirebaseCoreInternal
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

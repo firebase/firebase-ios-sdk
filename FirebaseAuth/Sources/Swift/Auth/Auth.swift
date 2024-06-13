@@ -24,14 +24,18 @@
 public import FirebaseCore
 
 private import FirebaseAppCheckInterop
+
 private import FirebaseAuthInterop
+
 private import FirebaseCoreExtension
+
 private import Foundation
 
 #if COCOAPODS
   private import GoogleUtilities
 #else
   private import GoogleUtilities_AppDelegateSwizzler
+
   private import GoogleUtilities_Environment
 #endif
 

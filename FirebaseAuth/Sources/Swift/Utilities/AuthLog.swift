@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+
 private import FirebaseCoreExtension
 
 enum AuthLog {
