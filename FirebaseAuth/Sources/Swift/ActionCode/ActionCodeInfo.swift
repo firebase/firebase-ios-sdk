@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// Manages information regarding action codes.
 @objc(FIRActionCodeInfo) open class ActionCodeInfo: NSObject {

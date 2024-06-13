@@ -14,15 +14,16 @@
 
 #if !os(macOS) && !os(watchOS)
   import Foundation
-  import UIKit
+
+  private import UIKit
 
   // TODO: This may be needed for extension detecting support
-  // @_implementationOnly import FirebaseCoreExtension
+  // private import FirebaseCoreExtension
 
   #if SWIFT_PACKAGE
-    @_implementationOnly import GoogleUtilities_Environment
+    private import GoogleUtilities_Environment
   #else
-    @_implementationOnly import GoogleUtilities
+    private import GoogleUtilities
   #endif // SWIFT_PACKAGE
 
   // Protocol to help with unit tests.

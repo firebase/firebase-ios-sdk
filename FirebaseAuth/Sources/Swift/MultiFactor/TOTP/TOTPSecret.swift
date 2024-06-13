@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
+
 #if COCOAPODS
-  @_implementationOnly import GoogleUtilities
+  private import GoogleUtilities
 #else
-  @_implementationOnly import GoogleUtilities_Environment
+  private import GoogleUtilities_Environment
 #endif
 
 #if os(iOS)

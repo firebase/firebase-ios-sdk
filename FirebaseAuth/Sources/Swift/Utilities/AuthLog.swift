@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCoreExtension
 import Foundation
+private import FirebaseCoreExtension
 
 enum AuthLog {
   static func logInfo(code: String, message: String) {

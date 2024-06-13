@@ -16,8 +16,9 @@
 
   import Foundation
   import SafariServices
-  import UIKit
-  import WebKit
+
+  private import UIKit
+  private import WebKit
 
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

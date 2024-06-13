@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #if !os(watchOS)
-  import Foundation
-  import GameKit
+  public import Foundation
+
+  private import GameKit
 
   // TODO: Delete this when minimum iOS version passes 13.5.
   /// WarningWorkaround is needed because playerID is deprecated in iOS 13.0 but still needed until

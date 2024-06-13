@@ -427,6 +427,10 @@ let package = Package(
         "ObjC", "Public",
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: [
+        .enableExperimentalFeature("AccessLevelOnImport"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),

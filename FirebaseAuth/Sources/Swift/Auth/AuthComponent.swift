@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
+import Foundation
+
+private import FirebaseAppCheckInterop
+private import FirebaseAuthInterop
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthComponent)

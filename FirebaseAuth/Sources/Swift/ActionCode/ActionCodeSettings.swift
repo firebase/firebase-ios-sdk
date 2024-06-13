@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// Used to set and retrieve settings related to handling action codes.
 @objc(FIRActionCodeSettings) open class ActionCodeSettings: NSObject {

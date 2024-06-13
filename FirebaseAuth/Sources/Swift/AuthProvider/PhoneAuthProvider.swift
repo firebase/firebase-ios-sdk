@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
-import Foundation
+public import Foundation
+
+private import FirebaseCore
 
 /// A concrete implementation of `AuthProvider` for phone auth providers.
 ///

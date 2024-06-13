@@ -12,27 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseCore
-import FirebaseCoreExtension
-#if COCOAPODS
-  @_implementationOnly import GoogleUtilities
-#else
-  @_implementationOnly import GoogleUtilities_AppDelegateSwizzler
-  @_implementationOnly import GoogleUtilities_Environment
-#endif
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-  import UIKit
+  public import UIKit
 #endif
 
 // Export the deprecated Objective-C defined globals and typedefs.
 #if SWIFT_PACKAGE
-  @_exported import FirebaseAuthInternal
+  @_exported public import FirebaseAuthInternal
 #endif // SWIFT_PACKAGE
+
+public import FirebaseCore
+
+private import FirebaseAppCheckInterop
+private import FirebaseAuthInterop
+private import FirebaseCoreExtension
+private import Foundation
+
+#if COCOAPODS
+  private import GoogleUtilities
+#else
+  private import GoogleUtilities_AppDelegateSwizzler
+  private import GoogleUtilities_Environment
+#endif
 
 #if os(iOS)
   @available(iOS 13.0, *)

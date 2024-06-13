@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// This class will allow developers to easily extract information about out of band links.
 @objc(FIRActionCodeURL) open class ActionCodeURL: NSObject {

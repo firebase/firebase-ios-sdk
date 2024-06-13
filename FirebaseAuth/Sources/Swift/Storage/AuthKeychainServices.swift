@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCoreExtension
 import Foundation
+
+private import FirebaseCoreExtension
 
 /// The prefix string for keychain item account attribute before the key.
 ///
