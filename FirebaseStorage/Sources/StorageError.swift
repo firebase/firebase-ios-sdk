@@ -59,26 +59,25 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     if let data = (errorDictionary["data"] as? Data) {
       errorDictionary["ResponseBody"] = String(data: data, encoding: .utf8)
     }
-    var storageError: StorageError
-    switch serverError.code {
-    case 400: storageError = StorageError.unknown(
+    let storageError = switch serverError.code {
+    case 400: StorageError.unknown(
         message: "Unknown 400 error from backend",
         serverError: errorDictionary
       )
-    case 401: storageError = StorageError.unauthenticated(serverError: errorDictionary)
-    case 402: storageError = StorageError.quotaExceeded(
+    case 401: StorageError.unauthenticated(serverError: errorDictionary)
+    case 402: StorageError.quotaExceeded(
         bucket: ref.path.bucket,
         serverError: errorDictionary
       )
-    case 403: storageError = StorageError.unauthorized(
+    case 403: StorageError.unauthorized(
         bucket: ref.path.bucket,
         object: ref.path.object ?? "<object-entity-internal-error>",
         serverError: errorDictionary
       )
-    case 404: storageError = StorageError.objectNotFound(
+    case 404: StorageError.objectNotFound(
         object: ref.path.object ?? "<object-entity-internal-error>", serverError: errorDictionary
       )
-    default: storageError = StorageError.unknown(
+    default: StorageError.unknown(
         message: "Unexpected \(serverError.code) code from backend", serverError: errorDictionary
       )
     }
