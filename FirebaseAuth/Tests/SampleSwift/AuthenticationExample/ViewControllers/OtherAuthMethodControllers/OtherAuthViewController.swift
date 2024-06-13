@@ -17,7 +17,7 @@ import UIKit
 /// Base UIViewController Class for presenting auth flows defined in
 /// [OtherAuthMethods](x-source-tag://OtherAuthMethods)
 class OtherAuthViewController: UIViewController {
-  weak var delegate: LoginDelegate?
+  weak var delegate: (any LoginDelegate)?
 
   lazy var textField: UITextField = {
     let textField = UITextField()
@@ -183,7 +183,7 @@ class OtherAuthViewController: UIViewController {
   }
 
   override func viewWillTransition(to size: CGSize,
-                                   with coordinator: UIViewControllerTransitionCoordinator) {
+                                   with coordinator: any UIViewControllerTransitionCoordinator) {
     super.viewWillTransition(to: size, with: coordinator)
     textFieldTopConstraint.constant = UIDevice.current.orientation.isLandscape ? 10 : 60
     buttonTopConstraint.constant = UIDevice.current.orientation.isLandscape ? 15 : 110

@@ -16,7 +16,7 @@ import FirebaseAuth
 import UIKit
 
 class LoginController: UIViewController {
-  weak var delegate: LoginDelegate?
+  weak var delegate: (any LoginDelegate)?
 
   private var loginView: LoginView { view as! LoginView }
 
@@ -108,7 +108,7 @@ class LoginController: UIViewController {
   }
 
   override func viewWillTransition(to size: CGSize,
-                                   with coordinator: UIViewControllerTransitionCoordinator) {
+                                   with coordinator: any UIViewControllerTransitionCoordinator) {
     super.viewWillTransition(to: size, with: coordinator)
     loginView.emailTopConstraint.constant = UIDevice.current.orientation.isLandscape ? 15 : 50
     loginView.passwordTopConstraint.constant = UIDevice.current.orientation.isLandscape ? 5 : 20

@@ -348,7 +348,7 @@ class AuthMenuData: DataSourceProvidable {
     return Section(headerDescription: header, items: items)
   }
 
-  static var sections: [Section] =
+  static let sections: [Section] =
     [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
      customAuthDomainSection, appSection, oobSection, multifactorSection]
 

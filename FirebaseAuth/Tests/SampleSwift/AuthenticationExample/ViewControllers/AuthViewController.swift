@@ -567,7 +567,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func requestVerifyEmail() {
     showSpinner()
-    let completionHandler: (Error?) -> Void = { [weak self] error in
+    let completionHandler: ((any Error)?) -> Void = { [weak self] error in
       guard let self = self else { return }
       self.hideSpinner()
 
@@ -599,7 +599,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     showTextInputPrompt(with: "Email:", completion: { email in
       print("Sending password reset link to: \(email)")
       self.showSpinner()
-      let completionHandler: (Error?) -> Void = { [weak self] error in
+      let completionHandler: ((any Error)?) -> Void = { [weak self] error in
         guard let self = self else { return }
         self.hideSpinner()
         if let error = error {
@@ -628,7 +628,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func resetPassword() {
     showSpinner()
-    let completionHandler: (Error?) -> Void = { [weak self] error in
+    let completionHandler: ((any Error)?) -> Void = { [weak self] error in
       guard let self = self else { return }
       self.hideSpinner()
       if let error = error {
@@ -673,7 +673,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func checkActionCode() {
     showSpinner()
-    let completionHandler: (ActionCodeInfo?, Error?) -> Void = { [weak self] info, error in
+    let completionHandler: (ActionCodeInfo?, (any Error)?) -> Void = { [weak self] info, error in
       guard let self = self else { return }
       self.hideSpinner()
       if let error = error {
@@ -696,7 +696,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func applyActionCode() {
     showSpinner()
-    let completionHandler: (Error?) -> Void = { [weak self] error in
+    let completionHandler: ((any Error)?) -> Void = { [weak self] error in
       guard let self = self else { return }
       self.hideSpinner()
       if let error = error {
@@ -715,7 +715,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func verifyPasswordResetCode() {
     showSpinner()
-    let completionHandler: (String?, Error?) -> Void = { [weak self] email, error in
+    let completionHandler: (String?, (any Error)?) -> Void = { [weak self] email, error in
       guard let self = self else { return }
       self.hideSpinner()
       if let error = error {
@@ -1123,7 +1123,7 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
   }
 
   func authorizationController(controller: ASAuthorizationController,
-                               didCompleteWithError error: Error) {
+                               didCompleteWithError error: any Error) {
     // Ensure that you have:
     //  - enabled `Sign in with Apple` on the Firebase console
     //  - added the `Sign in with Apple` capability for this project

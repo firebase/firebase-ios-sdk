@@ -76,7 +76,7 @@ public extension UIViewController {
     }
   }
 
-  func displayError(_ error: Error?, from function: StaticString = #function) {
+  func displayError(_ error: (any Error)?, from function: StaticString = #function) {
     guard let error = error else { return }
     print("ⓧ Error in \(function): \(error.localizedDescription)")
     let message = "\(error.localizedDescription)\n\n Occurred in \(function)"
@@ -195,11 +195,11 @@ extension UINavigationBar: UserDisplayable {
 
 // MARK: Extending UITabBarController to work with custom transition animator
 
-extension UITabBarController: UITabBarControllerDelegate {
+extension UITabBarController: @retroactive UITabBarControllerDelegate {
   public func tabBarController(_ tabBarController: UITabBarController,
                                animationControllerForTransitionFrom fromVC: UIViewController,
                                to toVC: UIViewController)
-    -> UIViewControllerAnimatedTransitioning? {
+    -> (any UIViewControllerAnimatedTransitioning)? {
     let fromIndex = tabBarController.viewControllers!.firstIndex(of: fromVC)!
     let toIndex = tabBarController.viewControllers!.firstIndex(of: toVC)!
 

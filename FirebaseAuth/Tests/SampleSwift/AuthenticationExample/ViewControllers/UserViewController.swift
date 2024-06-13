@@ -366,7 +366,7 @@ extension UserViewController: ASAuthorizationControllerDelegate,
   // [END token_revocation]
 
   func authorizationController(controller: ASAuthorizationController,
-                               didCompleteWithError error: Error) {
+                               didCompleteWithError error: any Error) {
     // Ensure that you have:
     //  - enabled `Sign in with Apple` on the Firebase console
     //  - added the `Sign in with Apple` capability for this project
