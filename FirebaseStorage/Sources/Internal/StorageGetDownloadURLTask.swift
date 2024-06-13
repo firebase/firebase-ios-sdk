@@ -75,8 +75,8 @@ class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
             downloadURL = self.downloadURLFromMetadataDictionary(responseDictionary)
             if downloadURL == nil {
               self.error = StorageError.unknown(
-                "Failed to retrieve a download URL.",
-                [:]
+                message: "Failed to retrieve a download URL.",
+                serverError: [:]
               ) as NSError
             }
           } else {

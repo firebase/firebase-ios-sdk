@@ -237,9 +237,10 @@ import Foundation
        isFile == true {
       return nil
     }
-    return StorageError.unknown("File at URL: \(fileURL?.absoluteString ?? "") is " +
+    return StorageError.unknown(message: "File at URL: \(fileURL?.absoluteString ?? "") is " +
       "not reachable. Ensure file URL is not " +
-      "a directory, symbolic link, or invalid url.", [:]) as NSError
+      "a directory, symbolic link, or invalid url.",
+      serverError: [:]) as NSError
   }
 
   func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {

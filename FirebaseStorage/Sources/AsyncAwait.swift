@@ -66,7 +66,8 @@ public extension StorageReference {
       }
       uploadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in putDataAsync")
+          snapshot.error ?? StorageError
+            .internalError(message: "Internal Storage Error in putDataAsync")
         ))
       }
     }
@@ -103,7 +104,8 @@ public extension StorageReference {
       }
       uploadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in putFileAsync")
+          snapshot.error ?? StorageError
+            .internalError(message: "Internal Storage Error in putFileAsync")
         ))
       }
     }
@@ -137,7 +139,8 @@ public extension StorageReference {
       }
       downloadTask.observe(.failure) { snapshot in
         continuation.resume(with: .failure(
-          snapshot.error ?? StorageError.internalError("Internal Storage Error in writeAsync")
+          snapshot.error ?? StorageError
+            .internalError(message: "Internal Storage Error in writeAsync")
         ))
       }
     }

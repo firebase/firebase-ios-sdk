@@ -193,9 +193,9 @@ import FirebaseCore
     do {
       path = try StoragePath.path(string: url.absoluteString)
     } catch let StoragePathError.storagePathError(message) {
-      throw StorageError.pathError(message)
+      throw StorageError.pathError(message: message)
     } catch {
-      throw StorageError.pathError("Internal error finding StoragePath: \(error)")
+      throw StorageError.pathError(message: "Internal error finding StoragePath: \(error)")
     }
 
     // If no default bucket exists (empty string), accept anything.
@@ -205,7 +205,7 @@ import FirebaseCore
     // If there exists a default bucket, throw if provided a different bucket.
     if path.bucket != storageBucket {
       throw StorageError
-        .bucketMismatch("Provided bucket: `\(path.bucket)` does not match the Storage " +
+        .bucketMismatch(message: "Provided bucket: `\(path.bucket)` does not match the Storage " +
           "bucket of the current instance: `\(storageBucket)`")
     }
     return StorageReference(storage: self, path: path)

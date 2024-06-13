@@ -45,7 +45,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
           var errorDictionary = error.userInfo
           errorDictionary["ResponseErrorDomain"] = error.domain
           errorDictionary["ResponseErrorCode"] = error.code
-          tokenError = StorageError.unauthenticated(errorDictionary) as NSError
+          tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
         } else if let token {
           let firebaseToken = "Firebase \(token)"
           request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")

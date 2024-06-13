@@ -61,17 +61,25 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     }
     var storageError: StorageError
     switch serverError.code {
-    case 400: storageError = StorageError.unknown("Unknown 400 error from backend", errorDictionary)
-    case 401: storageError = StorageError.unauthenticated(errorDictionary)
-    case 402: storageError = StorageError.quotaExceeded(ref.path.bucket, errorDictionary)
+    case 400: storageError = StorageError.unknown(
+        message: "Unknown 400 error from backend",
+        serverError: errorDictionary
+      )
+    case 401: storageError = StorageError.unauthenticated(serverError: errorDictionary)
+    case 402: storageError = StorageError.quotaExceeded(
+        bucket: ref.path.bucket,
+        serverError: errorDictionary
+      )
     case 403: storageError = StorageError.unauthorized(
-        ref.path.bucket, ref.path.object ?? "<object-entity-internal-error>", errorDictionary
+        bucket: ref.path.bucket,
+        object: ref.path.object ?? "<object-entity-internal-error>",
+        serverError: errorDictionary
       )
     case 404: storageError = StorageError.objectNotFound(
-        ref.path.object ?? "<object-entity-internal-error>", errorDictionary
+        object: ref.path.object ?? "<object-entity-internal-error>", serverError: errorDictionary
       )
     default: storageError = StorageError.unknown(
-        "Unexpected \(serverError.code) code from backend", errorDictionary
+        message: "Unexpected \(serverError.code) code from backend", serverError: errorDictionary
       )
     }
     return storageError as NSError
@@ -90,27 +98,27 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
       requestString = "<nil request returned from server>"
     }
     let invalidDataString = "Invalid data returned from the server: \(requestString)"
-    return StorageError.unknown(invalidDataString, [:]) as NSError
+    return StorageError.unknown(message: invalidDataString, serverError: [:]) as NSError
   }
 }
 
 /// Firebase Storage errors
 public enum StorageError: Error, CustomNSError {
-  case unknown(_ message: String, _ serverError: [String: Any])
-  case objectNotFound(_ object: String, _ serverError: [String: Any])
-  case bucketNotFound(_ bucket: String)
-  case projectNotFound(_ project: String)
-  case quotaExceeded(_ bucket: String, _ serverError: [String: Any])
-  case unauthenticated(_ serverError: [String: Any])
-  case unauthorized(_ bucket: String, _ object: String, _ serverError: [String: Any])
+  case unknown(message: String, serverError: [String: Any])
+  case objectNotFound(object: String, serverError: [String: Any])
+  case bucketNotFound(bucket: String)
+  case projectNotFound(project: String)
+  case quotaExceeded(bucket: String, serverError: [String: Any])
+  case unauthenticated(serverError: [String: Any])
+  case unauthorized(bucket: String, object: String, serverError: [String: Any])
   case retryLimitExceeded
   case nonMatchingChecksum
-  case downloadSizeExceeded(_ total: Int64, _ maxSize: Int64)
+  case downloadSizeExceeded(total: Int64, maxSize: Int64)
   case cancelled
-  case invalidArgument(_ message: String)
-  case internalError(_ message: String)
-  case bucketMismatch(_ message: String)
-  case pathError(_ message: String)
+  case invalidArgument(message: String)
+  case internalError(message: String)
+  case bucketMismatch(message: String)
+  case pathError(message: String)
 
   // MARK: - CustomNSError
 

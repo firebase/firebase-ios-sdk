@@ -400,7 +400,7 @@ import Foundation
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
       completion(nil, StorageError.invalidArgument(
-        "Argument 'maxResults' must be between 1 and 1000 inclusive."
+        message: "Argument 'maxResults' must be between 1 and 1000 inclusive."
       ))
     } else {
       let fetcherService = storage.fetcherServiceForApp
@@ -436,7 +436,7 @@ import Foundation
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
       completion(nil, StorageError.invalidArgument(
-        "Argument 'maxResults' must be between 1 and 1000 inclusive."
+        message: "Argument 'maxResults' must be between 1 and 1000 inclusive."
       ))
     } else {
       let fetcherService = storage.fetcherServiceForApp
@@ -580,7 +580,10 @@ import Foundation
   /// For maxSize API, return an error if the size is exceeded.
   private func checkSizeOverflow(task: StorageTask, maxSize: Int64) -> NSError? {
     if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
-      return StorageError.downloadSizeExceeded(task.progress.totalUnitCount, maxSize) as NSError
+      return StorageError.downloadSizeExceeded(
+        total: task.progress.totalUnitCount,
+        maxSize: maxSize
+      ) as NSError
     }
     return nil
   }
