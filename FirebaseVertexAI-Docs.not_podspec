@@ -40,8 +40,8 @@ Pod::Spec.new do |s|
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseAuthInterop', '~> 10.25'
   s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
+  s.dependency 'InteropForFirebaseAppCheck', '~> 100.1.0'
 end

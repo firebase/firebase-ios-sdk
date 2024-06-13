@@ -437,10 +437,10 @@ let package = Package(
       name: "FirebaseAuth",
       dependencies: [
         "FirebaseCore",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
@@ -598,8 +598,8 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "leveldb",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseDatabase/Sources",
       exclude: [
@@ -722,8 +722,8 @@ let package = Package(
         "FirebaseCoreExtension",
         "FirebaseMessagingInterop",
         "FirebaseSharedSwift",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseFunctions/Sources"
     ),
@@ -734,7 +734,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseMessagingInterop",
         "SharedTestUtilities",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
@@ -984,7 +984,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseMessagingInterop",
         "GoogleDataTransport",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "SharedTestUtilities",
@@ -1175,9 +1175,9 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseStorage/Sources"
     ),
@@ -1294,9 +1294,9 @@ let package = Package(
               "FirebaseCore",
               .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "FBLPromises", package: "Promises"),
-              .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+              .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
             ],
             path: "FirebaseAppCheck/Sources",
             publicHeadersPath: "Public",
@@ -1361,7 +1361,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseVertexAI/Sources"
     ),
@@ -1469,7 +1469,7 @@ func firestoreTargets() -> [Target] {
           .product(name: "nanopb", package: "nanopb"),
           .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
           .product(name: "gRPC-cpp", package: "grpc-ios"),
-          .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+          .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
         ],
         path: "Firestore",
         exclude: [
@@ -1596,7 +1596,7 @@ func firestoreTargets() -> [Target] {
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
         ),
         .product(name: "nanopb", package: "nanopb"),
-        .product(name: "FirebaseAppCheckInterop", package: "interop-ios-for-google-sdks"),
+        .product(name: "InteropForFirebaseAppCheck", package: "interop-ios-for-google-sdks"),
         "FirebaseCore",
         "FirebaseCoreExtension",
         "leveldb",

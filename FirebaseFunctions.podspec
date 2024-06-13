@@ -39,11 +39,11 @@ Cloud Functions for Firebase.
 
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.10'
   s.dependency 'FirebaseAuthInterop', '~> 10.25'
   s.dependency 'FirebaseMessagingInterop', '~> 10.0'
   s.dependency 'FirebaseSharedSwift', '~> 10.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
+  s.dependency 'InteropForFirebaseAppCheck', '~> 100.1.0'
 
   s.test_spec 'objc' do |objc_tests|
     objc_tests.platforms = {

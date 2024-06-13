@@ -45,11 +45,11 @@ Pod::Spec.new do |s|
   s.tvos.weak_framework = 'DeviceCheck'
 
   s.dependency 'AppCheckCore', '~> 10.19'
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.28'
   s.dependency 'FirebaseCore', '~> 10.18'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.13'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
+  s.dependency 'InteropForFirebaseAppCheck', '~> 100.1.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
