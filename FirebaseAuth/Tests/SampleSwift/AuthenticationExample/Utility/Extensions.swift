@@ -195,7 +195,7 @@ extension UINavigationBar: UserDisplayable {
 
 // MARK: Extending UITabBarController to work with custom transition animator
 
-extension UITabBarController: @retroactive UITabBarControllerDelegate {
+extension UITabBarController: UITabBarControllerDelegate {
   public func tabBarController(_ tabBarController: UITabBarController,
                                animationControllerForTransitionFrom fromVC: UIViewController,
                                to toVC: UIViewController)
