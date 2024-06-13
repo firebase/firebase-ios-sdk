@@ -30,7 +30,6 @@ target 'FirebasePodTest' do
   pod 'FirebaseStorage', :path => '../../../'
 
   # Get dependent pods from the repo also
-  pod 'FirebaseAppCheckInterop', :path => '../../../'
   pod 'FirebaseAuthInterop', :path => '../../../'
   pod 'FirebaseMessagingInterop', :path => '../../../'
   pod 'FirebaseRemoteConfigInterop', :path => '../../../'
