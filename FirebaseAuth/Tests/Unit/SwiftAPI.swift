@@ -474,20 +474,32 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #if os(iOS)
       // The ObjC signature is not available ('credential(withProviderID:accessToken:)' is
       // unavailable)
+
+//      let _: (NSString, NSString, NSString?) -> OAuthCredential =
+//      OAuthProvider.credential(withProviderID:idToken:accessToken:)
+      let _: (String, String, String?) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:idToken:accessToken:)
+      let _: (AuthProviderID, String, String?) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:idToken:accessToken:)
 //      let _: (NSString, NSString) -> OAuthCredential =
 //      OAuthProvider.credential(withProviderID:accessToken:)
+      let _: (String, String) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:accessToken:)
       let _: (AuthProviderID, String) -> OAuthCredential = OAuthProvider
         .credential(providerID:accessToken:)
-      _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToden", accessToken: "token")
-      _ = OAuthProvider.credential(withProviderID: "id", accessToken: "token")
-      let _: (String, String) -> OAuthCredential = OAuthProvider
-        .credential(withProviderID:accessToken:)
-      _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
-                                   accessToken: "token")
-      _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
-      _ = OAuthProvider.appleCredential(withIDToken: "idToken",
-                                        rawNonce: "nonce",
-                                        fullName: nil)
+//      let _: (NSString, NSString, NSString, NSString) -> OAuthCredential =
+//      OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
+      let _: (String, String, String, String) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
+      let _: (AuthProviderID, String, String, String) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
+//      let _: (NSString, NSString, NSString) -> OAuthCredential =
+//      OAuthProvider.credential(withProviderID:idToken:rawNonce:)
+      let _: (String, String, String) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:idToken:rawNonce:)
+      let _: (AuthProviderID, String, String) -> OAuthCredential =
+        OAuthProvider.credential(withProviderID:idToken:rawNonce:)
+
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
     #endif

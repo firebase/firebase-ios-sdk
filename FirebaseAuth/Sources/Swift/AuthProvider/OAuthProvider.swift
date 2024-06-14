@@ -91,18 +91,59 @@ import Foundation
   /// - Parameter accessToken: The access token associated with the Auth credential be created, if
   /// available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:IDToken:accessToken:)
+  public static func credential(withProviderID providerID: NSString,
+                                idToken: NSString,
+                                accessToken: NSString?) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID as String,
+      idToken: idToken as String,
+      accessToken: accessToken as String?
+    )
+  }
+
+  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
+  /// token, and access token.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
+  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// available.
+  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  @available(
+    *,
+    deprecated,
+    message: "Use `credential(providerID: AuthProviderID, idToken: String, accessToken: String) -> OAuthCredential` instead."
+  )
   public static func credential(withProviderID providerID: String,
                                 idToken: String,
                                 accessToken: String?) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, idToken: idToken, accessToken: accessToken)
   }
 
-  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID using
-  /// an ID token.
+  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
+  /// token, and access token.
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created
-  /// - Returns: An AuthCredential.
+  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
+  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// available.
+  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  public static func credential(providerID: AuthProviderID,
+                                idToken: String,
+                                accessToken: String?) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID.rawValue,
+      idToken: idToken,
+      accessToken: accessToken
+    )
+  }
+
+  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
+  /// token, and access token.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// available.
+  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:accessToken:)
   public static func credential(withProviderID providerID: NSString,
@@ -120,6 +161,11 @@ import Foundation
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
   }
 
+  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID using
+  /// an ID token.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter accessToken: The access token associated with the Auth credential be created
+  /// - Returns: An AuthCredential.
   public static func credential(providerID: AuthProviderID,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID.rawValue, accessToken: accessToken)
@@ -131,14 +177,55 @@ import Foundation
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
   /// - Parameter accessToken: The access token associated with the Auth credential be created, if
-  /// available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
+  public static func credential(withProviderID providerID: NSString, idToken: NSString,
+                                rawNonce: NSString,
+                                accessToken: NSString) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID as String,
+      idToken: idToken as String,
+      rawNonce: rawNonce as String,
+      accessToken: accessToken as String
+    )
+  }
+
+  /// Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
+  /// token, raw nonce, and access token.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
+  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
+  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  @available(
+    *,
+    deprecated,
+    message: "Use `credential(providerID: AuthProviderID, rawNonce: String, accessToken: String) -> OAuthCredential` instead."
+  )
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(
       withProviderID: providerID,
+      idToken: idToken,
+      rawNonce: rawNonce,
+      accessToken: accessToken
+    )
+  }
+
+  /// Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
+  /// token, raw nonce, and access token.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
+  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
+  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
+  public static func credential(providerID: AuthProviderID, idToken: String,
+                                rawNonce: String,
+                                accessToken: String) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID.rawValue,
       idToken: idToken,
       rawNonce: rawNonce,
       accessToken: accessToken
@@ -151,10 +238,46 @@ import Foundation
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
   /// - Returns: An AuthCredential.
+  @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:IDToken:rawNonce:)
+  public static func credential(withProviderID providerID: NSString, idToken: NSString,
+                                rawNonce: NSString) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID as String,
+      idToken: idToken as String,
+      rawNonce: rawNonce as String
+    )
+  }
+
+  /// Creates an `AuthCredential` for that OAuth 2 provider identified by providerID using
+  /// an ID token and raw nonce.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
+  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
+  /// - Returns: An AuthCredential.
+  @available(
+    *,
+    deprecated,
+    message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String) -> OAuthCredential` instead."
+  )
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, idToken: idToken, rawNonce: rawNonce)
+  }
+
+  /// Creates an `AuthCredential` for that OAuth 2 provider identified by providerID using
+  /// an ID token and raw nonce.
+  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
+  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
+  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
+  /// - Returns: An AuthCredential.
+  public static func credential(providerID: AuthProviderID, idToken: String,
+                                rawNonce: String) -> OAuthCredential {
+    return OAuthCredential(
+      withProviderID: providerID.rawValue,
+      idToken: idToken,
+      rawNonce: rawNonce
+    )
   }
 
   #if os(iOS)
