@@ -91,23 +91,12 @@ import Foundation
   /// - Parameter accessToken: The access token associated with the Auth credential be created, if
   /// available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
-  @available(swift, introduced: 100.0)
-  @objc(credentialWithProviderID:IDToken:accessToken:)
-  public static func credential(withProviderID providerID: NSString,
-                                idToken: NSString,
-                                accessToken: NSString?) -> OAuthCredential {
-    return OAuthCredential(
-      withProviderID: providerID as String,
-      idToken: idToken as String,
-      accessToken: accessToken as String?
-    )
-  }
-
   @available(
-    *,
-    deprecated,
+    swift,
+    deprecated: 0.01,
     message: "Use `credential(providerID: AuthProviderID, idToken: String, accessToken: String? = nil) -> OAuthCredential` instead."
   )
+  @objc(credentialWithProviderID:IDToken:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 idToken: String,
                                 accessToken: String?) -> OAuthCredential {
@@ -137,18 +126,12 @@ import Foundation
   /// - Parameter accessToken: The access token associated with the Auth credential be created, if
   /// available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
-  @available(swift, introduced: 100.0)
-  @objc(credentialWithProviderID:accessToken:)
-  public static func credential(withProviderID providerID: NSString,
-                                accessToken: NSString) -> OAuthCredential {
-    return OAuthCredential(withProviderID: providerID as String, accessToken: accessToken as String)
-  }
-
   @available(
-    *,
-    deprecated,
+    swift,
+    deprecated: 0.01,
     message: "Use `credential(providerID: AuthProviderID, accessToken: String) -> OAuthCredential` instead."
   )
+  @objc(credentialWithProviderID:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
@@ -171,24 +154,12 @@ import Foundation
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
   /// - Parameter accessToken: The access token associated with the Auth credential be created.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
-  @available(swift, introduced: 100.0)
-  @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
-  public static func credential(withProviderID providerID: NSString, idToken: NSString,
-                                rawNonce: NSString,
-                                accessToken: NSString) -> OAuthCredential {
-    return OAuthCredential(
-      withProviderID: providerID as String,
-      idToken: idToken as String,
-      rawNonce: rawNonce as String,
-      accessToken: accessToken as String
-    )
-  }
-
   @available(
-    *,
-    deprecated,
+    swift,
+    deprecated: 0.01,
     message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
   )
+  @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String,
                                 accessToken: String) -> OAuthCredential {
@@ -206,22 +177,12 @@ import Foundation
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
   /// - Returns: An AuthCredential.
-  @available(swift, introduced: 100.0)
-  @objc(credentialWithProviderID:IDToken:rawNonce:)
-  public static func credential(withProviderID providerID: NSString, idToken: NSString,
-                                rawNonce: NSString) -> OAuthCredential {
-    return OAuthCredential(
-      withProviderID: providerID as String,
-      idToken: idToken as String,
-      rawNonce: rawNonce as String
-    )
-  }
-
   @available(
-    *,
-    deprecated,
+    swift,
+    deprecated: 0.01,
     message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
   )
+  @objc(credentialWithProviderID:IDToken:rawNonce:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, idToken: idToken, rawNonce: rawNonce)
