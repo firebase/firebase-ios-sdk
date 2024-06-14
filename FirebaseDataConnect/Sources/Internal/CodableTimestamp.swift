@@ -44,15 +44,9 @@ private enum TimestampKeys: String, CodingKey {
  */
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension CodableTimestamp {
-  // TODO: move to static
-  var regex: NSRegularExpression {
-    let pattern = #"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{0,9})?(Z|[+-]\d{2}:\d{2})$"#
-    return try! NSRegularExpression(pattern: pattern)
-  }
-
   public init(from decoder: any Decoder) throws {
     let container = try decoder.singleValueContainer()
-    let timestampString = try container.decode(String.self)
+    let timestampString = try container.decode(String.self).uppercased()
 
     guard CodableTimestampHelper.regex
       .firstMatch(in: timestampString, range: NSRange(location: 0,
@@ -72,13 +66,13 @@ extension CodableTimestamp {
     // nanoSeconds and timezone
     let startIndex = timestampString.index(timestampString.startIndex, offsetBy: 20)
     let nanoSecondsAndTimezone = timestampString[startIndex...]
-    let separators = CharacterSet(charactersIn: ".zZ+-")
+    let separators = CharacterSet(charactersIn: ".Z+-")
 
     // Split the string using the character set
     let components = nanoSecondsAndTimezone.components(separatedBy: separators)
 
     let nanoSecondString = timestampString.contains(".") ?
-      components[0].padding(toLength: 9, withPad: "0", startingAt: components[1].count)
+      components[0].padding(toLength: 9, withPad: "0", startingAt: 0)
       : "0"
 
     let nanoSecond = Int32(nanoSecondString)!
