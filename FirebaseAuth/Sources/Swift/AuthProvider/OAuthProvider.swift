@@ -176,7 +176,7 @@ import Foundation
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// - Parameter accessToken: The access token associated with the Auth credential be created.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   @available(swift, introduced: 100.0)
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
@@ -196,7 +196,7 @@ import Foundation
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// - Parameter accessToken: The access token associated with the Auth credential be created.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   @available(
     *,
@@ -219,7 +219,7 @@ import Foundation
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
+  /// - Parameter accessToken: The access token associated with the Auth credential be created.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   public static func credential(providerID: AuthProviderID, idToken: String,
                                 rawNonce: String,
