@@ -480,7 +480,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let _: (String, String, String?) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:idToken:accessToken:)
       let _: (AuthProviderID, String, String?) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:idToken:accessToken:)
+        OAuthProvider.credential(providerID:idToken:accessToken:)
 //      let _: (NSString, NSString) -> OAuthCredential =
 //      OAuthProvider.credential(withProviderID:accessToken:)
       let _: (String, String) -> OAuthCredential =
@@ -492,13 +492,13 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let _: (String, String, String, String) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
       let _: (AuthProviderID, String, String, String) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
+        OAuthProvider.credential(providerID:idToken:rawNonce:accessToken:)
 //      let _: (NSString, NSString, NSString) -> OAuthCredential =
 //      OAuthProvider.credential(withProviderID:idToken:rawNonce:)
       let _: (String, String, String) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:idToken:rawNonce:)
       let _: (AuthProviderID, String, String) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:idToken:rawNonce:)
+        OAuthProvider.credential(providerID:idToken:rawNonce:)
 
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
