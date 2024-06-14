@@ -18,8 +18,17 @@ import FirebaseInAppMessaging
 import SwiftUI
 
 final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
+  func throwError() throws {}
+
   func usage() throws {
     let inAppMessaging = FirebaseInAppMessaging.InAppMessaging.inAppMessaging()
+
+    let _: String = InAppMessagingErrorDomain
+
+    do {
+      try throwError() // Call a throwing method to suppress warnings.
+    } catch InAppMessagingDisplayRenderError.imageDataInvalid {
+    } catch InAppMessagingDisplayRenderError.unspecifiedError {}
 
     let _: Bool = inAppMessaging.messageDisplaySuppressed
     inAppMessaging.messageDisplaySuppressed = true
@@ -60,9 +69,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let _: UIColor = button.buttonTextColor
     let _: UIColor = button.buttonBackgroundColor
 
-    // TODO(ncooke3): This type should not have a `FIR` prefix.
-    _ = FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType.RawValue()
-    let messsageType: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType! = nil
+    _ = FirebaseInAppMessaging.InAppMessagingDisplayMessageType.RawValue()
+    let messsageType: FirebaseInAppMessaging.InAppMessagingDisplayMessageType! = nil
     switch messsageType! {
     case .modal: break
     case .banner: break
@@ -71,18 +79,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     @unknown default: break
     }
 
-    // TODO(ncooke3): This type should not have a `FIR` prefix.
-    _ = FirebaseInAppMessaging.FIAMDisplayRenderErrorType.RawValue()
-    let errorType: FirebaseInAppMessaging.FIAMDisplayRenderErrorType! = nil
-    switch errorType! {
-    case .imageDataInvalid: break
-    case .unspecifiedError: break
-    @unknown default: break
-    }
-
-    // TODO(ncooke3): This type should not have a `FIR` prefix.
-    _ = FirebaseInAppMessaging.FIRInAppMessagingDismissType.RawValue()
-    let dismissType: FirebaseInAppMessaging.FIRInAppMessagingDismissType! = nil
+    _ = FirebaseInAppMessaging.InAppMessagingDismissType.RawValue()
+    let dismissType: FirebaseInAppMessaging.InAppMessagingDismissType! = nil
     switch dismissType! {
     case .typeUserSwipe: break
     case .typeUserTapClose: break
@@ -91,9 +89,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     @unknown default: break
     }
 
-    // TODO(ncooke3): This type should not have a `FIR` prefix.
-    _ = FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType.RawValue()
-    let triggerType: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType! = nil
+    _ = FirebaseInAppMessaging.InAppMessagingDisplayTriggerType.RawValue()
+    let triggerType: FirebaseInAppMessaging.InAppMessagingDisplayTriggerType! = nil
     switch triggerType! {
     case .onAppForeground: break
     case .onAnalyticsEvent: break
@@ -167,8 +164,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
       triggerType: triggerType
     )
     let _: FirebaseInAppMessaging.InAppMessagingCampaignInfo = displayMessage.campaignInfo
-    let _: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType = displayMessage.type
-    let _: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType = displayMessage.triggerType
+    let _: FirebaseInAppMessaging.InAppMessagingDisplayMessageType = displayMessage.type
+    let _: FirebaseInAppMessaging.InAppMessagingDisplayTriggerType = displayMessage.triggerType
     let _: [AnyHashable: Any]? = displayMessage.appData
 
     let imageOnlyDisplay = FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay(

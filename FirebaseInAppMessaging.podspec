@@ -89,7 +89,10 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }
-      unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
+      unit_tests.source_files = [
+        'FirebaseInAppMessaging/Tests/Unit/*.[mh]',
+        'FirebaseInAppMessaging/Swift/Tests/Unit/*.swift'
+      ]
       unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'

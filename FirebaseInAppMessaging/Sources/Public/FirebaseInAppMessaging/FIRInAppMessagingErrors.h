@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
-
 #import <Foundation/Foundation.h>
-#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
 
-FIRLoggerService kFIRLoggerInAppMessaging = @"[FirebaseInAppMessaging]";
-
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+/// Firebase In App Messaging error domain.
+FOUNDATION_EXTERN NSErrorDomain const FIRInAppMessagingErrorDomain NS_SWIFT_NAME(InAppMessagingErrorDomain);
