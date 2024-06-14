@@ -27,12 +27,12 @@ class Animator: NSObject, UIViewControllerAnimatedTransitioning {
     transitionDirection = direction
   }
 
-  func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
+  func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?)
     -> TimeInterval {
     return transitionDuration as TimeInterval
   }
 
-  func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+  func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
     let container = transitionContext.containerView
 
     guard let fromView = transitionContext.view(forKey: .from),

@@ -18,7 +18,7 @@ import UIKit
 /// datasource and delegate
 class DataSourceProvider<DataSource: DataSourceProvidable>: NSObject, UITableViewDataSource,
   UITableViewDelegate {
-  weak var delegate: DataSourceProviderDelegate?
+  weak var delegate: (any DataSourceProviderDelegate)?
 
   private var emptyView: UIView?
 
