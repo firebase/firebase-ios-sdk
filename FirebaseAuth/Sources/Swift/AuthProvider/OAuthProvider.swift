@@ -29,20 +29,53 @@ import Foundation
   /// The provider ID indicating the specific OAuth provider this OAuthProvider instance represents.
   @objc public let providerID: String
 
-  /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
-  /// be configured.
+  /// An instance of OAuthProvider corresponding to the given provider ID.
+  /// - Parameters:
+  ///   - providerID: The provider ID of the IDP for which this auth provider instance will be
+  /// configured.
   /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  @available(
+    swift,
+    deprecated: 0.01,
+    message: "Use `provider(providerID: AuthProviderID) -> OAuthProvider` instead."
+  )
   @objc(providerWithProviderID:) open class func provider(providerID: String) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: Auth.auth())
   }
 
-  /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
-  /// be configured.
-  /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
+  /// An instance of OAuthProvider corresponding to the given provider ID.
+  /// - Parameters:
+  ///   - providerID: The provider ID of the IDP for which this auth provider instance will be
+  /// configured.
   /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  public class func provider(providerID: AuthProviderID) -> OAuthProvider {
+    return OAuthProvider(providerID: providerID.rawValue, auth: Auth.auth())
+  }
+
+  /// An instance of OAuthProvider corresponding to the given provider ID and auth instance.
+  /// - Parameters:
+  ///   - providerID: The provider ID of the IDP for which this auth provider instance will be
+  /// configured.
+  ///   - auth: The auth instance to be associated with the OAuthProvider instance.
+  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  @available(
+    swift,
+    deprecated: 0.01,
+    message: "Use `provider(providerID: AuthProviderID, auth: Auth) -> OAuthProvider` instead."
+  )
   @objc(providerWithProviderID:auth:) open class func provider(providerID: String,
                                                                auth: Auth) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: auth)
+  }
+
+  /// An instance of OAuthProvider corresponding to the given provider ID and auth instance.
+  /// - Parameters:
+  ///   - providerID: The provider ID of the IDP for which this auth provider instance will be
+  /// configured.
+  ///   - auth: The auth instance to be associated with the OAuthProvider instance.
+  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  public class func provider(providerID: AuthProviderID, auth: Auth) -> OAuthProvider {
+    return OAuthProvider(providerID: providerID.rawValue, auth: auth)
   }
 
   /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
