@@ -476,6 +476,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
         OAuthProvider.credential(withProviderID:idToken:accessToken:)
       let _: (AuthProviderID, String, String?) -> OAuthCredential =
         OAuthProvider.credential(providerID:idToken:accessToken:)
+      // `accessToken` defaults to `nil`
+      let _: OAuthCredential =
+        OAuthProvider.credential(providerID: .apple, idToken: "")
       let _: (String, String) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:accessToken:)
       let _: (AuthProviderID, String) -> OAuthCredential = OAuthProvider
