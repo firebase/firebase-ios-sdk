@@ -103,13 +103,6 @@ import Foundation
     )
   }
 
-  /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
-  /// token, and access token.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created, if
-  /// available.
-  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   @available(
     *,
     deprecated,
@@ -191,13 +184,6 @@ import Foundation
     )
   }
 
-  /// Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
-  /// token, raw nonce, and access token.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created.
-  /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   @available(
     *,
     deprecated,
@@ -249,12 +235,6 @@ import Foundation
     )
   }
 
-  /// Creates an `AuthCredential` for that OAuth 2 provider identified by providerID using
-  /// an ID token and raw nonce.
-  /// - Parameter providerID: The provider ID associated with the Auth credential being created.
-  /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Returns: An AuthCredential.
   @available(
     *,
     deprecated,
