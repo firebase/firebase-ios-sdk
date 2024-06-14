@@ -472,33 +472,23 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let provider = OAuthProvider(providerID: "id", auth: FirebaseAuth.Auth.auth())
     _ = provider.providerID
     #if os(iOS)
-      // The ObjC signature is not available ('credential(withProviderID:accessToken:)' is
-      // unavailable)
-
-//      let _: (NSString, NSString, NSString?) -> OAuthCredential =
-//      OAuthProvider.credential(withProviderID:idToken:accessToken:)
       let _: (String, String, String?) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:idToken:accessToken:)
       let _: (AuthProviderID, String, String?) -> OAuthCredential =
         OAuthProvider.credential(providerID:idToken:accessToken:)
-//      let _: (NSString, NSString) -> OAuthCredential =
-//      OAuthProvider.credential(withProviderID:accessToken:)
       let _: (String, String) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:accessToken:)
       let _: (AuthProviderID, String) -> OAuthCredential = OAuthProvider
         .credential(providerID:accessToken:)
-//      let _: (NSString, NSString, NSString, NSString) -> OAuthCredential =
-//      OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
       let _: (String, String, String, String) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
-      let _: (AuthProviderID, String, String, String) -> OAuthCredential =
+      let _: (AuthProviderID, String, String, String?) -> OAuthCredential =
         OAuthProvider.credential(providerID:idToken:rawNonce:accessToken:)
-//      let _: (NSString, NSString, NSString) -> OAuthCredential =
-//      OAuthProvider.credential(withProviderID:idToken:rawNonce:)
+      // `accessToken` defaults to `nil`
+      let _: OAuthCredential =
+        OAuthProvider.credential(providerID: .apple, idToken: "", rawNonce: "")
       let _: (String, String, String) -> OAuthCredential =
         OAuthProvider.credential(withProviderID:idToken:rawNonce:)
-      let _: (AuthProviderID, String, String) -> OAuthCredential =
-        OAuthProvider.credential(providerID:idToken:rawNonce:)
 
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
