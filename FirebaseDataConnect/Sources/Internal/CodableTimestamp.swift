@@ -65,27 +65,35 @@ extension CodableTimestamp {
       throw DataConnectError.invalidTimestampFormat
     }
 
-    // Define the character set of separators
+    // second
+    let seconds = String(timestampString.prefix(19))
+    var sec = CodableTimestampHelper.convertSeconds(from: seconds)
+
+    // nanoSeconds and timezone
+    let startIndex = timestampString.index(timestampString.startIndex, offsetBy: 20)
+    let nanoSecondsAndTimezone = timestampString[startIndex...]
     let separators = CharacterSet(charactersIn: ".zZ+-")
 
     // Split the string using the character set
-    let components = timestampString.components(separatedBy: separators)
+    let components = nanoSecondsAndTimezone.components(separatedBy: separators)
 
-    var sec = CodableTimestampHelper.convertSeconds(from: components[0])
+    let nanoSecondString = timestampString.contains(".") ?
+      components[0].padding(toLength: 9, withPad: "0", startingAt: components[1].count)
+      : "0"
 
-    if components.count == 3 {
+    let nanoSecond = Int32(nanoSecondString)!
+
+    // need to calculate time zone
+    if nanoSecondsAndTimezone.contains(":") {
+      let timeZone = components.last!
       let diffSign = timestampString.contains("+") ? 1 : -1
-      let parts = components[2].split(separator: ":")
+      let parts = timeZone.split(separator: ":")
       let hours = Int(parts[0])!
       let minutes = Int(parts[1])!
       let timeZoneDiffer = hours * 3600 + minutes * 60
       sec += Int64(timeZoneDiffer * diffSign)
     }
 
-    let nanoSecondString = timestampString.contains(".") ?
-      components[1].padding(toLength: 9, withPad: "0", startingAt: components[1].count)
-      : "0"
-    let nanoSecond = Int32(nanoSecondString)!
     self.init(seconds: sec, nanoseconds: nanoSecond)
   }
 
@@ -94,8 +102,7 @@ extension CodableTimestamp {
     var container = encoder.singleValueContainer()
     let date = Date(timeIntervalSince1970: Double(self.seconds))
     let seconds = CodableTimestampHelper.formatter.string(from: date)
-    let nanoSeconds = nanoseconds == 0 ? "" : "." + String(nanoseconds)
-      .padding(toLength: 9, withPad: "0", startingAt: 0)
+    let nanoSeconds = nanoseconds == 0 ? "" : "." + String(format: "%09d", nanoseconds)
     try container.encode("\(seconds)\(nanoSeconds)Z")
   }
 }
