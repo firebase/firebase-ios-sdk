@@ -72,7 +72,7 @@ class StorageReferenceTests: XCTestCase {
     XCTAssertThrowsError(try storage!.reference(for: url), "This was supposed to fail.") { error in
       XCTAssertEqual(
         "\(error)",
-        "bucketMismatch(\"Provided bucket: `bcket` does not match the Storage " +
+        "bucketMismatch(message: \"Provided bucket: `bcket` does not match the Storage " +
           "bucket of the current instance: `bucket`\")"
       )
     }
@@ -95,8 +95,9 @@ class StorageReferenceTests: XCTestCase {
   func testBadBucketScheme2() throws {
     let url = try XCTUnwrap(URL(string: "htttp://bucket/"))
     XCTAssertThrowsError(try storage!.reference(for: url), "This was supposed to fail.") { error in
-      XCTAssertEqual("\(error)", "pathError(\"Internal error: URL scheme must be one of gs://, " +
-        "http://, or https://\")")
+      XCTAssertEqual("\(error)",
+                     "pathError(message: \"Internal error: URL scheme must be one of gs://, " +
+                       "http://, or https://\")")
     }
   }
 
@@ -219,7 +220,7 @@ class StorageReferenceTests: XCTestCase {
         XCTFail("Unexpected success.", file: #file, line: #line)
       case let .failure(error):
         switch error {
-        case let StorageError.unknown(message):
+        case let StorageError.unknown(message, serverError):
           let expectedDescription = "File at URL: \(dummyFileURL.absoluteString) " +
             "is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
           XCTAssertEqual(expectedDescription, message)

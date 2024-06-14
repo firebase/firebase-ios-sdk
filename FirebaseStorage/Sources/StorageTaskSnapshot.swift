@@ -68,7 +68,7 @@ import Foundation
        reference: StorageReference,
        progress: Progress,
        metadata: StorageMetadata? = nil,
-       error: NSError? = nil) {
+       error: Error? = nil) {
     self.task = task
     self.reference = reference
     self.progress = progress

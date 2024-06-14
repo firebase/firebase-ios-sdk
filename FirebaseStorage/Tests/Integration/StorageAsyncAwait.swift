@@ -118,11 +118,29 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     do {
       _ = try await ref.putDataAsync(data)
       XCTFail("Unexpected success from unauthorized putData")
-    } catch let StorageError.unauthorized(bucket, object) {
+    } catch let StorageError.unauthorized(bucket, object, _) {
       XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
       XCTAssertEqual(object, objectLocation)
     } catch {
-      XCTFail("error failed to convert to StorageError.unauthorized")
+      XCTFail("error failed to convert to StorageError.unauthorized  \(error)")
+    }
+  }
+
+  func testSimplePutDataUnauthorizedWithNSError() async throws {
+    let objectLocation = "ios/private/secretfile.txt"
+    let ref = storage.reference(withPath: objectLocation)
+    let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+    do {
+      _ = try await ref.putDataAsync(data)
+      XCTFail("Unexpected success from unauthorized putData")
+    } catch {
+      let e = error as NSError
+      XCTAssertEqual(e.domain, StorageErrorDomain)
+      XCTAssertEqual(e.code, StorageErrorCode.unauthorized.rawValue)
+      XCTAssertEqual(e.localizedDescription, "User does not have permission to access" +
+        " gs://ios-opensource-samples.appspot.com/ios/private/secretfile.txt.")
+      XCTAssertEqual(e.userInfo["ResponseErrorCode"] as? Int, 403)
+      print(e)
     }
   }
 
@@ -136,13 +154,13 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     do {
       _ = try await ref.putFileAsync(from: fileURL)
       XCTFail("Unexpected success from putFile of a directory")
-    } catch let StorageError.unknown(reason) {
+    } catch let StorageError.unknown(reason, _) {
       XCTAssertTrue(reason.starts(with: "File at URL:"))
       XCTAssertTrue(reason.hasSuffix(
         "is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
       ))
     } catch {
-      XCTFail("error failed to convert to StorageError.unknown")
+      XCTFail("error failed to convert to StorageError.unknown \(error)")
     }
   }
 
