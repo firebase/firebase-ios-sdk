@@ -17,6 +17,7 @@ import XCTest
 @testable import FirebaseDataConnect
 import Foundation
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 final class LocalDateTests: XCTestCase {
   override func setUpWithError() throws {}
 
