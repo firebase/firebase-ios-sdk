@@ -29,4 +29,7 @@ public enum DataConnectError: Error {
 
   // date components specified to initialize LocalDate are invalid
   case invalidLocalDateFormat
+
+  // timestamp components specified to initialize Timestamp are invalid
+  case invalidTimestampFormat
 }
