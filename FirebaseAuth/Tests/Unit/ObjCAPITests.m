@@ -417,6 +417,9 @@
 
 #if TARGET_OS_IOS
 - (void)FIROAuthProvider_h:(FIROAuthProvider *)provider {
+  FIROAuthProvider *p = [FIROAuthProvider providerWithProviderID:@""];
+  p = [FIROAuthProvider providerWithProviderID:@"" auth:[FIRAuth auth]];
+
   FIROAuthCredential *c = [FIROAuthProvider credentialWithProviderID:@"id" accessToken:@"token"];
   c = [FIROAuthProvider credentialWithProviderID:@"id"
                                          IDToken:@"idToken"
