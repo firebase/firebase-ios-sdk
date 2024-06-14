@@ -187,7 +187,7 @@ import Foundation
   @available(
     *,
     deprecated,
-    message: "Use `credential(providerID: AuthProviderID, rawNonce: String, accessToken: String) -> OAuthCredential` instead."
+     message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
   )
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String,
@@ -220,7 +220,7 @@ import Foundation
   @available(
     *,
     deprecated,
-    message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String) -> OAuthCredential` instead."
+    message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
   )
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String) -> OAuthCredential {
