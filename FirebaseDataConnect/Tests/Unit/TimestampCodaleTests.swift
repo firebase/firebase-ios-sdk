@@ -86,47 +86,47 @@ final class TimestampTests: XCTestCase {
 
   func testDecodeWhenTimeOffsetIsPositive() throws {
     try XCTAssertEqual(
-      decodeTimestamp("2006-01-02T15:04:05+23:50"),
-      decodeTimestamp("2006-01-03T14:54:05Z")
+      decodeTimestamp("2006-01-02T15:04:05+07:00"),
+      decodeTimestamp("2006-01-02T08:04:05Z")
     )
   }
 
   func testDecodeWhenTimeOffsetIsNegative() throws {
     try XCTAssertEqual(
       decodeTimestamp("2006-01-02T15:04:05-05:10"),
-      decodeTimestamp("2006-01-02T09:54:05Z")
+      decodeTimestamp("2006-01-02T20:14:05Z")
     )
   }
 
   func testDecodeWithBothTimeSecFracAndTimeOffset() throws {
     try XCTAssertEqual(
       decodeTimestamp("2023-05-21T11:04:05.462-12:07"),
-      decodeTimestamp("2023-05-20T22:57:05.462Z")
+      decodeTimestamp("2023-05-21T23:11:05.462Z")
     )
 
     try XCTAssertEqual(
       decodeTimestamp("2053-11-02T15:04:05.743393-05:10"),
-      decodeTimestamp("2053-11-02T09:54:05.743393Z")
+      decodeTimestamp("2053-11-02T20:14:05.743393Z")
     )
 
     try XCTAssertEqual(
       decodeTimestamp("1538-03-05T15:04:05.653498752-03:01"),
-      decodeTimestamp("1538-03-05T12:03:05.653498752Z")
+      decodeTimestamp("1538-03-05T18:05:05.653498752Z")
     )
 
     try XCTAssertEqual(
-      decodeTimestamp("2023-05-21T11:04:05.662+12:07"),
-      decodeTimestamp("2023-05-21T23:11:05.662Z")
+      decodeTimestamp("2023-05-21T11:04:05.662+10:01"),
+      decodeTimestamp("2023-05-21T01:03:05.662Z")
     )
 
     try XCTAssertEqual(
       decodeTimestamp("2144-01-02T15:04:05.753493+01:00"),
-      decodeTimestamp("2144-01-02T16:04:05.753493Z")
+      decodeTimestamp("2144-01-02T14:04:05.753493Z")
     )
 
     try XCTAssertEqual(
       decodeTimestamp("1358-03-05T15:04:05.527094582+13:03"),
-      decodeTimestamp("1358-03-06T04:07:05.527094582Z")
+      decodeTimestamp("1358-03-05T02:01:05.527094582Z")
     )
   }
 
