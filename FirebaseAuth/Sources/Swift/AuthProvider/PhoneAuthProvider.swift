@@ -107,17 +107,21 @@ import Foundation
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession? = nil) async throws
       -> String {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.verifyPhoneNumber(phoneNumber,
-                               uiDelegate: uiDelegate,
-                               multiFactorSession: multiFactorSession) { result, error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else if let result {
-            continuation.resume(returning: result)
-          }
+        guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+                                                      urlTypes: auth.mainBundleUrlTypes) else {
+          fatalError(
+            "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
+          )
         }
-      }
+        do {
+          if let verificationID = try await internalVerify(phoneNumber: phoneNumber, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession) {
+            return verificationID
+          } else {
+            throw AuthErrorUtils.invalidVerificationIDError(message: "Invalid verification ID")
+          }
+        } catch {
+          throw error
+        }
     }
 
     /// Verify ownership of the second factor phone number by the current user.
@@ -152,16 +156,12 @@ import Foundation
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession?) async throws -> String {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.verifyPhoneNumber(with: multiFactorInfo,
-                               uiDelegate: uiDelegate,
-                               multiFactorSession: multiFactorSession) { result, error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else if let result {
-            continuation.resume(returning: result)
-          }
-        }
+      do {
+        return try await self.verifyPhoneNumber(with: multiFactorInfo,
+                                                uiDelegate: uiDelegate,
+                                                multiFactorSession: multiFactorSession)
+      } catch {
+        throw error
       }
     }
 
@@ -244,7 +244,6 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       }

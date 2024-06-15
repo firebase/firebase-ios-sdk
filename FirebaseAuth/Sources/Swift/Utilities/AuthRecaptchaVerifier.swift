@@ -28,16 +28,24 @@
     }
   }
 
-  enum AuthRecaptchaProvider {
-    case password
-  }
+enum AuthRecaptchaProvider: String, CaseIterable {
+  case password = "EMAIL_PASSWORD_PROVIDER"
+  case phone = "PHONE_PROVIDER" // Add phone provider
+  
+    // Convenience property for mapping values
+  var stringValue: String { self.rawValue }
+}
 
-  enum AuthRecaptchaAction {
-    case defaultAction
-    case signInWithPassword
-    case getOobCode
-    case signUpPassword
-  }
+enum AuthRecaptchaAction: String {
+  case defaultAction = "defaultAction"
+  case signInWithPassword = "signInWithPassword"
+  case getOobCode = "getOobCode"
+  case signUpPassword = "signUpPassword"
+  case sendVerificationCode = "sendVerificationCode"
+  
+    // Convenience property for mapping values
+  var stringValue: String { self.rawValue }
+}
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaVerifier {
@@ -47,10 +55,6 @@
     private(set) var recaptchaClient: RCARecaptchaClientProtocol?
 
     private static let _shared = AuthRecaptchaVerifier()
-    private let providerToStringMap = [AuthRecaptchaProvider.password: "EMAIL_PASSWORD_PROVIDER"]
-    private let actionToStringMap = [AuthRecaptchaAction.signInWithPassword: "signInWithPassword",
-                                     AuthRecaptchaAction.getOobCode: "getOobCode",
-                                     AuthRecaptchaAction.signUpPassword: "signUpPassword"]
     private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
     private init() {}
 
@@ -74,21 +78,15 @@
     }
 
     func enablementStatus(forProvider provider: AuthRecaptchaProvider) -> Bool {
-      guard let providerString = providerToStringMap[provider] else {
-        return false
-      }
-      if let tenantID = auth?.tenantID {
-        guard let tenantConfig = tenantConfigs[tenantID],
-              let status = tenantConfig.enablementStatus[providerString] else {
-          return false
-        }
+      if let tenantID = auth?.tenantID,
+          let tenantConfig = tenantConfigs[tenantID],
+         let status = tenantConfig.enablementStatus[provider.stringValue] {
+        return status
+      } else if let agentConfig = agentConfig,
+                let status = agentConfig.enablementStatus[provider.stringValue] {
         return status
       } else {
-        guard let agentConfig,
-              let status = agentConfig.enablementStatus[providerString] else {
-          return false
-        }
-        return status
+        return false
       }
     }
 
@@ -106,8 +104,8 @@
     }
 
     func retrieveRecaptchaToken(withAction action: AuthRecaptchaAction) async throws -> String {
-      guard let actionString = actionToStringMap[action],
-            let RecaptchaActionClass = NSClassFromString("RecaptchaAction"),
+      let actionString = action.stringValue
+      guard let RecaptchaActionClass = NSClassFromString("RecaptchaAction"),
             let actionClass = RecaptchaActionClass as? any RCAActionProtocol.Type else {
         throw AuthErrorUtils.recaptchaSDKNotLinkedError()
       }
@@ -157,14 +155,16 @@
       var enablementStatus: [String: Bool] = [:]
       if let enforcementState = response.enforcementState {
         for state in enforcementState {
-          if let provider = state["provider"],
-             provider == providerToStringMap[AuthRecaptchaProvider.password] {
-            if let enforcement = state["enforcementState"] {
-              if enforcement == "ENFORCE" || enforcement == "AUDIT" {
-                enablementStatus[provider] = true
-              } else if enforcement == "OFF" {
-                enablementStatus[provider] = false
-              }
+          if let providerString = state["provider"],
+             let enforcement = state["enforcementState"],
+             let provider = AuthRecaptchaProvider(rawValue: providerString) { // Try to get enum from raw value
+            switch enforcement {
+            case "ENFORCE", "AUDIT":
+              enablementStatus[provider.stringValue] = true
+            case "OFF":
+              enablementStatus[provider.stringValue] = false
+            default:
+              break // Handle unknown enforcement states if necessary
             }
           }
         }

@@ -29,6 +29,15 @@ private let kSecretKey = "iosSecret"
 /// The key for the reCAPTCHAToken parameter in the request.
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
+/// The key for the "clientType" value in the request.
+private let kClientType = "clientType"
+
+/// The key for the "captchaResponse" value in the request.
+private let kCaptchaResponseKey = "captchaResponse"
+
+/// The key for the "recaptchaVersion" value in the request.
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
@@ -49,6 +58,12 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The credential or reCAPTCHA token to prove the identity of the app in order to send the
   /// verification code.
   let codeIdentity: CodeIdentity
+  
+    /// Response to the captcha.
+  var captchaResponse: String?
+  
+    /// The reCAPTCHA version.
+  var recaptchaVersion: String?
 
   init(phoneNumber: String, codeIdentity: CodeIdentity,
        requestConfiguration: AuthRequestConfiguration) {
@@ -71,10 +86,21 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty: break
     }
-
+    if let captchaResponse {
+      postBody[kCaptchaResponseKey] = captchaResponse
+    }
+    if let recaptchaVersion {
+      postBody[kRecaptchaVersion] = recaptchaVersion
+    }
     if let tenantID {
       postBody[kTenantIDKey] = tenantID
     }
+    postBody[kClientType] = clientType
     return postBody
+  }
+  
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
   }
 }
