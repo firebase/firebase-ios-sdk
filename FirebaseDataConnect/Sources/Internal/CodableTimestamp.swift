@@ -14,6 +14,7 @@
 
 import FirebaseCore
 import FirebaseSharedSwift
+import SwiftProtobuf
 
 /**
  * A protocol describing the encodable properties of a Timestamp.
@@ -44,7 +45,7 @@ private enum TimestampKeys: String, CodingKey {
  */
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension CodableTimestamp {
-  public init(from decoder: any Decoder) throws {
+  public init(from decoder: any Swift.Decoder) throws {
     let container = try decoder.singleValueContainer()
     let timestampString = try container.decode(String.self).uppercased()
 
@@ -54,50 +55,23 @@ extension CodableTimestamp {
       nil else {
       FirebaseLogger.dataConnect
         .error(
-          "Timestamp string: \(timestampString) does not conform to the RFC3339 specification."
+          "Timestamp string: \(timestampString) format doesn't support."
         )
       throw DataConnectError.invalidTimestampFormat
     }
 
-    // second
-    let seconds = String(timestampString.prefix(19))
-    var sec = CodableTimestampHelper.convertSeconds(from: seconds)
-
-    // nanoSeconds and timezone
-    let startIndex = timestampString.index(timestampString.startIndex, offsetBy: 20)
-    let nanoSecondsAndTimezone = timestampString[startIndex...]
-    let separators = CharacterSet(charactersIn: ".Z+-")
-
-    // Split the string using the character set
-    let components = nanoSecondsAndTimezone.components(separatedBy: separators)
-
-    let nanoSecondString = timestampString.contains(".") ?
-      components[0].padding(toLength: 9, withPad: "0", startingAt: 0)
-      : "0"
-
-    let nanoSecond = Int32(nanoSecondString)!
-
-    // need to calculate time zone
-    if nanoSecondsAndTimezone.contains(":") {
-      let timeZone = components.last!
-      let diffSign = timestampString.contains("+") ? 1 : -1
-      let parts = timeZone.split(separator: ":")
-      let hours = Int(parts[0])!
-      let minutes = Int(parts[1])!
-      let timeZoneDiffer = hours * 3600 + minutes * 60
-      sec += Int64(timeZoneDiffer * diffSign)
-    }
-
-    self.init(seconds: sec, nanoseconds: nanoSecond)
+    let buf: Google_Protobuf_Timestamp =
+      try! Google_Protobuf_Timestamp(jsonString: "\"\(timestampString)\"")
+    self.init(seconds: buf.seconds, nanoseconds: buf.nanos)
   }
 
-  public func encode(to encoder: any Encoder) throws {
+  public func encode(to encoder: any Swift.Encoder) throws {
     // timestamp to string
     var container = encoder.singleValueContainer()
-    let date = Date(timeIntervalSince1970: Double(self.seconds))
-    let seconds = CodableTimestampHelper.formatter.string(from: date)
-    let nanoSeconds = nanoseconds == 0 ? "" : "." + String(format: "%09d", nanoseconds)
-    try container.encode("\(seconds)\(nanoSeconds)Z")
+    let bufString = try! Google_Protobuf_Timestamp(seconds: seconds, nanos: nanoseconds)
+      .jsonString()
+    let timestampString = bufString.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+    try container.encode(timestampString)
   }
 }
 
@@ -110,21 +84,4 @@ class CodableTimestampHelper {
     try! NSRegularExpression(
       pattern: #"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{0,9})?(Z|[+-]\d{2}:\d{2})$"#
     )
-
-  static let formatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.calendar = Calendar(identifier: .iso8601)
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-    return formatter
-  }()
-
-  static func convertSeconds(from secondString: String) -> Int64 {
-    let date: Date = formatter.date(from: secondString)!
-
-    let timeInterval = date.timeIntervalSince1970
-
-    return Int64(timeInterval)
-  }
 }
