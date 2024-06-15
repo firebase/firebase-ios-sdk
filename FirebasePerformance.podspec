@@ -91,6 +91,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
       'FPRScreenTraces' => false,
     }
 
+    unit_tests.dependency 'GoogleUtilities/SwizzlerTestHelpers'
     unit_tests.dependency 'OCMock'
     unit_tests.dependency 'GCDWebServer'
   end
