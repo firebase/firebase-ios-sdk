@@ -470,6 +470,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
   func FIROAuthProvider_h() {
     let _: (String, Auth) -> OAuthProvider = OAuthProvider.init(providerID:auth:)
+    let _: (AuthProviderID, Auth) -> OAuthProvider = OAuthProvider.init(providerID:auth:)
     let _: (String) -> OAuthProvider = OAuthProvider.provider(providerID:)
     let _: (String, Auth) -> OAuthProvider = OAuthProvider.provider(providerID:auth:)
     let _: (AuthProviderID) -> OAuthProvider = OAuthProvider.provider(providerID:)

@@ -78,6 +78,7 @@ import Foundation
     return OAuthProvider(providerID: providerID.rawValue, auth: auth)
   }
 
+  /// Initializes an `OAuthProvider`.
   /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
   /// be configured.
   /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
@@ -115,6 +116,15 @@ import Foundation
     } else {
       fatalError("Missing googleAppID for constructing callbackScheme")
     }
+  }
+
+  /// Initializes an `OAuthProvider`.
+  /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
+  /// be configured.
+  /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
+  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
+  public convenience init(providerID: AuthProviderID, auth: Auth = Auth.auth()) {
+    self.init(providerID: providerID.rawValue, auth: auth)
   }
 
   /// Creates an `AuthCredential` for the OAuth 2 provider identified by provider ID, ID
