@@ -24,8 +24,7 @@
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
 #import "FirebasePerformance/Sources/FPRURLFilter.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
-
-#import <GoogleUtilities/GULObjectSwizzler.h>
+#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
 
 NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
@@ -427,7 +426,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 + (void)addNetworkTrace:(FPRNetworkTrace *)networkTrace toObject:(id)object {
   if (object != nil && networkTrace != nil) {
-    [GULObjectSwizzler
+    [FPRObjectSwizzler
         setAssociatedObject:object
                         key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName
                       value:networkTrace
@@ -438,7 +437,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 + (FPRNetworkTrace *)networkTraceFromObject:(id)object {
   FPRNetworkTrace *networkTrace = nil;
   if (object != nil) {
-    id traceObject = [GULObjectSwizzler
+    id traceObject = [FPRObjectSwizzler
         getAssociatedObject:object
                         key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName];
     if ([traceObject isKindOfClass:[FPRNetworkTrace class]]) {
@@ -451,7 +450,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 + (void)removeNetworkTraceFromObject:(id)object {
   if (object != nil) {
-    [GULObjectSwizzler
+    [FPRObjectSwizzler
         setAssociatedObject:object
                         key:(__bridge const void *_Nonnull)kFPRNetworkTracePropertyName
                       value:nil
