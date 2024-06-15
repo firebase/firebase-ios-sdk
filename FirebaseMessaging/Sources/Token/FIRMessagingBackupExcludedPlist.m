@@ -28,7 +28,7 @@
 
 @implementation FIRMessagingBackupExcludedPlist
 
-- (instancetype)initWithFileName:(NSString *)fileName subDirectory:(NSString *)subDirectory {
+- (instancetype)initWithPlistFile:(NSString *)fileName subDirectory:(NSString *)subDirectory {
   self = [super init];
   if (self) {
     _fileName = [fileName copy];
