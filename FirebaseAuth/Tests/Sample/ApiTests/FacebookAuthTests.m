@@ -36,8 +36,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 
 @implementation FacebookAuthTests
 
-// TODO(#10752) - Update and fix the Facebook login Sample app and tests.
-- (void)SKIPtestSignInWithFaceboook {
+- (void)testSignInWithFaceboook {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -77,8 +76,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   [self deleteFacebookTestingAccountbyId:facebookAccountId];
 }
 
-// TODO(#10752) - Update and fix the Facebook login Sample app and tests.
-- (void)SKIPtestLinkAnonymousAccountToFacebookAccount {
+- (void)testLinkAnonymousAccountToFacebookAccount {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
@@ -143,7 +141,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   __block NSData *data = nil;
   [fetcher beginFetchWithCompletionHandler:^(NSData *receivedData, NSError *error) {
     if (error) {
-      NSLog(@"Creating Facebook account finished with error: %@", error);
+      NSLog(@"Error: Creating Facebook account finished with error: %@", error);
       return;
     }
     data = receivedData;
