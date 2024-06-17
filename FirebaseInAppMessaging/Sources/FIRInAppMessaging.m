@@ -53,36 +53,34 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time fiam is called.
     *isCacheable = YES;
+
+    // Only configure for the default FIRApp.
+    if (container.app.isDefaultApp) {
+      FIRLogError(kFIRLoggerInAppMessaging, @"I-IAM170000",
+                  @"In-App Messaging must be used with the default Firebase app.");
+      return nil;
+    }
+
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
+
+    if (_autoBootstrapOnFIRAppInit) {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170002",
+                  @"Auto bootstrap Firebase in-app messaging SDK");
+      [FIRInAppMessaging bootstrapIAMFromFIRApp:container.app];
+    } else {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170003",
+                  @"No auto bootstrap Firebase in-app messaging SDK");
+    }
+
     return [[FIRInAppMessaging alloc] initWithAnalytics:analytics installations:installations];
   };
   FIRComponent *fiamProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInAppMessagingInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                             creationBlock:creationBlock];
 
   return @[ fiamProvider ];
-}
-
-+ (void)configureWithApp:(FIRApp *)app {
-  if (!app.isDefaultApp) {
-    // Only configure for the default FIRApp.
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170000",
-                @"Firebase InAppMessaging only works with the default app.");
-    return;
-  }
-
-  FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170001",
-              @"Got notification for kFIRAppReadyToConfigureSDKNotification");
-  if (_autoBootstrapOnFIRAppInit) {
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170002",
-                @"Auto bootstrap Firebase in-app messaging SDK");
-    [self bootstrapIAMFromFIRApp:app];
-  } else {
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170003",
-                @"No auto bootstrap Firebase in-app messaging SDK");
-  }
 }
 
 - (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop>)analytics
