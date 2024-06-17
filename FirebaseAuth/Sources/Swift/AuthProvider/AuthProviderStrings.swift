@@ -14,8 +14,8 @@
 
 import Foundation
 
-/// Enumeration of the available Auth Providers.
-public enum AuthProviderString: String {
+/// Enumeration of the available Auth Provider IDs.
+public enum AuthProviderID: String {
   case apple = "apple.com"
   case email = "password"
   case facebook = "facebook.com"

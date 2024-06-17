@@ -55,10 +55,10 @@ import FirebaseCore
      */
     func testObtainingOAuthCredentialNoIDToken() throws {
       initApp(#function)
-      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
+      let credential = OAuthProvider.credential(providerID: .apple,
                                                 accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
-      XCTAssertEqual(credential.provider, kFakeProviderID)
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
       XCTAssertNil(credential.idToken)
     }
 
@@ -85,11 +85,11 @@ import FirebaseCore
      */
     func testObtainingOAuthCredentialWithIDToken() throws {
       initApp(#function)
-      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
+      let credential = OAuthProvider.credential(providerID: .email,
                                                 idToken: kFakeIDToken,
                                                 accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
-      XCTAssertEqual(credential.provider, kFakeProviderID)
+      XCTAssertEqual(credential.provider, AuthProviderID.email.rawValue)
       XCTAssertEqual(credential.idToken, kFakeIDToken)
     }
 

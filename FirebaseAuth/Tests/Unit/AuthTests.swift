@@ -1132,7 +1132,7 @@ class AuthTests: RPCBaseTests {
       // 2. Validate the created Request instance.
       let request = try XCTUnwrap(self.rpcIssuer.request as? VerifyAssertionRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-      XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
+      XCTAssertEqual(request.providerID, AuthProviderID.apple.rawValue)
       XCTAssertEqual(request.providerIDToken, kAppleIDToken)
       XCTAssertEqual(request.fullName, fullName)
       XCTAssertTrue(request.returnSecureToken)
@@ -1141,7 +1141,7 @@ class AuthTests: RPCBaseTests {
       try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                             "refreshToken": self.kRefreshToken,
                                             "federatedId": self.kGoogleID,
-                                            "providerId": AuthProviderString.apple.rawValue,
+                                            "providerId": AuthProviderID.apple.rawValue,
                                             "localId": self.kLocalID,
                                             "displayName": self.kGoogleDisplayName,
                                             "rawUserInfo": self.kGoogleProfile,
@@ -1164,7 +1164,7 @@ class AuthTests: RPCBaseTests {
         }
         XCTAssertEqual(profile, self.kGoogleProfile)
         XCTAssertEqual(additionalUserInfo.username, self.kGoogleDisplayName)
-        XCTAssertEqual(additionalUserInfo.providerID, AuthProviderString.apple.rawValue)
+        XCTAssertEqual(additionalUserInfo.providerID, AuthProviderID.apple.rawValue)
       } catch {
         XCTFail("\(error)")
       }
@@ -1910,7 +1910,7 @@ class AuthTests: RPCBaseTests {
     rpcIssuer.respondBlock = {
       let request = try XCTUnwrap(self.rpcIssuer.request as? RevokeTokenRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-      XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
+      XCTAssertEqual(request.providerID, AuthProviderID.apple.rawValue)
       XCTAssertEqual(request.token, code)
       XCTAssertEqual(request.tokenType, .authorizationCode)
 
@@ -1936,7 +1936,7 @@ class AuthTests: RPCBaseTests {
     issuer?.respondBlock = {
       let request = try XCTUnwrap(issuer?.request as? RevokeTokenRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-      XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
+      XCTAssertEqual(request.providerID, AuthProviderID.apple.rawValue)
       XCTAssertEqual(request.token, code)
       XCTAssertEqual(request.tokenType, .authorizationCode)
 
