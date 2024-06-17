@@ -1,3 +1,7 @@
+# 10.29.0
+- [fixed] Renamed "initWithFileName" internal method that was causing submission issues for some
+  users. (#13134).
+
 # 10.27.0
 - [fixed] Fixed bug preventing Messaging from working with a custom sqlite3
   dependency (#12900).
