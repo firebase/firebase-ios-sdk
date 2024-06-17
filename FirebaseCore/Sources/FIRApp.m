@@ -87,12 +87,6 @@ NSString *const kFirebaseCoreDefaultsSuiteName = @"com.firebase.core";
  */
 static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 
-/**
- * An array of all classes that registered as `FIRCoreConfigurable` in order to receive lifecycle
- * events from Core.
- */
-static NSMutableArray<Class<FIRLibrary>> *sRegisteredAsConfigurable;
-
 @interface FIRApp ()
 
 #ifdef DEBUG
@@ -453,14 +447,6 @@ static FIRApp *sDefaultApp;
   [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                       object:self
                                                     userInfo:appInfoDict];
-
-  // This is the new way of sending information to SDKs.
-  // TODO: Do we want this on a background thread, maybe?
-  @synchronized(self) {
-    for (Class<FIRLibrary> library in sRegisteredAsConfigurable) {
-      [library configureWithApp:app];
-    }
-  }
 }
 
 + (NSError *)errorForMissingOptions {
@@ -525,15 +511,6 @@ static FIRApp *sDefaultApp;
   }
 
   [FIRComponentContainer registerAsComponentRegistrant:library];
-  if ([(Class)library respondsToSelector:@selector(configureWithApp:)]) {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-      sRegisteredAsConfigurable = [[NSMutableArray alloc] init];
-    });
-    @synchronized(self) {
-      [sRegisteredAsConfigurable addObject:library];
-    }
-  }
   [self registerLibrary:name withVersion:version];
 }
 
