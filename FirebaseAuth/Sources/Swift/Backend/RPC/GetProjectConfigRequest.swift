@@ -32,5 +32,5 @@ class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
     fatalError()
   }
 
-  var containsPostBody: Bool { false }
+  override var containsPostBody: Bool { return false }
 }

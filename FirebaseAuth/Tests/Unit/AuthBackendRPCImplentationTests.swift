@@ -673,9 +673,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       )
     }
 
-    func containsPostBody() -> Bool {
-      return true
-    }
+    var containsPostBody: Bool { return true }
 
     private let configuration: AuthRequestConfiguration
 

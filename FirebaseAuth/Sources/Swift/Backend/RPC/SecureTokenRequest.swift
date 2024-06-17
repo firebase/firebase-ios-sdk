@@ -127,7 +127,7 @@ class SecureTokenRequest: AuthRPCRequest {
     return URL(string: urlString)!
   }
 
-  func containsPostBody() -> Bool { true }
+  var containsPostBody: Bool { return true }
 
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [

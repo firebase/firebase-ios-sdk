@@ -60,9 +60,7 @@ class GetRecaptchaConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
     return [:]
   }
 
-  override func containsPostBody() -> Bool {
-    false
-  }
+  override var containsPostBody: Bool { return false }
 
   override func queryParams() -> String {
     var queryParams = "&\(kClientTypeKey)=\(clientType)&\(kVersionKey)=\(kRecaptchaVersion)"
