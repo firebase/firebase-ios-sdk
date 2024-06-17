@@ -55,7 +55,7 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
     *isCacheable = YES;
 
     // Only configure for the default FIRApp.
-    if (container.app.isDefaultApp) {
+    if (!container.app.isDefaultApp) {
       FIRLogError(kFIRLoggerInAppMessaging, @"I-IAM170000",
                   @"In-App Messaging must be used with the default Firebase app.");
       return nil;
