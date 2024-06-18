@@ -1159,7 +1159,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testCountTokens_succeeds() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
-      forResource: "success-total-tokens",
+      forResource: "unary-success-total-tokens",
       withExtension: "json"
     )
 
@@ -1171,7 +1171,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testCountTokens_succeeds_noBillableCharacters() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
-      forResource: "success-no-billable-characters",
+      forResource: "unary-success-no-billable-characters",
       withExtension: "json"
     )
 
@@ -1186,7 +1186,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testCountTokens_modelNotFound() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
-      forResource: "failure-model-not-found", withExtension: "json",
+      forResource: "unary-failure-model-not-found", withExtension: "json",
       statusCode: 404
     )
 
@@ -1207,7 +1207,7 @@ final class GenerativeModelTests: XCTestCase {
     let expectedTimeout = 150.0
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
-        forResource: "success-total-tokens",
+        forResource: "unary-success-total-tokens",
         withExtension: "json",
         timeout: expectedTimeout
       )
