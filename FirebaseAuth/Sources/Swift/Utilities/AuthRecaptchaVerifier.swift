@@ -33,6 +33,15 @@
     }
   }
 
+enum AuthRecaptchaEnablementStatus: String, CaseIterable {
+  case enforce = "ENFORCE"
+  case audit = "AUDIT"
+  case off = "OFF"
+  
+    // Convenience property for mapping values
+  var stringValue: String { self.rawValue }
+}
+
   enum AuthRecaptchaEnablementStatus: String, CaseIterable {
     case enforce = "ENFORCE"
     case audit = "AUDIT"

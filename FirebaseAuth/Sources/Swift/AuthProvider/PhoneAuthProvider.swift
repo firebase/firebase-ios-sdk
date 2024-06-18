@@ -14,6 +14,7 @@
 
 import FirebaseCore
 import Foundation
+import RecaptchaEnterprise
 
 /// A concrete implementation of `AuthProvider` for phone auth providers.
 ///
@@ -114,6 +115,9 @@ import Foundation
           )
         }
         do {
+//          let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+//          let enablementStatus = recaptchaVerifier.enablementStatus(forProvider: .phone)
+          // regular phone number login
           if let verificationID = try await internalVerify(phoneNumber: phoneNumber, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession) {
             return verificationID
           } else {
@@ -123,6 +127,24 @@ import Foundation
           throw error
         }
     }
+  
+//  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+//  open func verifyPhoneNumberWithRecaptcha(_ phoneNumber: String,
+//                              uiDelegate: AuthUIDelegate? = nil,
+//                              multiFactorSession: MultiFactorSession? = nil) async throws
+//  -> String {
+//    guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+//                                                  urlTypes: auth.mainBundleUrlTypes) else {
+//      fatalError(
+//        "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
+//      )
+//    }
+//    do {
+//      
+//    } catch {
+//      throw error
+//    }
+//  }
 
     /// Verify ownership of the second factor phone number by the current user.
     /// - Parameter multiFactorInfo: The phone multi factor whose number need to be verified.
@@ -338,6 +360,11 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
+//        let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+//        let enforcement = recaptchaVerifier.enablementStatus(forProvider: .phone)
+//        if(enforcement != .off) {
+//          try await recaptchaVerifier.injectRecaptchaFields(request: request, provider: .phone, action: .sendVerificationCode)
+//        }
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       }
