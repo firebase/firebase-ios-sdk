@@ -22,6 +22,6 @@ class GetRecaptchaConfigResponse: AuthRPCResponse {
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     recaptchaKey = dictionary["recaptchaKey"] as? String
-    enforcementState = dictionary["enforcementState"] as? [[String: String]]
+    enforcementState = dictionary["recaptchaEnforcementState"] as? [[String: String]]
   }
 }
