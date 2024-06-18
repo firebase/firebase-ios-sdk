@@ -27,20 +27,21 @@ class PhoneAuthViewController: OtherAuthViewController {
   }
 
   // MARK: - Firebase 🔥
-
+  
   private func phoneAuthLogin(_ phoneNumber: String) {
     let phoneNumber = String(format: "+%@", phoneNumber)
-    PhoneAuthProvider.provider()
-      .verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
-        guard error == nil else { return self.displayError(error) }
-
-        guard let verificationID = verificationID else { return }
-        self.presentPhoneAuthController { verificationCode in
-          let credential = PhoneAuthProvider.provider()
-            .credential(withVerificationID: verificationID, verificationCode: verificationCode)
-          self.signin(with: credential)
-        }
+    Task {
+      do {
+        let phoneAuthProvider = PhoneAuthProvider.provider()
+        let verificationID = try await phoneAuthProvider.verifyPhoneNumber(phoneNumber)
+        let verificationCode = try await getVerificationCode()
+        let credential = phoneAuthProvider.credential(withVerificationID: verificationID,
+                                                      verificationCode: verificationCode)
+        self.signin(with: credential)
+      } catch {
+        self.displayError(error)
       }
+    }
   }
 
   private func signin(with credential: PhoneAuthCredential) {
@@ -73,5 +74,18 @@ class PhoneAuthViewController: OtherAuthViewController {
     phoneAuthController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
     present(phoneAuthController, animated: true, completion: nil)
+  }
+  
+  private func getVerificationCode() async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.presentPhoneAuthController{ code in
+        if code != "" {
+          continuation.resume(returning: code)
+        } else {
+            // Cancelled
+          continuation.resume(throwing: NSError())
+        }
+      }
+    }
   }
 }

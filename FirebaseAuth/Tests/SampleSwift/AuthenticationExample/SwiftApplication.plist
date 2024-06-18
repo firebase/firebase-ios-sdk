@@ -24,7 +24,10 @@
 			<key>CFBundleURLName</key>
 			<string></string>
 			<key>CFBundleURLSchemes</key>
-			<array/>
+			<array>
+				<string>app-1-585304629422-ios-cb0e5761816443a9d98d3f</string>
+				<string>com.googleusercontent.apps.585304629422-ab795evno6vsrj7i7o1a3gi6eo01508b</string>
+			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
