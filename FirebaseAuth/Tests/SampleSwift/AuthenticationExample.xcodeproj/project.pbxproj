@@ -33,7 +33,6 @@
 		DEC2E5DF2A9583CA0090260A /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2E5DE2A9583CA0090260A /* AppManager.swift */; };
 		DEC2E5E42A966DE20090260A /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */; };
 		DED37F632AB0C4F7003A67E4 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */; };
-		DEE261C52C21E9F500EECAC5 /* RecaptchaEnterprise in Frameworks */ = {isa = PBXBuildFile; productRef = DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */; };
 		EA02F68524A000E00079D000 /* UserActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68424A000E00079D000 /* UserActions.swift */; };
 		EA02F68D24A063E90079D000 /* LoginDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68C24A063E90079D000 /* LoginDelegate.swift */; };
 		EA062D5D24A0FEB6006714D3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA062D5C24A0FEB6006714D3 /* README.md */; };
@@ -157,7 +156,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE261C52C21E9F500EECAC5 /* RecaptchaEnterprise in Frameworks */,
 				DE8B63772BEC302200607B82 /* FacebookLogin in Frameworks */,
 				DE8B63742BEC2FB900607B82 /* GoogleSignInSwift in Frameworks */,
 				DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */,
@@ -390,7 +388,6 @@
 				DE8B63712BEC2FB900607B82 /* GoogleSignIn */,
 				DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */,
 				DE8B63762BEC302200607B82 /* FacebookLogin */,
-				DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */,
 			);
 			productName = "Swifty Auth";
 			productReference = EAE4CBC124855E3A00245E92 /* AuthenticationExample.app */;
@@ -478,7 +475,6 @@
 				DE8B63702BEC2FB900607B82 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				DE8B63752BEC302200607B82 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
 				DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
-				DEE261C32C21E9F500EECAC5 /* XCRemoteSwiftPackageReference "recaptcha-enterprise-mobile-sdk" */,
 			);
 			productRefGroup = EAE4CBC224855E3A00245E92 /* Products */;
 			projectDirPath = "";
@@ -999,14 +995,6 @@
 				minimumVersion = 3.4.1;
 			};
 		};
-		DEE261C32C21E9F500EECAC5 /* XCRemoteSwiftPackageReference "recaptcha-enterprise-mobile-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/GoogleCloudPlatform/recaptcha-enterprise-mobile-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 18.5.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1038,11 +1026,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
 			productName = GTMSessionFetcher;
-		};
-		DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DEE261C32C21E9F500EECAC5 /* XCRemoteSwiftPackageReference "recaptcha-enterprise-mobile-sdk" */;
-			productName = RecaptchaEnterprise;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
