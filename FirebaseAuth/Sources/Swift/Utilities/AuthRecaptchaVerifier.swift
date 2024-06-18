@@ -106,7 +106,8 @@
 
     func retrieveRecaptchaToken(withAction action: AuthRecaptchaAction) async throws -> String {
       guard let actionString = actionToStringMap[action],
-            let actionClass = NSClassFromString("RecaptchaAction") else {
+            let RecaptchaActionClass = NSClassFromString("RecaptchaAction"),
+            let actionClass = RecaptchaActionClass as? any RCAActionProtocol.Type else {
         throw AuthErrorUtils.recaptchaSDKNotLinkedError()
       }
       let customAction = actionClass.init(customAction: actionString)
