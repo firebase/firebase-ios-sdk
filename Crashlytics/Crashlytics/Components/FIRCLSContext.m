@@ -174,8 +174,15 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
     dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->signal.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
+      bool firebaseCrashlyticsSIGTERMEnabled = false;
 
-      FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
+      id isSIGTERMEnabled =
+          [NSBundle.mainBundle.infoDictionary objectForKey:@"FirebaseCrashlyticsEnabled"];
+      if ([isSIGTERMEnabled isKindOfClass:[NSString class]] ||
+          [isSIGTERMEnabled isKindOfClass:[NSNumber class]]) {
+        firebaseCrashlyticsSIGTERMEnabled = [isSIGTERMEnabled boolValue];
+      }
+      FIRCLSSignalInitialize(&_firclsContext.readonly->signal, firebaseCrashlyticsSIGTERMEnabled);
     });
 #endif
 

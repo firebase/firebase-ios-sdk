@@ -33,16 +33,19 @@ static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {
     // - Resource overuse (CPU, Disk, ...).
     SIGTERM};
 
+static bool firebaseCrashlyticsSIGTERMEnabled = false;
+
 #if CLS_USE_SIGALTSTACK
 static void FIRCLSSignalInstallAltStack(FIRCLSSignalReadContext *roContext);
 #endif
 static void FIRCLSSignalInstallHandlers(FIRCLSSignalReadContext *roContext);
 static void FIRCLSSignalHandler(int signal, siginfo_t *info, void *uapVoid);
 
-void FIRCLSSignalInitialize(FIRCLSSignalReadContext *roContext) {
+void FIRCLSSignalInitialize(FIRCLSSignalReadContext *roContext, bool isSIGTERMEnabled) {
   if (!FIRCLSUnlinkIfExists(roContext->path)) {
     FIRCLSSDKLog("Unable to reset the signal log file %s\n", strerror(errno));
   }
+  firebaseCrashlyticsSIGTERMEnabled = isSIGTERMEnabled;
 
 #if CLS_USE_SIGALTSTACK
   FIRCLSSignalInstallAltStack(roContext);
@@ -61,6 +64,9 @@ void FIRCLSSignalInitialize(FIRCLSSignalReadContext *roContext) {
 
 void FIRCLSSignalEnumerateHandledSignals(void (^block)(int idx, int signal)) {
   for (int i = 0; i < FIRCLSSignalCount; ++i) {
+    if (firebaseCrashlyticsSIGTERMEnabled && FIRCLSFatalSignals[i] == SIGTERM) {
+      return;
+    }
     block(i, FIRCLSFatalSignals[i]);
   }
 }

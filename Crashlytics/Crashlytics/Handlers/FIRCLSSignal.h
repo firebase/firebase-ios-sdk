@@ -42,7 +42,7 @@ typedef struct {
 #endif
 } FIRCLSSignalReadContext;
 
-void FIRCLSSignalInitialize(FIRCLSSignalReadContext* roContext);
+void FIRCLSSignalInitialize(FIRCLSSignalReadContext* roContext, bool isSIGTERMEnabled);
 void FIRCLSSignalCheckHandlers(void);
 
 void FIRCLSSignalSafeRemoveHandlers(bool includingAbort);
