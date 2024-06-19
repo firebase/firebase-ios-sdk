@@ -177,7 +177,7 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
       bool firebaseCrashlyticsSIGTERMEnabled = false;
 
       id isSIGTERMEnabled =
-          [NSBundle.mainBundle.infoDictionary objectForKey:@"FirebaseCrashlyticsEnabled"];
+          [NSBundle.mainBundle.infoDictionary objectForKey:@"FirebaseCrashlyticsSIGTERMEnabled"];
       if ([isSIGTERMEnabled isKindOfClass:[NSString class]] ||
           [isSIGTERMEnabled isKindOfClass:[NSNumber class]]) {
         firebaseCrashlyticsSIGTERMEnabled = [isSIGTERMEnabled boolValue];
