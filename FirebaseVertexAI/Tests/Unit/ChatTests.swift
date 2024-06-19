@@ -33,7 +33,7 @@ final class ChatTests: XCTestCase {
 
   func testMergingText() async throws {
     let fileURL = try XCTUnwrap(Bundle.module.url(
-      forResource: "streaming-success-basic-reply-long",
+      forResource: "streaming-success-basic-reply-parts",
       withExtension: "txt"
     ))
 
