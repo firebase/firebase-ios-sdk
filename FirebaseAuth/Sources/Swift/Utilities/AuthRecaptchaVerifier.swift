@@ -96,8 +96,7 @@
       try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
       if recaptchaClient == nil {
         guard let siteKey = siteKey(),
-              let RecaptchaClass = NSClassFromString("Recaptcha"),
-              let recaptcha = RecaptchaClass as? any RCARecaptchaProtocol.Type else {
+              let recaptcha: AnyClass = NSClassFromString("Recaptcha") else {
           throw AuthErrorUtils.recaptchaSDKNotLinkedError()
         }
         recaptchaClient = try await recaptcha.getClient(withSiteKey: siteKey)
