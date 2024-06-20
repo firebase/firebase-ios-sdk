@@ -150,8 +150,6 @@ exception_mask_t FIRCLSMachExceptionMaskForSignal(int signal) {
       return EXC_MASK_CRASH;
     case SIGFPE:
       return EXC_MASK_ARITHMETIC;
-    case SIGTERM:
-      return EXC_MASK_CRASH;
   }
 
   return 0;
