@@ -30,8 +30,7 @@
 #endif
 
 #if CLS_SIGNAL_SUPPORTED
-// keep in sync with the list in _FIRCLSFatalSignals_.
-#define FIRCLSSignalCount (8)
+#define FIRCLSSignalCount (7)
 
 typedef struct {
   const char* path;
