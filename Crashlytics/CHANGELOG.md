@@ -1,3 +1,6 @@
+# 10.28.1
+- [fixed] Reverted catching the SIGTERM signal (#12881), which resulted in over logging (#13117).
+
 # 10.28.0
 - [fixed] Created a new queue for rollouts persistence writes and made sure rollouts logging queue is not nil while dispatching (#12913).
 
