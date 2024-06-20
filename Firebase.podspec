@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '10.28.0'
+  s.version          = '10.28.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -43,7 +43,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '10.28.0'
+    ss.dependency 'FirebaseCore', '10.28.1'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -120,7 +120,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 10.28.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 10.28.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '11.0'
     ss.osx.deployment_target = '10.13'
