@@ -5,6 +5,7 @@ Pod::Spec.new do |s|
 
   s.description      = <<-DESC
 Firebase Core includes FIRApp and FIROptions which provide central configuration for other Firebase services.
+DO_NOT_MERGE
                        DESC
 
   s.homepage         = 'https://firebase.google.com'

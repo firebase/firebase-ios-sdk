@@ -5,6 +5,7 @@ Pod::Spec.new do |s|
 
   s.description      = <<-DESC
 Simplify your app development, grow your user base, and monetize more effectively with Firebase.
+DO_NOT_MERGE
                        DESC
 
   s.homepage         = 'https://firebase.google.com'

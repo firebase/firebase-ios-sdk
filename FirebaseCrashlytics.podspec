@@ -2,7 +2,7 @@ Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
   s.version          = '10.28.1'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
-  s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
+  s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality. DO_NOT_MERGE'
   s.homepage         = 'https://firebase.google.com/'
   s.license          = { :type => 'Apache-2.0', :file => 'Crashlytics/LICENSE' }
   s.authors          = 'Google, Inc.'
