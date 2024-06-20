@@ -105,8 +105,9 @@ enum AuthRecaptchaAction: String {
       do {
         try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
         if recaptchaClient == nil {
-          guard let siteKey = siteKey() else {
-            throw AuthErrorUtils.error(code: .internalError, message: "Invalid sitekey")
+          guard let siteKey = siteKey(),
+                let recaptcha: AnyClass = NSClassFromString("Recaptcha") else {
+            throw AuthErrorUtils.recaptchaSDKNotLinkedError()
           }
           recaptchaClient = try await Recaptcha.getClient(withSiteKey: siteKey)
         }
