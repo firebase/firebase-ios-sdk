@@ -184,7 +184,8 @@ NS_SWIFT_NAME(FirebaseLogger)
 + (void)logWithLevel:(FIRLoggerLevel)level
              service:(FIRLoggerService)service
                 code:(NSString *)code
-             message:(NSString *)message NS_SWIFT_NAME(log(level:service:code:message:));
+             message:(NSString *)message
+    __attribute__((__swift_name__("log(level:service:code:message:)")));
 
 @end
 
