@@ -14,7 +14,6 @@
 
 import FirebaseCore
 import Foundation
-import RecaptchaEnterprise
 
 /// A concrete implementation of `AuthProvider` for phone auth providers.
 ///
