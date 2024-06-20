@@ -846,9 +846,9 @@ let package = Package(
       name: "FirebaseMLModelDownloader",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "FirebaseInstallations",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "SwiftProtobuf", package: "swift-protobuf"),
       ],
