@@ -57,7 +57,7 @@ for encrypted_file in $files; do
   scripts_dir=$(dirname $0)
   decrypted_file=${encrypted_file%.*}
   source "$scripts_dir/decrypt_gha_secret.sh" \
-    $encrypted_file $decrypted_file \$current_secret_key
+    $encrypted_file $decrypted_file $current_secret_key
   if [ ! -f "$decrypted_file" ]; then
     echo "Error: The file could not be decrypted: $encrypted_file"
     exit 1
@@ -68,7 +68,7 @@ for encrypted_file in $files; do
   # the file to the `encrypted_file` path.
   rm $encrypted_file
 
-  echo "Encrypting with new secret"
+  echo "Encrypting with new secret to $encrypted_file"
 
   source "$scripts_dir/encrypt_gha_secret.sh" $decrypted_file $new_secret_key
   if [ ! -f "$encrypted_file" ]; then
