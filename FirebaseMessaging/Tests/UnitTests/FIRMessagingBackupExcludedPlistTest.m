@@ -44,8 +44,8 @@ static NSString *const kTestPlistFileName = @"com.google.test.IIDBackupExcludedP
 - (void)setUp {
   [super setUp];
   [FIRMessaging createSubDirectory:kSubDirectoryName];
-  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kTestPlistFileName
-                                                            subDirectory:kSubDirectoryName];
+  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithPlistFile:kTestPlistFileName
+                                                             subDirectory:kSubDirectoryName];
 }
 
 - (void)tearDown {

@@ -21,17 +21,8 @@
 #include <stdlib.h>
 
 #if CLS_SIGNAL_SUPPORTED
-static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {
-    SIGABRT, SIGBUS, SIGFPE, SIGILL,
-    SIGSEGV, SIGSYS, SIGTRAP,
-    // SIGTERM can be caught and is usually sent by iOS and variants
-    // when Apple wants to try and gracefully shutdown the app
-    // before sending a SIGKILL (which can't be caught).
-    // Some areas I've seen this happen are:
-    // - When the OS updates an app.
-    // - In some circumstances for Watchdog Events.
-    // - Resource overuse (CPU, Disk, ...).
-    SIGTERM};
+static const int FIRCLSFatalSignals[FIRCLSSignalCount] = {SIGABRT, SIGBUS, SIGFPE, SIGILL,
+                                                          SIGSEGV, SIGSYS, SIGTRAP};
 
 #if CLS_USE_SIGALTSTACK
 static void FIRCLSSignalInstallAltStack(FIRCLSSignalReadContext *roContext);
@@ -245,9 +236,6 @@ void FIRCLSSignalNameLookup(int number, int code, const char **name, const char 
       break;
     case SIGTRAP:
       *name = "SIGTRAP";
-      break;
-    case SIGTERM:
-      *name = "SIGTERM";
       break;
     default:
       *name = "UNKNOWN";

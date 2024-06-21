@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
@@ -32,15 +31,23 @@
 
 @interface FIRCLSRolloutsPersistenceManager : NSObject <FIRCLSPersistenceLog>
 @property(nonatomic, readonly) FIRCLSFileManager *fileManager;
+@property(nonnull, nonatomic, readonly) dispatch_queue_t rolloutsLoggingQueue;
 @end
 
 @implementation FIRCLSRolloutsPersistenceManager
-- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager {
+- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
+                           andQueue:(dispatch_queue_t)queue {
   self = [super init];
   if (!self) {
     return nil;
   }
   _fileManager = fileManager;
+
+  if (!queue) {
+    FIRCLSDebugLog(@"Failed to intialize FIRCLSRolloutsPersistenceManager, logging queue is nil");
+    return nil;
+  }
+  _rolloutsLoggingQueue = queue;
   return self;
 }
 
@@ -52,12 +59,18 @@
     if (![_fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
       FIRCLSDebugLog(@"Could not create rollouts.clsrecord file. Error was code: %d - message: %s",
                      errno, strerror(errno));
+      return;
     }
   }
 
   NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
 
-  dispatch_async(FIRCLSGetLoggingQueue(), ^{
+  if (!_rolloutsLoggingQueue) {
+    FIRCLSDebugLog(@"Rollouts logging queue is dealloccated");
+    return;
+  }
+
+  dispatch_async(_rolloutsLoggingQueue, ^{
     @try {
       [rolloutsFile seekToEndOfFile];
       NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];

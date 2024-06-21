@@ -310,8 +310,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.27.0/FirebaseAnalytics.zip",
-      checksum: "0d5e3c63e34a5e0a8f782641ca128b3bb3be74b1eb58f55a9a4b40064cd84e88"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.28.0/FirebaseAnalytics.zip",
+      checksum: "50af00e4f2b62e60f8c1686538285aaa10989df35a170c1761f9626edee4a79d"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -798,9 +798,9 @@ let package = Package(
       name: "FirebaseMLModelDownloader",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "FirebaseInstallations",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "SwiftProtobuf", package: "swift-protobuf"),
       ],
@@ -900,7 +900,6 @@ let package = Package(
         .define("FIRPerformance_LIB_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("QuartzCore", .when(platforms: [.iOS, .tvOS])),
       ]
@@ -1317,11 +1316,18 @@ let package = Package(
       dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
-        .process("CountTokenResponses"),
-        .process("GenerateContentResponses"),
+        .process("Responses"),
       ],
       cSettings: [
         .headerSearchPath("../../../"),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIIntegration",
+      dependencies: ["FirebaseVertexAI"],
+      path: "FirebaseVertexAI/Tests/Integration",
+      resources: [
+        .process("Resources"),
       ]
     ),
   ] + firestoreTargets(),
@@ -1340,7 +1346,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.27.0")
+  return .package(url: appMeasurementURL, exact: "10.28.0")
 }
 
 func abseilDependency() -> Package.Dependency {

@@ -5,10 +5,11 @@
         "role": "model",
         "parts": [
           {
-            "text": "Mountain View, California, United States"
+            "text": "Mountain View, California"
           }
         ]
       },
+      "index": 0,
       "finishReason": "STOP",
       "safetyRatings": [
         {
