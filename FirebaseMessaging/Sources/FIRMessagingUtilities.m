@@ -28,12 +28,16 @@ static NSString *const kFIRMessagingAPNSProdPrefix = @"p_";
 
 static NSString *const kFIRMessagingWatchKitExtensionPoint = @"com.apple.watchkit";
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
-static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
-#else
+#if TARGET_OS_OSX
+// macOS uses a different entitlement key than the rest of Apple's platforms:
+// https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_aps-environment
 static NSString *const kEntitlementsAPSEnvironmentKey =
     @"Entitlements.com.apple.developer.aps-environment";
-#endif
+#else
+// Entitlement key for all non-macOS platforms:
+// https://developer.apple.com/documentation/bundleresources/entitlements/aps-environment
+static NSString *const kEntitlementsAPSEnvironmentKey = @"Entitlements.aps-environment";
+#endif  // TARGET_OS_OSX
 static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 
 #pragma mark - URL Helpers
