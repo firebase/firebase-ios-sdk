@@ -55,6 +55,8 @@ files=$(find "$secrets_directory" -name "*.gpg")
 for encrypted_file in $files; do
   echo "Decrypting $encrypted_file"
   scripts_dir=$(dirname $0)
+  # The decrypted file's path will match the encrypted file's path, minus the
+  #  trailing `.gpg` extension.
   decrypted_file=${encrypted_file%.*}
   source "$scripts_dir/decrypt_gha_secret.sh" \
     $encrypted_file $decrypted_file $current_secret_key
