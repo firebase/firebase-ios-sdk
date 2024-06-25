@@ -316,7 +316,7 @@ Refer to the following resources when writing Swift or Objective-C code.
 
 This is a general overview of what the Git workflow may look like, from start to
 finish, when contributing code to Firebase.
-The below snippet is purely for reference purposes and is used to demonstarate
+The below snippet is purely for reference purposes and is used to demonstrate
 what the workflow may look like, from start to finish.
 <details>
 <summary>View the workflow</summary>
