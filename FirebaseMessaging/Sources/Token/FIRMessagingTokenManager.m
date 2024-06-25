@@ -693,7 +693,7 @@
   // If APNS token is available on iOS Simulator, we must use the sandbox profile
   // https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes
   BOOL isSandboxApp = YES;
-#else  // TARGET_OS_SIMULATOR
+#else   // TARGET_OS_SIMULATOR
   NSInteger type = [userInfo[kFIRMessagingAPNSTokenType] integerValue];
   BOOL isSandboxApp = (type == FIRMessagingAPNSTokenTypeSandbox);
   if (type == FIRMessagingAPNSTokenTypeUnknown) {

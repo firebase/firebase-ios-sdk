@@ -89,7 +89,7 @@ NSString *FIRMessagingAppIdentifier(void) {
   } else {
     return bundleID;
   }
-#else  // TARGET_OS_WATCH
+#else   // TARGET_OS_WATCH
   return bundleID;
 #endif  // TARGET_OS_WATCH
 }
@@ -112,7 +112,7 @@ BOOL FIRMessagingIsWatchKitExtension(void) {
   } else {
     return NO;
   }
-#else  // TARGET_OS_WATCH
+#else   // TARGET_OS_WATCH
   return NO;
 #endif  // TARGET_OS_WATCH
 }
@@ -120,7 +120,7 @@ BOOL FIRMessagingIsWatchKitExtension(void) {
 NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
 #if TARGET_OS_TV
   return NSCachesDirectory;
-#else  // TARGET_OS_TV
+#else   // TARGET_OS_TV
   return NSApplicationSupportDirectory;
 #endif  // TARGET_OS_TV
 }
@@ -315,7 +315,7 @@ BOOL FIRMessagingIsProductionApp(void) {
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
-#else  // TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#else   // TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif  // TARGET_OS_OSX || TARGET_OS_MACCATALYST

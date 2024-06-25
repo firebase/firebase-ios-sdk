@@ -221,7 +221,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // This is not needed for app extension except for watch.
 #if TARGET_OS_WATCH
   [self didCompleteConfigure];
-#else  // TARGET_OS_WATCH
+#else   // TARGET_OS_WATCH
   if (![GULAppEnvironmentUtil isAppExtension]) {
     [self didCompleteConfigure];
   }

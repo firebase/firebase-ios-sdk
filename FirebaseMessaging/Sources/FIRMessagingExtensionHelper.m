@@ -131,7 +131,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
                             @"The Image URL provided is invalid %@.", currentImageURL);
     [self deliverNotification];
   }
-#else  // !TARGET_OS_TV
+#else   // !TARGET_OS_TV
   [self deliverNotification];
 #endif  // !TARGET_OS_TV
 }
