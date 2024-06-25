@@ -203,4 +203,4 @@ static int64_t const kLastCheckinTimestamp = 123456;
 }
 
 @end
-#endif
+#endif  // !TARGET_OS_MACCATALYST
