@@ -1,9 +1,7 @@
 # Unreleased
-- [fixed] Fixed the APS Environment key on visionOS. (#13173)
-
-# 10.29.0
 - [fixed] Renamed "initWithFileName" internal method that was causing submission issues for some
   users. (#13134).
+- [fixed] Fixed the APS Environment key on visionOS. (#13173)
 
 # 10.27.0
 - [fixed] Fixed bug preventing Messaging from working with a custom sqlite3
