@@ -54,12 +54,12 @@ files=$(find "$secrets_directory" -name "*.gpg")
 # secret.
 for encrypted_file in $files; do
   echo "Decrypting $encrypted_file"
-  scripts_dir=$(dirname $0)
+  scripts_dir=$(dirname "$0")
   # The decrypted file's path will match the encrypted file's path, minus the
   #  trailing `.gpg` extension.
   decrypted_file=${encrypted_file%.*}
   source "$scripts_dir/decrypt_gha_secret.sh" \
-    $encrypted_file $decrypted_file $current_secret_key
+    "$encrypted_file" "$decrypted_file" "$current_secret_key"
   if [ ! -f "$decrypted_file" ]; then
     echo "Error: The file could not be decrypted: $encrypted_file"
     exit 1
@@ -68,16 +68,16 @@ for encrypted_file in $files; do
   # Remove current encrypted file or else re-encryption will fail due to the
   # gpg file already existing. The below script invocation will re-encrypt
   # the file to the `encrypted_file` path.
-  rm $encrypted_file
+  rm "$encrypted_file"
 
   echo "Encrypting with new secret to $encrypted_file"
 
-  source "$scripts_dir/encrypt_gha_secret.sh" $decrypted_file $new_secret_key
+  source "$scripts_dir/encrypt_gha_secret.sh" "$decrypted_file" "$new_secret_key"
   if [ ! -f "$encrypted_file" ]; then
     echo "Error: The file could not be encrypted: $decrypted_file"
     exit 1
   fi
 
   # Cleanup the decrpted file now that it's been re-encrypted.
-  rm $decrypted_file
+  rm "$decrypted_file"
 done
