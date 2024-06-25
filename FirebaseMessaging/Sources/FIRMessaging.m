@@ -415,9 +415,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
   SEL openURLWithSourceApplicationSelector = @selector(application:
                                                            openURL:sourceApplication:annotation:);
-#if TARGET_OS_IOS && !TARGET_OS_VISION
+#if TARGET_OS_IOS
   SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
-#endif  // TARGET_OS_IOS && !TARGET_OS_VISION
+#endif  // TARGET_OS_IOS
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
   // |application:continueUserActivity:restorationHandler:|. A warning will be displayed to the user
@@ -438,7 +438,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called,
     // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
-#if TARGET_OS_IOS && !TARGET_OS_VISION
+#if TARGET_OS_IOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application
@@ -451,7 +451,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application handleOpenURL:url];
 #pragma clang diagnostic pop
-#endif  // TARGET_OS_IOS && !TARGET_OS_VISION
+#endif  // TARGET_OS_IOS
   }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 }
