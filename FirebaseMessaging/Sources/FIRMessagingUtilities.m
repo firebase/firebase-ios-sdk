@@ -89,9 +89,9 @@ NSString *FIRMessagingAppIdentifier(void) {
   } else {
     return bundleID;
   }
-#else
+#else   // TARGET_OS_WATCH
   return bundleID;
-#endif
+#endif  // TARGET_OS_WATCH
 }
 
 NSString *FIRMessagingFirebaseAppID(void) {
@@ -112,17 +112,17 @@ BOOL FIRMessagingIsWatchKitExtension(void) {
   } else {
     return NO;
   }
-#else
+#else   // TARGET_OS_WATCH
   return NO;
-#endif
+#endif  // TARGET_OS_WATCH
 }
 
 NSSearchPathDirectory FIRMessagingSupportedDirectory(void) {
 #if TARGET_OS_TV
   return NSCachesDirectory;
-#else
+#else   // TARGET_OS_TV
   return NSApplicationSupportDirectory;
-#endif
+#endif  // TARGET_OS_TV
 }
 
 #pragma mark - Locales
@@ -315,10 +315,10 @@ BOOL FIRMessagingIsProductionApp(void) {
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
-#elif TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_VISION
+#else   // TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
-#endif
+#endif  // TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
   if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
     // Distributed via TestFlight

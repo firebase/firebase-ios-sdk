@@ -173,7 +173,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
     content.badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
   }
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#if !TARGET_OS_TV
   // The following fields are not available on tvOS
   if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
     content.body = apsDictionary[kFIRMessagingContextManagerBodyKey];
@@ -201,7 +201,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (userInfo.count) {
     content.userInfo = userInfo;
   }
-#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#endif  // !TARGET_OS_TV
   return content;
 }
 
