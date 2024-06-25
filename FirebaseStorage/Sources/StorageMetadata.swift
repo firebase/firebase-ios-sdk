@@ -230,7 +230,7 @@ import Foundation
     return 0
   }
 
-  private static var dateFormatter: DateFormatter = {
+  private static let dateFormatter: DateFormatter = {
     let dateFormatter = DateFormatter()
     dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZZZ"
