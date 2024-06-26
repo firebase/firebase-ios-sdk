@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added host override support for IdentityToolKit and SecureToken api endpoints. (#11858)
+
 # 10.21.0
 - [fixed] Fixed multifactor resolver to use the correct Auth instance instead of
   always the default. (#12265)
