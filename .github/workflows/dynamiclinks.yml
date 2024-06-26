@@ -141,6 +141,6 @@ jobs:
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
       with:
-        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }} #
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
