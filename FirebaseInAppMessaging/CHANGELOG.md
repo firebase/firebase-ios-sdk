@@ -1,4 +1,4 @@
-# Unreleased
+# 10.27.0
 - [fixed] Fixed crash at app start that affected CocoaPods users using static
   frameworks (#12882).
 

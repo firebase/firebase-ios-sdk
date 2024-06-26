@@ -302,7 +302,6 @@ class TestFirebaseDataEncoder: XCTestCase {
   }
 
   func testEncodingDateISO8601() {
-    if #available(OSX 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
       let formatter = ISO8601DateFormatter()
       formatter.formatOptions = .withInternetDateTime
 
@@ -319,7 +318,6 @@ class TestFirebaseDataEncoder: XCTestCase {
                      expected: expected,
                      dateEncodingStrategy: .iso8601,
                      dateDecodingStrategy: .iso8601)
-    }
   }
 
   func testEncodingDateFormatted() {

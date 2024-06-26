@@ -21,7 +21,7 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 public class VertexAI: NSObject {
   // MARK: - Public APIs
 
@@ -60,10 +60,14 @@ public class VertexAI: NSObject {
 
   /// Initializes a generative model with the given parameters.
   ///
+  /// - Note: Refer to [Gemini models](https://firebase.google.com/docs/vertex-ai/gemini-models) for
+  /// guidance on choosing an appropriate model for your use case.
+  ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example `"gemini-1.0-pro"`; see
-  ///     [Gemini models](https://firebase.google.com/docs/vertex-ai/gemini-model#available-models)
-  ///     for a list of supported model names.
+  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash"`; see
+  ///     [available model names
+  ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
+  ///     list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
@@ -79,7 +83,15 @@ public class VertexAI: NSObject {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    let modelResourceName = modelResourceName(modelName: modelName, location: location)
+    guard let projectID = app.options.projectID else {
+      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
+    }
+
+    let modelResourceName = modelResourceName(
+      modelName: modelName,
+      projectID: projectID,
+      location: location
+    )
 
     guard let apiKey = app.options.apiKey else {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
@@ -87,6 +99,7 @@ public class VertexAI: NSObject {
 
     return GenerativeModel(
       name: modelResourceName,
+      projectID: projectID,
       apiKey: apiKey,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
@@ -117,10 +130,7 @@ public class VertexAI: NSObject {
     auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
   }
 
-  private func modelResourceName(modelName: String, location: String) -> String {
-    guard let projectID = app.options.projectID else {
-      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
-    }
+  private func modelResourceName(modelName: String, projectID: String, location: String) -> String {
     guard !modelName.isEmpty && modelName
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""

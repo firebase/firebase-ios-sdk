@@ -2938,19 +2938,15 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
 }
 
 - (void)testAppOpenURL_AuthPresenterCanHandleURL {
-  if (@available(iOS 9.0, *)) {
-    // 'application:openURL:options:' is only available on iOS 9.0 or newer.
-    NSURL *url = [NSURL URLWithString:@"https://localhost"];
+  NSURL *url = [NSURL URLWithString:@"https://localhost"];
 
-    OCMExpect([self.mockAuthURLPresenter canHandleURL:url]).andReturn(YES);
+  OCMExpect([self.mockAuthURLPresenter canHandleURL:url]).andReturn(YES);
 
-    XCTAssertTrue([self.fakeApplicationDelegate
-        application:[GULAppDelegateSwizzler sharedApplication]
-            openURL:url
-            options:@{}]);
+  XCTAssertTrue([self.fakeApplicationDelegate application:[GULAppDelegateSwizzler sharedApplication]
+                                                  openURL:url
+                                                  options:@{}]);
 
-    [self.mockAuthURLPresenter verify];
-  }
+  [self.mockAuthURLPresenter verify];
 }
 
 - (void)testAppOpenURLWithSourceApplication_AuthPresenterCanHandleURL {

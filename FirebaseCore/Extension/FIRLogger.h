@@ -181,7 +181,6 @@ NS_SWIFT_NAME(FirebaseLogger)
 ///   three-character service identifier and a six digit integer message ID that is unique within
 ///   the service. An example of the message code is @"I-COR000001".
 ///   - message: Formatted string to be used as the log's message.
-///   - args: Arguments list obtained from calling `va_start`, used when message is a format string.
 + (void)logWithLevel:(FIRLoggerLevel)level
              service:(FIRLoggerService)service
                 code:(NSString *)code

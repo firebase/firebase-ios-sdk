@@ -17,13 +17,15 @@ import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 struct GenerativeAIService {
   /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"
 
   /// The Firebase SDK version in the format `fire/<version>`.
   static let firebaseVersionTag = "fire/\(FirebaseVersion())"
+
+  private let projectID: String
 
   /// Gives permission to talk to the backend.
   private let apiKey: String
@@ -34,7 +36,9 @@ struct GenerativeAIService {
 
   private let urlSession: URLSession
 
-  init(apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?, urlSession: URLSession) {
+  init(projectID: String, apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?,
+       urlSession: URLSession) {
+    self.projectID = projectID
     self.apiKey = apiKey
     self.appCheck = appCheck
     self.auth = auth
@@ -56,9 +60,9 @@ struct GenerativeAIService {
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
-      Logging.default.error("[FirebaseVertexAI] The server responded with an error: \(response)")
+      Logging.network.error("[FirebaseVertexAI] The server responded with an error: \(response)")
       if let responseString = String(data: data, encoding: .utf8) {
-        Logging.network.error("[FirebaseVertexAI] Response payload: \(responseString)")
+        Logging.default.error("[FirebaseVertexAI] Response payload: \(responseString)")
       }
 
       throw parseError(responseData: data)
@@ -104,14 +108,14 @@ struct GenerativeAIService {
 
         // Verify the status code is 200
         guard response.statusCode == 200 else {
-          Logging.default
+          Logging.network
             .error("[FirebaseVertexAI] The server responded with an error: \(response)")
           var responseBody = ""
           for try await line in stream.lines {
             responseBody += line + "\n"
           }
 
-          Logging.network.error("[FirebaseVertexAI] Response payload: \(responseBody)")
+          Logging.default.error("[FirebaseVertexAI] Response payload: \(responseBody)")
           continuation.finish(throwing: parseError(responseBody: responseBody))
 
           return
@@ -236,10 +240,27 @@ struct GenerativeAIService {
 
   private func parseError(responseData: Data) -> Error {
     do {
-      return try JSONDecoder().decode(RPCError.self, from: responseData)
+      let rpcError = try JSONDecoder().decode(RPCError.self, from: responseData)
+      logRPCError(rpcError)
+      return rpcError
     } catch {
       // TODO: Return an error about an unrecognized error payload with the response body
       return error
+    }
+  }
+
+  // Log specific RPC errors that cannot be mitigated or handled by user code.
+  // These errors do not produce specific GenerateContentError or CountTokensError cases.
+  private func logRPCError(_ error: RPCError) {
+    if error.isFirebaseMLServiceDisabledError() {
+      Logging.default.error("""
+      The Vertex AI for Firebase SDK requires the Firebase ML API `firebaseml.googleapis.com` to \
+      be enabled for your project. Get started in the Firebase Console \
+      (https://console.firebase.google.com/project/\(projectID)/genai/vertex) or verify that the \
+      API is enabled in the Google Cloud Console \
+      (https://console.developers.google.com/apis/api/firebaseml.googleapis.com/overview?project=\
+      \(projectID)).
+      """)
     }
   }
 

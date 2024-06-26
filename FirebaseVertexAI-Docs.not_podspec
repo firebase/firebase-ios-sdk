@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseVertexAI'
-  s.version          = '10.26.0'
-  s.summary          = 'Firebase VertexAI'
+  s.name             = 'FirebaseVertexAI-Docs'
+  s.version          = '10.27.0'
+  s.summary          = 'Firebase Vertex AI'
 
   s.description      = <<-DESC
   Placeholder podspec for docsgen only. Do not use this pod.
@@ -16,14 +16,13 @@ Pod::Spec.new do |s|
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    # TODO: this should be `'CocoaPods-' + s.version.to_s` (after May 14 2024)
-    :tag => 'release-10.26'
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.14'
+  osx_deployment_target = '11.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -33,8 +32,6 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     'FirebaseVertexAI/Sources/**/*.swift',
-    'FirebaseCore/Extension/*.h',
-    'FirebaseAuth/Interop/*.h',
   ]
 
   s.swift_version = '5.3'
@@ -42,17 +39,9 @@ Pod::Spec.new do |s|
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
-  s.tvos.framework = 'UIKit'
-  s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'FirebaseCoreExtension'
-  s.dependency 'FirebaseAuthInterop'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
-
-  s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
-    'OTHER_CFLAGS' => '-fno-autolink'
-  }
+  s.dependency 'FirebaseAuthInterop', '~> 10.25'
+  s.dependency 'FirebaseCore', '~> 10.5'
+  s.dependency 'FirebaseCoreExtension', '~> 10.0'
 end

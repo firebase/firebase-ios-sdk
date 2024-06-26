@@ -67,8 +67,8 @@ static int64_t const kLastCheckinTimestamp = 123456;
   [super setUp];
   [FIRMessaging createSubDirectory:kSubDirectoryName];
   self.checkinStore = [[FIRMessagingCheckinStore alloc] init];
-  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithFileName:kFakeCheckinPlistName
-                                                            subDirectory:kSubDirectoryName];
+  self.plist = [[FIRMessagingBackupExcludedPlist alloc] initWithPlistFile:kFakeCheckinPlistName
+                                                             subDirectory:kSubDirectoryName];
   self.checkinStore.plist = self.plist;
 }
 
@@ -203,4 +203,4 @@ static int64_t const kLastCheckinTimestamp = 123456;
 }
 
 @end
-#endif
+#endif  // !TARGET_OS_MACCATALYST

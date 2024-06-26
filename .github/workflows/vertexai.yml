@@ -15,19 +15,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  spm:
+  spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst]
-        os: [macos-13]
+        target: [iOS, macOS, catalyst, tvOS, visionOS]
+        os: [macos-14]
         include:
-          - os: macos-13
+          - os: macos-14
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v4
+    - name: Clone mock responses
+      run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -40,6 +42,36 @@ jobs:
         retry_wait_seconds: 120
         command: scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
 
+  spm-integration:
+    strategy:
+      matrix:
+        target: [iOS]
+        os: [macos-14]
+        include:
+          - os: macos-14
+            xcode: Xcode_15.2
+    runs-on: ${{ matrix.os }}
+    env:
+      TEST_RUNNER_VertexAIRunIntegrationTests: 1
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-integration.plist.gpg \
+        FirebaseVertexAI/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh FirebaseVertexAIIntegration ${{ matrix.target }} spm
+
   sample:
     strategy:
       matrix:
@@ -51,6 +83,8 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v4
     - name: Xcode

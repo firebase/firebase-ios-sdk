@@ -23,13 +23,10 @@
 
 @implementation FIRAppDistributionUIService
 
-API_AVAILABLE(ios(9.0))
-SFSafariViewController *_safariVC;
-
 API_AVAILABLE(ios(12.0))
 ASWebAuthenticationSession *_webAuthenticationVC;
 
-API_AVAILABLE(ios(11.0))
+// TODO: Remove this when the deployment target becomes iOS 12+
 SFAuthenticationSession *_safariAuthenticationVC;
 
 - (instancetype)init {
@@ -74,7 +71,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
     if ([error code] == ASWebAuthenticationSessionErrorCodeCanceledLogin) {
       return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
     }
-  } else if (@available(iOS 11.0, *)) {
+  } else {
     if ([error code] == SFAuthenticationErrorCanceledLogin) {
       return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
     }
@@ -110,7 +107,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
     _webAuthenticationVC = authenticationVC;
 
     [authenticationVC start];
-  } else if (@available(iOS 11.0, *)) {
+  } else {
     _safariAuthenticationVC = [[SFAuthenticationSession alloc]
               initWithURL:URL
         callbackURLScheme:callbackURL
@@ -123,13 +120,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
         }];
 
     [_safariAuthenticationVC start];
-  } else if (@available(iOS 9.0, *)) {
-    SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:URL];
-
-    safariVC.delegate = self;
-    _safariVC = safariVC;
-    [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
-    self.registrationFlowCompletion = completion;
   }
 }
 
@@ -244,16 +234,16 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
   self.registrationFlowCompletion = nil;
 
-  if (@available(iOS 11.0, *)) {
-    _safariAuthenticationVC = nil;
-  } else if (@available(iOS 12.0, *)) {
+  if (@available(iOS 12.0, *)) {
     _webAuthenticationVC = nil;
-  } else if (@available(iOS 9.0, *)) {
-    _safariVC = nil;
   }
+  // TODO: Remove this when the deployment target becomes iOS 12+
+  // `_safariAuthenticationVC` is cleared unconditionally just in case;
+  // It’s supposed to be assigned only when run on iOS 11.
+  _safariAuthenticationVC = nil;
 }
 
-- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller NS_AVAILABLE_IOS(9.0) {
+- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
   NSError *error =
       [[self class] getAppDistributionError:FIRAppDistributionErrorAuthenticationCancelled];
   [self logRegistrationCompletion:error authType:[SFSafariViewController description]];

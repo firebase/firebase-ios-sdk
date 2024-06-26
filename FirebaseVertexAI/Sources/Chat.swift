@@ -16,7 +16,7 @@ import Foundation
 
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 public class Chat {
   private let model: GenerativeModel
 

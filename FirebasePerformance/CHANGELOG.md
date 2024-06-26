@@ -1,3 +1,7 @@
+# 10.28.0
+- Fix Crash from InstrumentUploadTaskWithStreamedRequest (#12983).
+- Replace SystemConfiguration with a more recent network monitoring API by Apple (#13079).
+
 # 10.25.0
 - [changed] Removed usages of user defaults API to eliminate required reason impact.
 

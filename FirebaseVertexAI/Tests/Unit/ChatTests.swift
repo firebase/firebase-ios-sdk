@@ -17,7 +17,7 @@ import XCTest
 
 @testable import FirebaseVertexAI
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 final class ChatTests: XCTestCase {
   var urlSession: URLSession!
 
@@ -33,7 +33,7 @@ final class ChatTests: XCTestCase {
 
   func testMergingText() async throws {
     let fileURL = try XCTUnwrap(Bundle.module.url(
-      forResource: "streaming-success-basic-reply-long",
+      forResource: "streaming-success-basic-reply-parts",
       withExtension: "txt"
     ))
 
@@ -49,6 +49,7 @@ final class ChatTests: XCTestCase {
 
     let model = GenerativeModel(
       name: "my-model",
+      projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
       requestOptions: RequestOptions(),

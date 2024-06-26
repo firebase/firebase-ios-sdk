@@ -18,7 +18,7 @@ import Foundation
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 public final class GenerativeModel {
   // The prefix for a model resource in the Gemini API.
   private static let modelResourcePrefix = "models/"
@@ -50,8 +50,8 @@ public final class GenerativeModel {
   /// Initializes a new remote model with the given parameters.
   ///
   /// - Parameters:
-  ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`; see
-  ///     [Gemini models](https://ai.google.dev/models/gemini) for a list of supported model names.
+  ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
+  ///   - projectID: The project ID from the Firebase console.
   ///   - apiKey: The API key for your project.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
@@ -62,6 +62,7 @@ public final class GenerativeModel {
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
   init(name: String,
+       projectID: String,
        apiKey: String,
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
@@ -74,6 +75,7 @@ public final class GenerativeModel {
        urlSession: URLSession = .shared) {
     modelResourceName = GenerativeModel.modelResourceName(name: name)
     generativeAIService = GenerativeAIService(
+      projectID: projectID,
       apiKey: apiKey,
       appCheck: appCheck,
       auth: auth,
@@ -316,7 +318,7 @@ public final class GenerativeModel {
 }
 
 /// An error thrown in `GenerativeModel.countTokens(_:)`.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 public enum CountTokensError: Error {
   case internalError(underlying: Error)
 }

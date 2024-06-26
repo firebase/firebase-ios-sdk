@@ -1,4 +1,4 @@
-# Unreleased
+# 10.27.0
 - [fixed] [CocoaPods] missing symbol error for FIRGetLoggerLevel. (#12899)
 
 # 10.25.0
