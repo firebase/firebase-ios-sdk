@@ -212,11 +212,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // This is not needed for app extension except for watch.
 #if TARGET_OS_WATCH
   [self didCompleteConfigure];
-#else
+#else   // TARGET_OS_WATCH
   if (![GULAppEnvironmentUtil isAppExtension]) {
     [self didCompleteConfigure];
   }
-#endif
+#endif  // TARGET_OS_WATCH
 }
 
 - (void)didCompleteConfigure {
@@ -384,7 +384,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   NSURL *url = [self linkURLFromMessage:message];
   if (url == nil) {
     return;
@@ -418,7 +418,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
               // Do nothing, as we don't support the app calling this block
           }];
   }
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 }
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message {
