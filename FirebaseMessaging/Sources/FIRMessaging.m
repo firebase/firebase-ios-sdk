@@ -496,7 +496,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   BOOL isFCMAutoInitEnabled = [self isAutoInitEnabled];
   [_messagingUserDefaults setBool:autoInitEnabled
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
-  [_messagingUserDefaults synchronize];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
     [self.tokenManager tokenAndRequestIfNotExist];
   }
