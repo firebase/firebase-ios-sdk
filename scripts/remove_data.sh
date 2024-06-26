@@ -26,6 +26,6 @@ fi
 
 if [ "$MODE" == "release_testing" ]; then
   echo "Update podfiles release_testing."
-  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
+  sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsReleasing.git/https:\/\/github.com\/FirebasePrivate\/SpecsReleasing.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
 fi
 rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist
