@@ -235,6 +235,9 @@ at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 The iOS Simulator cannot register for remote notifications and will not receive push notifications.
 To receive push notifications, follow the steps above and run the app on a physical device.
 
+### Firebase Vertex AI
+The Firebase Vertex AI unit tests require mock response files, which can be downloaded by running `./scripts/update_vertexai_responses.sh`.
+
 ## Building with Firebase on Apple platforms
 
 Firebase provides official beta support for macOS, Catalyst, and tvOS. visionOS and watchOS
