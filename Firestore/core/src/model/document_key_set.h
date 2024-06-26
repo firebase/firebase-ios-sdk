@@ -25,7 +25,7 @@ namespace firestore {
 namespace model {
 
 /** Convenience type for a set of keys, since they are so common. */
-using DocumentKeySet = immutable::SortedSet<DocumentKey>;
+using DocumentKeySet = std::set<DocumentKey, util::Comparator<DocumentKey>>;
 
 }  // namespace model
 }  // namespace firestore

@@ -57,7 +57,7 @@ class DocumentSet : public immutable::SortedContainer {
    * The type of the main collection of documents in an DocumentSet.
    * @see sorted_set_.
    */
-  using SetType = immutable::SortedSet<Document, DocumentComparator>;
+  using SetType = std::set<Document, DocumentComparator>;
 
   // STL container types
   using value_type = Document;
@@ -82,7 +82,7 @@ class DocumentSet : public immutable::SortedContainer {
   bool ContainsKey(const DocumentKey& key) const;
 
   const DocumentComparator& comparator() const {
-    return sorted_set_.comparator();
+    return DocumentComparator);
   }
 
   SetType::const_iterator begin() const {
