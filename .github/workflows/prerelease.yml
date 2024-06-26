@@ -233,6 +233,7 @@ jobs:
     - name: Remove data before upload
       env:
         LEGACY: true
+      if: ${{ failure() }}
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -265,6 +266,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh authentication release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -314,6 +316,7 @@ jobs:
     - name: Remove data before upload
       env:
         LEGACY: true
+      if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -350,6 +353,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh database release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -392,6 +396,7 @@ jobs:
       if: ${{ always() }}
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh dynamiclinks release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -427,6 +432,7 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh firestore release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -470,6 +476,7 @@ jobs:
     #   run: ([ -z $plist_secret ] ||
     #         scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
     # - name: Remove data before upload
+    #   if: ${{ failure() }}
     #   run: scripts/remove_data.sh functions release_testing
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
@@ -508,6 +515,7 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh inappmessaging release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -546,6 +554,7 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh messaging release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -578,6 +587,7 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh config release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -615,6 +625,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh storage release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -652,6 +663,7 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Remove data before upload
+      if: ${{ failure() }}
       run: scripts/remove_data.sh performance release_testing
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
