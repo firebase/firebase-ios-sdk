@@ -16,7 +16,7 @@
 
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
 
-#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

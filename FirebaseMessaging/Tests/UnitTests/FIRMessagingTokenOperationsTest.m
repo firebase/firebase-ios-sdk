@@ -98,6 +98,10 @@ static NSString *kRegistrationToken = @"token-12345";
   [self doesNotRecognizeSelector:_cmd];
 }
 
+- (NSString *_Nullable)headerValue {
+  return @"unimplemented";
+}
+
 @end
 
 #pragma mark - FIRMessagingTokenOperationsTest

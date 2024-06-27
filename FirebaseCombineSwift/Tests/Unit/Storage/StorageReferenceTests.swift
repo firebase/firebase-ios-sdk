@@ -18,6 +18,7 @@ import Foundation
 import XCTest
 
 class StorageReferenceTests: XCTestCase {
+  let expectationTimeout: TimeInterval = 2
   override class func setUp() {
     FirebaseApp.configureForTests()
   }

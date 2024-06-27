@@ -278,8 +278,7 @@ NS_ASSUME_NONNULL_END
                [request setValue:authHeader forHTTPHeaderField:@"Authorization"];
              }
              // Heartbeat Header.
-             [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                                   [self.heartbeatLogger flushHeartbeatsIntoPayload])
+             [request setValue:[self.heartbeatLogger headerValue]
                  forHTTPHeaderField:kFIRInstallationsHeartbeatKey];
 
              [additionalHeaders

@@ -36,8 +36,8 @@ typedef NS_ENUM(NSInteger, FIRDailyHeartbeatCode) {
 - (void)log;
 
 #ifndef FIREBASE_BUILD_CMAKE
-/// Flushes heartbeats from storage into a structured payload of heartbeats.
-- (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload;
+/// Return the headerValue for the HeartbeatLogger.
+- (NSString *_Nullable)headerValue;
 #endif  // FIREBASE_BUILD_CMAKE
 
 /// Gets the heartbeat code for today.
