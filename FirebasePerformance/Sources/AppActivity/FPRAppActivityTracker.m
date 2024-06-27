@@ -163,30 +163,28 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 - (void)startTrackingNetwork {
   self.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
-  if (@available(iOS 12, tvOS 12, *)) {
-    dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
-    self.monitorQueue = dispatch_queue_create("com.google.firebase.perf.network.monitor", attrs);
+  dispatch_queue_attr_t attrs = dispatch_queue_attr_make_with_qos_class(
+      DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, DISPATCH_QUEUE_PRIORITY_DEFAULT);
+  self.monitorQueue = dispatch_queue_create("com.google.firebase.perf.network.monitor", attrs);
 
-    self.monitor = nw_path_monitor_create();
-    nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
-    __weak FPRAppActivityTracker *weakSelf = self;
-    nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
-      BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
-      BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
-      BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
+  self.monitor = nw_path_monitor_create();
+  nw_path_monitor_set_queue(self.monitor, self.monitorQueue);
+  __weak FPRAppActivityTracker *weakSelf = self;
+  nw_path_monitor_set_update_handler(self.monitor, ^(nw_path_t _Nonnull path) {
+    BOOL isWiFi = nw_path_uses_interface_type(path, nw_interface_type_wifi);
+    BOOL isCellular = nw_path_uses_interface_type(path, nw_interface_type_cellular);
+    BOOL isEthernet = nw_path_uses_interface_type(path, nw_interface_type_wired);
 
-      if (isWiFi) {
-        weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
-      } else if (isCellular) {
-        weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
-      } else if (isEthernet) {
-        weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
-      }
-    });
+    if (isWiFi) {
+      weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_WIFI;
+    } else if (isCellular) {
+      weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE;
+    } else if (isEthernet) {
+      weakSelf.networkType = firebase_perf_v1_NetworkConnectionInfo_NetworkType_ETHERNET;
+    }
+  });
 
-    nw_path_monitor_start(self.monitor);
-  }
+  nw_path_monitor_start(self.monitor);
 }
 
 /**
@@ -195,13 +193,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
  * @return true if the OS could prewarm apps on the current device
  */
 - (BOOL)isPrewarmAvailable {
-  BOOL canPrewarm = NO;
-  // Guarding for double dispatch which does not work below iOS 13, and 0.1% of app start also show
-  // signs of prewarming on iOS 14 go/paste/5533761933410304
-  if (@available(iOS 13, *)) {
-    canPrewarm = YES;
-  }
-  return canPrewarm;
+  return YES;
 }
 
 /**
@@ -328,9 +320,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 }
 
 - (void)dealloc {
-  if (@available(iOS 12, tvOS 12, *)) {
-    nw_path_monitor_cancel(self.monitor);
-  }
+  nw_path_monitor_cancel(self.monitor);
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
