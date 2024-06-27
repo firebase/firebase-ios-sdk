@@ -17,7 +17,7 @@ concurrency:
 jobs:
   quickstart-ftl-cron-only:
     # Don't run on private repo.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+    if: github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-14
     steps:
