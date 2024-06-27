@@ -114,9 +114,6 @@ import Foundation
           )
         }
         do {
-//          let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-//          let enablementStatus = recaptchaVerifier.enablementStatus(forProvider: .phone)
-          // regular phone number login
           if let verificationID = try await internalVerify(phoneNumber: phoneNumber, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession) {
             return verificationID
           } else {
@@ -251,11 +248,14 @@ import Foundation
                                                  retryOnInvalidAppCredential: Bool,
                                                  uiDelegate: AuthUIDelegate?) async throws
       -> String? {
-      let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
+      //let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
-                                                codeIdentity: codeIdentity,
+                                                codeIdentity: CodeIdentity.empty,
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
+      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+      let enforcement = recaptchaVerifier.enablementStatus(forProvider: .phone)
+      try await recaptchaVerifier.injectRecaptchaFields(request: request, provider: .phone, action: .sendVerificationCode)
 
       do {
         let response = try await AuthBackend.call(with: request)
@@ -285,12 +285,11 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-//        let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-//        let enforcement = recaptchaVerifier.enablementStatus(forProvider: .phone)
-//        if(enforcement != .off) {
-//          try await recaptchaVerifier.injectRecaptchaFields(request: request, provider: .phone, action: .sendVerificationCode)
-//        }
+        let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+        //let enforcement = recaptchaVerifier.enablementStatus(forProvider: .phone)
+        try await recaptchaVerifier.injectRecaptchaFields(request: request, provider: .phone, action: .sendVerificationCode)
         let response = try await AuthBackend.call(with: request)
+        print(response)
         return response.verificationID
       }
       guard let session else {
