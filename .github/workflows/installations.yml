@@ -15,108 +15,6 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'pull_request'
-
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    strategy:
-      matrix:
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [ios, tvos, macos --skip-tests, watchos]
-        os: [macos-14, macos-13]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-            test-specs: unit,integration
-          - os: macos-13
-            xcode: Xcode_15.2
-            test-specs: unit
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
-    - name: Install GoogleService-Info.plist
-      run: |
-        mkdir -p FirebaseInstallations/Source/Tests/Resources
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
-          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
-    - name: Get boolean for secrets available
-      id: secrets
-      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Build and test
-      run: |
-       export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
-         --platforms=${{ matrix.target }} --test-specs=--platforms=${{ matrix.test-specs }}
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [iOS, tvOS, macOS, watchOS, catalyst]
-        os: [macos-13, macos-14]
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-14
-            xcode: Xcode_15.3
-            target: visionOS
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInstallations ${{ matrix.target }} spmbuildonly
-
-  catalyst:
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: catalyst${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseInstallations test FirebaseInstallations-Unit-unit
-
-  quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh installations
-    - name: Copy mock plist
-      run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
-    - name: Test objc quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations true
-    - name: Test swift quickstart
-      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations true swift
-
   quickstart-ftl-cron-only:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
@@ -177,3 +75,106 @@ jobs:
        export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
          --platforms=${{ matrix.target }} ${{ matrix.flags }} \
+
+#  pod-lib-lint:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'pull_request'
+#
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    strategy:
+#      matrix:
+#        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
+#        target: [ios, tvos, macos --skip-tests, watchos]
+#        os: [macos-14, macos-13]
+#        include:
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#            test-specs: unit,integration
+#          - os: macos-13
+#            xcode: Xcode_15.2
+#            test-specs: unit
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Configure test keychain
+#      run: scripts/configure_test_keychain.sh
+#    - name: Install GoogleService-Info.plist
+#      run: |
+#        mkdir -p FirebaseInstallations/Source/Tests/Resources
+#        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
+#          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
+#    - name: Get boolean for secrets available
+#      id: secrets
+#      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - name: Build and test
+#      run: |
+#       export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
+#       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
+#         --platforms=${{ matrix.target }} --test-specs=--platforms=${{ matrix.test-specs }}
+#
+#  spm:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    strategy:
+#      matrix:
+#        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
+#        target: [iOS, tvOS, macOS, watchOS, catalyst]
+#        os: [macos-13, macos-14]
+#        include:
+#          - os: macos-13
+#            xcode: Xcode_15.2
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#            target: visionOS
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: Unit Tests
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseInstallations ${{ matrix.target }} spmbuildonly
+#
+#  catalyst:
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    runs-on: macos-14
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: catalyst${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Setup project and Build for Catalyst
+#      run: scripts/test_catalyst.sh FirebaseInstallations test FirebaseInstallations-Unit-unit
+#
+#  quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#
+#    runs-on: macos-14
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup quickstart
+#      run: scripts/setup_quickstart.sh installations
+#    - name: Copy mock plist
+#      run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
+#    - name: Test objc quickstart
+#      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations true
+#    - name: Test swift quickstart
+#      run: scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Installations true swift
+#

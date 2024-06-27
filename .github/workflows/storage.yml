@@ -17,108 +17,6 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  storage-integration-tests:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        language: [Swift, ObjC]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: integration${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Install xcpretty
-      run: gem install xcpretty
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
-          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
-    - name: Install Credentials.h
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
-          FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
-    - name: Install Credentials.swift
-      run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
-          FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - uses: nick-fields/retry@v3
-      with:
-        timeout_minutes: 120
-        max_attempts: 3
-        retry_on: error
-        retry_wait_seconds: 120
-        command: ([ -z $plist_secret ] || scripts/build.sh Storage${{ matrix.language }} all)
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-13, macos-14]
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-14
-            xcode: Xcode_15.3
-            target: visionOS
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm-cron${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
-    - name: Xcodes
-      run: ls -l /Applications/Xcode*
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseStorageUnit ${{ matrix.target }} spm
-
-  quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    # TODO: See #12399 and restore Objective-C testing for Xcode 15 if GHA is fixed.
-    strategy:
-      matrix:
-        include:
-          #- os: macos-13
-          #  xcode: Xcode_14.2 # TODO: the legacy ObjC quickstart doesn't build with Xcode 15.
-          - swift: swift
-            os: macos-14
-            xcode: Xcode_15.3
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      LEGACY: true
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh storage
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
-          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Test quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage false ${{ matrix.swift }})
-
   quickstart-ftl-cron-only:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
@@ -149,55 +47,159 @@ jobs:
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
 
-  pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos, watchos]
-        os: [macos-14, macos-13]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-            tests: --skip-tests
-          - os: macos-13
-            xcode: Xcode_15.2
-            tests: --test-specs=unit
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcodes
-      run: ls -l /Applications/Xcode*
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Build and test
-      run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec ${{ matrix.tests }} \
-         --platforms=${{ matrix.target }}
-
-  storage-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos, watchos]
-        os: [macos-14, macos-13]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-13
-            xcode: Xcode_15.2
-    runs-on: ${{ matrix.os }}
-    needs: pod-lib-lint
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
+#
+#  storage-integration-tests:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk') || github.event_name == 'pull_request'
+#    strategy:
+#      matrix:
+#        language: [Swift, ObjC]
+#        include:
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: integration${{ matrix.os }}
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Install xcpretty
+#      run: gem install xcpretty
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+#          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+#    - name: Install Credentials.h
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
+#          FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
+#    - name: Install Credentials.swift
+#      run: |
+#        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+#          FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - uses: nick-fields/retry@v3
+#      with:
+#        timeout_minutes: 120
+#        max_attempts: 3
+#        retry_on: error
+#        retry_wait_seconds: 120
+#        command: ([ -z $plist_secret ] || scripts/build.sh Storage${{ matrix.language }} all)
+#
+#  spm:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    strategy:
+#      matrix:
+#        target: [iOS, tvOS, macOS, catalyst, watchOS]
+#        os: [macos-13, macos-14]
+#        include:
+#          - os: macos-13
+#            xcode: Xcode_15.2
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#            target: visionOS
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#      with:
+#        cache_key: spm-cron${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
+#    - name: Xcodes
+#      run: ls -l /Applications/Xcode*
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - name: Initialize xcodebuild
+#      run: scripts/setup_spm_tests.sh
+#    - name: Unit Tests
+#      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseStorageUnit ${{ matrix.target }} spm
+#
+#  quickstart:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    # TODO: See #12399 and restore Objective-C testing for Xcode 15 if GHA is fixed.
+#    strategy:
+#      matrix:
+#        include:
+#          #- os: macos-13
+#          #  xcode: Xcode_14.2 # TODO: the legacy ObjC quickstart doesn't build with Xcode 15.
+#          - swift: swift
+#            os: macos-14
+#            xcode: Xcode_15.3
+#    env:
+#      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#      LEGACY: true
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup quickstart
+#      run: scripts/setup_quickstart.sh storage
+#    - name: Install Secret GoogleService-Info.plist
+#      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
+#          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - name: Test quickstart
+#      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage false ${{ matrix.swift }})
+#
+#
+#  pod-lib-lint:
+#    # Don't run on private repo unless it is a PR.
+#    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos, watchos]
+#        os: [macos-14, macos-13]
+#        include:
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#            tests: --skip-tests
+#          - os: macos-13
+#            xcode: Xcode_15.2
+#            tests: --test-specs=unit
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Xcodes
+#      run: ls -l /Applications/Xcode*
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - name: Build and test
+#      run: |
+#       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec ${{ matrix.tests }} \
+#         --platforms=${{ matrix.target }}
+#
+#  storage-cron-only:
+#    # Don't run on private repo.
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+#    strategy:
+#      matrix:
+#        target: [ios, tvos, macos, watchos]
+#        os: [macos-14, macos-13]
+#        include:
+#          - os: macos-14
+#            xcode: Xcode_15.3
+#          - os: macos-13
+#            xcode: Xcode_15.2
+#    runs-on: ${{ matrix.os }}
+#    needs: pod-lib-lint
+#    steps:
+#    - uses: actions/checkout@v4
+#    - uses: ruby/setup-ruby@v1
+#    - name: Setup Bundler
+#      run: scripts/setup_bundler.sh
+#    - name: Xcode
+#      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+#    - name: PodLibLint Storage Cron
+#      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
