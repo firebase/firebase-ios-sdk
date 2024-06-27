@@ -182,6 +182,9 @@ jobs:
   #   steps:
   #   - uses: actions/checkout@v4
   #   - uses: ruby/setup-ruby@v1
+  #   - uses: actions/setup-python@v4
+  #     with:
+  #      python-version: '3.11'
   #   - name: Setup quickstart
   #     run: scripts/setup_quickstart.sh authentication
   #   - name: Install Secret GoogleService-Info.plist
@@ -190,7 +193,7 @@ jobs:
   #   - name: Build swift quickstart
   #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Authentication)
   #   - id: ftl_test
-  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
   #     with:
   #       credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
   #       testapp_dir: quickstart-ios/build-for-testing
