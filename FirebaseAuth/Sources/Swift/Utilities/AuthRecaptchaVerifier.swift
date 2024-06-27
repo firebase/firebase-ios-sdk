@@ -53,6 +53,8 @@ enum AuthRecaptchaAction: String {
   case getOobCode = "getOobCode"
   case signUpPassword = "signUpPassword"
   case sendVerificationCode = "sendVerificationCode"
+  case startMfaSignin = "startMfaSignin"
+  case startMfaEnrollment = "startMfaEnrollment"
   
     // Convenience property for mapping values
   var stringValue: String { self.rawValue }
