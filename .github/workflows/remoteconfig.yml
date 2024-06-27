@@ -37,7 +37,7 @@ jobs:
      - name: Build Swift Quickstart
        run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Config)
      - id: ftl_test
-       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
        with:
          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
          testapp_dir: quickstart-ios/build-for-testing
