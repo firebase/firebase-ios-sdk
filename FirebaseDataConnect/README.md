@@ -1,20 +1,20 @@
 #  Getting Started with Firebase Data Connect
 
-Firebase Data Connect is in Private Preview with no cost. Sign up the program at https://firebase.google.com/products/data-connect.
+Firebase Data Connect is in Private Preview at no cost. Sign up the program at https://firebase.google.com/products/data-connect.
 
-Once you are selected as an allowlist member, you should be able to create a Cloud SQL instance through Firebase Data Connect console at no cost. Follow the Getting started guide https://firebase.google.com/docs/data-connect/quickstart
+Once you are selected as an allowlist member, you should be able to create a Cloud SQL instance through Firebase Data Connect console at no cost.
 
-Here's a quick rundown of steps to get you started:
+Here's a quick rundown of steps to get you started. If you want to learn more about details, you can check out the [Getting Started documentation](https://firebase.google.com/docs/data-connect/quickstart).
 
 1. Go to Firebase Console and Firebase Data Connect bar to create a new Data Connect service and a Cloud SQL instance. You will have to be in Blaze plan and you can view the details of pricing at https://firebase.google.com/pricing.
 -- Select us-central1 region if you want to try out vector search with Data Connect later.
--- Wait for the Cloud SQL instance to be provisioned, you can view and manage the instance at https://pantheon.corp.google.com/sql.
+-- Wait for the Cloud SQL instance to be provisioned, you can view and manage the instance at the [Cloud console](https://pantheon.corp.google.com/sql).
 
 2. Enable Firebase Data Connect experiment
 ```firebase experiements:enable dataconnect
 ```
 
-3. Set up Firebase CLI at https://firebase.devsite.corp.google.com/docs/cli
+3. Set up [Firebase CLI](https://firebase.devsite.corp.google.com/docs/cli)
 -- If you already have CLI, make sure you always update to the latest version
 ```
 npm install -g firebase-tools
@@ -22,7 +22,7 @@ npm install -g firebase-tools
 
 4. You will need VS Code and its Firebase extension (VS Code extension) to automatically generate Swift code for your queries.
 -- Install VS Code
--- Download the extension from https://firebasestorage.googleapis.com/v0/b/firemat-preview-drop/o/vsix%2Ffirebase-vscode-latest.vsix?alt=media and install in VS Code
+-- Download the [extension](https://firebasestorage.googleapis.com/v0/b/firemat-preview-drop/o/vsix%2Ffirebase-vscode-latest.vsix?alt=media) and install in VS Code
 -- Create a fdc folder
 ```mkdir fdc
 ```
@@ -61,7 +61,11 @@ type Email @table {
 9. In the queries.gql file, uncomment the ListEmails query and execute the query as well. You should see your dummy data is listed.
 10. Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
 
+-----------------------------------At this point, you have the code generated for the queries you need for your app--------------
 
+Now let's see how you can use the generated query code in your iOS app:
+
+11.
 
 
 
