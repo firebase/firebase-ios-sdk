@@ -116,9 +116,10 @@ NSString *FPRTruncatedURLString(NSString *URLString) {
     if (![pathSeparator isEqual:truncationCharacter]) {
       NSRange rangeOfTruncation = [truncatedURLString rangeOfString:pathSeparator
                                                             options:NSBackwardsSearch];
-      truncatedURLString = [URLString substringToIndex:rangeOfTruncation.location];
+      if (rangeOfTruncation.location != NSNotFound) {
+        truncatedURLString = [URLString substringToIndex:rangeOfTruncation.location];
+      }
     }
-
     FPRLogWarning(kFPRClientNameTruncated, @"URL exceeds %d characters. Truncated url: %@",
                   kFPRMaxURLLength, truncatedURLString);
   }
