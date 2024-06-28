@@ -84,7 +84,7 @@ jobs:
         path: ${{ env.local_sdk_repo_dir }}
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
       run: |
@@ -126,7 +126,7 @@ jobs:
         path: ${{ env.local_sdk_repo_dir }}
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
       run: |
@@ -166,7 +166,7 @@ jobs:
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
          oss-bot-access.txt "$bot_token_secret"
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
@@ -213,7 +213,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       env:
@@ -252,7 +252,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -287,7 +287,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       env:
@@ -337,7 +337,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -374,7 +374,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -417,7 +417,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -456,7 +456,7 @@ jobs:
     # - uses: actions/checkout@v4
     # - uses: ruby/setup-ruby@v1
     # - name: Get token
-    #   run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+    #   run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
     #       bot-access.txt "$bot_token_secret"
     # - name: Setup testing repo and quickstart
     #   run: |
@@ -497,7 +497,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -536,7 +536,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -573,7 +573,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -609,7 +609,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -646,7 +646,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
