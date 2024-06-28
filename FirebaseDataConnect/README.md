@@ -6,7 +6,7 @@ Once you are selected as an allowlist member, you should be able to create a Clo
 
 Here's a quick rundown of steps to get you started. If you want to learn more about details, you can check out the [Getting Started documentation](https://firebase.google.com/docs/data-connect/quickstart).
 
-1. Go to Firebase Console and Firebase Data Connect bar to create a new Data Connect service and a Cloud SQL instance. You will have to be in Blaze plan and you can view the details of pricing at https://firebase.google.com/pricing.
+1. Go to Firebase Console and Firebase Data Connect Navbar to create a new Data Connect service and a Cloud SQL instance. You will have to be in Blaze plan and you can view the details of pricing at https://firebase.google.com/pricing.
 -- Select us-central1 region if you want to try out vector search with Data Connect later.
 -- Wait for the Cloud SQL instance to be provisioned, you can view and manage the instance at the [Cloud console](https://pantheon.corp.google.com/sql).
 
@@ -42,30 +42,72 @@ type User @table(key: "uid") {
    address: String!
 }
 ```
-6. On top of the schema User, an "Add data" button start showing up, click on it to generate a User_insert.gql file
+-- On top of the schema User, an "Add data" button start showing up, click on it to generate a User_insert.gql file
 --- Fill out the fields and click on Run button to run the query to add a user dummy data for testing
 
-7. Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
+6. Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
 -- You can now see your schemas on the Firebase Console.
 
-8. Do the same opeartions for email schema
-```
-type Email @table {
-   subject: String!
-   sent: Date!
-   text: String!
-   from: User!
-}
-```
+7. In the queries.gql file, uncomment the "ListUsers" query and execute the query as well. You should see your dummy data is listed.
 
-9. In the queries.gql file, uncomment the ListEmails query and execute the query as well. You should see your dummy data is listed.
-10. Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
+8. Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
 
 -----------------------------------At this point, you have the code generated for the queries you need for your app--------------
 
 Now let's see how you can use the generated query code in your iOS app:
 
-11.
+9. In the connector.yaml file, add the following code to enable swift code to be generated
+
+```
+  swiftSdk:
+     outputDir: "../iosgen/"
+     package: "User"
+     coreSdkPackageLocation: "file:///Users/[YOURUSERID]/github/firebase-ios-sdk"
+```
+-- You should see swift code is generated inside the iosgen folder
+
+10. Setup your iOS app and [initialize Firebase](https://firebase.google.com/docs/ios/setup)
+-- Add generated code from iosgen to your Xcode
+
+11. Download Firebase Data Connect SDK by modifying SPM file. It's still in private preview so it's under the "dataconnect' branch
+
+
+
+12. In your app, start using the generated code
+```
+import FirebaseDataConnect
+import Users //change this to the name of your generated package
+
+struct MovieListView: View {
+
+  //if talking to emulator
+  @StateObject var UsersListRef = DataConnect.emulatedUsersClient.listUsersQueryRef()
+
+  //if talking to prod service
+  // @StateObject var userListRef = DataConnect.usersClient.listUsersQueryRef()
+
+  var body: some View {
+    NavigationStack {
+      VStack {
+        if let data = userListRef.data {
+          List {
+            ForEach(data.users) { user in
+              VStack {
+   		// Note: this is a dummy example to show how to run query on client apps
+  		// It's not best practice to display users info in production
+		Text(user.name)
+	      }
+            }
+          }
+        }
+	}
+    }
+  }
+
+}
+
+```
+
 
 
 
