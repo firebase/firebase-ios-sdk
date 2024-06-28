@@ -166,6 +166,8 @@ jobs:
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
          oss-bot-access.txt "$bot_token_secret"
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
