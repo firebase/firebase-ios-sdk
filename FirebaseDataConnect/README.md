@@ -52,10 +52,6 @@ type User @table(key: "uid") {
 
 8. Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
 
------------------------------------At this point, you have the code generated for the queries you need for your app--------------
-
-Now let's see how you can use the generated query code in your iOS app:
-
 9. In the connector.yaml file, add the following code to enable swift code to be generated
 
 ```
@@ -66,11 +62,14 @@ Now let's see how you can use the generated query code in your iOS app:
 ```
 -- You should see swift code is generated inside the iosgen folder
 
+---------At this point, you have the code generated for the queries you need for your app--------------
+
+Now let's see how you can use the generated query code in your iOS app:
+
 10. Setup your iOS app and [initialize Firebase](https://firebase.google.com/docs/ios/setup)
 -- Add generated code from iosgen to your Xcode
 
 11. Download Firebase Data Connect SDK by modifying SPM file. It's still in private preview so it's under the "dataconnect' branch
-
 
 
 12. In your app, start using the generated code
@@ -103,7 +102,6 @@ struct MovieListView: View {
 	}
     }
   }
-
 }
 
 ```
