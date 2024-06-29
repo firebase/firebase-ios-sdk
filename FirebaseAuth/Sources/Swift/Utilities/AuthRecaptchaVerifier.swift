@@ -97,7 +97,7 @@
     func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
       try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
       guard let siteKey = siteKey() else {
-        throw AuthErrorUtils.recaptchaSDKNotLinkedError()
+        throw AuthErrorUtils.recaptchaSiteKeyMissing()
       }
       let actionString = actionToStringMap[action] ?? ""
       return try await withCheckedThrowingContinuation { continuation in
