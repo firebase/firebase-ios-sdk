@@ -28,7 +28,7 @@ You will need VS Code and its Firebase extension (VS Code extension) to automati
 ```
 mkdir fdc
 ```
-* Open VS Code form FDC folder
+* Open VS Code from FDC folder
 * Select the Firebase icon on the left and login
 * Click on "Run firebase init" button
 
@@ -49,7 +49,7 @@ type User @table(key: "uid") {
 * Fill out the fields and click on Run button to run the query to add a user dummy data for testing
 
 ### 5. Deploy your schema
-* Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
+* Select the Firebase icon on the left and Click on the "Deploy all" button to deploy all the schema and operations to backend.
 * You can now see your schemas on the Firebase Console.
 
 ### 6. Set up a mutation 
@@ -78,17 +78,17 @@ In the connector.yaml file, add the following code to enable swift code to be ge
 * You should see swift code is generated inside the ../swift-generated/User/ folder
 * The coreSdkPackageLocation should be where you check out the firebase-ios-sdk repo and make sure you check out the "dataconnect" branch because Firebase Data Connect is currently under "dataconnect" branch during Private Preview.
 
-## At this point, you have the code generated for the queries you need for your app
-
+### At this point, you have the code generated for the queries you need for your app
 Now let's see how you can use the generated query code in your iOS app:
 
+### 8. Setup your iOS app and [initialize Firebase](https://firebase.google.com/docs/ios/setup)
 
-### 8. Setup your iOS app and [initialize Firebase](https://firebase.google.com/docs/ios/setup) as always
+### 9. Adding the generated package to your app project
 * Go to File -> Add Package Dependencies -> Add Local
 * Navigate to the generated folder and select it
 
 
-### 9. Calling the generated code from your app 
+### 10. Calling the generated code from your app 
 ```
 import FirebaseDataConnect
 import Users //change this to the name of your generated package
