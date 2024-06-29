@@ -334,6 +334,9 @@ import Foundation
   /// Indicates that the reCAPTCHA SDK is not linked to the app.
   case recaptchaSDKNotLinked = 17208
 
+  /// Indicates that the reCAPTCHA SDK site key wasn't found.
+  case recaptchaSiteKeyMissing = 17209
+
   /// Indicates an error occurred while attempting to access the keychain.
   case keychainError = 17995
 
@@ -524,6 +527,8 @@ import Foundation
       return kErrorInvalidReqType
     case .recaptchaSDKNotLinked:
       return kErrorRecaptchaSDKNotLinked
+    case .recaptchaSiteKeyMissing:
+      return kErrorSiteKeyMissing
     }
   }
 
@@ -707,6 +712,8 @@ import Foundation
       return "ERROR_INVALID_REQ_TYPE"
     case .recaptchaSDKNotLinked:
       return "ERROR_RECAPTCHA_SDK_NOT_LINKED"
+    case .recaptchaSiteKeyMissing:
+      return "ERROR_RECAPTCHA_SITE_KEY_MISSING"
     }
   }
 }
@@ -972,4 +979,8 @@ private let kErrorInvalidReqType =
 // TODO(chuanr, ObjC): point the link to GCIP doc once available.
 private let kErrorRecaptchaSDKNotLinked =
   "The reCAPTCHA SDK is not linked to your app. See " +
+  "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
+
+private let kErrorSiteKeyMissing =
+  "The reCAPTCHA SDK site key wasn't found. See " +
   "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"

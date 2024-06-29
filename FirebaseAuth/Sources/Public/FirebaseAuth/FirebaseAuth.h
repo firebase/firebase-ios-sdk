@@ -26,4 +26,5 @@
 #import "FIRGoogleAuthProvider.h"
 #import "FIRMultiFactor.h"
 #import "FIRPhoneAuthProvider.h"
+#import "FIRRecaptchaBridge.h"
 #import "FIRTwitterAuthProvider.h"
