@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRRecaptchaBridge.h"
 #import "RecaptchaInterop/RecaptchaInterop.h"
 
@@ -45,7 +48,7 @@ static void retrieveToken(NSString *actionString,
 
   } else {
     // RecaptchaEnterprise not linked.
-    completion(nil, nil, NO);
+    completion(@"", nil, NO);
   }
 }
 
@@ -68,7 +71,7 @@ void FIRRecaptchaGetToken(NSString *siteKey,
     funcWithoutTimeout(RecaptchaClass, selector, siteKey,
                        ^(id<RCARecaptchaClientProtocol> _Nonnull client, NSError *_Nullable error) {
                          if (error) {
-                           completion(nil, error, YES);
+                           completion(@"", error, YES);
                          } else {
                            recaptchaClient = client;
                            retrieveToken(actionString, fakeToken, completion);
@@ -76,6 +79,7 @@ void FIRRecaptchaGetToken(NSString *siteKey,
                        });
   } else {
     // RecaptchaEnterprise not linked.
-    completion(nil, nil, NO);
+    completion(@"", nil, NO);
   }
 }
+#endif

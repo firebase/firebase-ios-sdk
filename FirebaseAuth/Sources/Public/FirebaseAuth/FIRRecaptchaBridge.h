@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import <TargetConditionals.h>
+
+#if TARGET_OS_IOS
 
 typedef void (^FIRAuthRecaptchaTokenCallback)(NSString *_Nonnull token,
                                               NSError *_Nullable error,
@@ -26,3 +29,4 @@ void FIRRecaptchaGetToken(NSString *_Nonnull siteKey,
                           NSString *_Nonnull fakeToken,
                           NSString *_Nonnull actionString,
                           _Nonnull FIRAuthRecaptchaTokenCallback callback);
+#endif

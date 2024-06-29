@@ -16,7 +16,9 @@
 
   import Foundation
 
-  import FirebaseAuthInternal
+  #if !COCOAPODS
+    import FirebaseAuthInternal
+  #endif
   import RecaptchaInterop
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
