@@ -15,6 +15,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-mock-responses-version:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Clone mock responses
+      run: scripts/update_vertexai_responses.sh
+    - name: Find cloned and latest versions
+      run: |
+        echo "current_tag=$(git describe --tags | awk -F'/' '{print $NF}')" >> $GITHUB_ENV
+        echo "latest_tag=$(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' https://github.com/FirebaseExtended/vertexai-sdk-test-data.git | tail -n1 | awk -F'/' '{print $NF}')" >> $GITHUB_ENV
+      working-directory: FirebaseVertexAI/Tests/Unit/vertexai-sdk-test-data
+    - name: Find comment from previous run if exists
+      uses: peter-evans/find-comment@v3
+      id: fc
+      with:
+        issue-number: ${{github.event.number}}
+        body-includes: Mock Responses Check
+    - name: Comment on PR if newer version is available
+      if: ${{env.current_tag != env.latest_tag && !steps.fc.outputs.comment-id}}
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        issue-number: ${{github.event.number}}
+        body: |
+          ### Vertex AI Mock Responses Check :warning:
+          A newer major version of the mock responses for Vertex AI unit tests is available.
+          [update_vertexai_responses.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/update_vertexai_responses.sh) should be updated to clone the latest version of the responses.
+    - name: Fail job if newer version is available
+      if: ${{env.current_tag != env.latest_tag}}
+      run: exit 1
+    - name: Delete comment when version gets updated
+      if: ${{env.current_tag == env.latest_tag && steps.fc.outputs.comment-id}}
+      uses: detomarco/delete-comment@v1.0.4
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+
   spm-unit:
     strategy:
       matrix:
