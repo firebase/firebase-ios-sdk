@@ -554,6 +554,13 @@ class AuthErrorUtils: NSObject {
       "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
     return error(code: .recaptchaSiteKeyMissing, message: message)
   }
+
+  static func recaptchaActionCreationFailed() -> Error {
+    // TODO(ObjC): point the link to GCIP doc once available.
+    let message = "The reCAPTCHA SDK action class creation failed. See " +
+      "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
+    return error(code: .recaptchaActionCreationFailed, message: message)
+  }
 }
 
 protocol MultiFactorResolverWrapper: NSObjectProtocol {}

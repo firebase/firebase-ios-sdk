@@ -19,7 +19,8 @@
 
 typedef void (^FIRAuthRecaptchaTokenCallback)(NSString *_Nonnull token,
                                               NSError *_Nullable error,
-                                              BOOL linked);
+                                              BOOL linked,
+                                              BOOL recaptchaActionCreated);
 
 // Provide a bridge to the Objective-C protocol provided by the optional Recaptcha Enterprise
 // dependency. Once the Recaptcha Enterprise provides a Swift interop protocol, this C and

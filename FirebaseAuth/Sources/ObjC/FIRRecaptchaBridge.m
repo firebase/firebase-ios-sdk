@@ -38,17 +38,20 @@ static void retrieveToken(NSString *actionString,
       [recaptchaClient execute:customAction
                     completion:^(NSString *_Nullable token, NSError *_Nullable error) {
                       if (!error) {
-                        completion(token, nil, YES);
+                        completion(token, nil, YES, YES);
                         return;
                       } else {
-                        completion(fakeToken, nil, YES);
+                        completion(fakeToken, nil, YES, YES);
                       }
                     }];
+    } else {
+      // RecaptchaAction class creation failed.
+      completion(@"", nil, YES, NO);
     }
 
   } else {
     // RecaptchaEnterprise not linked.
-    completion(@"", nil, NO);
+    completion(@"", nil, NO, NO);
   }
 }
 
@@ -71,7 +74,7 @@ void FIRRecaptchaGetToken(NSString *siteKey,
     funcWithoutTimeout(RecaptchaClass, selector, siteKey,
                        ^(id<RCARecaptchaClientProtocol> _Nonnull client, NSError *_Nullable error) {
                          if (error) {
-                           completion(@"", error, YES);
+                           completion(@"", error, YES, YES);
                          } else {
                            recaptchaClient = client;
                            retrieveToken(actionString, fakeToken, completion);
@@ -79,7 +82,7 @@ void FIRRecaptchaGetToken(NSString *siteKey,
                        });
   } else {
     // RecaptchaEnterprise not linked.
-    completion(@"", nil, NO);
+    completion(@"", nil, NO, NO);
   }
 }
 #endif

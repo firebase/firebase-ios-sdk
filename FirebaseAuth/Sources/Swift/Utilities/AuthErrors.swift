@@ -337,6 +337,9 @@ import Foundation
   /// Indicates that the reCAPTCHA SDK site key wasn't found.
   case recaptchaSiteKeyMissing = 17209
 
+  /// Indicates that the reCAPTCHA SDK actions class failed to create.
+  case recaptchaActionCreationFailed = 17210
+
   /// Indicates an error occurred while attempting to access the keychain.
   case keychainError = 17995
 
@@ -529,6 +532,8 @@ import Foundation
       return kErrorRecaptchaSDKNotLinked
     case .recaptchaSiteKeyMissing:
       return kErrorSiteKeyMissing
+    case .recaptchaActionCreationFailed:
+      return kErrorRecaptchaActionCreationFailed
     }
   }
 
@@ -714,6 +719,8 @@ import Foundation
       return "ERROR_RECAPTCHA_SDK_NOT_LINKED"
     case .recaptchaSiteKeyMissing:
       return "ERROR_RECAPTCHA_SITE_KEY_MISSING"
+    case .recaptchaActionCreationFailed:
+      return "ERROR_RECAPTCHA_ACTION_CREATION_FAILED"
     }
   }
 }
@@ -983,4 +990,8 @@ private let kErrorRecaptchaSDKNotLinked =
 
 private let kErrorSiteKeyMissing =
   "The reCAPTCHA SDK site key wasn't found. See " +
+  "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
+
+private let kErrorRecaptchaActionCreationFailed =
+  "The reCAPTCHA SDK action class failed to initialize. See " +
   "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
