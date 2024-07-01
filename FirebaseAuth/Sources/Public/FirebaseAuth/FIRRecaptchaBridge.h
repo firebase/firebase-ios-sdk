@@ -26,7 +26,7 @@ typedef void (^FIRAuthRecaptchaTokenCallback)(NSString *_Nonnull token,
 // Objective-C code can be converted to Swift. Casting to a Objective-C protocol does not seem
 // possible in Swift. The C API is a workaround for linkage problems with an Objective-C API.
 void FIRRecaptchaGetToken(NSString *_Nonnull siteKey,
-                          NSString *_Nonnull fakeToken,
                           NSString *_Nonnull actionString,
+                          NSString *_Nonnull fakeToken,
                           _Nonnull FIRAuthRecaptchaTokenCallback callback);
 #endif

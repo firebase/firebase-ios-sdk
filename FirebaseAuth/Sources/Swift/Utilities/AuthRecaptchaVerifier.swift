@@ -16,7 +16,7 @@
 
   import Foundation
 
-  #if !COCOAPODS
+  #if SWIFT_PACKAGE
     import FirebaseAuthInternal
   #endif
   import RecaptchaInterop
