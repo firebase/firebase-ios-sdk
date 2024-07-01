@@ -126,6 +126,11 @@ extern NSString *const FIRSetAccountInfoUserAttributePassword;
  */
 @property(nonatomic, copy, nullable) NSArray<NSString *> *deleteProviders;
 
+/** @property deletePasskeys
+    @brief The list of credential IDs of the passkeys to delete.
+ */
+@property(nonatomic, copy, nullable) NSArray<NSString *> *deletePasskeys;
+
 /** @property returnSecureToken
     @brief Whether the response should return access token and refresh token directly.
     @remarks The default value is @c YES .

@@ -108,6 +108,11 @@ static NSString *const kDeleteAttributesKey = @"deleteAttribute";
  */
 static NSString *const kDeleteProvidersKey = @"deleteProvider";
 
+/** @var kDeletePasskeysKey
+    @brief The key for the "deletePasskey" value in the request.
+ */
+static NSString *const kDeletePasskeysKey = @"deletePasskey";
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -169,6 +174,9 @@ static NSString *const kTenantIDKey = @"tenantId";
   }
   if (_deleteAttributes) {
     postBody[kDeleteAttributesKey] = _deleteAttributes;
+  }
+  if (_deletePasskeys) {
+    postBody[kDeletePasskeysKey] = _deletePasskeys;
   }
   if (_deleteProviders) {
     postBody[kDeleteProvidersKey] = _deleteProviders;

@@ -15,6 +15,8 @@
  */
 
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRPasskeyInfo_Internal.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPasskeyInfo.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
@@ -89,6 +91,16 @@ static NSString *const kErrorKey = @"error";
             addObject:[[FIRAuthProtoMFAEnrollment alloc] initWithDictionary:dictionary]];
       }
       _MFAEnrollments = [MFAEnrollments copy];
+    }
+    // Get enrolled passkey list
+    NSArray<NSDictionary *> *passkeyEnrollmentData = dictionary[@"passkeyInfo"];
+    if (passkeyEnrollmentData) {
+      NSMutableArray<FIRPasskeyInfo *> *enrolledPasskeys =
+          [NSMutableArray arrayWithCapacity:passkeyEnrollmentData.count];
+      for (NSDictionary *dictionary in passkeyEnrollmentData) {
+        [enrolledPasskeys addObject:[[FIRPasskeyInfo alloc] initWithDictionary:dictionary]];
+      }
+      _enrolledPasskeys = [enrolledPasskeys copy];
     }
   }
   return self;

@@ -175,6 +175,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
    */
   FIRAuthInternalErrorCodeUserNotFound = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserNotFound,
 
+  /** @var FIRAuthInternalPasskeyEnrollmentNotFound
+      @brief Indicates the  given credential ID doesn't exist for passkey withdrawal.
+   */
+  FIRAuthInternalPasskeyEnrollmentNotFound = FIRAuthPublicErrorCodeFlag |
+                                             FIRAuthErrorCodePasskeyEnrollmentNotFound,
+
   /** @var FIRAuthInternalErrorCodeInvalidAPIKey
       @brief Indicates an invalid API Key was supplied in the request.
    */

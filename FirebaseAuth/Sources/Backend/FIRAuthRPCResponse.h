@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol FIRAuthRPCResponse <NSObject>
 
-/** @fn setFieldsWithDictionary:error:
+/** @fn setWithDictionary:error:
     @brief Sets the response instance from the decoded JSON response.
     @param dictionary The dictionary decoded from HTTP JSON response.
     @param error An out field for an error which occurred constructing the request.

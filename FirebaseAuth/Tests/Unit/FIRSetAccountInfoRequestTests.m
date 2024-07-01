@@ -174,6 +174,16 @@ static NSString *const kDeleteProvidersKey = @"deleteProvider";
  */
 static NSString *const kTestDeleteProviders = @"TestDeleteProviders";
 
+/** @var kDeleteProvidersKey
+    @brief The key for the "deleteProvider" value in the request.
+ */
+static NSString *const kDeletePasskeysKey = @"deletePasskey";
+
+/** @var kTestDeleteProviders
+    @brief The fake @c deleteProviders for testing the request.
+ */
+static NSString *const kTestDeletePasskeys = @"TestCredentialIDs";
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -271,6 +281,7 @@ static NSString *const kExpectedAPIURL =
   request.captchaResponse = kTestCaptchaResponse;
   request.deleteAttributes = @[ kTestDeleteAttributes ];
   request.deleteProviders = @[ kTestDeleteProviders ];
+  request.deletePasskeys = @[ kTestDeletePasskeys ];
 
   [FIRAuthBackend
       setAccountInfo:request
@@ -294,6 +305,7 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDeleteAttributesKey],
                         @[ kTestDeleteAttributes ]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDeleteProvidersKey], @[ kTestDeleteProviders ]);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDeletePasskeysKey], @[ kTestDeletePasskeys ]);
   XCTAssertTrue([_RPCIssuer.decodedRequest[kReturnSecureTokenKey] boolValue]);
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
 }

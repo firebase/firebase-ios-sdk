@@ -35,6 +35,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -45,6 +47,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -66,6 +70,10 @@
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthRecaptchaVerifier.h"
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#import <AuthenticationServices/AuthenticationServices.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -484,6 +492,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
   _multiFactor.user = self;
 #endif
+  _enrolledPasskeys = [user.enrolledPasskeys copy];
 }
 
 /** @fn executeUserUpdateWithChanges:callback:
@@ -584,6 +593,155 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 #pragma mark -
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+- (void)startPasskeyEnrollmentWithName:(nullable NSString *)name
+                            completion:
+                                (nullable void (^)(
+                                    ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                        *_Nullable request,
+                                    NSError *_Nullable error))completion {
+  FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
+
+  FIRStartPasskeyEnrollmentRequest *request =
+      [[FIRStartPasskeyEnrollmentRequest alloc] initWithIDToken:self.rawAccessToken
+                                           requestConfiguration:requestConfiguration];
+  [FIRAuthBackend
+      startPasskeyEnrollment:request
+                    callback:^(FIRStartPasskeyEnrollmentResponse *_Nullable response,
+                               NSError *_Nullable error) {
+                      if (error) {
+                        // reset the passkey name cache.
+                        self.passkeyName = nil;
+                        completion(nil, error);
+                        return;
+                      } else {
+                        // cached the passkey name.  This is needed when calling
+                        // finalizePasskeyEnrollment
+                        self.passkeyName = name;
+                        // If passkey name is not provided, we will provide a firebase formatted
+                        // default name.
+                        if (self.passkeyName == nil || [self.passkeyName isEqual:@""]) {
+                          self.passkeyName = @"Unnamed account (Apple)";
+                        }
+                        NSData *challengeInData =
+                            [[NSData alloc] initWithBase64EncodedString:response.challenge
+                                                                options:0];
+                        NSData *userIdInData =
+                            [[NSData alloc] initWithBase64EncodedString:response.userID options:0];
+
+                        ASAuthorizationPlatformPublicKeyCredentialProvider *provider =
+                            [[ASAuthorizationPlatformPublicKeyCredentialProvider alloc]
+                                initWithRelyingPartyIdentifier:response.rpID];
+                        ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest *request =
+                            [provider
+                                createCredentialRegistrationRequestWithChallenge:challengeInData
+                                                                            name:self.passkeyName
+                                                                          userID:userIdInData];
+                        completion(request, nil);
+                      }
+                    }];
+}
+
+- (void)finalizePasskeyEnrollmentWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialRegistration *)platformCredential
+                                             completion:(nullable void (^)(
+                                                            FIRAuthDataResult *_Nullable authResult,
+                                                            NSError *_Nullable error))completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRAuthDataResultCallback decoratedCallback =
+        [FIRAuth.auth signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
+    FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
+
+    NSString *credentialID = [platformCredential.credentialID base64EncodedStringWithOptions:0];
+    NSString *clientDataJson =
+        [platformCredential.rawClientDataJSON base64EncodedStringWithOptions:0];
+    NSString *attestationObject =
+        [platformCredential.rawAttestationObject base64EncodedStringWithOptions:0];
+
+    FIRFinalizePasskeyEnrollmentRequest *request =
+        [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:self.rawAccessToken
+                                                                name:self.passkeyName
+                                                        credentialID:credentialID
+                                                      clientDataJson:clientDataJson
+                                                   attestationObject:attestationObject
+                                                requestConfiguration:requestConfiguration];
+
+    [FIRAuthBackend
+        finalizePasskeyEnrollment:request
+                         callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
+                                    NSError *_Nullable error) {
+                           if (error) {
+                             decoratedCallback(nil, error);
+                             return;
+                           } else {
+                             [FIRAuth.auth
+                                 completeSignInWithAccessToken:response.idToken
+                                     accessTokenExpirationDate:nil
+                                                  refreshToken:response.refreshToken
+                                                     anonymous:NO
+                                                      callback:^(FIRUser *_Nullable user,
+                                                                 NSError *_Nullable error) {
+                                                        if (error) {
+                                                          completion(nil, error);
+                                                          return;
+                                                        }
+
+                                                        FIRAuthDataResult *authDataResult =
+                                                            user ? [[FIRAuthDataResult alloc]
+                                                                             initWithUser:user
+                                                                       additionalUserInfo:nil]
+                                                                 : nil;
+                                                        decoratedCallback(authDataResult, error);
+                                                      }];
+                           }
+                         }];
+  });
+}
+#endif  // #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+
+- (void)unenrollPasskeyWithCredentialID:(NSString *)credentialID
+                             completion:(nullable void (^)(NSError *_Nullable error))completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc]
+        initWithRequestConfiguration:self->_auth.requestConfiguration];
+    request.deletePasskeys = @[ credentialID ];
+    request.accessToken = self.rawAccessToken;
+    [FIRAuthBackend
+        setAccountInfo:request
+              callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+                if (error) {
+                  callInMainThreadWithError(completion, error);
+                } else {
+                  [FIRAuth.auth
+                      completeSignInWithAccessToken:response.IDToken
+                          accessTokenExpirationDate:response.approximateExpirationDate
+                                       refreshToken:response.refreshToken
+                                          anonymous:NO
+                                           callback:^(FIRUser *_Nullable user,
+                                                      NSError *_Nullable error) {
+                                             FIRAuthDataResult *result =
+                                                 [[FIRAuthDataResult alloc] initWithUser:user
+                                                                      additionalUserInfo:nil];
+                                             FIRAuthDataResultCallback decoratedCallback = [FIRAuth
+                                                                                                .auth
+                                                 signInFlowAuthDataResultCallbackByDecoratingCallback:
+                                                     ^(FIRAuthDataResult *_Nullable authResult,
+                                                       NSError *_Nullable error) {
+                                                       if (error) {
+                                                         [[FIRAuth auth] signOut:NULL];
+                                                       }
+                                                       if (completion) {
+                                                         completion(error);
+                                                       }
+                                                     }];
+                                             decoratedCallback(result, error);
+                                           }];
+                }
+              }];
+  });
+}
+
 /** @fn updateEmail:password:callback:
     @brief Updates email address and/or password for the current user.
     @remarks May fail if there is already an email/password-based account for the same email
