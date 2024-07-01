@@ -17,6 +17,10 @@
 # This script replaces mock response files for Vertex AI unit tests with a fresh
 # clone of the shared repository of Vertex AI test data.
 
+RESPONSES_VERSION='v1.*' # the major version of mock responses to use
+REPO="https://github.com/FirebaseExtended/vertexai-sdk-test-data.git"
+TAG=$(git -c 'versionsort.suffix=-' ls-remote --tags --sort='v:refname' "$REPO" | grep "$RESPONSES_VERSION" | tail -n1 | awk -F'/' '{print $NF}')
+
 cd "$(dirname "$0")/../FirebaseVertexAI/Tests/Unit" || exit
 rm -rf vertexai-sdk-test-data || exit
-git clone --depth 1 https://github.com/FirebaseExtended/vertexai-sdk-test-data.git
+git clone --depth 1 --branch "$TAG" "$REPO"
