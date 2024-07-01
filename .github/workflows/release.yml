@@ -41,7 +41,7 @@ jobs:
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
@@ -90,7 +90,7 @@ jobs:
         path: ${{ env.local_sdk_repo_dir }}
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
       run: |
@@ -130,7 +130,7 @@ jobs:
         path: ${{ env.local_sdk_repo_dir }}
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo
       run: |
@@ -166,7 +166,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       env:
@@ -184,7 +184,8 @@ jobs:
     - name: Remove data before upload
       env:
         LEGACY: true
-      run: scripts/remove_data.sh config release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -204,7 +205,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -216,7 +217,8 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
     - name: Remove data before upload
-      run: scripts/remove_data.sh authentication release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh authentication
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -238,7 +240,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       env:
@@ -265,7 +267,8 @@ jobs:
     - name: Remove data before upload
       env:
         LEGACY: true
-      run: scripts/remove_data.sh crashlytics release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -287,7 +290,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -301,7 +304,8 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
     - name: Remove data before upload
-      run: scripts/remove_data.sh database release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh database
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -323,7 +327,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -343,7 +347,8 @@ jobs:
       if: ${{ always() }}
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
     - name: Remove data before upload
-      run: scripts/remove_data.sh dynamiclinks release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh dynamiclinks
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -365,7 +370,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -378,7 +383,8 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
     - name: Remove data before upload
-      run: scripts/remove_data.sh firestore release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh firestore
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -402,7 +408,7 @@ jobs:
   #   - uses: actions/checkout@v4
   #   - uses: ruby/setup-ruby@v1
   #   - name: Get token
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
   #         bot-access.txt "$bot_token_secret"
   #   - name: Setup testing repo and quickstart
   #     run: |
@@ -420,7 +426,8 @@ jobs:
   #     run: ([ -z $plist_secret ] ||
   #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
   #   - name: Remove data before upload
-  #     run: scripts/remove_data.sh functions release_testing
+  #     if: ${{ failure() }}
+  #     run: scripts/remove_data.sh functions
   #   - uses: actions/upload-artifact@v4
   #     if: ${{ failure() }}
   #     with:
@@ -442,7 +449,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -458,7 +465,8 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
     - name: Remove data before upload
-      run: scripts/remove_data.sh inappmessaging release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh inappmessaging
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -480,7 +488,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -496,7 +504,8 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
     - name: Remove data before upload
-      run: scripts/remove_data.sh messaging release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh messaging
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -516,7 +525,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -528,7 +537,8 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
     - name: Remove data before upload
-      run: scripts/remove_data.sh config release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -551,7 +561,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -565,7 +575,8 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
     - name: Remove data before upload
-      run: scripts/remove_data.sh storage release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh storage
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -587,7 +598,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       run: |
@@ -602,7 +613,8 @@ jobs:
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Remove data before upload
-      run: scripts/remove_data.sh performance release_testing
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh performance
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
