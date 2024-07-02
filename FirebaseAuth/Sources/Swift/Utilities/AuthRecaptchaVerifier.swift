@@ -190,7 +190,7 @@ enum AuthRecaptchaAction: String {
                                provider: AuthRecaptchaProvider,
                                action: AuthRecaptchaAction) async throws {
       try await retrieveRecaptchaConfig(forceRefresh: false)
-      if enablementStatus(forProvider: provider) != AuthRecaptchaEnablementStatus.off {
+      if enablementStatus(forProvider: provider) != .off {
         let token = try await verify(forceRefresh: false, action: action)
         request.injectRecaptchaFields(recaptchaResponse: token, recaptchaVersion: kRecaptchaVersion)
       } else {
