@@ -8,7 +8,7 @@ Once you are selected as an allowlist member, you should be able to create a Clo
 Here's a quick rundown of steps to get you started. Learn more about details at the official [Getting Started documentation](https://firebase.google.com/docs/data-connect/quickstart).
 
 ### 1. Create a new Data Connect service and Cloud SQL instance.
-* Go to Firebase Console and select Firebase Data Connect from LeftNav bar to create a new Data Connect service and a Cloud SQL instance. You have to be in Blaze plan and you can view the details of pricing at https://firebase.google.com/pricing.
+* Go to Firebase Console and select Firebase Data Connect from the Left Navigation bar to create a new Data Connect service and a Cloud SQL instance. You have to be in Blaze plan and you can view the details of pricing at https://firebase.google.com/pricing.
 * Select us-central1 region if you want to try out vector search with Data Connect later.
 * Wait for the Cloud SQL instance to be provisioned, you can view and manage the instance at the [Cloud console](https://pantheon.corp.google.com/sql).
 
@@ -23,17 +23,17 @@ npm install -g firebase-tools
 ### 3. Set up VSCode
 You will need VS Code and its Firebase extension (VS Code extension) to automatically generate Swift code for your queries.
 * Install VS Code
-* Download the [extension](https://firebasestorage.googleapis.com/v0/b/firemat-preview-drop/o/vsix%2Ffirebase-vscode-latest.vsix?alt=media) and drag it into the "Extensions" Left Nav bar for installation.
-* Create a fdc folder
+* Download the [extension](https://firebasestorage.googleapis.com/v0/b/firemat-preview-drop/o/vsix%2Ffirebase-vscode-latest.vsix?alt=media) and drag it into the "Extensions" in the Left Navigation bar for installation. Keep in mind double clicking the file won't install.
+* Create a fdc folder where you like to have firebase configuration.
 ```
 mkdir fdc
 ```
-* Open VS Code from FDC folder
+* Open VS Code from folder you just created
 * Select the Firebase icon on the left and login
 * Click on "Run firebase init" button
 
-* Select Data Connect
-* Select the project, service and database ID you setup on the console
+* Select the first option of Data Connect
+* Enter/Select the project, service and database ID you setup on the console
 * Enter to select the default connector ID and complete the rest of the process
 
 ### 4. Create a schema and generate some dummy data
