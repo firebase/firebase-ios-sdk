@@ -26,7 +26,7 @@
 API_AVAILABLE(macos(10.14), ios(10.0), watchos(3.0))
 typedef void (^FIRMessagingContentHandler)(UNNotificationContent *content);
 
-#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#if !TARGET_OS_TV
 static NSString *const kFCMPayloadOptionsName = @"fcm_options";
 static NSString *const kFCMPayloadOptionsImageURLName = @"image";
 static NSString *const kValidImageURL =
@@ -221,4 +221,4 @@ static NSString *const kValidImageURL =
 
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+#endif  // !TARGET_OS_TV

@@ -542,10 +542,24 @@ class AuthErrorUtils: NSObject {
   #endif // os(iOS)
 
   static func recaptchaSDKNotLinkedError() -> Error {
-    // TODO(chuanr, ObjC): point the link to GCIP doc once available.
+    // TODO(ObjC): point the link to GCIP doc once available.
     let message = "The reCAPTCHA SDK is not linked to your app. See " +
       "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
     return error(code: .recaptchaSDKNotLinked, message: message)
+  }
+
+  static func recaptchaSiteKeyMissing() -> Error {
+    // TODO(ObjC): point the link to GCIP doc once available.
+    let message = "The site key for the reCAPTCHA SDK was not found. See " +
+      "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
+    return error(code: .recaptchaSiteKeyMissing, message: message)
+  }
+
+  static func recaptchaActionCreationFailed() -> Error {
+    // TODO(ObjC): point the link to GCIP doc once available.
+    let message = "The reCAPTCHA SDK action class creation failed. See " +
+      "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
+    return error(code: .recaptchaActionCreationFailed, message: message)
   }
 }
 

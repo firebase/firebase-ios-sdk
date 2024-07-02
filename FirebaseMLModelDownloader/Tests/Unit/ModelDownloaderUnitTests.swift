@@ -23,7 +23,6 @@
   @testable import FirebaseMLModelDownloader
   import XCTest
   #if SWIFT_PACKAGE
-    @_implementationOnly import GoogleUtilities_Logger
     @_implementationOnly import GoogleUtilities_UserDefaults
   #else
     @_implementationOnly import GoogleUtilities
