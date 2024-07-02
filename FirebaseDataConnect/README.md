@@ -13,7 +13,8 @@ Here's a quick rundown of steps to get you started. Learn more about details at 
 * Your Cloud SQL instance is now to be provisioned, you can view and manage the instance at the [Cloud console](https://pantheon.corp.google.com/sql).
 
 ### 2. Setup your iOS app and [initialize Firebase](https://firebase.google.com/docs/ios/setup)
-The following steps will guide you to setup your schema and create query operation that you need for your app. The toolings below will help you to test out your query with dummy data and once you are happy with your query, the tools will help generate client code for that query so you can call directly from your app.
+
+#### The following steps will guide you to setup your schema and create query operation that you need for your app. The toolings below will help you to test out your query with dummy data and once you are happy with your query, the tools will help generate client code for that query so you can call directly from your app.
 
 
 ### 3. Set up [Firebase CLI](https://firebase.devsite.corp.google.com/docs/cli)
@@ -79,6 +80,7 @@ In the mutations.gql file, uncomment the "CreateUser" query.
 * Click on the "Run" button above the query.
 * You should see your dummy data is added.
 * Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
+* As you see this operation needs authentication, so you will need to be authenticated with Firebase Authentication in your client app when you call this operation in iOS app.
 
 ### At this point, you have the code generated for the queries you need for your app
 Now let's see how you can use the generated query code in your iOS app:
