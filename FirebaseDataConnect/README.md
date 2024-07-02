@@ -52,7 +52,7 @@ type User @table(key: "uid") {
 * Select the Firebase icon on the left and Click on the "Deploy all" button to deploy all the schema and operations to backend.
 * You can now see your schemas on the Firebase Console.
 
-### 6. Set up a mutation 
+### 6. Set up a mutation
 In the mutations.gql file, uncomment the "CreateUser" query.
 * In the CONFIGURATION -> VARIABLES, enter
 ```
@@ -88,7 +88,7 @@ Now let's see how you can use the generated query code in your iOS app:
 * Navigate to the generated folder and select it
 
 
-### 10. Calling the generated code from your app 
+### 10. Calling the generated code from your app
 ```
 import FirebaseDataConnect
 import Users //change this to the name of your generated package
