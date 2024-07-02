@@ -37,17 +37,22 @@ jobs:
         cd "${GITHUB_WORKSPACE}/ReleaseTooling"
         swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --output-file-path ./output.json --for-gha-matrix-generation
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
-         ossbotaccess=`cat oss-bot-access.txt`
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+         test_version="${nightly_version}" \
+           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
+           local_sdk_repo_dir="${local_sdk_repo_dir}" \
+           podspec_repo_branch="${podspec_repo_branch}" \
+           scripts/release_testing_setup.sh prerelease_testing
+      env:
+         BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get token
+      run: |
+         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
+         prerelease-testing-token.txt "$bot_token_secret"
     - name: Clean spec repo
       run: |
-         ossbotaccess=`cat oss-bot-access.txt`
+         ossbotaccess=`cat prerelease-testing-token.txt`
          git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
@@ -59,7 +64,7 @@ jobs:
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
-        rm -rf oss-bot-access.txt
+        rm -rf prerelease-testing-token.txt
     - uses: actions/upload-artifact@v4
       with:
         name: firebase-ios-sdk
@@ -164,15 +169,18 @@ jobs:
     - uses: actions/checkout@v4
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
-         ossbotaccess=`cat oss-bot-access.txt`
          # Update/create a nightly tag to the head of the main branch.
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+         test_version="${nightly_version}" \
+           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
+           local_sdk_repo_dir="${local_sdk_repo_dir}" \
+           podspec_repo_branch="${podspec_repo_branch}" \
+           scripts/release_testing_setup.sh prerelease_testing
+      env:
+         BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push updated podspecs
       run: |
         botaccess=`cat bot-access.txt`
