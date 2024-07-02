@@ -21,45 +21,45 @@
   #endif
   import RecaptchaInterop
 
-
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaConfig {
     let siteKey: String
     let enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]
 
-    init(siteKey: String, enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
+    init(siteKey: String,
+         enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
       self.siteKey = siteKey
       self.enablementStatus = enablementStatus
     }
   }
 
-enum AuthRecaptchaEnablementStatus: String, CaseIterable {
-  case enforce = "ENFORCE"
-  case audit = "AUDIT"
-  case off = "OFF"
-  
-    // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
+  enum AuthRecaptchaEnablementStatus: String, CaseIterable {
+    case enforce = "ENFORCE"
+    case audit = "AUDIT"
+    case off = "OFF"
 
-enum AuthRecaptchaProvider: String, CaseIterable {
-  case password = "EMAIL_PASSWORD_PROVIDER"
-  case phone = "PHONE_PROVIDER"
-  
     // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
+    var stringValue: String { rawValue }
+  }
 
-enum AuthRecaptchaAction: String {
-  case defaultAction
-  case signInWithPassword = "signInWithPassword"
-  case getOobCode = "getOobCode"
-  case signUpPassword = "signUpPassword"
-  case sendVerificationCode = "sendVerificationCode"
-  
+  enum AuthRecaptchaProvider: String, CaseIterable {
+    case password = "EMAIL_PASSWORD_PROVIDER"
+    case phone = "PHONE_PROVIDER"
+
     // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
+    var stringValue: String { rawValue }
+  }
+
+  enum AuthRecaptchaAction: String {
+    case defaultAction
+    case signInWithPassword
+    case getOobCode
+    case signUpPassword
+    case sendVerificationCode
+
+    // Convenience property for mapping values
+    var stringValue: String { rawValue }
+  }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaVerifier {
@@ -91,9 +91,10 @@ enum AuthRecaptchaAction: String {
       return agentConfig?.siteKey
     }
 
-    func enablementStatus(forProvider provider: AuthRecaptchaProvider) -> AuthRecaptchaEnablementStatus {
+    func enablementStatus(forProvider provider: AuthRecaptchaProvider)
+      -> AuthRecaptchaEnablementStatus {
       if let tenantID = auth?.tenantID,
-          let tenantConfig = tenantConfigs[tenantID],
+         let tenantConfig = tenantConfigs[tenantID],
          let status = tenantConfig.enablementStatus[provider] {
         return status
       } else if let agentConfig = agentConfig,
