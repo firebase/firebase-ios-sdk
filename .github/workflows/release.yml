@@ -53,7 +53,8 @@ jobs:
          scripts/release_testing_setup.sh release_testing
     - name: Clean spec repo
       run: |
-         git clone --quiet https://github.com/Firebase/SpecsReleasing.git "${local_repo}"
+         botaccess=`cat bot-access.txt`
+         git clone --quiet https://"$botaccess"@github.com/Firebase/SpecsReleasing.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
