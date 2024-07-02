@@ -140,7 +140,7 @@ struct SpecRepoBuilder: ParsableCommand {
   var excludePods: [String] = []
 
   @Option(help: "GitHub Account Name.")
-  var githubAccount: String = "FirebasePrivate"
+  var githubAccount: String = "Firebase"
 
   @Option(help: "GitHub Repo Name.")
   var sdkRepoName: String = "SpecsTesting"

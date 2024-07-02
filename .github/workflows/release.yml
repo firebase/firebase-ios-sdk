@@ -53,8 +53,7 @@ jobs:
          scripts/release_testing_setup.sh release_testing
     - name: Clean spec repo
       run: |
-         botaccess=`cat bot-access.txt`
-         git clone --quiet https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git "${local_repo}"
+         git clone --quiet https://github.com/Firebase/SpecsReleasing.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
@@ -97,11 +96,11 @@ jobs:
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
+        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
         BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
-                                --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
@@ -138,13 +137,13 @@ jobs:
         botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
-        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/FirebasePrivate/SpecsTesting.git
+        pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
         # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
         # command if ${ALLOWWARNINGS} is not null.
         BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
-                                --pod-sources 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" \
                                 --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
     - name: Clean Artifacts
