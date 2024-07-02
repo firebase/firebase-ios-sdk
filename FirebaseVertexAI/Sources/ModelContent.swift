@@ -17,7 +17,7 @@ import Foundation
 /// A type describing data in media formats interpretable by an AI model. Each generative AI
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Equatable {
   /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
   /// of ``Part``, different data types may not mix.
@@ -116,10 +116,10 @@ public struct ModelContent: Equatable {
 
 // MARK: Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModelContent: Codable {}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModelContent.Part: Codable {
   enum CodingKeys: String, CodingKey {
     case text

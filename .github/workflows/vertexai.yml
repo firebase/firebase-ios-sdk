@@ -18,7 +18,7 @@ jobs:
   spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst, tvOS, visionOS]
+        target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
         os: [macos-14]
         include:
           - os: macos-14

@@ -38,7 +38,7 @@ public enum ImageConversionError: Error {
 
 #if canImport(UIKit)
   /// Enables images to be representable as ``ThrowingPartsRepresentable``.
-  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension UIImage: ThrowingPartsRepresentable {
     public func tryPartsValue() throws -> [ModelContent.Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
@@ -50,7 +50,7 @@ public enum ImageConversionError: Error {
 
 #elseif canImport(AppKit)
   /// Enables images to be representable as ``ThrowingPartsRepresentable``.
-  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension NSImage: ThrowingPartsRepresentable {
     public func tryPartsValue() throws -> [ModelContent.Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
@@ -66,42 +66,46 @@ public enum ImageConversionError: Error {
   }
 #endif
 
-/// Enables `CGImages` to be representable as model content.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
-extension CGImage: ThrowingPartsRepresentable {
-  public func tryPartsValue() throws -> [ModelContent.Part] {
-    let output = NSMutableData()
-    guard let imageDestination = CGImageDestinationCreateWithData(
-      output, UTType.jpeg.identifier as CFString, 1, nil
-    ) else {
-      throw ImageConversionError.couldNotAllocateDestination
-    }
-    CGImageDestinationAddImage(imageDestination, self, nil)
-    CGImageDestinationSetProperties(imageDestination, [
-      kCGImageDestinationLossyCompressionQuality: imageCompressionQuality,
-    ] as CFDictionary)
-    if CGImageDestinationFinalize(imageDestination) {
-      return [.data(mimetype: "image/jpeg", output as Data)]
-    }
-    throw ImageConversionError.couldNotConvertToJPEG(self)
-  }
-}
-
-/// Enables `CIImages` to be representable as model content.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
-extension CIImage: ThrowingPartsRepresentable {
-  public func tryPartsValue() throws -> [ModelContent.Part] {
-    let context = CIContext()
-    let jpegData = (colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB))
-      .flatMap {
-        // The docs specify kCGImageDestinationLossyCompressionQuality as a supported option, but
-        // Swift's type system does not allow this.
-        // [kCGImageDestinationLossyCompressionQuality: imageCompressionQuality]
-        context.jpegRepresentation(of: self, colorSpace: $0, options: [:])
+#if !os(watchOS) // This code does not build on watchOS.
+  /// Enables `CGImages` to be representable as model content.
+  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+  extension CGImage: ThrowingPartsRepresentable {
+    public func tryPartsValue() throws -> [ModelContent.Part] {
+      let output = NSMutableData()
+      guard let imageDestination = CGImageDestinationCreateWithData(
+        output, UTType.jpeg.identifier as CFString, 1, nil
+      ) else {
+        throw ImageConversionError.couldNotAllocateDestination
       }
-    if let jpegData = jpegData {
-      return [.data(mimetype: "image/jpeg", jpegData)]
+      CGImageDestinationAddImage(imageDestination, self, nil)
+      CGImageDestinationSetProperties(imageDestination, [
+        kCGImageDestinationLossyCompressionQuality: imageCompressionQuality,
+      ] as CFDictionary)
+      if CGImageDestinationFinalize(imageDestination) {
+        return [.data(mimetype: "image/jpeg", output as Data)]
+      }
+      throw ImageConversionError.couldNotConvertToJPEG(self)
     }
-    throw ImageConversionError.couldNotConvertToJPEG(self)
   }
-}
+#endif // !os(watchOS)
+
+#if canImport(CoreImage)
+  /// Enables `CIImages` to be representable as model content.
+  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+  extension CIImage: ThrowingPartsRepresentable {
+    public func tryPartsValue() throws -> [ModelContent.Part] {
+      let context = CIContext()
+      let jpegData = (colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB))
+        .flatMap {
+          // The docs specify kCGImageDestinationLossyCompressionQuality as a supported option, but
+          // Swift's type system does not allow this.
+          // [kCGImageDestinationLossyCompressionQuality: imageCompressionQuality]
+          context.jpegRepresentation(of: self, colorSpace: $0, options: [:])
+        }
+      if let jpegData = jpegData {
+        return [.data(mimetype: "image/jpeg", jpegData)]
+      }
+      throw ImageConversionError.couldNotConvertToJPEG(self)
+    }
+  }
+#endif // canImport(CoreImage)
