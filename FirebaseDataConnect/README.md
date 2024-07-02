@@ -79,16 +79,14 @@ In the mutations.gql file, uncomment the "CreateUser" query.
 * In the CONFIGURATION -> AUTHENTICATION, select Run as "Authenticated".
 * Click on the "Run" button above the query.
 * You should see your dummy data is added.
-* Select the Firebase icon on the left and Click on the "Deploy all" button to deplouy all the schema and operations to backend.
+* Select the Firebase icon on the left and Click on the "Deploy all" button to deploy all the schema and operations to backend.
 * As you see this operation needs authentication, so you will need to be authenticated with Firebase Authentication in your client app when you call this operation in iOS app.
 
-### At this point, you have the code generated for the queries you need for your app
-Now let's see how you can use the generated query code in your iOS app:
+#### At this point, you have the code generated for the queries you need for your app. Now let's see how you can use the generated query code in your iOS app:
 
 ### 9. Adding the generated package to your app project
 * Go to File -> Add Package Dependencies -> Add Local
-* Navigate to the generated folder and select it
-
+* Navigate to the generated folder and select the "swift-generated/User" folder (You should see a Package.swift file in it).
 
 ### 10. Calling the generated code from your app
 ```
@@ -105,24 +103,4 @@ func executeFDCCreateUserQuery() {
   }
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
