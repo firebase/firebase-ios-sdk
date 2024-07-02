@@ -251,9 +251,9 @@ import Foundation
                                                  retryOnInvalidAppCredential: Bool,
                                                  uiDelegate: AuthUIDelegate?) async throws
       -> String? {
-      //let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
+      let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
-                                                codeIdentity: CodeIdentity.empty,
+                                                codeIdentity: codeIdentity,
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
       do {
@@ -342,7 +342,6 @@ import Foundation
           requestConfiguration: auth.requestConfiguration
         )
         let response = try await AuthBackend.call(with: request)
-        print(response)
         return response.verificationID
       }
       guard let session else {
