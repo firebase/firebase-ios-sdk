@@ -218,7 +218,7 @@ import Foundation
       }
     }
   }
-  
+
   private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
                                                retryOnInvalidAppCredential: Bool,
                                                uiDelegate: AuthUIDelegate?) async throws
@@ -267,7 +267,7 @@ import Foundation
                                                     uiDelegate: uiDelegate)
       }
     }
-  
+
     /// Starts the flow to verify the client via silent push notification.
     /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
     /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
