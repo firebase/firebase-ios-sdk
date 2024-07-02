@@ -164,15 +164,18 @@ jobs:
     - uses: actions/checkout@v4
     - name: Get token
       run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
-         oss-bot-access.txt "$bot_token_secret"
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
          bot-access.txt "$bot_token_secret"
     - name: Update SpecsTesting repo setup
       run: |
-         ossbotaccess=`cat oss-bot-access.txt`
          # Update/create a nightly tag to the head of the main branch.
-         BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
+         test_version="${nightly_version}" \
+           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
+           local_sdk_repo_dir="${local_sdk_repo_dir}" \
+           podspec_repo_branch="${podspec_repo_branch}" \
+           scripts/release_testing_setup.sh prerelease_testing
+      env:
+         BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push updated podspecs
       run: |
         botaccess=`cat bot-access.txt`
