@@ -100,7 +100,7 @@ jobs:
         BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
-                                --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --pod-sources 'https://github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
@@ -143,7 +143,7 @@ jobs:
         BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
-                                --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --pod-sources 'https://github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" \
                                 --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
     - name: Clean Artifacts
