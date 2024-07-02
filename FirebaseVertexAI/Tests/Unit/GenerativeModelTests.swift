@@ -19,7 +19,7 @@ import XCTest
 
 @testable import FirebaseVertexAI
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerativeModelTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
@@ -1281,6 +1281,11 @@ final class GenerativeModelTests: XCTestCase {
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    guard #unavailable(watchOS 2) else {
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    }
     return { request in
       // This is *not* an HTTPURLResponse
       let response = URLResponse(
@@ -1302,6 +1307,11 @@ final class GenerativeModelTests: XCTestCase {
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    guard #unavailable(watchOS 2) else {
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    }
     let fileURL = try XCTUnwrap(Bundle.module.url(forResource: name, withExtension: ext))
     return { request in
       let requestURL = try XCTUnwrap(request.url)
@@ -1343,7 +1353,7 @@ private extension URLRequest {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 class AppCheckInteropFake: NSObject, AppCheckInterop {
   /// The placeholder token value returned when an error occurs
   static let placeholderTokenValue = "placeholder-token"
@@ -1393,7 +1403,7 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
 
 struct AppCheckErrorFake: Error {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Comparable {
   public static func < (lhs: FirebaseVertexAI.SafetyRating,
                         rhs: FirebaseVertexAI.SafetyRating) -> Bool {

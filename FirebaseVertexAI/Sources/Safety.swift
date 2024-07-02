@@ -17,7 +17,7 @@ import Foundation
 /// A type defining potentially harmful media categories and their model-assigned ratings. A value
 /// of this type may be assigned to a category for every model-generated response, not just
 /// responses that exceed a certain threshold.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetyRating: Equatable, Hashable {
   /// The category describing the potential harm a piece of content may pose. See
   /// ``SafetySetting/HarmCategory`` for a list of possible values.
@@ -60,7 +60,7 @@ public struct SafetyRating: Equatable, Hashable {
 }
 
 /// Safety feedback for an entire request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetyFeedback {
   /// Safety rating evaluated from content.
   public let rating: SafetyRating
@@ -77,7 +77,7 @@ public struct SafetyFeedback {
 
 /// A type used to specify a threshold for harmful content, beyond which the model will return a
 /// fallback response instead of generated content.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetySetting {
   /// A type describing safety attributes, which include harmful categories and topics that can
   /// be considered sensitive.
@@ -142,7 +142,7 @@ public struct SafetySetting {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating.HarmProbability: Codable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
@@ -157,13 +157,13 @@ extension SafetyRating.HarmProbability: Codable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Decodable {}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyFeedback: Decodable {}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting.HarmCategory: Codable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
@@ -178,7 +178,7 @@ extension SafetySetting.HarmCategory: Codable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting.BlockThreshold: Codable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
@@ -193,5 +193,5 @@ extension SafetySetting.BlockThreshold: Codable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting: Codable {}
