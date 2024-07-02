@@ -21,7 +21,7 @@ import SharedTestUtilities
 
 import XCTest
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
 class VertexComponentTests: XCTestCase {
   static var app: FirebaseApp!
 

@@ -122,6 +122,9 @@ import Foundation
         } catch {
           throw error
         }
+      } catch {
+        throw error
+      }
     }
 
     /// Verify ownership of the second factor phone number by the current user.
@@ -159,8 +162,8 @@ import Foundation
       do {
         multiFactorSession?.multiFactorInfo = multiFactorInfo
         return try await verifyPhoneNumber(multiFactorInfo.phoneNumber,
-        uiDelegate: uiDelegate,
-        multiFactorSession: multiFactorSession)
+                                           uiDelegate: uiDelegate,
+                                           multiFactorSession: multiFactorSession)
       } catch {
         throw error
       }

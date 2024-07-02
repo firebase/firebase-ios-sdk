@@ -14,35 +14,38 @@
 
 #if os(iOS)
 
-import Foundation
-import RecaptchaInterop
-import RecaptchaEnterprise.Recaptcha
-import RecaptchaEnterprise.RecaptchaAction
+  import Foundation
+
+  #if SWIFT_PACKAGE
+    import FirebaseAuthInternal
+  #endif
+  import RecaptchaInterop
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaConfig {
     let siteKey: String
     let enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]
 
-    init(siteKey: String, enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
+    init(siteKey: String,
+         enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
       self.siteKey = siteKey
       self.enablementStatus = enablementStatus
     }
   }
 
-enum AuthRecaptchaEnablementStatus: String, CaseIterable {
-  case enforce = "ENFORCE"
-  case audit = "AUDIT"
-  case off = "OFF"
-  
-    // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
+  enum AuthRecaptchaEnablementStatus: String, CaseIterable {
+    case enforce = "ENFORCE"
+    case audit = "AUDIT"
+    case off = "OFF"
 
-enum AuthRecaptchaProvider: String, CaseIterable {
-  case password = "EMAIL_PASSWORD_PROVIDER"
-  case phone = "PHONE_PROVIDER"
-  
+    // Convenience property for mapping values
+    var stringValue: String { rawValue }
+  }
+
+  enum AuthRecaptchaProvider: String, CaseIterable {
+    case password = "EMAIL_PASSWORD_PROVIDER"
+    case phone = "PHONE_PROVIDER"
+
     // Convenience property for mapping values
   var stringValue: String { self.rawValue }
 }
@@ -57,8 +60,8 @@ enum AuthRecaptchaAction: String {
   case startMfaEnrollment = "startMfaEnrollment"
   
     // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
+    var stringValue: String { rawValue }
+  }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaVerifier {
@@ -90,9 +93,10 @@ enum AuthRecaptchaAction: String {
       return agentConfig?.siteKey
     }
 
-    func enablementStatus(forProvider provider: AuthRecaptchaProvider) -> AuthRecaptchaEnablementStatus {
+    func enablementStatus(forProvider provider: AuthRecaptchaProvider)
+      -> AuthRecaptchaEnablementStatus {
       if let tenantID = auth?.tenantID,
-          let tenantConfig = tenantConfigs[tenantID],
+         let tenantConfig = tenantConfigs[tenantID],
          let status = tenantConfig.enablementStatus[provider] {
         return status
       } else if let agentConfig = agentConfig,
@@ -104,39 +108,39 @@ enum AuthRecaptchaAction: String {
     }
 
     func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
-      do {
-        try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
-        if recaptchaClient == nil {
-          guard let siteKey = siteKey(),
-                let recaptcha: AnyClass = NSClassFromString("Recaptcha") else {
-            throw AuthErrorUtils.recaptchaSDKNotLinkedError()
-          }
-          recaptchaClient = try await Recaptcha.getClient(withSiteKey: siteKey)
-        }
-        return try await retrieveRecaptchaToken(withAction: action)
-      } catch {
-        throw error
+      try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
+      guard let siteKey = siteKey() else {
+        throw AuthErrorUtils.recaptchaSiteKeyMissing()
       }
-    }
-
-    func retrieveRecaptchaToken(withAction action: AuthRecaptchaAction) async throws -> String {
       let actionString = action.stringValue
-      let customAction = RecaptchaAction.init(customAction: actionString)
-      do {
-        let token = try await recaptchaClient?.execute(withAction: customAction)
-        AuthLog.logInfo(code: "I-AUT000100", message: "reCAPTCHA token retrieval succeeded.")
-        guard let token else {
-          AuthLog.logInfo(
-            code: "I-AUT000101",
-            message: "reCAPTCHA token retrieval returned nil. NO_RECAPTCHA sent as the fake code."
-          )
-          return "NO_RECAPTCHA"
+      return try await withCheckedThrowingContinuation { continuation in
+        FIRRecaptchaGetToken(siteKey, actionString,
+                             "NO_RECAPTCHA") { (token: String, error: Error?,
+                                                linked: Bool, actionCreated: Bool) in
+            guard linked else {
+              continuation.resume(throwing: AuthErrorUtils.recaptchaSDKNotLinkedError())
+              return
+            }
+            guard actionCreated else {
+              continuation.resume(throwing: AuthErrorUtils.recaptchaActionCreationFailed())
+              return
+            }
+            if let error {
+              continuation.resume(throwing: error)
+              return
+            } else {
+              if token == "NO_RECAPTCHA" {
+                AuthLog.logInfo(code: "I-AUT000031",
+                                message: "reCAPTCHA token retrieval failed. NO_RECAPTCHA sent as the fake code.")
+              } else {
+                AuthLog.logInfo(
+                  code: "I-AUT000030",
+                  message: "reCAPTCHA token retrieval succeeded."
+                )
+              }
+              continuation.resume(returning: token)
+            }
         }
-        return token
-      } catch {
-        AuthLog.logInfo(code: "I-AUT000102",
-                        message: "reCAPTCHA token retrieval failed. NO_RECAPTCHA sent as the fake code.")
-        return "NO_RECAPTCHA"
       }
     }
 
@@ -157,8 +161,7 @@ enum AuthRecaptchaAction: String {
       }
       let request = GetRecaptchaConfigRequest(requestConfiguration: requestConfiguration)
       let response = try await AuthBackend.call(with: request)
-      print(response)
-      AuthLog.logInfo(code: "I-AUT000103", message: "reCAPTCHA config retrieval succeeded.")
+      AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
       // Response's site key is of the format projects/<project-id>/keys/<site-key>'
       guard let keys = response.recaptchaKey?.components(separatedBy: "/"),
             keys.count == 4 else {

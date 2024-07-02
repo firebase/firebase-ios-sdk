@@ -58,11 +58,11 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The credential or reCAPTCHA token to prove the identity of the app in order to send the
   /// verification code.
   let codeIdentity: CodeIdentity
-  
-    /// Response to the captcha.
+
+  /// Response to the captcha.
   var captchaResponse: String?
-  
-    /// The reCAPTCHA version.
+
+  /// The reCAPTCHA version.
   var recaptchaVersion: String?
 
   init(phoneNumber: String, codeIdentity: CodeIdentity,
@@ -98,7 +98,7 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     postBody[kClientType] = clientType
     return postBody
   }
-  
+
   func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
     captchaResponse = recaptchaResponse
     self.recaptchaVersion = recaptchaVersion

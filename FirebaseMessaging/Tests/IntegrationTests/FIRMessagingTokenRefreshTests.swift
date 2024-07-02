@@ -145,4 +145,4 @@
       return app.options.gcmSenderID
     }
   }
-#endif // !TARGET_OS_OSX
+#endif // !os(OSX)

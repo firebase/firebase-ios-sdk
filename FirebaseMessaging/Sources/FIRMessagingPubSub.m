@@ -234,7 +234,6 @@ static NSString *const kPendingSubscriptionsListKey =
     return;
   }
   [defaults setObject:pendingData forKey:kPendingSubscriptionsListKey];
-  [defaults synchronize];
 }
 
 - (void)restorePendingTopicsList {

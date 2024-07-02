@@ -27,7 +27,7 @@ class PhoneAuthViewController: OtherAuthViewController {
   }
 
   // MARK: - Firebase 🔥
-  
+
   private func phoneAuthLogin(_ phoneNumber: String) {
     let phoneNumber = String(format: "+%@", phoneNumber)
     Task {
@@ -75,14 +75,14 @@ class PhoneAuthViewController: OtherAuthViewController {
 
     present(phoneAuthController, animated: true, completion: nil)
   }
-  
+
   private func getVerificationCode() async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
-      self.presentPhoneAuthController{ code in
+      self.presentPhoneAuthController { code in
         if code != "" {
           continuation.resume(returning: code)
         } else {
-            // Cancelled
+          // Cancelled
           continuation.resume(throwing: NSError())
         }
       }
