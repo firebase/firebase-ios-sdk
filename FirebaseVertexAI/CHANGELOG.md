@@ -1,3 +1,6 @@
+# 10.29.0
+- [feature] Added community support for watchOS. (#13215)
+
 # 10.28.0
 - [changed] Removed uses of the `gemini-1.5-flash-preview-0514` model in docs
   and samples. Developers should now use the auto-updated versions,

@@ -23,11 +23,12 @@ class MockURLProtocol: URLProtocol {
   ))?
 
   override class func canInit(with request: URLRequest) -> Bool {
-    guard #unavailable(watchOS 2) else {
+    #if os(watchOS)
       print("MockURLProtocol cannot be used on watchOS.")
       return false
-    }
-    return true
+    #else
+      return true
+    #endif // os(watchOS)
   }
 
   override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
