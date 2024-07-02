@@ -20,71 +20,29 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-/**
- * Task which provides the ability to delete an object in Firebase Storage.
- */
-class StorageGetMetadataTask: StorageTask, StorageTaskManagement {
-  private var fetcher: GTMSessionFetcher?
-  private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var taskCompletion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
-
-  init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
-       queue: DispatchQueue,
-       completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
-    super.init(reference: reference, service: fetcherService, queue: queue)
-    taskCompletion = completion
-  }
-
-  deinit {
-    self.fetcher?.stopFetching()
-  }
-
-  /**
-   * Prepares a task and begins execution.
-   */
-  func enqueue() {
-    if let completion = taskCompletion {
-      taskCompletion = { (metadata: StorageMetadata?, error: Error?) in
-        completion(metadata, error)
-        // Reference self in completion handler in order to retain self until completion is called.
-        self.taskCompletion = nil
-      }
-    }
-    dispatchQueue.async { [weak self] in
-      guard let self = self else { return }
-      self.state = .queueing
-      var request = self.baseRequest
-      request.httpMethod = "GET"
-      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
-
-      let fetcher = self.fetcherService.fetcher(with: request)
-      fetcher.comment = "GetMetadataTask"
-      self.fetcher = fetcher
-
-      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
-        guard let self = self else { return }
-        var metadata: StorageMetadata?
-        if let error {
-          if self.error == nil {
-            self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
-          }
+/// Task which provides the ability to delete an object in Firebase Storage.
+enum StorageGetMetadataTask {
+  static func getMetadataTask(reference: StorageReference,
+                              fetcherService: GTMSessionFetcherService,
+                              queue: DispatchQueue,
+                              completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
+    StorageInternalTask(reference: reference,
+                        fetcherService: fetcherService,
+                        queue: queue,
+                        httpMethod: "GET",
+                        fetcherComment: "GetMetadataTask") { (data: Data?, error: Error?) in
+      if let error {
+        completion?(nil, error)
+      } else {
+        if let data,
+           let responseDictionary = try? JSONSerialization
+           .jsonObject(with: data) as? [String: AnyHashable] {
+          let metadata = StorageMetadata(dictionary: responseDictionary)
+          metadata.fileType = .file
+          completion?(metadata, nil)
         } else {
-          if let data,
-             let responseDictionary = try? JSONSerialization
-             .jsonObject(with: data) as? [String: AnyHashable] {
-            metadata = StorageMetadata(dictionary: responseDictionary)
-            metadata?.fileType = .file
-          } else {
-            self.error = StorageErrorCode.error(withInvalidRequest: data)
-          }
+          completion?(nil, StorageErrorCode.error(withInvalidRequest: data))
         }
-        self.taskCompletion?(metadata, self.error)
-        self.fetcherCompletion = nil
-      }
-
-      self.fetcher?.beginFetch { [weak self] data, error in
-        self?.fetcherCompletion?(data, error as? NSError)
       }
     }
   }

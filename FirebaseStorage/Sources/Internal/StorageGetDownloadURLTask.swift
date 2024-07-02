@@ -20,80 +20,42 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-/**
- * Task which provides the ability to get a download URL for an object in Firebase Storage.
- */
-class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
-  private var fetcher: GTMSessionFetcher?
-  private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var taskCompletion: ((_ downloadURL: URL?, _: Error?) -> Void)?
-
-  init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
-       queue: DispatchQueue,
-       completion: ((_: URL?, _: Error?) -> Void)?) {
-    super.init(reference: reference, service: fetcherService, queue: queue)
-    taskCompletion = completion
-  }
-
-  deinit {
-    self.fetcher?.stopFetching()
-  }
-
-  /**
-   * Prepares a task and begins execution.
-   */
-  func enqueue() {
-    if let completion = taskCompletion {
-      taskCompletion = { (url: URL?, error: Error?) in
-        completion(url, error)
-        // Reference self in completion handler in order to retain self until completion is called.
-        self.taskCompletion = nil
-      }
-    }
-    dispatchQueue.async { [weak self] in
-      guard let self = self else { return }
-      var request = self.baseRequest
-      request.httpMethod = "GET"
-      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
-
-      let fetcher = self.fetcherService.fetcher(with: request)
-      fetcher.comment = "GetDownloadURLTask"
-      self.fetcher = fetcher
-
-      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
-        guard let self = self else { return }
-        var downloadURL: URL?
-        if let error {
-          if self.error == nil {
-            self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
+/// Task which provides the ability to get a download URL for an object in Firebase Storage.
+enum StorageGetDownloadURLTask {
+  static func getDownloadURLTask(reference: StorageReference,
+                                 fetcherService: GTMSessionFetcherService,
+                                 queue: DispatchQueue,
+                                 completion: ((_: URL?, _: Error?) -> Void)?) {
+    StorageInternalTask(reference: reference,
+                        fetcherService: fetcherService,
+                        queue: queue,
+                        httpMethod: "GET",
+                        fetcherComment: "GetDownloadURLTask") { (data: Data?, error: Error?) in
+      if let error {
+        completion?(nil, error)
+      } else {
+        if let data,
+           let responseDictionary = try? JSONSerialization
+           .jsonObject(with: data) as? [String: Any] {
+          guard let downloadURL = downloadURLFromMetadataDictionary(responseDictionary,
+                                                                    reference) else {
+            let error = StorageError.unknown(
+              message: "Failed to retrieve a download URL.",
+              serverError: [:]
+            ) as NSError
+            completion?(nil, error)
+            return
           }
+          completion?(downloadURL, nil)
         } else {
-          if let data,
-             let responseDictionary = try? JSONSerialization
-             .jsonObject(with: data) as? [String: Any] {
-            downloadURL = self.downloadURLFromMetadataDictionary(responseDictionary)
-            if downloadURL == nil {
-              self.error = StorageError.unknown(
-                message: "Failed to retrieve a download URL.",
-                serverError: [:]
-              ) as NSError
-            }
-          } else {
-            self.error = StorageErrorCode.error(withInvalidRequest: data)
-          }
+          completion?(nil, StorageErrorCode.error(withInvalidRequest: data))
         }
-        self.taskCompletion?(downloadURL, self.error)
-        self.fetcherCompletion = nil
-      }
-
-      self.fetcher?.beginFetch { [weak self] data, error in
-        self?.fetcherCompletion?(data, error as? NSError)
       }
     }
   }
 
-  func downloadURLFromMetadataDictionary(_ dictionary: [String: Any]) -> URL? {
+  private static func downloadURLFromMetadataDictionary(_ dictionary: [String: Any],
+                                                        _ reference: StorageReference) -> URL? {
     let downloadTokens = dictionary["downloadTokens"]
     guard let downloadTokens = downloadTokens as? String,
           downloadTokens.count > 0 else {
