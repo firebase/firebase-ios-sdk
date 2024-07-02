@@ -47,18 +47,18 @@
     case phone = "PHONE_PROVIDER"
 
     // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
+    var stringValue: String { rawValue }
+  }
 
-enum AuthRecaptchaAction: String {
-  case defaultAction
-  case signInWithPassword = "signInWithPassword"
-  case getOobCode = "getOobCode"
-  case signUpPassword = "signUpPassword"
-  case sendVerificationCode = "sendVerificationCode"
-  case startMfaSignin = "startMfaSignin"
-  case startMfaEnrollment = "startMfaEnrollment"
-  
+  enum AuthRecaptchaAction: String {
+    case defaultAction
+    case signInWithPassword
+    case getOobCode
+    case signUpPassword
+    case sendVerificationCode
+    case startMfaSignin
+    case startMfaEnrollment
+
     // Convenience property for mapping values
     var stringValue: String { rawValue }
   }
