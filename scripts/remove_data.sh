@@ -22,8 +22,4 @@ if [[ ! -z "$LEGACY" ]]; then
   DIR="${SDK}/Legacy${SDK}Quickstart"
 fi
 
-# By default, remove potential secrets used in specs repo URLs.
-sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsTesting.git/https:\/\/github.com\/FirebasePrivate\/SpecsTesting.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
-sed -i "" "s/https:\/\/.*@github.com\/FirebasePrivate\/SpecsReleasing.git/https:\/\/github.com\/FirebasePrivate\/SpecsReleasing.git/g" quickstart-ios/"${DIR}"/Podfile quickstart-ios/"${DIR}"/Podfile.lock
-
 rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist

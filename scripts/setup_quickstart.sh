@@ -53,7 +53,7 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     set +x
-    sed -i "" '1i\'$'\n'"source 'https://${BOT_TOKEN}@github.com/FirebasePrivate/SpecsTesting.git'"$'\n' "$PODFILE"
+    sed -i "" '1i\'$'\n'"source 'https://github.com/Firebase/SpecsReleasing.git'"$'\n' "$PODFILE"
     set -x
     echo "Source of Podfile for nightly release testing is updated."
   fi
