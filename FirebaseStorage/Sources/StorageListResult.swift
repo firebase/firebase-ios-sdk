@@ -15,6 +15,7 @@
 import Foundation
 
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageListResult) open class StorageListResult: NSObject {
   /**
    * The prefixes (folders) returned by a `list()` operation.

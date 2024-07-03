@@ -220,7 +220,7 @@ class StorageReferenceTests: XCTestCase {
         XCTFail("Unexpected success.", file: #file, line: #line)
       case let .failure(error):
         switch error {
-        case let StorageError.unknown(message, serverError):
+        case let StorageError.unknown(message, _):
           let expectedDescription = "File at URL: \(dummyFileURL.absoluteString) " +
             "is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
           XCTAssertEqual(expectedDescription, message)

@@ -25,6 +25,7 @@ import FirebaseCore
   import GTMSessionFetcherCore
 #endif
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   func authorizeRequest(_ request: NSMutableURLRequest?,
                         completionHandler handler: @escaping (Error?) -> Void) {

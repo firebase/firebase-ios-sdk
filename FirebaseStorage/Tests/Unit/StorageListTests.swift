@@ -17,6 +17,7 @@ import Foundation
 import GTMSessionFetcherCore
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageListTests: StorageTestHelpers {
   var fetcherService: GTMSessionFetcherService?
   var dispatchQueue: DispatchQueue?
@@ -106,7 +107,7 @@ class StorageListTests: StorageTestHelpers {
 
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageListTask(
+    StorageListTask.listTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
@@ -115,7 +116,6 @@ class StorageListTests: StorageTestHelpers {
     ) { result, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -151,7 +151,7 @@ class StorageListTests: StorageTestHelpers {
 
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
-    let task = StorageListTask(
+    StorageListTask.listTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
@@ -161,9 +161,6 @@ class StorageListTests: StorageTestHelpers {
       XCTAssertNil(error)
       expectation.fulfill()
     }
-
-    task.enqueue()
-
     waitForExpectation(test: self)
   }
 
@@ -198,7 +195,7 @@ class StorageListTests: StorageTestHelpers {
 
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageListTask(
+    StorageListTask.listTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
@@ -207,7 +204,6 @@ class StorageListTests: StorageTestHelpers {
     ) { result, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -240,7 +236,7 @@ class StorageListTests: StorageTestHelpers {
 
     let storage = storage()
     let ref = storage.reference(withPath: "+foo")
-    let task = StorageListTask(
+    StorageListTask.listTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
@@ -249,7 +245,6 @@ class StorageListTests: StorageTestHelpers {
     ) { result, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -287,7 +282,7 @@ class StorageListTests: StorageTestHelpers {
 
     let storage = storage()
     let ref = storage.reference(withPath: "object")
-    let task = StorageListTask(
+    StorageListTask.listTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
@@ -306,7 +301,6 @@ class StorageListTests: StorageTestHelpers {
 
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -326,7 +320,7 @@ class StorageListTests: StorageTestHelpers {
 
     let storage = storage()
     let ref = storage.reference(withPath: "object")
-    let task = StorageListTask(
+    StorageListTask.listTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
@@ -335,13 +329,10 @@ class StorageListTests: StorageTestHelpers {
     ) { result, error in
       XCTAssertNotNil(error)
       XCTAssertNil(result)
-
-      XCTAssertEqual(error!.domain, "FIRStorageErrorDomain")
-      XCTAssertEqual(error!.code, StorageErrorCode.objectNotFound.rawValue)
-
+      XCTAssertEqual((error as? NSError)!.domain, "FIRStorageErrorDomain")
+      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.objectNotFound.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 }

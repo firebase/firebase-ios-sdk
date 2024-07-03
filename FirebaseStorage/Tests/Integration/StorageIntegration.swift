@@ -204,6 +204,7 @@ class StorageResultTests: StorageIntegrationCommon {
         case let .unauthorized(bucket, object, serverError):
           XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
           XCTAssertEqual(object, file)
+          XCTAssertNil(serverError)
           expectation.fulfill()
         default:
           XCTFail("Failed with unexpected error: \(error)")

@@ -38,6 +38,7 @@ import Foundation
  * Uploads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
   StorageTaskManagement {
   /**
