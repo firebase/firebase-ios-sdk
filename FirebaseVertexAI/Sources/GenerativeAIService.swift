@@ -122,7 +122,7 @@ struct GenerativeAIService {
         }
 
         // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
-        var extraLines: String = ""
+        var extraLines = ""
 
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
