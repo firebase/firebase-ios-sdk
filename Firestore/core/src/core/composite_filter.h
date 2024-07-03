@@ -81,13 +81,6 @@ class CompositeFilter : public Filter {
   }
 
   /**
-   * Returns a list of all field filters that are contained within this filter.
-   */
-  const std::vector<FieldFilter>& GetFlattenedFilters() const {
-    return composite_filter_rep().GetFlattenedFilters();
-  }
-
-  /**
    * Returns a new composite filter that contains all filter from `this`
    * plus all the given filters.
    */
@@ -145,7 +138,8 @@ class CompositeFilter : public Filter {
       return filters_.empty();
     }
 
-    const std::vector<FieldFilter>& GetFlattenedFilters() const;
+    std::shared_ptr<const std::vector<FieldFilter>> GetFlattenedFilters()
+        const override;
 
     std::vector<Filter> GetFilters() const override {
       return filters();
@@ -169,7 +163,7 @@ class CompositeFilter : public Filter {
      * A list of all field filters that are contained within this composite
      * filter.
      */
-    std::vector<FieldFilter> flattened_filters_;
+    std::shared_ptr<const std::vector<FieldFilter>> flattened_filters_;
 
     friend class CompositeFilter;
   };

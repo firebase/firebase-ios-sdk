@@ -95,6 +95,13 @@ class Filter {
   }
 
   /**
+   * Returns a list of all field filters that are contained within this filter.
+   */
+  std::shared_ptr<const std::vector<FieldFilter>> GetFlattenedFilters() const {
+    return rep_->GetFlattenedFilters();
+  }
+
+  /**
    * Returns a list of all filters that are contained within this filter
    */
   std::vector<Filter> GetFilters() const {
@@ -136,6 +143,9 @@ class Filter {
     virtual std::string ToString() const = 0;
 
     virtual bool IsEmpty() const = 0;
+
+    virtual std::shared_ptr<const std::vector<FieldFilter>>
+    GetFlattenedFilters() const = 0;
 
     virtual std::vector<Filter> GetFilters() const = 0;
   };

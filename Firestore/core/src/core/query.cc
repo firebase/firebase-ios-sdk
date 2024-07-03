@@ -18,7 +18,6 @@
 
 #include <algorithm>
 #include <ostream>
-#include <vector>
 
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/operator.h"
@@ -71,18 +70,13 @@ bool Query::MatchesAllDocuments() const {
 const std::set<model::FieldPath> Query::InequalityFilterFields() const {
   std::set<FieldPath> result;
   for (const Filter& filter : filters_) {
-    HARD_ASSERT(filter.IsAFieldFilter() || filter.IsACompositeFilter(),
-                "Unrecognized filter type %s", filter.ToString());
-    std::vector<FieldFilter> field_filters;
-    if (filter.IsAFieldFilter()) {
-      field_filters.emplace_back(filter);
-    }
-    for (const FieldFilter& sub_filter :
-         filter.IsAFieldFilter()
-             ? field_filters
-             : CompositeFilter(filter).GetFlattenedFilters()) {
-      if (sub_filter.IsInequality()) {
-        result.emplace(sub_filter.field());
+    // Don't deference filter.GetFlattenedFilters() directly. if the filter is a
+    // field filter, calling for (const FieldFilter& subFilter :
+    // *filter.GetFlattenedFilters()) will deference a temporary object.
+    auto flattened_filters_ptr = filter.GetFlattenedFilters();
+    for (const FieldFilter& field_filter : *flattened_filters_ptr) {
+      if (field_filter.IsInequality()) {
+        result.emplace(field_filter.field());
       }
     }
   }
@@ -92,16 +86,11 @@ const std::set<model::FieldPath> Query::InequalityFilterFields() const {
 absl::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
-    HARD_ASSERT(filter.IsAFieldFilter() || filter.IsACompositeFilter(),
-                "Unrecognized filter type %s", filter.ToString());
-    std::vector<FieldFilter> field_filters;
-    if (filter.IsAFieldFilter()) {
-      field_filters.emplace_back(filter);
-    }
-    for (const FieldFilter& field_filter :
-         filter.IsAFieldFilter()
-             ? field_filters
-             : CompositeFilter(filter).GetFlattenedFilters()) {
+    // Don't deference filter.GetFlattenedFilters() directly. if the filter is a
+    // field filter, calling for (const FieldFilter& subFilter :
+    // *filter.GetFlattenedFilters()) will deference a temporary object.
+    auto flattened_filters_ptr = filter.GetFlattenedFilters();
+    for (const FieldFilter& field_filter : *flattened_filters_ptr) {
       if (absl::c_linear_search(ops, field_filter.op())) {
         return field_filter.op();
       }

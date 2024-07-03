@@ -340,16 +340,11 @@ void Query::ValidateNewFieldFilter(const core::Query& query,
 
 void Query::ValidateNewFilter(const Filter& filter) const {
   core::Query test_query(query_);
-  HARD_ASSERT(filter.IsAFieldFilter() || filter.IsACompositeFilter(),
-              "Unrecognized filter type %s", filter.ToString());
-  std::vector<FieldFilter> field_filters;
-  if (filter.IsAFieldFilter()) {
-    field_filters.emplace_back(filter);
-  }
-  for (const FieldFilter& field_filter :
-       filter.IsAFieldFilter()
-           ? field_filters
-           : CompositeFilter(filter).GetFlattenedFilters()) {
+  // Don't deference filter.GetFlattenedFilters() directly. if the filter is a
+  // field filter, calling for (const FieldFilter& subFilter :
+  // *filter.GetFlattenedFilters()) will deference a temporary object.
+  auto flattened_filters_ptr = filter.GetFlattenedFilters();
+  for (const FieldFilter& field_filter : *flattened_filters_ptr) {
     ValidateNewFieldFilter(test_query, field_filter);
     test_query = test_query.AddingFilter(field_filter);
   }

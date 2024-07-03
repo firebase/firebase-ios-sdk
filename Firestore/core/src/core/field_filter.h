@@ -117,6 +117,9 @@ class FieldFilter : public Filter {
       return false;
     }
 
+    std::shared_ptr<const std::vector<FieldFilter>> GetFlattenedFilters()
+        const override;
+
     std::vector<Filter> GetFilters() const override;
 
    protected:
