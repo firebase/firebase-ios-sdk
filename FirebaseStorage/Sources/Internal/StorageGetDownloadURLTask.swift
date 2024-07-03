@@ -21,6 +21,7 @@ import Foundation
 #endif
 
 /// Task which provides the ability to get a download URL for an object in Firebase Storage.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageGetDownloadURLTask {
   static func getDownloadURLTask(reference: StorageReference,
                                  fetcherService: GTMSessionFetcherService,
@@ -54,8 +55,8 @@ enum StorageGetDownloadURLTask {
     }
   }
 
-  private static func downloadURLFromMetadataDictionary(_ dictionary: [String: Any],
-                                                        _ reference: StorageReference) -> URL? {
+  static func downloadURLFromMetadataDictionary(_ dictionary: [String: Any],
+                                                _ reference: StorageReference) -> URL? {
     let downloadTokens = dictionary["downloadTokens"]
     guard let downloadTokens = downloadTokens as? String,
           downloadTokens.count > 0 else {

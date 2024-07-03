@@ -27,6 +27,7 @@ import Foundation
  * Observers produce a `StorageHandle`, which is used to keep track of and remove specific
  * observers at a later date.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageObservableTask) open class StorageObservableTask: StorageTask {
   /**
    * Observes changes in the upload status: Resume, Pause, Progress, Success, and Failure.

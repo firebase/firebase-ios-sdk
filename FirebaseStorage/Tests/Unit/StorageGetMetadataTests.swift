@@ -17,6 +17,7 @@ import Foundation
 import GTMSessionFetcherCore
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageGetMetadataTests: StorageTestHelpers {
   var fetcherService: GTMSessionFetcherService?
   var dispatchQueue: DispatchQueue?
@@ -54,14 +55,13 @@ class StorageGetMetadataTests: StorageTestHelpers {
     }
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { metadata, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -81,14 +81,13 @@ class StorageGetMetadataTests: StorageTestHelpers {
     }
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { metadata, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -105,14 +104,13 @@ class StorageGetMetadataTests: StorageTestHelpers {
 
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { metadata, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -122,7 +120,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
     fetcherService!.testBlock = unauthenticatedBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
@@ -130,7 +128,6 @@ class StorageGetMetadataTests: StorageTestHelpers {
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthenticated.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -140,7 +137,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
     fetcherService!.testBlock = unauthorizedBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
@@ -148,7 +145,6 @@ class StorageGetMetadataTests: StorageTestHelpers {
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthorized.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -158,7 +154,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
     fetcherService!.testBlock = notFoundBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
@@ -166,7 +162,6 @@ class StorageGetMetadataTests: StorageTestHelpers {
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.objectNotFound.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -176,7 +171,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
     fetcherService!.testBlock = invalidJSONBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageGetMetadataTask(
+    StorageGetMetadataTask.getMetadataTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
@@ -186,7 +181,6 @@ class StorageGetMetadataTests: StorageTestHelpers {
       XCTAssertEqual(nsError.code, StorageErrorCode.unknown.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 }

@@ -33,6 +33,7 @@ import Foundation
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  */
 @objc(FIRStorageDownloadTask)
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.

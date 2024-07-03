@@ -19,6 +19,7 @@ import Foundation
   import CoreServices
 #endif // os(iOS) || os(tvOS)
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageUtils {
   class func defaultRequestForReference(reference: StorageReference,
                                         queryParams: [String: String]? = nil)

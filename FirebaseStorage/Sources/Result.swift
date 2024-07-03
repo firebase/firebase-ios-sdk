@@ -22,6 +22,7 @@ import Foundation
 ///                 an `Error`.
 /// - Returns: A closure parameterized with an optional generic and optional `Error` to match
 ///            Objective-C APIs.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Void) -> (_: T?,
                                                                                         _: Error?)
   -> Void {
@@ -38,6 +39,7 @@ private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Vo
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension StorageReference {
   /// Asynchronously retrieves a long lived download URL with a revokable token.
   ///

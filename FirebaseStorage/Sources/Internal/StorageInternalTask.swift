@@ -21,7 +21,7 @@ import Foundation
 #endif
 
 /// Implement StorageTasks that are not directly exposed via the public API.
-///
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageInternalTask: StorageTask {
   private var fetcher: GTMSessionFetcher?
 
