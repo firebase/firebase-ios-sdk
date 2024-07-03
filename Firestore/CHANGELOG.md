@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
+
 # 10.25.0
 - [fixed] Allow blob of data with zero length. (#11773, #12620)
 - [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
