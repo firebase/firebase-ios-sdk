@@ -1,7 +1,7 @@
 # 11.0.0
 - [fixed] Completed Messaging's transition to NSSecureCoding (#12343).
 
-# Unreleased
+# 10.29.0
 - [fixed] Renamed "initWithFileName" internal method that was causing submission issues for some
   users. (#13134).
 - [fixed] Fixed the APS Environment key on visionOS. (#13173)

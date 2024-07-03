@@ -1,4 +1,6 @@
-# Copyright 2020 Google LLC
+#!/bin/bash
+
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,14 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -xe
+# This script replaces mock response files for Vertex AI unit tests with a fresh
+# clone of the shared repository of Vertex AI test data.
 
-SDK="$1"
-
-DIR="${SDK}"
-
-if [[ ! -z "$LEGACY" ]]; then
-  DIR="${SDK}/Legacy${SDK}Quickstart"
-fi
-
-rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist
+cd "$(dirname "$0")/../FirebaseVertexAI/Tests/Unit" || exit
+rm -rf vertexai-sdk-test-data || exit
+git clone --depth 1 https://github.com/FirebaseExtended/vertexai-sdk-test-data.git

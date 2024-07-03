@@ -161,3 +161,6 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.*
+
+# FirebaseVertexAI test data
+vertexai-sdk-test-data

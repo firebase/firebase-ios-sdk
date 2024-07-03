@@ -16,7 +16,7 @@ import Foundation
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig {
   /// A parameter controlling the degree of randomness in token selection. A
   /// temperature of zero is deterministic, always choosing the
@@ -95,5 +95,5 @@ public struct GenerationConfig {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerationConfig: Encodable {}

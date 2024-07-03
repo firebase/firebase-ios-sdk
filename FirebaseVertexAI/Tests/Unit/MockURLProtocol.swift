@@ -15,14 +15,21 @@
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 class MockURLProtocol: URLProtocol {
   static var requestHandler: ((URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   ))?
 
-  override class func canInit(with request: URLRequest) -> Bool { return true }
+  override class func canInit(with request: URLRequest) -> Bool {
+    #if os(watchOS)
+      print("MockURLProtocol cannot be used on watchOS.")
+      return false
+    #else
+      return true
+    #endif // os(watchOS)
+  }
 
   override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 

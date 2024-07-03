@@ -49,14 +49,14 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   sed -i "" "s/s\.version[[:space:]]*=.*/s\.version='${pod_testing_version}'/" *.podspec
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   tag_version="${test_version}.nightly"
-  echo "A new tag, ${tag_version},for prerelease testing will be created."
+  echo "A new tag, ${tag_version}, for prerelease testing will be created."
   set +e
   # If tag_version is new to the remote, remote cannot delete a non-existent
   # tag, so error is allowed here.
-  git push origin --delete "${tag_version}"
+  git push origin --delete "${tag_version}" > /dev/null 2>&1
   set -e
   git tag -f -a "${tag_version}" -m "release testing"
-  git push origin "${tag_version}"
+  git push origin "${tag_version}" > /dev/null 2>&1 || echo "Push failed due to expired or insufficient token."
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => ${test_version}.nightly"
   sed -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec

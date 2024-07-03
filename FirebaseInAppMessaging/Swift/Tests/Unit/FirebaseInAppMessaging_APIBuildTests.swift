@@ -33,13 +33,10 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let _: Bool = inAppMessaging.messageDisplaySuppressed
     inAppMessaging.messageDisplaySuppressed = true
 
-    // TODO(ncooke3): This should probably be removed in favor of the one in
-    // FirebaseCore?
     let _: Bool = inAppMessaging.automaticDataCollectionEnabled
     inAppMessaging.automaticDataCollectionEnabled = true
 
     let _: FirebaseInAppMessaging.InAppMessagingDisplay = inAppMessaging.messageDisplayComponent
-    // FIXME(ncooke3): Below.
     let displayConformer: FirebaseInAppMessaging.InAppMessagingDisplay! = nil
     inAppMessaging.messageDisplayComponent = displayConformer
 
@@ -48,7 +45,6 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let delegate: FirebaseInAppMessaging.InAppMessagingDisplayDelegate? = inAppMessaging.delegate
     inAppMessaging.delegate = nil
 
-    // TODO(ncooke3): Does it make sense for these params to be nullable?
     let nullableText: String? = nil
     let nullableURL: URL? = nil
     let action = FirebaseInAppMessaging.InAppMessagingAction(

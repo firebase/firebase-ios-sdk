@@ -1318,7 +1318,7 @@ let package = Package(
       dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
-        .process("Responses"),
+        .process("vertexai-sdk-test-data/mock-responses"),
       ],
       cSettings: [
         .headerSearchPath("../../../"),
