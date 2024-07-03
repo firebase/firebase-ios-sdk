@@ -66,7 +66,6 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   FIRComponent *installationsProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInstallationsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingAlwaysEager
-                             dependencies:@[]
                             creationBlock:creationBlock];
   return @[ installationsProvider ];
 }

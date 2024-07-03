@@ -1,3 +1,9 @@
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseFirestore` module has
+  been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+
 # 10.25.0
 - [fixed] Allow blob of data with zero length. (#11773, #12620)
 - [changed] Passing a non-nil value to the `@DocumentID` property wrapper's

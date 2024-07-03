@@ -5,7 +5,10 @@ on:
     # open will be triggered when a pull request is created.
     # synchronize will be triggered when a pull request has new commits.
     # closed will be triggered when a pull request is closed.
-    types: [opened, synchronize, closed]
+    #TODO: uncomment next line
+    #types: [opened, synchronize, closed]
+    branches:
+      - none
 
 env:
   METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}

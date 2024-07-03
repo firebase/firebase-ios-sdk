@@ -128,8 +128,6 @@ NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time ABTesting is called.
@@ -139,7 +137,6 @@ NSArray *ABTExperimentsToClearFromPayloads(
   };
   FIRComponent *abtProvider = [FIRComponent componentWithProtocol:@protocol(FIRABTInstanceProvider)
                                               instantiationTiming:FIRInstantiationTimingLazy
-                                                     dependencies:@[ analyticsDep ]
                                                     creationBlock:creationBlock];
 
   return @[ abtProvider ];
