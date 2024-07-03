@@ -508,8 +508,9 @@ import Foundation
   @objc(deleteWithCompletion:)
   open func delete(completion: ((_: Error?) -> Void)?) {
     let fetcherService = storage.fetcherServiceForApp
-    let completionWrap = { (_: Data?, error: Error?) -> Void in
+    let completionWrap = { (_: Data?, error: Error?) in
       completion?(error)
+      return
     }
     StorageDeleteTask.deleteTask(reference: self,
                                  fetcherService: fetcherService,
