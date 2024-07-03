@@ -189,8 +189,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     )
     // Setup a mirroring `limitToLast` query.
     let limitToLast = collRef.order(by: "sort", descending: true).limit(toLast: 2)
-    let limitToLastAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let limitToLastAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     var limitToLastRegistration = limitToLast.addSnapshotListener(
       options: options,
       listener: limitToLastAccumulator.valueEventHandler
@@ -267,8 +266,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     XCTAssertEqual(querySnap.metadata.isFromCache, false)
 
     // Listen to the same query from cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -293,8 +291,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isNotEqualTo: 0).order(by: "sort")
 
     // Listen to the cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -438,8 +435,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     defaultAccumulator.awaitEvent(withName: "snapshot")
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -475,8 +471,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     defaultAccumulator.awaitEvent(withName: "snapshot")
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -516,8 +511,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     try assertQuerySnapshotDataEquals(querySnap, expected)
 
     // Listen to the same query from cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     var cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -647,8 +641,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     try assertQuerySnapshotDataEquals(querySnap, expected)
 
     // Listen to the same query from cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-    (forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
