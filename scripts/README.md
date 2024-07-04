@@ -183,6 +183,10 @@ Test QuickStart with the zip distribution.
 
 Script to add a file to an Xcode target.
 
+### [update_vertexai_responses.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/update_vertexai_responses.sh)
+
+Downloads mock response files for Vertex AI unit tests.
+
 ### [xcresult_logs.py](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/xcresult_logs.py)
 
 Tooling used by `build.sh` to get the log output for an `xcodebuild` invocation.
