@@ -1,6 +1,6 @@
 # Vertex AI for Firebase Unit Tests
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > These unit tests require mock response files, which can be downloaded by
 running `scripts/update_vertexai_responses.sh` from the root of this repository.
 
