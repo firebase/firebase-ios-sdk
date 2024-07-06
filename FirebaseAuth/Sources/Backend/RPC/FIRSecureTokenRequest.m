@@ -84,9 +84,13 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
   NSString *URLString;
 
   NSString *emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort;
+  NSString *overrideSecureTokenHost = _requestConfiguration.auth.overrideSecureTokenHost;
   if (emulatorHostAndPort) {
     URLString =
         [NSString stringWithFormat:kFIREmulatorURLFormat, emulatorHostAndPort, gAPIHost, _APIKey];
+  } else if (overrideSecureTokenHost) {
+    URLString = [NSString
+        stringWithFormat:kFIRSecureTokenServiceGetTokenURLFormat, overrideSecureTokenHost, _APIKey];
   } else {
     URLString =
         [NSString stringWithFormat:kFIRSecureTokenServiceGetTokenURLFormat, gAPIHost, _APIKey];
