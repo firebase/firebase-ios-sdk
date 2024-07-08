@@ -15,7 +15,6 @@
 import FBSDKCoreKit
 import FirebaseCore
 import GoogleSignIn
-import RecaptchaEnterprise
 import UIKit
 
 @UIApplicationMain

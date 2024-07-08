@@ -114,9 +114,6 @@ import Foundation
         )
       }
       do {
-//          let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-//          let enablementStatus = recaptchaVerifier.enablementStatus(forProvider: .phone)
-        // regular phone number login
         if let verificationID = try await internalVerify(
           phoneNumber: phoneNumber,
           uiDelegate: uiDelegate,
@@ -130,24 +127,6 @@ import Foundation
         throw error
       }
     }
-
-//  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-//  open func verifyPhoneNumberWithRecaptcha(_ phoneNumber: String,
-//                              uiDelegate: AuthUIDelegate? = nil,
-//                              multiFactorSession: MultiFactorSession? = nil) async throws
-//  -> String {
-//    guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-//                                                  urlTypes: auth.mainBundleUrlTypes) else {
-//      fatalError(
-//        "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-//      )
-//    }
-//    do {
-//
-//    } catch {
-//      throw error
-//    }
-//  }
 
     /// Verify ownership of the second factor phone number by the current user.
     /// - Parameter multiFactorInfo: The phone multi factor whose number need to be verified.
@@ -226,25 +205,6 @@ import Foundation
                                                        uiDelegate: uiDelegate)
     }
 
-//  private func internalVerifyWithRecaptcha(phoneNumber: String,
-//                              uiDelegate: AuthUIDelegate?,
-//                              multiFactorSession: MultiFactorSession? = nil) async throws
-//  -> String? {
-//    guard phoneNumber.count > 0 else {
-//      throw AuthErrorUtils.missingPhoneNumberError(message: nil)
-//    }
-//    guard let manager = auth.notificationManager else {
-//      throw AuthErrorUtils.notificationNotForwardedError()
-//    }
-//    guard await manager.checkNotificationForwarding() else {
-//      throw AuthErrorUtils.notificationNotForwardedError()
-//    }
-//    return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-//                                                     retryOnInvalidAppCredential: true,
-//                                                     multiFactorSession: multiFactorSession,
-//                                                     uiDelegate: uiDelegate)
-//  }
-
     /// Starts the flow to verify the client via silent push notification.
     /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
     ///  AuthErrorCodeInvalidAppCredential error is returned from the backend.
@@ -289,12 +249,7 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-//        let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-//        let enforcement = recaptchaVerifier.enablementStatus(forProvider: .phone)
-//        if(enforcement != .off) {
-//          try await recaptchaVerifier.injectRecaptchaFields(request: request, provider: .phone,
-//          action: .sendVerificationCode)
-//        }
+
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       }
