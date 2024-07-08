@@ -138,7 +138,8 @@ class CompositeFilter : public Filter {
       return filters_.empty();
     }
 
-    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
+    std::shared_ptr<const std::vector<FieldFilter>> GetFlattenedFilters()
+        const override;
 
     std::vector<Filter> GetFilters() const override {
       return filters();
@@ -157,6 +158,12 @@ class CompositeFilter : public Filter {
 
     /** The type of and/or operator in the composite filter. */
     Operator op_;
+
+    /**
+     * A list of all field filters that are contained within this composite
+     * filter.
+     */
+    std::shared_ptr<const std::vector<FieldFilter>> flattened_filters_;
 
     friend class CompositeFilter;
   };

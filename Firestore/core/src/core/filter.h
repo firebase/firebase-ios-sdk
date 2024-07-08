@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "Firestore/core/src/model/model_fwd.h"
-#include "Firestore/core/src/util/thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {
@@ -98,7 +97,7 @@ class Filter {
   /**
    * Returns a list of all field filters that are contained within this filter.
    */
-  const std::vector<FieldFilter>& GetFlattenedFilters() const {
+  std::shared_ptr<const std::vector<FieldFilter>> GetFlattenedFilters() const {
     return rep_->GetFlattenedFilters();
   }
 
@@ -114,8 +113,6 @@ class Filter {
  protected:
   class Rep {
    public:
-    Rep();
-
     virtual ~Rep() = default;
 
     virtual Type type() const {
@@ -147,21 +144,10 @@ class Filter {
 
     virtual bool IsEmpty() const = 0;
 
-    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
+    virtual std::shared_ptr<const std::vector<FieldFilter>>
+    GetFlattenedFilters() const = 0;
 
     virtual std::vector<Filter> GetFilters() const = 0;
-
-    /**
-     * Memoized list of all field filters that can be found by
-     * traversing the tree of filters contained in this composite filter.
-     *
-     * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
-     * `ThreadSafeMemoizer` directly so that this class is copyable
-     * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-     * member variable, which is not copyable).
-     */
-    mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<FieldFilter>>>
-        memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {

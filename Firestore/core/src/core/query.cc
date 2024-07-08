@@ -70,9 +70,13 @@ bool Query::MatchesAllDocuments() const {
 const std::set<model::FieldPath> Query::InequalityFilterFields() const {
   std::set<FieldPath> result;
   for (const Filter& filter : filters_) {
-    for (const FieldFilter& subFilter : filter.GetFlattenedFilters()) {
-      if (subFilter.IsInequality()) {
-        result.emplace(subFilter.field());
+    // Don't deference filter.GetFlattenedFilters() directly. if the filter is a
+    // field filter, calling for (const FieldFilter& subFilter :
+    // *filter.GetFlattenedFilters()) will deference a temporary object.
+    auto flattened_filters_ptr = filter.GetFlattenedFilters();
+    for (const FieldFilter& field_filter : *flattened_filters_ptr) {
+      if (field_filter.IsInequality()) {
+        result.emplace(field_filter.field());
       }
     }
   }
@@ -82,7 +86,11 @@ const std::set<model::FieldPath> Query::InequalityFilterFields() const {
 absl::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
-    for (const auto& field_filter : filter.GetFlattenedFilters()) {
+    // Don't deference filter.GetFlattenedFilters() directly. if the filter is a
+    // field filter, calling for (const FieldFilter& subFilter :
+    // *filter.GetFlattenedFilters()) will deference a temporary object.
+    auto flattened_filters_ptr = filter.GetFlattenedFilters();
+    for (const FieldFilter& field_filter : *flattened_filters_ptr) {
       if (absl::c_linear_search(ops, field_filter.op())) {
         return field_filter.op();
       }
@@ -92,7 +100,7 @@ absl::optional<Operator> Query::FindOpInsideFilters(
 }
 
 const std::vector<OrderBy>& Query::normalized_order_bys() const {
-  return memoized_normalized_order_bys_->memoize([&]() {
+  if (memoized_normalized_order_bys_.empty()) {
     // Any explicit order by fields should be added as is.
     std::vector<OrderBy> result = explicit_order_bys_;
     std::set<FieldPath> fieldsNormalized;
@@ -127,8 +135,9 @@ const std::vector<OrderBy>& Query::normalized_order_bys() const {
       result.push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
     }
 
-    return result;
-  });
+    memoized_normalized_order_bys_ = std::move(result);
+  }
+  return memoized_normalized_order_bys_;
 }
 
 LimitType Query::limit_type() const {
@@ -297,16 +306,23 @@ std::string Query::ToString() const {
 }
 
 const Target& Query::ToTarget() const& {
-  return memoized_target_->memoize(
-      [&]() { return ToTarget(normalized_order_bys()); });
+  if (memoized_target == nullptr) {
+    memoized_target = ToTarget(normalized_order_bys());
+  }
+
+  return *memoized_target;
 }
 
 const Target& Query::ToAggregateTarget() const& {
-  return memoized_aggregate_target_->memoize(
-      [&]() { return ToTarget(explicit_order_bys_); });
+  if (memoized_aggregate_target == nullptr) {
+    memoized_aggregate_target = ToTarget(explicit_order_bys_);
+  }
+
+  return *memoized_aggregate_target;
 }
 
-Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
+const std::shared_ptr<const Target> Query::ToTarget(
+    const std::vector<OrderBy>& order_bys) const& {
   if (limit_type_ == LimitType::Last) {
     // Flip the orderBy directions since we want the last results
     std::vector<OrderBy> new_order_bys;
@@ -327,11 +343,13 @@ Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
                                 start_at_->position(), start_at_->inclusive())}
                           : absl::nullopt;
 
-    return Target(path(), collection_group(), filters(), new_order_bys, limit_,
+    Target target(path(), collection_group(), filters(), new_order_bys, limit_,
                   new_start_at, new_end_at);
+    return std::make_shared<Target>(std::move(target));
   } else {
-    return Target(path(), collection_group(), filters(), order_bys, limit_,
+    Target target(path(), collection_group(), filters(), order_bys, limit_,
                   start_at(), end_at());
+    return std::make_shared<Target>(std::move(target));
   }
 }
 

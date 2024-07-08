@@ -18,9 +18,6 @@
 
 #include <ostream>
 
-#include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/util/thread_safe_memoizer.h"
-
 namespace firebase {
 namespace firestore {
 namespace core {
@@ -33,12 +30,6 @@ bool operator==(const Filter& lhs, const Filter& rhs) {
 
 std::ostream& operator<<(std::ostream& os, const Filter& filter) {
   return os << filter.ToString();
-}
-
-Filter::Rep::Rep()
-    : memoized_flattened_filters_(
-          std::make_shared<
-              util::ThreadSafeMemoizer<std::vector<FieldFilter>>>()) {
 }
 
 }  // namespace core
