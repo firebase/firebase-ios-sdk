@@ -36,6 +36,10 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -58,6 +62,10 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
@@ -553,9 +561,15 @@ static NSString *const kInvalidRecaptchaVersion = @"INVALID_RECAPTCHA_VERSION";
 
 /** @var kInvalidLoginCredentials
     @brief This is the error message the server will respond with if the login credentials is
-   invalid. in the request.
+   invalid in the request.
  */
 static NSString *const kInvalidLoginCredentials = @"INVALID_LOGIN_CREDENTIALS";
+
+/** @var kPasskeyEnrollmentNotFound
+    @brief This is the error message the server will respond with if the passkey credentials is
+   invalid in the request.
+ */
+static NSString *const kPasskeyEnrollmentNotFound = @"PASSKEY_ENROLLMENT_NOT_FOUND";
 
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
@@ -677,6 +691,28 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyClient:request callback:callback];
 }
 
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
++ (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
+                  callback:(FIRStartPasskeySignInResponseCallback)callback {
+  [[self implementation] startPasskeySignIn:request callback:callback];
+}
+
++ (void)finalizePasskeySignIn:(FIRFinalizePasskeySignInRequest *)request
+                     callback:(FIRFinalizePasskeySignInResponseCallback)callback {
+  [[self implementation] finalizePasskeySignIn:request callback:callback];
+}
+
++ (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
+  [[self implementation] startPasskeyEnrollment:request callback:callback];
+}
+
++ (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  [[self implementation] finalizePasskeyEnrollment:request callback:callback];
+}
 #endif
 
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
@@ -1105,6 +1141,67 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+
+- (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
+                  callback:(FIRStartPasskeySignInResponseCallback)callback {
+  FIRStartPasskeySignInResponse *response = [[FIRStartPasskeySignInResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+- (void)finalizePasskeySignIn:(FIRFinalizePasskeySignInRequest *)request
+                     callback:(FIRFinalizePasskeySignInResponseCallback)callback {
+  FIRFinalizePasskeySignInResponse *response = [[FIRFinalizePasskeySignInResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+- (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
+  FIRStartPasskeyEnrollmentResponse *response = [[FIRStartPasskeyEnrollmentResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+- (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  FIRFinalizePasskeyEnrollmentResponse *response =
+      [[FIRFinalizePasskeyEnrollmentResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
+#endif
+
 - (void)revokeToken:(FIRRevokeTokenRequest *)request
            callback:(FIRRevokeTokenResponseCallback)callback {
   FIRRevokeTokenResponse *response = [[FIRRevokeTokenResponse alloc] init];
@@ -1309,7 +1406,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                                                                    underlyingError:error]);
                                return;
                              }
-
                              // Finally, we try to populate the response object with the JSON
                              // values.
                              if (![response setWithDictionary:dictionary error:&error]) {
@@ -1382,6 +1478,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kUserNotFoundErrorMessage]) {
     return [FIRAuthErrorUtils userNotFoundErrorWithMessage:serverDetailErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kPasskeyEnrollmentNotFound]) {
+    return [FIRAuthErrorUtils passkeyEnrollmentNotFoundError];
   }
 
   if ([shortErrorMessage isEqualToString:kUserDeletedErrorMessage]) {

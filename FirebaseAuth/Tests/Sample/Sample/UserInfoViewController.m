@@ -17,6 +17,7 @@
 #import "UserInfoViewController.h"
 
 #import <FirebaseAuth/FIRUser.h>
+#import <FirebaseAuth/FIRPasskeyInfo.h>
 #import <FirebaseAuth/FIRUserInfo.h>
 #import <FirebaseAuth/FIRUserMetadata.h>
 #import "StaticContentTableViewManager.h"
@@ -74,6 +75,8 @@ static NSString *stringFromDate(NSDate *date) {
                                           value:stringWithBool(_user.emailVerified)],
       [StaticContentTableViewCell cellWithTitle:@"refresh token" value:_user.refreshToken],
       [StaticContentTableViewCell cellWithTitle:@"multi factor" value:[self multiFactorString]],
+      [StaticContentTableViewCell cellWithTitle:@"passkeys" value:[self passkeysString]],
+
     ]]
   ] mutableCopy];
   [sections addObject:[self sectionWithUserInfo:_user]];
@@ -102,6 +105,19 @@ static NSString *stringFromDate(NSDate *date) {
 
   for (FIRMultiFactorInfo *info in _user.multiFactor.enrolledFactors) {
     [string appendString:info.displayName];
+    [string appendString:@" "];
+  }
+
+  return string;
+}
+
+- (NSString *)passkeysString {
+  NSMutableString *string = [NSMutableString string];
+
+  for (FIRPasskeyInfo *info in _user.enrolledPasskeys) {
+    [string appendString:info.name];
+    [string appendString:@" - "];
+    [string appendString:info.credentialID];
     [string appendString:@" "];
   }
 

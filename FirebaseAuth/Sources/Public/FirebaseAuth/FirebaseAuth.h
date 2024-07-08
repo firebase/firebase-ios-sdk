@@ -36,6 +36,7 @@
 #import "FIRMultiFactorSession.h"
 #import "FIROAuthCredential.h"
 #import "FIROAuthProvider.h"
+#import "FIRPasskeyInfo.h"
 #import "FIRTwitterAuthProvider.h"
 #import "FIRUser.h"
 #import "FIRUserInfo.h"
