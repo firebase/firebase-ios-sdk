@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '10.29.0'
+  s.version          = '11.0.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -17,17 +17,17 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '11.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '13.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '13.0'
+  watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
@@ -37,12 +37,12 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Typedefs/*.h',
   ]
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.0'
-  s.dependency 'FirebaseAuthInterop', '~> 10.25'
-  s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'FirebaseCoreExtension', '~> 10.0'
-  s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.12'
+  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
+  s.dependency 'FirebaseAuthInterop', '~> 11.0'
+  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.0'
+  s.dependency 'GTMSessionFetcher/Core', '~> 3.4'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
 
   s.test_spec 'ObjCIntegration' do |objc_tests|
     objc_tests.scheme = { :code_coverage => true }
@@ -57,7 +57,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    objc_tests.dependency 'FirebaseAuth', '~> 10.0'
+    objc_tests.dependency 'FirebaseAuth', '~> 11.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
@@ -86,6 +86,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 10.0'
+    int_tests.dependency 'FirebaseAuth', '~> 11.0'
   end
 end

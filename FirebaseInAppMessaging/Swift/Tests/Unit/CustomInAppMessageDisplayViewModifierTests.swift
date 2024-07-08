@@ -15,7 +15,6 @@
 import XCTest
 
 @testable import FirebaseInAppMessaging
-@testable import FirebaseInAppMessagingSwift
 
 class DelegateBridgeTests: XCTestCase {
   var delegateBridge = DelegateBridge()

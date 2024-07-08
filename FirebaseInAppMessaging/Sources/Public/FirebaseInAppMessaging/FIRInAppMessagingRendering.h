@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRInAppMessagingErrors.h"
+
 @class UIColor;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,7 +33,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayMessageType) {
   FIRInAppMessagingDisplayMessageTypeImageOnly,
   /// Card style.
   FIRInAppMessagingDisplayMessageTypeCard
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDisplayMessageType) API_UNAVAILABLE(macos, watchos);
 
 /// Represents how an in-app message should be triggered to appear.  This enum is unavailable on
 /// macOS, macOS Catalyst, and watchOS.
@@ -40,7 +42,7 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDisplayTriggerType) {
   FIRInAppMessagingDisplayTriggerTypeOnAppForeground,
   /// Triggered from an analytics event being fired.
   FIRInAppMessagingDisplayTriggerTypeOnAnalyticsEvent
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDisplayTriggerType) API_UNAVAILABLE(macos, watchos);
 
 /** Contains the display information for an action button.  This class is unavailable on macOS,
  * macOS Catalyst, and watchOS.
@@ -436,16 +438,16 @@ typedef NS_ENUM(NSInteger, FIRInAppMessagingDismissType) {
   FIRInAppMessagingDismissTypeAuto,
   /// Dismiss method unknown.
   FIRInAppMessagingDismissUnspecified,
-} API_UNAVAILABLE(macos, watchos);
+} NS_SWIFT_NAME(InAppMessagingDismissType) API_UNAVAILABLE(macos, watchos);
 
 /// Error code for an in-app message that failed to display.
 /// This enum is unavailable on macOS, macOS Catalyst, and watchOS.
-typedef NS_ENUM(NSInteger, FIAMDisplayRenderErrorType) {
-  /// The image data for this in-app message is invalid.
-  FIAMDisplayRenderErrorTypeImageDataInvalid,
-  /// Unexpected error.
-  FIAMDisplayRenderErrorTypeUnspecifiedError,
-} API_UNAVAILABLE(macos, watchos);
+typedef NS_ERROR_ENUM(FIRInAppMessagingErrorDomain, FIAMDisplayRenderErrorType){
+    /// The image data for this in-app message is invalid.
+    FIAMDisplayRenderErrorTypeImageDataInvalid,
+    /// Unexpected error.
+    FIAMDisplayRenderErrorTypeUnspecifiedError,
+} NS_SWIFT_NAME(InAppMessagingDisplayRenderError) API_UNAVAILABLE(macos, watchos);
 
 /**
  * A protocol defining those callbacks to be triggered by the message display component

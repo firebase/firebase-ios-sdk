@@ -22,6 +22,7 @@ import Foundation
  * and a Storage reference to the object in question. Full documentation can be found in the
  * [GCS documentation](https://cloud.google.com/storage/docs/json_api/v1/objects#resource)
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageMetadata) open class StorageMetadata: NSObject {
   // MARK: - Public APIs
 

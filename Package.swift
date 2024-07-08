@@ -1,4 +1,4 @@
-// swift-tools-version:5.7.1
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -19,11 +19,11 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.29.0"
+let firebaseVersion = "11.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
+  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -40,10 +40,6 @@ let package = Package(
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
       targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
-    ),
-    .library(
-      name: "FirebaseAnalyticsSwift",
-      targets: ["FirebaseAnalyticsSwiftTarget"]
     ),
     .library(
       name: "FirebaseAuth",
@@ -82,10 +78,6 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDatabaseSwift",
-      targets: ["FirebaseDatabaseSwift"]
-    ),
-    .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
     ),
@@ -94,20 +86,12 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwiftTarget"]
-    ),
-    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
     .library(
       name: "FirebaseInAppMessaging-Beta",
       targets: ["FirebaseInAppMessagingTarget"]
-    ),
-    .library(
-      name: "FirebaseInAppMessagingSwift-Beta",
-      targets: ["FirebaseInAppMessagingSwift"]
     ),
     .library(
       name: "FirebaseInstallations",
@@ -130,10 +114,6 @@ let package = Package(
       targets: ["FirebaseRemoteConfig"]
     ),
     .library(
-      name: "FirebaseRemoteConfigSwift",
-      targets: ["FirebaseRemoteConfigSwift"]
-    ),
-    .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
@@ -145,7 +125,7 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/google/promises.git",
-      "2.1.0" ..< "3.0.0"
+      "2.4.0" ..< "3.0.0"
     ),
     .package(
       url: "https://github.com/apple/swift-protobuf.git",
@@ -154,15 +134,19 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.3.0" ..< "10.0.0"
+      branch: "release-10.0"
+      // TODO: Update to 10.0.0 when ready.
+      // "10.0.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.12.1" ..< "8.0.0"
+      branch: "release-8.0"
+      // TODO: Update to 8.0.0 when ready.
+      // "8.0.0" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "2.1.0" ..< "4.0.0"
+      "3.4.1" ..< "4.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
@@ -191,7 +175,10 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git",
+             branch: "release-11.0"),
+    // TODO: Update to 11.0.0 when ready.
+    // "11.0.0" ..< "12.0.0",
   ],
   targets: [
     .target(
@@ -326,26 +313,15 @@ let package = Package(
       url: "https://dl.google.com/firebase/ios/swiftpm/10.28.0/FirebaseAnalytics.zip",
       checksum: "50af00e4f2b62e60f8c1686538285aaa10989df35a170c1761f9626edee4a79d"
     ),
-    .target(
-      name: "FirebaseAnalyticsSwiftTarget",
-      dependencies: [.target(name: "FirebaseAnalyticsSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
-    ),
-    .target(
-      name: "FirebaseAnalyticsSwift",
-      dependencies: ["FirebaseAnalyticsWrapper"],
-      path: "FirebaseAnalyticsSwift/Sources"
-    ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
-      dependencies: ["FirebaseAnalyticsSwift"],
-      path: "FirebaseAnalyticsSwift/Tests/SwiftUnit"
+      dependencies: ["FirebaseAnalytics"],
+      path: "FirebaseAnalytics/Tests/SwiftUnit"
     ),
     .testTarget(
       name: "AnalyticsObjCAPI",
-      dependencies: ["FirebaseAnalyticsSwift"],
-      path: "FirebaseAnalyticsSwift/Tests/ObjCAPI"
+      dependencies: ["FirebaseAnalytics"],
+      path: "FirebaseAnalytics/Tests/ObjCAPI"
     ),
 
     .target(
@@ -437,21 +413,36 @@ let package = Package(
       name: "FirebaseAuth",
       dependencies: [
         "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseAuthInternal",
         "FirebaseCore",
+        "FirebaseCoreExtension",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
-        .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
+      exclude: [
+        "ObjC", "Public",
       ],
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
+      ]
+    ),
+    .target(
+      name: "FirebaseAuthInternal",
+      dependencies: [
+        .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
+      ],
+      path: "FirebaseAuth/Sources",
+      exclude: [
+        "Swift", "Resources",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
       ]
     ),
     // Internal headers only for consuming from Swift.
@@ -461,7 +452,7 @@ let package = Package(
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: ".",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -470,18 +461,14 @@ let package = Package(
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
-        .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
-        "FIRAuthTests.m",
-        "FIRUserTests.m",
-        "SwiftAPI.swift", // Only builds via CocoaPods testing until Swift source update.
-        "SwiftGlobalTests.swift", // Only builds via CocoaPods testing until Swift source update.
-      ],
-      cSettings: [
-        .headerSearchPath("../../.."),
+        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
+        "PhoneAuthProviderTests.swift",
+        "AuthNotificationManagerTests.swift",
+        "ObjCAPITests.m", // Only builds via CocoaPods until mixed language or its own target.
+        "ObjCGlobalTests.m", // Only builds via CocoaPods until mixed language or its own target.
       ]
     ),
     .target(
@@ -493,7 +480,6 @@ let package = Package(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -604,9 +590,7 @@ let package = Package(
       path: "FirebaseDatabase/Sources",
       exclude: [
         "third_party/Wrap-leveldb/LICENSE",
-        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
-        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -651,16 +635,6 @@ let package = Package(
       path: "FirebaseDatabase/Swift/Sources"
     ),
     .target(
-      name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase"],
-      path: "FirebaseDatabaseSwift/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseDatabaseSwiftTests",
-      dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
-      path: "FirebaseDatabaseSwift/Tests/"
-    ),
-    .target(
       name: "FirebaseSharedSwift",
       path: "FirebaseSharedSwift/Sources",
       exclude: [
@@ -695,22 +669,8 @@ let package = Package(
         .linkedFramework("QuartzCore"),
       ]
     ),
-    firestoreWrapperTarget(),
-    .target(
-      name: "FirebaseFirestoreSwiftTarget",
-      dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
-                                                          .firebaseVisionOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
-    ),
 
-    .target(
-      name: "FirebaseFirestoreSwift",
-      dependencies: [
-        "FirebaseFirestoreTarget",
-      ],
-      path: "FirebaseFirestoreSwift/Sources"
-    ),
+    firestoreWrapperTarget(),
 
     // MARK: - Firebase Functions
 
@@ -818,12 +778,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInAppMessagingSwift",
-      dependencies: ["FirebaseInAppMessaging"],
-      path: "FirebaseInAppMessagingSwift/Sources"
-    ),
-
-    .target(
       name: "FirebaseInstallations",
       dependencies: [
         "FirebaseCore",
@@ -919,7 +873,7 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
-                             condition: .when(platforms: [.iOS, .tvOS, .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
     .target(
@@ -934,7 +888,6 @@ let package = Package(
         "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULISASwizzler", package: "GoogleUtilities"),
         .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
@@ -1045,19 +998,11 @@ let package = Package(
       path: "FirebaseRemoteConfig/Swift",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")]
     ),
-    .target(
-      name: "FirebaseRemoteConfigSwift",
-      dependencies: [
-        "FirebaseRemoteConfig",
-      ],
-      path: "FirebaseRemoteConfigSwift/Sources"
-    ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
       dependencies: ["FirebaseRemoteConfig",
-                     "FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC"],
-      path: "FirebaseRemoteConfigSwift/Tests",
+      path: "FirebaseRemoteConfig/Tests/Swift",
       exclude: [
         "AccessToken.json",
         "README.md",
@@ -1067,16 +1012,16 @@ let package = Package(
         .process("Defaults-testInfo.plist"),
       ],
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath("../../../"),
       ]
     ),
     .target(
       name: "RemoteConfigFakeConsoleObjC",
       dependencies: [.product(name: "OCMock", package: "ocmock")],
-      path: "FirebaseRemoteConfigSwift/Tests/ObjC",
+      path: "FirebaseRemoteConfig/Tests/Swift/ObjC",
       publicHeadersPath: ".",
       cSettings: [
-        .headerSearchPath("../../../"),
+        .headerSearchPath("../../../../"),
       ]
     ),
     // Internal headers only for consuming from other SDK.
@@ -1208,7 +1153,6 @@ let package = Package(
         "FirebaseAppCheck",
         "FirebaseABTesting",
         "FirebaseAnalytics",
-        "FirebaseAnalyticsSwift",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
@@ -1220,11 +1164,8 @@ let package = Package(
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
-                condition: .when(platforms: [.iOS, .tvOS])),
-        .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
@@ -1240,7 +1181,6 @@ let package = Package(
     .testTarget(
       name: "analytics-import-test",
       dependencies: [
-        "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
         "Firebase",
       ],
@@ -1453,8 +1393,7 @@ func firestoreWrapperTarget() -> Target {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS,
-                                                          .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1532,9 +1471,9 @@ func firestoreTargets() -> [Target] {
         linkerSettings: [
           .linkedFramework(
             "SystemConfiguration",
-            .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+            .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
-          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
+          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1631,20 +1570,4 @@ func firestoreTargets() -> [Target] {
     ),
     firestoreInternalTarget,
   ]
-}
-
-extension Platform {
-  // Xcode dependent value for the visionOS platform. Namespaced with
-  // "firebase" prefix to prevent any API collisions (such issues should not
-  // arise as the manifest APIs should be confined to the `Package.swift`).
-  static var firebaseVisionOS: Self {
-    #if swift(>=5.9)
-      // For Xcode 15, return the available `visionOS` platform.
-      return .visionOS
-    #else
-      // For Xcode 14, return `iOS` as visionOS is unavailable. Since all targets
-      // support iOS, this acts as a no-op.
-      return .iOS
-    #endif // swift(>=5.9)
-  }
 }

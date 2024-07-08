@@ -64,19 +64,13 @@
 @property(nonatomic, strong) NSError *registerForRemoteNotificationsError;
 @end
 @implementation FakeAppDelegate
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (void)application:(GULApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  self.remoteNotificationMethodWasCalled = YES;
-}
-#pragma clang diagnostic pop
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 - (void)application:(UIApplication *)application
     didReceiveRemoteNotification:(NSDictionary *)userInfo
           fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   self.remoteNotificationWithFetchHandlerWasCalled = YES;
+  completionHandler(UIBackgroundFetchResultNewData);
 }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
@@ -192,6 +186,7 @@
 #if !SWIFT_PACKAGE
 // The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
   [self.proxy swizzleMethodsIfPossible];
@@ -199,15 +194,18 @@
   NSDictionary *notification = @{@"test" : @""};
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [incompleteAppDelegate application:[GULAppDelegateSwizzler sharedApplication]
-        didReceiveRemoteNotification:notification];
-#pragma clang diagnostic pop
+        didReceiveRemoteNotification:notification
+              fetchCompletionHandler:^(UIBackgroundFetchResult result) {
+                [expectation fulfill];
+              }];
 
   [self.mockMessaging verify];
+  [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
+// This test demonstrates the difference between Firebase 10 and 11. In 10 and earlier the
+// swizzler inserts the old `didReceiveRemoteNotification` method. In 11, the new.
 - (void)testIncompleteAppDelegateRemoteNotificationWithFetchHandlerMethod {
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
   [[GULAppDelegateSwizzler sharedApplication] setDelegate:incompleteAppDelegate];
@@ -216,11 +214,11 @@
 #if TARGET_OS_IOS || TARGET_OS_TV
   SEL remoteNotificationWithFetchHandler = @selector(application:
                                     didReceiveRemoteNotification:fetchCompletionHandler:);
-  XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
+  XCTAssertTrue([incompleteAppDelegate respondsToSelector:remoteNotificationWithFetchHandler]);
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 
   SEL remoteNotification = @selector(application:didReceiveRemoteNotification:);
-  XCTAssertTrue([incompleteAppDelegate respondsToSelector:remoteNotification]);
+  XCTAssertFalse([incompleteAppDelegate respondsToSelector:remoteNotification]);
 }
 
 - (void)testSwizzledAppDelegateRemoteNotificationMethods {
@@ -230,21 +228,6 @@
 
   NSDictionary *notification = @{@"test" : @""};
 
-  // Test application:didReceiveRemoteNotification:
-
-  // Verify our swizzled method was called
-  OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
-      didReceiveRemoteNotification:notification];
-#pragma clang diagnostic pop
-
-  // Verify our original method was called
-  XCTAssertTrue(appDelegate.remoteNotificationMethodWasCalled);
-  [self.mockMessaging verify];
-
   // Test application:didReceiveRemoteNotification:fetchCompletionHandler:
 #if TARGET_OS_IOS || TARGET_OS_TV
   // Verify our swizzled method was called
@@ -252,7 +235,8 @@
 
   [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
       didReceiveRemoteNotification:notification
-            fetchCompletionHandler:^(UIBackgroundFetchResult result){
+            fetchCompletionHandler:^(UIBackgroundFetchResult result) {
+              XCTAssertEqual(result, UIBackgroundFetchResultNewData);
             }];
 
   // Verify our original method was called

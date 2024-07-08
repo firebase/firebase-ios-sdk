@@ -81,13 +81,7 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
       # pod search Firebase | grep "pod.*" -m 1
       # will generate
       # pod 'Firebase', '~> 9.0.0'
-      # TODO: Re-enable below line post 10.28.0
-      # output += `pod search "#{pod}" | grep "pod.*" -m 1`
-      if pod.include?("FirebaseAppDistribution") || pod.include?("FirebaseInAppMessaging") || pod.include?("FirebaseMLModelDownloader")
-        output += "pod \'#{pod}\', \'~> 10.28.0-beta\'\n"
-      else
-        output += "pod \'#{pod}\', \'~> 10.28.0\'\n"
-      end
+      output += `pod search "#{pod}" | grep "pod.*" -m 1`
     else
       output += "pod \'#{pod}\'\n"
     end

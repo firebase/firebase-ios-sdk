@@ -38,6 +38,7 @@ import Foundation
  * Uploads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
   StorageTaskManagement {
   /**
@@ -237,14 +238,10 @@ import Foundation
        isFile == true {
       return nil
     }
-    let userInfo = [NSLocalizedDescriptionKey:
-      "File at URL: \(fileURL?.absoluteString ?? "") is not reachable."
-      + " Ensure file URL is not a directory, symbolic link, or invalid url."]
-    return NSError(
-      domain: StorageErrorDomain,
-      code: StorageErrorCode.unknown.rawValue,
-      userInfo: userInfo
-    )
+    return StorageError.unknown(message: "File at URL: \(fileURL?.absoluteString ?? "") is " +
+      "not reachable. Ensure file URL is not " +
+      "a directory, symbolic link, or invalid url.",
+      serverError: [:]) as NSError
   }
 
   func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
