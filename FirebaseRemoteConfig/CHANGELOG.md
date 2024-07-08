@@ -1,7 +1,7 @@
 # 11.0.0
 - [fixed] RemoteConfigValue stringValue is now `nonnull`. This may break some builds. (#10870)
-- [removed] **Breaking change**: The deprecated `FirebaseRemoteConfig` module
-  has been removed. See
+- [removed] **Breaking change**: The deprecated `FirebaseRemoteConfigSwift`
+  module has been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
 
