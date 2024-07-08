@@ -1,6 +1,6 @@
 # 11.0.0
-- [removed] **Breaking change**: The deprecated `FirebaseFirestore` module has
-  been removed. See
+- [removed] **Breaking change**: The deprecated `FirebaseFirestoreSwift` module
+  has been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
 
