@@ -36,8 +36,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source_files = [
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
-    base_dir + 'third_party/SocketRocket/fbase64.c',
-    'FirebaseDatabase/Swift/Sources/**/*.swift',
     'FirebaseAuth/Interop/**/*.h',
     'FirebaseCore/Extension/*.h',
   ]
