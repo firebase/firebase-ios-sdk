@@ -300,25 +300,12 @@ case "$product-$platform-$method" in
         build
     ;;
 
-  Auth-*-xcodebuild)
+  Auth-*-*)
     if check_secrets; then
       RunXcodebuild \
         -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
-        -scheme "ObjCApiTests" \
+        -scheme "$scheme" \
         "${xcb_flags[@]}" \
-        test
-
-      RunXcodebuild \
-        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
-        -scheme "SwiftApiTests" \
-        "${xcb_flags[@]}" \
-        test
-
-      RunXcodebuild \
-        -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
-        -scheme "AuthenticationExampleUITests" \
-        "${xcb_flags[@]}" \
-        build \
         test
     fi
     ;;
