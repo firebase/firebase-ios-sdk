@@ -1,6 +1,11 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+
 def shared_pods
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
@@ -51,7 +56,7 @@ target 'AppQualityDevApp_CrashlyticsPerformance_iOS' do
 end
 
 target 'AppQualityDevApp_macOS' do
-  platform :macos, '10.13'
+  platform :macos, '10.15'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
