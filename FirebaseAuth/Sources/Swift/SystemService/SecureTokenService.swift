@@ -83,6 +83,17 @@ class SecureTokenService: NSObject, NSSecureCoding {
     }
   }
 
+  /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
+  ///   received in the callback should be considered short lived and not cached.
+  ///
+  ///    Invoked asyncronously on the auth global work queue in the future.
+  /// - Parameter forceRefresh: Forces the token to be refreshed.
+  /// - Parameter callback: Callback block that will be called to return either the token or an
+  /// error.
+  func fetchAccessToken(user: User, forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
+    return try await user.auth.authWorker.fetchAccessToken(user: user, forcingRefresh: forceRefresh)
+  }
+
   private let taskQueue: AuthSerialTaskQueue
 
   // MARK: NSSecureCoding
@@ -140,7 +151,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
   /// since only one of those tasks is ever running at a time, and those tasks are the only
   /// access to and mutation of these instance variables.
   /// - Returns: Token and Bool indicating if update occurred.
-  private func requestAccessToken(retryIfExpired: Bool) async throws -> (String?, Bool) {
+  func requestAccessToken(retryIfExpired: Bool) async throws -> (String?, Bool) {
     // TODO: This was a crash in ObjC SDK, should it callback with an error?
     guard let refreshToken, let requestConfiguration else {
       fatalError("refreshToken and requestConfiguration should not be nil")
@@ -186,7 +197,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
     return (response.accessToken, tokenUpdated)
   }
 
-  private func hasValidAccessToken() -> Bool {
+  func hasValidAccessToken() -> Bool {
     if let accessTokenExpirationDate,
        accessTokenExpirationDate.timeIntervalSinceNow > kFiveMinutes {
       AuthLog.logDebug(code: "I-AUT000017",

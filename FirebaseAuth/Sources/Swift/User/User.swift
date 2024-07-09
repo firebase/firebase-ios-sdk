@@ -29,7 +29,7 @@ extension User: NSSecureCoding {}
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUser) open class User: NSObject, UserInfo {
   /// Indicates the user represents an anonymous user.
-  @objc public private(set) var isAnonymous: Bool
+  @objc public internal(set) var isAnonymous: Bool
 
   /// Indicates the user represents an anonymous user.
   @objc open func anonymous() -> Bool { return isAnonymous }
@@ -99,9 +99,16 @@ extension User: NSSecureCoding {}
   #endif // !FIREBASE_CI
   @objc(updateEmail:completion:)
   open func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      self.updateEmail(email: email, password: nil) { error in
-        User.callInMainThreadWithError(callback: completion, error: error)
+    Task {
+      do {
+        try await auth.authWorker.updateEmail(user: self, email: email, password: nil)
+        await MainActor.run {
+          completion?(nil)
+        }
+      } catch {
+        await MainActor.run {
+          completion?(error)
+        }
       }
     }
   }
@@ -141,15 +148,7 @@ extension User: NSSecureCoding {}
   #endif // !FIREBASE_CI
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateEmail(to email: String) async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.updateEmail(to: email) { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
+    try await auth.authWorker.updateEmail(user: self, email: email, password: nil)
   }
 
   /// Updates the password for the user. On success, the cached user profile data is updated.
@@ -171,15 +170,16 @@ extension User: NSSecureCoding {}
   /// finished.
   @objc(updatePassword:completion:)
   open func updatePassword(to password: String, completion: ((Error?) -> Void)? = nil) {
-    guard password.count > 0 else {
-      if let completion {
-        completion(AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing Password"))
-      }
-      return
-    }
-    kAuthGlobalWorkQueue.async {
-      self.updateEmail(email: nil, password: password) { error in
-        User.callInMainThreadWithError(callback: completion, error: error)
+    Task {
+      do {
+        try await self.updatePassword(to: password)
+        await MainActor.run {
+          completion?(nil)
+        }
+      } catch {
+        await MainActor.run {
+          completion?(error)
+        }
       }
     }
   }
@@ -201,15 +201,10 @@ extension User: NSSecureCoding {}
   /// - Parameter password: The new password for the user.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updatePassword(to password: String) async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.updatePassword(to: password) { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
+    guard password.count > 0 else {
+        throw AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing Password")
     }
+    return try await auth.authWorker.updateEmail(user: self, email: nil, password: password)
   }
 
   #if os(iOS)
@@ -359,39 +354,15 @@ extension User: NSSecureCoding {}
   @objc(reauthenticateWithCredential:completion:)
   open func reauthenticate(with credential: AuthCredential,
                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      Task {
-        do {
-          let authResult = try await self.auth?.internalSignInAndRetrieveData(
-            withCredential: credential,
-            isReauthentication: true
-          )
-          guard let user = authResult?.user,
-                user.uid == self.auth?.getUserID() else {
-            User.callInMainThreadWithAuthDataResultAndError(
-              callback: completion,
-              result: authResult,
-              error: AuthErrorUtils.userMismatchError()
-            )
-            return
-          }
-          // Successful reauthenticate
-          self.setTokenService(tokenService: user.tokenService) { error in
-            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                            result: authResult,
-                                                            error: error)
-          }
-        } catch {
-          // If "user not found" error returned by backend,
-          // translate to user mismatch error which is more
-          // accurate.
-          var reportError: Error = error
-          if (error as NSError).code == AuthErrorCode.userNotFound.rawValue {
-            reportError = AuthErrorUtils.userMismatchError()
-          }
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: nil,
-                                                          error: reportError)
+    Task {
+      do {
+        let result = try await reauthenticate(with: credential)
+        await MainActor.run {
+          completion?(result, nil)
+        }
+      } catch {
+        await MainActor.run {
+          completion?(nil, error)
         }
       }
     }
@@ -429,15 +400,7 @@ extension User: NSSecureCoding {}
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   open func reauthenticate(with credential: AuthCredential) async throws -> AuthDataResult {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.reauthenticate(with: credential) { result, error in
-        if let result {
-          continuation.resume(returning: result)
-        } else if let error {
-          continuation.resume(throwing: error)
-        }
-      }
-    }
+    return try await self.auth.authWorker.reauthenticate(with: credential)
   }
 
   #if os(iOS)
@@ -1213,7 +1176,7 @@ extension User: NSSecureCoding {}
   @objc open var phoneNumber: String?
 
   /// Whether or not the user can be authenticated by using Firebase email and password.
-  private var hasEmailPasswordCredential: Bool
+  var hasEmailPasswordCredential: Bool
 
   /// Used to serialize the update profile calls.
   private var taskQueue: AuthSerialTaskQueue
@@ -1228,7 +1191,7 @@ extension User: NSSecureCoding {}
   private weak var _auth: Auth?
 
   /// A weak reference to an `Auth` instance associated with this instance.
-  weak var auth: Auth? {
+  weak var auth: Auth! {
     set {
       _auth = newValue
       guard let requestConfiguration = auth?.requestConfiguration else {
@@ -1242,142 +1205,7 @@ extension User: NSSecureCoding {}
 
   // MARK: Private functions
 
-  private func updateEmail(email: String?,
-                           password: String?,
-                           callback: @escaping (Error?) -> Void) {
-    let hadEmailPasswordCredential = hasEmailPasswordCredential
-    executeUserUpdateWithChanges(changeBlock: { user, request in
-      if let email {
-        request.email = email
-      }
-      if let password {
-        request.password = password
-      }
-    }) { error in
-      if let error {
-        callback(error)
-        return
-      }
-      if let email {
-        self.email = email
-      }
-      if self.email != nil {
-        if !hadEmailPasswordCredential {
-          // The list of providers need to be updated for the newly added email-password provider.
-          self.internalGetToken { accessToken, error in
-            if let error {
-              callback(error)
-              return
-            }
-            guard let accessToken else {
-              fatalError("Auth Internal Error: Both accessToken and error are nil")
-            }
-            if let requestConfiguration = self.auth?.requestConfiguration {
-              let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                                requestConfiguration: requestConfiguration)
-              Task {
-                do {
-                  let accountInfoResponse = try await AuthBackend.call(with: getAccountInfoRequest)
-                  if let users = accountInfoResponse.users {
-                    for userAccountInfo in users {
-                      // Set the account to non-anonymous if there are any providers, even if
-                      // they're not email/password ones.
-                      if let providerUsers = userAccountInfo.providerUserInfo {
-                        if providerUsers.count > 0 {
-                          self.isAnonymous = false
-                          for providerUserInfo in providerUsers {
-                            if providerUserInfo.providerID == EmailAuthProvider.id {
-                              self.hasEmailPasswordCredential = true
-                              break
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                  self.update(withGetAccountInfoResponse: accountInfoResponse)
-                  if let error = self.updateKeychain() {
-                    callback(error)
-                    return
-                  }
-                  callback(nil)
-                } catch {
-                  self.signOutIfTokenIsInvalid(withError: error)
-                  callback(error)
-                }
-              }
-            }
-          }
-          return
-        }
-      }
-      if let error = self.updateKeychain() {
-        callback(error)
-        return
-      }
-      callback(nil)
-    }
-  }
 
-  /// Performs a setAccountInfo request by mutating the results of a getAccountInfo response,
-  /// atomically in regards to other calls to this method.
-  /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
-  /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
-  /// the auth global work queue in the future.
-  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
-                                                            SetAccountInfoRequest) -> Void,
-                                    callback: @escaping (Error?) -> Void) {
-    taskQueue.enqueueTask { complete in
-      self.getAccountInfoRefreshingCache { user, error in
-        if let error {
-          complete()
-          callback(error)
-          return
-        }
-        guard let user else {
-          fatalError("Internal error: Both user and error are nil")
-        }
-        self.internalGetToken { accessToken, error in
-          if let error {
-            complete()
-            callback(error)
-            return
-          }
-          if let configuration = self.auth?.requestConfiguration {
-            // Mutate setAccountInfoRequest in block
-            let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
-            setAccountInfoRequest.accessToken = accessToken
-            changeBlock(user, setAccountInfoRequest)
-            Task {
-              do {
-                let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
-                if let idToken = accountInfoResponse.idToken,
-                   let refreshToken = accountInfoResponse.refreshToken {
-                  let tokenService = SecureTokenService(
-                    withRequestConfiguration: configuration,
-                    accessToken: idToken,
-                    accessTokenExpirationDate: accountInfoResponse.approximateExpirationDate,
-                    refreshToken: refreshToken
-                  )
-                  self.setTokenService(tokenService: tokenService) { error in
-                    complete()
-                    callback(error)
-                  }
-                  return
-                }
-                complete()
-                callback(nil)
-              } catch {
-                self.signOutIfTokenIsInvalid(withError: error)
-                complete()
-                callback(error)
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 
   /// Sets a new token service for the `User` instance.
   ///
@@ -1385,7 +1213,7 @@ extension User: NSSecureCoding {}
   /// are saved in the keychain before calling back.
   /// - Parameter tokenService: The new token service object.
   /// - Parameter callback: The block to be called in the global auth working queue once finished.
-  private func setTokenService(tokenService: SecureTokenService,
+  func setTokenService(tokenService: SecureTokenService,
                                callback: @escaping (Error?) -> Void) {
     tokenService.fetchAccessToken(forcingRefresh: false) { token, error, tokenUpdated in
       if let error {
@@ -1398,6 +1226,18 @@ extension User: NSSecureCoding {}
         return
       }
       callback(nil)
+    }
+  }
+
+  /// Sets a new token service for the `User` instance.
+  ///
+  /// The method makes sure the token service has access and refresh token and the new tokens
+  /// are saved in the keychain before calling back.
+  /// - Parameter tokenService: The new token service object.
+  func setTokenService(tokenService: SecureTokenService) async throws {
+    self.tokenService = tokenService
+    if let error = self.updateKeychain() {
+      throw error
     }
   }
 
@@ -1436,7 +1276,7 @@ extension User: NSSecureCoding {}
     }
   }
 
-  private func update(withGetAccountInfoResponse response: GetAccountInfoResponse) {
+  func update(withGetAccountInfoResponse response: GetAccountInfoResponse) {
     guard let user = response.users?.first else {
       // Silent fallthrough in ObjC code.
       AuthLog.logWarning(code: "I-AUT000016", message: "Missing user in GetAccountInfoResponse")
@@ -1561,7 +1401,7 @@ extension User: NSSecureCoding {}
             guard let auth = self.auth else {
               fatalError("Internal Auth error: missing auth instance on user")
             }
-            let response = try await auth.injectRecaptcha(request: request,
+          let response = try await auth.authWorker.injectRecaptcha(request: request,
                                                           action: AuthRecaptchaAction
                                                             .signUpPassword)
           #else
@@ -1623,6 +1463,68 @@ extension User: NSSecureCoding {}
       }
     }
   }
+
+  // DELETE ME
+  /// Performs a setAccountInfo request by mutating the results of a getAccountInfo response,
+  /// atomically in regards to other calls to this method.
+  /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
+  /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
+  /// the auth global work queue in the future.
+  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
+                                                            SetAccountInfoRequest) -> Void,
+                                    callback: @escaping (Error?) -> Void) {
+    taskQueue.enqueueTask { complete in
+      self.getAccountInfoRefreshingCache { user, error in
+        if let error {
+          complete()
+          callback(error)
+          return
+        }
+        guard let user else {
+          fatalError("Internal error: Both user and error are nil")
+        }
+        self.internalGetToken { accessToken, error in
+          if let error {
+            complete()
+            callback(error)
+            return
+          }
+          if let configuration = self.auth?.requestConfiguration {
+            // Mutate setAccountInfoRequest in block
+            let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
+            setAccountInfoRequest.accessToken = accessToken
+            changeBlock(user, setAccountInfoRequest)
+            Task {
+              do {
+                let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
+                if let idToken = accountInfoResponse.idToken,
+                   let refreshToken = accountInfoResponse.refreshToken {
+                  let tokenService = SecureTokenService(
+                    withRequestConfiguration: configuration,
+                    accessToken: idToken,
+                    accessTokenExpirationDate: accountInfoResponse.approximateExpirationDate,
+                    refreshToken: refreshToken
+                  )
+                  self.setTokenService(tokenService: tokenService) { error in
+                    complete()
+                    callback(error)
+                  }
+                  return
+                }
+                complete()
+                callback(nil)
+              } catch {
+                self.signOutIfTokenIsInvalid(withError: error)
+                complete()
+                callback(error)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
 
   private func link(withEmailCredential emailCredential: EmailAuthCredential,
                     completion: ((AuthDataResult?, Error?) -> Void)?) {
@@ -1805,7 +1707,7 @@ extension User: NSSecureCoding {}
 
   /// Signs out this user if the user or the token is invalid.
   /// - Parameter error: The error from the server.
-  private func signOutIfTokenIsInvalid(withError error: Error) {
+  func signOutIfTokenIsInvalid(withError error: Error) {
     let code = (error as NSError).code
     if code == AuthErrorCode.userNotFound.rawValue ||
       code == AuthErrorCode.userDisabled.rawValue ||
@@ -1839,14 +1741,19 @@ extension User: NSSecureCoding {}
   }
 
   func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.internalGetToken(forceRefresh: forceRefresh) { token, error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume(returning: token!)
+    do {
+      let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
+        user: self,
+                                                forcingRefresh: forceRefresh)
+      if tokenUpdated {
+        if let error = self.updateKeychain() {
+          throw error
         }
       }
+      return token!
+    } catch {
+      self.signOutIfTokenIsInvalid(withError: error)
+      throw error
     }
   }
 

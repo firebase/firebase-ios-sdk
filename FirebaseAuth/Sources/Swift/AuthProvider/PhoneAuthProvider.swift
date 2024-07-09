@@ -319,7 +319,7 @@ import Foundation
       }
       var token: AuthAPNSToken
       do {
-        token = try await auth.tokenManager.getToken()
+        token = try await auth.tokenManagerGet().getToken()
       } catch {
         return try await CodeIdentity
           .recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
