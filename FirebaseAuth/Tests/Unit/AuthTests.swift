@@ -1921,7 +1921,7 @@ class AuthTests: RPCBaseTests {
     let user1 = try XCTUnwrap(auth.currentUser)
     let kTestAPIKey = "fakeAPIKey"
     user1.requestConfiguration = AuthRequestConfiguration(apiKey: kTestAPIKey,
-                                                           appID: kTestFirebaseAppID)
+                                                          appID: kTestFirebaseAppID)
     try await auth.signOut()
 
     let kTestAccessToken2 = "fakeAccessToken2"
@@ -2328,25 +2328,25 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(auth.tokenManagerGet().token?.type, .unknown)
     }
 
-  func testAppDidRegisterForRemoteNotifications_APNSTokenUpdatedAsync() async {
-    class FakeAuthTokenManager: AuthAPNSTokenManager {
-      override var token: AuthAPNSToken? {
-        get {
-          return tokenStore
-        }
-        set(setToken) {
-          tokenStore = setToken
+    func testAppDidRegisterForRemoteNotifications_APNSTokenUpdatedAsync() async {
+      class FakeAuthTokenManager: AuthAPNSTokenManager {
+        override var token: AuthAPNSToken? {
+          get {
+            return tokenStore
+          }
+          set(setToken) {
+            tokenStore = setToken
+          }
         }
       }
+      let apnsToken = Data()
+      await auth.tokenManagerInit(FakeAuthTokenManager(withApplication: UIApplication.shared))
+      await auth.application(UIApplication.shared,
+                             didRegisterForRemoteNotificationsWithDeviceToken: apnsToken)
+      let manager = await auth.tokenManagerGet()
+      XCTAssertEqual(manager.token?.data, apnsToken)
+      XCTAssertEqual(manager.token?.type, .unknown)
     }
-    let apnsToken = Data()
-    await auth.tokenManagerInit(FakeAuthTokenManager(withApplication: UIApplication.shared))
-    await auth.application(UIApplication.shared,
-                     didRegisterForRemoteNotificationsWithDeviceToken: apnsToken)
-    let manager = await auth.tokenManagerGet()
-    XCTAssertEqual(manager.token?.data, apnsToken)
-    XCTAssertEqual(manager.token?.type, .unknown)
-  }
 
     func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancels() {
       class FakeAuthTokenManager: AuthAPNSTokenManager {
@@ -2364,21 +2364,21 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(fakeTokenManager.cancelled)
     }
 
-  func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancelsAsync() async {
-    class FakeAuthTokenManager: AuthAPNSTokenManager {
-      var cancelled = false
-      override func cancel(withError error: Error) {
-        cancelled = true
+    func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancelsAsync() async {
+      class FakeAuthTokenManager: AuthAPNSTokenManager {
+        var cancelled = false
+        override func cancel(withError error: Error) {
+          cancelled = true
+        }
       }
+      let error = NSError(domain: "AuthTests", code: -1)
+      let fakeTokenManager = await FakeAuthTokenManager(withApplication: UIApplication.shared)
+      await auth.tokenManagerInit(fakeTokenManager)
+      XCTAssertFalse(fakeTokenManager.cancelled)
+      await auth.application(UIApplication.shared,
+                             didFailToRegisterForRemoteNotificationsWithError: error)
+      XCTAssertTrue(fakeTokenManager.cancelled)
     }
-    let error = NSError(domain: "AuthTests", code: -1)
-    let fakeTokenManager = await FakeAuthTokenManager(withApplication: UIApplication.shared)
-    await auth.tokenManagerInit(fakeTokenManager)
-    XCTAssertFalse(fakeTokenManager.cancelled)
-    await auth.application(UIApplication.shared,
-                     didFailToRegisterForRemoteNotificationsWithError: error)
-    XCTAssertTrue(fakeTokenManager.cancelled)
-  }
 
     func testAppDidReceiveRemoteNotificationWithCompletion_NotificationManagerHandleCanNotification() {
       class FakeNotificationManager: AuthNotificationManager {
@@ -2420,22 +2420,22 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(fakeURLPresenter.canHandled)
     }
 
-  func testAppOpenURL_AuthPresenterCanHandleURLAsync() async throws {
-    class FakeURLPresenter: AuthURLPresenter {
-      var canHandled = false
-      override func canHandle(url: URL) -> Bool {
-        canHandled = true
-        return true
+    func testAppOpenURL_AuthPresenterCanHandleURLAsync() async throws {
+      class FakeURLPresenter: AuthURLPresenter {
+        var canHandled = false
+        override func canHandle(url: URL) -> Bool {
+          canHandled = true
+          return true
+        }
       }
+      let url = try XCTUnwrap(URL(string: "https://localhost"))
+      let fakeURLPresenter = FakeURLPresenter()
+      auth.authURLPresenter = fakeURLPresenter
+      XCTAssertFalse(fakeURLPresenter.canHandled)
+      let result = await auth.application(UIApplication.shared, open: url, options: [:])
+      XCTAssertTrue(result)
+      XCTAssertTrue(fakeURLPresenter.canHandled)
     }
-    let url = try XCTUnwrap(URL(string: "https://localhost"))
-    let fakeURLPresenter = FakeURLPresenter()
-    auth.authURLPresenter = fakeURLPresenter
-    XCTAssertFalse(fakeURLPresenter.canHandled)
-    let result = await auth.application(UIApplication.shared, open: url, options: [:])
-    XCTAssertTrue(result)
-    XCTAssertTrue(fakeURLPresenter.canHandled)
-  }
   #endif // os(iOS)
 
   // MARK: Interoperability Tests
@@ -2503,7 +2503,8 @@ class AuthTests: RPCBaseTests {
     assertUser(auth?.currentUser)
   }
 
-  private func waitForSignInWithAccessTokenAsync(fakeAccessToken: String = kAccessToken) async throws {
+  private func waitForSignInWithAccessTokenAsync(fakeAccessToken: String =
+    kAccessToken) async throws {
     let kRefreshToken = "fakeRefreshToken"
     setFakeGetAccountProvider()
     setFakeSecureTokenService()
@@ -2532,7 +2533,7 @@ class AuthTests: RPCBaseTests {
     }
     XCTAssertEqual(user.refreshToken, kRefreshToken)
     XCTAssertFalse(user.isAnonymous)
-    XCTAssertEqual(user.email, self.kEmail)
+    XCTAssertEqual(user.email, kEmail)
     guard let additionalUserInfo = authResult?.additionalUserInfo else {
       XCTFail("authResult.additionalUserInfo is missing")
       return

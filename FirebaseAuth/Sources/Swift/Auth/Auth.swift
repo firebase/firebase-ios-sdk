@@ -53,7 +53,7 @@ import FirebaseCoreExtension
 
     open func application(_ application: UIApplication,
                           didFailToRegisterForRemoteNotificationsWithError error: Error) {
-      self.tokenManagerGet().cancel(withError: error)
+      tokenManagerGet().cancel(withError: error)
     }
 
     open func application(_ application: UIApplication,
@@ -76,30 +76,30 @@ import FirebaseCoreExtension
 extension Auth: AuthInterop {
   func getTokenInternal(forcingRefresh forceRefresh: Bool) {
     // Enable token auto-refresh if not already enabled.
-    if !self.autoRefreshTokens {
+    if !autoRefreshTokens {
       AuthLog.logInfo(code: "I-AUT000002", message: "Token auto-refresh enabled.")
-      self.autoRefreshTokens = true
-      self.scheduleAutoTokenRefresh()
+      autoRefreshTokens = true
+      scheduleAutoTokenRefresh()
 
-#if os(iOS) || os(tvOS) // TODO(ObjC): Is a similar mechanism needed on macOS?
-      self.applicationDidBecomeActiveObserver =
-      NotificationCenter.default.addObserver(
-        forName: UIApplication.didBecomeActiveNotification,
-        object: nil, queue: nil
-      ) { notification in
-        self.isAppInBackground = false
-        if !self.autoRefreshScheduled {
-          self.scheduleAutoTokenRefresh()
-        }
-      }
-      self.applicationDidEnterBackgroundObserver =
-      NotificationCenter.default.addObserver(
-        forName: UIApplication.didEnterBackgroundNotification,
-        object: nil, queue: nil
-      ) { notification in
-        self.isAppInBackground = true
-      }
-#endif
+      #if os(iOS) || os(tvOS) // TODO(ObjC): Is a similar mechanism needed on macOS?
+        applicationDidBecomeActiveObserver =
+          NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil, queue: nil
+          ) { notification in
+            self.isAppInBackground = false
+            if !self.autoRefreshScheduled {
+              self.scheduleAutoTokenRefresh()
+            }
+          }
+        applicationDidEnterBackgroundObserver =
+          NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil, queue: nil
+          ) { notification in
+            self.isAppInBackground = true
+          }
+      #endif
     }
   }
 
@@ -172,10 +172,10 @@ extension Auth: AuthInterop {
   /// The string used to set this property must be a language code that follows BCP 47.
   @objc open var languageCode: String? {
     get {
-      self.getLanguageCode()
+      getLanguageCode()
     }
     set(val) {
-      self.setLanguageCode(val)
+      setLanguageCode(val)
     }
   }
 
@@ -1162,8 +1162,8 @@ extension Auth: AuthInterop {
     if let currentUser {
       let idToken = try await currentUser.internalGetTokenAsync()
       let request = RevokeTokenRequest(withToken: authorizationCode,
-                                      idToken: idToken,
-                                      requestConfiguration: self.requestConfiguration)
+                                       idToken: idToken,
+                                       requestConfiguration: requestConfiguration)
       let _ = try await AuthBackend.call(with: request)
     }
   }
@@ -1296,33 +1296,33 @@ extension Auth: AuthInterop {
       return data
     }
 
-  func tokenManagerInit(_ manager: AuthAPNSTokenManager) {
-    let semaphore = DispatchSemaphore(value: 0)
-    Task {
-      await authWorker.tokenManagerInit(manager)
-      semaphore.signal()
+    func tokenManagerInit(_ manager: AuthAPNSTokenManager) {
+      let semaphore = DispatchSemaphore(value: 0)
+      Task {
+        await authWorker.tokenManagerInit(manager)
+        semaphore.signal()
+      }
+      semaphore.wait()
     }
-    semaphore.wait()
-  }
 
     func tokenManagerInit(_ manager: AuthAPNSTokenManager) async {
       await authWorker.tokenManagerInit(manager)
     }
 
-  func tokenManagerGet() -> AuthAPNSTokenManager {
-    var manager: AuthAPNSTokenManager!
-    let semaphore = DispatchSemaphore(value: 0)
-    Task {
-      manager = await tokenManagerGet()
-      semaphore.signal()
+    func tokenManagerGet() -> AuthAPNSTokenManager {
+      var manager: AuthAPNSTokenManager!
+      let semaphore = DispatchSemaphore(value: 0)
+      Task {
+        manager = await tokenManagerGet()
+        semaphore.signal()
+      }
+      semaphore.wait()
+      return manager
     }
-    semaphore.wait()
-    return manager
-  }
 
-  func tokenManagerGet() async -> AuthAPNSTokenManager {
-    return await authWorker.tokenManagerGet()
-  }
+    func tokenManagerGet() async -> AuthAPNSTokenManager {
+      return await authWorker.tokenManagerGet()
+    }
 
     /// Sets the APNs token along with its type.
     ///
@@ -1339,38 +1339,15 @@ extension Auth: AuthInterop {
       semaphore.wait()
     }
 
-  /// Sets the APNs token along with its type.
-  ///
-  /// This method is available on iOS only.
-  ///
-  /// If swizzling is disabled, the APNs Token must be set for phone number auth to work,
-  /// by either setting calling this method or by setting the `APNSToken` property.
-  open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) async {
+    /// Sets the APNs token along with its type.
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, the APNs Token must be set for phone number auth to work,
+    /// by either setting calling this method or by setting the `APNSToken` property.
+    open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) async {
       await authWorker.tokenManagerSet(token, type: type)
-  }
-
-  /// Whether the specific remote notification is handled by `Auth` .
-  ///
-  /// This method is available on iOS only.
-  ///
-  /// If swizzling is disabled, related remote notifications must be forwarded to this method
-  /// for phone number auth to work.
-  /// - Parameter userInfo: A dictionary that contains information related to the
-  /// notification in question.
-  /// - Returns: Whether or the notification is handled. A return value of `true` means the
-  /// notification is for Firebase Auth so the caller should ignore the notification from further
-  /// processing, and `false` means the notification is for the app (or another library) so
-  /// the caller should continue handling this notification as usual.
-  @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
-    var result = false
-    let semaphore = DispatchSemaphore(value: 0)
-    Task {
-      result = await authWorker.canHandleNotification(userInfo)
-      semaphore.signal()
     }
-    semaphore.wait()
-    return result
-  }
 
     /// Whether the specific remote notification is handled by `Auth` .
     ///
@@ -1384,7 +1361,30 @@ extension Auth: AuthInterop {
     /// notification is for Firebase Auth so the caller should ignore the notification from further
     /// processing, and `false` means the notification is for the app (or another library) so
     /// the caller should continue handling this notification as usual.
-  @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) async -> Bool {
+    @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
+      var result = false
+      let semaphore = DispatchSemaphore(value: 0)
+      Task {
+        result = await authWorker.canHandleNotification(userInfo)
+        semaphore.signal()
+      }
+      semaphore.wait()
+      return result
+    }
+
+    /// Whether the specific remote notification is handled by `Auth` .
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, related remote notifications must be forwarded to this method
+    /// for phone number auth to work.
+    /// - Parameter userInfo: A dictionary that contains information related to the
+    /// notification in question.
+    /// - Returns: Whether or the notification is handled. A return value of `true` means the
+    /// notification is for Firebase Auth so the caller should ignore the notification from further
+    /// processing, and `false` means the notification is for the app (or another library) so
+    /// the caller should continue handling this notification as usual.
+    @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) async -> Bool {
       return await authWorker.canHandleNotification(userInfo)
     }
 
@@ -1411,21 +1411,21 @@ extension Auth: AuthInterop {
       return result
     }
 
-  /// Whether the specific URL is handled by `Auth` .
-  ///
-  /// This method is available on iOS only.
-  ///
-  /// If swizzling is disabled, URLs received by the application delegate must be forwarded
-  /// to this method for phone number auth to work.
-  /// - Parameter url: The URL received by the application delegate from any of the openURL
-  /// method.
-  /// - Returns: Whether or the URL is handled. `true` means the URL is for Firebase Auth
-  /// so the caller should ignore the URL from further processing, and `false` means the
-  /// the URL is for the app (or another library) so the caller should continue handling
-  /// this URL as usual.
-  open func canHandle(_ url: URL) async -> Bool {
+    /// Whether the specific URL is handled by `Auth` .
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, URLs received by the application delegate must be forwarded
+    /// to this method for phone number auth to work.
+    /// - Parameter url: The URL received by the application delegate from any of the openURL
+    /// method.
+    /// - Returns: Whether or the URL is handled. `true` means the URL is for Firebase Auth
+    /// so the caller should ignore the URL from further processing, and `false` means the
+    /// the URL is for the app (or another library) so the caller should continue handling
+    /// this URL as usual.
+    open func canHandle(_ url: URL) async -> Bool {
       return await authWorker.canHandle(url)
-  }
+    }
   #endif
 
   /// The name of the `NSNotificationCenter` notification which is posted when the auth state
@@ -1471,7 +1471,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  // TODO delete me
+  // TODO: delete me
 
   func signInFlowAuthDataResultCallback(byDecorating callback:
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
@@ -1706,7 +1706,7 @@ extension Auth: AuthInterop {
     }
     autoRefreshScheduled = true
     Task {
-      await authWorker.autoTokenRefresh(accessToken: accessToken, 
+      await authWorker.autoTokenRefresh(accessToken: accessToken,
                                         retry: retry,
                                         delay: fastTokenRefreshForTest ? 0.1 : delay)
     }
@@ -1760,8 +1760,6 @@ extension Auth: AuthInterop {
                                        refreshToken: refreshToken,
                                        anonymous: anonymous)
   }
-
-
 
   private func getQueryItems(_ link: String) -> [String: String] {
     var queryItems = AuthWebUtils.parseURL(link)

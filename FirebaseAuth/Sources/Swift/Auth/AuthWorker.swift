@@ -18,7 +18,7 @@ import Foundation
   @_implementationOnly import GoogleUtilities
 #else
   @_implementationOnly import GoogleUtilities_AppDelegateSwizzler
-@_implementationOnly import GoogleUtilities_Environment
+  @_implementationOnly import GoogleUtilities_Environment
 #endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -45,7 +45,7 @@ actor AuthWorker {
   }
 
   func tokenManagerSet(_ token: Data, type: AuthAPNSTokenType) {
-    self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
+    tokenManager.token = AuthAPNSToken(withData: token, type: type)
   }
 
   func tokenManagerGet() -> AuthAPNSTokenManager {
@@ -68,13 +68,13 @@ actor AuthWorker {
 
   /// Only for testing
   func tokenManagerInit(_ manager: AuthAPNSTokenManager) {
-    self.tokenManager = manager
+    tokenManager = manager
   }
 
   func fetchSignInMethods(forEmail email: String) async throws -> [String] {
     let request = CreateAuthURIRequest(identifier: email,
                                        continueURI: "http:www.google.com",
-                                       requestConfiguration: self.requestConfiguration)
+                                       requestConfiguration: requestConfiguration)
     let response = try await AuthBackend.call(with: request)
     return response.signinMethods ?? []
   }
@@ -96,26 +96,25 @@ actor AuthWorker {
                                                    isReauthentication: false)
   }
 
-
-#if os(iOS)
-  func signIn(with provider: FederatedAuthProvider,
-              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-    let credential = try await provider.credential(with: uiDelegate)
-    return try await self.internalSignInAndRetrieveData(
-      withCredential: credential,
-      isReauthentication: false
-    )
-  }
-#endif
+  #if os(iOS)
+    func signIn(with provider: FederatedAuthProvider,
+                uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+      let credential = try await provider.credential(with: uiDelegate)
+      return try await internalSignInAndRetrieveData(
+        withCredential: credential,
+        isReauthentication: false
+      )
+    }
+  #endif
 
   func signInAnonymously() async throws -> AuthDataResult {
     if let currentUser = requestConfiguration.auth?.currentUser,
        currentUser.isAnonymous {
       return AuthDataResult(withUser: currentUser, additionalUserInfo: nil)
     }
-    let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
+    let request = SignUpNewUserRequest(requestConfiguration: requestConfiguration)
     let response = try await AuthBackend.call(with: request)
-    let user = try await self.completeSignIn(
+    let user = try await completeSignIn(
       withAccessToken: response.idToken,
       accessTokenExpirationDate: response.approximateExpirationDate,
       refreshToken: response.refreshToken,
@@ -131,9 +130,9 @@ actor AuthWorker {
 
   func signIn(withCustomToken token: String) async throws -> AuthDataResult {
     let request = VerifyCustomTokenRequest(token: token,
-                                           requestConfiguration: self.requestConfiguration)
+                                           requestConfiguration: requestConfiguration)
     let response = try await AuthBackend.call(with: request)
-    let user = try await self.completeSignIn(
+    let user = try await completeSignIn(
       withAccessToken: response.idToken,
       accessTokenExpirationDate: response.approximateExpirationDate,
       refreshToken: response.refreshToken,
@@ -152,14 +151,14 @@ actor AuthWorker {
                                        password: password,
                                        displayName: nil,
                                        idToken: nil,
-                                       requestConfiguration: self.requestConfiguration)
-#if os(iOS)
-    let response = try await injectRecaptcha(request: request,
-                                             action: AuthRecaptchaAction.signUpPassword)
-#else
-    let response = try await AuthBackend.call(with: request)
-#endif
-    let user = try await self.completeSignIn(
+                                       requestConfiguration: requestConfiguration)
+    #if os(iOS)
+      let response = try await injectRecaptcha(request: request,
+                                               action: AuthRecaptchaAction.signUpPassword)
+    #else
+      let response = try await AuthBackend.call(with: request)
+    #endif
+    let user = try await completeSignIn(
       withAccessToken: response.idToken,
       accessTokenExpirationDate: response.approximateExpirationDate,
       refreshToken: response.refreshToken,
@@ -175,14 +174,14 @@ actor AuthWorker {
   func confirmPasswordReset(withCode code: String, newPassword: String) async throws {
     let request = ResetPasswordRequest(oobCode: code,
                                        newPassword: newPassword,
-                                       requestConfiguration: self.requestConfiguration)
-    let _ = try await AuthBackend.call(with: request)
+                                       requestConfiguration: requestConfiguration)
+    _ = try await AuthBackend.call(with: request)
   }
 
   func checkActionCode(_ code: String) async throws -> ActionCodeInfo {
     let request = ResetPasswordRequest(oobCode: code,
                                        newPassword: nil,
-                                       requestConfiguration: self.requestConfiguration)
+                                       requestConfiguration: requestConfiguration)
     let response = try await AuthBackend.call(with: request)
 
     let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
@@ -200,9 +199,9 @@ actor AuthWorker {
   }
 
   func applyActionCode(_ code: String) async throws {
-    let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
+    let request = SetAccountInfoRequest(requestConfiguration: requestConfiguration)
     request.oobCode = code
-    let _ = try await AuthBackend.call(with: request)
+    _ = try await AuthBackend.call(with: request)
   }
 
   func sendPasswordReset(withEmail email: String,
@@ -210,14 +209,14 @@ actor AuthWorker {
     let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
       email: email,
       actionCodeSettings: actionCodeSettings,
-      requestConfiguration: self.requestConfiguration
+      requestConfiguration: requestConfiguration
     )
-#if os(iOS)
-    let _ = try await injectRecaptcha(request: request,
-                                      action: AuthRecaptchaAction.getOobCode)
-#else
-    let _ = try await AuthBackend.call(with: request)
-#endif
+    #if os(iOS)
+      _ = try await injectRecaptcha(request: request,
+                                    action: AuthRecaptchaAction.getOobCode)
+    #else
+      _ = try await AuthBackend.call(with: request)
+    #endif
   }
 
   func sendSignInLink(toEmail email: String,
@@ -225,14 +224,14 @@ actor AuthWorker {
     let request = GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(
       email,
       actionCodeSettings: actionCodeSettings,
-      requestConfiguration: self.requestConfiguration
+      requestConfiguration: requestConfiguration
     )
-#if os(iOS)
-    let _ = try await injectRecaptcha(request: request,
-                                      action: AuthRecaptchaAction.getOobCode)
-#else
-    let _ = try await AuthBackend.call(with: request)
-#endif
+    #if os(iOS)
+      _ = try await injectRecaptcha(request: request,
+                                    action: AuthRecaptchaAction.getOobCode)
+    #else
+      _ = try await AuthBackend.call(with: request)
+    #endif
   }
 
   func signOut() throws {
@@ -243,13 +242,13 @@ actor AuthWorker {
   }
 
   func updateCurrentUser(_ user: User) async throws {
-    if user.requestConfiguration.apiKey != self.requestConfiguration.apiKey {
+    if user.requestConfiguration.apiKey != requestConfiguration.apiKey {
       // If the API keys are different, then we need to confirm that the user belongs to the same
       // project before proceeding.
-      user.requestConfiguration = self.requestConfiguration
+      user.requestConfiguration = requestConfiguration
       try await user.reload()
     }
-    try self.updateCurrentUser(user, byForce: true, savingToDisk: true)
+    try updateCurrentUser(user, byForce: true, savingToDisk: true)
   }
 
   /// Continue with the rest of the Auth object initialization in the worker actor.
@@ -271,51 +270,51 @@ actor AuthWorker {
         try auth.internalUseUserAccessGroup(storedUserAccessGroup)
       } else {
         let user = try auth.getUser()
-        try self.updateCurrentUser(user, byForce: false, savingToDisk: false)
+        try updateCurrentUser(user, byForce: false, savingToDisk: false)
         if let user {
           auth.tenantID = user.tenantID
           auth.lastNotifiedUserToken = user.rawAccessToken()
         }
       }
     } catch {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-      if (error as NSError).code == AuthErrorCode.keychainError.rawValue {
-        // If there's a keychain error, assume it is due to the keychain being accessed
-        // before the device is unlocked as a result of prewarming, and listen for the
-        // UIApplicationProtectedDataDidBecomeAvailable notification.
-        auth.addProtectedDataDidBecomeAvailableObserver()
-      }
-#endif
+      #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        if (error as NSError).code == AuthErrorCode.keychainError.rawValue {
+          // If there's a keychain error, assume it is due to the keychain being accessed
+          // before the device is unlocked as a result of prewarming, and listen for the
+          // UIApplicationProtectedDataDidBecomeAvailable notification.
+          auth.addProtectedDataDidBecomeAvailableObserver()
+        }
+      #endif
       AuthLog.logError(code: "I-AUT000001",
                        message: "Error loading saved user when starting up: \(error)")
     }
 
-#if os(iOS)
-    if GULAppEnvironmentUtil.isAppExtension() {
-      // iOS App extensions should not call [UIApplication sharedApplication], even if
-      // UIApplication responds to it.
-      return
-    }
+    #if os(iOS)
+      if GULAppEnvironmentUtil.isAppExtension() {
+        // iOS App extensions should not call [UIApplication sharedApplication], even if
+        // UIApplication responds to it.
+        return
+      }
 
-    // Using reflection here to avoid build errors in extensions.
-    let sel = NSSelectorFromString("sharedApplication")
-    guard UIApplication.responds(to: sel),
-          let rawApplication = UIApplication.perform(sel),
-          let application = rawApplication.takeUnretainedValue() as? UIApplication else {
-      return
-    }
+      // Using reflection here to avoid build errors in extensions.
+      let sel = NSSelectorFromString("sharedApplication")
+      guard UIApplication.responds(to: sel),
+            let rawApplication = UIApplication.perform(sel),
+            let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+        return
+      }
 
-    // Initialize for phone number auth.
-    tokenManager = AuthAPNSTokenManager(withApplication: application)
-    auth.appCredentialManager = AuthAppCredentialManager(withKeychain: auth.keychainServices)
-    auth.notificationManager = AuthNotificationManager(
-      withApplication: application,
-      appCredentialManager: auth.appCredentialManager
-    )
+      // Initialize for phone number auth.
+      tokenManager = AuthAPNSTokenManager(withApplication: application)
+      auth.appCredentialManager = AuthAppCredentialManager(withKeychain: auth.keychainServices)
+      auth.notificationManager = AuthNotificationManager(
+        withApplication: application,
+        appCredentialManager: auth.appCredentialManager
+      )
 
-    GULAppDelegateSwizzler.registerAppDelegateInterceptor(auth)
-    GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(auth)
-#endif
+      GULAppDelegateSwizzler.registerAppDelegateInterceptor(auth)
+      GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(auth)
+    #endif
   }
 
   func updateEmail(user: User,
@@ -379,8 +378,10 @@ actor AuthWorker {
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
   /// the auth global work queue in the future.
-  private func executeUserUpdateWithChanges(user: User, changeBlock: @escaping (GetAccountInfoResponseUser,
-                                                                    SetAccountInfoRequest) -> Void) async throws {
+  private func executeUserUpdateWithChanges(user: User,
+                                            changeBlock: @escaping (GetAccountInfoResponseUser,
+                                                                    SetAccountInfoRequest)
+                                              -> Void) async throws {
     let userAccountInfo = try await getAccountInfoRefreshingCache(user)
     let accessToken = try await user.internalGetTokenAsync()
 
@@ -409,7 +410,8 @@ actor AuthWorker {
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  private func getAccountInfoRefreshingCache(_ user: User) async throws -> GetAccountInfoResponseUser {
+  private func getAccountInfoRefreshingCache(_ user: User) async throws
+    -> GetAccountInfoResponseUser {
     let token = try await user.internalGetTokenAsync()
     let request = GetAccountInfoRequest(accessToken: token,
                                         requestConfiguration: requestConfiguration)
@@ -459,7 +461,7 @@ actor AuthWorker {
   func updateCurrentUser(_ user: User?, byForce force: Bool,
                          savingToDisk saveToDisk: Bool) throws {
     if user == requestConfiguration.auth?.currentUser {
-      // TODO local
+      // TODO: local
       requestConfiguration.auth?.possiblyPostAuthStateChangeNotification()
     }
     if let user {
@@ -471,7 +473,7 @@ actor AuthWorker {
     var throwError: Error?
     if saveToDisk {
       do {
-        // TODO call local saveSuer
+        // TODO: call local saveSuer
         try requestConfiguration.auth?.saveUser(user)
       } catch {
         throwError = error
@@ -479,7 +481,7 @@ actor AuthWorker {
     }
     if throwError == nil || force {
       requestConfiguration.auth?.currentUser = user
-      // TODO
+      // TODO:
       requestConfiguration.auth?.possiblyPostAuthStateChangeNotification()
     }
     if let throwError {
@@ -491,33 +493,33 @@ actor AuthWorker {
     // If host is an IPv6 address, it should be formatted with surrounding brackets.
     let formattedHost = host.contains(":") ? "[\(host)]" : host
     requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
-#if os(iOS)
-    requestConfiguration.auth?.settings?.appVerificationDisabledForTesting = true
-#endif
+    #if os(iOS)
+      requestConfiguration.auth?.settings?.appVerificationDisabledForTesting = true
+    #endif
   }
 
-#if os(iOS)
-  func canHandleNotification(_ userInfo: [AnyHashable: Any]) async -> Bool {
-    guard let auth = requestConfiguration.auth else {
-      return false
+  #if os(iOS)
+    func canHandleNotification(_ userInfo: [AnyHashable: Any]) async -> Bool {
+      guard let auth = requestConfiguration.auth else {
+        return false
+      }
+      return auth.notificationManager.canHandle(notification: userInfo)
     }
-    return auth.notificationManager.canHandle(notification: userInfo)
-  }
 
-  func canHandle(_ url: URL) -> Bool {
-    guard let auth = requestConfiguration.auth,
-          let authURLPresenter = auth.authURLPresenter as? AuthURLPresenter else {
-      return false
+    func canHandle(_ url: URL) -> Bool {
+      guard let auth = requestConfiguration.auth,
+            let authURLPresenter = auth.authURLPresenter as? AuthURLPresenter else {
+        return false
+      }
+      return authURLPresenter.canHandle(url: url)
     }
-    return authURLPresenter.canHandle(url: url)
-  }
 
-#endif
+  #endif
 
   func autoTokenRefresh(accessToken: String, retry: Bool, delay: TimeInterval) async {
     try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
     guard let auth = requestConfiguration.auth,
-    let currentUser = auth.currentUser else {
+          let currentUser = auth.currentUser else {
       return
     }
     let accessToken = currentUser.rawAccessToken()
@@ -531,7 +533,7 @@ actor AuthWorker {
     }
     let uid = currentUser.uid
     do {
-      let _ = try await currentUser.internalGetTokenAsync(forceRefresh: true)
+      _ = try await currentUser.internalGetTokenAsync(forceRefresh: true)
       if auth.currentUser?.uid != uid {
         return
       }
@@ -543,7 +545,8 @@ actor AuthWorker {
     }
   }
 
-  func fetchAccessToken(user: User, forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
+  func fetchAccessToken(user: User,
+                        forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
     if !forceRefresh, user.tokenService.hasValidAccessToken() {
       return (user.tokenService.accessToken, false)
     } else {
@@ -553,7 +556,7 @@ actor AuthWorker {
   }
 
   private func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
-                                     isReauthentication: Bool) async throws
+                                             isReauthentication: Bool) async throws
     -> AuthDataResult {
     if let emailCredential = credential as? EmailAuthCredential {
       // Special case for email/password credentials
@@ -631,70 +634,70 @@ actor AuthWorker {
                           credential: updatedOAuthCredential)
   }
 
-#if os(iOS)
-  /// Signs in using a phone credential.
-  /// - Parameter credential: The Phone Auth credential used to sign in.
-  /// - Parameter operation: The type of operation for which this sign-in attempt is initiated.
-  private func signIn(withPhoneCredential credential: PhoneAuthCredential,
-                      operation: AuthOperationType) async throws -> VerifyPhoneNumberResponse {
-    switch credential.credentialKind {
-    case let .phoneNumber(phoneNumber, temporaryProof):
-      let request = VerifyPhoneNumberRequest(temporaryProof: temporaryProof,
-                                             phoneNumber: phoneNumber,
-                                             operation: operation,
-                                             requestConfiguration: requestConfiguration)
-      return try await AuthBackend.call(with: request)
-    case let .verification(verificationID, code):
-      guard verificationID.count > 0 else {
-        throw AuthErrorUtils.missingVerificationIDError(message: nil)
+  #if os(iOS)
+    /// Signs in using a phone credential.
+    /// - Parameter credential: The Phone Auth credential used to sign in.
+    /// - Parameter operation: The type of operation for which this sign-in attempt is initiated.
+    private func signIn(withPhoneCredential credential: PhoneAuthCredential,
+                        operation: AuthOperationType) async throws -> VerifyPhoneNumberResponse {
+      switch credential.credentialKind {
+      case let .phoneNumber(phoneNumber, temporaryProof):
+        let request = VerifyPhoneNumberRequest(temporaryProof: temporaryProof,
+                                               phoneNumber: phoneNumber,
+                                               operation: operation,
+                                               requestConfiguration: requestConfiguration)
+        return try await AuthBackend.call(with: request)
+      case let .verification(verificationID, code):
+        guard verificationID.count > 0 else {
+          throw AuthErrorUtils.missingVerificationIDError(message: nil)
+        }
+        guard code.count > 0 else {
+          throw AuthErrorUtils.missingVerificationCodeError(message: nil)
+        }
+        let request = VerifyPhoneNumberRequest(verificationID: verificationID,
+                                               verificationCode: code,
+                                               operation: operation,
+                                               requestConfiguration: requestConfiguration)
+        return try await AuthBackend.call(with: request)
       }
-      guard code.count > 0 else {
-        throw AuthErrorUtils.missingVerificationCodeError(message: nil)
+    }
+  #endif
+
+  #if !os(watchOS)
+    /// Signs in using a game center credential.
+    /// - Parameter credential: The Game Center Auth Credential used to sign in.
+    private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential) async throws
+      -> AuthDataResult {
+      guard let publicKeyURL = credential.publicKeyURL,
+            let signature = credential.signature,
+            let salt = credential.salt else {
+        fatalError(
+          "Internal Auth Error: Game Center credential missing publicKeyURL, signature, or salt"
+        )
       }
-      let request = VerifyPhoneNumberRequest(verificationID: verificationID,
-                                             verificationCode: code,
-                                             operation: operation,
-                                             requestConfiguration: requestConfiguration)
-      return try await AuthBackend.call(with: request)
+      let request = SignInWithGameCenterRequest(playerID: credential.playerID,
+                                                teamPlayerID: credential.teamPlayerID,
+                                                gamePlayerID: credential.gamePlayerID,
+                                                publicKeyURL: publicKeyURL,
+                                                signature: signature,
+                                                salt: salt,
+                                                timestamp: credential.timestamp,
+                                                displayName: credential.displayName,
+                                                requestConfiguration: requestConfiguration)
+      let response = try await AuthBackend.call(with: request)
+      let user = try await completeSignIn(withAccessToken: response.idToken,
+                                          accessTokenExpirationDate: response
+                                            .approximateExpirationDate,
+                                          refreshToken: response.refreshToken,
+                                          anonymous: false)
+      let additionalUserInfo = AdditionalUserInfo(providerID: GameCenterAuthProvider.id,
+                                                  profile: nil,
+                                                  username: nil,
+                                                  isNewUser: response.isNewUser)
+      return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
     }
-  }
-#endif
 
-#if !os(watchOS)
-  /// Signs in using a game center credential.
-  /// - Parameter credential: The Game Center Auth Credential used to sign in.
-  private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential) async throws
-    -> AuthDataResult {
-    guard let publicKeyURL = credential.publicKeyURL,
-          let signature = credential.signature,
-          let salt = credential.salt else {
-      fatalError(
-        "Internal Auth Error: Game Center credential missing publicKeyURL, signature, or salt"
-      )
-    }
-    let request = SignInWithGameCenterRequest(playerID: credential.playerID,
-                                              teamPlayerID: credential.teamPlayerID,
-                                              gamePlayerID: credential.gamePlayerID,
-                                              publicKeyURL: publicKeyURL,
-                                              signature: signature,
-                                              salt: salt,
-                                              timestamp: credential.timestamp,
-                                              displayName: credential.displayName,
-                                              requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.call(with: request)
-    let user = try await completeSignIn(withAccessToken: response.idToken,
-                                        accessTokenExpirationDate: response
-                                          .approximateExpirationDate,
-                                        refreshToken: response.refreshToken,
-                                        anonymous: false)
-    let additionalUserInfo = AdditionalUserInfo(providerID: GameCenterAuthProvider.id,
-                                                profile: nil,
-                                                username: nil,
-                                                isNewUser: response.isNewUser)
-    return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
-  }
-
-#endif
+  #endif
 
   /// Signs in using an email and email sign-in link.
   /// - Parameter email: The user's email address.
@@ -726,6 +729,7 @@ actor AuthWorker {
                                                 isNewUser: response.isNewUser)
     return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
   }
+
   private func getQueryItems(_ link: String) -> [String: String] {
     var queryItems = AuthWebUtils.parseURL(link)
     if queryItems.count == 0 {
@@ -736,8 +740,6 @@ actor AuthWorker {
     }
     return queryItems
   }
-
-
 
   private func internalSignInUser(withEmail email: String, password: String) async throws -> User {
     let request = VerifyPasswordRequest(email: email,
@@ -761,43 +763,43 @@ actor AuthWorker {
   }
 
   #if os(iOS)
-  func injectRecaptcha<T: AuthRPCRequest>(request: T,
-                                          action: AuthRecaptchaAction) async throws -> T
-    .Response {
-    let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: requestConfiguration.auth)
-    if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) {
-      try await recaptchaVerifier.injectRecaptchaFields(request: request,
-                                                        provider: AuthRecaptchaProvider.password,
-                                                        action: action)
-    } else {
-      do {
-        return try await AuthBackend.call(with: request)
-      } catch {
-        let nsError = error as NSError
-        if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
-           nsError.code == AuthErrorCode.internalError.rawValue,
-           let messages = underlyingError
-           .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable],
-           let message = messages["message"] as? String,
-           message.hasPrefix("MISSING_RECAPTCHA_TOKEN") {
-          try await recaptchaVerifier.injectRecaptchaFields(
-            request: request,
-            provider: AuthRecaptchaProvider.password,
-            action: action
-          )
-        } else {
-          throw error
+    func injectRecaptcha<T: AuthRPCRequest>(request: T,
+                                            action: AuthRecaptchaAction) async throws -> T
+      .Response {
+      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: requestConfiguration.auth)
+      if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) {
+        try await recaptchaVerifier.injectRecaptchaFields(request: request,
+                                                          provider: AuthRecaptchaProvider.password,
+                                                          action: action)
+      } else {
+        do {
+          return try await AuthBackend.call(with: request)
+        } catch {
+          let nsError = error as NSError
+          if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
+             nsError.code == AuthErrorCode.internalError.rawValue,
+             let messages = underlyingError
+             .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable],
+             let message = messages["message"] as? String,
+             message.hasPrefix("MISSING_RECAPTCHA_TOKEN") {
+            try await recaptchaVerifier.injectRecaptchaFields(
+              request: request,
+              provider: AuthRecaptchaProvider.password,
+              action: action
+            )
+          } else {
+            throw error
+          }
         }
       }
+      return try await AuthBackend.call(with: request)
     }
-    return try await AuthBackend.call(with: request)
-  }
-#endif
+  #endif
 
   private func completeSignIn(withAccessToken accessToken: String?,
-                      accessTokenExpirationDate: Date?,
-                      refreshToken: String?,
-                      anonymous: Bool) async throws -> User {
+                              accessTokenExpirationDate: Date?,
+                              refreshToken: String?,
+                              anonymous: Bool) async throws -> User {
     return try await User.retrieveUser(withAuth: requestConfiguration.auth!,
                                        accessToken: accessToken,
                                        accessTokenExpirationDate: accessTokenExpirationDate,
@@ -805,11 +807,7 @@ actor AuthWorker {
                                        anonymous: anonymous)
   }
 
-
   init(requestConfiguration: AuthRequestConfiguration) {
     self.requestConfiguration = requestConfiguration
   }
-
 }
-
-

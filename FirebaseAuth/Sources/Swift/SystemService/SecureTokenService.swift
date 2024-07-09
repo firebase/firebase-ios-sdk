@@ -90,7 +90,8 @@ class SecureTokenService: NSObject, NSSecureCoding {
   /// - Parameter forceRefresh: Forces the token to be refreshed.
   /// - Parameter callback: Callback block that will be called to return either the token or an
   /// error.
-  func fetchAccessToken(user: User, forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
+  func fetchAccessToken(user: User,
+                        forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
     return try await user.auth.authWorker.fetchAccessToken(user: user, forcingRefresh: forceRefresh)
   }
 
