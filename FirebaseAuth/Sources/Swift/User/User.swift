@@ -90,11 +90,13 @@ extension User: NSSecureCoding {}
   /// - Parameter email: The email address for the user.
   /// - Parameter completion: Optionally; the block invoked when the user profile change has
   /// finished.
-  @available(
-    *,
-    deprecated,
-    message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      *,
+      deprecated,
+      message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(updateEmail:completion:)
   open func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
@@ -130,11 +132,13 @@ extension User: NSSecureCoding {}
   ///  the user has not signed in recently enough. To resolve, reauthenticate the user by
   ///  calling `reauthenticate(with:)`.
   /// - Parameter email: The email address for the user.
-  @available(
-    *,
-    deprecated,
-    message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      *,
+      deprecated,
+      message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
+    )
+  #endif // !FIREBASE_CI
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateEmail(to email: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
