@@ -62,8 +62,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let info = try await auth.checkActionCode("code")
     let _: ActionCodeOperation = info.operation
-    if let _: String = info.email,
-       let _: String = info.previousEmail {}
+    let _: String = info.email
+    if let _: String = info.previousEmail {}
   }
 
   func ActionCodeURL() {

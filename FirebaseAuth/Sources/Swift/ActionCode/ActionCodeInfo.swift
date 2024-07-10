@@ -21,7 +21,7 @@ import Foundation
 
   /// The email address to which the code was sent. The new email address in the case of
   /// `ActionCodeOperation.recoverEmail`.
-  @objc public let email: String?
+  @objc public let email: String
 
   /// The email that is being recovered in the case of `ActionCodeOperation.recoverEmail`.
   @objc public let previousEmail: String?
