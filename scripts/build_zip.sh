@@ -51,8 +51,8 @@ if [[ "$LINKING_TYPE" == "dynamic" ]]; then
 elif [[ "$LINKING_TYPE" == "static" ]]; then
   linking_mode="--no-dynamic"
 else
-  echo "Defaulting to `static`."
-  linking_mode="--no-dynamic"
+  echo "Defaulting to `dynamic`."
+  linking_mode="--dynamic"
 fi
 
 source_repo=()
