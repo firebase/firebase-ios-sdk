@@ -61,9 +61,8 @@ struct ZipBuilderTool: ParsableCommand {
         help: ArgumentHelp("A flag for enabling or disabling versions checks for Carthage builds."))
   var carthageVersionCheck: Bool
 
-  /// A flag that indicates to build dynamic library frameworks. The default is false and static
-  /// linkage.
-  @Flag(default: false,
+  /// A flag that indicates to build dynamic library frameworks. Defaults to true.
+  @Flag(default: true,
         inversion: .prefixedNo,
         help: ArgumentHelp("A flag specifying to build dynamic library frameworks."))
   var dynamic: Bool
