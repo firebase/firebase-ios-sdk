@@ -201,9 +201,11 @@ class StorageResultTests: StorageIntegrationCommon {
         XCTFail("Unexpected success from unauthorized putData")
       case let .failure(error as StorageError):
         switch error {
-        case let .unauthorized(bucket, object):
+        case let .unauthorized(bucket, object, serverError):
           XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
           XCTAssertEqual(object, file)
+          XCTAssertNotNil(serverError)
+          XCTAssertEqual(serverError["ResponseErrorCode"] as? Int, 403)
           expectation.fulfill()
         default:
           XCTFail("Failed with unexpected error: \(error)")
@@ -847,7 +849,7 @@ class StorageResultTests: StorageIntegrationCommon {
     let kFIRStorageIntegrationTestTimeout = 100.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { error in
-                          if let error = error {
+                          if let error {
                             print(error)
                           }
                         })

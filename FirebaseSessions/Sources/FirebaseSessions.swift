@@ -18,7 +18,14 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
-@_implementationOnly import Promises
+
+#if swift(>=6.0)
+  internal import Promises
+#elseif swift(>=5.10)
+  import Promises
+#else
+  @_implementationOnly import Promises
+#endif
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
@@ -265,8 +272,7 @@ private enum GoogleDataTransportConfig {
 
   static func componentsToRegister() -> [Component] {
     return [Component(SessionsProvider.self,
-                      instantiationTiming: .alwaysEager,
-                      dependencies: []) { container, isCacheable in
+                      instantiationTiming: .alwaysEager) { container, isCacheable in
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true

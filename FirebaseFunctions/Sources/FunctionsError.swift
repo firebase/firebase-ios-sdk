@@ -219,7 +219,7 @@ func FunctionsErrorForResponse(status: NSInteger,
   var details: AnyObject?
 
   // Then look through the body for explicit details.
-  if let body = body,
+  if let body,
      let json = try? JSONSerialization.jsonObject(with: body) as? NSDictionary,
      let errorDetails = json["error"] as? NSDictionary {
     if let status = errorDetails["status"] as? String {
@@ -252,7 +252,7 @@ func FunctionsErrorForResponse(status: NSInteger,
 
   var userInfo = [String: Any]()
   userInfo[NSLocalizedDescriptionKey] = description
-  if let details = details {
+  if let details {
     userInfo[FunctionsErrorDetailsKey] = details
   }
   return code.generatedError(userInfo: userInfo)

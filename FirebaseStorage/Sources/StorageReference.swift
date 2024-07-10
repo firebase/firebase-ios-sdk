@@ -17,6 +17,7 @@ import Foundation
 /// `StorageReference` represents a reference to a Google Cloud Storage object. Developers can
 /// upload and download objects, as well as get/set object metadata, and delete an object at the
 /// path. See the [Cloud docs](https://cloud.google.com/storage/)  for more details.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageReference) open class StorageReference: NSObject {
   // MARK: - Public APIs
 
@@ -240,11 +241,10 @@ import Foundation
   @objc(downloadURLWithCompletion:)
   open func downloadURL(completion: @escaping ((_: URL?, _: Error?) -> Void)) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageGetDownloadURLTask(reference: self,
-                                         fetcherService: fetcherService,
-                                         queue: storage.dispatchQueue,
-                                         completion: completion)
-    task.enqueue()
+    StorageGetDownloadURLTask.getDownloadURLTask(reference: self,
+                                                 fetcherService: fetcherService,
+                                                 queue: storage.dispatchQueue,
+                                                 completion: completion)
   }
 
   /// Asynchronously retrieves a long lived download URL with a revokable token.
@@ -286,7 +286,7 @@ import Foundation
                                    queue: storage.dispatchQueue,
                                    file: fileURL)
 
-    if let completion = completion {
+    if let completion {
       task.completionURL = completion
       let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
 
@@ -330,7 +330,7 @@ import Foundation
 
     var paginatedCompletion: ((_: StorageListResult?, _: Error?) -> Void)?
     paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
-      if let error = error {
+      if let error {
         completion(nil, error)
         return
       }
@@ -342,13 +342,12 @@ import Foundation
       items.append(contentsOf: listResult.items)
 
       if let pageToken = listResult.pageToken {
-        let nextPage = StorageListTask(reference: strongSelf,
-                                       fetcherService: fetcherService,
-                                       queue: strongSelf.storage.dispatchQueue,
-                                       pageSize: nil,
-                                       previousPageToken: pageToken,
-                                       completion: paginatedCompletion)
-        nextPage.enqueue()
+        StorageListTask.listTask(reference: strongSelf,
+                                 fetcherService: fetcherService,
+                                 queue: strongSelf.storage.dispatchQueue,
+                                 pageSize: nil,
+                                 previousPageToken: pageToken,
+                                 completion: paginatedCompletion)
       } else {
         let result = StorageListResult(withPrefixes: prefixes, items: items, pageToken: nil)
 
@@ -358,13 +357,12 @@ import Foundation
       }
     }
 
-    let task = StorageListTask(reference: self,
-                               fetcherService: fetcherService,
-                               queue: storage.dispatchQueue,
-                               pageSize: nil,
-                               previousPageToken: nil,
-                               completion: paginatedCompletion)
-    task.enqueue()
+    StorageListTask.listTask(reference: self,
+                             fetcherService: fetcherService,
+                             queue: storage.dispatchQueue,
+                             pageSize: nil,
+                             previousPageToken: nil,
+                             completion: paginatedCompletion)
   }
 
   /// Lists all items (files) and prefixes (folders) under this StorageReference.
@@ -399,20 +397,17 @@ import Foundation
   open func list(maxResults: Int64,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
-      completion(nil,
-                 NSError(domain: StorageErrorDomain,
-                         code: StorageErrorCode.invalidArgument.rawValue,
-                         userInfo: [NSLocalizedDescriptionKey:
-                           "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
+      completion(nil, StorageError.invalidArgument(
+        message: "Argument 'maxResults' must be between 1 and 1000 inclusive."
+      ))
     } else {
       let fetcherService = storage.fetcherServiceForApp
-      let task = StorageListTask(reference: self,
-                                 fetcherService: fetcherService,
-                                 queue: storage.dispatchQueue,
-                                 pageSize: maxResults,
-                                 previousPageToken: nil,
-                                 completion: completion)
-      task.enqueue()
+      StorageListTask.listTask(reference: self,
+                               fetcherService: fetcherService,
+                               queue: storage.dispatchQueue,
+                               pageSize: maxResults,
+                               previousPageToken: nil,
+                               completion: completion)
     }
   }
 
@@ -437,20 +432,17 @@ import Foundation
                  pageToken: String,
                  completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
-      completion(nil,
-                 NSError(domain: StorageErrorDomain,
-                         code: StorageErrorCode.invalidArgument.rawValue,
-                         userInfo: [NSLocalizedDescriptionKey:
-                           "Argument 'maxResults' must be between 1 and 1000 inclusive."]))
+      completion(nil, StorageError.invalidArgument(
+        message: "Argument 'maxResults' must be between 1 and 1000 inclusive."
+      ))
     } else {
       let fetcherService = storage.fetcherServiceForApp
-      let task = StorageListTask(reference: self,
-                                 fetcherService: fetcherService,
-                                 queue: storage.dispatchQueue,
-                                 pageSize: maxResults,
-                                 previousPageToken: pageToken,
-                                 completion: completion)
-      task.enqueue()
+      StorageListTask.listTask(reference: self,
+                               fetcherService: fetcherService,
+                               queue: storage.dispatchQueue,
+                               pageSize: maxResults,
+                               previousPageToken: pageToken,
+                               completion: completion)
     }
   }
 
@@ -462,11 +454,10 @@ import Foundation
   @objc(metadataWithCompletion:)
   open func getMetadata(completion: @escaping ((_: StorageMetadata?, _: Error?) -> Void)) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageGetMetadataTask(reference: self,
-                                      fetcherService: fetcherService,
-                                      queue: storage.dispatchQueue,
-                                      completion: completion)
-    task.enqueue()
+    StorageGetMetadataTask.getMetadataTask(reference: self,
+                                           fetcherService: fetcherService,
+                                           queue: storage.dispatchQueue,
+                                           completion: completion)
   }
 
   /// Retrieves metadata associated with an object at the current path.
@@ -490,12 +481,11 @@ import Foundation
   open func updateMetadata(_ metadata: StorageMetadata,
                            completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageUpdateMetadataTask(reference: self,
-                                         fetcherService: fetcherService,
-                                         queue: storage.dispatchQueue,
-                                         metadata: metadata,
-                                         completion: completion)
-    task.enqueue()
+    StorageUpdateMetadataTask.updateMetadataTask(reference: self,
+                                                 fetcherService: fetcherService,
+                                                 queue: storage.dispatchQueue,
+                                                 metadata: metadata,
+                                                 completion: completion)
   }
 
   /// Updates the metadata associated with an object at the current path.
@@ -518,11 +508,15 @@ import Foundation
   @objc(deleteWithCompletion:)
   open func delete(completion: ((_: Error?) -> Void)?) {
     let fetcherService = storage.fetcherServiceForApp
-    let task = StorageDeleteTask(reference: self,
+    let completionWrap = { (_: Data?, error: Error?) in
+      if let completion {
+        completion(error)
+      }
+    }
+    StorageDeleteTask.deleteTask(reference: self,
                                  fetcherService: fetcherService,
                                  queue: storage.dispatchQueue,
-                                 completion: completion)
-    task.enqueue()
+                                 completion: completionWrap)
   }
 
   /// Deletes the object at the current path.
@@ -531,7 +525,7 @@ import Foundation
   open func delete() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.delete { error in
-        if let error = error {
+        if let error {
           continuation.resume(throwing: error)
         } else {
           continuation.resume()
@@ -584,18 +578,17 @@ import Foundation
   /// For maxSize API, return an error if the size is exceeded.
   private func checkSizeOverflow(task: StorageTask, maxSize: Int64) -> NSError? {
     if task.progress.totalUnitCount > maxSize || task.progress.completedUnitCount > maxSize {
-      return StorageErrorCode.error(withCode: .downloadSizeExceeded,
-                                    infoDictionary: [
-                                      "totalSize": task.progress.totalUnitCount,
-                                      "maxAllowedSize": maxSize,
-                                    ])
+      return StorageError.downloadSizeExceeded(
+        total: task.progress.totalUnitCount,
+        maxSize: maxSize
+      ) as NSError
     }
     return nil
   }
 
   private func startAndObserveUploadTask(task: StorageUploadTask,
                                          completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
-    if let completion = completion {
+    if let completion {
       task.completionMetadata = completion
       let callbackQueue = storage.fetcherServiceForApp.callbackQueue ?? DispatchQueue.main
 

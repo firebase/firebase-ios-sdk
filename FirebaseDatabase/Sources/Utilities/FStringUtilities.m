@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
-#import "FirebaseDatabase/Sources/third_party/SocketRocket/NSData+SRB64Additions.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation FStringUtilities
@@ -32,7 +31,7 @@
     CC_SHA1(data.bytes, (unsigned int)data.length, digest);
     NSData *output = [[NSData alloc] initWithBytes:digest
                                             length:CC_SHA1_DIGEST_LENGTH];
-    return [FSRUtilities base64EncodedStringFromData:output];
+    return [output base64EncodedStringWithOptions:0];
 }
 
 + (NSString *)urlDecoded:(NSString *)url {

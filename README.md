@@ -86,7 +86,7 @@ For details on using Firebase from a Framework or a library, refer to [firebase_
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-* Xcode 14.1 (or later)
+* Xcode 15.2 (or later)
 
 CocoaPods is still the canonical way to develop, but much of the repo now supports
 development with Swift Package Manager.
@@ -234,6 +234,11 @@ at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 
 The iOS Simulator cannot register for remote notifications and will not receive push notifications.
 To receive push notifications, follow the steps above and run the app on a physical device.
+
+### Vertex AI for Firebase
+
+See the [Vertex AI for Firebase README](FirebaseVertexAI#development) for
+instructions about building and testing the SDK.
 
 ## Building with Firebase on Apple platforms
 

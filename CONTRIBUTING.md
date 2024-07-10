@@ -316,7 +316,7 @@ Refer to the following resources when writing Swift or Objective-C code.
 
 This is a general overview of what the Git workflow may look like, from start to
 finish, when contributing code to Firebase.
-The below snippet is purely for reference purposes and is used to demonstarate
+The below snippet is purely for reference purposes and is used to demonstrate
 what the workflow may look like, from start to finish.
 <details>
 <summary>View the workflow</summary>
@@ -361,7 +361,7 @@ viewing the [documentation][xcode-debugging].
 ### Testing
 
 Tests are an essential part to building Firebase. Many of the tests
-for Firebase run as part of our continous integration (CI) setup with
+for Firebase run as part of our continuous integration (CI) setup with
 [GitHub Actions].
 
 * _Fixing a bug?_ Add a test to catch potential regressions in

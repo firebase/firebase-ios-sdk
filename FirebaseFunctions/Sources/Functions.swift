@@ -51,6 +51,13 @@ enum FunctionsConstants {
   /// A factory for getting the metadata to include with function calls.
   private let contextProvider: FunctionsContextProvider
 
+  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
+  /// containing all instances of Functions associated with the given app.
+  private static var instances: [String: [Functions]] = [:]
+
+  /// Lock to manage access to the instances array to avoid race conditions.
+  private static var instancesLock: os_unfair_lock = .init()
+
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
 
@@ -294,13 +301,33 @@ enum FunctionsConstants {
   /// compatibility.
   private class func functions(app: FirebaseApp?, region: String,
                                customDomain: String?) -> Functions {
-    precondition(app != nil,
-                 "`FirebaseApp.configure()` needs to be called before using Functions.")
-    let provider = app!.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
-    return provider!.functions(for: app!,
-                               region: region,
-                               customDomain: customDomain,
-                               type: self)
+    guard let app else {
+      fatalError("`FirebaseApp.configure()` needs to be called before using Functions.")
+    }
+    os_unfair_lock_lock(&instancesLock)
+
+    // Unlock before the function returns.
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    if let associatedInstances = instances[app.name] {
+      for instance in associatedInstances {
+        // Domains may be nil, so handle with care.
+        var equalDomains = false
+        if let instanceCustomDomain = instance.customDomain {
+          equalDomains = instanceCustomDomain == customDomain
+        } else {
+          equalDomains = customDomain == nil
+        }
+        // Check if it's a match.
+        if instance.region == region, equalDomains {
+          return instance
+        }
+      }
+    }
+    let newInstance = Functions(app: app, region: region, customDomain: customDomain)
+    let existingInstances = instances[app.name, default: []]
+    instances[app.name] = existingInstances + [newInstance]
+    return newInstance
   }
 
   @objc init(projectID: String,
@@ -335,7 +362,6 @@ enum FunctionsConstants {
       fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
     }
     self.init(projectID: projectID,
-
               region: region,
               customDomain: customDomain,
               auth: auth,
@@ -347,12 +373,12 @@ enum FunctionsConstants {
     assert(!name.isEmpty, "Name cannot be empty")
 
     // Check if we're using the emulator
-    if let emulatorOrigin = emulatorOrigin {
+    if let emulatorOrigin {
       return "\(emulatorOrigin)/\(projectID)/\(region)/\(name)"
     }
 
     // Check the custom domain.
-    if let customDomain = customDomain {
+    if let customDomain {
       return "\(customDomain)/\(name)"
     }
 
@@ -368,7 +394,7 @@ enum FunctionsConstants {
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else {
         let url = self.urlWithName(name)
@@ -391,7 +417,7 @@ enum FunctionsConstants {
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else {
         self.callFunction(url: url,
@@ -480,7 +506,7 @@ enum FunctionsConstants {
           localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
         }
         // If there was an error, report it to the user and stop.
-        if let localError = localError {
+        if let localError {
           completion(.failure(localError))
         } else {
           completion(.failure(error))

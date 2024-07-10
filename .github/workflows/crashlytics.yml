@@ -25,14 +25,14 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos --skip-tests]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         flags: [
           '--use-modular-headers',
           ''
         ]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
             tests: --skip-tests
           - os: macos-13
             xcode: Xcode_15.2
@@ -59,16 +59,14 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -92,7 +90,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -104,7 +102,7 @@ jobs:
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120
-        max_attempts: 3
+        max_attempts: 5
         retry_on: error
         retry_wait_seconds: 120
         command: scripts/test_catalyst.sh FirebaseCrashlytics test FirebaseCrashlytics-Unit-unit
@@ -116,7 +114,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -148,7 +146,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -186,7 +184,7 @@ jobs:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         # Disable watchos because it does not support XCTest.
@@ -200,5 +198,10 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: PodLibLint Auth Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}

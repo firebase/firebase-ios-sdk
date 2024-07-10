@@ -1,3 +1,18 @@
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseDatabaseSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [removed] Socket Rocket has been removed from the implementation. There should
+  be no impact on functionality. (#13100)
+
+# 10.27.0
+- [changed] Update internal socket implementation to use `NSURLSessionWebSocket` where
+  available. (#12883)
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.17.0
 - [feature] The `FirebaseDatabase` module now contains Firebase Database's
   Swift-only APIs that were previously only available via the

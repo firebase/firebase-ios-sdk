@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalytics'
-    s.version          = '10.24.0'
+    s.version          = '11.0.0'
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
@@ -13,36 +13,36 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/1ca803fa1829b54c/FirebaseAnalytics-10.23.1.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/83850700831975be/FirebaseAnalytics-10.28.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
-    s.swift_version     = '5.3'
+    s.swift_version     = '5.9'
 
-    s.ios.deployment_target  = '10.0'
-    s.osx.deployment_target  = '10.13'
-    s.tvos.deployment_target = '12.0'
+    s.ios.deployment_target  = '12.0'
+    s.osx.deployment_target  = '10.15'
+    s.tvos.deployment_target = '13.0'
 
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'FirebaseCore', '~> 10.0'
-    s.dependency 'FirebaseInstallations', '~> 10.0'
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.11'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.11'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.11'
-    s.dependency 'GoogleUtilities/Network', '~> 7.11'
-    s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
+    s.dependency 'FirebaseCore', '~> 11.0'
+    s.dependency 'FirebaseInstallations', '~> 11.0'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.0'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
+    s.dependency 'GoogleUtilities/Network', '~> 8.0'
+    s.dependency 'nanopb', '~> 3.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
 
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement', '10.24.0'
+        ss.dependency 'GoogleAppMeasurement', '11.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'WithoutAdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.24.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '11.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 

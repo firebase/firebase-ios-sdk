@@ -49,13 +49,8 @@
 static NSString *const kFIRMessagingMessageViaAPNSRootKey = @"aps";
 static NSString *const kFIRMessagingReachabilityHostname = @"www.google.com";
 
-#if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 const NSNotificationName FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
-#else
-NSString *const FIRMessagingRegistrationTokenRefreshedNotification =
-    @"com.firebase.messaging.notif.fcm-token-refreshed";
-#endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
@@ -65,7 +60,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 NSString *const FIRMessagingErrorDomain = @"com.google.fcm";
 
-const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
+BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
     NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
     if (aps && [aps isKindOfClass:[NSDictionary class]]) {
@@ -144,12 +139,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   });
   return extensionHelper;
 }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                      userDefaults:(GULUserDefaults *)defaults
                   heartbeatLogger:(FIRHeartbeatLogger *)heartbeatLogger {
-#pragma clang diagnostic pop
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
@@ -173,8 +165,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -187,13 +177,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     FIRMessaging *messaging =
         [[FIRMessaging alloc] initWithAnalytics:analytics
                                    userDefaults:[GULUserDefaults standardUserDefaults]
                                 heartbeatLogger:container.app.heartbeatLogger];
-#pragma clang diagnostic pop
     [messaging start];
     [messaging configureMessagingWithOptions:container.app.options];
 
@@ -203,7 +190,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInterop)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
 
   return @[ messagingProvider ];
@@ -226,11 +212,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // This is not needed for app extension except for watch.
 #if TARGET_OS_WATCH
   [self didCompleteConfigure];
-#else
+#else   // TARGET_OS_WATCH
   if (![GULAppEnvironmentUtil isAppExtension]) {
     [self didCompleteConfigure];
   }
-#endif
+#endif  // TARGET_OS_WATCH
 }
 
 - (void)didCompleteConfigure {
@@ -398,7 +384,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
   NSURL *url = [self linkURLFromMessage:message];
   if (url == nil) {
     return;
@@ -417,14 +403,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   SEL continueUserActivitySelector = @selector(application:
                                       continueUserActivity:restorationHandler:);
 
-  SEL openURLWithOptionsSelector = @selector(application:openURL:options:);
-  SEL openURLWithSourceApplicationSelector = @selector(application:
-                                                           openURL:sourceApplication:annotation:);
-// TODO(Xcode 15): When Xcode 15 is the minimum supported Xcode version, it will be unnecessary to
-// check if `TARGET_OS_VISION` is defined.
-#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
-  SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
   // |application:continueUserActivity:restorationHandler:|. A warning will be displayed to the user
@@ -439,30 +417,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
           restorationHandler:^(NSArray *_Nullable restorableObjects){
               // Do nothing, as we don't support the app calling this block
           }];
-
-  } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
-    [appDelegate application:application openURL:url options:@{}];
-    // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called,
-    // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
-  } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
-// TODO(Xcode 15): When Xcode 15 is the minimum supported Xcode version, it will be unnecessary to
-// check if `TARGET_OS_VISION` is defined.
-#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appDelegate application:application
-                     openURL:url
-           sourceApplication:FIRMessagingAppIdentifier()
-                  annotation:@{}];
-#pragma clang diagnostic pop
-  } else if ([appDelegate respondsToSelector:handleOpenURLSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [appDelegate application:application handleOpenURL:url];
-#pragma clang diagnostic pop
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   }
-#endif  // TARGET_OS_IOS || TARGET_OS_TV
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 }
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message {
@@ -540,7 +496,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   BOOL isFCMAutoInitEnabled = [self isAutoInitEnabled];
   [_messagingUserDefaults setBool:autoInitEnabled
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
-  [_messagingUserDefaults synchronize];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
     [self.tokenManager tokenAndRequestIfNotExist];
   }

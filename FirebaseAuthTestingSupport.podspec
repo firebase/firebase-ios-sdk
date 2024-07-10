@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseAuthTestingSupport'
-  s.version                 = '1.0.0'
+  s.version                 = '2.0.0'
   s.summary                 = 'Firebase SDKs testing support types and utilities.'
 
   s.description      = <<-DESC
@@ -17,12 +17,12 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  ios_deployment_target = '11.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '13.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '13.0'
+  watchos_deployment_target = '7.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -36,19 +36,10 @@ Pod::Spec.new do |s|
   base_dir = 'FirebaseTestingSupport/Auth/'
 
   s.source_files = [
-    base_dir + 'Sources/**/*.{m,mm,h}',
+    base_dir + 'Sources/**/*.swift',
   ]
 
-  s.public_header_files = base_dir + '**/*.h'
-
-  s.dependency 'FirebaseAuth', '~> 10.0'
-
-  s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'OTHER_CFLAGS' => '-fno-autolink',
-    'HEADER_SEARCH_PATHS' =>
-      '"${PODS_TARGET_SRCROOT}" '
-  }
+  s.dependency 'FirebaseAuth', '~> 11.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

@@ -55,7 +55,7 @@ public enum DecodingFailureStrategy {
 ///
 /// `FirestoreQuery` also supports returning a `Result` type. The `.success` case
 /// returns an array of elements, whereas the `.failure` case returns an error
-/// in case mapping the Firestore docments wasn't successful:
+/// in case mapping the Firestore documents wasn't successful:
 ///
 ///     struct ContentView: View {
 ///       @FirestoreQuery(
@@ -135,7 +135,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
     /// If any errors occurred, they will be exposed here as well.
     public var error: Error?
 
-    /// The type of animation to apply when updating the view. If this is ommitted then no
+    /// The type of animation to apply when updating the view. If this is omitted then no
     /// animations are fired.
     public var animation: Animation?
   }

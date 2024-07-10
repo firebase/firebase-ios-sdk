@@ -158,6 +158,9 @@ final class StorageAPITests: XCTestCase {
     case .downloadSizeExceeded: return code
     case .cancelled: return code
     case .invalidArgument: return code
+    case .bucketMismatch: return code
+    case .internalError: return code
+    case .pathError: return code
     @unknown default:
       fatalError()
     }

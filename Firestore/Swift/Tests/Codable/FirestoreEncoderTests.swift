@@ -15,7 +15,6 @@
  */
 
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import Foundation
 import XCTest
 
@@ -670,7 +669,7 @@ private class DictionarySubject {
 
   init(_ subject: [String: Any], in documentName: String? = nil, file: StaticString, line: UInt) {
     self.subject = subject
-    if let documentName = documentName {
+    if let documentName {
       document = FSTTestDocRef(documentName)
     }
     self.file = file
@@ -717,7 +716,7 @@ extension String: ServerTimestampWrappable {
 
   public static func unwrap(_ value: Self) throws -> Timestamp {
     let date = formatter.date(from: value)
-    if let date = date {
+    if let date {
       return Timestamp(date: date)
     } else {
       throw DateError.invalidDate(value)

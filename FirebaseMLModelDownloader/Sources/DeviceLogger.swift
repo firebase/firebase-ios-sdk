@@ -13,11 +13,8 @@
 // limitations under the License.
 
 import Foundation
-#if SWIFT_PACKAGE
-  import GoogleUtilities_Logger
-#else
-  import GoogleUtilities
-#endif
+
+@_implementationOnly import FirebaseCoreExtension
 
 /// Enum of log messages.
 enum LoggerMessageCode: Int {
@@ -76,15 +73,9 @@ enum DeviceLogger {
   /// Log identifier.
   static let service = "[Firebase/MLModelDownloader]"
 
-  static func logEvent(level: GoogleLoggerLevel, message: String, messageCode: LoggerMessageCode) {
+  static func logEvent(level: FirebaseLoggerLevel, message: String,
+                       messageCode: LoggerMessageCode) {
     let code = String(format: "I-MLM%06d", messageCode.rawValue)
-    let args: [CVarArg] = []
-    GULLoggerWrapper.log(
-      with: level,
-      withService: DeviceLogger.service,
-      withCode: code,
-      withMessage: message,
-      withArgs: getVaList(args)
-    )
+    FirebaseLogger.log(level: level, service: DeviceLogger.service, code: code, message: message)
   }
 }

@@ -29,7 +29,7 @@ protocol GoogleDataTransportProtocol {
 extension GDTCORTransport: GoogleDataTransportProtocol {
   func logGDTEvent(event: GDTCOREvent, completion: @escaping (Result<Void, Error>) -> Void) {
     sendDataEvent(event) { wasWritten, error in
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else if !wasWritten {
         completion(.failure(GoogleDataTransportProtocolErrors.writeFailure))

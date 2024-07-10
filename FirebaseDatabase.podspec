@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '10.24.0'
+  s.version          = '11.0.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -17,12 +17,12 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '11.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
+  ios_deployment_target = '13.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '13.0'
   watchos_deployment_target = '7.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
@@ -36,9 +36,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source_files = [
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
-    base_dir + 'third_party/SocketRocket/fbase64.c',
     'FirebaseDatabase/Swift/Sources/**/*.swift',
-    'FirebaseAuth/Interop/*.h',
+    'FirebaseAuth/Interop/**/*.h',
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseDatabase/*.h'
@@ -48,9 +47,10 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
-  s.dependency 'FirebaseSharedSwift', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
+  s.dependency 'FirebaseSharedSwift', '~> 11.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
@@ -72,7 +72,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
       'SharedTestUtilities/FIRComponentTestUtilities.[mh]',
       'SharedTestUtilities/FIROptionsMock.[mh]',
     ]
-    unit_tests.dependency 'FirebaseAppCheckInterop', '~> 10.16'
+    unit_tests.dependency 'FirebaseAppCheckInterop', '~> 11.0'
     unit_tests.dependency 'OCMock'
     unit_tests.resources = 'FirebaseDatabase/Tests/Resources/syncPointSpec.json',
                            'FirebaseDatabase/Tests/Resources/GoogleService-Info.plist'

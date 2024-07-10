@@ -23,8 +23,7 @@ static NSString *const kFIRHeartbeatLoggerPayloadHeaderKey = @"X-firebase-client
 
 - (GACAppCheckAPIRequestHook)requestHook {
   return ^(NSMutableURLRequest *request) {
-    NSString *heartbeatsValue =
-        FIRHeaderValueFromHeartbeatsPayload([self flushHeartbeatsIntoPayload]);
+    NSString *heartbeatsValue = [self headerValue];
     if (heartbeatsValue) {
       [request setValue:heartbeatsValue forHTTPHeaderField:kFIRHeartbeatLoggerPayloadHeaderKey];
     }

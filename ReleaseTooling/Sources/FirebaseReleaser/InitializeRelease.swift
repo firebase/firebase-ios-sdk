@@ -35,9 +35,10 @@ enum InitializeRelease {
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
     let branch = "version-\(minorVersion)"
-    Shell.executeCommand("git checkout main", workingDir: path)
-    Shell.executeCommand("git pull", workingDir: path)
-    Shell.executeCommand("git checkout -b \(branch)", workingDir: path)
+    Shell.executeCommand(
+      "git checkout \(branch) 2>/dev/null || git checkout -b \(branch)",
+      workingDir: path
+    )
     return branch
   }
 
@@ -48,28 +49,49 @@ enum InitializeRelease {
       if pod.name == "Firebase" {
         updateFirebasePodspec(path: path, manifest: manifest)
       } else {
+        updatePodspecVersion(pod: pod, version: version, path: path)
+
         // Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
         // should pin the dependency to the new version.
-        for dep in ["GoogleAppMeasurement", "FirebaseFirestoreInternal"] {
-          updateDependenciesToLatest(dependency: dep, pod: pod, version: version, path: path)
+        if pod.name.hasPrefix("GoogleAppMeasurement") || pod.name == "FirebaseFirestoreInternal" {
+          updateDependenciesToLatest(
+            dependency: pod.name,
+            pods: manifest.pods,
+            version: version,
+            path: path
+          )
+        } else if version.hasSuffix(".0.0") {
+          let patchlessVersion = String(version[..<version.lastIndex(of: ".")!])
+          updateDependenciesToLatest(
+            dependency: pod.name,
+            pods: manifest.pods,
+            version: patchlessVersion,
+            path: path
+          )
         }
       }
     }
   }
 
+  private static func updatePodspecVersion(pod: Pod,
+                                           version: String,
+                                           path: URL) {
+    // Replace the pod's `version` attribute with the new version.
+    let script = #"-e "s|(\.version.*=[[:space:]]*) '.*|\1 '\#(version)'|""#
+    let command = "sed -i.bak -E \(script) \(pod.podspecName())"
+    Shell.executeCommand(command, workingDir: path)
+  }
+
   /// Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
   /// should pin the dependency to the new version.
   private static func updateDependenciesToLatest(dependency: String,
-                                                 pod: Pod,
+                                                 pods: [Pod],
                                                  version: String,
                                                  path: URL) {
-    let scripts: String = [
-      #"-e "s|(\.dependency '"# + dependency + #"/?.*',).*|\1 '\#(version)'|""#,
-      // Replace the pod's `version` attribute with the new version.
-      #"-e "s|(\.version.*=[[:space:]]*) '.*|\1 '\#(version)'|""#,
-    ].joined(separator: " ")
-
-    let command = "sed -i.bak -E \(scripts) \(pod.podspecName())"
+    let script =
+      #"-e "s|(\.dependency '"# + dependency + #"(/.*)?',[[:space:]]*'[^0-9]*).*|\1\#(version)'|""#
+    let podspecs = pods.map { $0.podspecName() }.joined(separator: " ")
+    let command = "sed -i.bak -E \(script) \(podspecs)"
     Shell.executeCommand(command, workingDir: path)
   }
 

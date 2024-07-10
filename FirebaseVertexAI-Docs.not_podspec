@@ -1,0 +1,47 @@
+Pod::Spec.new do |s|
+  s.name             = 'FirebaseVertexAI-Docs'
+  s.version          = '10.27.0'
+  s.summary          = 'Firebase Vertex AI'
+
+  s.description      = <<-DESC
+  Placeholder podspec for docsgen only. Do not use this pod.
+
+  NOTE: Rename the file extension from `.not_podspec` to `.podspec` before
+        running `pod gen` for docs generation.
+                        DESC
+
+  s.homepage         = 'https://firebase.google.com'
+  s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
+  s.authors          = 'Google, Inc.'
+
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => 'CocoaPods-' + s.version.to_s
+  }
+
+  s.social_media_url = 'https://twitter.com/Firebase'
+
+  ios_deployment_target = '15.0'
+  osx_deployment_target = '11.0'
+
+  s.ios.deployment_target = ios_deployment_target
+  s.osx.deployment_target = osx_deployment_target
+
+  s.cocoapods_version = '>= 1.12.0'
+  s.prefix_header_file = false
+
+  s.source_files = [
+    'FirebaseVertexAI/Sources/**/*.swift',
+  ]
+
+  s.swift_version = '5.9'
+
+  s.framework = 'Foundation'
+  s.ios.framework = 'UIKit'
+  s.osx.framework = 'AppKit'
+
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
+  s.dependency 'FirebaseAuthInterop', '~> 10.25'
+  s.dependency 'FirebaseCore', '~> 10.5'
+  s.dependency 'FirebaseCoreExtension', '~> 10.0'
+end

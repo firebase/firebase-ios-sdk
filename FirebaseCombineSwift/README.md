@@ -78,7 +78,7 @@ In the `sign(_:didSignInFor:withError:)` method, get a Google ID token and Googl
 ```swift
   func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
     // ...
-    if let error = error {
+    if let error {
       // ...
       return
     }

@@ -33,6 +33,7 @@ import Foundation
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  */
 @objc(FIRStorageDownloadTask)
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.
@@ -67,8 +68,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    * Cancels a task.
    */
   @objc open func cancel() {
-    let error = StorageErrorCode.error(withCode: .cancelled)
-    cancel(withError: error)
+    cancel(withError: StorageError.cancelled as NSError)
   }
 
   /**
@@ -116,7 +116,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       request.url = components?.url
 
       var fetcher: GTMSessionFetcher
-      if let resumeData = resumeData {
+      if let resumeData {
         fetcher = GTMSessionFetcher(downloadResumeData: resumeData)
         fetcher.comment = "Resuming DownloadTask"
       } else {
@@ -125,7 +125,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       }
       fetcher.maxRetryInterval = self.reference.storage.maxDownloadRetryInterval
 
-      if let fileURL = self.fileURL {
+      if let fileURL {
         // Handle file downloads
         fetcher.destinationFileURL = fileURL
         fetcher.downloadProgressBlock = { [weak self] (bytesWritten: Int64,
@@ -163,7 +163,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         self.fire(for: .progress, snapshot: self.snapshot)
 
         // Handle potential issues with download
-        if let error = error {
+        if let error {
           self.state = .failed
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           self.fire(for: .failure, snapshot: self.snapshot)
@@ -171,7 +171,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         }
         // Download completed successfully, fire completion callbacks
         self.state = .success
-        if let data = data {
+        if let data {
           self.downloadData = data
         }
         self.fire(for: .success, snapshot: self.snapshot)

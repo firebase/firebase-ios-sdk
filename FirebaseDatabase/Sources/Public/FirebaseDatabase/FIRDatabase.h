@@ -27,12 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
  * read or write data, use `FIRDatabase.reference()`.
  */
 NS_SWIFT_NAME(Database) __attribute__((availability(
-    watchos, introduced = 6.0, deprecated = 9.0,
+    watchos, introduced = 7.0, deprecated = 9.0,
     message = "Socket connections are not supported on watchOS 9.0 and higher. "
               "Use the Firebase Database REST API instead. See "
               "github.com/firebase/firebase-ios-sdk/issues/10195 "
               "for more details.")))
-@interface FIRDatabase : NSObject
+API_AVAILABLE(ios(12.0), macos(10.15), macCatalyst(13), tvos(13.0),
+              watchos(7.0)) @interface FIRDatabase : NSObject
 
 /**
  * The NSObject initializer that has been marked as unavailable. Use the

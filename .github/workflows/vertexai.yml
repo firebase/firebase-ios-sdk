@@ -1,0 +1,102 @@
+name: vertexai
+
+on:
+  pull_request:
+    paths:
+    - 'FirebaseVertexAI**'
+    - '.github/workflows/vertexai.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spm-unit:
+    strategy:
+      matrix:
+        target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
+        os: [macos-14]
+        include:
+          - os: macos-14
+            xcode: Xcode_15.2
+    runs-on: ${{ matrix.os }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@v4
+    - name: Clone mock responses
+      run: scripts/update_vertexai_responses.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
+
+  spm-integration:
+    strategy:
+      matrix:
+        target: [iOS]
+        os: [macos-14]
+        include:
+          - os: macos-14
+            xcode: Xcode_15.2
+    runs-on: ${{ matrix.os }}
+    env:
+      TEST_RUNNER_VertexAIRunIntegrationTests: 1
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-integration.plist.gpg \
+        FirebaseVertexAI/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh FirebaseVertexAIIntegration ${{ matrix.target }} spm
+
+  sample:
+    strategy:
+      matrix:
+        # Test build with debug and release configs (whether or not DEBUG is set and optimization level)
+        build: [build]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.0.1
+          - os: macos-14
+            xcode: Xcode_15.2
+    runs-on: ${{ matrix.os }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@v4
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: xcodebuild -list
+    - name: Placeholder GoogleService-Info.plist for build testing
+      run: cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist FirebaseVertexAI/Sample/
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh VertexSample iOS

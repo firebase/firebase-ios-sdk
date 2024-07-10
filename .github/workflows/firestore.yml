@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: macos-12
+    runs-on: macos-14
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
@@ -50,7 +50,6 @@ jobs:
               # Podspec
               - 'FirebaseFirestoreInternal.podspec'
               - 'FirebaseFirestore.podspec'
-              - 'FirebaseFirestoreSwift.podspec'
 
               # CMake
               - '**CMakeLists.txt'
@@ -83,7 +82,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
 
@@ -105,7 +104,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-12, ubuntu-latest]
+        os: [macos-14, ubuntu-latest]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -131,7 +130,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.10'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -152,7 +151,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-14]
         databaseId: [(default), test-db]
 
     env:
@@ -181,7 +180,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.10'
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
@@ -239,7 +238,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-14]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
@@ -260,7 +259,7 @@ jobs:
 
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.10'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -323,7 +322,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     needs: check
 
     strategy:
@@ -359,7 +358,6 @@ jobs:
         podspec: [
           'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
         ]
 
     steps:
@@ -388,7 +386,6 @@ jobs:
         podspec: [
           'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
         ]
         platforms: [
           'macos',
@@ -399,7 +396,7 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
         exclude:
           - os: macos-13
@@ -408,8 +405,8 @@ jobs:
           - os: macos-13
             platforms: 'ios'
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
@@ -440,16 +437,14 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS]
-        os: [macos-12, macos-13, macos-14]
+        os: [macos-13, macos-14]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     needs: check
@@ -466,15 +461,13 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   spm-binary:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     needs: check
     steps:
     - uses: actions/checkout@v4
@@ -485,15 +478,13 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
   check-firestore-internal-public-headers:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-14
     needs: check
     steps:
     - uses: actions/checkout@v4
@@ -523,7 +514,7 @@ jobs:
   # spm-source-cron:
   #   # Don't run on private repo.
   #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-  #   runs-on: macos-12
+  #   runs-on: macos-14
   #   strategy:
   #     matrix:
   #       target: [tvOS, macOS, catalyst]
@@ -538,13 +529,11 @@ jobs:
   #     run: scripts/setup_spm_tests.sh
   #   - name: Build Test - Binary
   #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-  #   - name: Swift Build
-  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -557,8 +546,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
@@ -581,7 +568,7 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-12
+  #   runs-on: macos-14
   #   needs: check
 
   #   steps:

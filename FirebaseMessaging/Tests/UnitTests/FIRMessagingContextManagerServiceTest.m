@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 ||                                          \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_14 || __TV_OS_VERSION_MAX_ALLOWED >= __TV_10_0 || \
-    __WATCH_OS_VERSION_MAX_ALLOWED >= __WATCHOS_3_0 || TARGET_OS_MACCATALYST
-#import <UserNotifications/UserNotifications.h>
-#endif
+
 #import <OCMock/OCMock.h>
+#import <UserNotifications/UserNotifications.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebaseMessaging/Sources/FIRMessagingContextManagerService.h"
@@ -108,11 +105,11 @@ API_AVAILABLE(macos(10.14))
     XCTAssertEqual(self.requests.count, 1);
     UNNotificationRequest *request = self.requests.firstObject;
     XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
-#if TARGET_OS_IOS || TARGET_OS_WATCH || TARGET_OS_OSX
+#if !TARGET_OS_TV
     XCTAssertEqualObjects(request.content.body, kBody);
     XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey1], kUserInfoValue1);
     XCTAssertEqualObjects(request.content.userInfo[kUserInfoKey2], kUserInfoValue2);
-#endif
+#endif  // TARGET_OS_TV
     return;
   }
 
@@ -127,7 +124,7 @@ API_AVAILABLE(macos(10.14))
   XCTAssertEqualObjects(notification.alertBody, kBody);
   XCTAssertEqualObjects(notification.userInfo[kUserInfoKey1], kUserInfoValue1);
   XCTAssertEqualObjects(notification.userInfo[kUserInfoKey2], kUserInfoValue2);
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 /**
@@ -196,7 +193,7 @@ API_AVAILABLE(macos(10.14))
   XCTAssertEqual([notification.fireDate compare:endDate], NSOrderedAscending);
   XCTAssertEqualObjects(notification.userInfo[kUserInfoKey1], kUserInfoValue1);
   XCTAssertEqualObjects(notification.userInfo[kUserInfoKey2], kUserInfoValue2);
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 /**
@@ -232,7 +229,7 @@ API_AVAILABLE(macos(10.14))
 #pragma clang diagnostic pop
   XCTAssertEqualObjects(notification.userInfo[kUserInfoKey1], kUserInfoValue1);
   XCTAssertEqualObjects(notification.userInfo[kUserInfoKey2], kUserInfoValue2);
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 #pragma mark - Private Helpers
@@ -274,7 +271,7 @@ API_AVAILABLE(macos(10.14))
        return NO;
      }]];
 #pragma clang diagnostic pop
-#endif
+#endif  // TARGET_OS_IOS
 }
 
 - (void)testScheduleiOS10LocalNotification {

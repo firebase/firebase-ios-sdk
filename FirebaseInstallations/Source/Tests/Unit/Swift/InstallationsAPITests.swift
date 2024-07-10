@@ -131,7 +131,7 @@ final class InstallationsAPITests {
     // MARK: -  InstallationsAuthTokenResult
 
     Installations.installations().authToken { result, _ in
-      if let result = result {
+      if let result {
         _ = result.expirationDate
         _ = result.authToken
       }
@@ -140,7 +140,7 @@ final class InstallationsAPITests {
     // MARK: - InstallationsErrorCode
 
     Installations.installations().authToken { _, error in
-      if let error = error {
+      if let error {
         // Old error handling.
         switch (error as NSError).code {
         case Int(InstallationsErrorCode.unknown.rawValue):
@@ -165,7 +165,6 @@ final class InstallationsAPITests {
           break
         case InstallationsErrorCode.invalidConfiguration:
           break
-
         default:
           break
         }

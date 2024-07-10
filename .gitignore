@@ -1,10 +1,9 @@
-FirebaseAuth/Tests/Sample/Sample/Application.plist
-FirebaseAuth/Tests/Sample/Sample/AuthCredentials.h
-FirebaseAuth/Tests/Sample/Sample/GoogleService-Info_multi.plist
-FirebaseAuth/Tests/Sample/Sample/GoogleService-Info.plist
-FirebaseAuth/Tests/Sample/Sample/Sample.entitlements
-FirebaseAuth/Tests/Sample/ApiTests/AuthCredentials.h
-FirebaseAuth/Tests/Sample/SwiftApiTests/Credentials.swift
+FirebaseAuth/Tests/SampleSwift/SwiftApplication.plist
+FirebaseAuth/Tests/SampleSwift/ObjCApiTests/AuthCredentials.h
+FirebaseAuth/Tests/SampleSwift/GoogleService-Info_multi.plist
+FirebaseAuth/Tests/SampleSwift/GoogleService-Info.plist
+FirebaseAuth/Tests/SampleSwift/Sample.entitlements
+FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift
 
 FirebaseDatabase/Tests/Resources/GoogleService-Info.plist
 
@@ -162,3 +161,6 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.*
+
+# FirebaseVertexAI test data
+vertexai-sdk-test-data

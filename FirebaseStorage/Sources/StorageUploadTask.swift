@@ -38,6 +38,7 @@ import Foundation
  * Uploads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
   StorageTaskManagement {
   /**
@@ -87,10 +88,10 @@ import Foundation
         chunkSize: self.reference.storage.uploadChunkSizeBytes,
         fetcherService: self.fetcherService
       )
-      if let data = self.uploadData {
-        uploadFetcher.uploadData = data
+      if let uploadData {
+        uploadFetcher.uploadData = uploadData
         uploadFetcher.comment = "Data UploadTask"
-      } else if let fileURL = self.fileURL {
+      } else if let fileURL {
         uploadFetcher.uploadFileURL = fileURL
         uploadFetcher.comment = "File UploadTask"
 
@@ -120,7 +121,7 @@ import Foundation
         self.fire(for: .progress, snapshot: self.snapshot)
 
         // Handle potential issues with upload
-        if let error = error {
+        if let error {
           self.state = .failed
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           self.metadata = self.uploadMetadata
@@ -237,14 +238,10 @@ import Foundation
        isFile == true {
       return nil
     }
-    let userInfo = [NSLocalizedDescriptionKey:
-      "File at URL: \(fileURL?.absoluteString ?? "") is not reachable."
-      + " Ensure file URL is not a directory, symbolic link, or invalid url."]
-    return NSError(
-      domain: StorageErrorDomain,
-      code: StorageErrorCode.unknown.rawValue,
-      userInfo: userInfo
-    )
+    return StorageError.unknown(message: "File at URL: \(fileURL?.absoluteString ?? "") is " +
+      "not reachable. Ensure file URL is not " +
+      "a directory, symbolic link, or invalid url.",
+      serverError: [:]) as NSError
   }
 
   func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {

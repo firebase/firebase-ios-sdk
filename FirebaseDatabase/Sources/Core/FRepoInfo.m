@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
+#import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 
 @interface FRepoInfo ()
 
@@ -52,7 +54,7 @@
         // Get cached internal host if it exists
         NSString *internalHostKey =
             [NSString stringWithFormat:@"firebase:host:%@", _host];
-        NSString *cachedInternalHost = [[NSUserDefaults standardUserDefaults]
+        NSString *cachedInternalHost = [[GULUserDefaults standardUserDefaults]
             stringForKey:internalHostKey];
         if (cachedInternalHost != nil) {
             internalHost = cachedInternalHost;
@@ -81,9 +83,8 @@
         // Cache the internal host so we don't need to redirect later on
         NSString *internalHostKey =
             [NSString stringWithFormat:@"firebase:host:%@", self.host];
-        NSUserDefaults *cache = [NSUserDefaults standardUserDefaults];
+        GULUserDefaults *cache = [GULUserDefaults standardUserDefaults];
         [cache setObject:internalHost forKey:internalHostKey];
-        [cache synchronize];
     }
 }
 
@@ -93,9 +94,8 @@
     // Remove the cached entry
     NSString *internalHostKey =
         [NSString stringWithFormat:@"firebase:host:%@", self.host];
-    NSUserDefaults *cache = [NSUserDefaults standardUserDefaults];
+    GULUserDefaults *cache = [GULUserDefaults standardUserDefaults];
     [cache removeObjectForKey:internalHostKey];
-    [cache synchronize];
 }
 
 - (BOOL)isDemoHost {

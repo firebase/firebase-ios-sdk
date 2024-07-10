@@ -64,6 +64,7 @@ def labelsForModifiedFiles()
   labels.push("api: performance") if @has_performance_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
   labels.push("api: storage") if @has_storage_changes
+  labels.push("api: vertexai") if @has_vertexai_changes
   labels.push("release-tooling") if @has_releasetooling_changes
   labels.push("public-api-change") if @has_api_changes
   return labels
@@ -100,18 +101,17 @@ has_license_changes = didModify(["LICENSE"])
   "Messaging",
   "Performance",
   "RemoteConfig",
-  "Storage"
+  "Storage",
+  "VertexAI"
 ]
 
 ## Product directories
 @has_analytics_changes = hasChangesIn([
   "FirebaseAnalyticsOnDeviceConversionWrapper",
-  "FirebaseAnalyticsSwift",
   "FirebaseAnalyticsWithoutAdIdSupportWrapper",
   "FirebaseAnalyticsWrapper"
 ]) || didModify([
   "FirebaseAnalytics.podspec",
-  "FirebaseAnalyticsSwift.podspec",
   "FirebaseAnalyticsOnDeviceConversion.podspec",
   "GoogleAppMeasurement.podspec",
   "GoogleAppMeasurementOnDeviceConversion.podspec"
@@ -149,6 +149,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage")
+@has_vertexai_changes = hasChangesIn("FirebaseVertexAI")
 
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 @has_public_additions = hasAdditionsIn("Public/")

@@ -15,7 +15,9 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 
@@ -29,7 +31,7 @@ typedef void (^FIRAUserPropertiesCallback)(NSDictionary *userProperties);
 @interface FIRIAMAnalyticsEventLoggerImpl ()
 @property(readonly, nonatomic) FIRIAMClearcutLogger *clearCutLogger;
 @property(readonly, nonatomic) id<FIRIAMTimeFetcher> timeFetcher;
-@property(nonatomic, readonly) NSUserDefaults *userDefaults;
+@property(nonatomic, readonly) GULUserDefaults *userDefaults;
 @end
 
 // in these kFAXX constants, FA represents FirebaseAnalytics
@@ -60,13 +62,13 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
 
 - (instancetype)initWithClearcutLogger:(FIRIAMClearcutLogger *)ctLogger
                       usingTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher
-                     usingUserDefaults:(nullable NSUserDefaults *)userDefaults
+                     usingUserDefaults:(nullable GULUserDefaults *)userDefaults
                              analytics:(nullable id<FIRAnalyticsInterop>)analytics {
   if (self = [super init]) {
     _clearCutLogger = ctLogger;
     _timeFetcher = timeFetcher;
     _analytics = analytics;
-    _userDefaults = userDefaults ? userDefaults : [NSUserDefaults standardUserDefaults];
+    _userDefaults = userDefaults ? userDefaults : [GULUserDefaults standardUserDefaults];
 
     if (!_analytics) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM280002",
@@ -174,4 +176,4 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
