@@ -16,13 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// An object representing a Firebase App Check token.
 NS_SWIFT_NAME(AppCheckToken)
-@interface FIRAppCheckToken : NSObject <FIRAppCheckTokenProtocol>
+@interface FIRAppCheckToken : NSObject
 
 /// A Firebase App Check token.
 @property(nonatomic, readonly) NSString *token;
