@@ -139,7 +139,7 @@ class MemoryGarbageCollectorSettings {
   virtual ~MemoryGargabeCollectorSettings() = default;
   friend bool operator==(const MemoryGargabeCollectorSettings& lhs,
                          const MemoryGargabeCollectorSettings& rhs);
-  
+
   virtual size_t Hash() const = 0;
 
   MemoryGcKind kind() const {
