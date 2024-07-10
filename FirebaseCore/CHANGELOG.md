@@ -13,6 +13,8 @@
   been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
+- [changed] **Breaking change**: Binary release artifacts now contain dynamic
+  XCFrameworks.
 
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See

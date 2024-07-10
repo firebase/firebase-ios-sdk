@@ -56,13 +56,14 @@ installation, when `--zipPods` is specified a single zip file of frameworks will
   * ZipBuilder: -zipPods option (#4422)
   * Rename CocoaPod.swift to FirebasePods.swift (#4423)
   * Simplify Firebase pod naming (#4428)
-
-## Future Directions
-
   * Binary support for Catalyst
   * Migrate to building `.xcframeworks` instead of `.frameworks`
-  * Other Apple platforms besides iOS
-  * Swift Package Manager
+  * Supports building for iOS, macOS, tvOS, macCatalyst, and watchOS
+  * Support for building resource bundles and privacy manifests
   * Dynamic Framework support
+
+## Future Directions
+  * Support visionOS
+  * Swift Package Manager based builds
   * More option customization
   * Tests
