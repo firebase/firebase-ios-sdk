@@ -279,11 +279,13 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the list of sign in methods
   /// for the specified email address is ready or an error was encountered. Invoked asynchronously
   /// on the main thread in the future.
-  @available(
-    *,
-    deprecated,
-    message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
-  )
+  #if !FIREBASE_CI
+    @available(
+      *,
+      deprecated,
+      message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
+    )
+  #endif // !FIREBASE_CI
   @objc open func fetchSignInMethods(forEmail email: String,
                                      completion: (([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
