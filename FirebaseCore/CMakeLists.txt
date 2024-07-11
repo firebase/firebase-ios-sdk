@@ -43,6 +43,7 @@ target_compile_definitions(
 target_link_libraries(
   FirebaseCore PRIVATE
   "-framework Foundation"
+  "-framework OSLog"
   GoogleUtilities
 )
 
