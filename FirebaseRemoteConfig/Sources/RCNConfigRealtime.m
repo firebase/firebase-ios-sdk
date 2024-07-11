@@ -298,6 +298,39 @@ static NSInteger const gMaxRetries = 7;
   [installations authTokenWithCompletion:installationsTokenHandler];
 }
 
+- (void)createRequestBodyWithCompletion:(void (^)(NSData *_Nonnull requestBody))completion {
+  __weak __typeof(self) weakSelf = self;
+  [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
+                                                         NSError *_Nullable error) {
+    if (status != FIRRemoteConfigFetchStatusSuccess) {
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Installation token retrieval failed.");
+    }
+
+    __strong __typeof(self) strongSelf = weakSelf;
+    if (!strongSelf) return;
+    // Note that token may still be nil if installations refresh failed.
+    [strongSelf.request setValue:strongSelf->_settings.configInstallationsToken
+              forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
+    if (strongSelf->_settings.lastETag) {
+      [strongSelf.request setValue:strongSelf->_settings.lastETag
+                forHTTPHeaderField:kIfNoneMatchETagHeaderName];
+    }
+
+    NSString *namespace = [strongSelf->_namespace
+        substringToIndex:[strongSelf->_namespace rangeOfString:@":"].location];
+    NSString *postBody = [NSString
+        stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', "
+                         @"sdkVersion:'%@', appInstanceId:'%@'}",
+                         [strongSelf->_options GCMSenderID], namespace,
+                         strongSelf->_configFetch.templateVersionNumber,
+                         strongSelf->_options.googleAppID, FIRRemoteConfigPodVersion(),
+                         strongSelf->_settings.configInstallationsIdentifier];
+    NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *compressionError;
+    completion([NSData gul_dataByGzippingData:postData error:&compressionError]);
+  }];
+}
+
 - (NSData *)createRequestBody {
   [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
                                                          NSError *_Nullable error) {
@@ -353,20 +386,24 @@ static NSInteger const gMaxRetries = 7;
 
 #pragma mark - Retry Helpers
 
+- (BOOL)canMakeConnection {
+  BOOL noRunningConnection =
+      self->_dataTask == nil || self->_dataTask.state != NSURLSessionTaskStateRunning;
+  BOOL canMakeConnection = noRunningConnection && [self->_listeners count] > 0 &&
+                           !self->_isInBackground && !self->_isRealtimeDisabled;
+  return canMakeConnection;
+}
+
 // Retry mechanism for HTTP connections
 - (void)retryHTTPConnection {
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    if (strongSelf->_isInBackground) {
+    if (!strongSelf || strongSelf->_isInBackground) {
       return;
     }
 
-    bool noRunningConnection =
-        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
-    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
-                             !strongSelf->_isRealtimeDisabled;
-    if (canMakeConnection && strongSelf->_remainingRetryCount > 0) {
+    if ([strongSelf canMakeConnection] && strongSelf->_remainingRetryCount > 0) {
       NSTimeInterval backOffInterval = self->_settings.getRealtimeBackoffInterval;
 
       strongSelf->_remainingRetryCount--;
@@ -649,25 +686,25 @@ static NSInteger const gMaxRetries = 7;
 #pragma mark - Top level methods
 
 - (void)beginRealtimeStream {
-  __weak RCNConfigRealtime *weakSelf = self;
+  __weak __typeof(self) weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
-    __strong RCNConfigRealtime *strongSelf = weakSelf;
-    bool noRunningConnection =
-        strongSelf->_dataTask == nil || strongSelf->_dataTask.state != NSURLSessionTaskStateRunning;
-    bool canMakeConnection = noRunningConnection && [strongSelf->_listeners count] > 0 &&
-                             !strongSelf->_isInBackground && !strongSelf->_isRealtimeDisabled;
+    __strong __typeof(self) strongSelf = weakSelf;
 
     if (self->_settings.getRealtimeBackoffInterval > 0) {
       [self retryHTTPConnection];
       return;
     }
 
-    if (canMakeConnection) {
-      strongSelf->_isRequestInProgress = true;
-      NSData *compressedContent = [strongSelf createRequestBody];
-      [strongSelf->_request setHTTPBody:compressedContent];
-      strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
-      [strongSelf->_dataTask resume];
+    if ([self canMakeConnection]) {
+      __weak __typeof(self) weakSelf = strongSelf;
+      [strongSelf createRequestBodyWithCompletion:^(NSData *_Nonnull requestBody) {
+        __strong __typeof(self) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        strongSelf->_isRequestInProgress = true;
+        [strongSelf->_request setHTTPBody:requestBody];
+        strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
+        [strongSelf->_dataTask resume];
+      }];
     }
   });
 }
