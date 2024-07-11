@@ -15,6 +15,8 @@
   instructions.
 - [changed] **Breaking change**: Binary release artifacts now contain dynamic
   XCFrameworks.
+- Update underlying FIRLogger implementation from `asl` to `os_log`.
+- Remove `FIRLoggerForceSTDERR` configuration option.
 
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See

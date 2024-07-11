@@ -32,7 +32,6 @@ NSString *const kFIRLoggerRemoteConfig = @"[FirebaseRemoteConfig]";
 /// Arguments passed on launch.
 NSString *const kFIRDisableDebugModeApplicationArgument = @"-FIRDebugDisabled";
 NSString *const kFIREnableDebugModeApplicationArgument = @"-FIRDebugEnabled";
-NSString *const kFIRLoggerForceSDTERRApplicationArgument = @"-FIRLoggerForceSTDERR";
 
 /// Key for the debug mode bit in NSUserDefaults.
 NSString *const kFIRPersistedDebugModeKey = @"/google/firebase/debug_mode";
