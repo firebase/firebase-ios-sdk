@@ -136,9 +136,9 @@ class PersistentCacheSettings : public LocalCacheSettings {
 class MemoryGarbageCollectorSettings {
  public:
   enum class MemoryGcKind { kEagerGc = 1, kLruGc };
-  virtual ~MemoryGargabeCollectorSettings() = default;
-  friend bool operator==(const MemoryGargabeCollectorSettings& lhs,
-                         const MemoryGargabeCollectorSettings& rhs);
+  virtual ~MemoryGarbageCollectorSettings() = default;
+  friend bool operator==(const MemoryGarbageCollectorSettings& lhs,
+                         const MemoryGarbageCollectorSettings& rhs);
 
   virtual size_t Hash() const = 0;
 
