@@ -5,6 +5,8 @@ source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
+pod 'FirebaseCore', :path => '../../../'
+pod 'FirebaseCoreInternal', :path => '../../../'
 pod 'FirebaseMLModelDownloader', :path => '../../../'
 pod 'TensorFlowLiteSwift'
 
