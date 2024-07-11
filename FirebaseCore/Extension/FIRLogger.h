@@ -121,56 +121,12 @@ extern void FIRLogInfo(NSString *category, NSString *messageCode, NSString *mess
 extern void FIRLogDebug(NSString *category, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
 
-// TODO: Come up with a better logging scheme for Swift.
-/**
- * Logs a debug message to the Xcode console and the device log. If running from AppStore, will
- * not log any messages with a level higher than FirebaseLoggerLevelNotice to avoid log spamming.
- * This function is intended to be used by Swift clients that do not support variadic parameters.
- *
- * @param category The service name of type `FirebaseLoggerService`.
- * @param messageCode The mesage code. starting with "I-" which means iOS, followed by a capitalized
- * three-character service identifier and a six digit integer message ID that is unique within the
- * service. An example of the message code is @"I-COR000001".
- * @param message The message string.
- */
-extern void FIRLogDebugSwift(NSString *category, NSString *messageCode, NSString *message);
-
-/**
- * Logs a warning message to the Xcode console and the device log. If running from AppStore, will
- * not log any messages with a level higher than FirebaseLoggerLevelNotice to avoid log spamming.
- * This function is intended to be used by Swift clients that do not support variadic parameters.
- *
- * @param category The service name of type `FirebaseLoggerService`.
- * @param messageCode The mesage code. starting with "I-" which means iOS, followed by a capitalized
- * three-character service identifier and a six digit integer message ID that is unique within the
- * service. An example of the message code is @"I-COR000001".
- * @param message The message string.
- */
-extern void FIRLogWarningSwift(NSString *category, NSString *messageCode, NSString *message);
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus
 
 NS_SWIFT_NAME(FirebaseLogger)
 @interface FIRLoggerWrapper : NSObject
-
-/// Logs a given message at a given log level. This API is effectively a wrapper for the
-/// `FIRLogBasic` C API.
-///
-/// - Parameters:
-///   - level: The log level to use (defined by `FirebaseLoggerLevel` enum values).
-///   - service: The service name of type `FirebaseLoggerService`.
-///   - code: The mesage code. Starting with "I-" which means iOS, followed by a capitalized
-///   three-character service identifier and a six digit integer message ID that is unique within
-///   the service. An example of the message code is @"I-COR000001".
-///   - message: Formatted string to be used as the log's message.
-///   - args: Arguments list obtained from calling `va_start`, used when message is a format string.
-+ (void)logWithLevel:(FIRLoggerLevel)level
-         withService:(NSString *)category
-            withCode:(NSString *)messageCode
-         withMessage:(NSString *)message
-            withArgs:(va_list)args;
 
 /// Logs a given message at a given log level.
 ///
