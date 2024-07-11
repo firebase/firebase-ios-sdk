@@ -331,32 +331,6 @@ static NSInteger const gMaxRetries = 7;
   }];
 }
 
-- (NSData *)createRequestBody {
-  [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
-                                                         NSError *_Nullable error) {
-    if (status != FIRRemoteConfigFetchStatusSuccess) {
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Installation token retrival failed.");
-    }
-  }];
-
-  [_request setValue:_settings.configInstallationsToken
-      forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
-  if (_settings.lastETag) {
-    [_request setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
-  }
-
-  NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
-  NSString *postBody = [NSString
-      stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', "
-                       @"sdkVersion:'%@', appInstanceId:'%@'}",
-                       [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber,
-                       _options.googleAppID, FIRRemoteConfigPodVersion(),
-                       _settings.configInstallationsIdentifier];
-  NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
-  NSError *compressionError;
-  return [NSData gul_dataByGzippingData:postData error:&compressionError];
-}
-
 /// Creates request.
 - (void)setUpHttpRequest {
   NSString *address = [self constructServerURL];
