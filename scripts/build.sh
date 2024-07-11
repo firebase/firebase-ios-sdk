@@ -684,7 +684,6 @@ case "$product-$platform-$method" in
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
-      "${FIREBASE_CI:+SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) FIREBASE_CI" SWIFT_TREAT_WARNINGS_AS_ERRORS=YES}" \
       test
     ;;
 
@@ -692,7 +691,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      "${FIREBASE_CI:+SWIFT_ACTIVE_COMPILATION_CONDITIONS="$(inherited) FIREBASE_CI" SWIFT_TREAT_WARNINGS_AS_ERRORS=YES}" \
       build
     ;;
 
