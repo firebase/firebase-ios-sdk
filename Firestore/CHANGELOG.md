@@ -3,7 +3,7 @@
   has been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
-- **Breaking change**: LRU Garbage Collector is now the default GC for memory cache, eager GC is now
+- [changed] **Breaking change**: LRU Garbage Collector is now the default GC for memory cache, eager GC is now
   opt-in instead of the default one.
 
 # 10.25.0
