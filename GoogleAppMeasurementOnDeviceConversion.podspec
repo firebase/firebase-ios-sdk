@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurementOnDeviceConversion'
-    s.version          = '10.29.0'
+    s.version          = '11.0.0'
     s.summary          = <<-SUMMARY
     On device conversion measurement plugin for Google App Measurement. Not
     intended for direct use.
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
 
     s.cocoapods_version = '>= 1.12.0'
 
-    s.ios.deployment_target  = '10.0'
+    s.ios.deployment_target  = '12.0'
 
     s.libraries  = 'c++'
 

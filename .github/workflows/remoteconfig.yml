@@ -24,10 +24,11 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      USE_REAL_CONSOLE: true
     runs-on: macos-14
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS]
+        target: [iOS]
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -40,13 +41,13 @@ jobs:
       run: gem install xcpretty
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-          FirebaseRemoteConfigSwift/Tests/SwiftAPI/GoogleService-Info.plist "$plist_secret"
+          FirebaseRemoteConfig/Tests/Swift/SwiftAPI/GoogleService-Info.plist "$plist_secret"
     - name: Generate Access Token for RemoteConfigConsoleAPI in IntegrationTests
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
-          FirebaseRemoteConfigSwift/Tests/AccessToken.json)
+          FirebaseRemoteConfig/Tests/Swift/AccessToken.json)
     - name: Fake Console API Tests
-      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig iOS fakeconsole
+      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
     - name: IntegrationTest
       if: matrix.target == 'iOS'
       # No retry to avoid exhausting AccessToken quota.
@@ -65,7 +66,8 @@ jobs:
         include:
           - os: macos-14
             xcode: Xcode_15.3
-            tests:
+            # TODO(#13078): Fix testing infra to enforce warnings again.
+            tests: --allow-warnings
           # Flaky tests on CI
           - os: macos-13
             xcode: Xcode_15.2

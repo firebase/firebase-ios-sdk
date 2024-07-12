@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalyticsOnDeviceConversion'
-    s.version          = '10.29.0'
+    s.version          = '11.0.0'
     s.summary          = 'On device conversion measurement plugin for FirebaseAnalytics. Not intended for direct use.'
 
     s.description      = <<-DESC
@@ -18,11 +18,11 @@ Pod::Spec.new do |s|
 
     s.cocoapods_version = '>= 1.12.0'
 
-    s.dependency 'GoogleAppMeasurementOnDeviceConversion', '10.29.0'
+    s.dependency 'GoogleAppMeasurementOnDeviceConversion', '11.0.0'
 
     s.static_framework = true
 
-    s.ios.deployment_target = '10.0'
+    s.ios.deployment_target = '12.0'
 
     s.source_files = 'FirebaseAnalyticsOnDeviceConversionWrapper/*'
 end

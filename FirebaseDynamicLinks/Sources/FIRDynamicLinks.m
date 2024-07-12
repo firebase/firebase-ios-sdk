@@ -110,9 +110,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  // Product requirement is enforced by CocoaPod. Not technical requirement for analytics.
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Don't return an instance when it's not the default app.
@@ -138,7 +135,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   FIRComponent *dynamicLinksProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRDynamicLinksInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
 
   return @[ dynamicLinksProvider ];

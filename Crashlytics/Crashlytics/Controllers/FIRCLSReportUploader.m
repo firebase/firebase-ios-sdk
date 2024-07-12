@@ -31,7 +31,6 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>

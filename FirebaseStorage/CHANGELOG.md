@@ -1,3 +1,9 @@
+# 11.0.0
+- [fixed] Updated error handling to support both Swift error enum handling and NSError error
+  handling. Some of the Swift enums have additional parameters which may be a **breaking** change.
+  There are additional NSError's for completeness, but nothing related to NSError handling is
+  breaking. (#13071, #10889, #13114)
+
 # 10.24.0
 - [fixed] `putFile` and `putFileAsync` now work in app extensions. A background session
    configuration is not used when uploading from an app extension (#12579).

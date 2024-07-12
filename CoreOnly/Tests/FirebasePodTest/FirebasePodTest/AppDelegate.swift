@@ -15,9 +15,8 @@
 import Firebase
 
 // Verify that the following Firebase Swift APIs can be found.
-import FirebaseAnalyticsSwift
-import FirebaseFirestoreSwift
-import FirebaseInAppMessagingSwift
+import FirebaseAnalytics
+import FirebaseInAppMessaging
 import UIKit
 
 class CoreExists: FirebaseApp {}

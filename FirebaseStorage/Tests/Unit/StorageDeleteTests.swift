@@ -17,6 +17,7 @@ import Foundation
 import GTMSessionFetcherCore
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageDeleteTests: StorageTestHelpers {
   var fetcherService: GTMSessionFetcherService?
   var dispatchQueue: DispatchQueue?
@@ -54,14 +55,13 @@ class StorageDeleteTests: StorageTestHelpers {
     }
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    StorageDeleteTask.deleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
-    ) { error in
+    ) { _, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -81,14 +81,13 @@ class StorageDeleteTests: StorageTestHelpers {
     }
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    StorageDeleteTask.deleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
-    ) { error in
+    ) { _, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -105,14 +104,13 @@ class StorageDeleteTests: StorageTestHelpers {
 
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
-    let task = StorageDeleteTask(
+    StorageDeleteTask.deleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
-    ) { error in
+    ) { _, error in
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -122,15 +120,14 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = unauthenticatedBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    StorageDeleteTask.deleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
-    ) { error in
+    ) { _, error in
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthenticated.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -140,15 +137,14 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = unauthorizedBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    StorageDeleteTask.deleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
-    ) { error in
+    ) { _, error in
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthorized.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 
@@ -158,15 +154,14 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService!.testBlock = notFoundBlock()
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageDeleteTask(
+    StorageDeleteTask.deleteTask(
       reference: ref,
       fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
-    ) { error in
+    ) { _, error in
       XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.objectNotFound.rawValue)
       expectation.fulfill()
     }
-    task.enqueue()
     waitForExpectation(test: self)
   }
 }

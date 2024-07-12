@@ -384,13 +384,6 @@ id FIRMessagingPropertyNameFromObject(id object, NSString *propertyName, Class k
 }
 
 #pragma mark - GULApplicationDelegate
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-implementations"
-- (void)application:(GULApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
-}
-#pragma clang diagnostic pop
 
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 - (void)application:(UIApplication *)application

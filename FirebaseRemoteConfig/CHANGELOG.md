@@ -1,4 +1,11 @@
-# 10.25.0
+# 11.0.0
+- [fixed] RemoteConfigValue stringValue is now `nonnull`. This may break some builds. (#10870)
+- [removed] **Breaking change**: The deprecated `FirebaseRemoteConfigSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+
+  # 10.25.0
 - [fixed] Fixed bug preventing Remote Config from working with a custom sqlite3
   dependency (#10884).
 

@@ -98,23 +98,10 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
     };
   });
 
-  // Use recent APIs for iOS 12 and above and older APIs for before.
-  if (@available(iOS 12, *)) {
-    NSDictionary<NSString *, NSString *> *radioAccessors =
-        FPRNetworkInfo().serviceCurrentRadioAccessTechnology;
-    if (radioAccessors.count > 0) {
-      NSString *networkString = [radioAccessors.allValues objectAtIndex:0];
-      NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
-      return cellularNetworkType.intValue;
-    }
-  } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-    NSString *networkString = FPRNetworkInfo().currentRadioAccessTechnology;
-
-#pragma clang diagnostic pop
-
+  NSDictionary<NSString *, NSString *> *radioAccessors =
+      FPRNetworkInfo().serviceCurrentRadioAccessTechnology;
+  if (radioAccessors.count > 0) {
+    NSString *networkString = [radioAccessors.allValues objectAtIndex:0];
     NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
     return cellularNetworkType.intValue;
   }

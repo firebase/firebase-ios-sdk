@@ -15,8 +15,7 @@
  */
 
 import FirebaseCore
-import FirebaseFirestore
-@testable import FirebaseFirestoreSwift
+@testable import FirebaseFirestore
 import Foundation
 
 class CodableIntegrationTests: FSTIntegrationTestCase {

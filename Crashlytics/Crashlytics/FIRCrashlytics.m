@@ -231,12 +231,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)];
-
-  FIRDependency *sessionsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
-
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -263,7 +257,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRCrashlyticsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep, sessionsDep ]
                             creationBlock:creationBlock];
   return @[ component ];
 }

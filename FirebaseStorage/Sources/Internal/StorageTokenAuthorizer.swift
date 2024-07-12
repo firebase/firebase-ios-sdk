@@ -25,6 +25,7 @@ import FirebaseCore
   import GTMSessionFetcherCore
 #endif
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   func authorizeRequest(_ request: NSMutableURLRequest?,
                         completionHandler handler: @escaping (Error?) -> Void) {
@@ -45,12 +46,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
           var errorDictionary = error.userInfo
           errorDictionary["ResponseErrorDomain"] = error.domain
           errorDictionary["ResponseErrorCode"] = error.code
-          errorDictionary[NSLocalizedDescriptionKey] =
-            "User is not authenticated, please authenticate" +
-            " using Firebase Authentication and try again."
-          tokenError = NSError(domain: "FIRStorageErrorDomain",
-                               code: StorageErrorCode.unauthenticated.rawValue,
-                               userInfo: errorDictionary)
+          tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
         } else if let token {
           let firebaseToken = "Firebase \(token)"
           request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
