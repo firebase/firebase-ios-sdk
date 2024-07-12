@@ -306,8 +306,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.28.0/FirebaseAnalytics.zip",
-      checksum: "50af00e4f2b62e60f8c1686538285aaa10989df35a170c1761f9626edee4a79d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.0.0/FirebaseAnalytics.zip",
+      checksum: "9de7060166975c1ca12a44cc3aa15c0e5a0778fffbb0a9b38db1f31367dd368d"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1347,7 +1347,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.28.0")
+  return .package(url: appMeasurementURL, exact: "11.0.0")
 }
 
 func abseilDependency() -> Package.Dependency {
