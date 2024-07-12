@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import FirebaseCore
 import FirebaseSharedSwift
 import Foundation
 

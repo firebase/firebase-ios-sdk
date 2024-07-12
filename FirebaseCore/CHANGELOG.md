@@ -17,6 +17,8 @@
   XCFrameworks.
 - Update underlying FIRLogger implementation from `asl` to `os_log`.
 - Remove `FIRLoggerForceSTDERR` configuration option.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
 
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See
