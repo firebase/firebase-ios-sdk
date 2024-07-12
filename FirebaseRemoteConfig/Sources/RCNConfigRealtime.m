@@ -309,7 +309,8 @@ static NSInteger const gMaxRetries = 7;
     if (!strongSelf) return;
 
     if (![strongSelf->_settings.configInstallationsIdentifier length]) {
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Realtime connection will not include valid installations token.");
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013",
+                  @"Realtime connection will not include valid installations token.");
     }
 
     [strongSelf.request setValue:strongSelf->_settings.configInstallationsToken
