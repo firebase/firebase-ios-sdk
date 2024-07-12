@@ -290,6 +290,9 @@ static NSInteger const gMaxRetries = 7;
 
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000022", @"Success to get iid : %@.",
                    strongSelfQueue->_settings.configInstallationsIdentifier);
+        return [strongSelfQueue reportCompletionOnHandler:completionHandler
+                                               withStatus:FIRRemoteConfigFetchStatusNoFetchYet
+                                                withError:nil];
       });
     }];
   };
@@ -302,13 +305,13 @@ static NSInteger const gMaxRetries = 7;
   __weak __typeof(self) weakSelf = self;
   [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
                                                          NSError *_Nullable error) {
-    if (status != FIRRemoteConfigFetchStatusSuccess) {
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Installation token retrieval failed.");
-    }
-
     __strong __typeof(self) strongSelf = weakSelf;
     if (!strongSelf) return;
-    // Note that token may still be nil if installations refresh failed.
+
+    if (![strongSelf->_settings.configInstallationsIdentifier length]) {
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000013", @"Realtime connection will not include valid installations token.");
+    }
+
     [strongSelf.request setValue:strongSelf->_settings.configInstallationsToken
               forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
     if (strongSelf->_settings.lastETag) {
