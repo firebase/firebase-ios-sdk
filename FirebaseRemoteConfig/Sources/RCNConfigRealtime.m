@@ -314,8 +314,6 @@ static NSInteger const gMaxRetries = 7;
                   @"valid installations token.");
     }
 
-    // strongSelf->_settings.configInstallationsToken = nil;
-    // strongSelf->_settings.configInstallationsIdentifier = nil;
     [strongSelf.request setValue:strongSelf->_settings.configInstallationsToken
               forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
     if (strongSelf->_settings.lastETag) {
