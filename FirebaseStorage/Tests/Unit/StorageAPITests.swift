@@ -20,6 +20,7 @@ import XCTest
 import FirebaseCore
 import FirebaseStorage
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class StorageAPITests: XCTestCase {
   func StorageAPIs() {
     let app = FirebaseApp.app()
