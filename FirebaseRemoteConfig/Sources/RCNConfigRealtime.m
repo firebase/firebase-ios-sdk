@@ -314,6 +314,8 @@ static NSInteger const gMaxRetries = 7;
                   @"valid installations token.");
     }
 
+    // strongSelf->_settings.configInstallationsToken = nil;
+    // strongSelf->_settings.configInstallationsIdentifier = nil;
     [strongSelf.request setValue:strongSelf->_settings.configInstallationsToken
               forHTTPHeaderField:kInstallationsAuthTokenHeaderName];
     if (strongSelf->_settings.lastETag) {
@@ -669,12 +671,12 @@ static NSInteger const gMaxRetries = 7;
   dispatch_async(_realtimeLockQueue, ^{
     __strong __typeof(self) strongSelf = weakSelf;
 
-    if (self->_settings.getRealtimeBackoffInterval > 0) {
-      [self retryHTTPConnection];
+    if (strongSelf->_settings.getRealtimeBackoffInterval > 0) {
+      [strongSelf retryHTTPConnection];
       return;
     }
 
-    if ([self canMakeConnection]) {
+    if ([strongSelf canMakeConnection]) {
       __weak __typeof(self) weakSelf = strongSelf;
       [strongSelf createRequestBodyWithCompletion:^(NSData *_Nonnull requestBody) {
         __strong __typeof(self) strongSelf = weakSelf;
