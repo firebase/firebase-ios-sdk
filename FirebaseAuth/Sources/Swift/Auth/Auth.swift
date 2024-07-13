@@ -81,7 +81,7 @@ extension Auth: AuthInterop {
       autoRefreshTokens = true
       scheduleAutoTokenRefresh()
 
-      #if os(iOS) || os(tvOS) // TODO(ObjC): Is a similar mechanism needed on macOS?
+      #if canImport(UIKit) // Is a similar mechanism needed on macOS?
         applicationDidBecomeActiveObserver =
           NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,

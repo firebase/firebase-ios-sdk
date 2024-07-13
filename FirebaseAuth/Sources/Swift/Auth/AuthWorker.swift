@@ -21,7 +21,7 @@ import Foundation
   @_implementationOnly import GoogleUtilities_Environment
 #endif
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if canImport(UIKit)
   import UIKit
 #endif
 
@@ -277,7 +277,7 @@ actor AuthWorker {
         }
       }
     } catch {
-      #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+      #if canImport(UIKit)
         if (error as NSError).code == AuthErrorCode.keychainError.rawValue {
           // If there's a keychain error, assume it is due to the keychain being accessed
           // before the device is unlocked as a result of prewarming, and listen for the

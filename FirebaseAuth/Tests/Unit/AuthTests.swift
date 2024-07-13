@@ -49,17 +49,6 @@ class AuthTests: RPCBaseTests {
       app: FirebaseApp.app(name: name)!,
       keychainStorageProvider: keychainStorageProvider
     )
-
-    // Wait until Auth initialization completes
-    waitForAuthGlobalWorkQueueDrain()
-  }
-
-  private func waitForAuthGlobalWorkQueueDrain() {
-    let workerSemaphore = DispatchSemaphore(value: 0)
-    kAuthGlobalWorkQueue.async {
-      workerSemaphore.signal()
-    }
-    _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
   /** @fn testFetchSignInMethodsForEmailSuccess
