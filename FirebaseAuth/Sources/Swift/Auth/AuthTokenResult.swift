@@ -14,10 +14,12 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthTokenResult: NSSecureCoding {}
 
 /// A data class containing the ID token JWT string and other properties associated with the
 /// token including the decoded payload claims.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthTokenResult) open class AuthTokenResult: NSObject {
   /// Stores the JWT string of the ID token.
   @objc open var token: String
@@ -47,12 +49,12 @@ extension AuthTokenResult: NSSecureCoding {}
   /// reserved claims as well as custom claims set by the developer via the Admin SDK.
   @objc open var claims: [String: Any]
 
-  private class func getTokenPayloadData(_ token: String) -> Data? {
+  private class func getTokenPayloadData(_ token: String) throws -> Data {
     let tokenStringArray = token.components(separatedBy: ".")
 
     // The JWT should have three parts, though we only use the second in this method.
     if tokenStringArray.count != 3 {
-      return nil
+      throw AuthErrorUtils.malformedJWTError(token: token, underlyingError: nil)
     }
 
     /// The token payload is always the second index of the array.
@@ -69,24 +71,36 @@ extension AuthTokenResult: NSSecureCoding {}
       let length = tokenPayload.count + (4 - tokenPayload.count % 4)
       tokenPayload = tokenPayload.padding(toLength: length, withPad: "=", startingAt: 0)
     }
-    return Data(base64Encoded: tokenPayload, options: [.ignoreUnknownCharacters])
+    guard let data = Data(base64Encoded: tokenPayload, options: [.ignoreUnknownCharacters]) else {
+      throw AuthErrorUtils.malformedJWTError(token: token, underlyingError: nil)
+    }
+    return data
   }
 
-  private class func getTokenPayloadDictionary(_ payloadData: Data) -> [String: Any]? {
-    return try? JSONSerialization.jsonObject(
-      with: payloadData,
-      options: [.mutableContainers, .allowFragments]
-    ) as? [String: Any]
+  private class func getTokenPayloadDictionary(_ token: String,
+                                               _ payloadData: Data) throws -> [String: Any] {
+    do {
+      if let dictionary = try JSONSerialization.jsonObject(
+        with: payloadData,
+        options: [.mutableContainers, .allowFragments]
+      ) as? [String: Any] {
+        return dictionary
+      } else {
+        return [:]
+      }
+    } catch {
+      throw AuthErrorUtils.malformedJWTError(token: token, underlyingError: error)
+    }
   }
 
-  private class func getJWT(_ payloadData: Data) -> JWT? {
+  private class func getJWT(_ token: String, _ payloadData: Data) throws -> JWT {
     // These are dates since 00:00:00 January 1 1970, as described by the Terminology section in
     // the JWT spec. https://tools.ietf.org/html/rfc7519
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .secondsSince1970
     decoder.keyDecodingStrategy = .convertFromSnakeCase
     guard let jwt = try? decoder.decode(JWT.self, from: payloadData) else {
-      return nil
+      throw AuthErrorUtils.malformedJWTError(token: token, underlyingError: nil)
     }
     return jwt
   }
@@ -94,12 +108,10 @@ extension AuthTokenResult: NSSecureCoding {}
   /// Parse a token string to a structured token.
   /// - Parameter token: The token string to parse.
   /// - Returns: A structured token result.
-  @objc open class func tokenResult(token: String) -> AuthTokenResult? {
-    guard let payloadData = getTokenPayloadData(token),
-          let claims = getTokenPayloadDictionary(payloadData),
-          let jwt = getJWT(payloadData) else {
-      return nil
-    }
+  class func tokenResult(token: String) throws -> AuthTokenResult {
+    let payloadData = try getTokenPayloadData(token)
+    let claims = try getTokenPayloadDictionary(token, payloadData)
+    let jwt = try getJWT(token, payloadData)
     return AuthTokenResult(token: token, jwt: jwt, claims: claims)
   }
 
@@ -132,9 +144,9 @@ extension AuthTokenResult: NSSecureCoding {}
     ) as? String else {
       return nil
     }
-    guard let payloadData = AuthTokenResult.getTokenPayloadData(token),
-          let claims = AuthTokenResult.getTokenPayloadDictionary(payloadData),
-          let jwt = AuthTokenResult.getJWT(payloadData) else {
+    guard let payloadData = try? AuthTokenResult.getTokenPayloadData(token),
+          let claims = try? AuthTokenResult.getTokenPayloadDictionary(token, payloadData),
+          let jwt = try? AuthTokenResult.getJWT(token, payloadData) else {
       return nil
     }
     self.init(token: token, jwt: jwt, claims: claims)

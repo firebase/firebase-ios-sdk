@@ -54,6 +54,7 @@ extension User: DataSourceProvidable {
       Item(title: UserAction.requestVerifyEmail.rawValue, textColor: .systemBlue),
       Item(title: UserAction.updatePassword.rawValue, textColor: .systemBlue),
       Item(title: UserAction.tokenRefresh.rawValue, textColor: .systemBlue),
+      Item(title: UserAction.tokenRefreshAsync.rawValue, textColor: .systemBlue),
       Item(title: UserAction.delete.rawValue, textColor: .systemRed),
     ]
     return Section(headerDescription: "Actions", items: actionsRows)

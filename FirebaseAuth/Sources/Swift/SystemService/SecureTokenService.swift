@@ -153,19 +153,21 @@ class SecureTokenService: NSObject, NSSecureCoding {
     if let newAccessToken = response.accessToken,
        newAccessToken.count > 0,
        newAccessToken != accessToken {
-      let tokenResult = AuthTokenResult.tokenResult(token: newAccessToken)
-      // There is an edge case where the request for a new access token may be made right
-      // before the app goes inactive, resulting in the callback being invoked much later
-      // with an expired access token. This does not fully solve the issue, as if the
-      // callback is invoked less than an hour after the request is made, a token is not
-      // re-requested here but the approximateExpirationDate will still be off since that
-      // is computed at the time the token is received.
-      if retryIfExpired,
-         let expirationDate = tokenResult?.expirationDate,
-         expirationDate.timeIntervalSinceNow <= kFiveMinutes {
-        // We only retry once, to avoid an infinite loop in the case that an end-user has
-        // their local time skewed by over an hour.
-        return try await requestAccessToken(retryIfExpired: false)
+      if let tokenResult = try? AuthTokenResult.tokenResult(token: newAccessToken) {
+        // There is an edge case where the request for a new access token may be made right
+        // before the app goes inactive, resulting in the callback being invoked much later
+        // with an expired access token. This does not fully solve the issue, as if the
+        // callback is invoked less than an hour after the request is made, a token is not
+        // re-requested here but the approximateExpirationDate will still be off since that
+        // is computed at the time the token is received.
+        if retryIfExpired {
+          let expirationDate = tokenResult.expirationDate
+          if expirationDate.timeIntervalSinceNow <= kFiveMinutes {
+            // We only retry once, to avoid an infinite loop in the case that an end-user has
+            // their local time skewed by over an hour.
+            return try await requestAccessToken(retryIfExpired: false)
+          }
+        }
       }
       accessToken = newAccessToken
       accessTokenExpirationDate = response.approximateExpirationDate
