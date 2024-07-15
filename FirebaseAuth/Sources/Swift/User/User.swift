@@ -532,9 +532,9 @@ extension User: NSSecureCoding {}
   /// reason other than an expiration.
   /// - Returns: The Firebase authentication token.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  open func getIDToken() async throws -> String {
+  open func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
-      self.getIDTokenForcingRefresh(false) { tokenResult, error in
+      self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
         if let tokenResult {
           continuation.resume(returning: tokenResult)
         } else if let error {
@@ -542,6 +542,12 @@ extension User: NSSecureCoding {}
         }
       }
     }
+  }
+
+  /// API included for compatibilty with a mis-named Firebase 10 API.
+  /// Use `getIDToken(forcingRefresh forceRefresh: Bool = false)` instead.
+  open func idTokenForcingRefresh(_ forceRefresh: Bool) async throws -> String {
+    return try await getIDToken(forcingRefresh: forceRefresh)
   }
 
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -574,14 +580,29 @@ extension User: NSSecureCoding {}
       self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
         var tokenResult: AuthTokenResult?
         if let token {
-          tokenResult = AuthTokenResult.tokenResult(token: token)
-          AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
-            "\(String(describing: tokenResult?.expirationDate))," +
-            "current date: \(Date())")
+          do {
+            tokenResult = try AuthTokenResult.tokenResult(token: token)
+            AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
+              "\(String(describing: tokenResult?.expirationDate))," +
+              "current date: \(Date())")
+            if let completion {
+              DispatchQueue.main.async {
+                completion(tokenResult, error)
+              }
+            }
+            return
+          } catch {
+            if let completion {
+              DispatchQueue.main.async {
+                completion(tokenResult, error)
+              }
+            }
+            return
+          }
         }
         if let completion {
           DispatchQueue.main.async {
-            completion(tokenResult, error)
+            completion(nil, error)
           }
         }
       }
