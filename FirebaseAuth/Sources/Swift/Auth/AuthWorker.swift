@@ -317,6 +317,8 @@ actor AuthWorker {
     #endif
   }
 
+  // MARK: User.swift implementations
+
   func updateEmail(user: User,
                    email: String?,
                    password: String?) async throws {
@@ -373,6 +375,59 @@ actor AuthWorker {
     }
   }
 
+  #if os(iOS)
+    /// Updates the phone number for the user. On success, the cached user profile data is updated.
+    ///
+    /// Invoked asynchronously on the global work queue in the future.
+    /// - Parameter credential: The new phone number credential corresponding to the phone
+    /// number to be added to the Firebase account. If a phone number is already linked to the
+    /// account, this new phone number will replace it.
+    /// - Parameter isLinkOperation: Boolean value indicating whether or not this is a link
+    /// operation.
+    /// - Parameter completion: Optionally; the block invoked when the user profile change has
+    /// finished.
+    func updateOrLinkPhoneNumber(user: User, credential: PhoneAuthCredential,
+                                 isLinkOperation: Bool) async throws {
+      let accessToken = try await user.internalGetTokenAsync()
+
+      guard let configuration = user.auth?.requestConfiguration else {
+        fatalError("Auth Internal Error: nil value for VerifyPhoneNumberRequest initializer")
+      }
+      switch credential.credentialKind {
+      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+      case let .verification(verificationID, code):
+        let operation = isLinkOperation ? AuthOperationType.link : AuthOperationType.update
+        let request = VerifyPhoneNumberRequest(verificationID: verificationID,
+                                               verificationCode: code,
+                                               operation: operation,
+                                               requestConfiguration: configuration)
+        request.accessToken = accessToken
+        do {
+          let verifyResponse = try await AuthBackend.call(with: request)
+          guard let idToken = verifyResponse.idToken,
+                let refreshToken = verifyResponse.refreshToken else {
+            fatalError("Internal Auth Error: missing token in internalUpdateOrLinkPhoneNumber")
+          }
+          user.tokenService = SecureTokenService(
+            withRequestConfiguration: configuration,
+            accessToken: idToken,
+            accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
+            refreshToken: refreshToken
+          )
+          // Get account info to update cached user info.
+          let userAccount = try await getAccountInfoRefreshingCache(user)
+          user.isAnonymous = false
+          if let error = user.updateKeychain() {
+            throw error
+          }
+        } catch {
+          user.signOutIfTokenIsInvalid(withError: error)
+          throw error
+        }
+      }
+    }
+  #endif
+
   /// Performs a setAccountInfo request by mutating the results of a getAccountInfo response,
   /// atomically in regards to other calls to this method.
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
@@ -410,7 +465,7 @@ actor AuthWorker {
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  private func getAccountInfoRefreshingCache(_ user: User) async throws
+  func getAccountInfoRefreshingCache(_ user: User) async throws
     -> GetAccountInfoResponseUser {
     let token = try await user.internalGetTokenAsync()
     let request = GetAccountInfoRequest(accessToken: token,
@@ -438,8 +493,7 @@ actor AuthWorker {
       guard user.uid == requestConfiguration.auth?.getUserID() else {
         throw AuthErrorUtils.userMismatchError()
       }
-      // TODO: set tokenService migration
-
+      try await user.setTokenService(tokenService: user.tokenService)
       return authResult
     } catch {
       if (error as NSError).code == AuthErrorCode.userNotFound.rawValue {
@@ -447,6 +501,24 @@ actor AuthWorker {
       }
       throw error
     }
+  }
+
+  #if os(iOS)
+    func reauthenticate(with provider: FederatedAuthProvider,
+                        uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+      let credential = try await provider.credential(with: uiDelegate)
+      return try await reauthenticate(with: credential)
+    }
+  #endif
+
+  func getIDTokenResult(user: User,
+                        forcingRefresh forceRefresh: Bool) async throws -> AuthTokenResult {
+    let token = try await user.internalGetTokenAsync(forceRefresh: forceRefresh)
+    let tokenResult = try AuthTokenResult.tokenResult(token: token)
+    AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
+      "\(String(describing: tokenResult.expirationDate))," +
+      "current date: \(Date())")
+    return tokenResult
   }
 
   /// Update the current user; initializing the user's internal properties correctly, and

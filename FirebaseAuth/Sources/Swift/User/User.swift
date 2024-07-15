@@ -227,10 +227,16 @@ extension User: NSSecureCoding {}
     @objc(updatePhoneNumberCredential:completion:)
     open func updatePhoneNumber(_ credential: PhoneAuthCredential,
                                 completion: ((Error?) -> Void)? = nil) {
-      kAuthGlobalWorkQueue.async {
-        self.internalUpdateOrLinkPhoneNumber(credential: credential,
-                                             isLinkOperation: false) { error in
-          User.callInMainThreadWithError(callback: completion, error: error)
+      Task {
+        do {
+          try await self.updatePhoneNumber(credential)
+          await MainActor.run {
+            completion?(nil)
+          }
+        } catch {
+          await MainActor.run {
+            completion?(error)
+          }
         }
       }
     }
@@ -251,15 +257,9 @@ extension User: NSSecureCoding {}
     /// account this new phone number will replace it.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.updatePhoneNumber(credential) { error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else {
-            continuation.resume()
-          }
-        }
-      }
+      try await auth.authWorker.updateOrLinkPhoneNumber(user: self,
+                                                        credential: credential,
+                                                        isLinkOperation: false)
     }
   #endif
 
@@ -296,9 +296,16 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the reload has finished. Invoked
   ///   asynchronously on the main thread in the future.
   @objc open func reload(completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      self.getAccountInfoRefreshingCache { user, error in
-        User.callInMainThreadWithError(callback: completion, error: error)
+    Task {
+      do {
+        try await self.reload()
+        await MainActor.run {
+          completion?(nil)
+        }
+      } catch {
+        await MainActor.run {
+          completion?(error)
+        }
       }
     }
   }
@@ -310,15 +317,7 @@ extension User: NSSecureCoding {}
   /// `updateEmail(to:)`.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func reload() async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.reload { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
+    let _ = try await auth.authWorker.getAccountInfoRefreshingCache(self)
   }
 
   /// Renews the user's authentication tokens by validating a fresh set of credentials supplied
@@ -418,15 +417,15 @@ extension User: NSSecureCoding {}
     open func reauthenticate(with provider: FederatedAuthProvider,
                              uiDelegate: AuthUIDelegate?,
                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-      kAuthGlobalWorkQueue.async {
-        Task {
-          do {
-            let credential = try await provider.credential(with: uiDelegate)
-            self.reauthenticate(with: credential, completion: completion)
-          } catch {
-            if let completion {
-              completion(nil, error)
-            }
+      Task {
+        do {
+          let result = try await reauthenticate(with: provider, uiDelegate: uiDelegate)
+          await MainActor.run {
+            completion?(result, nil)
+          }
+        } catch {
+          await MainActor.run {
+            completion?(nil, error)
           }
         }
       }
@@ -445,15 +444,7 @@ extension User: NSSecureCoding {}
     @discardableResult
     open func reauthenticate(with provider: FederatedAuthProvider,
                              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
-          if let result {
-            continuation.resume(returning: result)
-          } else if let error {
-            continuation.resume(throwing: error)
-          }
-        }
-      }
+      return try await auth.authWorker.reauthenticate(with: provider, uiDelegate: uiDelegate)
     }
   #endif
 
@@ -478,10 +469,15 @@ extension User: NSSecureCoding {}
   @objc(getIDTokenForcingRefresh:completion:)
   open func getIDTokenForcingRefresh(_ forceRefresh: Bool,
                                      completion: ((String?, Error?) -> Void)?) {
-    getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
-      if let completion {
-        DispatchQueue.main.async {
-          completion(tokenResult?.token, error)
+    Task {
+      do {
+        let tokenResult = try await getIDTokenResult(forcingRefresh: forceRefresh)
+        await MainActor.run {
+          completion?(tokenResult.token, nil)
+        }
+      } catch {
+        await MainActor.run {
+          completion?(nil, error)
         }
       }
     }
@@ -496,15 +492,7 @@ extension User: NSSecureCoding {}
   /// - Returns: The Firebase authentication token.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
-        if let tokenResult {
-          continuation.resume(returning: tokenResult)
-        } else if let error {
-          continuation.resume(throwing: error)
-        }
-      }
-    }
+    return try await getIDTokenResult(forcingRefresh: forceRefresh).token
   }
 
   /// API included for compatibility with a mis-named Firebase 10 API.
@@ -518,13 +506,7 @@ extension User: NSSecureCoding {}
   ///    asynchronously on the main thread in the future.
   @objc(getIDTokenResultWithCompletion:)
   open func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
-    getIDTokenResult(forcingRefresh: false) { tokenResult, error in
-      if let completion {
-        DispatchQueue.main.async {
-          completion(tokenResult, error)
-        }
-      }
-    }
+    getIDTokenResult(forcingRefresh: false, completion: completion)
   }
 
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
@@ -539,34 +521,15 @@ extension User: NSSecureCoding {}
   @objc(getIDTokenResultForcingRefresh:completion:)
   open func getIDTokenResult(forcingRefresh: Bool,
                              completion: ((AuthTokenResult?, Error?) -> Void)?) {
-    kAuthGlobalWorkQueue.async {
-      self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
-        var tokenResult: AuthTokenResult?
-        if let token {
-          do {
-            tokenResult = try AuthTokenResult.tokenResult(token: token)
-            AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
-              "\(String(describing: tokenResult?.expirationDate))," +
-              "current date: \(Date())")
-            if let completion {
-              DispatchQueue.main.async {
-                completion(tokenResult, error)
-              }
-            }
-            return
-          } catch {
-            if let completion {
-              DispatchQueue.main.async {
-                completion(tokenResult, error)
-              }
-            }
-            return
-          }
+    Task {
+      do {
+        let tokenResult = try await getIDTokenResult(forcingRefresh: forcingRefresh)
+        await MainActor.run {
+          completion?(tokenResult, nil)
         }
-        if let completion {
-          DispatchQueue.main.async {
-            completion(nil, error)
-          }
+      } catch {
+        await MainActor.run {
+          completion?(nil, error)
         }
       }
     }
@@ -582,15 +545,7 @@ extension User: NSSecureCoding {}
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
     -> AuthTokenResult {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
-        if let tokenResult {
-          continuation.resume(returning: tokenResult)
-        } else if let error {
-          continuation.resume(throwing: error)
-        }
-      }
-    }
+    try await auth.authWorker.getIDTokenResult(user: self, forcingRefresh: forceRefresh)
   }
 
   /// Associates a user account from a third-party identity provider with this user and
