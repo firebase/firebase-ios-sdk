@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import FirebaseCore
+import class FirebaseCore.Timestamp
 @testable import FirebaseFirestore
 import Foundation
 
