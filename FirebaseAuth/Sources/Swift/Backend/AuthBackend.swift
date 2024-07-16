@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import FirebaseCore
-import FirebaseCoreExtension
-import FirebaseCoreInternal
+@_implementationOnly import FirebaseCoreExtension
+@_implementationOnly import FirebaseCoreInternal
 import Foundation
 #if COCOAPODS
   import GTMSessionFetcher

@@ -15,7 +15,7 @@
 import Foundation
 
 import FirebaseAppCheckInterop
-import FirebaseCoreExtension
+@_implementationOnly import FirebaseCoreExtension
 
 /// Defines configurations to be added to a request to Firebase Auth's backend.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

@@ -16,8 +16,8 @@ import Foundation
 import XCTest
 
 @testable import FirebaseAuth
-import FirebaseCoreExtension
-import FirebaseCoreInternal
+@_implementationOnly import FirebaseCoreExtension
+@_implementationOnly import FirebaseCoreInternal
 
 private let kFakeAPIKey = "kTestAPIKey"
 private let kFakeAppID = "kTestFirebaseAppID"

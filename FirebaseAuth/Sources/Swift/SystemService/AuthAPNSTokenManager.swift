@@ -17,7 +17,7 @@
   import UIKit
 
   // TODO: This may be needed for extension detecting support
-  // @_implementationOnly import FirebaseCoreExtension
+  // @_implementationOnly @_implementationOnly import FirebaseCoreExtension
 
   #if SWIFT_PACKAGE
     @_implementationOnly import GoogleUtilities_Environment
