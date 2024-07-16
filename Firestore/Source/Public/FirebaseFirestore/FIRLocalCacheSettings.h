@@ -132,7 +132,7 @@ NS_SWIFT_NAME(MemoryCacheSettings)
 
 /**
  * Creates an instance of `MemoryCacheSettings` with given `MemoryGarbageCollectorSettings` to
- * custom the gabarge collector.
+ * custom the garbage collector.
  */
 - (instancetype)initWithGarbageCollectorSettings:
     (id<FIRMemoryGarbageCollectorSettings, NSObject>)settings;
