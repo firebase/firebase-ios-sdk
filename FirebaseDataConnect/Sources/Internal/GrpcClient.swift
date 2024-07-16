@@ -23,6 +23,7 @@ import NIOHPACK
 import NIOPosix
 import OSLog
 import SwiftProtobuf
+import FirebaseAppCheck
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 actor GrpcClient: CustomStringConvertible {
@@ -39,10 +40,13 @@ actor GrpcClient: CustomStringConvertible {
   private let connectorName: String // Fully qualified connector name
 
   private let auth: Auth
+    
+    private let appCheck: AppCheck
 
   private enum RequestHeaders {
     static let googRequestParamsHeader = "x-goog-request-params"
     static let authorizationHeader = "x-firebase-auth-token"
+      static let appCheckHeader = "x-firebase-appcheck"
   }
 
   private let googRequestHeaderValue: String
@@ -67,11 +71,13 @@ actor GrpcClient: CustomStringConvertible {
   }()
 
   init(projectId: String, settings: DataConnectSettings, connectorConfig: ConnectorConfig,
-       auth: Auth) {
+       auth: Auth,
+       appCheck: AppCheck) {
     self.projectId = projectId
     serverSettings = settings
     self.connectorConfig = connectorConfig
     self.auth = auth
+      self.appCheck = appCheck
 
     connectorName =
       "projects/\(projectId)/locations/\(connectorConfig.location)/services/\(connectorConfig.serviceId)/connectors/\(connectorConfig.connector)"
