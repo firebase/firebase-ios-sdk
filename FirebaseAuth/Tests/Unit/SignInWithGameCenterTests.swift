@@ -57,7 +57,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
     let kDisplayName = "DISPLAYNAME"
 
     let signature = try XCTUnwrap(Data(base64Encoded: kSignature))
-    let salt = try XCTUnwrap(Data(base64URLEncoded: kSalt))
+    let salt = try XCTUnwrap(Data(base64Encoded: kSalt))
     let request = try SignInWithGameCenterRequest(playerID: kPlayerID,
                                                   teamPlayerID: kTeamPlayerID,
                                                   gamePlayerID: kGamePlayerID,
