@@ -17,10 +17,11 @@
 // These aren't tests in the usual sense--they just verify that the Objective-C to Swift translation
 // results in the right names.
 
+@_exported import class FirebaseCore.Timestamp
+
 import Foundation
 import XCTest
 
-import FirebaseCore
 import FirebaseFirestore
 
 class BasicCompileTests: XCTestCase {

@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+@_exported import class FirebaseCore.Timestamp
+
 import FirebaseAuth
-import FirebaseCore
 import FirebaseFirestore
 import SwiftUI
 

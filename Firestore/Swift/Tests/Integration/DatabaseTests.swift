@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+@_exported import FirebaseCore
+
 import Foundation
 import XCTest
 
-import FirebaseCore
 import FirebaseFirestore
 
 #if swift(>=5.5.2)
