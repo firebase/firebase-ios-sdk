@@ -389,7 +389,7 @@
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view">
                                 <rect key="frame" x="87" y="84" width="240" height="728"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-image-view" label="In-app message image">
                                             <bool key="isElement" value="YES"/>
@@ -437,14 +437,14 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-ar-k7h">
-                                        <rect key="frame" x="24" y="234.33333333333331" width="192" height="95"/>
+                                    <scrollView verifyAmbiguity="off" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-ar-k7h">
+                                        <rect key="frame" x="24" y="234.33333333333329" width="192" height="415.66666666666674"/>
                                         <subviews>
                                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FCm-ce-mVR">
-                                                <rect key="frame" x="0.0" y="0.0" width="192" height="95"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="192" height="38"/>
                                                 <subviews>
-                                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Lable" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
-                                                        <rect key="frame" x="0.0" y="0.0" width="192" height="95"/>
+                                                    <textView verifyAmbiguity="off" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Lable Lable Lable Lable " textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
+                                                        <rect key="frame" x="0.0" y="0.0" width="192" height="38"/>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <accessibility key="accessibilityConfiguration" identifier="card-body-text-view"/>
                                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -462,13 +462,10 @@
                                             </view>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="FCm-ce-mVR" firstAttribute="height" secondItem="Tmr-ar-k7h" secondAttribute="height" id="DyY-vZ-DQg"/>
-                                            <constraint firstItem="FCm-ce-mVR" firstAttribute="width" secondItem="Tmr-ar-k7h" secondAttribute="width" id="S6v-ts-P5K"/>
-                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="95" id="Vqm-r6-GDA"/>
-                                            <constraint firstItem="FCm-ce-mVR" firstAttribute="centerX" secondItem="Tmr-ar-k7h" secondAttribute="centerX" id="a2V-lO-x9B"/>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="110" id="2Ot-jE-M4N"/>
+                                            <constraint firstItem="elG-N9-aqH" firstAttribute="width" secondItem="Tmr-ar-k7h" secondAttribute="width" id="9ne-k6-iRF"/>
                                             <constraint firstItem="FCm-ce-mVR" firstAttribute="leading" secondItem="Tmr-ar-k7h" secondAttribute="leading" id="aCR-bL-PKW"/>
                                             <constraint firstItem="FCm-ce-mVR" firstAttribute="top" secondItem="Tmr-ar-k7h" secondAttribute="top" id="nCk-nR-XPF"/>
-                                            <constraint firstItem="FCm-ce-mVR" firstAttribute="centerY" secondItem="Tmr-ar-k7h" secondAttribute="centerY" id="sZM-m5-9si"/>
                                             <constraint firstAttribute="trailing" secondItem="FCm-ce-mVR" secondAttribute="trailing" id="vbb-xJ-IEF"/>
                                             <constraint firstAttribute="bottom" secondItem="FCm-ce-mVR" secondAttribute="bottom" id="xlO-dY-jm0"/>
                                         </constraints>
@@ -504,7 +501,6 @@
                                     <constraint firstItem="Tmr-ar-k7h" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" id="6oY-Eb-2Mh"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" identifier="Title label spacing after image view - landscape" id="7IV-jj-DjU" userLabel="Title label spacing after image view - landscape"/>
                                     <constraint firstAttribute="trailing" secondItem="aZE-3x-WHk" secondAttribute="trailing" constant="24" identifier="Primary action button right padding" id="9lx-l9-3We" userLabel="Primary action button right padding"/>
-                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Tmr-ar-k7h" secondAttribute="bottom" constant="24" id="OqZ-GD-cSz"/>
                                     <constraint firstItem="Feg-VM-jUf" firstAttribute="centerY" secondItem="aZE-3x-WHk" secondAttribute="centerY" identifier="Align action buttons vertically" id="PaU-zW-YCD" userLabel="Align action buttons vertically"/>
                                     <constraint firstItem="Tmr-ar-k7h" firstAttribute="leading" secondItem="gB0-8W-G9z" secondAttribute="trailing" constant="24" id="Q0o-hu-ttH"/>
                                     <constraint firstItem="oVh-9O-yfC" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" constant="24" identifier="Title label left padding - portrait" id="RVJ-ts-fU5" userLabel="Title label left padding - portrait"/>
@@ -520,6 +516,7 @@
                                     <constraint firstAttribute="trailing" secondItem="oVh-9O-yfC" secondAttribute="trailing" constant="24" identifier="Title label right padding" id="pnO-B6-iqg" userLabel="Title label right padding"/>
                                     <constraint firstItem="gB0-8W-G9z" firstAttribute="leading" secondItem="Aft-rr-icV" secondAttribute="leading" identifier="Image view no left padding in card view" id="wTO-Mi-2vr" userLabel="Image view no left padding in card view"/>
                                     <constraint firstAttribute="trailing" secondItem="gB0-8W-G9z" secondAttribute="trailing" identifier="Image view no right padding in card view - portrait" id="xX5-sm-qJG" userLabel="Image view no right padding in card view - portrait"/>
+                                    <constraint firstItem="aZE-3x-WHk" firstAttribute="top" secondItem="Tmr-ar-k7h" secondAttribute="bottom" constant="24" id="xpw-H5-0G0"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
