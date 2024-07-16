@@ -44,7 +44,7 @@ NS_SWIFT_NAME(PersistentCacheSettings)
 /**
  * Creates `PersistentCacheSettings` with default cache size: 100MB.
  *
- * The cache size is not a hard limit, but a target for the SDK's gabarge collector to work towards.
+ * The cache size is not a hard limit, but a target for the SDK's garbage collector to work towards.
  */
 - (instancetype)init;
 
