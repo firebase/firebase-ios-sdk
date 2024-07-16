@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-#import "FirebaseCore/FIRTimestamp.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
 
 #include "Firestore/core/src/util/warnings.h"
 

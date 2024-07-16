@@ -23,7 +23,7 @@
 #include <vector>
 
 #import "FIRGeoPoint.h"
-#import "FirebaseCore/FIRTimestamp.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
