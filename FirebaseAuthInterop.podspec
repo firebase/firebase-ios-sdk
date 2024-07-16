@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuthInterop'
-  s.version          = '10.28.0'
+  s.version          = '11.0.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
   s.description      = <<-DESC
@@ -20,11 +20,11 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '11.0'
-  s.osx.deployment_target = '10.13'
-  s.tvos.deployment_target = '12.0'
-  s.watchos.deployment_target = '6.0'
+  s.ios.deployment_target = '13.0'
+  s.osx.deployment_target = '10.15'
+  s.tvos.deployment_target = '13.0'
+  s.watchos.deployment_target = '7.0'
 
-  s.source_files = 'FirebaseAuth/Interop/*.[hm]'
-  s.public_header_files = 'FirebaseAuth/Interop/*.h'
+  s.source_files = 'FirebaseAuth/Interop/**/*.[hm]'
+  s.public_header_files = 'FirebaseAuth/Interop/Public/FirebaseAuthInterop/*.h'
 end

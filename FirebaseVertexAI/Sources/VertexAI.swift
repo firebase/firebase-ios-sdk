@@ -21,7 +21,7 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public class VertexAI: NSObject {
   // MARK: - Public APIs
 
@@ -50,12 +50,17 @@ public class VertexAI: NSObject {
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
-    guard let provider = ComponentType<VertexAIProvider>.instance(for: VertexAIProvider.self,
-                                                                  in: app.container) else {
-      fatalError("No \(VertexAIProvider.self) instance found for Firebase app: \(app.name)")
-    }
+    os_unfair_lock_lock(&instancesLock)
 
-    return provider.vertexAI(location)
+    // Unlock before the function returns.
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    if let instance = instances[location] {
+      return instance
+    }
+    let newInstance = VertexAI(app: app, location: location)
+    instances[location] = newInstance
+    return newInstance
   }
 
   /// Initializes a generative model with the given parameters.
@@ -64,8 +69,8 @@ public class VertexAI: NSObject {
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash-preview-0514"`;
-  ///     see [available model names
+  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash"`; see
+  ///     [available model names
   ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
   ///     list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
@@ -112,6 +117,10 @@ public class VertexAI: NSObject {
     )
   }
 
+  /// Class to enable VertexAI to register via the Objective-C based Firebase component system
+  /// to include VertexAI in the userAgent.
+  @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
+
   // MARK: - Private
 
   /// The `FirebaseApp` associated with this `VertexAI` instance.
@@ -120,6 +129,13 @@ public class VertexAI: NSObject {
   private let appCheck: AppCheckInterop?
 
   private let auth: AuthInterop?
+
+  /// A map of active  `VertexAI` instances for `app`, keyed by model resource names
+  /// (e.g., "projects/my-project-id/locations/us-central1/publishers/google/models/gemini-pro").
+  private static var instances: [String: VertexAI] = [:]
+
+  /// Lock to manage access to the `instances` array to avoid race conditions.
+  private static var instancesLock: os_unfair_lock = .init()
 
   let location: String
 

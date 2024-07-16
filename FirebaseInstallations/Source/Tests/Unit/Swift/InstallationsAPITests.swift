@@ -165,7 +165,6 @@ final class InstallationsAPITests {
           break
         case InstallationsErrorCode.invalidConfiguration:
           break
-
         default:
           break
         }

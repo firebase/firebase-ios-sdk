@@ -21,7 +21,7 @@ include(ExternalProject)
 # 2. Running `shasum` on the downloaded tarball.
 #    - `shasum -a 256 GoogleUtilities-${version}.tar.gz`
 # 3. Copying the output of the above command into the `URL_HASH` below.
-set(version 7.12.0)
+set(version 8.0.0)
 
 ExternalProject_Add(
   GoogleUtilities
@@ -29,7 +29,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME GoogleUtilities-${version}.tar.gz
   URL https://github.com/google/GoogleUtilities/archive/${version}.tar.gz
-  URL_HASH SHA256=0e9461fa0c751ac73125c3d7edd95ac923a80a36a04b4a1b0f47c9a9279d8c2a
+  URL_HASH SHA256=570f492dcf5ead37ca4dd11cfb65f3f6fd82ebf42658e9df687047d17b290f79
 
   PREFIX ${PROJECT_BINARY_DIR}
 

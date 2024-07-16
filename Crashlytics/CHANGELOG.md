@@ -1,3 +1,9 @@
+# 10.28.1
+- [changed] Reverted "Add SIGTERM support (#12881)" (#13117)
+
+# 10.28.0
+- [fixed] Created a new queue for rollouts persistence writes and made sure rollouts logging queue is not nil while dispatching (#12913).
+
 # 10.27.0
 - [added] Added support for catching the SIGTERM signal (#12881).
 - [fixed] Fixed a hang when persisting Remote Config Rollouts to disk (#12913).

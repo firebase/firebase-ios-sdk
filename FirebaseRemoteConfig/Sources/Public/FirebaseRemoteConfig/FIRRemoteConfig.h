@@ -138,7 +138,7 @@ typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
 NS_SWIFT_NAME(RemoteConfigValue)
 @interface FIRRemoteConfigValue : NSObject <NSCopying>
 /// Gets the value as a string.
-@property(nonatomic, readonly, nullable) NSString *stringValue;
+@property(nonatomic, readonly, nonnull) NSString *stringValue;
 /// Gets the value as a number value.
 @property(nonatomic, readonly, nonnull) NSNumber *numberValue;
 /// Gets the value as a NSData object.

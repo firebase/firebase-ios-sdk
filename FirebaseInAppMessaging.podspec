@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInAppMessaging'
-  s.version          = '10.28.0-beta'
+  s.version          = '11.0.0-beta'
   s.summary          = 'Firebase In-App Messaging for iOS'
 
   s.description      = <<-DESC
@@ -17,10 +17,10 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '11.0'
-  s.tvos.deployment_target = '12.0'
+  s.ios.deployment_target = '13.0'
+  s.tvos.deployment_target = '13.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
@@ -80,16 +80,19 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'FirebaseInstallations', '~> 10.0'
-  s.dependency 'FirebaseABTesting', '~> 10.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.13'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 7.13'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30911.0'
+  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseInstallations', '~> 11.0'
+  s.dependency 'FirebaseABTesting', '~> 11.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
+  s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }
-      unit_tests.source_files = 'FirebaseInAppMessaging/Tests/Unit/*.[mh]'
+      unit_tests.source_files = [
+        'FirebaseInAppMessaging/Tests/Unit/*.[mh]',
+        'FirebaseInAppMessaging/Swift/Tests/Unit/*.swift'
+      ]
       unit_tests.resources = 'FirebaseInAppMessaging/Tests/Unit/*.txt'
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'

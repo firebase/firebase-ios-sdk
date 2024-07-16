@@ -19,7 +19,7 @@ import XCTest
 
 @testable import FirebaseVertexAI
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerativeModelTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
@@ -71,7 +71,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let partText = try XCTUnwrap(part.text)
-    XCTAssertTrue(partText.hasPrefix("You can ask me a wide range of questions"))
+    XCTAssertTrue(partText.hasPrefix("1. **Use Freshly Ground Coffee**:"))
     XCTAssertEqual(response.text, partText)
     XCTAssertEqual(response.functionCalls, [])
   }
@@ -92,7 +92,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    XCTAssertEqual(part.text, "Mountain View, California, United States")
+    XCTAssertEqual(part.text, "Mountain View, California")
     XCTAssertEqual(response.text, part.text)
     XCTAssertEqual(response.functionCalls, [])
   }
@@ -506,7 +506,7 @@ final class GenerativeModelTests: XCTestCase {
       XCTFail("Should throw")
     } catch let GenerateContentError.responseStoppedEarly(reason, response) {
       XCTAssertEqual(reason, .safety)
-      XCTAssertEqual(response.text, "No")
+      XCTAssertEqual(response.text, "<redacted>")
     } catch {
       XCTFail("Should throw a responseStoppedEarly")
     }
@@ -888,7 +888,7 @@ final class GenerativeModelTests: XCTestCase {
       responses += 1
     }
 
-    XCTAssertEqual(responses, 8)
+    XCTAssertEqual(responses, 6)
   }
 
   func testGenerateContentStream_successBasicReplyShort() async throws {
@@ -949,18 +949,14 @@ final class GenerativeModelTests: XCTestCase {
 
     let lastCandidate = try XCTUnwrap(responses.last?.candidates.first)
     XCTAssertEqual(lastCandidate.finishReason, .stop)
-    XCTAssertEqual(citations.count, 3)
+    XCTAssertEqual(citations.count, 6)
     XCTAssertTrue(citations
       .contains(where: {
-        $0.startIndex == 0 && $0.endIndex == 128 && !$0.uri.isEmpty && $0.license == nil
+        $0.startIndex == 574 && $0.endIndex == 705 && !$0.uri.isEmpty && $0.license == ""
       }))
     XCTAssertTrue(citations
       .contains(where: {
-        $0.startIndex == 130 && $0.endIndex == 265 && !$0.uri.isEmpty && $0.license == nil
-      }))
-    XCTAssertTrue(citations
-      .contains(where: {
-        $0.startIndex == 272 && $0.endIndex == 431 && !$0.uri.isEmpty && $0.license == "mit"
+        $0.startIndex == 899 && $0.endIndex == 1026 && !$0.uri.isEmpty && $0.license == ""
       }))
   }
 
@@ -1159,7 +1155,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testCountTokens_succeeds() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
-      forResource: "success-total-tokens",
+      forResource: "unary-success-total-tokens",
       withExtension: "json"
     )
 
@@ -1171,7 +1167,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testCountTokens_succeeds_noBillableCharacters() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
-      forResource: "success-no-billable-characters",
+      forResource: "unary-success-no-billable-characters",
       withExtension: "json"
     )
 
@@ -1186,7 +1182,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testCountTokens_modelNotFound() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
-      forResource: "failure-model-not-found", withExtension: "json",
+      forResource: "unary-failure-model-not-found", withExtension: "json",
       statusCode: 404
     )
 
@@ -1207,7 +1203,7 @@ final class GenerativeModelTests: XCTestCase {
     let expectedTimeout = 150.0
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
-        forResource: "success-total-tokens",
+        forResource: "unary-success-total-tokens",
         withExtension: "json",
         timeout: expectedTimeout
       )
@@ -1285,6 +1281,11 @@ final class GenerativeModelTests: XCTestCase {
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    guard #unavailable(watchOS 2) else {
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    }
     return { request in
       // This is *not* an HTTPURLResponse
       let response = URLResponse(
@@ -1306,6 +1307,11 @@ final class GenerativeModelTests: XCTestCase {
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    guard #unavailable(watchOS 2) else {
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    }
     let fileURL = try XCTUnwrap(Bundle.module.url(forResource: name, withExtension: ext))
     return { request in
       let requestURL = try XCTUnwrap(request.url)
@@ -1347,7 +1353,7 @@ private extension URLRequest {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 class AppCheckInteropFake: NSObject, AppCheckInterop {
   /// The placeholder token value returned when an error occurs
   static let placeholderTokenValue = "placeholder-token"
@@ -1397,7 +1403,7 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
 
 struct AppCheckErrorFake: Error {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Comparable {
   public static func < (lhs: FirebaseVertexAI.SafetyRating,
                         rhs: FirebaseVertexAI.SafetyRating) -> Bool {

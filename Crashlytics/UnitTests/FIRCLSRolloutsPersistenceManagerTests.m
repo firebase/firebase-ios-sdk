@@ -30,6 +30,7 @@ NSString *reportId = @"1234567";
 
 @interface FIRCLSRolloutsPersistenceManagerTests : XCTestCase
 @property(nonatomic, strong) FIRCLSTempMockFileManager *fileManager;
+@property(nonatomic, strong) dispatch_queue_t loggingQueue;
 @property(nonatomic, strong) FIRCLSRolloutsPersistenceManager *rolloutsPersistenceManager;
 @end
 
@@ -41,8 +42,11 @@ NSString *reportId = @"1234567";
   [self.fileManager createReportDirectories];
   [self.fileManager setupNewPathForExecutionIdentifier:reportId];
 
+  self.loggingQueue =
+      dispatch_queue_create("com.google.firebase.FIRCLSRolloutsPersistence", DISPATCH_QUEUE_SERIAL);
   self.rolloutsPersistenceManager =
-      [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:self.fileManager];
+      [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:self.fileManager
+                                                           andQueue:self.loggingQueue];
 }
 
 - (void)tearDown {
@@ -65,18 +69,22 @@ NSString *reportId = @"1234567";
   NSString *rolloutsFilePath =
       [[[self.fileManager activePath] stringByAppendingPathComponent:reportId]
           stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
-
   [self.rolloutsPersistenceManager updateRolloutsStateToPersistenceWithRollouts:data
                                                                        reportID:reportId];
-
+  XCTAssertNotNil(self.loggingQueue);
   // Wait for the logging queue to finish.
-  dispatch_async(FIRCLSGetLoggingQueue(), ^{
+  dispatch_async(self.loggingQueue, ^{
     [expectation fulfill];
   });
 
   [self waitForExpectations:@[ expectation ] timeout:3];
 
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
+
+  NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsFilePath];
+  NSData *fileData = [rolloutsFile readDataToEndOfFile];
+  NSString *fileString = [[NSString alloc] initWithData:fileData encoding:NSUTF8StringEncoding];
+  XCTAssertTrue([fileString isEqualToString:[encodedStateString stringByAppendingString:@"\n"]]);
 }
 
 - (void)testUpdateRolloutsStateToPersistenceEnsureNoHang {
@@ -93,7 +101,7 @@ NSString *reportId = @"1234567";
 
   // Clog up the queue with a long running operation. This sleep time
   // must be longer than the expectation timeout.
-  dispatch_async(FIRCLSGetLoggingQueue(), ^{
+  dispatch_async(self.loggingQueue, ^{
     sleep(10);
   });
 

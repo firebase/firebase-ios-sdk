@@ -6,6 +6,8 @@ on:
     - 'ReleaseTooling/Sources/**'
     - '.github/workflows/zip.yml'
     - 'scripts/build_non_firebase_sdks.sh'
+    - 'scripts/build_zip.sh'
+    - 'scripts/setup_quickstart_framework.sh'
     - 'Gemfile*'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
@@ -45,7 +47,7 @@ jobs:
          sh -x scripts/build_zip.sh release_zip_dir \
            "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}" \
            build-release \
-           static
+           dynamic
     - uses: actions/upload-artifact@v4
       with:
         name: Firebase-release-zip-zip
@@ -93,7 +95,7 @@ jobs:
            ${{ matrix.linking_type }}
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.linking_type == 'static' && 'Firebase-actions-dir' || 'Firebase-actions-dir-dynamic' }}
+        name: ${{ matrix.linking_type == 'dynamic' && 'Firebase-actions-dir' || 'Firebase-actions-dir-static' }}
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
@@ -109,7 +111,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -171,7 +173,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -225,7 +227,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -277,7 +279,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -353,7 +355,7 @@ jobs:
       matrix:
         os: [macos-13]
         xcode: [Xcode_15.2]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -404,7 +406,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -464,7 +466,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -549,7 +551,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -606,7 +608,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2
@@ -662,7 +664,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13, macos-14]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-static]
         include:
           - os: macos-13
             xcode: Xcode_15.2

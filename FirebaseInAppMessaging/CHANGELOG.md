@@ -1,3 +1,17 @@
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseInAppMessagingSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [changed] **Breaking Change**: The following Swift API have been renamed:
+  - `FIRInAppMessagingDismissType` → `InAppMessagingDismissType`
+  - `FIRInAppMessagingDisplayMessageType` → `InAppMessagingDisplayMessageType`
+  - `FIRInAppMessagingDisplayTriggerType` → `InAppMessagingDisplayTriggerType`
+  - `FIAMDisplayRenderErrorType` → `InAppMessagingDisplayRenderError`
+  Note that `InAppMessagingDisplayRenderError` is now a native Swift error and
+  can be directly caught (instead of catching an `NSError` and checking the
+  error code).
+
 # 10.27.0
 - [fixed] Fixed crash at app start that affected CocoaPods users using static
   frameworks (#12882).

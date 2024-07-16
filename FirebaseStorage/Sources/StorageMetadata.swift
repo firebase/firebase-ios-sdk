@@ -22,6 +22,7 @@ import Foundation
  * and a Storage reference to the object in question. Full documentation can be found in the
  * [GCS documentation](https://cloud.google.com/storage/docs/json_api/v1/objects#resource)
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageMetadata) open class StorageMetadata: NSObject {
   // MARK: - Public APIs
 
@@ -230,7 +231,7 @@ import Foundation
     return 0
   }
 
-  private static var dateFormatter: DateFormatter = {
+  private static let dateFormatter: DateFormatter = {
     let dateFormatter = DateFormatter()
     dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZZZ"

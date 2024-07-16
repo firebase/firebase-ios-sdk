@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
-#else
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
-
+import FirebaseCore
 import FirebaseSharedSwift
 import Foundation
 

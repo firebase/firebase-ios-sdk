@@ -211,7 +211,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
 
       FIRCLSRolloutsPersistenceManager *persistenceManager =
-          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager];
+          [[FIRCLSRolloutsPersistenceManager alloc]
+              initWithFileManager:_fileManager
+                         andQueue:dispatch_queue_create(
+                                      "com.google.firebase.FIRCLSRolloutsPersistence",
+                                      DISPATCH_QUEUE_SERIAL)];
       _remoteConfigManager =
           [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
                                               persistenceDelegate:persistenceManager];
@@ -227,12 +231,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)];
-
-  FIRDependency *sessionsDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
-
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -259,7 +257,6 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRCrashlyticsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep, sessionsDep ]
                             creationBlock:creationBlock];
   return @[ component ];
 }

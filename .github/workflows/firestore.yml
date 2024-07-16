@@ -50,7 +50,6 @@ jobs:
               # Podspec
               - 'FirebaseFirestoreInternal.podspec'
               - 'FirebaseFirestore.podspec'
-              - 'FirebaseFirestoreSwift.podspec'
 
               # CMake
               - '**CMakeLists.txt'
@@ -462,8 +461,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   spm-binary:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -481,8 +478,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
   check-firestore-internal-public-headers:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -534,8 +529,6 @@ jobs:
   #     run: scripts/setup_spm_tests.sh
   #   - name: Build Test - Binary
   #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-  #   - name: Swift Build
-  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
     # Don't run on private repo.
@@ -553,8 +546,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.

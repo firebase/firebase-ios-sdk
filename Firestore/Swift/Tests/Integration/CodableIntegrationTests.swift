@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
-@testable import FirebaseFirestoreSwift
+import FirebaseCore
+@testable import FirebaseFirestore
 import Foundation
 
 class CodableIntegrationTests: FSTIntegrationTestCase {

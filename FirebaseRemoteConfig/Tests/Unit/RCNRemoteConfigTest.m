@@ -76,7 +76,7 @@
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
-- (NSData *)createRequestBody;
+- (void)createRequestBodyWithCompletion:(void (^)(NSData *_Nonnull requestBody))completion;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (RCNConfigUpdateCompletion _Nonnull)listener;
@@ -1786,8 +1786,14 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testRealtimeStreamRequestBody {
+  XCTestExpectation *requestBodyExpectation = [self expectationWithDescription:@"requestBody"];
+  __block NSData *requestBody;
+  [_configRealtime[0] createRequestBodyWithCompletion:^(NSData *_Nonnull data) {
+    requestBody = data;
+    [requestBodyExpectation fulfill];
+  }];
+  [self waitForExpectations:@[ requestBodyExpectation ] timeout:5.0];
   NSError *error;
-  NSData *requestBody = [_configRealtime[0] createRequestBody];
   NSData *uncompressedRequest = [NSData gul_dataByInflatingGzippedData:requestBody error:&error];
   NSString *strData = [[NSString alloc] initWithData:uncompressedRequest
                                             encoding:NSUTF8StringEncoding];

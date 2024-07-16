@@ -203,7 +203,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
                         @"Failed to recognize the fiam messages in the server response";
                     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM130011", @"%@", errorDesc);
                     NSError *error =
-                        [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+                        [NSError errorWithDomain:FIRInAppMessagingErrorDomain
                                             code:0
                                         userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
                     completion(nil, nil, 0, error);
@@ -227,7 +227,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
               NSString *errorDesc = @"Got a non http response type from fetch endpoint";
               FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM130005", @"%@", errorDesc);
 
-              NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+              NSError *error = [NSError errorWithDomain:FIRInAppMessagingErrorDomain
                                                    code:0
                                                userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
               completion(nil, nil, 0, error);
@@ -240,7 +240,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
         @"Internal error: NSURLSessionDataTask failed to be created due to possibly "
          "incorrect parameters";
     FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM130006", @"%@", errorDesc);
-    NSError *error = [NSError errorWithDomain:kFirebaseInAppMessagingErrorDomain
+    NSError *error = [NSError errorWithDomain:FIRInAppMessagingErrorDomain
                                          code:0
                                      userInfo:@{NSLocalizedDescriptionKey : errorDesc}];
     completion(nil, nil, 0, error);

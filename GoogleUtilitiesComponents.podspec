@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilitiesComponents'
-  s.version          = '1.1.0'
+  s.version          = '2.0.0'
   s.summary          = 'Google Utilities Component Container for Apple platforms.'
 
   s.description      = <<-DESC
@@ -18,9 +18,7 @@ Not intended for direct public usage.
     :tag => 'UtilitiesComponents-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '11.0'
-  s.osx.deployment_target = '10.13'
-  s.tvos.deployment_target = '12.0'
+  s.ios.deployment_target = '12.0'
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
@@ -29,7 +27,7 @@ Not intended for direct public usage.
   s.source_files = 'GoogleUtilitiesComponents/Sources/**/*.[mh]'
   s.public_header_files = 'GoogleUtilitiesComponents/Sources/Public/*.h', 'GoogleUtilitiesComponents/Sources/Private/*.h'
   s.private_header_files = 'GoogleUtilitiesComponents/Sources/Private/*.h'
-  s.dependency 'GoogleUtilities/Logger'
+  s.dependency 'GoogleUtilities/Logger', "~> 8.0"
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

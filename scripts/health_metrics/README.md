@@ -74,4 +74,4 @@ could be found in `runs-on`. More details about the envionment could be found [h
 Factors below might also affect the binary size:
 - Each testapp is measured by a default version Xcode from the GitHub Actions environment above.
 - Architecture is set to `arm64` and the destination is `generic/platform=iOS Simulator` when a testapp is built.
-- The source of dependencies is the [SpecStaging repo](https://github.com/firebase/SpecsStaging), which is for prerelease, and [CocoaPods CDN](https://cdn.cocoapods.org).
+- The source of dependencies is the [SpecsStaging repo](https://github.com/firebase/SpecsStaging), which is for prerelease, and [CocoaPods CDN](https://cdn.cocoapods.org).

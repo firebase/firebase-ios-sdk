@@ -1,3 +1,25 @@
+# Firebase 11.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 11 |
+      | ------------- | ------------- |
+      | iOS  | **13.0**  |
+      | tvOS  | **13.0**  |
+      | macOS  | **10.15**  |
+      | watchOS  | 7.0  |
+  - FirebaseAnalytics and FirebaseCrashlytics also continue to support iOS 12.0.
+- [removed] **Breaking change**: The deprecated Swift extension SDKs for
+  Analytics, Firestore, Database, Remote Config and In App Messaging have
+  been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [changed] **Breaking change**: Binary release artifacts now contain dynamic
+  XCFrameworks.
+- Update underlying FIRLogger implementation from `asl` to `os_log`.
+- Remove `FIRLoggerForceSTDERR` configuration option.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
+
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See
   https://developer.apple.com/news/?id=fxu2qp7b for more info.

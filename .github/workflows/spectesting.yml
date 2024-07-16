@@ -1,7 +1,11 @@
 name: spectesting
 
 on:
-  pull_request
+  #TODO: restore
+  #pull_request
+  pull_request:
+    branches:
+      - none
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}

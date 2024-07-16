@@ -22,12 +22,11 @@
 #include <string>
 #include <utility>
 
-#import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponent.h"
 #import "FirebaseCore/Extension/FIRComponentContainer.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FIRDependency.h"
 #import "FirebaseCore/Extension/FIRLibrary.h"
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -160,12 +159,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Interoperability
 
 + (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *auth = [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
-                                                   isRequired:NO];
   FIRComponent *firestoreProvider = [FIRComponent
       componentWithProtocol:@protocol(FSTFirestoreMultiDBProvider)
         instantiationTiming:FIRInstantiationTimingLazy
-               dependencies:@[ auth ]
               creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
                 FSTFirestoreComponent *multiDBComponent =
                     [[FSTFirestoreComponent alloc] initWithApp:container.app];

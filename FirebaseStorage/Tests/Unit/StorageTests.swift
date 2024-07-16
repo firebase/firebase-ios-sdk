@@ -23,6 +23,7 @@ import SharedTestUtilities
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -45,7 +46,7 @@ class StorageTests: XCTestCase {
     XCTAssertThrowsError(try storage.reference(for: url), "This was supposed to fail.") { error in
       XCTAssertEqual(
         "\(error)",
-        "bucketMismatch(\"Provided bucket: `benwu-test2.storage.firebase.com` does not match the " +
+        "bucketMismatch(message: \"Provided bucket: `benwu-test2.storage.firebase.com` does not match the " +
           "Storage bucket of the current instance: `benwu-test1.storage.firebase.com`\")"
       )
     }
@@ -126,7 +127,7 @@ class StorageTests: XCTestCase {
     XCTAssertThrowsError(try storage.reference(for: url), "This was supposed to fail.") { error in
       XCTAssertEqual(
         "\(error)",
-        "bucketMismatch(\"Provided bucket: `bucket` does not match the " +
+        "bucketMismatch(message: \"Provided bucket: `bucket` does not match the " +
           "Storage bucket of the current instance: `notMyBucket`\")"
       )
     }
@@ -134,7 +135,7 @@ class StorageTests: XCTestCase {
 
   func testUseEmulator() throws {
     let app = try getApp(bucket: "bucket-for-testUseEmulator")
-    let storage = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
+    let storage = Storage.storage(app: app)
     storage.useEmulator(withHost: "localhost", port: 8080)
     XCTAssertNoThrow(storage.reference())
   }

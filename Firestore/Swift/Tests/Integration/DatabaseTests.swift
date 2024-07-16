@@ -30,7 +30,7 @@ import FirebaseFirestore
 
       try await db.document("coll/doc").setData(["foo": "bar"])
       let result = try? await db.document("coll/doc").getDocument(source: .cache)
-      XCTAssertNil(result)
+      XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
     }
 
     func testCanStillUseEnablePersistenceSettings() async throws {
@@ -50,7 +50,7 @@ import FirebaseFirestore
 
       try await db.document("coll/doc").setData(["foo": "bar"])
       let result = try? await db.document("coll/doc").getDocument(source: .cache)
-      XCTAssertNil(result)
+      XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
     }
 
     func testCanGetDocumentWithMemoryLruGCEnabled() async throws {
@@ -97,7 +97,7 @@ import FirebaseFirestore
 
       try await db.document("coll/doc").setData(["foo": "bar"])
       let result = try? await db.document("coll/doc").getDocument(source: .cache)
-      XCTAssertNil(result)
+      XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
     }
 
     func testGetValidPersistentCacheIndexManager() async throws {

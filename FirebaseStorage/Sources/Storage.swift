@@ -36,6 +36,7 @@ import FirebaseCore
 ///
 /// If you provide a custom instance of `FirebaseApp`,
 /// the storage location will be specified via the `FirebaseOptions.storageBucket` property.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorage) open class Storage: NSObject {
   // MARK: - Public APIs
 
@@ -61,11 +62,7 @@ import FirebaseCore
   /// - Parameter app: The custom `FirebaseApp` used for initialization.
   /// - Returns: A `Storage` instance, configured with the custom `FirebaseApp`.
   @objc(storageForApp:) open class func storage(app: FirebaseApp) -> Storage {
-    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                                 in: app.container) else {
-      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
-    }
-    return provider.storage(for: Storage.bucket(for: app))
+    return storage(app: app, bucket: Storage.bucket(for: app))
   }
 
   /// Creates an instance of `Storage`, configured with a custom `FirebaseApp` and a custom storage
@@ -77,11 +74,19 @@ import FirebaseCore
   /// URL.
   @objc(storageForApp:URL:)
   open class func storage(app: FirebaseApp, url: String) -> Storage {
-    guard let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                                 in: app.container) else {
-      fatalError("No \(StorageProvider.self) instance found for Firebase app: \(app.name)")
+    return storage(app: app, bucket: Storage.bucket(for: app, urlString: url))
+  }
+
+  private class func storage(app: FirebaseApp, bucket: String) -> Storage {
+    os_unfair_lock_lock(&instancesLock)
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    if let instance = instances[bucket] {
+      return instance
     }
-    return provider.storage(for: Storage.bucket(for: app, urlString: url))
+    let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
+    instances[bucket] = newInstance
+    return newInstance
   }
 
   /// The `FirebaseApp` associated with this Storage instance.
@@ -134,6 +139,7 @@ import FirebaseCore
 
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
   /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc open func reference() -> StorageReference {
     ensureConfigured()
     let path = StoragePath(with: storageBucket)
@@ -149,8 +155,8 @@ import FirebaseCore
   /// - Parameter url: A gs:// or https:// URL to initialize the reference with.
   /// - Returns: An instance of StorageReference at the given child path.
   /// - Throws: Throws a fatal error if `url` is not associated with the `FirebaseApp` used to
-  /// initialize
-  ///     this Storage instance.
+  /// initialize this Storage instance.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc open func reference(forURL url: String) -> StorageReference {
     ensureConfigured()
     do {
@@ -189,9 +195,9 @@ import FirebaseCore
     do {
       path = try StoragePath.path(string: url.absoluteString)
     } catch let StoragePathError.storagePathError(message) {
-      throw StorageError.pathError(message)
+      throw StorageError.pathError(message: message)
     } catch {
-      throw StorageError.pathError("Internal error finding StoragePath: \(error)")
+      throw StorageError.pathError(message: "Internal error finding StoragePath: \(error)")
     }
 
     // If no default bucket exists (empty string), accept anything.
@@ -201,7 +207,7 @@ import FirebaseCore
     // If there exists a default bucket, throw if provided a different bucket.
     if path.bucket != storageBucket {
       throw StorageError
-        .bucketMismatch("Provided bucket: `\(path.bucket)` does not match the Storage " +
+        .bucketMismatch(message: "Provided bucket: `\(path.bucket)` does not match the Storage " +
           "bucket of the current instance: `\(storageBucket)`")
     }
     return StorageReference(storage: self, path: path)
@@ -342,6 +348,14 @@ import FirebaseCore
   private let appCheck: AppCheckInterop?
   private let storageBucket: String
   private var usesEmulator: Bool = false
+
+  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
+  /// instances of Storage associated with the given app.
+  private static var instances: [String: Storage] = [:]
+
+  /// Lock to manage access to the instances array to avoid race conditions.
+  private static var instancesLock: os_unfair_lock = .init()
+
   var host: String
   var scheme: String
   var port: Int

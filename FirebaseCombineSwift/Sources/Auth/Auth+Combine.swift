@@ -14,6 +14,7 @@
 
 import Combine
 import FirebaseAuth
+import Foundation
 
 // Make this class discoverable from Objective-C. Don't instantiate directly.
 @objc(FIRCombineAuthLibrary) private class __CombineAuthLibrary: NSObject {}

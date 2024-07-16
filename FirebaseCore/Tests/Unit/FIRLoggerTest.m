@@ -117,13 +117,13 @@ static NSString *const kMessageCode = @"I-COR000001";
   [processInfoMock stopMocking];
 }
 
-- (void)testInitializeASLForDebugModeWithUserDefaults {
+- (void)testInitializeForDebugModeWithUserDefaults {
   // Stub.
   NSNumber *debugMode = @YES;
   [self.defaults setBool:debugMode.boolValue forKey:kFIRPersistedDebugModeKey];
 
   // Test.
-  GULLogError(@"my service", NO, kMessageCode, @"Some error.");
+  FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
   debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];

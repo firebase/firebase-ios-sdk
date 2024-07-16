@@ -23,7 +23,6 @@
   @testable import FirebaseMLModelDownloader
   import XCTest
   #if SWIFT_PACKAGE
-    @_implementationOnly import GoogleUtilities_Logger
     @_implementationOnly import GoogleUtilities_UserDefaults
   #else
     @_implementationOnly import GoogleUtilities
@@ -278,7 +277,7 @@
 
       guard let binaryData = try? modelOptions.serializedData(),
             let jsonData = try? modelOptions.jsonUTF8Data(),
-            let binaryEvent = try? ModelOptions(serializedData: binaryData),
+            let binaryEvent = try? ModelOptions(serializedBytes: binaryData),
             let jsonEvent = try? ModelOptions(jsonUTF8Data: jsonData) else {
         XCTFail("Encoding error.")
         return

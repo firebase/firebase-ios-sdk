@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
     'FirebaseVertexAI/Sources/**/*.swift',
   ]
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'

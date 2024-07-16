@@ -14,7 +14,7 @@
 
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
 
-#import <GoogleUtilities/GULSwizzledObject.h>
+#import "FirebasePerformance/Sources/ISASwizzler/FPRSwizzledObject.h"
 
 @class FPRSelectorInstrumentor;
 
