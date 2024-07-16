@@ -20,14 +20,14 @@
 
 #import "FIRGeoPoint.h"
 
-#import <FirebaseCore/FIRTimestamp.h>
-
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/api/firestore.h"
 #import "Firestore/core/src/api/listen_source.h"
 #include "Firestore/core/src/model/document_key.h"
+
+#import <FirebaseCore/FIRTimestamp.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

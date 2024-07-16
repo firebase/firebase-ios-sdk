@@ -24,8 +24,6 @@
 
 #import "FIRGeoPoint.h"
 
-#import <FirebaseCore/FIRTimestamp.h>
-
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
@@ -57,6 +55,8 @@
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
+
+#import <FirebaseCore/FIRTimestamp.h>
 
 namespace nanopb = firebase::firestore::nanopb;
 using firebase::Timestamp;
