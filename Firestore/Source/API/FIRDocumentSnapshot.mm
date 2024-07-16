@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot+Internal.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #include <utility>
 #include <vector>
 
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+#import "FIRDocumentSnapshot+Internal.h"
 
 #include "Firestore/core/src/util/warnings.h"
 

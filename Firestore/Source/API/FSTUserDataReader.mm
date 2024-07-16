@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #include <memory>
 #include <set>
@@ -22,8 +22,9 @@
 #include <utility>
 #include <vector>
 
+#import "Firestore/Source/API/FSTUserDataReader.h"
+
 #import "FIRGeoPoint.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
