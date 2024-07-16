@@ -14,11 +14,11 @@
 
 import Foundation
 
-#if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
-#else
+#if COCOAPODS
   @_implementationOnly import GoogleUtilities
-#endif // SWIFT_PACKAGE
+#else
+  @_implementationOnly import GoogleUtilities_Environment
+#endif // COCOAPODS
 
 #if COCOAPODS
   import GTMSessionFetcher
