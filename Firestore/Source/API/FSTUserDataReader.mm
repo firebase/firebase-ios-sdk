@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FSTUserDataReader.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #include <memory>
 #include <set>
 #include <string>
 #include <utility>
 #include <vector>
+
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #import "FIRGeoPoint.h"
 
@@ -55,8 +57,6 @@
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
-
-#import <FirebaseCore/FIRTimestamp.h>
 
 namespace nanopb = firebase::firestore::nanopb;
 using firebase::Timestamp;

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot+Internal.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #include <utility>
 #include <vector>
+
+#import "FIRDocumentSnapshot+Internal.h"
 
 #include "Firestore/core/src/util/warnings.h"
 
@@ -43,8 +45,6 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/string_apple.h"
-
-#import <FirebaseCore/FIRTimestamp.h>
 
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::DocumentSnapshot;

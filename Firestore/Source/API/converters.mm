@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#include "Firestore/Source/API/converters.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #include <utility>
+
+#include "Firestore/Source/API/converters.h"
 
 #import "FIRGeoPoint.h"
 
@@ -26,8 +28,6 @@
 #include "Firestore/core/src/api/firestore.h"
 #import "Firestore/core/src/api/listen_source.h"
 #include "Firestore/core/src/model/document_key.h"
-
-#import <FirebaseCore/FIRTimestamp.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
