@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-@_exported import class FirebaseCore.Timestamp
-
+import class FirebaseCore.Timestamp
 import FirebaseFirestore
 import Foundation
 import XCTest
