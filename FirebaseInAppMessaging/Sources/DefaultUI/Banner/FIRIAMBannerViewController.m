@@ -162,9 +162,11 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   // Calculate status bar height.
   CGFloat statusBarHeight = 0;
   if (@available(iOS 13.0, tvOS 13.0, *)) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     UIStatusBarManager *manager =
         [UIApplication sharedApplication].keyWindow.windowScene.statusBarManager;
-
+#pragma clang diagnostic pop
     statusBarHeight = manager.statusBarFrame.size.height;
   } else {
     statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
