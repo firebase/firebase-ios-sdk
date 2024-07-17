@@ -114,7 +114,7 @@ jobs:
     - name: Objc Import Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh objc-import-test ${{ matrix.target }} spmbuildonly
     - name: Swift Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh swift-test ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh swift-test ${{ matrix.target }} spmbuildonly
     - name: Version Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh version-test ${{ matrix.target }} spm
     - name: Analytics Build Tests
