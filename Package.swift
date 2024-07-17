@@ -1359,7 +1359,10 @@ func abseilDependency() -> Package.Dependency {
     )
     return .package(url: packageInfo.url, packageInfo.range)
   } else {
-    return .package(url: "https://github.com/google/abseil-cpp-binary.git", branch: "main")
+    return .package(
+      url: "https://github.com/google/abseil-cpp-binary.git",
+      branch: "ncooke3-patch-2"
+    )
   }
 }
 
@@ -1373,7 +1376,7 @@ func grpcDependency() -> Package.Dependency {
     return .package(url: packageInfo.url, packageInfo.range)
   } else {
     // packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.2" ..< "1.63.0")
-    return .package(url: "https://github.com/google/grpc-binary.git", branch: "main")
+    return .package(url: "https://github.com/google/grpc-binary.git", branch: "ncooke3-patch-2")
   }
 }
 
