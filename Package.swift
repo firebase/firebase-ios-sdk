@@ -1360,7 +1360,8 @@ func abseilDependency() -> Package.Dependency {
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024011601.1" ..< "1.2024011700.0"
+      branch: "main"
+      // "1.2024011601.1" ..< "1.2024011700.0"
     )
   }
 
@@ -1375,7 +1376,8 @@ func grpcDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.2" ..< "1.63.0")
+    // packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.2" ..< "1.63.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", branch: "main")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1513,8 +1515,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.27.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "38f6d1bb13fabca97f53c0ef5bf283b2fbbbf460eac8fa875cd3faab597097b8"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.0.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "8d8acb255491852589f40e8a7ed67e9de2f3e43e3ff81ecdae0474b1141e97f6"
       )
     }
   }()
