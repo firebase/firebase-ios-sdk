@@ -1357,15 +1357,10 @@ func abseilDependency() -> Package.Dependency {
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
       "0.20240116.1" ..< "0.20240117.0"
     )
+    return .package(url: packageInfo.url, packageInfo.range)
   } else {
-    packageInfo = (
-      "https://github.com/google/abseil-cpp-binary.git",
-      branch: "main"
-      // "1.2024011601.1" ..< "1.2024011700.0"
-    )
+    return .package(url: "https://github.com/google/abseil-cpp-binary.git", branch: "main")
   }
-
-  return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func grpcDependency() -> Package.Dependency {
@@ -1375,12 +1370,11 @@ func grpcDependency() -> Package.Dependency {
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
+    return .package(url: packageInfo.url, packageInfo.range)
   } else {
     // packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.2" ..< "1.63.0")
-    packageInfo = ("https://github.com/google/grpc-binary.git", branch: "main")
+    return .package(url: "https://github.com/google/grpc-binary.git", branch: "main")
   }
-
-  return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func firestoreWrapperTarget() -> Target {
