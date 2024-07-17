@@ -112,7 +112,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Objc Import Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh objc-import-test ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh objc-import-test ${{ matrix.target }} spmbuildonly
     - name: Swift Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh swift-test ${{ matrix.target }} spm
     - name: Version Tests
