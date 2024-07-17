@@ -14,6 +14,7 @@
 
 import Foundation
 
+import FirebaseAppCheck
 import FirebaseAuth
 import FirebaseCore
 
@@ -59,7 +60,8 @@ public class DataConnect {
       projectId: projectID,
       settings: settings,
       connectorConfig: connectorConfig,
-      auth: Auth.auth(app: app)
+      auth: Auth.auth(app: app),
+      appCheck: AppCheck.appCheck(app: app)
     )
 
     operationsManager = OperationsManager(grpcClient: grpcClient)
@@ -80,7 +82,8 @@ public class DataConnect {
       projectId: projectID,
       settings: settings,
       connectorConfig: connectorConfig,
-      auth: Auth.auth(app: app)
+      auth: Auth.auth(app: app),
+      appCheck: AppCheck.appCheck(app: app)
     )
     operationsManager = OperationsManager(grpcClient: grpcClient)
   }
