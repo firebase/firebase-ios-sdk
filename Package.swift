@@ -172,7 +172,7 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git",
-             "11.0.0" ..< "12.0.0"),
+             "11.0.1" ..< "12.0.0"),
   ],
   targets: [
     .target(
