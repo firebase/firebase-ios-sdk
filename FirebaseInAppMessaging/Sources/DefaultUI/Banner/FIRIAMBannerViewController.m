@@ -159,23 +159,23 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
   self.view.layer.shadowRadius = 2;
   self.view.layer.shadowOpacity = 0.4;
 
-  if (@available(iOS 13.0, *)) {
-    // Calculate status bar height.
-    // TODO(#13068) : Fix keyWindow deprecation.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  // Calculate status bar height.
+  CGFloat statusBarHeight = 0;
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIStatusBarManager *manager =
         [UIApplication sharedApplication].keyWindow.windowScene.statusBarManager;
-#pragma clang diagnostic pop
-    CGFloat statusBarHeight = manager.statusBarFrame.size.height;
-    // Pin title label below status bar with cushion.
-    [[self.titleLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor
-                                               constant:statusBarHeight + 3] setActive:YES];
 
-    // When created, we are hiding it for later animation
-    self.hidingForAnimation = YES;
-    [self setupAutoDismissTimer];
+    statusBarHeight = manager.statusBarFrame.size.height;
+  } else {
+    statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
   }
+
+  // Pin title label below status bar with cushion.
+  [[self.titleLabel.topAnchor constraintEqualToAnchor:self.view.topAnchor
+                                             constant:statusBarHeight + 3] setActive:YES];
+  // When created, we are hiding it for later animation
+  self.hidingForAnimation = YES;
+  [self setupAutoDismissTimer];
 }
 
 - (void)dismissViewWithAnimation:(void (^)(void))completion {
