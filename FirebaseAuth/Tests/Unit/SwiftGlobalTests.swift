@@ -17,7 +17,7 @@ import XCTest
 
 import FirebaseAuth
 
-/// Tests globals defined in Objective C sources.  These globals are for backward compatibility and
+/// Tests globals defined in Objective-C sources.  These globals are for backward compatibility and
 /// should not be used in new code.
 class SwiftGlobalTests: XCTestCase {
   func GlobalSymbolBuildTest() {

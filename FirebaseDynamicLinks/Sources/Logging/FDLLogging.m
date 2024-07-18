@@ -33,18 +33,18 @@ NSString *const FDLMessageCodeIntegerFormat = @"%06ld";
 NSString *const FDLMessageCodeIntegerFormat = @"%06d";
 #endif  // #if __LP64__
 
-NSString *FDLMessageCodeForLogIdentifier(FDLLogIdentifier identifer) {
+NSString *FDLMessageCodeForLogIdentifier(FDLLogIdentifier identifier) {
   static NSString *const kMessageCodePrefix = @"I-FDL";
-  NSString *intString = [NSString stringWithFormat:FDLMessageCodeIntegerFormat, identifer];
+  NSString *intString = [NSString stringWithFormat:FDLMessageCodeIntegerFormat, identifier];
   return [kMessageCodePrefix stringByAppendingString:intString];
 }
 #endif  // GIN_SCION_LOGGING
 
-void FDLLog(FDLLogLevel logLevel, FDLLogIdentifier identifer, NSString *message, ...) {
+void FDLLog(FDLLogLevel logLevel, FDLLogIdentifier identifier, NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
 #ifdef GIN_SCION_LOGGING
-  NSString *messageCode = FDLMessageCodeForLogIdentifier(identifer);
+  NSString *messageCode = FDLMessageCodeForLogIdentifier(identifier);
 
   switch (logLevel) {
     case FDLLogLevelError:

@@ -544,7 +544,7 @@ extension User: NSSecureCoding {}
     }
   }
 
-  /// API included for compatibilty with a mis-named Firebase 10 API.
+  /// API included for compatibility with a mis-named Firebase 10 API.
   /// Use `getIDToken(forcingRefresh forceRefresh: Bool = false)` instead.
   open func idTokenForcingRefresh(_ forceRefresh: Bool) async throws -> String {
     return try await getIDToken(forcingRefresh: forceRefresh)

@@ -28,7 +28,7 @@ private let FIRSetAccountInfoUserAttributePassword = "PASSWORD"
 private let kSetAccountInfoEndpoint = "setAccountInfo"
 
 /// The key for the "idToken" value in the request. This is actually the STS Access Token,
-///    despite its confusing (backwards compatiable) parameter name.
+/// despite its confusing (backwards compatible) parameter name.
 private let kIDTokenKey = "idToken"
 
 /// The key for the "displayName" value in the request.

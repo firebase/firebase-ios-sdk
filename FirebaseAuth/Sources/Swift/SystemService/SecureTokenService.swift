@@ -57,7 +57,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
   /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
   ///   received in the callback should be considered short lived and not cached.
   ///
-  ///    Invoked asyncronously on the auth global work queue in the future.
+  ///    Invoked asynchronously on the auth global work queue in the future.
   /// - Parameter forceRefresh: Forces the token to be refreshed.
   /// - Parameter callback: Callback block that will be called to return either the token or an
   /// error.

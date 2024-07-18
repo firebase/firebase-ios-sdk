@@ -21,7 +21,7 @@ class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The endpoint for the verifyClient request.
   private static let verifyClientEndpoint = "verifyClient"
 
-  /// The key for the appToken request paramenter.
+  /// The key for the appToken request parameter.
   private static let appTokenKey = "appToken"
 
   /// The key for the isSandbox request parameter.

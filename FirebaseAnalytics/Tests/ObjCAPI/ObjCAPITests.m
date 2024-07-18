@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-// MARK: This file is used to test the coverage of using Analytics APIs from Objective C.
+// MARK: This file is used to test the coverage of using Analytics APIs from Objective-C.
 
 @import Foundation;
 @import XCTest;

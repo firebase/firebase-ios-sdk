@@ -38,7 +38,7 @@ import Foundation
   }
 
   /// Map a request type string to the corresponding operation type.
-  /// - Parameter requestType: Request type returned in in the server response.
+  /// - Parameter requestType: Request type returned in the server response.
   /// - Returns: The corresponding ActionCodeOperation for the supplied request type.
   class func actionCodeOperation(forRequestType requestType: String?) -> ActionCodeOperation {
     switch requestType {

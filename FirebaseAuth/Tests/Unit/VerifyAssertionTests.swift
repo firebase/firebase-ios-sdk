@@ -79,7 +79,7 @@ class VerifyAssertionTests: RPCBaseTests {
   }
 
   /** @fn testVerifyAssertionRequestOptionalFields
-      @brief Tests the verify assertion request with all optinal fields set.
+      @brief Tests the verify assertion request with all optional fields set.
    */
   func testVerifyAssertionRequestOptionalFields() async throws {
     let request = makeVerifyAssertionRequest()
