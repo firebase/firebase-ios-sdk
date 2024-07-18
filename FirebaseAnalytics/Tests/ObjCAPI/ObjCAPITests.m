@@ -25,6 +25,11 @@
 @end
 
 @implementation ObjCAPICoverage
+
+- (void)testFoo {
+  XCTAssert(YES);
+}
+
 - (NSString *)analyticsTests {
   [FIRAnalytics logEventWithName:@"event_name" parameters:@{@"param" : @1}];
   [FIRAnalytics setUserPropertyString:@"value" forName:@"name"];
