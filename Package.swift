@@ -1312,6 +1312,7 @@ let package = Package(
       dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
+        .process("vertexai-sdk-test-data/mock-responses"),
         // Including this README ensures that SPM will always generate a `Bundle.module`, even if
         // the mock-responses have not been downloaded with the update_vertexai_responses.sh script.
         .process("README.md"),
