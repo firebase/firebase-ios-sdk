@@ -28,6 +28,11 @@ public class DataConnect {
 
   private static var instanceStore = InstanceStore()
 
+  public enum EmulatorDefaults {
+    public static let host = "127.0.0.1"
+    public static let port = 9399
+  }
+
   // MARK: Static Creation
 
   public class func dataConnect(app: FirebaseApp? = FirebaseApp.app(),
@@ -43,8 +48,8 @@ public class DataConnect {
 
   // MARK: Emulator
 
-  public func useEmulator(host: String = "127.0.0.1",
-                          port: Int = 9399) {
+  public func useEmulator(host: String = EmulatorDefaults.host,
+                          port: Int = EmulatorDefaults.port) {
     settings = DataConnectSettings(host: host, port: port, sslEnabled: false)
 
     // TODO: - shutdown grpc client
