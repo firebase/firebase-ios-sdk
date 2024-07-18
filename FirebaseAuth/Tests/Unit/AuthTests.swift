@@ -1023,7 +1023,7 @@ class AuthTests: RPCBaseTests {
 
   /** @fn testSignInWithCredentialSuccess
       @brief Tests the flow of a successful @c signInWithCredential:completion: call
-          with an Google Sign-In credential.
+          with a Google Sign-In credential.
       Note: also a superset of the former testSignInWithGoogleCredentialSuccess
    */
   func testSignInWithCredentialSuccess() throws {
@@ -1497,8 +1497,8 @@ class AuthTests: RPCBaseTests {
 
   /** @fn testCreateUserEmptyEmailFailure
       @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
-          empty email adress. This error occurs on the client side, so there is no need to fake an RPC
-          response.
+          empty email address. This error occurs on the client side, so there is no need to fake an
+          RPC response.
    */
   func testCreateUserEmptyEmailFailure() throws {
     let expectation = self.expectation(description: #function)

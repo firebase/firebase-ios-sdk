@@ -43,6 +43,6 @@ FOUNDATION_EXPORT NSString *const FDLMessageCodeIntegerFormat;
 
 /** Logs a message with FIRLogger. */
 FOUNDATION_EXPORT void FDLLog(FDLLogLevel logLevel,
-                              FDLLogIdentifier identifer,
+                              FDLLogIdentifier identifier,
                               NSString *message,
                               ...) NS_FORMAT_FUNCTION(3, 4);

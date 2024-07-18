@@ -66,8 +66,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let _: UIColor = button.buttonBackgroundColor
 
     _ = FirebaseInAppMessaging.InAppMessagingDisplayMessageType.RawValue()
-    let messsageType: FirebaseInAppMessaging.InAppMessagingDisplayMessageType! = nil
-    switch messsageType! {
+    let messageType: FirebaseInAppMessaging.InAppMessagingDisplayMessageType! = nil
+    switch messageType! {
     case .modal: break
     case .banner: break
     case .imageOnly: break
@@ -156,7 +156,7 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
       messageID: nonnullText,
       campaignName: nonnullText,
       renderAsTestMessage: true,
-      messageType: messsageType,
+      messageType: messageType,
       triggerType: triggerType
     )
     let _: FirebaseInAppMessaging.InAppMessagingCampaignInfo = displayMessage.campaignInfo

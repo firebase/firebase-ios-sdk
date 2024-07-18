@@ -149,7 +149,7 @@
     NSString *messageID = payloadNode[@"campaignId"];
     if (!messageID) {
       FIRLogWarning(kFIRLoggerInAppMessaging, @"I-IAM900010",
-                    @"messsage id is missing in message node %@", messageNode);
+                    @"message id is missing in message node %@", messageNode);
       return nil;
     }
 

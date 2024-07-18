@@ -24,7 +24,7 @@ enum GetOOBConfirmationCodeRequestType: Int {
   /// Requests an email sign-in link.
   case emailLink
 
-  /// Requests an verify before update email.
+  /// Requests a verify before update email.
   case verifyBeforeUpdateEmail
 
   var value: String {
@@ -53,7 +53,7 @@ private let kEmailKey = "email"
 private let kNewEmailKey = "newEmail"
 
 /// The key for the "idToken" value in the request. This is actually the STS Access Token,
-///    despite its confusing (backwards compatiable) parameter name.
+/// despite its confusing (backwards compatible) parameter name.
 private let kIDTokenKey = "idToken"
 
 /// The key for the "continue URL" value in the request.

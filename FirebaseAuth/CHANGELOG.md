@@ -385,7 +385,7 @@
 # 3.0.3
 - [added] Adds documentation for all possible errors returned by each method.
 - [fixed] Improves error handling and messages for a variety of error conditions.
-- [fixed] Whether or not an user is considered anonymous is now consistent with other
+- [fixed] Whether or not a user is considered anonymous is now consistent with other
   platforms.
 - [changed] A saved signed in user is now siloed between different Firebase projects
   within the same app.

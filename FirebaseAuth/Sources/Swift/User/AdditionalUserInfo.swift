@@ -28,7 +28,7 @@ extension AdditionalUserInfo: NSSecureCoding {}
   /// Indicates whether or not the current user was signed in for the first time.
   @objc public let isNewUser: Bool
 
-  // Maintain newUser for Objective C API.
+  // Maintain newUser for Objective-C API.
 
   /// Indicates whether or not the current user was signed in for the first time.
   @objc open func newUser() -> Bool {

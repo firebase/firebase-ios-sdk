@@ -460,7 +460,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
   /** @fn testClientErrorResponse
       @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
-          response contains a client error specified by an error messsage sent from the backend.
+          response contains a client error specified by an error message sent from the backend.
    */
   func testClientErrorResponse() async throws {
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
@@ -547,7 +547,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
       func log() {
         // This API should not be used by the below tests because the Auth
-        // SDK does not log heartbeats in it's networking context.
+        // SDK does not log heartbeats in its networking context.
         fatalError("FakeHeartbeatLogger log should not be used in tests.")
       }
 

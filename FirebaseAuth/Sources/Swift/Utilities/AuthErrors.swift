@@ -865,7 +865,7 @@ private let kErrorMissingAppToken =
 
 private let kErrorNotificationNotForwarded =
   "If app delegate swizzling is disabled, remote notifications received by UIApplicationDelegate need to" +
-  "be forwarded to FirebaseAuth's canHandleNotificaton method."
+  "be forwarded to FirebaseAuth's canHandleNotification method."
 
 private let kErrorAppNotVerified =
   "Firebase could not retrieve the silent push notification and therefore could not verify your app. Ensure that you configured your app correctly to receive push notifications."
