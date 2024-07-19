@@ -982,7 +982,7 @@ extension Auth: AuthInterop {
   /// - Parameter link: The email sign-in link.
   /// - Returns: `true` when the link passed matches the expected format of an email sign-in link.
   @objc open func isSignIn(withEmailLink link: String) -> Bool {
-    guard link.count > 0 else {
+    guard !link.isEmpty else {
       return false
     }
     let queryItems = getQueryItems(link)
