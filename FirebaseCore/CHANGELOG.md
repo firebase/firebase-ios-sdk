@@ -13,8 +13,6 @@
   been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
-- [changed] **Breaking change**: Binary release artifacts now contain dynamic
-  XCFrameworks.
 - Update underlying FIRLogger implementation from `asl` to `os_log`.
 - Remove `FIRLoggerForceSTDERR` configuration option.
 - [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
