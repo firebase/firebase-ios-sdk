@@ -24,7 +24,7 @@ USAGE: scripts/check.sh [--allow-dirty] [--commit] [<revision>]
 Runs auto-formatting scripts, source-tree checks, and linters on any files that
 have changed since origin/main.
 
-By default, any changes are left as uncommited changes in the working tree. You
+By default, any changes are left as uncommitted changes in the working tree. You
 can review them with git diff. Pass --commit to automatically commit any changes.
 
 Pass an alternate revision to use as the basis for checking changes.
@@ -174,7 +174,7 @@ if ! git diff-index --quiet HEAD --; then
   fi
 fi
 
-# Show Travis-related environment variables, to help with debuging failures.
+# Show Travis-related environment variables, to help with debugging failures.
 if [[ "${VERBOSE}" == true ]]; then
   env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
 fi

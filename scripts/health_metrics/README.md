@@ -69,7 +69,7 @@ python3 measure_cocoapod_size.py --cocoapods FirebaseABTesting
 
 The `binary_size_metrics` on GitHub Actions [workflow](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/health-metrics-presubmit.yml)
 is running binary size measurement presubmits and postsubmits. The environment for this job
-could be found in `runs-on`. More details about the envionment could be found [here](https://github.com/actions/virtual-environments#available-environments).
+could be found in `runs-on`. More details about the environment could be found [here](https://github.com/actions/virtual-environments#available-environments).
 
 Factors below might also affect the binary size:
 - Each testapp is measured by a default version Xcode from the GitHub Actions environment above.

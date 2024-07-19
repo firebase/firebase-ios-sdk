@@ -115,7 +115,7 @@ struct UpdatedFilesCollector: ParsableCommand {
           encoding: String.Encoding.utf8
         )
       } catch {
-        fatalError("Error while writting in \(outputPath.path).\n\(error)")
+        fatalError("Error while writing in \(outputPath.path).\n\(error)")
       }
     }
   }
