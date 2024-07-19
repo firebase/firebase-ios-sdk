@@ -184,7 +184,7 @@ Refer to the [README.md](https://github.com/firebase/firebase-ios-sdk/blob/main/
 - [changed] Removes dependency on the Core Location framework
 
 # 1.2.0
-- [added] iOS 10 Supoort
+- [added] iOS 10 Support
 
 # 1.1.1
 - [fixed] Fixes an issue where if resolveLink() API returned a non-JSON object, it
