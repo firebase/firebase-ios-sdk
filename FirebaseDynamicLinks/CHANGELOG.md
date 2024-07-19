@@ -177,7 +177,7 @@ Refer to the [README.md](https://github.com/firebase/firebase-ios-sdk/blob/main/
 
 # 1.3.1
 - [added] Adds FIRLogger support (not public-facing)
-- [fixed] Fixes IPv6 compatibilty issues
+- [fixed] Fixes IPv6 compatibility issues
 
 # 1.3.0
 - [changed] Removes the SFSafariViewController per Apple's Review Guidelines
