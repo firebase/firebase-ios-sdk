@@ -16,7 +16,7 @@
 
 # USAGE: run_database_emulator.sh { run | start | stop }
 #
-# Downloads and runs the Firebase Realtime Databas emulator
+# Downloads and runs the Firebase Realtime Database emulator
 
 set -euo pipefail
 
