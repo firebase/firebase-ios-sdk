@@ -45,7 +45,7 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
 
   /// Designated initializer.
   /// - Parameters:
-  ///   - capacity: The heartbeat capacity of the inititialized collection.
+  ///   - capacity: The heartbeat capacity of the initialized collection.
   ///   - cache: A cache of time periods mapping to dates. Defaults to using static `cacheProvider`.
   init(capacity: Int,
        cache: [TimePeriod: Date] = cacheProvider()) {
