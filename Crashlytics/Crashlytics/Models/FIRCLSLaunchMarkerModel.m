@@ -54,7 +54,7 @@
 - (BOOL)createLaunchFailureMarker {
   // It's tempting to use - [NSFileManger createFileAtPath:contents:attributes:] here. But that
   // operation, even with empty/nil contents does a ton of work to write out nothing via a
-  // temporarly file. This is a much faster implemenation.
+  // temporarly file. This is a much faster implementation.
   const char *path = [[self launchFailureMarkerPath] fileSystemRepresentation];
 
 #if TARGET_OS_IPHONE

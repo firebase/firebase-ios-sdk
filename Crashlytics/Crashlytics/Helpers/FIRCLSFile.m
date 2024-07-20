@@ -301,7 +301,7 @@ static void FIRCLSFileWriteUnbufferedStringWithSuffix(FIRCLSFile* file,
                                                       char suffix) {
   char suffixBuffer[2];
 
-  // collaspe the quote + suffix into one single write call, for a small performance win
+  // collapse the quote + suffix into one single write call, for a small performance win
   suffixBuffer[0] = '"';
   suffixBuffer[1] = suffix;
 
@@ -403,14 +403,14 @@ void FIRCLSFileWriteHexEncodedString(FIRCLSFile* file, const char* string) {
 void FIRCLSFileWriteUInt64(FIRCLSFile* file, uint64_t number, bool hex) {
   char buffer[FIRCLSUInt64StringBufferLength];
   short i = FIRCLSFilePrepareUInt64(buffer, number, hex);
-  char* beginning = &buffer[i];  // Write from a pointer to the begining of the string.
+  char* beginning = &buffer[i];  // Write from a pointer to the beginning of the string.
   FIRCLSFileWriteToFileDescriptorOrBuffer(file, beginning, strlen(beginning));
 }
 
 void FIRCLSFileFDWriteUInt64(int fd, uint64_t number, bool hex) {
   char buffer[FIRCLSUInt64StringBufferLength];
   short i = FIRCLSFilePrepareUInt64(buffer, number, hex);
-  char* beginning = &buffer[i];  // Write from a pointer to the begining of the string.
+  char* beginning = &buffer[i];  // Write from a pointer to the beginning of the string.
   FIRCLSFileWriteWithRetries(fd, beginning, strlen(beginning));
 }
 
@@ -485,7 +485,7 @@ void FIRCLSFileWriteCollectionStart(FIRCLSFile* file, const char openingChar) {
   string[1] = openingChar;
 
   if (file->needComma) {
-    FIRCLSFileWriteToFileDescriptorOrBuffer(file, string, 2);  // write the seperator + opening char
+    FIRCLSFileWriteToFileDescriptorOrBuffer(file, string, 2);  // write the separator + opening char
   } else {
     FIRCLSFileWriteToFileDescriptorOrBuffer(file, &string[1], 1);  // write only the opening char
   }
@@ -643,7 +643,7 @@ NSArray* FIRCLSFileReadSections(const char* path,
 
   NSMutableArray* array = [NSMutableArray array];
 
-  // loop through all the entires, and
+  // loop through all the entries, and
   for (NSString* component in components) {
     NSData* data = [component dataUsingEncoding:NSUTF8StringEncoding];
 
