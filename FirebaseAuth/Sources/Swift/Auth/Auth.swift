@@ -1802,7 +1802,7 @@ extension Auth: AuthInterop {
   ///
   /// This map is needed for looking up the keychain service name after the FirebaseApp instance
   /// is deleted, to remove the associated keychain item. Accessing should occur within a
-  /// @syncronized([FIRAuth class]) context.
+  /// @synchronized([FIRAuth class]) context.
   fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
 
   /// Sets the keychain service name global data for the particular app.
@@ -1847,7 +1847,7 @@ extension Auth: AuthInterop {
     }
     lastNotifiedUserToken = token
     if autoRefreshTokens {
-      // Shedule new refresh task after successful attempt.
+      // Schedule new refresh task after successful attempt.
       scheduleAutoTokenRefresh()
     }
     var internalNotificationParameters: [String: Any] = [:]
@@ -2386,6 +2386,6 @@ extension Auth: AuthInterop {
   /// Handles returned from `NSNotificationCenter` for blocks which are "auth state did
   /// change" notification listeners.
   ///
-  /// Mutations should occur within a @syncronized(self) context.
+  /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
 }
