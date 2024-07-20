@@ -82,7 +82,7 @@ import Foundation
   /// Indicates account linking is required.
   case accountExistsWithDifferentCredential = 17012
 
-  /// Indicates the user has attemped to change email or password more than 5 minutes after
+  /// Indicates the user has attempted to change email or password more than 5 minutes after
   /// signing in.
   case requiresRecentLogin = 17014
 
@@ -236,7 +236,7 @@ import Foundation
   /// Indicates that the local player was not authenticated prior to attempting Game Center signin.
   case localPlayerNotAuthenticated = 17066
 
-  /// Indicates that a non-null user was expected as an argmument to the operation but a null
+  /// Indicates that a non-null user was expected as an argument to the operation but a null
   /// user was provided.
   case nullUser = 17067
 
@@ -258,7 +258,7 @@ import Foundation
   /// unauthorized for the current project.
   case invalidDynamicLinkDomain = 17074
 
-  /// Indicates that the credential is rejected because it's misformed or mismatching.
+  /// Indicates that the credential is rejected because it's malformed or mismatching.
   case rejectedCredential = 17075
 
   /// Indicates that the GameKit framework is not linked prior to attempting Game Center signin.
@@ -294,7 +294,7 @@ import Foundation
   /// Indicates that the first factor is not supported.
   case unsupportedFirstFactor = 17089
 
-  /// Indicates that the a verifed email is required to changed to.
+  /// Indicates that the a verified email is required to changed to.
   case emailChangeNeedsVerification = 17090
 
   /// Indicates that the request does not contain a client identifier.

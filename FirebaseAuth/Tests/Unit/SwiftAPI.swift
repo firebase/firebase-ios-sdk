@@ -346,7 +346,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRFedederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
-        // TODO: Document this API breakage - needing to add this functon for classes implementing
+        // TODO: Document this API breakage - needing to add this function for classes implementing
         // FederatedAuthProvider.
         func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
           return FacebookAuthProvider.credential(withAccessToken: "token")
