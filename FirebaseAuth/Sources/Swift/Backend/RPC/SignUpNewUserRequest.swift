@@ -51,10 +51,10 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The email of the user.
   private(set) var email: String?
 
-  /// The password inputed by the user.
+  /// The password inputted by the user.
   private(set) var password: String?
 
-  /// The password inputed by the user.
+  /// The password inputted by the user.
   private(set) var displayName: String?
 
   /// The idToken of the user.
