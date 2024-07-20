@@ -191,7 +191,7 @@ class HeartbeatControllerTests: XCTestCase {
     let payload = heartbeatController.flush()
 
     // Then
-    // Note below how the date was intepreted as UTC - 2021-11-02.
+    // Note below how the date was interpreted as UTC - 2021-11-02.
     try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
       payload.headerValue(),
       """
