@@ -314,7 +314,7 @@ let package = Package(
     ),
     .testTarget(
       name: "AnalyticsObjCAPI",
-      dependencies: ["FirebaseAnalytics"],
+      dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/ObjCAPI"
     ),
 
