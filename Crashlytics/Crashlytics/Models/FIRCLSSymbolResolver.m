@@ -60,7 +60,7 @@
       continue;
     }
 
-    // This does happen occationally and causes a crash. I'm really not sure there
+    // This does happen occasionally and causes a crash. I'm really not sure there
     // is anything sane we can do in this case.
     if (![details objectForKey:@"base"] || ![details objectForKey:@"size"]) {
       continue;
