@@ -73,7 +73,7 @@
   FIRCLSMachOSliceInitSectionByName(&slice, SEG_TEXT, "__eh_frame", &section);
 
   // This computation is a little funny. Because we've just opened this dylib as a file,
-  // the "slide" is really whereever the file ended up being mapped in memory.
+  // the "slide" is really wherever the file ended up being mapped in memory.
   ehFrame = (void*)(section.addr + (uintptr_t)slice.startAddress);
 
   XCTAssertTrue(ehFrame != NULL, @"");
@@ -154,7 +154,7 @@
   state.registers[CLS_DWARF_REG_RETURN].location = FIRCLSDwarfRegisterInRegister;
 
   // Setup our arch-specific values. Be careful not to use the 0 register enum value
-  // because that can artifically pass.
+  // because that can artificially pass.
 #if CLS_CPU_X86_64
   state.registers[CLS_DWARF_REG_RETURN].value = CLS_DWARF_X86_64_RDX;
   FIRCLSDwarfUnwindSetRegisterValue(&inputRegisters, CLS_DWARF_X86_64_RDX, 777);
