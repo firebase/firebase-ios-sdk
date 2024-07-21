@@ -21,7 +21,7 @@ public let FunctionsErrorDomain: String = "com.firebase.functions"
 public let FunctionsErrorDetailsKey: String = "details"
 
 /**
- * The set of error status codes that can be returned from a Callable HTTPS tigger. These are the
+ * The set of error status codes that can be returned from a Callable HTTPS trigger. These are the
  * canonical error codes for Google APIs, as documented here:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto#L26
  */
