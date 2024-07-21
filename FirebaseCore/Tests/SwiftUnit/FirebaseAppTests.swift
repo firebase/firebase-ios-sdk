@@ -316,9 +316,9 @@ class FirebaseAppTests: XCTestCase {
     // Cleanup
     app.isDataCollectionDefaultEnabled = true
 
-    let expecation = expectation(description: #function)
+    let expectation = expectation(description: #function)
     app.delete { success in
-      expecation.fulfill()
+      expectation.fulfill()
     }
 
     waitForExpectations(timeout: 1)
