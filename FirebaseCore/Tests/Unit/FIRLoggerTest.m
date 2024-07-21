@@ -70,7 +70,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   _defaults = nil;
 }
 
-// Test some stable variables to make sure they weren't accidently changed.
+// Test some stable variables to make sure they weren't accidentally changed.
 - (void)testStableVariables {
   // Strings of type FIRLoggerServices.
   XCTAssertEqualObjects(kFIRLoggerAnalytics, @"[FirebaseAnalytics]");
