@@ -19,7 +19,7 @@ import FirebaseAuthInterop
 import FirebaseMessagingInterop
 import XCTest
 
-/// This file was intitialized as a direct port of
+/// This file was initialized as a direct port of
 /// `FirebaseFunctionsSwift/Tests/IntegrationTests.swift`
 /// which itself was ported from the Objective-C
 /// `FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m`

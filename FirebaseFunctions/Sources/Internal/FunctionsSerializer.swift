@@ -76,7 +76,7 @@ class FUNSerializer: NSObject {
     if let dict = object as? NSDictionary {
       if let requestedType = dict["@type"] as? String {
         guard let value = dict["value"] as? String else {
-          // Seems like we should throw here - but this maintains compatiblity.
+          // Seems like we should throw here - but this maintains compatibility.
           return dict
         }
         let result = try decodeWrappedType(requestedType, value)
