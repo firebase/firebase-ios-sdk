@@ -709,16 +709,15 @@ extension User: NSSecureCoding {}
                                                           username: response.username,
                                                           isNewUser: response.isNewUser)
               let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
-              let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
-                                          credential: updatedOAuthCredential)
-              let authDataResult = try await self.updateTokenAndRefreshUser(
+              try await self.updateTokenAndRefreshUser(
                 idToken: idToken,
                 refreshToken: refreshToken,
                 expirationDate: response.approximateExpirationDate,
-                result: result,
                 requestConfiguration: requestConfiguration
               )
-              completeWithError(authDataResult, nil)
+              let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
+                                          credential: updatedOAuthCredential)
+              completeWithError(result, nil)
             } catch {
               self.signOutIfTokenIsInvalid(withError: error)
               completeWithError(nil, error)
@@ -1568,16 +1567,17 @@ extension User: NSSecureCoding {}
             fatalError("Internal auth error: Invalid SignUpNewUserResponse")
           }
           // Update the new token and refresh user info again.
-          let result = try await self.updateTokenAndRefreshUser(
+          try await self.updateTokenAndRefreshUser(
             idToken: idToken,
             refreshToken: refreshToken,
             expirationDate: response.approximateExpirationDate,
-            result: AuthDataResult(withUser: self, additionalUserInfo: nil),
             requestConfiguration: requestConfiguration
           )
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: result,
-                                                          error: nil)
+          User.callInMainThreadWithAuthDataResultAndError(
+            callback: completion,
+            result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+            error: nil
+          )
         } catch {
           self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
@@ -1626,16 +1626,17 @@ extension User: NSSecureCoding {}
                   let refreshToken = response.refreshToken else {
               fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
             }
-            let result = try await self.updateTokenAndRefreshUser(
+            try await self.updateTokenAndRefreshUser(
               idToken: idToken,
               refreshToken: refreshToken,
               expirationDate: response.approximateExpirationDate,
-              result: AuthDataResult(withUser: self, additionalUserInfo: nil),
               requestConfiguration: requestConfiguration
             )
-            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                            result: result,
-                                                            error: nil)
+            User.callInMainThreadWithAuthDataResultAndError(
+              callback: completion,
+              result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+              error: nil
+            )
           } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
@@ -1673,16 +1674,17 @@ extension User: NSSecureCoding {}
                   let refreshToken = response.refreshToken else {
               fatalError("Internal Auth Error: missing token in link(withGameCredential")
             }
-            let result = try await self.updateTokenAndRefreshUser(
+            try await self.updateTokenAndRefreshUser(
               idToken: idToken,
               refreshToken: refreshToken,
               expirationDate: response.approximateExpirationDate,
-              result: AuthDataResult(withUser: self, additionalUserInfo: nil),
               requestConfiguration: requestConfiguration
             )
-            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                            result: result,
-                                                            error: nil)
+            User.callInMainThreadWithAuthDataResultAndError(
+              callback: completion,
+              result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+              error: nil
+            )
           } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
@@ -1720,9 +1722,7 @@ extension User: NSSecureCoding {}
   private func updateTokenAndRefreshUser(idToken: String,
                                          refreshToken: String,
                                          expirationDate: Date?,
-                                         result: AuthDataResult,
-                                         requestConfiguration: AuthRequestConfiguration) async throws
-    -> AuthDataResult {
+                                         requestConfiguration: AuthRequestConfiguration) async throws {
     tokenService = SecureTokenService(
       withRequestConfiguration: requestConfiguration,
       accessToken: idToken,
@@ -1743,7 +1743,6 @@ extension User: NSSecureCoding {}
     if let error = updateKeychain() {
       throw error
     }
-    return result
   }
 
   /// Signs out this user if the user or the token is invalid.
