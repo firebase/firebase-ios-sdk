@@ -28,7 +28,7 @@ list=$(git grep "${options[@]}" -- \
 
 # Allow copyrights before 2020 without LLC.
 if [[ $list ]]; then
-  result=$(grep -L 'Copyright 20[0-1][0-9].*Google' "$list")
+  result=$(grep -L 'Copyright 20[0-1][0-9].*Google' $list)
 fi
 
 if [[ $result ]]; then
