@@ -384,8 +384,6 @@ actor AuthWorker {
     /// account, this new phone number will replace it.
     /// - Parameter isLinkOperation: Boolean value indicating whether or not this is a link
     /// operation.
-    /// - Parameter completion: Optionally; the block invoked when the user profile change has
-    /// finished.
     func updateOrLinkPhoneNumber(user: User, credential: PhoneAuthCredential,
                                  isLinkOperation: Bool) async throws {
       let accessToken = try await user.internalGetTokenAsync()
@@ -415,7 +413,7 @@ actor AuthWorker {
             refreshToken: refreshToken
           )
           // Get account info to update cached user info.
-          let userAccount = try await getAccountInfoRefreshingCache(user)
+          _ = try await getAccountInfoRefreshingCache(user)
           user.isAnonymous = false
           if let error = user.updateKeychain() {
             throw error
@@ -519,6 +517,224 @@ actor AuthWorker {
       "\(String(describing: tokenResult.expirationDate))," +
       "current date: \(Date())")
     return tokenResult
+  }
+
+  func link(user: User, with credential: AuthCredential) async throws -> AuthDataResult {
+    if user.providerDataRaw[credential.provider] != nil {
+      throw AuthErrorUtils.providerAlreadyLinkedError()
+    }
+    if let emailCredential = credential as? EmailAuthCredential {
+      return try await link(user: user, withEmailCredential: emailCredential)
+    }
+    #if !os(watchOS)
+      if let gameCenterCredential = credential as? GameCenterAuthCredential {
+        return try await link(user: user, withGameCenterCredential: gameCenterCredential)
+      }
+    #endif
+    #if os(iOS)
+      if let phoneCredential = credential as? PhoneAuthCredential {
+        return try await link(user: user, withPhoneCredential: phoneCredential)
+      }
+    #endif
+
+    let accessToken = try await user.internalGetTokenAsync()
+    let request = VerifyAssertionRequest(providerID: credential.provider,
+                                         requestConfiguration: requestConfiguration)
+    credential.prepare(request)
+    request.accessToken = accessToken
+    do {
+      let response = try await AuthBackend.call(with: request)
+      guard let idToken = response.idToken,
+            let refreshToken = response.refreshToken,
+            let providerID = response.providerID else {
+        fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+      }
+      try await updateTokenAndRefreshUser(user: user,
+                                          idToken: idToken,
+                                          refreshToken: refreshToken,
+                                          expirationDate: response.approximateExpirationDate)
+      let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
+      let additionalUserInfo = AdditionalUserInfo(providerID: providerID,
+                                                  profile: response.profile,
+                                                  username: response.username,
+                                                  isNewUser: response.isNewUser)
+      return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo,
+                            credential: updatedOAuthCredential)
+    } catch {
+      user.signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+  }
+
+  func link(user: User, with provider: FederatedAuthProvider,
+            uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+    let credential = try await provider.credential(with: uiDelegate)
+    return try await link(user: user, with: credential)
+  }
+
+  private func link(user: User,
+                    withEmailCredential emailCredential: EmailAuthCredential) async throws
+    -> AuthDataResult {
+    if user.hasEmailPasswordCredential {
+      throw AuthErrorUtils.providerAlreadyLinkedError()
+    }
+    switch emailCredential.emailType {
+    case let .password(password):
+      let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
+      return try await link(
+        user: user,
+        withEmail: emailCredential.email,
+        password: password,
+        authResult: result
+      )
+    case let .link(link):
+      let accessToken = try? await user.internalGetTokenAsync()
+      var queryItems = AuthWebUtils.parseURL(link)
+      if link.count == 0 {
+        if let urlComponents = URLComponents(string: link),
+           let query = urlComponents.query {
+          queryItems = AuthWebUtils.parseURL(query)
+        }
+      }
+      guard let actionCode = queryItems["oobCode"] else {
+        fatalError("Internal Auth Error: Missing oobCode")
+      }
+      let request = EmailLinkSignInRequest(email: emailCredential.email,
+                                           oobCode: actionCode,
+                                           requestConfiguration: requestConfiguration)
+      request.idToken = accessToken
+      let response = try await AuthBackend.call(with: request)
+      guard let idToken = response.idToken,
+            let refreshToken = response.refreshToken else {
+        fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+      }
+      try await updateTokenAndRefreshUser(
+        user: user,
+        idToken: idToken,
+        refreshToken: refreshToken,
+        expirationDate: response.approximateExpirationDate
+      )
+      return AuthDataResult(withUser: user, additionalUserInfo: nil)
+    }
+  }
+
+  private func link(user: User,
+                    withEmail email: String,
+                    password: String,
+                    authResult: AuthDataResult) async throws -> AuthDataResult {
+    let accessToken = try await user.internalGetTokenAsync()
+    do {
+      let request = SignUpNewUserRequest(email: email,
+                                         password: password,
+                                         displayName: nil,
+                                         idToken: accessToken,
+                                         requestConfiguration: requestConfiguration)
+      #if os(iOS)
+        let response = try await injectRecaptcha(request: request,
+                                                 action: AuthRecaptchaAction.signUpPassword)
+      #else
+        let response = try await AuthBackend.call(with: request)
+      #endif
+      guard let refreshToken = response.refreshToken,
+            let idToken = response.idToken else {
+        fatalError("Internal auth error: Invalid SignUpNewUserResponse")
+      }
+      // Update the new token and refresh user info again.
+      user.tokenService = SecureTokenService(
+        withRequestConfiguration: requestConfiguration,
+        accessToken: idToken,
+        accessTokenExpirationDate: response.approximateExpirationDate,
+        refreshToken: refreshToken
+      )
+
+      let accessToken = try await user.internalGetTokenAsync()
+      let getAccountInfoRequest = GetAccountInfoRequest(
+        accessToken: accessToken,
+        requestConfiguration: requestConfiguration
+      )
+      let accountResponse = try await AuthBackend.call(with: getAccountInfoRequest)
+      user.isAnonymous = false
+      user.update(withGetAccountInfoResponse: accountResponse)
+      if let keychainError = user.updateKeychain() {
+        throw keychainError
+      }
+      return authResult
+
+    } catch {
+      user.signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+  }
+
+  #if !os(watchOS)
+    private func link(user: User,
+                      withGameCenterCredential gameCenterCredential: GameCenterAuthCredential) async throws
+      -> AuthDataResult {
+      let accessToken = try await user.internalGetTokenAsync()
+      guard let publicKeyURL = gameCenterCredential.publicKeyURL,
+            let signature = gameCenterCredential.signature,
+            let salt = gameCenterCredential.salt else {
+        fatalError("Internal Auth Error: Nil value field for SignInWithGameCenterRequest")
+      }
+      let request = SignInWithGameCenterRequest(playerID: gameCenterCredential.playerID,
+                                                teamPlayerID: gameCenterCredential.teamPlayerID,
+                                                gamePlayerID: gameCenterCredential.gamePlayerID,
+                                                publicKeyURL: publicKeyURL,
+                                                signature: signature,
+                                                salt: salt,
+                                                timestamp: gameCenterCredential.timestamp,
+                                                displayName: gameCenterCredential.displayName,
+                                                requestConfiguration: requestConfiguration)
+      request.accessToken = accessToken
+      let response = try await AuthBackend.call(with: request)
+      guard let idToken = response.idToken,
+            let refreshToken = response.refreshToken else {
+        fatalError("Internal Auth Error: missing token in link(withGameCredential")
+      }
+      try await updateTokenAndRefreshUser(user: user,
+                                          idToken: idToken,
+                                          refreshToken: refreshToken,
+                                          expirationDate: response.approximateExpirationDate)
+      return AuthDataResult(withUser: user, additionalUserInfo: nil)
+    }
+  #endif
+
+  #if os(iOS)
+    private func link(user: User,
+                      withPhoneCredential phoneCredential: PhoneAuthCredential) async throws
+      -> AuthDataResult {
+      try await updateOrLinkPhoneNumber(user: user,
+                                        credential: phoneCredential,
+                                        isLinkOperation: true)
+      return AuthDataResult(withUser: user, additionalUserInfo: nil)
+    }
+  #endif
+
+  // Update the new token and refresh user info again.
+  private func updateTokenAndRefreshUser(user: User,
+                                         idToken: String,
+                                         refreshToken: String,
+                                         expirationDate: Date?) async throws {
+    user.tokenService = SecureTokenService(
+      withRequestConfiguration: requestConfiguration,
+      accessToken: idToken,
+      accessTokenExpirationDate: expirationDate,
+      refreshToken: refreshToken
+    )
+    let accessToken = try await user.internalGetTokenAsync()
+    let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
+                                                      requestConfiguration: requestConfiguration)
+    do {
+      let response = try await AuthBackend.call(with: getAccountInfoRequest)
+      user.isAnonymous = false
+      user.update(withGetAccountInfoResponse: response)
+    } catch {
+      user.signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+    if let error = user.updateKeychain() {
+      throw error
+    }
   }
 
   /// Update the current user; initializing the user's internal properties correctly, and
