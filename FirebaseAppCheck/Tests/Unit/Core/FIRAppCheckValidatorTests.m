@@ -17,7 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
-#import "FirebaseCore/FIROptions.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 
 @interface FIRAppCheckValidatorTests : XCTestCase
 @end
@@ -25,10 +25,11 @@
 @implementation FIRAppCheckValidatorTests
 
 - (void)test_tokenExchangeMissingFieldsInOptions_noMissingFields {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"TEST_GoogleAppID"
-                                                    GCMSenderID:@"TEST_GCMSenderID"];
-  options.APIKey = @"TEST_APIKey";
-  options.projectID = @"TEST_ProjectID";
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    kFIRGoogleAppID : @"TEST_GoogleAppID",
+    kFIRAPIKey : @"TEST_APIKey",
+    kFIRProjectID : @"TEST_ProjectID"
+  }];
 
   NSArray *missingFields = [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:options];
 
@@ -37,10 +38,11 @@
 
 - (void)test_tokenExchangeMissingFieldsInOptions_singleMissingField {
   // Google App ID is empty:
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@""
-                                                    GCMSenderID:@"TEST_GCMSenderID"];
-  options.APIKey = @"TEST_APIKey";
-  options.projectID = @"TEST_ProjectID";
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    kFIRGoogleAppID : @"",
+    kFIRAPIKey : @"TEST_APIKey",
+    kFIRProjectID : @"TEST_ProjectID"
+  }];
 
   NSArray *missingFields = [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:options];
 
@@ -48,10 +50,9 @@
 }
 
 - (void)test_tokenExchangeMissingFieldsInOptions_multipleMissingFields {
-  // Google App ID is empty:
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@""
-                                                    GCMSenderID:@"TEST_GCMSenderID"];
-  // API Key and Project ID are not set (`nil`).
+  // Google App ID is empty, and API Key and Project ID are not set:
+  FIROptions *options =
+      [[FIROptions alloc] initInternalWithOptionsDictionary:@{kFIRGoogleAppID : @""}];
 
   NSArray *missingFields = [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:options];
 
