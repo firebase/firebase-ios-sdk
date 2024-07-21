@@ -412,7 +412,7 @@ bool FIRCLSCompactUnwindRemapRegisters(const compact_unwind_encoding_t encoding,
   // Re-number the registers
 
   // You are probably wondering, what the hell is this algorithm even doing? It is
-  // taken from libunwind's implemenation that does the same thing.
+  // taken from libunwind's implementation that does the same thing.
   bool used[7] = {false, false, false, false, false, false, false};
   for (uint32_t i = 0; i < regCount; ++i) {
     int renum = 0;
