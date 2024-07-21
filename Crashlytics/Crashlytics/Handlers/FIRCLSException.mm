@@ -389,7 +389,7 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 
   // This is a funny technique to get the exception object. The inner @try
   // has the ability to capture NSException-derived objects. It seems that
-  // c++ trys can do that in some cases, but I was warned by the WWDC labs
+  // c++ tries can do that in some cases, but I was warned by the WWDC labs
   // that there are cases where that will not work (like for NSException subclasses).
   try {
     @try {
@@ -416,7 +416,7 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
     FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, FIRCLSExceptionDemangle(name), exc->what(), nil,
                           nil);
   } catch (const std::bad_alloc &exc) {
-    // it is especially important to avoid demangling in this case, because the expetation at this
+    // it is especially important to avoid demangling in this case, because the expectation at this
     // point is that all allocations could fail
     FIRCLSExceptionRecord(FIRCLSExceptionTypeCpp, "std::bad_alloc", exc.what(), nil, nil);
   } catch (...) {
