@@ -1264,18 +1264,12 @@ extension User: NSSecureCoding {}
       if self.email != nil {
         if !hadEmailPasswordCredential {
           // The list of providers need to be updated for the newly added email-password provider.
-          self.internalGetToken { accessToken, error in
-            if let error {
-              callback(error)
-              return
-            }
-            guard let accessToken else {
-              fatalError("Auth Internal Error: Both accessToken and error are nil")
-            }
-            if let requestConfiguration = self.auth?.requestConfiguration {
-              let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                                requestConfiguration: requestConfiguration)
-              Task {
+          Task {
+            do {
+              let accessToken = try await self.internalGetTokenAsync()
+              if let requestConfiguration = self.auth?.requestConfiguration {
+                let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
+                                                                  requestConfiguration: requestConfiguration)
                 do {
                   let accountInfoResponse = try await AuthBackend.call(with: getAccountInfoRequest)
                   if let users = accountInfoResponse.users {
@@ -1306,6 +1300,8 @@ extension User: NSSecureCoding {}
                   callback(error)
                 }
               }
+            } catch {
+              callback(error)
             }
           }
           return
@@ -1337,18 +1333,14 @@ extension User: NSSecureCoding {}
         guard let user else {
           fatalError("Internal error: Both user and error are nil")
         }
-        self.internalGetToken { accessToken, error in
-          if let error {
-            complete()
-            callback(error)
-            return
-          }
-          if let configuration = self.auth?.requestConfiguration {
-            // Mutate setAccountInfoRequest in block
-            let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
-            setAccountInfoRequest.accessToken = accessToken
-            changeBlock(user, setAccountInfoRequest)
-            Task {
+        Task {
+          do {
+            let accessToken = try await self.internalGetTokenAsync()
+            if let configuration = self.auth?.requestConfiguration {
+              // Mutate setAccountInfoRequest in block
+              let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
+              setAccountInfoRequest.accessToken = accessToken
+              changeBlock(user, setAccountInfoRequest)
               do {
                 let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
                 if let idToken = accountInfoResponse.idToken,
@@ -1373,6 +1365,9 @@ extension User: NSSecureCoding {}
                 callback(error)
               }
             }
+          } catch {
+            complete()
+            callback(error)
           }
         }
       }
