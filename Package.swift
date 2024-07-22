@@ -1359,7 +1359,6 @@ func abseilDependency() -> Package.Dependency {
       "https://github.com/google/abseil-cpp-binary.git",
       "1.2024011601.1" ..< "1.2024011700.0"
     )
-    return .package(url: packageInfo.url, branch: "nc/firestore-pre_rc1")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1374,7 +1373,7 @@ func grpcDependency() -> Package.Dependency {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
-    return .package(url: packageInfo.url, branch: "nc/firestore-pre_rc1")
+    return .package(url: packageInfo.url, branch: "nc/nc/firestore-pre_rc1-2")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
