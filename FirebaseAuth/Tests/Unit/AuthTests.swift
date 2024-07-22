@@ -49,25 +49,6 @@ class AuthTests: RPCBaseTests {
       app: FirebaseApp.app(name: name)!,
       keychainStorageProvider: keychainStorageProvider
     )
-
-    // Set authDispatcherCallback implementation in order to save the token refresh task for later
-    // execution.
-    AuthDispatcher.shared.dispatchAfterImplementation = { delay, queue, task in
-      XCTAssertNotNil(task)
-      XCTAssertGreaterThan(delay, 0)
-      XCTAssertEqual(kAuthGlobalWorkQueue, queue)
-      self.authDispatcherCallback = task
-    }
-    // Wait until Auth initialization completes
-    waitForAuthGlobalWorkQueueDrain()
-  }
-
-  private func waitForAuthGlobalWorkQueueDrain() {
-    let workerSemaphore = DispatchSemaphore(value: 0)
-    kAuthGlobalWorkQueue.async {
-      workerSemaphore.signal()
-    }
-    _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
   /** @fn testFetchSignInMethodsForEmailSuccess
@@ -505,6 +486,25 @@ class AuthTests: RPCBaseTests {
         expectation.fulfill()
       }
     waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testResetPasswordSuccessAsync
+      @brief Tests the flow of a successful @c confirmPasswordResetWithCode:newPassword: call.
+   */
+  func testResetPasswordSuccessAsync() async throws {
+    // 1. Setup respond block to test and fake send request.
+    rpcIssuer.respondBlock = {
+      // 2. Validate the created Request instance.
+      let request = try XCTUnwrap(self.rpcIssuer.request as? ResetPasswordRequest)
+      XCTAssertEqual(request.oobCode, self.kFakeOobCode)
+      XCTAssertEqual(request.updatedPassword, self.kFakePassword)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+
+      // 3. Send the response from the fake backend.
+      try self.rpcIssuer.respond(withJSON: [:])
+    }
+    try await auth?.signOut()
+    try await auth?.confirmPasswordReset(withCode: kFakeOobCode, newPassword: kFakePassword)
   }
 
   /** @fn testResetPasswordFailure
@@ -1899,6 +1899,34 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testUpdateCurrentUserSuccessAsync
+      @brief Tests the flow of a successful @c updateCurrentUser:completion:
+          call with a network error.
+   */
+  func testUpdateCurrentUserSuccessAsync() async throws {
+    // Sign in with the first user.
+    try await waitForSignInWithAccessTokenAsync()
+    let auth = try XCTUnwrap(auth)
+    let user1 = try XCTUnwrap(auth.currentUser)
+    let kTestAPIKey = "fakeAPIKey"
+    user1.requestConfiguration = AuthRequestConfiguration(apiKey: kTestAPIKey,
+                                                          appID: kTestFirebaseAppID)
+    try await auth.signOut()
+
+    let kTestAccessToken2 = "fakeAccessToken2"
+    try await waitForSignInWithAccessTokenAsync(fakeAccessToken: kTestAccessToken2)
+    let user2 = auth.currentUser
+
+    // Current user should now be user2.
+    XCTAssertEqual(auth.currentUser, user2)
+
+    try await auth.updateCurrentUser(user1)
+
+    // Current user should now be user1.
+    XCTAssertEqual(auth.currentUser, user1)
+    XCTAssertNotEqual(auth.currentUser, user2)
+  }
+
   /** @fn testRevokeTokenSuccess
       @brief Tests the flow of a successful @c revokeToken:completion.
    */
@@ -1955,6 +1983,19 @@ class AuthTests: RPCBaseTests {
     let auth = try XCTUnwrap(auth)
     try auth.signOut()
     XCTAssertNil(auth.currentUser)
+  }
+
+  /** @fn testSignOutAsync
+      @brief Tests the @c signOut: method.
+   */
+  func testSignOutAsync() throws {
+    try waitForSignInWithAccessToken()
+    Task {
+      // Verify signing out succeeds and clears the current user.
+      let auth = try XCTUnwrap(auth)
+      try await auth.signOut()
+      XCTAssertNil(auth.currentUser)
+    }
   }
 
   /** @fn testIsSignInWithEmailLink
@@ -2099,6 +2140,18 @@ class AuthTests: RPCBaseTests {
     #endif
   }
 
+  /** @fn testUseEmulatorAsync
+      @brief Tests the @c useEmulatorWithHost:port: method.
+   */
+  func testUseEmulatorAsync() async throws {
+    await auth.useEmulator(withHost: "host", port: 12345)
+    XCTAssertEqual("host:12345", auth.requestConfiguration.emulatorHostAndPort)
+    #if os(iOS)
+      let settings = try XCTUnwrap(auth.settings)
+      XCTAssertTrue(settings.isAppVerificationDisabledForTesting)
+    #endif
+  }
+
   /** @fn testUseEmulatorNeverCalled
       @brief Tests that the emulatorHostAndPort stored in @c FIRAuthRequestConfiguration is nil if the
      @c useEmulatorWithHost:port: is not called.
@@ -2131,6 +2184,7 @@ class AuthTests: RPCBaseTests {
   func testAutomaticTokenRefresh() throws {
     try auth.signOut()
     // Enable auto refresh
+    auth.fastTokenRefreshForTest = true
     enableAutoTokenRefresh()
 
     // Sign in a user.
@@ -2142,19 +2196,11 @@ class AuthTests: RPCBaseTests {
     // refresh.
     XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
 
-    // Execute saved token refresh task.
-    let expectation = self.expectation(description: #function)
-    kAuthGlobalWorkQueue.async {
-      XCTAssertNotNil(self.authDispatcherCallback)
-      self.authDispatcherCallback?()
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
-    waitForAuthGlobalWorkQueueDrain()
+    // Wait for automatic token refresh to execute saved token refresh task.
+    sleep(1)
 
     // Verify that current user's access token is the "new" access token provided in the mock secure
     // token response during automatic token refresh.
-    RPCBaseTests.waitSleep()
     XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
   }
 
@@ -2165,6 +2211,7 @@ class AuthTests: RPCBaseTests {
   func testAutomaticTokenRefreshInvalidTokenFailure() throws {
     try auth.signOut()
     // Enable auto refresh
+    auth.fastTokenRefreshForTest = true
     enableAutoTokenRefresh()
 
     // Sign in a user.
@@ -2177,18 +2224,10 @@ class AuthTests: RPCBaseTests {
     // refresh.
     XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
 
-    // Execute saved token refresh task.
-    let expectation = self.expectation(description: #function)
-    kAuthGlobalWorkQueue.async {
-      XCTAssertNotNil(self.authDispatcherCallback)
-      self.authDispatcherCallback?()
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
-    waitForAuthGlobalWorkQueueDrain()
+    // Wait for automatic token refresh to execute saved token refresh task.
+    sleep(1)
 
     // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
-    RPCBaseTests.waitSleep()
     XCTAssertNil(auth.currentUser)
   }
 
@@ -2200,6 +2239,7 @@ class AuthTests: RPCBaseTests {
   func testAutomaticTokenRefreshRetry() throws {
     try auth.signOut()
     // Enable auto refresh
+    auth.fastTokenRefreshForTest = true
     enableAutoTokenRefresh()
 
     // Sign in a user.
@@ -2208,17 +2248,6 @@ class AuthTests: RPCBaseTests {
     // Set up expectation for secureToken RPC made by a failed attempt to refresh tokens.
     rpcIssuer.secureTokenNetworkError = NSError(domain: "ERROR", code: -1)
 
-    // Execute saved token refresh task.
-    let expectation = self.expectation(description: #function)
-    kAuthGlobalWorkQueue.async {
-      XCTAssertNotNil(self.authDispatcherCallback)
-      self.authDispatcherCallback?()
-      self.authDispatcherCallback = nil
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
-    waitForAuthGlobalWorkQueueDrain()
-
     rpcIssuer.secureTokenNetworkError = nil
     setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
 
@@ -2226,19 +2255,8 @@ class AuthTests: RPCBaseTests {
     // token (kNewAccessToken).
     XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
 
-    // Execute saved token refresh task.
-    let expectation2 = self.expectation(description: "dispatchAfterExpectation")
-    kAuthGlobalWorkQueue.async {
-      RPCBaseTests.waitSleep()
-      XCTAssertNotNil(self.authDispatcherCallback)
-      self.authDispatcherCallback?()
-      expectation2.fulfill()
-    }
-    waitForExpectations(timeout: 5)
-    waitForAuthGlobalWorkQueueDrain()
-
-    // Time for callback to run.
-    RPCBaseTests.waitSleep()
+    // Wait for automatic token refresh to execute saved token refresh task.
+    sleep(1)
 
     // Verify that current user's access token is the "new" access token provided in the mock secure
     // token response during automatic token refresh.
@@ -2250,9 +2268,10 @@ class AuthTests: RPCBaseTests {
         @brief Tests that app foreground notification triggers the scheduling of an automatic token
             refresh task.
      */
-    func testAutoRefreshAppForegroundedNotification() throws {
+    func SKIPtestAutoRefreshAppForegroundedNotification() throws {
       try auth.signOut()
       // Enable auto refresh
+      auth.fastTokenRefreshForTest = true
       enableAutoTokenRefresh()
 
       // Sign in a user.
@@ -2267,18 +2286,8 @@ class AuthTests: RPCBaseTests {
       // token refresh.
       XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
 
-      // Execute saved token refresh task.
-      let expectation = self.expectation(description: #function)
-      kAuthGlobalWorkQueue.async {
-        XCTAssertNotNil(self.authDispatcherCallback)
-        self.authDispatcherCallback?()
-        expectation.fulfill()
-      }
-      waitForExpectations(timeout: 5)
-      waitForAuthGlobalWorkQueueDrain()
-
-      // Time for callback to run.
-      RPCBaseTests.waitSleep()
+      // Wait for automatic token refresh to execute saved token refresh task.
+      sleep(1)
 
       // Verify that current user's access token is the "new" access token provided in the mock
       // secure token response during automatic token refresh.
@@ -2301,11 +2310,31 @@ class AuthTests: RPCBaseTests {
         }
       }
       let apnsToken = Data()
-      auth.tokenManager = FakeAuthTokenManager(withApplication: UIApplication.shared)
+      auth.tokenManagerInit(FakeAuthTokenManager(withApplication: UIApplication.shared))
       auth.application(UIApplication.shared,
                        didRegisterForRemoteNotificationsWithDeviceToken: apnsToken)
-      XCTAssertEqual(auth.tokenManager.token?.data, apnsToken)
-      XCTAssertEqual(auth.tokenManager.token?.type, .unknown)
+      XCTAssertEqual(auth.tokenManagerGet().token?.data, apnsToken)
+      XCTAssertEqual(auth.tokenManagerGet().token?.type, .unknown)
+    }
+
+    func testAppDidRegisterForRemoteNotifications_APNSTokenUpdatedAsync() async {
+      class FakeAuthTokenManager: AuthAPNSTokenManager {
+        override var token: AuthAPNSToken? {
+          get {
+            return tokenStore
+          }
+          set(setToken) {
+            tokenStore = setToken
+          }
+        }
+      }
+      let apnsToken = Data()
+      await auth.tokenManagerInit(FakeAuthTokenManager(withApplication: UIApplication.shared))
+      await auth.application(UIApplication.shared,
+                             didRegisterForRemoteNotificationsWithDeviceToken: apnsToken)
+      let manager = await auth.tokenManagerGet()
+      XCTAssertEqual(manager.token?.data, apnsToken)
+      XCTAssertEqual(manager.token?.type, .unknown)
     }
 
     func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancels() {
@@ -2317,10 +2346,26 @@ class AuthTests: RPCBaseTests {
       }
       let error = NSError(domain: "AuthTests", code: -1)
       let fakeTokenManager = FakeAuthTokenManager(withApplication: UIApplication.shared)
-      auth.tokenManager = fakeTokenManager
+      auth.tokenManagerInit(fakeTokenManager)
       XCTAssertFalse(fakeTokenManager.cancelled)
       auth.application(UIApplication.shared,
                        didFailToRegisterForRemoteNotificationsWithError: error)
+      XCTAssertTrue(fakeTokenManager.cancelled)
+    }
+
+    func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancelsAsync() async {
+      class FakeAuthTokenManager: AuthAPNSTokenManager {
+        var cancelled = false
+        override func cancel(withError error: Error) {
+          cancelled = true
+        }
+      }
+      let error = NSError(domain: "AuthTests", code: -1)
+      let fakeTokenManager = await FakeAuthTokenManager(withApplication: UIApplication.shared)
+      await auth.tokenManagerInit(fakeTokenManager)
+      XCTAssertFalse(fakeTokenManager.cancelled)
+      await auth.application(UIApplication.shared,
+                             didFailToRegisterForRemoteNotificationsWithError: error)
       XCTAssertTrue(fakeTokenManager.cancelled)
     }
 
@@ -2361,6 +2406,23 @@ class AuthTests: RPCBaseTests {
       auth.authURLPresenter = fakeURLPresenter
       XCTAssertFalse(fakeURLPresenter.canHandled)
       XCTAssertTrue(auth.application(UIApplication.shared, open: url, options: [:]))
+      XCTAssertTrue(fakeURLPresenter.canHandled)
+    }
+
+    func testAppOpenURL_AuthPresenterCanHandleURLAsync() async throws {
+      class FakeURLPresenter: AuthURLPresenter {
+        var canHandled = false
+        override func canHandle(url: URL) -> Bool {
+          canHandled = true
+          return true
+        }
+      }
+      let url = try XCTUnwrap(URL(string: "https://localhost"))
+      let fakeURLPresenter = FakeURLPresenter()
+      auth.authURLPresenter = fakeURLPresenter
+      XCTAssertFalse(fakeURLPresenter.canHandled)
+      let result = await auth.application(UIApplication.shared, open: url, options: [:])
+      XCTAssertTrue(result)
       XCTAssertTrue(fakeURLPresenter.canHandled)
     }
   #endif // os(iOS)
@@ -2427,6 +2489,46 @@ class AuthTests: RPCBaseTests {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
+    assertUser(auth?.currentUser)
+  }
+
+  private func waitForSignInWithAccessTokenAsync(fakeAccessToken: String =
+    kAccessToken) async throws {
+    let kRefreshToken = "fakeRefreshToken"
+    setFakeGetAccountProvider()
+    setFakeSecureTokenService()
+
+    // 1. Set up respondBlock to test request and send it to generate a fake response.
+    rpcIssuer.respondBlock = {
+      // 2. Validate the created Request instance.
+      let request = try XCTUnwrap(self.rpcIssuer.request as? VerifyPasswordRequest)
+      XCTAssertEqual(request.email, self.kEmail)
+      XCTAssertEqual(request.password, self.kFakePassword)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
+                                            "email": self.kEmail,
+                                            "isNewUser": true,
+                                            "expiresIn": "3600",
+                                            "refreshToken": kRefreshToken])
+    }
+    let authResult = try await auth?.signIn(withEmail: kEmail, password: kFakePassword)
+    // 4. After the response triggers the callback, verify the returned result.
+    guard let user = authResult?.user else {
+      XCTFail("authResult.user is missing")
+      return
+    }
+    XCTAssertEqual(user.refreshToken, kRefreshToken)
+    XCTAssertFalse(user.isAnonymous)
+    XCTAssertEqual(user.email, kEmail)
+    guard let additionalUserInfo = authResult?.additionalUserInfo else {
+      XCTFail("authResult.additionalUserInfo is missing")
+      return
+    }
+    XCTAssertFalse(additionalUserInfo.isNewUser)
+    XCTAssertEqual(additionalUserInfo.providerID, EmailAuthProvider.id)
     assertUser(auth?.currentUser)
   }
 

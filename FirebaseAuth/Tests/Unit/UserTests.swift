@@ -726,6 +726,14 @@ class UserTests: RPCBaseTests {
     internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessToken)
   }
 
+  /** @fn testGetIDTokenResultForcingRefreshSameAccessTokenSuccess
+      @brief Tests the flow of a successful @c getIDTokenResultForcingRefresh:completion: call when
+          the returned access token is the same as the stored access token.
+   */
+  func testGetIDTokenResultForcingRefreshSameAccessTokenSuccessAsync() async throws {
+    try await internalGetIDTokenResultAsync(token: RPCBaseTests.kFakeAccessToken)
+  }
+
   /** @fn testGetIDTokenResultForcingRefreshSuccess
       @brief Tests the flow successful @c getIDTokenResultForcingRefresh:completion: calls.
    */
@@ -1579,6 +1587,28 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  private func internalGetIDTokenResultAsync(token: String, forceRefresh: Bool = true,
+                                             emailMatch: String = "aunitestuser@gmail.com",
+                                             audMatch: String = "test_aud") async throws {
+    setFakeGetAccountProvider()
+    let user = try await signInWithEmailPasswordReturnFakeUserAsync(fakeAccessToken: token)
+    let tokenResult = try await user.getIDTokenResult(forcingRefresh: forceRefresh)
+    XCTAssertEqual(user.displayName, kDisplayName)
+    XCTAssertEqual(user.email, kEmail)
+    XCTAssertEqual(tokenResult.token, token)
+    XCTAssertNotNil(tokenResult.issuedAtDate)
+    XCTAssertNotNil(tokenResult.authDate)
+    XCTAssertNotNil(tokenResult.expirationDate)
+    XCTAssertNotNil(tokenResult.signInProvider)
+
+    // The lowercased is for the base64 test which seems to be an erroneously uppercased
+    // "Password"?
+    XCTAssertEqual(tokenResult.signInProvider.lowercased(), EmailAuthProvider.id)
+    XCTAssertEqual(tokenResult.claims["email"] as! String, emailMatch)
+    XCTAssertEqual(tokenResult.claims["aud"] as! String, audMatch)
+    XCTAssertEqual(tokenResult.signInSecondFactor, "")
+  }
+
   private func changeUserEmail(user: User, changeEmail: Bool = false,
                                expectation: XCTestExpectation) {
     do {
@@ -1681,6 +1711,40 @@ class UserTests: RPCBaseTests {
       self.rpcIssuer?.verifyPasswordRequester = nil
       completion(user)
     }
+  }
+
+  private func signInWithEmailPasswordReturnFakeUserAsync(fakeAccessToken: String = RPCBaseTests
+    .kFakeAccessToken) async throws -> User {
+    let kRefreshToken = "fakeRefreshToken"
+    setFakeSecureTokenService(fakeAccessToken: fakeAccessToken)
+
+    rpcIssuer?.verifyPasswordRequester = { request in
+      // 2. Validate the created Request instance.
+      XCTAssertEqual(request.email, self.kEmail)
+      XCTAssertEqual(request.password, self.kFakePassword)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
+      XCTAssertTrue(request.returnSecureToken)
+      do {
+        // 3. Send the response from the fake backend.
+        try self.rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
+                                               "isNewUser": true,
+                                               "refreshToken": kRefreshToken])
+      } catch {
+        XCTFail("Failure sending response: \(error)")
+      }
+    }
+    try await UserTests.auth?.signOut()
+    let authResult = try await UserTests.auth?.signIn(withEmail: kEmail, password: kFakePassword)
+    let user = try XCTUnwrap(authResult?.user)
+    XCTAssertEqual(user.refreshToken, kRefreshToken)
+    XCTAssertFalse(user.isAnonymous)
+    XCTAssertEqual(user.email, kEmail)
+    let additionalUserInfo = try XCTUnwrap(authResult?.additionalUserInfo)
+    XCTAssertFalse(additionalUserInfo.isNewUser)
+    XCTAssertEqual(additionalUserInfo.providerID, EmailAuthProvider.id)
+    // Clear the password Requester to avoid being called again by reauthenticate tests.
+    rpcIssuer?.verifyPasswordRequester = nil
+    return user
   }
 
   private func signInWithGoogleCredential(completion: @escaping (User) -> Void) {

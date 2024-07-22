@@ -129,7 +129,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
         return
       } else if let json = fakeSecureTokenServiceJSON {
         guard let _ = try? respond(withJSON: json) else {
-          fatalError("fakeGetAccountProviderJSON respond failed")
+          fatalError("fakeSecureTokenServiceJSON respond failed")
         }
         return
       }
