@@ -309,7 +309,7 @@ let package = Package(
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
-      dependencies: ["FirebaseAnalytics"],
+      dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/SwiftUnit"
     ),
     .testTarget(
@@ -1146,7 +1146,7 @@ let package = Package(
         "FirebaseAuth",
         "FirebaseAppCheck",
         "FirebaseABTesting",
-        "FirebaseAnalytics",
+        "FirebaseAnalyticsTarget",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
