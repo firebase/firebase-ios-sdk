@@ -1357,27 +1357,27 @@ func abseilDependency() -> Package.Dependency {
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      branch: "nc/firestore-pre_rc1"
-      // "1.2024011601.1" ..< "1.2024011700.0"
+      "1.2024011601.1" ..< "1.2024011700.0"
     )
+    return .package(url: packageInfo.url, branch: "nc/firestore-pre_rc1")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func grpcDependency() -> Package.Dependency {
-  return .package(url: "https://github.com/google/grpc-binary.git", branch: "nc/firestore-pre_rc1")
-  // let packageInfo: (url: String, range: Range<Version>)
+  let packageInfo: (url: String, range: Range<Version>)
 
-  // // If building Firestore from source, abseil will need to be built as source
-  // // as the headers in the binary version of abseil are unusable.
-  // if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-  //   packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
-  // } else {
-  //   packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
-  // }
+  // If building Firestore from source, abseil will need to be built as source
+  // as the headers in the binary version of abseil are unusable.
+  if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
+  } else {
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
+    return .package(url: packageInfo.url, branch: "nc/firestore-pre_rc1")
+  }
 
-  // return .package(url: packageInfo.url, packageInfo.range)
+  return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func firestoreWrapperTarget() -> Target {
