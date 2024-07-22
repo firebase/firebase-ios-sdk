@@ -441,8 +441,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (BOOL)isAnalyticsCollectionExplicitlySet {
-  // If it's de-activated, it classifies as explicity set. If not, it's not a good enough indication
-  // that the developer wants FirebaseAnalytics enabled so continue checking.
+  // If it's de-activated, it classifies as explicitly set. If not, it's not a good enough
+  // indication that the developer wants FirebaseAnalytics enabled so continue checking.
   if (self.isAnalyticsCollectionDeactivated) {
     return YES;
   }

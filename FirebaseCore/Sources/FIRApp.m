@@ -625,7 +625,7 @@ static FIRApp *sDefaultApp;
  *
  * @param appID Contents of GOOGLE_APP_ID from the plist file.
  * @param version Indicates what version of the app id format this string should be.
- * @return YES if provided string fufills the expected format, NO otherwise.
+ * @return YES if provided string fulfills the expected format, NO otherwise.
  */
 + (BOOL)validateAppIDFormat:(NSString *)appID withVersion:(NSString *)version {
   if (!appID.length || !version.length) {
@@ -707,8 +707,8 @@ static FIRApp *sDefaultApp;
  *
  * @param appID Contents of GOOGLE_APP_ID from the plist file.
  * @param version Indicates what version of the app id format this string should be.
- * @return YES if provided string fufills the expected hashed bundle ID and the version is known, NO
- *         otherwise.
+ * @return YES if provided string fulfills the expected hashed bundle ID and the version is known,
+ *         NO otherwise.
  */
 + (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version {
   // Extract the hashed bundle ID from the given app ID.
