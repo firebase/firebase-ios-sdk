@@ -220,7 +220,7 @@ Target::IndexBoundValue Target::GetAscendingBound(
       case FieldFilter::Operator::LessThan:
       case FieldFilter::Operator::LessThanOrEqual:
         filter_value =
-            model::GetLowerBound(field_filter.value().which_value_type);
+            model::GetLowerBound(field_filter.value());
         break;
       case FieldFilter::Operator::Equal:
       case FieldFilter::Operator::In:
@@ -285,7 +285,7 @@ Target::IndexBoundValue Target::GetDescendingBound(
       case FieldFilter::Operator::GreaterThanOrEqual:
       case FieldFilter::Operator::GreaterThan:
         filter_value =
-            model::GetUpperBound(field_filter.value().which_value_type);
+            model::GetUpperBound(field_filter.value());
         filter_inclusive = false;
         break;
       case FieldFilter::Operator::Equal:

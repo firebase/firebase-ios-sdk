@@ -42,18 +42,19 @@ class DatabaseId;
  * ordering, but modified to support server timestamps.
  */
 enum class TypeOrder {
-  kNull = 0,
-  kBoolean = 1,
-  kNumber = 2,
-  kTimestamp = 3,
-  kServerTimestamp = 4,
-  kString = 5,
-  kBlob = 6,
-  kReference = 7,
-  kGeoPoint = 8,
-  kArray = 9,
-  kMap = 10,
-  kMaxValue = 11
+    kNull = 0,
+    kBoolean = 1,
+    kNumber = 2,
+    kTimestamp = 3,
+    kServerTimestamp = 4,
+    kString = 5,
+    kBlob = 6,
+    kReference = 7,
+    kGeoPoint = 8,
+    kArray = 9,
+    kVector = 10,
+    kMap = 11,
+    kMaxValue = 12
 };
 
 /** Returns the backend's type order of the given Value type. */
@@ -94,7 +95,7 @@ std::string CanonicalId(const google_firestore_v1_Value& value);
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value GetLowerBound(pb_size_t value_tag);
+google_firestore_v1_Value GetLowerBound(const google_firestore_v1_Value& value);
 
 /**
  * Returns the largest value for the given value type (exclusive).
@@ -102,7 +103,7 @@ google_firestore_v1_Value GetLowerBound(pb_size_t value_tag);
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value GetUpperBound(pb_size_t value_tag);
+google_firestore_v1_Value GetUpperBound(const google_firestore_v1_Value& value);
 
 /**
  * Generates the canonical ID for the provided array value (as used in Target
@@ -156,6 +157,14 @@ google_firestore_v1_Value MaxValue();
 bool IsMaxValue(const google_firestore_v1_Value& value);
 
 /**
+ * Returns `true` if `value` represents a VectorValue..
+ */
+bool IsVectorValue(const google_firestore_v1_Value& value);
+
+int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue, const char* kRawTypeValueFieldKey,
+                   pb_bytes_array_s* kTypeValueFieldKey);
+
+/**
  * Returns `NaN` in its Protobuf representation.
  *
  * The returned value might point to heap allocated memory that is owned by
@@ -165,6 +174,26 @@ google_firestore_v1_Value NaNValue();
 
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
+
+google_firestore_v1_Value MinBoolean();
+
+google_firestore_v1_Value MinNumber();
+
+google_firestore_v1_Value MinTimestamp();
+
+google_firestore_v1_Value MinString();
+
+google_firestore_v1_Value MinBytes();
+
+google_firestore_v1_Value MinReference();
+
+google_firestore_v1_Value MinGeoPoint();
+
+google_firestore_v1_Value MinArray();
+
+google_firestore_v1_Value MinVector();
+    
+google_firestore_v1_Value MinMap();
 
 /**
  * Returns a Protobuf reference value representing the given location.
