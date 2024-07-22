@@ -191,7 +191,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
-  // Get the list of expriments from Firebase Analytics.
+  // Get the list of experiments from Firebase Analytics.
   NSArray *experiments = [controller experimentsWithOrigin:origin];
   if (!experiments) {
     NSString *errorDescription =
