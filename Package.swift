@@ -1409,8 +1409,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
 //    return .package(url: appMeasurementURL, branch: "main")
 //  }
 
-  let version = "10.28.0"
-  return .package(url: appMeasurementURL, exact: version)
+  return .package(url: appMeasurementURL, exact: "10.28.0")
 }
 
 func abseilDependency() -> Package.Dependency {
