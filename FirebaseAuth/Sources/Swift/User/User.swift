@@ -702,23 +702,22 @@ extension User: NSSecureCoding {}
               guard let idToken = response.idToken,
                     let refreshToken = response.refreshToken,
                     let providerID = response.providerID else {
-                fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+                fatalError("Internal Auth Error: missing token in VerifyAssertionResponse")
               }
               let additionalUserInfo = AdditionalUserInfo(providerID: providerID,
                                                           profile: response.profile,
                                                           username: response.username,
                                                           isNewUser: response.isNewUser)
               let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
+              try await self.updateTokenAndRefreshUser(
+                idToken: idToken,
+                refreshToken: refreshToken,
+                expirationDate: response.approximateExpirationDate,
+                requestConfiguration: requestConfiguration
+              )
               let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
                                           credential: updatedOAuthCredential)
-              self.updateTokenAndRefreshUser(idToken: idToken,
-                                             refreshToken: refreshToken,
-                                             accessToken: accessToken,
-                                             expirationDate: response.approximateExpirationDate,
-                                             result: result,
-                                             requestConfiguration: requestConfiguration,
-                                             completion: completion,
-                                             withTaskComplete: complete)
+              completeWithError(result, nil)
             } catch {
               self.signOutIfTokenIsInvalid(withError: error)
               completeWithError(nil, error)
@@ -1264,18 +1263,12 @@ extension User: NSSecureCoding {}
       if self.email != nil {
         if !hadEmailPasswordCredential {
           // The list of providers need to be updated for the newly added email-password provider.
-          self.internalGetToken { accessToken, error in
-            if let error {
-              callback(error)
-              return
-            }
-            guard let accessToken else {
-              fatalError("Auth Internal Error: Both accessToken and error are nil")
-            }
-            if let requestConfiguration = self.auth?.requestConfiguration {
-              let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                                requestConfiguration: requestConfiguration)
-              Task {
+          Task {
+            do {
+              let accessToken = try await self.internalGetTokenAsync()
+              if let requestConfiguration = self.auth?.requestConfiguration {
+                let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
+                                                                  requestConfiguration: requestConfiguration)
                 do {
                   let accountInfoResponse = try await AuthBackend.call(with: getAccountInfoRequest)
                   if let users = accountInfoResponse.users {
@@ -1306,6 +1299,8 @@ extension User: NSSecureCoding {}
                   callback(error)
                 }
               }
+            } catch {
+              callback(error)
             }
           }
           return
@@ -1337,18 +1332,14 @@ extension User: NSSecureCoding {}
         guard let user else {
           fatalError("Internal error: Both user and error are nil")
         }
-        self.internalGetToken { accessToken, error in
-          if let error {
-            complete()
-            callback(error)
-            return
-          }
-          if let configuration = self.auth?.requestConfiguration {
-            // Mutate setAccountInfoRequest in block
-            let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
-            setAccountInfoRequest.accessToken = accessToken
-            changeBlock(user, setAccountInfoRequest)
-            Task {
+        Task {
+          do {
+            let accessToken = try await self.internalGetTokenAsync()
+            if let configuration = self.auth?.requestConfiguration {
+              // Mutate setAccountInfoRequest in block
+              let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
+              setAccountInfoRequest.accessToken = accessToken
+              changeBlock(user, setAccountInfoRequest)
               do {
                 let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
                 if let idToken = accountInfoResponse.idToken,
@@ -1373,6 +1364,9 @@ extension User: NSSecureCoding {}
                 callback(error)
               }
             }
+          } catch {
+            complete()
+            callback(error)
           }
         }
       }
@@ -1512,6 +1506,7 @@ extension User: NSSecureCoding {}
                     let refreshToken = verifyResponse.refreshToken else {
                 fatalError("Internal Auth Error: missing token in internalUpdateOrLinkPhoneNumber")
               }
+              // Update the new token and refresh user info again.
               self.tokenService = SecureTokenService(
                 withRequestConfiguration: configuration,
                 accessToken: idToken,
@@ -1572,49 +1567,17 @@ extension User: NSSecureCoding {}
             fatalError("Internal auth error: Invalid SignUpNewUserResponse")
           }
           // Update the new token and refresh user info again.
-          self.tokenService = SecureTokenService(
-            withRequestConfiguration: self.requestConfiguration,
-            accessToken: idToken,
-            accessTokenExpirationDate: response.approximateExpirationDate,
-            refreshToken: refreshToken
+          try await self.updateTokenAndRefreshUser(
+            idToken: idToken,
+            refreshToken: refreshToken,
+            expirationDate: response.approximateExpirationDate,
+            requestConfiguration: requestConfiguration
           )
-
-          self.internalGetToken { accessToken, error in
-            if let error {
-              User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                              complete: nil, result: nil,
-                                                              error: error)
-              return
-            }
-            guard let accessToken else {
-              fatalError("Internal Auth Error: nil accessToken")
-            }
-            let getAccountInfoRequest = GetAccountInfoRequest(
-              accessToken: accessToken,
-              requestConfiguration: self.requestConfiguration
-            )
-            Task {
-              do {
-                let response = try await AuthBackend.call(with: getAccountInfoRequest)
-                self.isAnonymous = false
-                self.update(withGetAccountInfoResponse: response)
-                if let keychainError = self.updateKeychain() {
-                  User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                                  complete: nil, result: nil,
-                                                                  error: keychainError)
-                  return
-                }
-                User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                                complete: nil,
-                                                                result: authResult)
-              } catch {
-                self.signOutIfTokenIsInvalid(withError: error)
-                User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                                complete: nil, result: nil,
-                                                                error: error)
-              }
-            }
-          }
+          User.callInMainThreadWithAuthDataResultAndError(
+            callback: completion,
+            result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+            error: nil
+          )
         } catch {
           self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
@@ -1663,16 +1626,17 @@ extension User: NSSecureCoding {}
                   let refreshToken = response.refreshToken else {
               fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
             }
-            self.updateTokenAndRefreshUser(idToken: idToken,
-                                           refreshToken: refreshToken,
-                                           accessToken: accessToken,
-                                           expirationDate: response.approximateExpirationDate,
-                                           result: AuthDataResult(
-                                             withUser: self,
-                                             additionalUserInfo: nil
-                                           ),
-                                           requestConfiguration: requestConfiguration,
-                                           completion: completion)
+            try await self.updateTokenAndRefreshUser(
+              idToken: idToken,
+              refreshToken: refreshToken,
+              expirationDate: response.approximateExpirationDate,
+              requestConfiguration: requestConfiguration
+            )
+            User.callInMainThreadWithAuthDataResultAndError(
+              callback: completion,
+              result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+              error: nil
+            )
           } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
@@ -1710,16 +1674,17 @@ extension User: NSSecureCoding {}
                   let refreshToken = response.refreshToken else {
               fatalError("Internal Auth Error: missing token in link(withGameCredential")
             }
-            self.updateTokenAndRefreshUser(idToken: idToken,
-                                           refreshToken: refreshToken,
-                                           accessToken: accessToken,
-                                           expirationDate: response.approximateExpirationDate,
-                                           result: AuthDataResult(
-                                             withUser: self,
-                                             additionalUserInfo: nil
-                                           ),
-                                           requestConfiguration: requestConfiguration,
-                                           completion: completion)
+            try await self.updateTokenAndRefreshUser(
+              idToken: idToken,
+              refreshToken: refreshToken,
+              expirationDate: response.approximateExpirationDate,
+              requestConfiguration: requestConfiguration
+            )
+            User.callInMainThreadWithAuthDataResultAndError(
+              callback: completion,
+              result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+              error: nil
+            )
           } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
@@ -1754,52 +1719,29 @@ extension User: NSSecureCoding {}
   #endif
 
   // Update the new token and refresh user info again.
-  private func updateTokenAndRefreshUser(idToken: String, refreshToken: String,
-                                         accessToken: String?,
+  private func updateTokenAndRefreshUser(idToken: String,
+                                         refreshToken: String,
                                          expirationDate: Date?,
-                                         result: AuthDataResult,
-                                         requestConfiguration: AuthRequestConfiguration,
-                                         completion: ((AuthDataResult?, Error?) -> Void)?,
-                                         withTaskComplete complete: AuthSerialTaskCompletionBlock? =
-                                           nil) {
+                                         requestConfiguration: AuthRequestConfiguration) async throws {
     tokenService = SecureTokenService(
       withRequestConfiguration: requestConfiguration,
       accessToken: idToken,
       accessTokenExpirationDate: expirationDate,
       refreshToken: refreshToken
     )
-    internalGetToken { response, error in
-      if let error {
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                        complete: complete,
-                                                        error: error)
-        return
-      }
-      guard let accessToken else {
-        fatalError("Internal Auth Error: nil access Token")
-      }
-      let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                        requestConfiguration: requestConfiguration)
-      Task {
-        do {
-          let response = try await AuthBackend.call(with: getAccountInfoRequest)
-          self.isAnonymous = false
-          self.update(withGetAccountInfoResponse: response)
-          if let error = self.updateKeychain() {
-            User.callInMainThreadWithAuthDataResultAndError(
-              callback: completion,
-              complete: complete,
-              error: error
-            )
-            return
-          }
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
-                                                          result: result)
-        } catch {
-          self.signOutIfTokenIsInvalid(withError: error)
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
-        }
-      }
+    let accessToken = try await internalGetTokenAsync()
+    let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
+                                                      requestConfiguration: requestConfiguration)
+    do {
+      let response = try await AuthBackend.call(with: getAccountInfoRequest)
+      isAnonymous = false
+      update(withGetAccountInfoResponse: response)
+    } catch {
+      signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+    if let error = updateKeychain() {
+      throw error
     }
   }
 
