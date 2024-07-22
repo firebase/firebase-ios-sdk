@@ -154,7 +154,7 @@ jobs:
 
   quickstart-ftl-cron-only:
     # Don't run on private repo.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+    if: github.repository == 'Firebase/firebase-ios-sdk'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
