@@ -489,7 +489,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
     BOOL didOpenDatabase = YES;
     if (![fileManager fileExistsAtPath:path]) {
-      // We've to separate between different versions here because of backwards compatbility issues.
+      // We've to separate between different versions here because of backward compatibility issues.
       int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 #ifdef SQLITE_OPEN_FILEPROTECTION_NONE
       flags |= SQLITE_OPEN_FILEPROTECTION_NONE;
