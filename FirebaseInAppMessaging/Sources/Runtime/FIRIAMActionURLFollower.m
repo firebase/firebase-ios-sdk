@@ -66,13 +66,13 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
                 @"Detected %d custom URL schemes from environment", (int)customSchemeURLs.count);
 
     if ([NSThread isMainThread]) {
-      // We can not dispatch sychronously to main queue if we are already in main queue. That
+      // We can not dispatch synchronously to main queue if we are already in main queue. That
       // can cause deadlock.
       URLFollower = [[FIRIAMActionURLFollower alloc]
           initWithCustomURLSchemeArray:customSchemeURLs
                        withApplication:UIApplication.sharedApplication];
     } else {
-      // If we are not on main thread, dispatch it to main queue since it invovles calling UIKit
+      // If we are not on main thread, dispatch it to main queue since it involves calling UIKit
       // methods, which are required to be carried out on main queue.
       dispatch_sync(dispatch_get_main_queue(), ^{
         URLFollower = [[FIRIAMActionURLFollower alloc]
@@ -162,7 +162,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
   }
 
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM240010",
-              @"No approriate openURL method defined for App Delegate");
+              @"No appropriate openURL method defined for App Delegate");
   return NO;
 }
 
