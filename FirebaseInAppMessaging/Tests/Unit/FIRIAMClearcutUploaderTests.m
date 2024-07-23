@@ -377,7 +377,7 @@
   NSNumber *waitTime =
       [NSNumber numberWithLongLong:self.defaultStrategy.maximumWaitTimeInMills + 200];
 
-  // Notice that it's invoking completion with falure flag and a flag to re-push those logs
+  // Notice that it's invoking completion with failure flag and a flag to re-push those logs
   OCMStub(
       [self.mockRequestSender
           sendClearcutHttpRequestForLogs:[OCMArg any]
