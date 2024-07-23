@@ -502,7 +502,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (NSString *)FCMToken {
-  // Gets the current default token, and requets a new one if it doesn't exist.
+  // Gets the current default token, and requests a new one if it doesn't exist.
   NSString *token = [self.tokenManager tokenAndRequestIfNotExist];
   return token;
 }
