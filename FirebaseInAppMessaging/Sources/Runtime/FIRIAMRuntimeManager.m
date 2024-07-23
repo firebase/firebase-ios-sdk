@@ -43,7 +43,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
-// A enum indicating 3 different possiblities of a setting about auto data collection.
+// A enum indicating 3 different possibilities of a setting about auto data collection.
 typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
   // This indicates that the config is not explicitly set.
   FIRIAMAutoDataCollectionSettingNone = 0,
