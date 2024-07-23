@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// Targeted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
 
 #import <Foundation/Foundation.h>
@@ -141,7 +141,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     NSString *deviceName;
     BOOL hasUiDeviceClass = NO;
 
-// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// Targeted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
