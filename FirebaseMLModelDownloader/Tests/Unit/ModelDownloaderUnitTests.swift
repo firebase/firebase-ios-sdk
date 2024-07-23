@@ -432,7 +432,7 @@
         case let .success(fakemodelInfoResult):
           switch fakemodelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
-          case .notModified: XCTFail("Expected failure since model name is not availabl.")
+          case .notModified: XCTFail("Expected failure since model name is not available.")
           }
         case let .failure(error):
           XCTAssertEqual(error, .notFound)
