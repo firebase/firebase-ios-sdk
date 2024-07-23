@@ -306,7 +306,7 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
+    - name: Test swift quickstart
       env:
         LEGACY: true
       run: |
@@ -314,11 +314,7 @@ jobs:
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
-    - name: Test swift quickstart
-      env:
-        LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
     - name: Remove data before upload
       env:
         LEGACY: true
@@ -626,8 +622,6 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
     - name: Remove data before upload
@@ -663,9 +657,6 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
-      run: |
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Remove data before upload

@@ -125,17 +125,13 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
-    - name: Test objc quickstart
+    - name: Test swift quickstart
       run: |
         mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true)
-      env:
-        LEGACY: true
-    - name: Test swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Crashlytics true swift)
       env:
         LEGACY: true
 
@@ -160,17 +156,13 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
-    - name: Build objc quickstart
+    - name: Build swift quickstart
       run: |
         mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
         # Set the deployed pod location of run and upload-symbols with the development pod version.
         cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
         cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics)
-      env:
-        LEGACY: true
-    - name: Build swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics swift)
+        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics swift)
       env:
         LEGACY: true
     - id: ftl_test
