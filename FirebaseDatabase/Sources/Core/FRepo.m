@@ -813,7 +813,7 @@
     if (!self.config.persistenceEnabled)
         return;
 
-// Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
+// Targeted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
     // The idea is to wait until any outstanding sets get written to disk. Since
