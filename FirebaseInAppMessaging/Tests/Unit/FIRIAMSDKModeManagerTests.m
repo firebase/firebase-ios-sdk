@@ -94,7 +94,7 @@
       [[FIRIAMSDKModeManager alloc] initWithUserDefaults:self.mockUserDefaults
                                      testingModeListener:self.mockTestingModeListener];
 
-  // now we do new fetch registeration
+  // now we do new fetch registration
   [sdkManager registerOneMoreFetch];
 
   // verify that we are writing currentFetchCount+1 into user defaults
@@ -116,7 +116,7 @@
       [[FIRIAMSDKModeManager alloc] initWithUserDefaults:self.mockUserDefaults
                                      testingModeListener:self.mockTestingModeListener];
 
-  // now we do new fetch registeration, but no more fetch count or mode updates in user defaults
+  // now we do new fetch registration, but no more fetch count or mode updates in user defaults
   [sdkManager registerOneMoreFetch];
   XCTAssertEqual(FIRIAMSDKModeRegular, [sdkManager currentMode]);
   OCMReject([self.mockUserDefaults setInteger:currentFetchCount + 1 forKey:[OCMArg any]]);
