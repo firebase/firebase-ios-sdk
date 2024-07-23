@@ -669,67 +669,15 @@ extension User: NSSecureCoding {}
   /// fails.
   @objc open func unlink(fromProvider provider: String,
                          completion: ((User?, Error?) -> Void)? = nil) {
-    taskQueue.enqueueTask { complete in
-      let completeAndCallbackWithError = { error in
-        complete()
-        User.callInMainThreadWithUserAndError(callback: completion, user: self,
-                                              error: error)
-      }
-      self.internalGetToken { accessToken, error in
-        if let error {
-          completeAndCallbackWithError(error)
-          return
+    Task {
+      do {
+        let user = try await unlink(fromProvider: provider)
+        await MainActor.run {
+          completion?(user, nil)
         }
-        guard let requestConfiguration = self.auth?.requestConfiguration else {
-          fatalError("Internal Error: Unexpected nil requestConfiguration.")
-        }
-        let request = SetAccountInfoRequest(requestConfiguration: requestConfiguration)
-        request.accessToken = accessToken
-
-        if self.providerDataRaw[provider] == nil {
-          completeAndCallbackWithError(AuthErrorUtils.noSuchProviderError())
-          return
-        }
-        request.deleteProviders = [provider]
-        Task {
-          do {
-            let response = try await AuthBackend.call(with: request)
-            // We can't just use the provider info objects in SetAccountInfoResponse
-            // because they don't have localID and email fields. Remove the specific
-            // provider manually.
-            self.providerDataRaw.removeValue(forKey: provider)
-            if provider == EmailAuthProvider.id {
-              self.hasEmailPasswordCredential = false
-            }
-            #if os(iOS)
-              // After successfully unlinking a phone auth provider, remove the phone number
-              // from the cached user info.
-              if provider == PhoneAuthProvider.id {
-                self.phoneNumber = nil
-              }
-            #endif
-            if let idToken = response.idToken,
-               let refreshToken = response.refreshToken {
-              let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
-                                                    accessToken: idToken,
-                                                    accessTokenExpirationDate: response
-                                                      .approximateExpirationDate,
-                                                    refreshToken: refreshToken)
-              self.setTokenService(tokenService: tokenService) { error in
-                completeAndCallbackWithError(error)
-              }
-              return
-            }
-            if let error = self.updateKeychain() {
-              completeAndCallbackWithError(error)
-              return
-            }
-            completeAndCallbackWithError(nil)
-          } catch {
-            self.signOutIfTokenIsInvalid(withError: error)
-            completeAndCallbackWithError(error)
-            return
-          }
+      } catch {
+        await MainActor.run {
+          completion?(nil, error)
         }
       }
     }
@@ -750,15 +698,7 @@ extension User: NSSecureCoding {}
   /// - Returns: The user.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func unlink(fromProvider provider: String) async throws -> User {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.unlink(fromProvider: provider) { result, error in
-        if let result {
-          continuation.resume(returning: result)
-        } else if let error {
-          continuation.resume(throwing: error)
-        }
-      }
-    }
+    return try await auth.authWorker.unlink(user: self, fromProvider: provider)
   }
 
   /// Initiates email verification for the user.
@@ -795,31 +735,15 @@ extension User: NSSecureCoding {}
   @objc(sendEmailVerificationWithActionCodeSettings:completion:)
   open func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
                                   completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      self.internalGetToken { accessToken, error in
-        if let error {
-          User.callInMainThreadWithError(callback: completion, error: error)
-          return
+    Task {
+      do {
+        try await sendEmailVerification(with: actionCodeSettings)
+        await MainActor.run {
+          completion?(nil)
         }
-        guard let accessToken else {
-          fatalError("Internal Error: Both error and accessToken are nil.")
-        }
-        guard let requestConfiguration = self.auth?.requestConfiguration else {
-          fatalError("Internal Error: Unexpected nil requestConfiguration.")
-        }
-        let request = GetOOBConfirmationCodeRequest.verifyEmailRequest(
-          accessToken: accessToken,
-          actionCodeSettings: actionCodeSettings,
-          requestConfiguration: requestConfiguration
-        )
-        Task {
-          do {
-            let _ = try await AuthBackend.call(with: request)
-            User.callInMainThreadWithError(callback: completion, error: nil)
-          } catch {
-            self.signOutIfTokenIsInvalid(withError: error)
-            User.callInMainThreadWithError(callback: completion, error: error)
-          }
+      } catch {
+        await MainActor.run {
+          completion?(error)
         }
       }
     }
@@ -839,15 +763,7 @@ extension User: NSSecureCoding {}
   /// handling action codes. The default value is `nil`.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil) async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.sendEmailVerification(with: actionCodeSettings) { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
+    return try await auth.authWorker.sendEmailVerification(user: self, with: actionCodeSettings)
   }
 
   /// Deletes the user account (also signs out the user, if this was the current user).
@@ -860,28 +776,15 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the request to delete the account
   /// is complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func delete(completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      self.internalGetToken { accessToken, error in
-        if let error {
-          User.callInMainThreadWithError(callback: completion, error: error)
-          return
+    Task {
+      do {
+        try await delete()
+        await MainActor.run {
+          completion?(nil)
         }
-        guard let accessToken else {
-          fatalError("Auth Internal Error: Both error and accessToken are nil.")
-        }
-        guard let requestConfiguration = self.auth?.requestConfiguration else {
-          fatalError("Auth Internal Error: Unexpected nil requestConfiguration.")
-        }
-        let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
-                                           requestConfiguration: requestConfiguration)
-        Task {
-          do {
-            let _ = try await AuthBackend.call(with: request)
-            try self.auth?.signOutByForce(withUserID: self.uid)
-            User.callInMainThreadWithError(callback: completion, error: nil)
-          } catch {
-            User.callInMainThreadWithError(callback: completion, error: error)
-          }
+      } catch {
+        await MainActor.run {
+          completion?(error)
         }
       }
     }
@@ -896,15 +799,7 @@ extension User: NSSecureCoding {}
   /// `reauthenticate(with:)`.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func delete() async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.delete { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
+    return try await auth.authWorker.delete(user: self)
   }
 
   /// Send an email to verify the ownership of the account then update to the new email.
@@ -925,31 +820,16 @@ extension User: NSSecureCoding {}
   @objc open func sendEmailVerification(beforeUpdatingEmail email: String,
                                         actionCodeSettings: ActionCodeSettings? = nil,
                                         completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      self.internalGetToken { accessToken, error in
-        if let error {
-          User.callInMainThreadWithError(callback: completion, error: error)
-          return
+    Task {
+      do {
+        try await sendEmailVerification(beforeUpdatingEmail: email,
+                                        actionCodeSettings: actionCodeSettings)
+        await MainActor.run {
+          completion?(nil)
         }
-        guard let accessToken else {
-          fatalError("Internal Error: Both error and accessToken are nil.")
-        }
-        guard let requestConfiguration = self.auth?.requestConfiguration else {
-          fatalError("Internal Error: Unexpected nil requestConfiguration.")
-        }
-        let request = GetOOBConfirmationCodeRequest.verifyBeforeUpdateEmail(
-          accessToken: accessToken,
-          newEmail: email,
-          actionCodeSettings: actionCodeSettings,
-          requestConfiguration: requestConfiguration
-        )
-        Task {
-          do {
-            let _ = try await AuthBackend.call(with: request)
-            User.callInMainThreadWithError(callback: completion, error: nil)
-          } catch {
-            User.callInMainThreadWithError(callback: completion, error: error)
-          }
+      } catch {
+        await MainActor.run {
+          completion?(error)
         }
       }
     }
@@ -962,16 +842,11 @@ extension User: NSSecureCoding {}
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func sendEmailVerification(beforeUpdatingEmail newEmail: String,
                                   actionCodeSettings: ActionCodeSettings? = nil) async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.sendEmailVerification(beforeUpdatingEmail: newEmail,
-                                 actionCodeSettings: actionCodeSettings) { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
+    return try await auth.authWorker.sendEmailVerification(
+      user: self,
+      beforeUpdatingEmail: newEmail,
+      actionCodeSettings: actionCodeSettings
+    )
   }
 
   // MARK: Internal implementations below
@@ -1017,7 +892,7 @@ extension User: NSSecureCoding {}
     user.auth = auth
     user.tenantID = auth.tenantID
     user.requestConfiguration = auth.requestConfiguration
-    let accessToken2 = try await user.internalGetTokenAsync()
+    let accessToken2 = try await user.internalGetToken()
     let getAccountInfoRequest = GetAccountInfoRequest(
       accessToken: accessToken2,
       requestConfiguration: user.requestConfiguration
@@ -1113,41 +988,6 @@ extension User: NSSecureCoding {}
     }
   }
 
-  /// Gets the users' account data from the server, updating our local values.
-  /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
-  /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  private func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
-                                                                  Error?) -> Void) {
-    internalGetToken { token, error in
-      if let error {
-        callback(nil, error)
-        return
-      }
-      guard let token else {
-        fatalError("Internal Error: Both error and token are nil.")
-      }
-      guard let requestConfiguration = self.auth?.requestConfiguration else {
-        fatalError("Internal Error: Unexpected nil requestConfiguration.")
-      }
-      let request = GetAccountInfoRequest(accessToken: token,
-                                          requestConfiguration: requestConfiguration)
-      Task {
-        do {
-          let accountInfoResponse = try await AuthBackend.call(with: request)
-          self.update(withGetAccountInfoResponse: accountInfoResponse)
-          if let error = self.updateKeychain() {
-            callback(nil, error)
-            return
-          }
-          callback(accountInfoResponse.users?.first, nil)
-        } catch {
-          self.signOutIfTokenIsInvalid(withError: error)
-          callback(nil, error)
-        }
-      }
-    }
-  }
-
   func update(withGetAccountInfoResponse response: GetAccountInfoResponse) {
     guard let user = response.users?.first else {
       // Silent fallthrough in ObjC code.
@@ -1183,67 +1023,6 @@ extension User: NSSecureCoding {}
     #endif
   }
 
-  // DELETE ME
-  /// Performs a setAccountInfo request by mutating the results of a getAccountInfo response,
-  /// atomically in regards to other calls to this method.
-  /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
-  /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
-  /// the auth global work queue in the future.
-  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
-                                                            SetAccountInfoRequest) -> Void,
-                                    callback: @escaping (Error?) -> Void) {
-    taskQueue.enqueueTask { complete in
-      self.getAccountInfoRefreshingCache { user, error in
-        if let error {
-          complete()
-          callback(error)
-          return
-        }
-        guard let user else {
-          fatalError("Internal error: Both user and error are nil")
-        }
-        self.internalGetToken { accessToken, error in
-          if let error {
-            complete()
-            callback(error)
-            return
-          }
-          if let configuration = self.auth?.requestConfiguration {
-            // Mutate setAccountInfoRequest in block
-            let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
-            setAccountInfoRequest.accessToken = accessToken
-            changeBlock(user, setAccountInfoRequest)
-            Task {
-              do {
-                let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
-                if let idToken = accountInfoResponse.idToken,
-                   let refreshToken = accountInfoResponse.refreshToken {
-                  let tokenService = SecureTokenService(
-                    withRequestConfiguration: configuration,
-                    accessToken: idToken,
-                    accessTokenExpirationDate: accountInfoResponse.approximateExpirationDate,
-                    refreshToken: refreshToken
-                  )
-                  self.setTokenService(tokenService: tokenService) { error in
-                    complete()
-                    callback(error)
-                  }
-                  return
-                }
-                complete()
-                callback(nil)
-              } catch {
-                self.signOutIfTokenIsInvalid(withError: error)
-                complete()
-                callback(error)
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
   /// Signs out this user if the user or the token is invalid.
   /// - Parameter error: The error from the server.
   func signOutIfTokenIsInvalid(withError error: Error) {
@@ -1258,28 +1037,7 @@ extension User: NSSecureCoding {}
     }
   }
 
-  /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-  /// - Parameter callback: The block to invoke when the token is available. Invoked asynchronously
-  /// on the  global work thread in the future.
-  func internalGetToken(forceRefresh: Bool = false,
-                        callback: @escaping (String?, Error?) -> Void) {
-    tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
-      if let error {
-        self.signOutIfTokenIsInvalid(withError: error)
-        callback(nil, error)
-        return
-      }
-      if tokenUpdated {
-        if let error = self.updateKeychain() {
-          callback(nil, error)
-          return
-        }
-      }
-      callback(token, nil)
-    }
-  }
-
-  func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
+  func internalGetToken(forceRefresh: Bool = false) async throws -> String {
     do {
       let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
         user: self,
@@ -1301,50 +1059,6 @@ extension User: NSSecureCoding {}
   /// - Returns: An `Error` on failure.
   func updateKeychain() -> Error? {
     return auth?.updateKeychain(withUser: self)
-  }
-
-  /// Calls a callback in main thread with error.
-  /// - Parameter callback: The callback to be called in main thread.
-  /// - Parameter error: The error to pass to callback.
-
-  class func callInMainThreadWithError(callback: ((Error?) -> Void)?, error: Error?) {
-    if let callback {
-      DispatchQueue.main.async {
-        callback(error)
-      }
-    }
-  }
-
-  /// Calls a callback in main thread with user and error.
-  /// - Parameter callback: The callback to be called in main thread.
-  /// - Parameter user: The user to pass to callback if there is no error.
-  /// - Parameter error: The error to pass to callback.
-  private class func callInMainThreadWithUserAndError(callback: ((User?, Error?) -> Void)?,
-                                                      user: User,
-                                                      error: Error?) {
-    if let callback {
-      DispatchQueue.main.async {
-        callback((error != nil) ? nil : user, error)
-      }
-    }
-  }
-
-  /// Calls a callback in main thread with user and error.
-  /// - Parameter callback: The callback to be called in main thread.
-  private class func callInMainThreadWithAuthDataResultAndError(callback: (
-    (AuthDataResult?, Error?) -> Void
-  )?,
-  complete: AuthSerialTaskCompletionBlock? = nil,
-  result: AuthDataResult? = nil,
-  error: Error? = nil) {
-    if let callback {
-      DispatchQueue.main.async {
-        if let complete {
-          complete()
-        }
-        callback(result, error)
-      }
-    }
   }
 
   // MARK: NSSecureCoding

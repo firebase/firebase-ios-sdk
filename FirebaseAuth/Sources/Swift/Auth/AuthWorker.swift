@@ -63,7 +63,7 @@ actor AuthWorker {
     guard let currentUser = auth.currentUser else {
       return nil
     }
-    return try await currentUser.internalGetTokenAsync(forceRefresh: forceRefresh)
+    return try await currentUser.internalGetToken(forceRefresh: forceRefresh)
   }
 
   /// Only for testing
@@ -342,7 +342,7 @@ actor AuthWorker {
         return
       }
       // The list of providers need to be updated for the newly added email-password provider.
-      let accessToken = try await user.internalGetTokenAsync()
+      let accessToken = try await user.internalGetToken()
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                         requestConfiguration: requestConfiguration)
       do {
@@ -386,7 +386,7 @@ actor AuthWorker {
     /// operation.
     func updateOrLinkPhoneNumber(user: User, credential: PhoneAuthCredential,
                                  isLinkOperation: Bool) async throws {
-      let accessToken = try await user.internalGetTokenAsync()
+      let accessToken = try await user.internalGetToken()
 
       guard let configuration = user.auth?.requestConfiguration else {
         fatalError("Auth Internal Error: nil value for VerifyPhoneNumberRequest initializer")
@@ -436,7 +436,7 @@ actor AuthWorker {
                                                                     SetAccountInfoRequest)
                                               -> Void) async throws {
     let userAccountInfo = try await getAccountInfoRefreshingCache(user)
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetToken()
 
     // Mutate setAccountInfoRequest in block
     let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: requestConfiguration)
@@ -465,7 +465,7 @@ actor AuthWorker {
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
   func getAccountInfoRefreshingCache(_ user: User) async throws
     -> GetAccountInfoResponseUser {
-    let token = try await user.internalGetTokenAsync()
+    let token = try await user.internalGetToken()
     let request = GetAccountInfoRequest(accessToken: token,
                                         requestConfiguration: requestConfiguration)
     do {
@@ -511,7 +511,7 @@ actor AuthWorker {
 
   func getIDTokenResult(user: User,
                         forcingRefresh forceRefresh: Bool) async throws -> AuthTokenResult {
-    let token = try await user.internalGetTokenAsync(forceRefresh: forceRefresh)
+    let token = try await user.internalGetToken(forceRefresh: forceRefresh)
     let tokenResult = try AuthTokenResult.tokenResult(token: token)
     AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
       "\(String(describing: tokenResult.expirationDate))," +
@@ -537,7 +537,7 @@ actor AuthWorker {
       }
     #endif
 
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetToken()
     let request = VerifyAssertionRequest(providerID: credential.provider,
                                          requestConfiguration: requestConfiguration)
     credential.prepare(request)
@@ -572,6 +572,131 @@ actor AuthWorker {
     return try await link(user: user, with: credential)
   }
 
+  func unlink(user: User, fromProvider provider: String) async throws -> User {
+    let accessToken = try await user.internalGetToken()
+    let request = SetAccountInfoRequest(requestConfiguration: requestConfiguration)
+    request.accessToken = accessToken
+
+    if user.providerDataRaw[provider] == nil {
+      throw AuthErrorUtils.noSuchProviderError()
+    }
+    request.deleteProviders = [provider]
+    do {
+      let response = try await AuthBackend.call(with: request)
+
+      // We can't just use the provider info objects in SetAccountInfoResponse
+      // because they don't have localID and email fields. Remove the specific
+      // provider manually.
+      user.providerDataRaw.removeValue(forKey: provider)
+
+      if provider == EmailAuthProvider.id {
+        user.hasEmailPasswordCredential = false
+      }
+      #if os(iOS)
+        // After successfully unlinking a phone auth provider, remove the phone number
+        // from the cached user info.
+        if provider == PhoneAuthProvider.id {
+          user.phoneNumber = nil
+        }
+      #endif
+      if let idToken = response.idToken,
+         let refreshToken = response.refreshToken {
+        let tokenService = SecureTokenService(
+          withRequestConfiguration: requestConfiguration,
+          accessToken: idToken,
+          accessTokenExpirationDate: response.approximateExpirationDate,
+          refreshToken: refreshToken
+        )
+        try await user.setTokenService(tokenService: tokenService)
+        return user
+      }
+    } catch {
+      user.signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+
+    if let error = user.updateKeychain() {
+      throw error
+    }
+    return user
+  }
+
+  func sendEmailVerification(user: User,
+                             with actionCodeSettings: ActionCodeSettings?) async throws {
+    let accessToken = try await user.internalGetToken()
+    let request = GetOOBConfirmationCodeRequest.verifyEmailRequest(
+      accessToken: accessToken,
+      actionCodeSettings: actionCodeSettings,
+      requestConfiguration: requestConfiguration
+    )
+    do {
+      _ = try await AuthBackend.call(with: request)
+    } catch {
+      user.signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+  }
+
+  func sendEmailVerification(user: User,
+                             beforeUpdatingEmail newEmail: String,
+                             actionCodeSettings: ActionCodeSettings?) async throws {
+    let accessToken = try await user.internalGetToken()
+    let request = GetOOBConfirmationCodeRequest.verifyBeforeUpdateEmail(
+      accessToken: accessToken,
+      newEmail: newEmail,
+      actionCodeSettings: actionCodeSettings,
+      requestConfiguration: requestConfiguration
+    )
+    do {
+      _ = try await AuthBackend.call(with: request)
+    } catch {
+      user.signOutIfTokenIsInvalid(withError: error)
+      throw error
+    }
+  }
+
+  func delete(user: User) async throws {
+    let accessToken = try await user.internalGetToken()
+    let request = DeleteAccountRequest(localID: user.uid, accessToken: accessToken,
+                                       requestConfiguration: requestConfiguration)
+    _ = try await AuthBackend.call(with: request)
+    try user.auth?.signOutByForce(withUserID: user.uid)
+  }
+
+  func commitChanges(changeRequest: UserProfileChangeRequest) async throws {
+    if changeRequest.consumed {
+      fatalError("Internal Auth Error: commitChanges should only be called once.")
+    }
+    changeRequest.consumed = true
+
+    // Return fast if there is nothing to update:
+    if !changeRequest.photoURLWasSet, !changeRequest.displayNameWasSet {
+      return
+    }
+    let displayName = changeRequest.displayName
+    let displayNameWasSet = changeRequest.displayNameWasSet
+    let photoURL = changeRequest.photoURL
+    let photoURLWasSet = changeRequest.photoURLWasSet
+
+    try await executeUserUpdateWithChanges(user: changeRequest.user) { _, request in
+      if photoURLWasSet {
+        request.photoURL = photoURL
+      }
+      if displayNameWasSet {
+        request.displayName = displayName
+      }
+    }
+    if displayNameWasSet {
+      changeRequest.user.displayName = displayName
+    }
+    if photoURLWasSet {
+      changeRequest.user.photoURL = photoURL
+    }
+    if let error = changeRequest.user.updateKeychain() {
+      throw error
+    }
+  }
+
   private func link(user: User,
                     withEmailCredential emailCredential: EmailAuthCredential) async throws
     -> AuthDataResult {
@@ -588,7 +713,7 @@ actor AuthWorker {
         authResult: result
       )
     case let .link(link):
-      let accessToken = try? await user.internalGetTokenAsync()
+      let accessToken = try? await user.internalGetToken()
       var queryItems = AuthWebUtils.parseURL(link)
       if link.count == 0 {
         if let urlComponents = URLComponents(string: link),
@@ -622,7 +747,7 @@ actor AuthWorker {
                     withEmail email: String,
                     password: String,
                     authResult: AuthDataResult) async throws -> AuthDataResult {
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetToken()
     do {
       let request = SignUpNewUserRequest(email: email,
                                          password: password,
@@ -647,7 +772,7 @@ actor AuthWorker {
         refreshToken: refreshToken
       )
 
-      let accessToken = try await user.internalGetTokenAsync()
+      let accessToken = try await user.internalGetToken()
       let getAccountInfoRequest = GetAccountInfoRequest(
         accessToken: accessToken,
         requestConfiguration: requestConfiguration
@@ -670,7 +795,7 @@ actor AuthWorker {
     private func link(user: User,
                       withGameCenterCredential gameCenterCredential: GameCenterAuthCredential) async throws
       -> AuthDataResult {
-      let accessToken = try await user.internalGetTokenAsync()
+      let accessToken = try await user.internalGetToken()
       guard let publicKeyURL = gameCenterCredential.publicKeyURL,
             let signature = gameCenterCredential.signature,
             let salt = gameCenterCredential.salt else {
@@ -721,7 +846,7 @@ actor AuthWorker {
       accessTokenExpirationDate: expirationDate,
       refreshToken: refreshToken
     )
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetToken()
     let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                       requestConfiguration: requestConfiguration)
     do {
@@ -821,7 +946,7 @@ actor AuthWorker {
     }
     let uid = currentUser.uid
     do {
-      _ = try await currentUser.internalGetTokenAsync(forceRefresh: true)
+      _ = try await currentUser.internalGetToken(forceRefresh: true)
       if auth.currentUser?.uid != uid {
         return
       }

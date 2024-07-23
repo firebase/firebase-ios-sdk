@@ -1160,7 +1160,7 @@ extension Auth: AuthInterop {
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
     if let currentUser {
-      let idToken = try await currentUser.internalGetTokenAsync()
+      let idToken = try await currentUser.internalGetToken()
       let request = RevokeTokenRequest(withToken: authorizationCode,
                                        idToken: idToken,
                                        requestConfiguration: requestConfiguration)

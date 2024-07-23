@@ -24,13 +24,11 @@ import Foundation
   @objc open var displayName: String? {
     get { return _displayName }
     set(newDisplayName) {
-      kAuthGlobalWorkQueue.async {
-        if self.consumed {
-          fatalError("Internal Auth Error: Invalid call to setDisplayName after commitChanges.")
-        }
-        self.displayNameWasSet = true
-        self._displayName = newDisplayName
+      if consumed {
+        fatalError("Internal Auth Error: Invalid call to setDisplayName after commitChanges.")
       }
+      displayNameWasSet = true
+      _displayName = newDisplayName
     }
   }
 
@@ -40,13 +38,11 @@ import Foundation
   @objc open var photoURL: URL? {
     get { return _photoURL }
     set(newPhotoURL) {
-      kAuthGlobalWorkQueue.async {
-        if self.consumed {
-          fatalError("Internal Auth Error: Invalid call to setPhotoURL after commitChanges.")
-        }
-        self.photoURLWasSet = true
-        self._photoURL = newPhotoURL
+      if consumed {
+        fatalError("Internal Auth Error: Invalid call to setPhotoURL after commitChanges.")
       }
+      photoURLWasSet = true
+      _photoURL = newPhotoURL
     }
   }
 
@@ -56,47 +52,20 @@ import Foundation
   ///
   /// Invoked asynchronously on the main thread in the future.
   ///
-  /// This method should only be called once.Once called, property values should not be changed.
+  /// This method should only be called once. Once called, property values should not be changed.
   /// - Parameter completion: Optionally; the block invoked when the user profile change has been
   /// applied.
   @objc open func commitChanges(completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      if self.consumed {
-        fatalError("Internal Auth Error: commitChanges should only be called once.")
-      }
-      self.consumed = true
-      // Return fast if there is nothing to update:
-      if !self.photoURLWasSet, !self.displayNameWasSet {
-        User.callInMainThreadWithError(callback: completion, error: nil)
-        return
-      }
-      let displayName = self.displayName
-      let displayNameWasSet = self.displayNameWasSet
-      let photoURL = self.photoURL
-      let photoURLWasSet = self.photoURLWasSet
-
-      self.user.executeUserUpdateWithChanges(changeBlock: { user, request in
-        if photoURLWasSet {
-          request.photoURL = photoURL
+    Task {
+      do {
+        try await self.commitChanges()
+        await MainActor.run {
+          completion?(nil)
         }
-        if displayNameWasSet {
-          request.displayName = displayName
+      } catch {
+        await MainActor.run {
+          completion?(error)
         }
-      }) { error in
-        if let error {
-          User.callInMainThreadWithError(callback: completion, error: error)
-          return
-        }
-        if displayNameWasSet {
-          self.user.displayName = displayName
-        }
-        if photoURLWasSet {
-          self.user.photoURL = photoURL
-        }
-        if let error = self.user.updateKeychain() {
-          User.callInMainThreadWithError(callback: completion, error: error)
-        }
-        User.callInMainThreadWithError(callback: completion, error: nil)
       }
     }
   }
@@ -106,23 +75,15 @@ import Foundation
   /// This method should only be called once. Once called, property values should not be changed.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func commitChanges() async throws {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.commitChanges { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
-        }
-      }
-    }
+    try await user.auth.authWorker.commitChanges(changeRequest: self)
   }
 
   init(_ user: User) {
     self.user = user
   }
 
-  private let user: User
-  private var consumed = false
-  private var displayNameWasSet = false
-  private var photoURLWasSet = false
+  let user: User
+  var consumed = false
+  var displayNameWasSet = false
+  var photoURLWasSet = false
 }
