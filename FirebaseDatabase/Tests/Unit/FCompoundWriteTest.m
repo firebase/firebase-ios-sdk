@@ -224,7 +224,7 @@
       [self.baseNode updateImmediateChild:@"child-1"
                              withNewChild:[FSnapshotUtilities nodeFrom:expectedChild1]];
   id<FNode> updatedNode = [compoundWrite applyToNode:self.baseNode];
-  XCTAssertEqualObjects(updatedNode, expectedNode, @"Shallow update should remove deep udpates.");
+  XCTAssertEqualObjects(updatedNode, expectedNode, @"Shallow update should remove deep updates.");
 }
 
 - (void)testChildPriorityDoesntUpdateEmptyNodePriorityOnChildMerge {
