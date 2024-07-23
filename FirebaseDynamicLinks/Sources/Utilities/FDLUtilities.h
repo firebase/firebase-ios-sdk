@@ -94,7 +94,7 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
  * @abstract Determines if the system version is greater than or equal to the minSupportedVersion.
  * @param systemVersion The iOS version to use as the current version in the comparison.
  * @param minSupportedVersion The minimum iOS system version that is supported.
- * @return YES if the system version is greater than or equal to the minimum, othewise, NO.
+ * @return YES if the system version is greater than or equal to the minimum, otherwise, NO.
  */
 BOOL FIRDLOSVersionSupported(NSString *_Nullable systemVersion, NSString *minSupportedVersion);
 
