@@ -334,7 +334,7 @@ struct FeedbackReport: Codable {
         feedbackName
       )
       guard var urlComponents = URLComponents(string: urlString) else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        // TODO(tundeagboola) We should throw exceptions here instead of piping errors
         Logger.logError("Unable to build URL for uploadArtifact request")
         return
       }
@@ -343,7 +343,7 @@ struct FeedbackReport: Codable {
         value: Strings.uploadArtifactScreenshotType
       )]
       guard let url = urlComponents.url else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        // TODO(tundeagboola) We should throw exceptions here instead of piping errors
         Logger.logError("Unable to build URL for uploadArtifact request")
         return
       }
