@@ -55,7 +55,7 @@
 }
 
 - (FIRDatabaseHandle)handle {
-    // TODO[offline]: returning arbitray, can't return NSNotFound since that is
+    // TODO[offline]: returning arbitrary, can't return NSNotFound since that is
     // used to match other event registrations We should really redo this to
     // match on different kind of events (single observer, all observers,
     // cancelled) rather than on a NSNotFound handle...
