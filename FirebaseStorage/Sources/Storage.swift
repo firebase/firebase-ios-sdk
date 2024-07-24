@@ -387,13 +387,23 @@ import FirebaseCore
 
   /// Configures the storage instance. Freezes the host setting.
   private func ensureConfigured() {
-    guard fetcherService == nil else {
-      return
-    }
-    fetcherService = Storage.initFetcherServiceForApp(app, storageBucket, auth, appCheck)
-    if usesEmulator {
-      fetcherService?.allowLocalhostRequest = true
-      fetcherService?.allowedInsecureSchemes = ["http"]
+    EnsuredConfigured.ensuredConfigured(self)
+  }
+
+  private actor EnsuredConfigured {
+    static func ensuredConfigured(_ storage: Storage) {
+      guard storage.fetcherService == nil else {
+        return
+      }
+      let fetcherService = Storage.initFetcherServiceForApp(storage.app,
+                                                            storage.storageBucket,
+                                                            storage.auth,
+                                                            storage.appCheck)
+      if storage.usesEmulator {
+        fetcherService.allowLocalhostRequest = true
+        fetcherService.allowedInsecureSchemes = ["http"]
+      }
+      storage.fetcherService = fetcherService
     }
   }
 
