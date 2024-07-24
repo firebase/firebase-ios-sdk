@@ -266,7 +266,7 @@ import FirebaseCore
 
   // MARK: - Internal and Private APIs
 
-  private var fetcherService: GTMSessionFetcherService?
+  var fetcherService: GTMSessionFetcherService?
 
   var fetcherServiceForApp: GTMSessionFetcherService {
     guard let value = fetcherService else {
