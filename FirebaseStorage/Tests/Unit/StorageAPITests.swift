@@ -191,7 +191,7 @@ final class StorageAPITests: XCTestCase {
 
   func StorageObservableTaskApis(ref: StorageReference) throws {
     let task = ref.write(toFile: URL(string: "url")!)
-    _ = task.observe(.pause) { snaphot in
+    _ = task.observe(.pause) { snapshot in
     }
     task.removeObserver(withHandle: "handle")
     task.removeAllObservers()
