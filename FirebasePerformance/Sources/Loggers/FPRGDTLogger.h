@@ -38,7 +38,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 /**
  * Logs an event that needs to be dispatched.
  *
- * @remark Events are logged/dispatched asynchrounously using a serial dispatch queue.
+ * @remark Events are logged/dispatched asynchronously using a serial dispatch queue.
  * @param event The event to log.
  */
 - (void)logEvent:(firebase_perf_v1_PerfMetric)event;

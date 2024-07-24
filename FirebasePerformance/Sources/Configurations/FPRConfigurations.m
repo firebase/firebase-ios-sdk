@@ -144,7 +144,7 @@ static dispatch_once_t gSharedInstanceToken;
 // The data collection flag is determined by this order:
 //   1. A plist flag for permanently disabling data collection
 //   2. The runtime flag (GULUserDefaults)
-//   3. A plist flag for enabling/disabling (overrideable)
+//   3. A plist flag for enabling/disabling (overridable)
 //   4. The global data collection switch from Core.
 - (BOOL)isDataCollectionEnabled {
   /**
