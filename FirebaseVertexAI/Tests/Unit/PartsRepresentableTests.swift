@@ -75,7 +75,7 @@ final class PartsRepresentableTests: XCTestCase {
           return
         }
       }
-      XCTFail("Expected model content from invlaid image to error")
+      XCTFail("Expected model content from invalid image to error")
     }
   #endif // canImport(CoreImage)
 
@@ -99,7 +99,7 @@ final class PartsRepresentableTests: XCTestCase {
           return
         }
       }
-      XCTFail("Expected model content from invlaid image to error")
+      XCTFail("Expected model content from invalid image to error")
     }
 
     func testModelContentFromUIImageIsNotEmpty() throws {
@@ -137,7 +137,7 @@ final class PartsRepresentableTests: XCTestCase {
           return
         }
       }
-      XCTFail("Expected model content from invlaid image to error")
+      XCTFail("Expected model content from invalid image to error")
     }
   #endif
 }
