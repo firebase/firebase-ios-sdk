@@ -96,7 +96,7 @@
 
 # 7.0.0
 - Fix issue related to crashes on specific kind of network requests #6713.
-- Fixed issue related to race condition on Firebase Remote Config initializaton #6287.
+- Fixed issue related to race condition on Firebase Remote Config initialization #6287.
 - Update Firebase dependencies to be latest and greatest.
 
 # 3.3.1
