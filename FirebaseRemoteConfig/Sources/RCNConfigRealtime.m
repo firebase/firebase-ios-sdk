@@ -452,7 +452,7 @@ static NSInteger const gMaxRetries = 7;
                                                       NSError *error) {
                                     if (error != nil) {
                                       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000010",
-                                                  @"Failed to retrive config due to fetch error. "
+                                                  @"Failed to retrieve config due to fetch error. "
                                                   @"Error: %@",
                                                   error);
                                       return [self propogateErrors:error];

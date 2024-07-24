@@ -1068,7 +1068,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 }
 
 /// This method is only meant to be called at init time. The underlying logic will need to be
-/// revaluated if the assumption changes at a later time.
+/// reevaluated if the assumption changes at a later time.
 - (void)loadMainWithBundleIdentifier:(NSString *)bundleIdentifier
                    completionHandler:(RCNDBLoadCompletion)handler {
   __weak RCNConfigDBManager *weakSelf = self;

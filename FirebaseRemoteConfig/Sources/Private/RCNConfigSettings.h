@@ -22,7 +22,7 @@
 
 /// This internal class contains a set of variables that are unique among all the config instances.
 /// It also handles all metadata and internal metadata. This class is not thread safe and does not
-/// inherently allow for synchronized accesss. Callers are responsible for synchronization
+/// inherently allow for synchronized access. Callers are responsible for synchronization
 /// (currently using serial dispatch queues).
 @interface RCNConfigSettings : NSObject
 
