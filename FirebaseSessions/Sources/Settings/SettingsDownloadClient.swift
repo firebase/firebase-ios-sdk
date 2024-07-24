@@ -26,7 +26,7 @@ protocol SettingsDownloadClient {
 }
 
 enum SettingsDownloaderError: Error {
-  /// Error contructing the URL
+  /// Error constructing the URL
   case URLError(String)
   /// Error from the URLSession task
   case URLSessionError(String)

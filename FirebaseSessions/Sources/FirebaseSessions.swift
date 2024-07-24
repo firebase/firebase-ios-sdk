@@ -134,7 +134,7 @@ private enum GoogleDataTransportConfig {
     }
   }
 
-  // Initializes the SDK and begines the process of listening for lifecycle events and logging
+  // Initializes the SDK and begins the process of listening for lifecycle events and logging
   // events
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
