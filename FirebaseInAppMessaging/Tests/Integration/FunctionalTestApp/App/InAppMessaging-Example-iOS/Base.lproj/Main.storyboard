@@ -89,7 +89,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZUt-bH-BSp">
                                         <rect key="frame" x="10" y="89.5" width="355" height="28"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                        <state key="normal" title="Apply Displa/Fetch Frequency Change"/>
+                                        <state key="normal" title="Apply Display/Fetch Frequency Change"/>
                                         <connections>
                                             <action selector="changeAutoFetchDisplaySettings:" destination="pEd-Cp-eSk" eventType="touchUpInside" id="3BJ-aG-3AT"/>
                                         </connections>
