@@ -1195,7 +1195,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanQueueWritesWhileOffline {
-  XCTestExpectation *writeEpectation = [self expectationWithDescription:@"successfull write"];
+  XCTestExpectation *writeEpectation = [self expectationWithDescription:@"successful write"];
   XCTestExpectation *networkExpectation = [self expectationWithDescription:@"enable network"];
 
   FIRDocumentReference *doc = [self documentRef];
@@ -1219,7 +1219,7 @@ using firebase::firestore::util::TimerId;
 
   [self awaitExpectations];
 
-  XCTestExpectation *getExpectation = [self expectationWithDescription:@"successfull get"];
+  XCTestExpectation *getExpectation = [self expectationWithDescription:@"successful get"];
   [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
     XCTAssertNil(error);
     XCTAssertEqualObjects(snapshot.data, data);
