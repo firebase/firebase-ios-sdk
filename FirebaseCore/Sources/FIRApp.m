@@ -232,7 +232,8 @@ static FIRApp *sDefaultApp;
               @"application initialization. This can be done in "
               @"in the App Delegate's application(_:didFinishLaunchingWithOptions:)` "
               @"(or the `@main` struct's initializer in SwiftUI). "
-              @"Read more: https://goo.gl/ctyzm8.");
+              @"Read more: "
+              @"https://firebase.google.com/docs/ios/setup#initialize_firebase_in_your_app");
   return nil;
 }
 
