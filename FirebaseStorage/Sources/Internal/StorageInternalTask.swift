@@ -47,13 +47,15 @@ class StorageInternalTask: StorageTask {
       self.fetcher = fetcher
 
       Task {
+        let callbackQueue = reference.storage.fetcherService != nil ?
+          reference.storage.fetcherServiceForApp.callbackQueue : DispatchQueue.main
         do {
           let data = try await self.fetcher?.beginFetch()
-          reference.storage.fetcherServiceForApp.callbackQueue.async {
+          callbackQueue?.async {
             completion?(data, nil)
           }
         } catch {
-          reference.storage.fetcherServiceForApp.callbackQueue.async {
+          callbackQueue?.async {
             completion?(nil, StorageErrorCode.error(withServerError: error as NSError,
                                                     ref: self.reference))
           }
