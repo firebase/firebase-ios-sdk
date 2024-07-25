@@ -25,10 +25,9 @@ NS_SWIFT_NAME(VectorValue)
 - (instancetype)init NS_UNAVAILABLE;
 
 // Public initializer is required to support Codable
-- (instancetype)initWithNSNumbers: (NSArray<NSNumber *> *)data NS_REFINED_FOR_SWIFT;
+- (instancetype)initWithNSNumbers:(NSArray<NSNumber *> *)data NS_REFINED_FOR_SWIFT;
 
 - (NSArray<NSNumber *> *)toNSArray NS_REFINED_FOR_SWIFT;
 @end
-
 
 NS_ASSUME_NONNULL_END

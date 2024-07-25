@@ -16,13 +16,11 @@
 
 #import "FIRVectorValue.h"
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRVectorValue (Internal)
 // - (instancetype)init NS_UNAVAILABLE;
 // - (NSArray<NSNumber *> *)toNSArray;
 @end
-
 
 NS_ASSUME_NONNULL_END

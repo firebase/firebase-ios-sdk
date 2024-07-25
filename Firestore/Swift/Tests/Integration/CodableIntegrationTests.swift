@@ -185,27 +185,31 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(data["intValue"] as! Int, 3, "Failed with flavor \(flavor)")
     }
   }
-    
-    func testVectorValue() throws {
-      struct Model: Codable {
-        var name: String
-        var embedding: VectorValue
-      }
-      let model = Model(
-        name: "name",
-        embedding: VectorValue([0.1, 0.3, 0.4])
-      )
 
-      let docToWrite = documentRef()
-
-      for flavor in allFlavors {
-        try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
-
-          let data = try readDocument(forRef: docToWrite).data(as: Model.self)
-
-          XCTAssertEqual(data.embedding, VectorValue([0.1, 0.3, 0.4]), "Failed with flavor \(flavor)")
-      }
+  func testVectorValue() throws {
+    struct Model: Codable {
+      var name: String
+      var embedding: VectorValue
     }
+    let model = Model(
+      name: "name",
+      embedding: VectorValue([0.1, 0.3, 0.4])
+    )
+
+    let docToWrite = documentRef()
+
+    for flavor in allFlavors {
+      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+      let data = try readDocument(forRef: docToWrite).data(as: Model.self)
+
+      XCTAssertEqual(
+        data.embedding,
+        VectorValue([0.1, 0.3, 0.4]),
+        "Failed with flavor \(flavor)"
+      )
+    }
+  }
 
   func testDataBlob() throws {
     struct Model: Encodable {

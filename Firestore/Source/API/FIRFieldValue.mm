@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (nonnull FIRVectorValue *)vectorFromNSNumbers:(nonnull NSArray<NSNumber *> *)values {
-    return [[FIRVectorValue alloc] initWithNSNumbers: values];
+  return [[FIRVectorValue alloc] initWithNSNumbers:values];
 }
 
 @end

@@ -822,8 +822,8 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
 }
 
 TEST_F(SerializerTest, EncodesVectorValue) {
-  Message<google_firestore_v1_Value> model = Map(
-      "__type__", "__vector__", "value", Array(1.0, 2.0, 3.0));
+  Message<google_firestore_v1_Value> model =
+      Map("__type__", "__vector__", "value", Array(1.0, 2.0, 3.0));
 
   v1::Value array_proto;
   *array_proto.mutable_array_value()->add_values() = ValueProto(1.0);

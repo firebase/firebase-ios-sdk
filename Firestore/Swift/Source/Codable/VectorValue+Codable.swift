@@ -41,21 +41,21 @@ private enum VectorValueKeys: String, CodingKey {
  * when declaring an extension to conform to Codable.
  */
 extension CodableVectorValue {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: VectorValueKeys.self)
-        let data = try container.decode([Double].self, forKey: .data)
-        
-        let array = data.map { double in
-            return NSNumber(value: double)
-        }
-        self.init(__nsNumbers: array)
-    }
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: VectorValueKeys.self)
+    let data = try container.decode([Double].self, forKey: .data)
 
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: VectorValueKeys.self)
-        try container.encode(data, forKey: .data)
+    let array = data.map { double in
+      NSNumber(value: double)
     }
+    self.init(__nsNumbers: array)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: VectorValueKeys.self)
+    try container.encode(data, forKey: .data)
+  }
 }
 
 /** Extends VectorValue to conform to Codable. */
-extension VectorValue: CodableVectorValue{}
+extension VectorValue: CodableVectorValue {}

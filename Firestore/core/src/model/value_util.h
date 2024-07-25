@@ -62,19 +62,19 @@ extern pb_bytes_array_s* kVectorValueFieldKey;
  * ordering, but modified to support server timestamps.
  */
 enum class TypeOrder {
-    kNull = 0,
-    kBoolean = 1,
-    kNumber = 2,
-    kTimestamp = 3,
-    kServerTimestamp = 4,
-    kString = 5,
-    kBlob = 6,
-    kReference = 7,
-    kGeoPoint = 8,
-    kArray = 9,
-    kVector = 10,
-    kMap = 11,
-    kMaxValue = 12
+  kNull = 0,
+  kBoolean = 1,
+  kNumber = 2,
+  kTimestamp = 3,
+  kServerTimestamp = 4,
+  kString = 5,
+  kBlob = 6,
+  kReference = 7,
+  kGeoPoint = 8,
+  kArray = 9,
+  kVector = 10,
+  kMap = 11,
+  kMaxValue = 12
 };
 
 /** Returns the backend's type order of the given Value type. */
@@ -181,7 +181,8 @@ bool IsMaxValue(const google_firestore_v1_Value& value);
  */
 bool IsVectorValue(const google_firestore_v1_Value& value);
 
-int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue, const char* kRawTypeValueFieldKey,
+int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue,
+                   const char* kRawTypeValueFieldKey,
                    pb_bytes_array_s* kTypeValueFieldKey);
 
 /**
@@ -212,7 +213,7 @@ google_firestore_v1_Value MinGeoPoint();
 google_firestore_v1_Value MinArray();
 
 google_firestore_v1_Value MinVector();
-    
+
 google_firestore_v1_Value MinMap();
 
 /**

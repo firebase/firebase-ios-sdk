@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #import <Foundation/Foundation.h>
 
 #include <vector>
@@ -32,50 +31,50 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVectorValue
 
-- (instancetype)initWithNSNumbers: (NSArray<NSNumber *> *)data {
-    if (self = [super init]) {
-        std::vector<double> converted;
-        converted.reserve(data.count);
-        for (NSNumber *value in data) {
-            converted.emplace_back([value doubleValue]);
-        }
-        
-        _internalValue = std::move(converted);
+- (instancetype)initWithNSNumbers:(NSArray<NSNumber *> *)data {
+  if (self = [super init]) {
+    std::vector<double> converted;
+    converted.reserve(data.count);
+    for (NSNumber *value in data) {
+      converted.emplace_back([value doubleValue]);
     }
-    return self;
+
+    _internalValue = std::move(converted);
+  }
+  return self;
 }
 
 - (nonnull NSArray<NSNumber *> *)toNSArray {
-    size_t length = _internalValue.size();
-    NSMutableArray<NSNumber *> *outArray = [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
-    for (size_t i = 0; i < length; i++) {
-        [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
-    }
-    
-    return outArray;
+  size_t length = _internalValue.size();
+  NSMutableArray<NSNumber *> *outArray =
+      [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
+  for (size_t i = 0; i < length; i++) {
+    [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
+  }
+
+  return outArray;
 }
 
 - (BOOL)isEqual:(nullable id)object {
-    if (self == object) {
-        return YES;
-    }
-    
-    if (![object isKindOfClass:[FIRVectorValue class]]) {
-        return NO;
-    }
-    
-    FIRVectorValue *otherVector = ((FIRVectorValue *)object);
-    
-    if (self->_internalValue.size() != otherVector->_internalValue.size()) {
-        return NO;
-    }
-    
-    for (size_t i = 0; i < self->_internalValue.size(); i++) {
-        if (self->_internalValue[i] != otherVector->_internalValue[i])
-            return NO;
-    }
-    
+  if (self == object) {
     return YES;
+  }
+
+  if (![object isKindOfClass:[FIRVectorValue class]]) {
+    return NO;
+  }
+
+  FIRVectorValue *otherVector = ((FIRVectorValue *)object);
+
+  if (self->_internalValue.size() != otherVector->_internalValue.size()) {
+    return NO;
+  }
+
+  for (size_t i = 0; i < self->_internalValue.size(); i++) {
+    if (self->_internalValue[i] != otherVector->_internalValue[i]) return NO;
+  }
+
+  return YES;
 }
 
 @end

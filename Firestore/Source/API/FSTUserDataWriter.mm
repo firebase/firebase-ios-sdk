@@ -21,8 +21,8 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
-#include "Firestore/Source/API/converters.h"
 #include "Firestore/Source/API/FIRFieldValue+Internal.h"
+#include "Firestore/Source/API/converters.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/api/firestore.h"
@@ -80,38 +80,38 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)convertedValue:(const google_firestore_v1_Value &)value {
-    switch (GetTypeOrder(value)) {
-        case TypeOrder::kMap:
-            return [self convertedObject:value.map_value];
-        case TypeOrder::kArray:
-            return [self convertedArray:value.array_value];
-        case TypeOrder::kReference:
-            return [self convertedReference:value];
-        case TypeOrder::kTimestamp:
-            return [self convertedTimestamp:value.timestamp_value];
-        case TypeOrder::kServerTimestamp:
-            return [self convertedServerTimestamp:value];
-        case TypeOrder::kNull:
-            return [NSNull null];
-        case TypeOrder::kBoolean:
-            return value.boolean_value ? @YES : @NO;
-        case TypeOrder::kNumber:
-            return value.which_value_type == google_firestore_v1_Value_integer_value_tag
-            ? @(value.integer_value)
-            : @(value.double_value);
-        case TypeOrder::kString:
-            return MakeNSString(MakeStringView(value.string_value));
-        case TypeOrder::kBlob:
-            return MakeNSData(value.bytes_value);
-        case TypeOrder::kGeoPoint:
-            return MakeFIRGeoPoint(
-                                   GeoPoint(value.geo_point_value.latitude, value.geo_point_value.longitude));
-        case TypeOrder::kVector:
-            return [self convertedVector:value.map_value];
-        case TypeOrder::kMaxValue:
-            // It is not possible for users to construct a kMaxValue manually.
-            break;
-    }
+  switch (GetTypeOrder(value)) {
+    case TypeOrder::kMap:
+      return [self convertedObject:value.map_value];
+    case TypeOrder::kArray:
+      return [self convertedArray:value.array_value];
+    case TypeOrder::kReference:
+      return [self convertedReference:value];
+    case TypeOrder::kTimestamp:
+      return [self convertedTimestamp:value.timestamp_value];
+    case TypeOrder::kServerTimestamp:
+      return [self convertedServerTimestamp:value];
+    case TypeOrder::kNull:
+      return [NSNull null];
+    case TypeOrder::kBoolean:
+      return value.boolean_value ? @YES : @NO;
+    case TypeOrder::kNumber:
+      return value.which_value_type == google_firestore_v1_Value_integer_value_tag
+                 ? @(value.integer_value)
+                 : @(value.double_value);
+    case TypeOrder::kString:
+      return MakeNSString(MakeStringView(value.string_value));
+    case TypeOrder::kBlob:
+      return MakeNSData(value.bytes_value);
+    case TypeOrder::kGeoPoint:
+      return MakeFIRGeoPoint(
+          GeoPoint(value.geo_point_value.latitude, value.geo_point_value.longitude));
+    case TypeOrder::kVector:
+      return [self convertedVector:value.map_value];
+    case TypeOrder::kMaxValue:
+      // It is not possible for users to construct a kMaxValue manually.
+      break;
+  }
 
   UNREACHABLE();
 }
@@ -127,15 +127,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRVectorValue *)convertedVector:(const google_firestore_v1_MapValue &)mapValue {
-    for (pb_size_t i = 0; i < mapValue.fields_count; ++i) {
-        absl::string_view key = MakeStringView(mapValue.fields[i].key);
-        const google_firestore_v1_Value &value = mapValue.fields[i].value;
-        if ((0 == key.compare(absl::string_view("value")))
-            && value.which_value_type == google_firestore_v1_Value_array_value_tag) {
-            return [FIRFieldValue vectorFromNSNumbers:[self convertedArray:value.array_value]];
-        }
+  for (pb_size_t i = 0; i < mapValue.fields_count; ++i) {
+    absl::string_view key = MakeStringView(mapValue.fields[i].key);
+    const google_firestore_v1_Value &value = mapValue.fields[i].value;
+    if ((0 == key.compare(absl::string_view("value"))) &&
+        value.which_value_type == google_firestore_v1_Value_array_value_tag) {
+      return [FIRFieldValue vectorFromNSNumbers:[self convertedArray:value.array_value]];
     }
-    return [FIRFieldValue vectorFromNSNumbers:@[]];
+  }
+  return [FIRFieldValue vectorFromNSNumbers:@[]];
 }
 
 - (NSArray<id> *)convertedArray:(const google_firestore_v1_ArrayValue &)arrayValue {

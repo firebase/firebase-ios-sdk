@@ -21,24 +21,23 @@
 #endif // SWIFT_PACKAGE
 
 public extension FieldValue {
-    
-    /// Creates a new `VectorValue` constructed with a copy of the given array of Doubles.
-    /// - Parameter data: An array of Doubles.
-    /// - Returns: A new `VectorValue` constructed with a copy of the given array of Doubles.
-    static func vector(_ data: [Double]) -> VectorValue {
-        let array = data.map { double in
-            return NSNumber(value: double)
-        }
-        return FieldValue.__vector(from: array)
+  /// Creates a new `VectorValue` constructed with a copy of the given array of Doubles.
+  /// - Parameter data: An array of Doubles.
+  /// - Returns: A new `VectorValue` constructed with a copy of the given array of Doubles.
+  static func vector(_ data: [Double]) -> VectorValue {
+    let array = data.map { double in
+      NSNumber(value: double)
     }
-    
-    /// Creates a new `VectorValue` constructed with a copy of the given array of Floats.
-    /// - Parameter data: An array of Floats.
-    /// - Returns: A new `VectorValue` constructed with a copy of the given array of Floats.
-    static func vector(_ data: [Float]) -> VectorValue {
-        let array = data.map { float in
-            return NSNumber(value: float)
-        }
-        return FieldValue.__vector(from: array)
+    return FieldValue.__vector(from: array)
+  }
+
+  /// Creates a new `VectorValue` constructed with a copy of the given array of Floats.
+  /// - Parameter data: An array of Floats.
+  /// - Returns: A new `VectorValue` constructed with a copy of the given array of Floats.
+  static func vector(_ data: [Float]) -> VectorValue {
+    let array = data.map { float in
+      NSNumber(value: float)
     }
+    return FieldValue.__vector(from: array)
+  }
 }

@@ -92,9 +92,9 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
 
     case google_firestore_v1_Value_geo_point_value_tag:
       return TypeOrder::kGeoPoint;
-          
-      case google_firestore_v1_Value_array_value_tag:
-        return TypeOrder::kArray;
+
+    case google_firestore_v1_Value_array_value_tag:
+      return TypeOrder::kArray;
 
     case google_firestore_v1_Value_map_value_tag: {
       if (IsServerTimestamp(value)) {
@@ -102,7 +102,7 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
       } else if (IsMaxValue(value)) {
         return TypeOrder::kMaxValue;
       } else if (IsVectorValue(value)) {
-          return TypeOrder::kVector;
+        return TypeOrder::kVector;
       }
       return TypeOrder::kMap;
     }
@@ -263,21 +263,26 @@ ComparisonResult CompareMaps(const google_firestore_v1_MapValue& left,
 }
 
 ComparisonResult CompareVectors(const google_firestore_v1_Value& left,
-                             const google_firestore_v1_Value& right) {
-    HARD_ASSERT(IsVectorValue(left) && IsVectorValue(right), "Cannot compare non-vector values as vectors.");
-    
-    int64_t leftIndex = IndexOfKey(left.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
-    int64_t rightIndex = IndexOfKey(right.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
-    
-    google_firestore_v1_Value leftArray = left.map_value.fields[leftIndex].value;
-    google_firestore_v1_Value rightArray = right.map_value.fields[rightIndex].value;
+                                const google_firestore_v1_Value& right) {
+  HARD_ASSERT(IsVectorValue(left) && IsVectorValue(right),
+              "Cannot compare non-vector values as vectors.");
 
-    ComparisonResult lengthCompare = util::Compare(leftArray.array_value.values_count, rightArray.array_value.values_count);
-    if (lengthCompare != ComparisonResult::Same) {
-        return lengthCompare;
-    }
+  int64_t leftIndex =
+      IndexOfKey(left.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
+  int64_t rightIndex = IndexOfKey(right.map_value, kRawVectorValueFieldKey,
+                                  kVectorValueFieldKey);
 
-    return CompareArrays(leftArray, rightArray);
+  google_firestore_v1_Value leftArray = left.map_value.fields[leftIndex].value;
+  google_firestore_v1_Value rightArray =
+      right.map_value.fields[rightIndex].value;
+
+  ComparisonResult lengthCompare = util::Compare(
+      leftArray.array_value.values_count, rightArray.array_value.values_count);
+  if (lengthCompare != ComparisonResult::Same) {
+    return lengthCompare;
+  }
+
+  return CompareArrays(leftArray, rightArray);
 }
 
 ComparisonResult Compare(const google_firestore_v1_Value& left,
@@ -320,12 +325,12 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
 
     case TypeOrder::kArray:
       return CompareArrays(left, right);
-          
-      case TypeOrder::kMap:
-        return CompareMaps(left.map_value, right.map_value);
-          
-      case TypeOrder::kVector:
-        return CompareVectors(left, right);
+
+    case TypeOrder::kMap:
+      return CompareMaps(left.map_value, right.map_value);
+
+    case TypeOrder::kVector:
+      return CompareVectors(left, right);
 
     case TypeOrder::kMaxValue:
       return util::ComparisonResult::Same;
@@ -455,7 +460,7 @@ bool Equals(const google_firestore_v1_Value& lhs,
     case TypeOrder::kArray:
       return ArrayEquals(lhs.array_value, rhs.array_value);
 
-      case TypeOrder::kVector:
+    case TypeOrder::kVector:
     case TypeOrder::kMap:
       return MapValueEquals(lhs.map_value, rhs.map_value);
 
@@ -570,50 +575,51 @@ std::string CanonicalId(const google_firestore_v1_ArrayValue& value) {
   return CanonifyArray(value);
 }
 
-google_firestore_v1_Value GetLowerBound(const google_firestore_v1_Value& value) {
+google_firestore_v1_Value GetLowerBound(
+    const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
       return NullValue();
 
     case google_firestore_v1_Value_boolean_value_tag: {
-        return MinBoolean();
+      return MinBoolean();
     }
 
     case google_firestore_v1_Value_integer_value_tag:
     case google_firestore_v1_Value_double_value_tag: {
-        return MinNumber();
+      return MinNumber();
     }
 
     case google_firestore_v1_Value_timestamp_value_tag: {
-        return MinTimestamp();
+      return MinTimestamp();
     }
 
     case google_firestore_v1_Value_string_value_tag: {
-        return MinString();
+      return MinString();
     }
 
     case google_firestore_v1_Value_bytes_value_tag: {
-        return MinBytes();
+      return MinBytes();
     }
 
     case google_firestore_v1_Value_reference_value_tag: {
-        return MinReference();
+      return MinReference();
     }
 
     case google_firestore_v1_Value_geo_point_value_tag: {
-        return MinGeoPoint();
+      return MinGeoPoint();
     }
 
     case google_firestore_v1_Value_array_value_tag: {
-        return MinArray();
+      return MinArray();
     }
 
     case google_firestore_v1_Value_map_value_tag: {
-        if (IsVectorValue(value)) {
-            return MinVector();
-        }
-        
-        return MinMap();
+      if (IsVectorValue(value)) {
+        return MinVector();
+      }
+
+      return MinMap();
     }
 
     default:
@@ -621,31 +627,32 @@ google_firestore_v1_Value GetLowerBound(const google_firestore_v1_Value& value) 
   }
 }
 
-google_firestore_v1_Value GetUpperBound(const google_firestore_v1_Value& value) {
+google_firestore_v1_Value GetUpperBound(
+    const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
-          return MinBoolean();
+      return MinBoolean();
     case google_firestore_v1_Value_boolean_value_tag:
-          return MinNumber();
+      return MinNumber();
     case google_firestore_v1_Value_integer_value_tag:
     case google_firestore_v1_Value_double_value_tag:
-          return MinTimestamp();
+      return MinTimestamp();
     case google_firestore_v1_Value_timestamp_value_tag:
-          return MinString();
+      return MinString();
     case google_firestore_v1_Value_string_value_tag:
-          return MinBytes();
+      return MinBytes();
     case google_firestore_v1_Value_bytes_value_tag:
-          return MinReference();
+      return MinReference();
     case google_firestore_v1_Value_reference_value_tag:
-          return MinGeoPoint();
+      return MinGeoPoint();
     case google_firestore_v1_Value_geo_point_value_tag:
-          return MinArray();
+      return MinArray();
     case google_firestore_v1_Value_array_value_tag:
-          return MinVector();
+      return MinVector();
     case google_firestore_v1_Value_map_value_tag:
-          if (IsVectorValue(value)) {
-              return MinMap();
-          }
+      if (IsVectorValue(value)) {
+        return MinMap();
+      }
       return MaxValue();
     default:
       HARD_FAIL("Invalid type value: %s", value.which_value_type);
@@ -746,55 +753,60 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
              kRawMaxValueFieldValue;
 }
 
-int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue, const char* kRawTypeValueFieldKey,
+int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue,
+                   const char* kRawTypeValueFieldKey,
                    pb_bytes_array_s* kTypeValueFieldKey) {
-    for (pb_size_t i = 0; i < mapValue.fields_count; i++) {
-        if (mapValue.fields[i].key == kTypeValueFieldKey ||
-            nanopb::MakeStringView(mapValue.fields[i].key) ==
-                kRawTypeValueFieldKey) {
-          return i;
-        }
+  for (pb_size_t i = 0; i < mapValue.fields_count; i++) {
+    if (mapValue.fields[i].key == kTypeValueFieldKey ||
+        nanopb::MakeStringView(mapValue.fields[i].key) ==
+            kRawTypeValueFieldKey) {
+      return i;
     }
-    
-    return -1;
+  }
+
+  return -1;
 }
 
 bool IsVectorValue(const google_firestore_v1_Value& value) {
-    if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
-        return false;
-    }
-    
-    if (value.map_value.fields_count < 2) {
-        return false;
-    }
-    
-    int64_t typeFieldIndex = -1;
-    if ((typeFieldIndex = IndexOfKey(value.map_value, kRawTypeValueFieldKey, kTypeValueFieldKey)) < 0) {
-        return false;
-    }
-    
-    if (value.map_value.fields[typeFieldIndex].value.which_value_type !=
-        google_firestore_v1_Value_string_value_tag) {
-        return false;
-    }
-    
-    // Comparing the pointer address, then actual content if addresses are
-    // different.
-    return value.map_value.fields[typeFieldIndex].value.string_value == kVectorTypeFieldValue ||
-    nanopb::MakeStringView(value.map_value.fields[typeFieldIndex].value.string_value) ==
-    kRawVectorTypeFieldValue;
-    
-    int64_t valueFieldIndex = -1;
-    if ((valueFieldIndex = IndexOfKey(value.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey)) < 0) {
-        return false;
-    }
-    
-    if (value.map_value.fields[valueFieldIndex].value.which_value_type !=
-        google_firestore_v1_Value_map_value_tag) {
-        return false;
-    }
-    
-    return true;
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
+    return false;
+  }
+
+  if (value.map_value.fields_count < 2) {
+    return false;
+  }
+
+  int64_t typeFieldIndex = -1;
+  if ((typeFieldIndex = IndexOfKey(value.map_value, kRawTypeValueFieldKey,
+                                   kTypeValueFieldKey)) < 0) {
+    return false;
+  }
+
+  if (value.map_value.fields[typeFieldIndex].value.which_value_type !=
+      google_firestore_v1_Value_string_value_tag) {
+    return false;
+  }
+
+  // Comparing the pointer address, then actual content if addresses are
+  // different.
+  return value.map_value.fields[typeFieldIndex].value.string_value ==
+             kVectorTypeFieldValue ||
+         nanopb::MakeStringView(
+             value.map_value.fields[typeFieldIndex].value.string_value) ==
+             kRawVectorTypeFieldValue;
+
+  int64_t valueFieldIndex = -1;
+  if ((valueFieldIndex = IndexOfKey(value.map_value, kRawVectorValueFieldKey,
+                                    kVectorValueFieldKey)) < 0) {
+    return false;
+  }
+
+  if (value.map_value.fields[valueFieldIndex].value.which_value_type !=
+      google_firestore_v1_Value_map_value_tag) {
+    return false;
+  }
+
+  return true;
 }
 
 google_firestore_v1_Value NaNValue() {
@@ -866,38 +878,39 @@ google_firestore_v1_Value MinArray() {
 }
 
 google_firestore_v1_Value MinVector() {
-    google_firestore_v1_Value typeValue;
-    typeValue.which_value_type = google_firestore_v1_Value_string_value_tag;
-    typeValue.string_value = kVectorTypeFieldValue;
-    
-    google_firestore_v1_MapValue_FieldsEntry *field_entries = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
-    field_entries[0].key = kTypeValueFieldKey;
-    field_entries[0].value = typeValue;
-    
-    google_firestore_v1_Value arrayValue;
-    arrayValue.which_value_type = google_firestore_v1_Value_array_value_tag;
-    arrayValue.array_value.values = nullptr;
-    arrayValue.array_value.values_count = 0;
-    field_entries[1].key = kVectorValueFieldKey;
-    field_entries[1].value = arrayValue;
-    
-    google_firestore_v1_MapValue map_value;
-    map_value.fields_count = 2;
-    map_value.fields = field_entries;
-    
-    google_firestore_v1_Value lowerBound;
-    lowerBound.which_value_type = google_firestore_v1_Value_map_value_tag;
-    lowerBound.map_value = map_value;
-    
-    return lowerBound;
+  google_firestore_v1_Value typeValue;
+  typeValue.which_value_type = google_firestore_v1_Value_string_value_tag;
+  typeValue.string_value = kVectorTypeFieldValue;
+
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+  field_entries[0].key = kTypeValueFieldKey;
+  field_entries[0].value = typeValue;
+
+  google_firestore_v1_Value arrayValue;
+  arrayValue.which_value_type = google_firestore_v1_Value_array_value_tag;
+  arrayValue.array_value.values = nullptr;
+  arrayValue.array_value.values_count = 0;
+  field_entries[1].key = kVectorValueFieldKey;
+  field_entries[1].value = arrayValue;
+
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 2;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lowerBound;
+  lowerBound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lowerBound.map_value = map_value;
+
+  return lowerBound;
 }
-    
+
 google_firestore_v1_Value MinMap() {
-    google_firestore_v1_Value lowerBound;
-    lowerBound.which_value_type = google_firestore_v1_Value_map_value_tag;
-    lowerBound.map_value.fields = nullptr;
-    lowerBound.map_value.fields_count = 0;
-    return lowerBound;
+  google_firestore_v1_Value lowerBound;
+  lowerBound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lowerBound.map_value.fields = nullptr;
+  lowerBound.map_value.fields_count = 0;
+  return lowerBound;
 }
 
 Message<google_firestore_v1_Value> RefValue(
