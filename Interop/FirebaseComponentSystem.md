@@ -119,7 +119,7 @@ ways to do so depending on the product's offerings.
 
 #### Single Instance per `FIRApp`
 
-The registration for a single instance per `FIRApp` changes if the framwork provides functionality
+The registration for a single instance per `FIRApp` changes if the framework provides functionality
 to other frameworks or not.
 
 ##### Framework does not provide functionality (example: Functions)
