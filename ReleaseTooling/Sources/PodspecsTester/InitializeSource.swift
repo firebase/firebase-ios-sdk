@@ -74,7 +74,7 @@ enum InitializeSpecTesting {
     // ```
     // The tag should include `s.version`, e.g.
     // If "s.version = '8.11.0-beta'", the tag should include 8.11.0-beta to
-    // avoid trigerring the warning.
+    // avoid triggering the warning.
     for pod in manifest.pods {
       let testingTag = Constants.testingTagPrefix + manifest.versionString(pod)
       // Add or update the testing tag to the local sdk repo.
