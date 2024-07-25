@@ -104,15 +104,15 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
   }
 
   if (!config) {
-    NSLog(@"Failed to load any configuaration from %@=%@. %@", configEnvVar,
+    NSLog(@"Failed to load any configuration from %@=%@. %@", configEnvVar,
           filePath, error);
     return nil;
   }
 
   SEL testsToRunSelector = NSSelectorFromString(@"testsToRun");
   if (![config respondsToSelector:testsToRunSelector]) {
-    NSLog(@"Invalid configuaration from %@=%@: missing testsToRun",
-          configEnvVar, filePath);
+    NSLog(@"Invalid configuration from %@=%@: missing testsToRun", configEnvVar,
+          filePath);
     return nil;
   }
 
