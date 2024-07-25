@@ -349,7 +349,7 @@ NS_ASSUME_NONNULL_BEGIN
     result->map_value.fields_count = 2;
     result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
     
-    result->map_value.fields[0].key = nanopb::MakeBytesArray(MakeString(@"__type__"));
+    result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kTypeValueFieldKey);
     result->map_value.fields[0].value = *[self encodeStringValue:MakeString(@"__vector__")].release();
     
     NSArray<NSNumber *> *vectorArray = [vectorValue toNSArray];
@@ -367,10 +367,10 @@ NS_ASSUME_NONNULL_BEGIN
         }
         
         // Vector values must always use Double encoding
-        result->array_value.values[idx] = *[self encodeDouble:[entry doubleValue]].release();
+        arrayMessage->array_value.values[idx] = *[self encodeDouble:[entry doubleValue]].release();
     }];
     
-    result->map_value.fields[1].key = nanopb::MakeBytesArray(MakeString(@"value"));
+    result->map_value.fields[1].key = nanopb::CopyBytesArray(model::kVectorValueFieldKey);
     result->map_value.fields[1].value = *arrayMessage.release();
     
     return std::move(result);

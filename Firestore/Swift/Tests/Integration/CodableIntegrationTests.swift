@@ -82,13 +82,15 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var ts: Timestamp
       var geoPoint: GeoPoint
       var docRef: DocumentReference
+      var vector: VectorValue
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
                       age: 42,
                       ts: Timestamp(seconds: 987_654_321, nanoseconds: 0),
                       geoPoint: GeoPoint(latitude: 45, longitude: 54),
-                      docRef: docToWrite)
+                      docRef: docToWrite,
+                      vector: FieldValue.vector([0.7, 0.6]))
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
@@ -183,6 +185,27 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(data["intValue"] as! Int, 3, "Failed with flavor \(flavor)")
     }
   }
+    
+    func testVectorValue() throws {
+      struct Model: Codable {
+        var name: String
+        var embedding: VectorValue
+      }
+      let model = Model(
+        name: "name",
+        embedding: FieldValue.vector([0.1, 0.3, 0.4])
+      )
+
+      let docToWrite = documentRef()
+
+      for flavor in allFlavors {
+        try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+          let data = try readDocument(forRef: docToWrite).data(as: Model.self)
+
+          XCTAssertEqual(data.embedding, VectorValue([0.1, 0.3, 0.4]), "Failed with flavor \(flavor)")
+      }
+    }
 
   func testDataBlob() throws {
     struct Model: Encodable {

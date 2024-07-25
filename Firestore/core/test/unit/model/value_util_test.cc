@@ -99,6 +99,9 @@ class ValueUtilTest : public ::testing::Test {
                            ComparisonResult expected_result) {
     for (pb_size_t i = 0; i < left->values_count; ++i) {
       for (pb_size_t j = 0; j < right->values_count; ++j) {
+          if (expected_result != Compare(left->values[i], right->values[j])) {
+              std::cout << "here" << std::endl;
+          }
         EXPECT_EQ(expected_result, Compare(left->values[i], right->values[j]))
             << "Order check failed for '" << CanonicalId(left->values[i])
             << "' and '" << CanonicalId(right->values[j]) << "' (expected "
@@ -243,6 +246,7 @@ TEST_F(ValueUtilTest, Equality) {
   Add(equals_group, Array("foo", "bar"), Array("foo", "bar"));
   Add(equals_group, Array("foo", "bar", "baz"));
   Add(equals_group, Array("foo"));
+    Add(equals_group, Map("__type__", "__vector__", "value", Array()), DeepClone(MinVector()));
   Add(equals_group, Map("bar", 1, "foo", 2), Map("bar", 1, "foo", 2));
   Add(equals_group, Map("bar", 2, "foo", 1));
   Add(equals_group, Map("bar", 1));
@@ -346,6 +350,13 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, Array("foo", 1));
   Add(comparison_groups, Array("foo", 2));
   Add(comparison_groups, Array("foo", "0"));
+    
+  // vectors
+    Add(comparison_groups,
+        DeepClone(MinVector()));
+    Add(comparison_groups, Map("__type__", "__vector__", "value", Array(100)));
+    Add(comparison_groups, Map("__type__", "__vector__", "value", Array(1.0, 2.0, 3.0)));
+    Add(comparison_groups, Map("__type__", "__vector__", "value", Array(1.0, 3.0, 2.0)));
 
   // objects
   Add(comparison_groups,
@@ -491,8 +502,13 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, Array("foo", "0"));
   Add(comparison_groups,
       DeepClone(MinVector()));
-
-      // TODO vector
+    
+    // vectors
+      Add(comparison_groups,
+          DeepClone(MinVector()));
+      Add(comparison_groups, Map("__type__", "__vector__", "value", Array(100)));
+      Add(comparison_groups, Map("__type__", "__vector__", "value", Array(1.0, 2.0, 3.0)));
+      Add(comparison_groups, Map("__type__", "__vector__", "value", Array(1.0, 3.0, 2.0)));
       
   // objects
   Add(comparison_groups,
@@ -517,7 +533,7 @@ TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(Value(true), "true");
   VerifyCanonicalId(Value(false), "false");
   VerifyCanonicalId(Value(1), "1");
-  VerifyCanonicalId(Value(1.0), "1.0");
+    VerifyCanonicalId(Value(1.0), "1.0");
   VerifyCanonicalId(Value(Timestamp(30, 1000)), "time(30,1000)");
   VerifyCanonicalId(Value("a"), "a");
   VerifyCanonicalId(Value(std::string("a\0b", 3)), std::string("a\0b", 3));
@@ -526,8 +542,10 @@ TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(Value(GeoPoint(30, 60)), "geo(30.0,60.0)");
   VerifyCanonicalId(Value(Array(1, 2, 3)), "[1,2,3]");
   VerifyCanonicalId(Map("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
-  VerifyCanonicalId(Map("a", Array("b", Map("c", GeoPoint(30, 60)))),
-                    "{a:[b,{c:geo(30.0,60.0)}]}");
+    VerifyCanonicalId(Map("a", Array("b", Map("c", GeoPoint(30, 60)))),
+                      "{a:[b,{c:geo(30.0,60.0)}]}");
+    VerifyCanonicalId(Map("__type__", "__vector__", "value", Array(1.0, 1.0, -2.0, 3.14)),
+                      "{__type__:__vector__,value:[1.0,1.0,-2.0,3.1]}");
 }
 
 TEST_F(ValueUtilTest, DeepClone) {

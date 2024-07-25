@@ -38,7 +38,9 @@
 namespace firebase {
 namespace firestore {
 namespace model {
-namespace {
+
+using nanopb::Message;
+using util::ComparisonResult;
 
 /** The smallest reference value. */
 pb_bytes_array_s* kMinimumReferenceValue =
@@ -63,11 +65,6 @@ pb_bytes_array_s* kVectorTypeFieldValue =
 const char* kRawVectorValueFieldKey = "value";
 pb_bytes_array_s* kVectorValueFieldKey =
     nanopb::MakeBytesArray(kRawVectorValueFieldKey);
-
-}  // namespace
-
-using nanopb::Message;
-using util::ComparisonResult;
 
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
@@ -328,7 +325,7 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
         return CompareMaps(left.map_value, right.map_value);
           
       case TypeOrder::kVector:
-        return CompareMaps(left.map_value, right.map_value);
+        return CompareVectors(left, right);
 
     case TypeOrder::kMaxValue:
       return util::ComparisonResult::Same;
@@ -752,8 +749,8 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
 int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue, const char* kRawTypeValueFieldKey,
                    pb_bytes_array_s* kTypeValueFieldKey) {
     for (pb_size_t i = 0; i < mapValue.fields_count; i++) {
-        if (mapValue.fields[0].key != kTypeValueFieldKey &&
-            nanopb::MakeStringView(mapValue.fields[0].key) !=
+        if (mapValue.fields[i].key == kTypeValueFieldKey ||
+            nanopb::MakeStringView(mapValue.fields[i].key) ==
                 kRawTypeValueFieldKey) {
           return i;
         }
@@ -869,10 +866,29 @@ google_firestore_v1_Value MinArray() {
 }
 
 google_firestore_v1_Value MinVector() {
+    google_firestore_v1_Value typeValue;
+    typeValue.which_value_type = google_firestore_v1_Value_string_value_tag;
+    typeValue.string_value = kVectorTypeFieldValue;
+    
+    google_firestore_v1_MapValue_FieldsEntry *field_entries = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+    field_entries[0].key = kTypeValueFieldKey;
+    field_entries[0].value = typeValue;
+    
+    google_firestore_v1_Value arrayValue;
+    arrayValue.which_value_type = google_firestore_v1_Value_array_value_tag;
+    arrayValue.array_value.values = nullptr;
+    arrayValue.array_value.values_count = 0;
+    field_entries[1].key = kVectorValueFieldKey;
+    field_entries[1].value = arrayValue;
+    
+    google_firestore_v1_MapValue map_value;
+    map_value.fields_count = 2;
+    map_value.fields = field_entries;
+    
     google_firestore_v1_Value lowerBound;
     lowerBound.which_value_type = google_firestore_v1_Value_map_value_tag;
-    lowerBound.map_value.fields = nullptr;
-    lowerBound.map_value.fields_count = 0;
+    lowerBound.map_value = map_value;
+    
     return lowerBound;
 }
     

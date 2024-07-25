@@ -20,9 +20,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRVectorValue (Internal)
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithNSNumbers: (NSArray<NSNumber *> *)values;
-- (NSArray<NSNumber *> *)toNSArray;
+// - (instancetype)init NS_UNAVAILABLE;
+// - (NSArray<NSNumber *> *)toNSArray;
 @end
 
 

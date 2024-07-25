@@ -20,9 +20,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(VectorValue)
 @interface FIRVectorValue : NSObject
-- (instancetype)init __attribute__((unavailable("FIRVectorValue cannot be created directly.")));
 
-- (NSArray<NSNumber *> *)toNSArray NS_SWIFT_NAME(toNSArray());
+/** :nodoc: */
+- (instancetype)init NS_UNAVAILABLE;
+
+// Public initializer is required to support Codable
+- (instancetype)initWithNSNumbers: (NSArray<NSNumber *> *)data NS_REFINED_FOR_SWIFT;
+
+- (NSArray<NSNumber *> *)toNSArray NS_REFINED_FOR_SWIFT;
 @end
 
 

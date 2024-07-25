@@ -32,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVectorValue
 
-- (instancetype)initWithNSNumbers: (NSArray<NSNumber *> *)values {
+- (instancetype)initWithNSNumbers: (NSArray<NSNumber *> *)data {
     if (self = [super init]) {
         std::vector<double> converted;
-        converted.reserve(values.count);
-        for (NSNumber *value in values) {
+        converted.reserve(data.count);
+        for (NSNumber *value in data) {
             converted.emplace_back([value doubleValue]);
         }
         

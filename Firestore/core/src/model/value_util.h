@@ -23,6 +23,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -36,6 +37,25 @@ namespace model {
 
 class DocumentKey;
 class DatabaseId;
+
+/** The smallest reference value. */
+extern pb_bytes_array_s* kMinimumReferenceValue;
+
+/** The field type of a special object type. */
+extern const char* kRawTypeValueFieldKey;
+extern pb_bytes_array_s* kTypeValueFieldKey;
+
+/** The field value of a maximum proto value. */
+extern const char* kRawMaxValueFieldValue;
+extern pb_bytes_array_s* kMaxValueFieldValue;
+
+/** The type of a VectorValue proto. */
+extern const char* kRawVectorTypeFieldValue;
+extern pb_bytes_array_s* kVectorTypeFieldValue;
+
+/** The  value key of a VectorValue proto. */
+extern const char* kRawVectorValueFieldKey;
+extern pb_bytes_array_s* kVectorValueFieldKey;
 
 /**
  * The order of types in Firestore. This order is based on the backend's

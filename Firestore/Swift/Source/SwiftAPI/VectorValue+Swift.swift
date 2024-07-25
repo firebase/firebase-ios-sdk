@@ -21,10 +21,17 @@
 #endif // SWIFT_PACKAGE
 
 public extension VectorValue {
+    convenience init(_ doubles: [Double]) {
+        let array = doubles.map { float in
+            return NSNumber(value: float)
+        }
+        
+        self.init(__nsNumbers: array)
+    }
     
     /// Returns a raw number array representation of the vector.
     /// - Returns: An array of Double values representing the vector.
-    func toArray() -> [Double] {
-        return self.toNSArray().map { Double(truncating: $0) }
+    var data: [Double] {
+        return self.__toNSArray().map { Double(truncating: $0) }
     }
 }

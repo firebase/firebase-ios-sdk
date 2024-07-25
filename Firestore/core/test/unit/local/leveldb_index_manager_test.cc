@@ -50,6 +50,7 @@ using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Query;
 using testutil::Version;
+using testutil::VectorType;
 
 std::unique_ptr<Persistence> PersistenceFactory() {
   return LevelDbPersistenceForTesting();
@@ -927,6 +928,45 @@ TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
       VerifyResults(query, {});
     }
   });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexVectorValueFields) {
+    persistence_->Run("TestIndexVectorValueFields", [&]() {
+         index_manager_->Start();
+         index_manager_->AddFieldIndex(MakeFieldIndex("coll", "embedding", model::Segment::kAscending));
+        
+         AddDoc("coll/arr1", Map("embedding", Array(1.0, 2.0, 3.0)));
+         AddDoc("coll/map2", Map("embedding", Map()));
+        AddDoc("coll/doc3", Map("embedding", VectorType(4.0, 5.0, 6.0)));
+        AddDoc("coll/doc4", Map("embedding", VectorType(5.0)));
+        
+        auto query = Query("coll").AddingOrderBy(OrderBy("embedding"));
+        {
+            SCOPED_TRACE("no filter");
+            VerifyResults(query, {"coll/arr1", "coll/doc4", "coll/doc3", "coll/map2"});
+        }
+        
+        query = Query("coll").AddingOrderBy(OrderBy("embedding"))
+            .AddingFilter(Filter("embedding", "==", VectorType(4.0, 5.0, 6.0)));
+        {
+            SCOPED_TRACE("vector<4.0, 5.0, 6.0>");
+            VerifyResults(query, {"coll/doc3"});
+        }
+        
+        query = Query("coll").AddingOrderBy(OrderBy("embedding"))
+            .AddingFilter(Filter("embedding", ">", VectorType(4.0, 5.0, 6.0)));
+        {
+            SCOPED_TRACE("> vector<4.0, 5.0, 6.0>");
+            VerifyResults(query, {});
+        }
+        
+        query = Query("coll").AddingOrderBy(OrderBy("embedding"))
+            .AddingFilter(Filter("embedding", ">", VectorType(4.0)));
+        {
+            SCOPED_TRACE("> vector<4.0>");
+            VerifyResults(query, {"coll/doc4", "coll/doc3"});
+        }
+    });
 }
 
 TEST_F(LevelDbIndexManagerTest, AdvancedQueries) {
