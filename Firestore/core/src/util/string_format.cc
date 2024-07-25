@@ -25,7 +25,7 @@ static const char* kMissing = "<missing>";
 static const char* kInvalid = "<invalid>";
 
 // Disable asan for this function because of the way it manages stack
-// (nested closure) is flaged with stack underflow by clang on Ubuntu.
+// (nested closure) is flagged with stack underflow by clang on Ubuntu.
 #if defined(_MSC_VER)
 __declspec(no_sanitize_address) std::string StringFormatPieces(
 #else
