@@ -19,7 +19,7 @@ import Foundation
 
 class IndexingTests: FSTIntegrationTestCase {
   func testAutoIndexCreationSetSuccessfully() throws {
-    // Use persistent disk cache (explict)
+    // Use persistent disk cache (explicit)
     let settings = db.settings
     settings.cacheSettings = PersistentCacheSettings()
     db.settings = settings
