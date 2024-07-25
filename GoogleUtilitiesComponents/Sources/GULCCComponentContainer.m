@@ -136,7 +136,7 @@ static NSMutableSet<Class> *sGULComponentRegistrants;
 ///   - Validate that the instance returned conforms to the protocol it claims to,
 ///   - Cache the instance if the block requests it
 ///
-/// Note that this method assumes the caller already has @sychronized on self.
+/// Note that this method assumes the caller already has @synchronized on self.
 - (nullable id)instantiateInstanceForProtocol:(Protocol *)protocol
                                     withBlock:(GULCCComponentCreationBlock)creationBlock {
   if (!creationBlock) {
