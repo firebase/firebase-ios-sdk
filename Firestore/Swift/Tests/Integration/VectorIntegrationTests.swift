@@ -138,8 +138,6 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
         checkOnlineAndOfflineQuery(collection.order(by: "embedding").whereField("embedding", isGreaterThan: FieldValue.vector([1, 2, 100, 4, 4.0])), matchesResult: Array(docIds[12...12]))
     }
     
-    
-      
     func testQueryVectorValueWrittenByCodable() async throws {
         let collection = collectionRef()
         
@@ -154,9 +152,64 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
         
         try collection.document().setData(from: model)
         
-        let querySnap = try await collection.whereField("embedding", isEqualTo: FieldValue.vector([0.1, 0.3, 0.4])).getDocuments()
+        let querySnap: QuerySnapshot = try await collection.whereField("embedding", isEqualTo: FieldValue.vector([0.1, 0.3, 0.4])).getDocuments()
         
         XCTAssertEqual(1, querySnap.count)
-        XCTAssertEqual(try querySnap.documents[0].data(as: Model.self).embedding, VectorValue([0.1, 0.3, 0.4]))
+        
+        let returnedModel: Model = try querySnap.documents[0].data(as: Model.self)
+        XCTAssertEqual(returnedModel.embedding, VectorValue([0.1, 0.3, 0.4]))
+        
+        let vectorData: [Double] = returnedModel.embedding.data;
+        XCTAssertEqual(vectorData, [0.1, 0.3, 0.4])
+    }
+    
+    func testQueryVectorValueWrittenByCodableClass() async throws {
+        let collection = collectionRef()
+        
+        struct Model: Codable {
+            var name: String
+            var embedding: VectorValue
+        }
+        
+        struct ModelWithDistance: Codable {
+            var name: String
+            var embedding: VectorValue
+            var distance: Double
+        }
+        
+struct WithDistance<T: Decodable>: Decodable {
+    var distance: Double
+    var data: T
+    
+    private enum CodingKeys: String, CodingKey {
+        case distance
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        distance = try container.decode(Double.self, forKey: .distance)
+        data = try T(from: decoder)
+    }
+}
+        
+        let model = ModelWithDistance(
+            name: "name",
+            embedding: FieldValue.vector([0.1, 0.3, 0.4]),
+            distance: 0.2
+        )
+        
+        try collection.document().setData(from: model)
+        
+        let querySnap: QuerySnapshot = try await collection.getDocuments()
+        
+        XCTAssertEqual(1, querySnap.count)
+        
+        let returnedModel: WithDistance =
+                try querySnap.documents[0].data(as: WithDistance<Model>.self)
+        XCTAssertEqual(returnedModel.data.embedding, VectorValue([0.1, 0.3, 0.4]))
+        XCTAssertEqual(returnedModel.distance, 0.2)
+        
+        let vectorData: [Double] = returnedModel.data.embedding.data;
+        XCTAssertEqual(vectorData, [0.1, 0.3, 0.4])
     }
 }

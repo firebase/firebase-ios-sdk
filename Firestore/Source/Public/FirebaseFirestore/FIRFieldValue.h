@@ -97,7 +97,7 @@ NS_SWIFT_NAME(FieldValue)
  * @param values Create a `VectorValue` instance with a copy of this array of NSNumbers.
  * @return A new `VectorValue` constructed with a copy of the given array of NSNumbers.
  */
-+ (FIRVectorValue*)vectorFromNSNumbers:(NSArray<NSNumber *> *)values NS_SWIFT_NAME(vector(fromNSNumbers:));
++ (FIRVectorValue*)vectorFromNSNumbers:(NSArray<NSNumber *> *)values NS_REFINED_FOR_SWIFT;
 
 @end
 

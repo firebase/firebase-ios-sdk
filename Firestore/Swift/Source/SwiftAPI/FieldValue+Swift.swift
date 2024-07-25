@@ -23,22 +23,22 @@
 public extension FieldValue {
     
     /// Creates a new `VectorValue` constructed with a copy of the given array of Doubles.
-    /// - Parameter values: An array of Doubles.
+    /// - Parameter data: An array of Doubles.
     /// - Returns: A new `VectorValue` constructed with a copy of the given array of Doubles.
-    static func vector(_ values: [Double]) -> VectorValue {
-        let array = values.map { double in
+    static func vector(_ data: [Double]) -> VectorValue {
+        let array = data.map { double in
             return NSNumber(value: double)
         }
-        return FieldValue.vector(fromNSNumbers: array)
+        return FieldValue.__vector(from: array)
     }
     
     /// Creates a new `VectorValue` constructed with a copy of the given array of Floats.
-    /// - Parameter values: An array of Floats.
+    /// - Parameter data: An array of Floats.
     /// - Returns: A new `VectorValue` constructed with a copy of the given array of Floats.
-    static func vector(_ values: [Float]) -> VectorValue {
-        let array = values.map { float in
+    static func vector(_ data: [Float]) -> VectorValue {
+        let array = data.map { float in
             return NSNumber(value: float)
         }
-        return FieldValue.vector(fromNSNumbers: array)
+        return FieldValue.__vector(from: array)
     }
 }

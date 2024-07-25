@@ -21,8 +21,8 @@
 #endif // SWIFT_PACKAGE
 
 public extension VectorValue {
-    convenience init(_ doubles: [Double]) {
-        let array = doubles.map { float in
+    convenience init(_ data: [Double]) {
+        let array = data.map { float in
             return NSNumber(value: float)
         }
         

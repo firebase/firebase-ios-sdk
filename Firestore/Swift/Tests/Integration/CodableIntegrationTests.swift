@@ -193,7 +193,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       }
       let model = Model(
         name: "name",
-        embedding: FieldValue.vector([0.1, 0.3, 0.4])
+        embedding: VectorValue([0.1, 0.3, 0.4])
       )
 
       let docToWrite = documentRef()
