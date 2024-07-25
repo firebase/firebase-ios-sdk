@@ -84,7 +84,7 @@ class Executor {
   // object prevents any tasks from running that could observe a partially
   // destroyed object graph.
   //
-  // Requirements for implementors:
+  // Requirements for implementers:
   //   * Dispose implementations must be idempotent.
   //   * Dispose implementations must exclude concurrent execution of other
   //     methods.
