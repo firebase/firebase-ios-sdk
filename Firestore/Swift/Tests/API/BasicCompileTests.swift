@@ -279,7 +279,7 @@ func readDocument(at docRef: DocumentReference) {
         }
       }
 
-      // Option 2: switch on the code and compare agianst raw values.
+      // Option 2: switch on the code and compare against raw values.
       switch nsError.code {
       case FirestoreErrorCode.unavailable.rawValue:
         print("Can't read document due to being offline!")
