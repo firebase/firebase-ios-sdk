@@ -199,7 +199,7 @@ TEST_P(MutationQueueTest, NextMutationBatchAfterBatchId) {
     }
 
     for (size_t i = 0; i < removed.size(); i++) {
-      // Searching for deleted batch IDs should return the next batch higest
+      // Searching for deleted batch IDs should return the next batch highest
       // batch ID that's still in the queue.
       const MutationBatch& current = removed[i];
       const MutationBatch& next = batches.front();
