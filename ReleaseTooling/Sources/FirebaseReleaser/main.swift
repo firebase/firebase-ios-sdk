@@ -74,6 +74,7 @@ struct FirebaseReleaser: ParsableCommand {
 
     Shell.executeCommand("git checkout \(baseBranch)", workingDir: gitRoot)
     Shell.executeCommand("git pull origin \(baseBranch)", workingDir: gitRoot)
+    Shell.executeCommand("git fetch origin --tags --force", workingDir: gitRoot)
 
     if initBranch {
       let branch = InitializeRelease.setupRepo(gitRoot: gitRoot)
