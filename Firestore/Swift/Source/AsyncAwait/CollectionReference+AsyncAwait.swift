@@ -51,6 +51,7 @@ public extension CollectionReference {
   /// - Parameters:
   ///   - value: An instance of `Encodable` to be encoded to a document.
   ///   - encoder: An encoder instance to use to run the encoding.
+  ///   - Throws: `Error` if the backend rejected the write.
   /// - Returns: A `DocumentReference` pointing to the newly created document.
   @discardableResult
   func addDocument<T: Encodable>(from value: T,
