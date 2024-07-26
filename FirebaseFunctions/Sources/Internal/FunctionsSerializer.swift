@@ -20,7 +20,7 @@ private enum Constants {
   static let dateType = "type.googleapis.com/google.protobuf.Timestamp"
 }
 
-extension FUNSerializer {
+extension FunctionsSerializer {
   enum Error: Swift.Error {
     case unsupportedType(typeName: String)
     case unknownNumberType(charValue: String, number: NSNumber)
@@ -28,7 +28,7 @@ extension FUNSerializer {
   }
 }
 
-class FUNSerializer: NSObject {
+class FunctionsSerializer: NSObject {
   private let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"

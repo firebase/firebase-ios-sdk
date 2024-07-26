@@ -24,12 +24,12 @@ import FirebaseCore
 
 import XCTest
 
-class SerializerTests: XCTestCase {
-  private var serializer: FUNSerializer!
+class FunctionsSerializerTests: XCTestCase {
+  private var serializer: FunctionsSerializer!
 
   override func setUp() {
     super.setUp()
-    serializer = FUNSerializer()
+    serializer = FunctionsSerializer()
   }
 
   func testEncodeNull() throws {
@@ -98,7 +98,7 @@ class SerializerTests: XCTestCase {
     let dictLowLong = ["@type": typeString, "value": badVal]
     do {
       _ = try serializer.decode(dictLowLong) as? NSNumber
-    } catch let FUNSerializer.Error.invalidValueForType(value, type) {
+    } catch let FunctionsSerializer.Error.invalidValueForType(value, type) {
       XCTAssertEqual(value, badVal)
       XCTAssertEqual(type, typeString)
       return
@@ -136,7 +136,7 @@ class SerializerTests: XCTestCase {
     let coded = ["@type": typeString, "value": tooHighVal]
     do {
       _ = try serializer.decode(coded) as? NSNumber
-    } catch let FUNSerializer.Error.invalidValueForType(value, type) {
+    } catch let FunctionsSerializer.Error.invalidValueForType(value, type) {
       XCTAssertEqual(value, tooHighVal)
       XCTAssertEqual(type, typeString)
       return
@@ -241,7 +241,7 @@ class SerializerTests: XCTestCase {
       let _ = try serializer.encode(input)
       XCTFail("Expected an error")
     } catch {
-      guard case let .unsupportedType(typeName: typeName) = error as? FUNSerializer.Error
+      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
       else {
         return XCTFail("Unexpected error: \(error)")
       }
@@ -257,7 +257,7 @@ class SerializerTests: XCTestCase {
       let _ = try serializer.decode(input)
       XCTFail("Expected an error")
     } catch {
-      guard case let .unsupportedType(typeName: typeName) = error as? FUNSerializer.Error
+      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
       else {
         return XCTFail("Unexpected error: \(error)")
       }
