@@ -309,12 +309,12 @@ let package = Package(
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
-      dependencies: ["FirebaseAnalytics"],
+      dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/SwiftUnit"
     ),
     .testTarget(
       name: "AnalyticsObjCAPI",
-      dependencies: ["FirebaseAnalytics"],
+      dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/ObjCAPI"
     ),
 
