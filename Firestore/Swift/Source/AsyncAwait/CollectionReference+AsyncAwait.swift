@@ -56,7 +56,7 @@ public extension CollectionReference {
   @discardableResult
   func addDocument<T: Encodable>(from value: T,
                                  encoder: Firestore.Encoder = Firestore.Encoder()) async throws
-  -> DocumentReference {
+    -> DocumentReference {
     return try await withCheckedThrowingContinuation { continuation in
       var document: DocumentReference?
       document = self.addDocument(from: value, encoder: encoder) { error in
