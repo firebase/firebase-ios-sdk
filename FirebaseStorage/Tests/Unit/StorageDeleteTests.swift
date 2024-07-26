@@ -27,7 +27,6 @@ class StorageDeleteTests: StorageTestHelpers {
     fetcherService = GTMSessionFetcherService()
     fetcherService?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
-      fetcherService: fetcherService!,
       authProvider: nil,
       appCheck: nil
     )

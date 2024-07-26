@@ -123,19 +123,7 @@ import FirebaseCore
   @objc public var uploadChunkSizeBytes: Int64 = .max
 
   /// A `DispatchQueue` that all developer callbacks are fired on. Defaults to the main queue.
-  @objc public var callbackQueue: DispatchQueue {
-    get {
-      ensureConfigured()
-      guard let queue = fetcherService?.callbackQueue else {
-        fatalError("Internal error: Failed to initialize fetcherService callbackQueue")
-      }
-      return queue
-    }
-    set(newValue) {
-      ensureConfigured()
-      fetcherService?.callbackQueue = newValue
-    }
-  }
+  @objc public var callbackQueue: DispatchQueue = .main
 
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
   /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
@@ -317,7 +305,8 @@ import FirebaseCore
   private static func initFetcherServiceForApp(_ app: FirebaseApp,
                                                _ bucket: String,
                                                _ auth: AuthInterop?,
-                                               _ appCheck: AppCheckInterop?)
+                                               _ appCheck: AppCheckInterop?,
+                                               _ callbackQueue: DispatchQueue)
     -> GTMSessionFetcherService {
     objc_sync_enter(fetcherServiceLock)
     defer { objc_sync_exit(fetcherServiceLock) }
@@ -334,7 +323,7 @@ import FirebaseCore
       fetcherService?.allowLocalhostRequest = true
       let authorizer = StorageTokenAuthorizer(
         googleAppID: app.options.googleAppID,
-        fetcherService: fetcherService!,
+        callbackQueue: callbackQueue,
         authProvider: auth,
         appCheck: appCheck
       )
@@ -390,7 +379,8 @@ import FirebaseCore
     guard fetcherService == nil else {
       return
     }
-    fetcherService = Storage.initFetcherServiceForApp(app, storageBucket, auth, appCheck)
+    fetcherService = Storage.initFetcherServiceForApp(app, storageBucket, auth, appCheck,
+                                                      callbackQueue)
     if usesEmulator {
       fetcherService?.allowLocalhostRequest = true
       fetcherService?.allowedInsecureSchemes = ["http"]

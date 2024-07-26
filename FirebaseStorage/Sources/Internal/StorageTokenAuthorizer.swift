@@ -37,7 +37,6 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     request?.setValue(googleAppID, forHTTPHeaderField: "x-firebase-gmpid")
 
     var tokenError: NSError?
-    let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
     let fetchTokenGroup = DispatchGroup()
     if let auth {
       fetchTokenGroup.enter()
@@ -101,7 +100,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
   var userEmail: String?
 
-  let fetcherService: GTMSessionFetcherService
+  let callbackQueue: DispatchQueue
   private let googleAppID: String
   private let auth: AuthInterop?
   private let appCheck: AppCheckInterop?
@@ -109,11 +108,11 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   private let serialAuthArgsQueue = DispatchQueue(label: "com.google.firebasestorage.authorizer")
 
   init(googleAppID: String,
-       fetcherService: GTMSessionFetcherService,
+       callbackQueue: DispatchQueue = DispatchQueue.main,
        authProvider: AuthInterop?,
        appCheck: AppCheckInterop?) {
     self.googleAppID = googleAppID
-    self.fetcherService = fetcherService
+    self.callbackQueue = callbackQueue
     auth = authProvider
     self.appCheck = appCheck
   }
