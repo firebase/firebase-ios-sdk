@@ -62,13 +62,17 @@ public extension CollectionReference {
     -> DocumentReference {
     return try await withCheckedThrowingContinuation { continuation in
       var document: DocumentReference?
-      document = self.addDocument(from: value, encoder: encoder) { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          // Our callbacks guarantee that we either return an error or a document.
-          continuation.resume(returning: document!)
+      do {
+        document = try self.addDocument(from: value, encoder: encoder) { error in
+          if let error {
+            continuation.resume(throwing: error)
+          } else {
+            // Our callbacks guarantee that we either return an error or a document.
+            continuation.resume(returning: document!)
+          }
         }
+      } catch {
+        continuation.resume(throwing: error)
       }
     }
   }
