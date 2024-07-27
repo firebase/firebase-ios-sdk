@@ -86,7 +86,7 @@
 
 @end
 
-#pragma mark - Incompete UNUserNotificationCenterDelegate
+#pragma mark - Incomplete UNUserNotificationCenterDelegate
 @interface IncompleteUserNotificationCenterDelegate : NSObject <UNUserNotificationCenterDelegate>
 @end
 @implementation IncompleteUserNotificationCenterDelegate
