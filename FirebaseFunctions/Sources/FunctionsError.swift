@@ -211,7 +211,7 @@ extension FunctionsErrorCode {
 
 func FunctionsErrorForResponse(status: NSInteger,
                                body: Data?,
-                               serializer: FUNSerializer) -> NSError? {
+                               serializer: FunctionsSerializer) -> NSError? {
   // Start with reasonable defaults from the status code.
   var code = FunctionsCodeForHTTPStatus(status)
   var description = code.descriptionForErrorCode

@@ -47,7 +47,7 @@ enum FunctionsConstants {
   /// The projectID to use for all function references.
   private let projectID: String
   /// A serializer to encode/decode data and return values.
-  private let serializer = FUNSerializer()
+  private let serializer = FunctionsSerializer()
   /// A factory for getting the metadata to include with function calls.
   private let contextProvider: FunctionsContextProvider
 
