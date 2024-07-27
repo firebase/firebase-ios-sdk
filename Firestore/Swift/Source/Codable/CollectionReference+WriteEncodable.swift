@@ -55,6 +55,7 @@ public extension CollectionReference {
   ///   - encoder: An encoder instance to use to run the encoding.
   /// - Throws: `Error` if the backend rejected the write.
   /// - Returns: A `DocumentReference` pointing to the newly created document.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   func addDocument<T: Encodable>(from value: T,
                                  encoder: Firestore.Encoder = Firestore.Encoder()) async throws
