@@ -181,13 +181,13 @@ TEST_F(LevelDbIndexManagerTest, OrderByKeyFilter) {
     AddDoc("coll/val3", Map("count", 3));
 
     {
-      SCOPED_TRACE("Verifing OrderByKey ASC");
+      SCOPED_TRACE("Verifying OrderByKey ASC");
       auto query = Query("coll").AddingOrderBy(OrderBy("count"));
       VerifyResults(query, {"coll/val1", "coll/val2", "coll/val3"});
     }
 
     {
-      SCOPED_TRACE("Verifing OrderByKey DESC");
+      SCOPED_TRACE("Verifying OrderByKey DESC");
       auto query = Query("coll").AddingOrderBy(OrderBy("count", "desc"));
       VerifyResults(query, {"coll/val3", "coll/val2", "coll/val1"});
     }
@@ -205,11 +205,11 @@ TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
                               .AddingFilter(Filter("c", "<", 5))
                               .AddingOrderBy(OrderBy("c", "asc"));
     {
-      SCOPED_TRACE("Verifing original");
+      SCOPED_TRACE("Verifying original");
       VerifyResults(original_query, {"coll/val2", "coll/val3", "coll/val4"});
     }
     {
-      SCOPED_TRACE("Verifing non-restricted bound");
+      SCOPED_TRACE("Verifying non-restricted bound");
       auto query_with_non_restricted_bound =
           original_query
               .StartingAt(Bound::FromValue(Array(1), /* inclusive= */ false))
@@ -218,7 +218,7 @@ TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
                     {"coll/val2", "coll/val3", "coll/val4"});
     }
     {
-      SCOPED_TRACE("Verifing restricted bound");
+      SCOPED_TRACE("Verifying restricted bound");
       auto query_with_restricted_bound =
           original_query
               .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
@@ -777,7 +777,7 @@ TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsOnSameField) {
       for (const auto& filter : filter_result_pair.first) {
         query = query.AddingFilter(filter);
       }
-      SCOPED_TRACE(absl::StrCat("Verifing case#", counter++));
+      SCOPED_TRACE(absl::StrCat("Verifying case#", counter++));
       VerifyResults(query, filter_result_pair.second);
     }
   });

@@ -26,7 +26,7 @@
  *              created from a dictionary. The same keys are used
  *              when decoding/encoding an archive.
  */
-/// Specifies a dictonary key whose value represents the authorized entity, or
+/// Specifies a dictionary key whose value represents the authorized entity, or
 /// Sender ID for the token.
 static NSString *const kFIRInstanceIDAuthorizedEntityKey = @"authorized_entity";
 /// Specifies a dictionary key whose value represents the scope of the token,

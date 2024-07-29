@@ -60,7 +60,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 NSString *const FIRMessagingErrorDomain = @"com.google.fcm";
 
-const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
+BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
     NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
     if (aps && [aps isKindOfClass:[NSDictionary class]]) {
@@ -502,7 +502,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (NSString *)FCMToken {
-  // Gets the current default token, and requets a new one if it doesn't exist.
+  // Gets the current default token, and requests a new one if it doesn't exist.
   NSString *token = [self.tokenManager tokenAndRequestIfNotExist];
   return token;
 }

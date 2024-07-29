@@ -16,7 +16,7 @@ import Foundation
 
 /// A generic circular queue structure.
 struct RingBuffer<Element>: Sequence {
-  /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
+  /// An array of heartbeats treated as a circular queue and initialized with a fixed capacity.
   private var circularQueue: [Element?]
   /// The current "tail" and insert point for the `circularQueue`.
   private var tailIndex: Array<Element?>.Index

@@ -102,35 +102,40 @@
         throw AuthErrorUtils.recaptchaSiteKeyMissing()
       }
       let actionString = actionToStringMap[action] ?? ""
-      return try await withCheckedThrowingContinuation { continuation in
-        FIRRecaptchaGetToken(siteKey, actionString,
-                             "NO_RECAPTCHA") { (token: String, error: Error?,
-                                                linked: Bool, actionCreated: Bool) in
-            guard linked else {
-              continuation.resume(throwing: AuthErrorUtils.recaptchaSDKNotLinkedError())
-              return
-            }
-            guard actionCreated else {
-              continuation.resume(throwing: AuthErrorUtils.recaptchaActionCreationFailed())
-              return
-            }
-            if let error {
-              continuation.resume(throwing: error)
-              return
-            } else {
-              if token == "NO_RECAPTCHA" {
-                AuthLog.logInfo(code: "I-AUT000031",
-                                message: "reCAPTCHA token retrieval failed. NO_RECAPTCHA sent as the fake code.")
-              } else {
-                AuthLog.logInfo(
-                  code: "I-AUT000030",
-                  message: "reCAPTCHA token retrieval succeeded."
-                )
+      #if !(COCOAPODS || SWIFT_PACKAGE)
+        // No recaptcha on internal build system.
+        return actionString
+      #else
+        return try await withCheckedThrowingContinuation { continuation in
+          FIRRecaptchaGetToken(siteKey, actionString,
+                               "NO_RECAPTCHA") { (token: String, error: Error?,
+                                                  linked: Bool, actionCreated: Bool) in
+              guard linked else {
+                continuation.resume(throwing: AuthErrorUtils.recaptchaSDKNotLinkedError())
+                return
               }
-              continuation.resume(returning: token)
-            }
+              guard actionCreated else {
+                continuation.resume(throwing: AuthErrorUtils.recaptchaActionCreationFailed())
+                return
+              }
+              if let error {
+                continuation.resume(throwing: error)
+                return
+              } else {
+                if token == "NO_RECAPTCHA" {
+                  AuthLog.logInfo(code: "I-AUT000031",
+                                  message: "reCAPTCHA token retrieval failed. NO_RECAPTCHA sent as the fake code.")
+                } else {
+                  AuthLog.logInfo(
+                    code: "I-AUT000030",
+                    message: "reCAPTCHA token retrieval succeeded."
+                  )
+                }
+                continuation.resume(returning: token)
+              }
+          }
         }
-      }
+      #endif // !(COCOAPODS || SWIFT_PACKAGE)
     }
 
     func retrieveRecaptchaConfig(forceRefresh: Bool) async throws {

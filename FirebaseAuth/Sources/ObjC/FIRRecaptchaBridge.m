@@ -23,7 +23,7 @@ static id<RCARecaptchaClientProtocol> recaptchaClient;
 
 static void retrieveToken(NSString *actionString,
                           NSString *fakeToken,
-                          FIRAuthRecaptchaTokenCallback completion) {
+                          FIRAuthRecaptchaTokenCallback callback) {
   Class RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
   SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
   if (RecaptchaActionClass &&
@@ -38,29 +38,29 @@ static void retrieveToken(NSString *actionString,
       [recaptchaClient execute:customAction
                     completion:^(NSString *_Nullable token, NSError *_Nullable error) {
                       if (!error) {
-                        completion(token, nil, YES, YES);
+                        callback(token, nil, YES, YES);
                         return;
                       } else {
-                        completion(fakeToken, nil, YES, YES);
+                        callback(fakeToken, nil, YES, YES);
                       }
                     }];
     } else {
       // RecaptchaAction class creation failed.
-      completion(@"", nil, YES, NO);
+      callback(@"", nil, YES, NO);
     }
 
   } else {
     // RecaptchaEnterprise not linked.
-    completion(@"", nil, NO, NO);
+    callback(@"", nil, NO, NO);
   }
 }
 
 void FIRRecaptchaGetToken(NSString *siteKey,
                           NSString *actionString,
                           NSString *fakeToken,
-                          FIRAuthRecaptchaTokenCallback completion) {
+                          FIRAuthRecaptchaTokenCallback callback) {
   if (recaptchaClient != nil) {
-    retrieveToken(actionString, fakeToken, completion);
+    retrieveToken(actionString, fakeToken, callback);
     return;
   }
 
@@ -74,15 +74,15 @@ void FIRRecaptchaGetToken(NSString *siteKey,
     funcWithoutTimeout(RecaptchaClass, selector, siteKey,
                        ^(id<RCARecaptchaClientProtocol> _Nonnull client, NSError *_Nullable error) {
                          if (error) {
-                           completion(@"", error, YES, YES);
+                           callback(@"", error, YES, YES);
                          } else {
                            recaptchaClient = client;
-                           retrieveToken(actionString, fakeToken, completion);
+                           retrieveToken(actionString, fakeToken, callback);
                          }
                        });
   } else {
     // RecaptchaEnterprise not linked.
-    completion(@"", nil, NO, NO);
+    callback(@"", nil, NO, NO);
   }
 }
 #endif

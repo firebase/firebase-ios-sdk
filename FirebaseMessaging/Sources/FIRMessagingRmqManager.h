@@ -56,7 +56,7 @@
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID;
 
 /**
- *  Delete the expired sync messages from persisten store. Also deletes messages that have been
+ *  Delete the expired sync messages from persistent store. Also deletes messages that have been
  *  delivered both via APNS and MCS.
  */
 - (void)deleteExpiredOrFinishedSyncMessages;

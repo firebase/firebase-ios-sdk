@@ -36,7 +36,7 @@
   XCTAssertEqual(tracker.traceBackgroundState, FPRTraceStateForegroundOnly);
 }
 
-/** Validates if the foreground & backgound state is captured correctly. */
+/** Validates if the foreground & background state is captured correctly. */
 - (void)testBackgroundTracking {
   FPRTraceBackgroundActivityTracker *tracker = [[FPRTraceBackgroundActivityTracker alloc] init];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];

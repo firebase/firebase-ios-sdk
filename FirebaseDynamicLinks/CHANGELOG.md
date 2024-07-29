@@ -177,14 +177,14 @@ Refer to the [README.md](https://github.com/firebase/firebase-ios-sdk/blob/main/
 
 # 1.3.1
 - [added] Adds FIRLogger support (not public-facing)
-- [fixed] Fixes IPv6 compatibilty issues
+- [fixed] Fixes IPv6 compatibility issues
 
 # 1.3.0
 - [changed] Removes the SFSafariViewController per Apple's Review Guidelines
 - [changed] Removes dependency on the Core Location framework
 
 # 1.2.0
-- [added] iOS 10 Supoort
+- [added] iOS 10 Support
 
 # 1.1.1
 - [fixed] Fixes an issue where if resolveLink() API returned a non-JSON object, it

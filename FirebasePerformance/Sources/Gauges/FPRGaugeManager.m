@@ -102,7 +102,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 - (BOOL)gaugeCollectionEnabled {
   // Allow gauge collection to happen during cold start. During dispatch time, we do another check
-  // to make sure if gauge collection is enabled. This is to accomodate gauge metric collection
+  // to make sure if gauge collection is enabled. This is to accommodate gauge metric collection
   // during app_start scenario.
   if (self.isColdStart) {
     return YES;

@@ -1023,7 +1023,7 @@ class AuthTests: RPCBaseTests {
 
   /** @fn testSignInWithCredentialSuccess
       @brief Tests the flow of a successful @c signInWithCredential:completion: call
-          with an Google Sign-In credential.
+          with a Google Sign-In credential.
       Note: also a superset of the former testSignInWithGoogleCredentialSuccess
    */
   func testSignInWithCredentialSuccess() throws {
@@ -1497,8 +1497,8 @@ class AuthTests: RPCBaseTests {
 
   /** @fn testCreateUserEmptyEmailFailure
       @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
-          empty email adress. This error occurs on the client side, so there is no need to fake an RPC
-          response.
+          empty email address. This error occurs on the client side, so there is no need to fake an
+          RPC response.
    */
   func testCreateUserEmptyEmailFailure() throws {
     let expectation = self.expectation(description: #function)
@@ -2030,6 +2030,7 @@ class AuthTests: RPCBaseTests {
     let auth = try XCTUnwrap(auth)
     var shouldHaveUser = false
     var expectation: XCTestExpectation?
+    var fulfilled = false
     let listener = { listenerAuth, user in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(auth, listenerAuth)
@@ -2041,7 +2042,10 @@ class AuthTests: RPCBaseTests {
       }
       // `expectation` being nil means the listener is not expected to be fired at this moment.
       XCTAssertNotNil(expectation)
-      expectation?.fulfill()
+      if !fulfilled {
+        fulfilled = true
+        expectation?.fulfill()
+      }
     }
     try auth.signOut()
 
@@ -2054,6 +2058,7 @@ class AuthTests: RPCBaseTests {
 
     // Listener should fire for signing in. Expectation is waited on in
     // waitForSignInWithAccessToken.
+    fulfilled = false
     expectation = self.expectation(description: "sign-in")
     shouldHaveUser = true
     try waitForSignInWithAccessToken()
@@ -2064,11 +2069,13 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken()
 
     // Listener should fire for signing in again as the same user with another access token.
+    fulfilled = false
     expectation = self.expectation(description: "sign-in")
     shouldHaveUser = true
     try waitForSignInWithAccessToken(fakeAccessToken: AuthTests.kNewAccessToken)
 
     // Listener should fire for signing out.
+    fulfilled = false
     expectation = self.expectation(description: "sign-out")
     shouldHaveUser = false
     try auth.signOut()

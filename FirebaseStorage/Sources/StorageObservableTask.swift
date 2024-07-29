@@ -168,12 +168,11 @@ import Foundation
 
   func fire(handlers: [String: (StorageTaskSnapshot) -> Void],
             snapshot: StorageTaskSnapshot) {
-    let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
     objc_sync_enter(StorageObservableTask.self)
     let enumeration = handlers.enumerated()
     objc_sync_exit(StorageObservableTask.self)
     for (_, handler) in enumeration {
-      callbackQueue.async {
+      reference.storage.callbackQueue.async {
         handler.value(snapshot)
       }
     }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@_exported import class FirebaseCore.Timestamp
+
 import FirebaseSharedSwift
 import Foundation
 

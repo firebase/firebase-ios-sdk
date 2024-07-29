@@ -36,7 +36,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 
 @end
 
-/** CPU Gauge collector implementation. This class collects the CPU utilitization and reports back
+/** CPU Gauge collector implementation. This class collects the CPU utilization and reports back
  *  to the delegate.
  */
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")

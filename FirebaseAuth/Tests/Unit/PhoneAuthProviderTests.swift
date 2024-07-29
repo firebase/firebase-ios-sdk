@@ -210,7 +210,7 @@
       )
     }
 
-    // TODO: This test is skipped. What was formerly an Objective C exception is now a Swift fatal_error.
+    // TODO: This test is skipped. What was formerly an Objective-C exception is now a Swift fatal_error.
     // The test runs correctly, but it's not clear how to automate fatal_error testing. Switching to
     // Swift exceptions would break the API.
     /** @fn testVerifyPhoneNumberUIDelegateRaiseException

@@ -45,7 +45,7 @@ struct FileIncrementalChanges: Codable {
   }
 }
 
-/// `xccov` outcomes of a file from a xcresult bundle will be transfered
+/// `xccov` outcomes of a file from a xcresult bundle will be transferred
 /// to the following instance.
 struct LineCoverage: Codable {
   var fileName: String

@@ -23,6 +23,7 @@ import SharedTestUtilities
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",

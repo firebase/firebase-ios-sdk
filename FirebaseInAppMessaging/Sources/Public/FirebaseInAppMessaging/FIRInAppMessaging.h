@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
 API_UNAVAILABLE(macos, watchos)
+API_AVAILABLE(ios(13.0), tvos(13.0))
 NS_SWIFT_NAME(InAppMessaging)
 @interface FIRInAppMessaging : NSObject
 /** @fn inAppMessaging

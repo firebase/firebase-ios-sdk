@@ -161,7 +161,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions."
 - (nullable instancetype)init NS_UNAVAILABLE;
 
 /**
- * Records the begining of the network request. This is usually called just before initiating the
+ * Records the beginning of the network request. This is usually called just before initiating the
  * request.
  */
 - (void)start;

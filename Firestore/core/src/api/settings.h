@@ -97,7 +97,7 @@ class LocalCacheSettings {
   friend class Settings;
 
  public:
-  enum class Kind { kMemory, kPersistent };
+  enum class Kind { kMemory = 1, kPersistent };
   virtual ~LocalCacheSettings() = default;
   friend bool operator==(const LocalCacheSettings& lhs,
                          const LocalCacheSettings& rhs);
@@ -135,10 +135,11 @@ class PersistentCacheSettings : public LocalCacheSettings {
 
 class MemoryGarbageCollectorSettings {
  public:
-  enum class MemoryGcKind { kEagerGc, kLruGc };
+  enum class MemoryGcKind { kEagerGc = 1, kLruGc };
   virtual ~MemoryGarbageCollectorSettings() = default;
   friend bool operator==(const MemoryGarbageCollectorSettings& lhs,
                          const MemoryGarbageCollectorSettings& rhs);
+
   virtual size_t Hash() const = 0;
 
   MemoryGcKind kind() const {
@@ -185,7 +186,7 @@ class MemoryCacheSettings : public LocalCacheSettings {
  public:
   MemoryCacheSettings()
       : LocalCacheSettings(LocalCacheSettings::Kind::kMemory),
-        settings_(absl::make_unique<MemoryEagerGcSettings>()) {
+        settings_(absl::make_unique<MemoryLruGcSettings>()) {
   }
   MemoryCacheSettings(const MemoryCacheSettings& other);
   MemoryCacheSettings& operator=(const MemoryCacheSettings& other);

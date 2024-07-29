@@ -21,7 +21,8 @@
 
 #import <GoogleUtilities/GULLogger.h>
 
-static GULLoggerService kGULComponentContainer = @"[GoogleUtilitiesComponents]";
+static NSString *kGULComponentSubsystem = @"com.google.googleutilitiescomponents";
+static NSString *kGULComponentContainer = @"[GoogleUtilitiesComponents]";
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -93,9 +94,9 @@ static NSMutableSet<Class> *sGULComponentRegistrants;
       // Check if the component has been registered before, and error out if so.
       NSString *protocolName = NSStringFromProtocol(component.protocol);
       if (self.components[protocolName]) {
-        GULLogError(kGULComponentContainer, NO, @"I-COM000001",
-                    @"Attempted to register protocol %@, but it already has an implementation.",
-                    protocolName);
+        GULOSLogError(kGULComponentSubsystem, kGULComponentContainer, NO, @"I-COM000001",
+                      @"Attempted to register protocol %@, but it already has an implementation.",
+                      protocolName);
         continue;
       }
 
@@ -135,7 +136,7 @@ static NSMutableSet<Class> *sGULComponentRegistrants;
 ///   - Validate that the instance returned conforms to the protocol it claims to,
 ///   - Cache the instance if the block requests it
 ///
-/// Note that this method assumes the caller already has @sychronized on self.
+/// Note that this method assumes the caller already has @synchronized on self.
 - (nullable id)instantiateInstanceForProtocol:(Protocol *)protocol
                                     withBlock:(GULCCComponentCreationBlock)creationBlock {
   if (!creationBlock) {
@@ -152,10 +153,10 @@ static NSMutableSet<Class> *sGULComponentRegistrants;
   // An instance was created, validate that it conforms to the protocol it claims to.
   NSString *protocolName = NSStringFromProtocol(protocol);
   if (![instance conformsToProtocol:protocol]) {
-    GULLogError(kGULComponentContainer, NO, @"I-COM000002",
-                @"An instance conforming to %@ was requested, but the instance provided does not "
-                @"conform to the protocol",
-                protocolName);
+    GULOSLogError(kGULComponentSubsystem, kGULComponentContainer, NO, @"I-COM000002",
+                  @"An instance conforming to %@ was requested, but the instance provided does not "
+                  @"conform to the protocol",
+                  protocolName);
   }
 
   // The instance is ready to be returned, but check if it should be cached first before returning.

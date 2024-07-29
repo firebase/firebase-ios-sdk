@@ -161,7 +161,7 @@
   [instrument deregisterInstrumentors];
 }
 
-/** Tests sessionWithConfiguration: with the default configurtion returns a non-nil object. */
+/** Tests sessionWithConfiguration: with the default configuration returns a non-nil object. */
 - (void)testSessionWithDefaultSessionConfiguration {
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
   [instrument registerInstrumentors];

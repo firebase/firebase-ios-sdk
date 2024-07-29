@@ -20,21 +20,21 @@ private enum Constants {
   static let dateType = "type.googleapis.com/google.protobuf.Timestamp"
 }
 
-enum SerializerError: Error {
-  // TODO: Add parameters class name and value
-  case unsupportedType // (className: String, value: AnyObject)
-  case unknownNumberType(charValue: String, number: NSNumber)
-  case invalidValueForType(value: String, requestedType: String)
+extension FunctionsSerializer {
+  enum Error: Swift.Error {
+    case unsupportedType(typeName: String)
+    case unknownNumberType(charValue: String, number: NSNumber)
+    case invalidValueForType(value: String, requestedType: String)
+  }
 }
 
-class FUNSerializer: NSObject {
-  private let dateFormatter: DateFormatter
-
-  override init() {
-    dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    dateFormatter.timeZone = TimeZone(identifier: "UTC")
-  }
+class FunctionsSerializer: NSObject {
+  private let dateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+    formatter.timeZone = TimeZone(identifier: "UTC")
+    return formatter
+  }()
 
   // MARK: - Internal APIs
 
@@ -67,7 +67,7 @@ class FUNSerializer: NSObject {
       return encoded
 
     } else {
-      throw SerializerError.unsupportedType
+      throw Error.unsupportedType(typeName: typeName(of: object))
     }
   }
 
@@ -76,7 +76,7 @@ class FUNSerializer: NSObject {
     if let dict = object as? NSDictionary {
       if let requestedType = dict["@type"] as? String {
         guard let value = dict["value"] as? String else {
-          // Seems like we should throw here - but this maintains compatiblity.
+          // Seems like we should throw here - but this maintains compatibility.
           return dict
         }
         let result = try decodeWrappedType(requestedType, value)
@@ -86,21 +86,8 @@ class FUNSerializer: NSObject {
       }
 
       let decoded = NSMutableDictionary()
-      var decodeError: Error?
-      dict.enumerateKeysAndObjects { key, obj, stopPointer in
-        do {
-          let decodedItem = try self.decode(obj)
-          decoded[key] = decodedItem
-        } catch {
-          decodeError = error
-          stopPointer.pointee = true
-          return
-        }
-      }
-
-      // Throw the internal error that popped up, if it did.
-      if let decodeError {
-        throw decodeError
+      try dict.forEach { key, value in
+        decoded[key] = try decode(value)
       }
       return decoded
     } else if let array = object as? NSArray {
@@ -116,10 +103,14 @@ class FUNSerializer: NSObject {
       return object as AnyObject
     }
 
-    throw SerializerError.unsupportedType
+    throw Error.unsupportedType(typeName: typeName(of: object))
   }
 
   // MARK: - Private Helpers
+
+  private func typeName(of value: Any) -> String {
+    String(describing: type(of: value))
+  }
 
   private func encodeNumber(_ number: NSNumber) throws -> AnyObject {
     // Recover the underlying type of the number, using the method described here:
@@ -163,7 +154,7 @@ class FUNSerializer: NSObject {
 
     default:
       // All documented codes should be handled above, so this shouldn"t happen.
-      throw SerializerError.unknownNumberType(charValue: String(cType[0]), number: number)
+      throw Error.unknownNumberType(charValue: String(cType[0]), number: number)
     }
   }
 
@@ -172,7 +163,7 @@ class FUNSerializer: NSObject {
     case Constants.longType:
       let formatter = NumberFormatter()
       guard let n = formatter.number(from: value) else {
-        throw SerializerError.invalidValueForType(value: value, requestedType: type)
+        throw Error.invalidValueForType(value: value, requestedType: type)
       }
       return n
 
@@ -182,7 +173,7 @@ class FUNSerializer: NSObject {
       var endPtr: UnsafeMutablePointer<CChar>?
       let returnValue = UInt64(strtoul(str, &endPtr, 10))
       guard String(returnValue) == value else {
-        throw SerializerError.invalidValueForType(value: value, requestedType: type)
+        throw Error.invalidValueForType(value: value, requestedType: type)
       }
       return NSNumber(value: returnValue)
 

@@ -16,14 +16,11 @@
   import Foundation
   import UIKit
 
-  // TODO: This may be needed for extension detecting support
-  // @_implementationOnly import FirebaseCoreExtension
-
-  #if SWIFT_PACKAGE
-    @_implementationOnly import GoogleUtilities_Environment
-  #else
+  #if COCOAPODS
     @_implementationOnly import GoogleUtilities
-  #endif // SWIFT_PACKAGE
+  #else
+    @_implementationOnly import GoogleUtilities_Environment
+  #endif // COCOAPODS
 
   // Protocol to help with unit tests.
   protocol AuthAPNSTokenApplication {

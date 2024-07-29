@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
-
 @class FIRApp;
 @class FIRAppCheckToken;
 @protocol FIRAppCheckProviderFactory;
@@ -38,7 +36,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckAppNameNotificationKey NS_SWIFT_NA
 
 /// A class used to manage app check tokens for a given Firebase app.
 NS_SWIFT_NAME(AppCheck)
-@interface FIRAppCheck : NSObject <FIRAppCheckProtocol>
+@interface FIRAppCheck : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 

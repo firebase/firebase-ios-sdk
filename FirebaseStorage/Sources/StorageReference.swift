@@ -206,7 +206,7 @@ import Foundation
                                    file: nil)
 
     task.completionData = completion
-    let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+    let callbackQueue = storage.callbackQueue
 
     task.observe(.success) { snapshot in
       let error = self.checkSizeOverflow(task: snapshot.task, maxSize: maxSize)
@@ -288,7 +288,7 @@ import Foundation
 
     if let completion {
       task.completionURL = completion
-      let callbackQueue = fetcherService.callbackQueue ?? DispatchQueue.main
+      let callbackQueue = storage.callbackQueue
 
       task.observe(.success) { snapshot in
         callbackQueue.async {

@@ -35,7 +35,7 @@ import Foundation
 
     init(proto: AuthProtoMFAEnrollment, factorID: String) {
       guard let uid = proto.mfaEnrollmentID else {
-        fatalError("Auth Internal Error: Failed to inialize MFA: missing enrollment ID")
+        fatalError("Auth Internal Error: Failed to initialize MFA: missing enrollment ID")
       }
       self.uid = uid
       self.factorID = factorID

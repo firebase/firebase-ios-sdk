@@ -23,6 +23,7 @@ import SharedTestUtilities
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageComponentTests: StorageTestHelpers {
   /// Test that the objc class is available for the component system to update the user agent.
   func testComponentsBeingRegistered() throws {

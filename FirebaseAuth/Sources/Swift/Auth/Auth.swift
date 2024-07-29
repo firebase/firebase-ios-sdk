@@ -201,7 +201,7 @@ extension Auth: AuthInterop {
   /// Contains shareAuthStateAcrossDevices setting related to the auth object.
   ///
   /// If userAccessGroup is not set, setting shareAuthStateAcrossDevices will
-  /// have no effect. You should set shareAuthStateAcrossDevices to it's desired
+  /// have no effect. You should set shareAuthStateAcrossDevices to its desired
   /// state and then set the userAccessGroup after.
   @objc open var shareAuthStateAcrossDevices: Bool = false
 
@@ -279,11 +279,13 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the list of sign in methods
   /// for the specified email address is ready or an error was encountered. Invoked asynchronously
   /// on the main thread in the future.
-  @available(
-    *,
-    deprecated,
-    message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
-  )
+  #if !FIREBASE_CI
+    @available(
+      *,
+      deprecated,
+      message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
+    )
+  #endif // !FIREBASE_CI
   @objc open func fetchSignInMethods(forEmail email: String,
                                      completion: (([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
@@ -1327,7 +1329,7 @@ extension Auth: AuthInterop {
   /// * A user with a different UID from the current user has signed in, or
   /// * The current user has signed out.
   ///
-  ///  The block is invoked immediately after adding it according to it's standard invocation
+  /// The block is invoked immediately after adding it according to its standard invocation
   /// semantics, asynchronously on the main thread. Users should pay special attention to
   /// making sure the block does not inadvertently retain objects which should not be retained by
   /// the long-lived block. The block itself will be retained by `Auth` until it is
@@ -1368,7 +1370,7 @@ extension Auth: AuthInterop {
   /// * The ID token of the current user has been refreshed, or
   /// * The current user has signed out.
   ///
-  /// The block is invoked immediately after adding it according to it's standard invocation
+  /// The block is invoked immediately after adding it according to its standard invocation
   /// semantics, asynchronously on the main thread. Users should pay special attention to
   /// making sure the block does not inadvertently retain objects which should not be retained by
   /// the long-lived block. The block itself will be retained by `Auth` until it is
@@ -1800,7 +1802,7 @@ extension Auth: AuthInterop {
   ///
   /// This map is needed for looking up the keychain service name after the FirebaseApp instance
   /// is deleted, to remove the associated keychain item. Accessing should occur within a
-  /// @syncronized([FIRAuth class]) context.
+  /// @synchronized([FIRAuth class]) context.
   fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
 
   /// Sets the keychain service name global data for the particular app.
@@ -1836,7 +1838,7 @@ extension Auth: AuthInterop {
 
   // MARK: Private methods
 
-  /// Posts the auth state change notificaton if current user's token has been changed.
+  /// Posts the auth state change notification if current user's token has been changed.
   private func possiblyPostAuthStateChangeNotification() {
     let token = currentUser?.rawAccessToken()
     if lastNotifiedUserToken == token ||
@@ -1845,7 +1847,7 @@ extension Auth: AuthInterop {
     }
     lastNotifiedUserToken = token
     if autoRefreshTokens {
-      // Shedule new refresh task after successful attempt.
+      // Schedule new refresh task after successful attempt.
       scheduleAutoTokenRefresh()
     }
     var internalNotificationParameters: [String: Any] = [:]
@@ -2384,6 +2386,6 @@ extension Auth: AuthInterop {
   /// Handles returned from `NSNotificationCenter` for blocks which are "auth state did
   /// change" notification listeners.
   ///
-  /// Mutations should occur within a @syncronized(self) context.
+  /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
 }

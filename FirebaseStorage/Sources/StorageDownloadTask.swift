@@ -85,7 +85,6 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   }
 
   private var fetcher: GTMSessionFetcher?
-  private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   var downloadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
   var completionData: ((Data?, Error?) -> Void)?
@@ -104,7 +103,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
     self.fetcher?.stopFetching()
   }
 
-  func enqueueImplementation(resumeWith resumeData: Data? = nil) {
+  private func enqueueImplementation(resumeWith resumeData: Data? = nil) {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
       self.state = .queueing
@@ -153,32 +152,29 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         }
       }
       self.fetcher = fetcher
-
-      // Capture self here to retain until completion.
-      self.fetcherCompletion = { [self] (data: Data?, error: NSError?) in
-        defer {
-          self.removeAllObservers()
-          self.fetcherCompletion = nil
-        }
-        self.fire(for: .progress, snapshot: self.snapshot)
-
-        // Handle potential issues with download
-        if let error {
-          self.state = .failed
-          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
-          self.fire(for: .failure, snapshot: self.snapshot)
-          return
-        }
-        // Download completed successfully, fire completion callbacks
-        self.state = .success
-        if let data {
-          self.downloadData = data
-        }
-        self.fire(for: .success, snapshot: self.snapshot)
-      }
       self.state = .running
-      self.fetcher?.beginFetch { [self] data, error in
-        self.fetcherCompletion?(data, error as? NSError)
+      Task {
+        do {
+          let data = try await self.fetcher?.beginFetch()
+          // Fire last progress updates
+          self.fire(for: .progress, snapshot: self.snapshot)
+
+          // Download completed successfully, fire completion callbacks
+          self.state = .success
+          if let data {
+            self.downloadData = data
+          }
+          self.fire(for: .success, snapshot: self.snapshot)
+        } catch {
+          self.fire(for: .progress, snapshot: self.snapshot)
+          self.state = .failed
+          self.error = StorageErrorCode.error(
+            withServerError: error as NSError,
+            ref: self.reference
+          )
+          self.fire(for: .failure, snapshot: self.snapshot)
+        }
+        self.removeAllObservers()
       }
     }
   }

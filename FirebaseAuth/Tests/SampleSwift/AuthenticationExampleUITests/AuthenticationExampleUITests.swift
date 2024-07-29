@@ -229,12 +229,16 @@ class AuthenticationExampleUITests: XCTestCase {
   // MARK: - Private Helpers
 
   private func signOut() {
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    if app.tabBars.firstMatch.buttons.element(boundBy: 1).exists {
+      app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    }
     wait(forElement: app.navigationBars["User"], timeout: 5.0)
     if app.staticTexts["Sign Out"].exists {
       app.staticTexts["Sign Out"].tap()
     }
-    app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
+    if app.tabBars.firstMatch.buttons.element(boundBy: 0).exists {
+      app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
+    }
   }
 }
 

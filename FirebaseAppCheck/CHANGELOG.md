@@ -44,7 +44,7 @@
 
 # 8.5.0
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
-DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
+DeviceCheck providers availability changed to match underlying platform API availability. (#8388)
 
 # 8.4.0
 - [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)

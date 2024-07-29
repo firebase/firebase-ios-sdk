@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
-#else
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+@_exported import class FirebaseCore.Timestamp
 
 /**
  * A protocol describing the encodable properties of a Timestamp.

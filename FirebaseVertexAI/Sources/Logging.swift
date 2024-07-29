@@ -28,7 +28,7 @@ struct Logging {
 
   /// The argument required to enable additional logging in the Google AI SDK; used for migration.
   ///
-  /// To facillitate migration between the SDKs, this launch argument is also accepted to enable
+  /// To facilitate migration between the SDKs, this launch argument is also accepted to enable
   /// additional logging at this time, though it is expected to be removed in the future.
   static let migrationEnableArgumentKey = "-GoogleGenerativeAIDebugLogEnabled"
 

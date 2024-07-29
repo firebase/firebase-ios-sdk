@@ -24,7 +24,7 @@ Common parameters for both pull_request and merge:
 
 In a workflow, this will run for each pull request update. The command below will generate a report
 in a PR. After a workflow of test coverage is done, a new coverage report will be posted on a
-comment of a pull request. If such comment has existed, this comment will be overriden by the latest
+comment of a pull request. If such comment has existed, this comment will be overridden by the latest
 report.
 
 Since the flag is `presubmit` here, the following options are required for a PR request:

@@ -18,8 +18,9 @@
 
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
-#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
+
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/API/converters.h"

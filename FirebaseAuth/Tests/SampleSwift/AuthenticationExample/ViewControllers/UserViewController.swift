@@ -86,6 +86,9 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
     case .tokenRefresh:
       refreshCurrentUserIDToken()
 
+    case .tokenRefreshAsync:
+      refreshCurrentUserIDTokenAsync()
+
     case .delete:
       deleteCurrentUser()
 
@@ -139,6 +142,17 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       guard error == nil else { return self.displayError(error) }
       if let token = token {
         print("New token: \(token)")
+      }
+    }
+  }
+
+  public func refreshCurrentUserIDTokenAsync() {
+    Task {
+      do {
+        let token = try await user!.idTokenForcingRefresh(true)
+        print("New token: \(token)")
+      } catch {
+        self.displayError(error)
       }
     }
   }

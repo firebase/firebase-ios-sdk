@@ -296,7 +296,7 @@ bool Settings::gc_enabled() const {
     }
   }
 
-  return persistence_enabled_ && cache_size_bytes_ != CacheSizeUnlimited;
+  return cache_size_bytes_ != CacheSizeUnlimited;
 }
 
 const LocalCacheSettings* Settings::local_cache_settings() const {

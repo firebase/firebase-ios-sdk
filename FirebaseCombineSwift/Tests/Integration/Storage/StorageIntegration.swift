@@ -261,8 +261,9 @@ class StorageIntegration: XCTestCase {
         case .finished:
           XCTFail("Unexpected success return from putData)")
         case let .failure(error):
-          XCTAssertEqual(String(describing: error),
-                         "unauthorized(\"ios-opensource-samples.appspot.com\", \"ios/private/secretfile.txt\")")
+          let message = String(describing: error)
+          XCTAssertTrue(message.contains("unauthorized"))
+          XCTAssertTrue(message.contains("ios-opensource-samples.appspot.com"))
           expectation.fulfill()
         }
       }, receiveValue: { value in
@@ -440,7 +441,10 @@ class StorageIntegration: XCTestCase {
         case .finished:
           XCTFail("Unexpected success return from getData)")
         case let .failure(error):
-          XCTAssertEqual(String(describing: error), "downloadSizeExceeded(1048576, 1024)")
+          let message = String(describing: error)
+          XCTAssertTrue(message.contains("downloadSizeExceeded"))
+          XCTAssertTrue(message.contains("1048576"))
+          XCTAssertTrue(message.contains("1024"))
           expectation.fulfill()
         }
       }, receiveValue: { value in

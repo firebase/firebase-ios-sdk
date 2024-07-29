@@ -74,6 +74,7 @@ struct FirebaseReleaser: ParsableCommand {
 
     Shell.executeCommand("git checkout \(baseBranch)", workingDir: gitRoot)
     Shell.executeCommand("git pull origin \(baseBranch)", workingDir: gitRoot)
+    Shell.executeCommand("git fetch origin --tags --force", workingDir: gitRoot)
 
     if initBranch {
       let branch = InitializeRelease.setupRepo(gitRoot: gitRoot)
@@ -86,7 +87,19 @@ struct FirebaseReleaser: ParsableCommand {
       Tags.createTags(gitRoot: gitRoot)
       Push.pushPodsToStaging(gitRoot: gitRoot)
     } else if updateTagsOnly {
+      let tag = "CocoaPods-\(FirebaseManifest.shared.version)"
+      let podsNeedingStaging = Shell.executeCommandFromScript(
+        "git diff --name-only \(tag) -- *.podspec",
+        outputToConsole: false,
+        workingDir: gitRoot
+      )
       Tags.updateTags(gitRoot: gitRoot)
+      if case let .success(pods) = podsNeedingStaging, !pods.isEmpty {
+        Shell.executeCommand(
+          "echo -e \"\\033[33m⚠ Warning – the following pods need re-staging:\n \(pods)\\033[33m\"",
+          outputToConsole: false
+        )
+      }
     } else if pushOnly {
       Push.pushPodsToStaging(gitRoot: gitRoot)
     } else if publish {

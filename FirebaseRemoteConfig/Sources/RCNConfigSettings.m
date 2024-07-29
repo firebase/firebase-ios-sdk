@@ -187,7 +187,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 // Update internal metadata content to cache and DB.
 - (void)updateInternalContentWithResponse:(NSDictionary *)response {
-  // Remove all the keys with current pakcage name.
+  // Remove all the keys with current package name.
   [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
                                      namespace:_FIRNamespace
                                   isInternalDB:YES];

@@ -18,7 +18,7 @@ import Foundation
 private let kGetAccountInfoEndpoint = "getAccountInfo"
 
 /// The key for the "idToken" value in the request. This is actually the STS Access Token,
-///    despite its confusing (backwards compatiable) parameter name.
+/// despite its confusing (backwards compatible) parameter name.
 private let kIDTokenKey = "idToken"
 
 /// Represents the parameters for the getAccountInfo endpoint.

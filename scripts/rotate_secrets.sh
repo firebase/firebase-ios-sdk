@@ -78,6 +78,6 @@ for encrypted_file in $files; do
     exit 1
   fi
 
-  # Cleanup the decrpted file now that it's been re-encrypted.
+  # Cleanup the decrypted file now that it's been re-encrypted.
   rm "$decrypted_file"
 done

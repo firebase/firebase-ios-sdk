@@ -94,7 +94,7 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// @param values Values to be inserted.
 - (void)insertInternalMetadataTableWithValues:(NSArray *)values
                             completionHandler:(RCNDBCompletion)handler;
-/// Insert exepriment data in experiment table.
+/// Insert experiment data in experiment table.
 /// @param key        The key of experiment data belongs to, which are defined in
 ///                   RCNConfigDefines.h.
 /// @param value      The value that experiment.

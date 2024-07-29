@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "AutoDisplayMesagesTableVC.h"
+#import "AutoDisplayMessagesTableVC.h"
 #import <FirebaseInAppMessaging/FIRIAMDisplayTriggerDefinition.h>
 #import <FirebaseInAppMessaging/FIRIAMMessageContentData.h>
 
-@interface AutoDisplayMesagesTableVC ()
+@interface AutoDisplayMessagesTableVC ()
 @end
 
-@implementation AutoDisplayMesagesTableVC
+@implementation AutoDisplayMessagesTableVC
 
 - (void)messageDataChanged {
   dispatch_async(dispatch_get_main_queue(), ^{

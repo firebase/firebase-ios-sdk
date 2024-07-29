@@ -93,28 +93,10 @@ function join() {
 
 clang_options=(-style=file)
 
-# Rules to disable in swiftformat:
-swift_disable=(
-  # sortedImports is broken, sorting into the middle of the copyright notice.
-  sortedImports
-
-  # Too many of our swift files have simplistic examples. While technically
-  # it's correct to remove the unused argument labels, it makes our examples
-  # look wrong.
-  unusedArguments
-
-  # We prefer trailing braces.
-  wrapMultilineStatementBraces
-)
-
-swift_options=(
-  # Mimic Objective-C style.
-  --indent 2
-  --maxwidth 100
-  --wrapparameters afterfirst
-
-  --disable $(join , "${swift_disable[@]}")
-)
+# Swift formatting options for the repo should be configured in
+# https://github.com/firebase/firebase-ios-sdk/blob/main/.swiftformat.
+# These may be overriden with additional `.swiftformat` files in subdirectories.
+swift_options=()
 
 if [[ $# -gt 0 && "$1" == "test-only" ]]; then
   test_only=true

@@ -21,7 +21,7 @@ import Foundation
 
   /// The email address to which the code was sent. The new email address in the case of
   /// `ActionCodeOperation.recoverEmail`.
-  @objc public let email: String?
+  @objc public let email: String
 
   /// The email that is being recovered in the case of `ActionCodeOperation.recoverEmail`.
   @objc public let previousEmail: String?
@@ -38,7 +38,7 @@ import Foundation
   }
 
   /// Map a request type string to the corresponding operation type.
-  /// - Parameter requestType: Request type returned in in the server response.
+  /// - Parameter requestType: Request type returned in the server response.
   /// - Returns: The corresponding ActionCodeOperation for the supplied request type.
   class func actionCodeOperation(forRequestType requestType: String?) -> ActionCodeOperation {
     switch requestType {

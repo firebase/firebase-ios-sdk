@@ -17,6 +17,7 @@
 
 // an implementation of FIRIAMDisplayExecutor by triggering the display when app is foregrounded
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMFetchOnAppForegroundFlow : FIRIAMFetchFlow
 - (void)start;
 - (void)stop;

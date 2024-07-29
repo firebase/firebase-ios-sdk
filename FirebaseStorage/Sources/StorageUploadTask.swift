@@ -14,11 +14,11 @@
 
 import Foundation
 
-#if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
-#else
+#if COCOAPODS
   @_implementationOnly import GoogleUtilities
-#endif // SWIFT_PACKAGE
+#else
+  @_implementationOnly import GoogleUtilities_Environment
+#endif // COCOAPODS
 
 #if COCOAPODS
   import GTMSessionFetcher
@@ -115,38 +115,36 @@ import Foundation
 
       // Process fetches
       self.state = .running
+      Task {
+        do {
+          let data = try await self.uploadFetcher?.beginFetch()
+          // Fire last progress updates
+          self.fire(for: .progress, snapshot: self.snapshot)
 
-      self.fetcherCompletion = { [self] (data: Data?, error: NSError?) in
-        // Fire last progress updates
-        self.fire(for: .progress, snapshot: self.snapshot)
+          // Upload completed successfully, fire completion callbacks
+          self.state = .success
 
-        // Handle potential issues with upload
-        if let error {
+          guard let data = data else {
+            fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+          }
+
+          if let responseDictionary = try? JSONSerialization
+            .jsonObject(with: data) as? [String: AnyHashable] {
+            let metadata = StorageMetadata(dictionary: responseDictionary)
+            metadata.fileType = .file
+            self.metadata = metadata
+          } else {
+            self.error = StorageErrorCode.error(withInvalidRequest: data)
+          }
+          self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
+        } catch {
+          self.fire(for: .progress, snapshot: self.snapshot)
           self.state = .failed
-          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
+          self.error = StorageErrorCode.error(withServerError: error as NSError,
+                                              ref: self.reference)
           self.metadata = self.uploadMetadata
           self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
-          return
         }
-        // Upload completed successfully, fire completion callbacks
-        self.state = .success
-
-        guard let data = data else {
-          fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
-        }
-
-        if let responseDictionary = try? JSONSerialization
-          .jsonObject(with: data) as? [String: AnyHashable] {
-          let metadata = StorageMetadata(dictionary: responseDictionary)
-          metadata.fileType = .file
-          self.metadata = metadata
-        } else {
-          self.error = StorageErrorCode.error(withInvalidRequest: data)
-        }
-        self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
-      }
-      self.uploadFetcher?.beginFetch { [weak self] (data: Data?, error: Error?) in
-        self?.fetcherCompletion?(data, error as NSError?)
       }
     }
   }
@@ -202,7 +200,6 @@ import Foundation
   }
 
   private var uploadFetcher: GTMSessionUploadFetcher?
-  private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
@@ -247,7 +244,6 @@ import Foundation
   func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
     fire(for: status, snapshot: snapshot)
     removeAllObservers()
-    fetcherCompletion = nil
   }
 
   private func GCSEscapedString(_ input: String?) -> String? {
