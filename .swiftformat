@@ -5,9 +5,6 @@
 
 # Disabled Rules
 
-# sortedImports is broken, sorting into the middle of the copyright notice.
---disable sortedImports
-
 # Too many of our swift files have simplistic examples. While technically
 # it's correct to remove the unused argument labels, it makes our examples
 # look wrong.
