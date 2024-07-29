@@ -18,15 +18,23 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Represent a vector type in Firestore documents.
+ * Create an instance with `@link `FieldValue.vector(...)`.
+ */
 NS_SWIFT_NAME(VectorValue)
 @interface FIRVectorValue : NSObject
 
+/** Returns a copy of the raw number array that represents the vector. */
 @property(readonly) NSArray<NSNumber *> *array NS_REFINED_FOR_SWIFT;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
-// Public initializer is required to support Codable
+/**
+ * Creates a `VectorValue` constructed with a copy of the given array of NSNumbrers.
+ * @param array An array of NSNumbers that represents a vector.
+ */
 - (instancetype)initWithArray:(NSArray<NSNumber *> *)array NS_REFINED_FOR_SWIFT;
 
 @end
