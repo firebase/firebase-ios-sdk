@@ -253,10 +253,9 @@ style_cmd=("${top_dir}/scripts/style.sh")
 if [[ "${TEST_ONLY}" == true ]]; then
   style_cmd+=(test-only)
 fi
-# Temporarily force style checking on entire repo; revert before merging.
-# if [[ "$CHECK_DIFF" == true ]]; then
-#   style_cmd+=("${START_SHA}")
-# fi
+if [[ "$CHECK_DIFF" == true ]]; then
+  style_cmd+=("${START_SHA}")
+fi
 
 # Restyle and commit any changes
 "${style_cmd[@]}"
