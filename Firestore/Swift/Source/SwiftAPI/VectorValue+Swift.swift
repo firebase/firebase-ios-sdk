@@ -32,6 +32,6 @@ public extension VectorValue {
   /// Returns a raw number array representation of the vector.
   /// - Returns: An array of Double values representing the vector.
   var array: [Double] {
-      return __array.map { Double(truncating: $0) }
+    return __array.map { Double(truncating: $0) }
   }
 }

@@ -31,15 +31,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVectorValue
 
-- (NSArray<NSNumber *> *) array {
-    size_t length = _internalValue.size();
-    NSMutableArray<NSNumber *> *outArray =
-        [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
-    for (size_t i = 0; i < length; i++) {
-      [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
-    }
+- (NSArray<NSNumber *> *)array {
+  size_t length = _internalValue.size();
+  NSMutableArray<NSNumber *> *outArray =
+      [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
+  for (size_t i = 0; i < length; i++) {
+    [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
+  }
 
-    return outArray;
+  return outArray;
 }
 
 - (instancetype)initWithArray:(NSArray<NSNumber *> *)data {
