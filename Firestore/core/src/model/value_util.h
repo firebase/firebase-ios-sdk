@@ -181,9 +181,16 @@ bool IsMaxValue(const google_firestore_v1_Value& value);
  */
 bool IsVectorValue(const google_firestore_v1_Value& value);
 
-int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue,
-                   const char* kRawTypeValueFieldKey,
-                   pb_bytes_array_s* kTypeValueFieldKey);
+/**
+ * Returns the index of the specified key (`kRawTypeValueFieldKey`) in the
+ * map (`mapValue`). `kTypeValueFieldKey` is an alternative representation
+ * of the key specified in `kRawTypeValueFieldKey`.
+ * If the key is not found, then `-1` is returned.
+ */
+absl::optional<pb_size_t> IndexOfKey(
+    const google_firestore_v1_MapValue& mapValue,
+    const char* kRawTypeValueFieldKey,
+    pb_bytes_array_s* kTypeValueFieldKey);
 
 /**
  * Returns `NaN` in its Protobuf representation.

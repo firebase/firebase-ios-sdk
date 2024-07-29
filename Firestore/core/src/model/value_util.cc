@@ -267,14 +267,18 @@ ComparisonResult CompareVectors(const google_firestore_v1_Value& left,
   HARD_ASSERT(IsVectorValue(left) && IsVectorValue(right),
               "Cannot compare non-vector values as vectors.");
 
-  int64_t leftIndex =
+  absl::optional<pb_size_t> leftIndex =
       IndexOfKey(left.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
-  int64_t rightIndex = IndexOfKey(right.map_value, kRawVectorValueFieldKey,
-                                  kVectorValueFieldKey);
+  absl::optional<pb_size_t> rightIndex = IndexOfKey(
+      right.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
 
-  google_firestore_v1_Value leftArray = left.map_value.fields[leftIndex].value;
+  HARD_ASSERT(leftIndex.has_value() && rightIndex.has_value(),
+              "Unexpected occurence of vector without `value` field.");
+
+  google_firestore_v1_Value leftArray =
+      left.map_value.fields[leftIndex.value()].value;
   google_firestore_v1_Value rightArray =
-      right.map_value.fields[rightIndex].value;
+      right.map_value.fields[rightIndex.value()].value;
 
   ComparisonResult lengthCompare = util::Compare(
       leftArray.array_value.values_count, rightArray.array_value.values_count);
@@ -753,9 +757,10 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
              kRawMaxValueFieldValue;
 }
 
-int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue,
-                   const char* kRawTypeValueFieldKey,
-                   pb_bytes_array_s* kTypeValueFieldKey) {
+absl::optional<pb_size_t> IndexOfKey(
+    const google_firestore_v1_MapValue& mapValue,
+    const char* kRawTypeValueFieldKey,
+    pb_bytes_array_s* kTypeValueFieldKey) {
   for (pb_size_t i = 0; i < mapValue.fields_count; i++) {
     if (mapValue.fields[i].key == kTypeValueFieldKey ||
         nanopb::MakeStringView(mapValue.fields[i].key) ==
@@ -764,7 +769,7 @@ int64_t IndexOfKey(const google_firestore_v1_MapValue& mapValue,
     }
   }
 
-  return -1;
+  return absl::nullopt;
 }
 
 bool IsVectorValue(const google_firestore_v1_Value& value) {
@@ -776,32 +781,34 @@ bool IsVectorValue(const google_firestore_v1_Value& value) {
     return false;
   }
 
-  int64_t typeFieldIndex = -1;
-  if ((typeFieldIndex = IndexOfKey(value.map_value, kRawTypeValueFieldKey,
-                                   kTypeValueFieldKey)) < 0) {
+  absl::optional<pb_size_t> typeFieldIndex =
+      IndexOfKey(value.map_value, kRawTypeValueFieldKey, kTypeValueFieldKey);
+  if (!typeFieldIndex.has_value()) {
     return false;
   }
 
-  if (value.map_value.fields[typeFieldIndex].value.which_value_type !=
+  if (value.map_value.fields[typeFieldIndex.value()].value.which_value_type !=
       google_firestore_v1_Value_string_value_tag) {
     return false;
   }
 
   // Comparing the pointer address, then actual content if addresses are
   // different.
-  return value.map_value.fields[typeFieldIndex].value.string_value ==
-             kVectorTypeFieldValue ||
-         nanopb::MakeStringView(
-             value.map_value.fields[typeFieldIndex].value.string_value) ==
-             kRawVectorTypeFieldValue;
-
-  int64_t valueFieldIndex = -1;
-  if ((valueFieldIndex = IndexOfKey(value.map_value, kRawVectorValueFieldKey,
-                                    kVectorValueFieldKey)) < 0) {
+  if (value.map_value.fields[typeFieldIndex.value()].value.string_value !=
+          kVectorTypeFieldValue &&
+      nanopb::MakeStringView(
+          value.map_value.fields[typeFieldIndex.value()].value.string_value) !=
+          kRawVectorTypeFieldValue) {
     return false;
   }
 
-  if (value.map_value.fields[valueFieldIndex].value.which_value_type !=
+  absl::optional<pb_size_t> valueFieldIndex = IndexOfKey(
+      value.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
+  if (!valueFieldIndex.has_value()) {
+    return false;
+  }
+
+  if (value.map_value.fields[valueFieldIndex.value()].value.which_value_type !=
       google_firestore_v1_Value_map_value_tag) {
     return false;
   }

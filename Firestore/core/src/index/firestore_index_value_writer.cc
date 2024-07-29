@@ -111,17 +111,17 @@ void WriteIndexVector(const google_firestore_v1_MapValue& map_index_value,
                       DirectionalIndexByteEncoder* encoder) {
   WriteValueTypeLabel(encoder, IndexType::kVector);
 
-  int64_t valueIndex =
+  absl::optional<pb_size_t> valueIndex =
       model::IndexOfKey(map_index_value, model::kRawVectorValueFieldKey,
                         model::kVectorValueFieldKey);
 
-  if (valueIndex < 0 ||
-      map_index_value.fields[valueIndex].value.which_value_type !=
+  if (!valueIndex.has_value() ||
+      map_index_value.fields[valueIndex.value()].value.which_value_type !=
           google_firestore_v1_Value_array_value_tag) {
     return WriteIndexArray(model::MinArray().array_value, encoder);
   }
 
-  auto value = map_index_value.fields[valueIndex].value;
+  auto value = map_index_value.fields[valueIndex.value()].value;
 
   // Vectors sort first by length
   WriteValueTypeLabel(encoder, IndexType::kNumber);
