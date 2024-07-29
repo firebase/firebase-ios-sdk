@@ -146,6 +146,35 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
     }
 
     checkOnlineAndOfflineQuery(collection.order(by: "embedding"), matchesResult: docIds)
+  }
+
+  func testSdkFiltersVectorFieldSameWayOnlineAndOffline() async throws {
+    let collection = collectionRef()
+
+    let docsInOrder: [[String: Any]] = [
+      ["embedding": [1, 2, 3, 4, 5, 6]],
+      ["embedding": [100]],
+      ["embedding": FieldValue.vector([Double.infinity * -1])],
+      ["embedding": FieldValue.vector([-100.0])],
+      ["embedding": FieldValue.vector([100.0])],
+      ["embedding": FieldValue.vector([Double.infinity])],
+      ["embedding": FieldValue.vector([1, 2.0])],
+      ["embedding": FieldValue.vector([2, 2.0])],
+      ["embedding": FieldValue.vector([1, 2, 3.0])],
+      ["embedding": FieldValue.vector([1, 2, 3, 4.0])],
+      ["embedding": FieldValue.vector([1, 2, 3, 4, 5.0])],
+      ["embedding": FieldValue.vector([1, 2, 100, 4, 4.0])],
+      ["embedding": FieldValue.vector([100, 2, 3, 4, 5.0])],
+      ["embedding": ["HELLO": "WORLD"]],
+      ["embedding": ["hello": "world"]],
+    ]
+
+    var docIds: [String] = []
+    for data in docsInOrder {
+      let docRef = try await collection.addDocument(data: data)
+      docIds.append(docRef.documentID)
+    }
+
     checkOnlineAndOfflineQuery(
       collection.order(by: "embedding")
         .whereField("embedding", isLessThan: FieldValue.vector([1, 2, 100, 4, 4.0])),
@@ -153,8 +182,8 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
     )
     checkOnlineAndOfflineQuery(
       collection.order(by: "embedding")
-        .whereField("embedding", isGreaterThan: FieldValue.vector([1, 2, 100, 4, 4.0])),
-      matchesResult: Array(docIds[12 ... 12])
+        .whereField("embedding", isGreaterThanOrEqualTo: FieldValue.vector([1, 2, 100, 4, 4.0])),
+      matchesResult: Array(docIds[11 ... 12])
     )
   }
 

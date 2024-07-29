@@ -21,12 +21,12 @@
 #endif // SWIFT_PACKAGE
 
 public extension VectorValue {
-  convenience init(_ data: [Double]) {
-    let array = data.map { float in
+  convenience init(_ array: [Double]) {
+    let nsNumbers = array.map { float in
       NSNumber(value: float)
     }
 
-    self.init(__array: array)
+    self.init(__array: nsNumbers)
   }
 
   /// Returns a raw number array representation of the vector.

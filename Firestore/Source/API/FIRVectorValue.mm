@@ -42,11 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
   return outArray;
 }
 
-- (instancetype)initWithArray:(NSArray<NSNumber *> *)data {
+- (instancetype)initWithArray:(NSArray<NSNumber *> *)array {
   if (self = [super init]) {
     std::vector<double> converted;
-    converted.reserve(data.count);
-    for (NSNumber *value in data) {
+    converted.reserve(array.count);
+    for (NSNumber *value in array) {
       converted.emplace_back([value doubleValue]);
     }
 

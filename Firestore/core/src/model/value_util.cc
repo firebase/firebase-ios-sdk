@@ -272,16 +272,26 @@ ComparisonResult CompareVectors(const google_firestore_v1_Value& left,
   absl::optional<pb_size_t> rightIndex = IndexOfKey(
       right.map_value, kRawVectorValueFieldKey, kVectorValueFieldKey);
 
-  HARD_ASSERT(leftIndex.has_value() && rightIndex.has_value(),
-              "Unexpected occurence of vector without `value` field.");
+  pb_size_t leftArrayLength = 0;
+  google_firestore_v1_Value leftArray;
+  if (leftIndex.has_value()) {
+    leftArray = left.map_value.fields[leftIndex.value()].value;
+    leftArrayLength = leftArray.array_value.values_count;
+  }
 
-  google_firestore_v1_Value leftArray =
-      left.map_value.fields[leftIndex.value()].value;
-  google_firestore_v1_Value rightArray =
-      right.map_value.fields[rightIndex.value()].value;
+  pb_size_t rightArrayLength = 0;
+  google_firestore_v1_Value rightArray;
+  if (leftIndex.has_value()) {
+    rightArray = right.map_value.fields[rightIndex.value()].value;
+    rightArrayLength = rightArray.array_value.values_count;
+  }
 
-  ComparisonResult lengthCompare = util::Compare(
-      leftArray.array_value.values_count, rightArray.array_value.values_count);
+  if (leftArrayLength == 0 && rightArrayLength == 0) {
+    return ComparisonResult::Same;
+  }
+
+  ComparisonResult lengthCompare =
+      util::Compare(leftArrayLength, rightArrayLength);
   if (lengthCompare != ComparisonResult::Same) {
     return lengthCompare;
   }
@@ -809,7 +819,7 @@ bool IsVectorValue(const google_firestore_v1_Value& value) {
   }
 
   if (value.map_value.fields[valueFieldIndex.value()].value.which_value_type !=
-      google_firestore_v1_Value_map_value_tag) {
+      google_firestore_v1_Value_array_value_tag) {
     return false;
   }
 
