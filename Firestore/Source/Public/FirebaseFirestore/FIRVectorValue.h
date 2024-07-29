@@ -21,13 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(VectorValue)
 @interface FIRVectorValue : NSObject
 
+@property(readonly) NSArray<NSNumber *> *array NS_REFINED_FOR_SWIFT;
+
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 // Public initializer is required to support Codable
-- (instancetype)initWithNSNumbers:(NSArray<NSNumber *> *)data NS_REFINED_FOR_SWIFT;
+- (instancetype)initWithArray:(NSArray<NSNumber *> *)array NS_REFINED_FOR_SWIFT;
 
-- (NSArray<NSNumber *> *)toNSArray NS_REFINED_FOR_SWIFT;
 @end
 
 NS_ASSUME_NONNULL_END

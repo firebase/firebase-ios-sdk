@@ -353,7 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
   result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kTypeValueFieldKey);
   result->map_value.fields[0].value = *[self encodeStringValue:MakeString(@"__vector__")].release();
 
-  NSArray<NSNumber *> *vectorArray = [vectorValue toNSArray];
+  NSArray<NSNumber *> *vectorArray = vectorValue.array;
 
   __block Message<google_firestore_v1_Value> arrayMessage;
   arrayMessage->which_value_type = google_firestore_v1_Value_array_value_tag;

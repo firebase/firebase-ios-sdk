@@ -18,7 +18,7 @@
 
 #include <vector>
 
-#import "Firestore/Source/API/FIRVectorValue+Internal.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +31,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVectorValue
 
-- (instancetype)initWithNSNumbers:(NSArray<NSNumber *> *)data {
+- (NSArray<NSNumber *> *) array {
+    size_t length = _internalValue.size();
+    NSMutableArray<NSNumber *> *outArray =
+        [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
+    for (size_t i = 0; i < length; i++) {
+      [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
+    }
+
+    return outArray;
+}
+
+- (instancetype)initWithArray:(NSArray<NSNumber *> *)data {
   if (self = [super init]) {
     std::vector<double> converted;
     converted.reserve(data.count);
@@ -42,17 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
     _internalValue = std::move(converted);
   }
   return self;
-}
-
-- (nonnull NSArray<NSNumber *> *)toNSArray {
-  size_t length = _internalValue.size();
-  NSMutableArray<NSNumber *> *outArray =
-      [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
-  for (size_t i = 0; i < length; i++) {
-    [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
-  }
-
-  return outArray;
 }
 
 - (BOOL)isEqual:(nullable id)object {

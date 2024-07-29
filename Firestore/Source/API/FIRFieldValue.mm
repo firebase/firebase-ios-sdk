@@ -15,7 +15,7 @@
  */
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/API/FIRVectorValue+Internal.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (nonnull FIRVectorValue *)vectorFromNSNumbers:(nonnull NSArray<NSNumber *> *)values {
-  return [[FIRVectorValue alloc] initWithNSNumbers:values];
+  return [[FIRVectorValue alloc] initWithArray:values];
 }
 
 @end

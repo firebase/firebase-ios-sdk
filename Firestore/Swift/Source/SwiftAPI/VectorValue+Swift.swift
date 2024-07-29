@@ -26,12 +26,12 @@ public extension VectorValue {
       NSNumber(value: float)
     }
 
-    self.init(__nsNumbers: array)
+    self.init(__array: array)
   }
 
   /// Returns a raw number array representation of the vector.
   /// - Returns: An array of Double values representing the vector.
-  var data: [Double] {
-    return __toNSArray().map { Double(truncating: $0) }
+  var array: [Double] {
+      return __array.map { Double(truncating: $0) }
   }
 }

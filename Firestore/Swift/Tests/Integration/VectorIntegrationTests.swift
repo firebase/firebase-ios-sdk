@@ -182,7 +182,7 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
     let returnedModel: Model = try querySnap.documents[0].data(as: Model.self)
     XCTAssertEqual(returnedModel.embedding, VectorValue([0.1, 0.3, 0.4]))
 
-    let vectorData: [Double] = returnedModel.embedding.data
+      let vectorData: [Double] = returnedModel.embedding.array
     XCTAssertEqual(vectorData, [0.1, 0.3, 0.4])
   }
 
@@ -232,7 +232,7 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(returnedModel.data.embedding, VectorValue([0.1, 0.3, 0.4]))
     XCTAssertEqual(returnedModel.distance, 0.2)
 
-    let vectorData: [Double] = returnedModel.data.embedding.data
+      let vectorData: [Double] = returnedModel.data.embedding.array
     XCTAssertEqual(vectorData, [0.1, 0.3, 0.4])
   }
 }

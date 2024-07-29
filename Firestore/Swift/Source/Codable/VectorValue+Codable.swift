@@ -24,14 +24,14 @@
  * A protocol describing the encodable properties of a VectorValue.
  */
 private protocol CodableVectorValue: Codable {
-  var data: [Double] { get }
+  var array: [Double] { get }
 
-  init(__nsNumbers: [NSNumber])
+  init(__array: [NSNumber])
 }
 
 /** The keys in a Timestamp. Must match the properties of CodableTimestamp. */
 private enum VectorValueKeys: String, CodingKey {
-  case data
+  case array
 }
 
 /**
@@ -43,17 +43,17 @@ private enum VectorValueKeys: String, CodingKey {
 extension CodableVectorValue {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: VectorValueKeys.self)
-    let data = try container.decode([Double].self, forKey: .data)
+    let data = try container.decode([Double].self, forKey: .array)
 
     let array = data.map { double in
       NSNumber(value: double)
     }
-    self.init(__nsNumbers: array)
+    self.init(__array: array)
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: VectorValueKeys.self)
-    try container.encode(data, forKey: .data)
+    try container.encode(array, forKey: .array)
   }
 }
 
