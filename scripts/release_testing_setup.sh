@@ -29,9 +29,9 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   # Using token here to update tags later.
   git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
   set -x
+  cd  "${local_sdk_repo_dir}"
 fi
 
-cd  "${local_sdk_repo_dir}"
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
 test_version=$(git tag -l --sort=-version:refname --merged main CocoaPods-*[0-9] | head -n 1)
