@@ -22,9 +22,9 @@ if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
 
-pwd 
-
 ls
+git status
+exit 1
 
 
 if [ "$TESTINGMODE" = "release_testing" ]; then
