@@ -32,7 +32,7 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   cd  "${local_sdk_repo_dir}"
 fi
 
-git fetch origin main
+git fetch --tags origin main
 git checkout main
 
 # The chunk below is to determine the latest version by searching
