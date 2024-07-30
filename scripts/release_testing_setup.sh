@@ -22,6 +22,11 @@ if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
 
+pwd 
+
+ls
+
+
 if [ "$TESTINGMODE" = "release_testing" ]; then
   mkdir -p "${local_sdk_repo_dir}"
   echo "git clone from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
