@@ -38,6 +38,10 @@ git checkout main
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
 test_version=$(git tag -l --sort=-version:refname --merged main CocoaPods-*[0-9] | head -n 1)
+if [ -z "$test_version" ]; then
+  echo "Latest tag could not be found. Exiting." >&2
+  exit 1
+fi
 
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"
