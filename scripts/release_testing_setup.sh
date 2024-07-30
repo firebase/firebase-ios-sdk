@@ -22,11 +22,6 @@ if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
 
-ls
-git status
-exit 1
-
-
 if [ "$TESTINGMODE" = "release_testing" ]; then
   mkdir -p "${local_sdk_repo_dir}"
   echo "git clone from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
@@ -36,6 +31,9 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   set -x
   cd  "${local_sdk_repo_dir}"
 fi
+
+git --no-pager log -n 5 --oneline main
+exit 1
 
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
