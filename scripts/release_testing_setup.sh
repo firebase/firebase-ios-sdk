@@ -30,10 +30,10 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
   set -x
   cd  "${local_sdk_repo_dir}"
+elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
+  git fetch --tags origin main
+  git checkout main
 fi
-
-git fetch --tags origin main
-git checkout main
 
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
