@@ -190,14 +190,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeArrayWithInvalidElements() {
     let input = ["TEST", CustomObject()] as NSArray
 
-    XCTAssertThrowsError(try serializer.encode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
-        .Error else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testDecodeArray() throws {
@@ -214,14 +207,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testDecodeArrayWithInvalidElements() {
     let input = ["TEST", CustomObject()] as NSArray
 
-    XCTAssertThrowsError(try serializer.decode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
-        .Error else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testEncodeDictionary() throws {
@@ -242,28 +228,14 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeDictionaryWithInvalidElements() {
     let input = ["TEST_CustomObj": CustomObject()] as NSDictionary
 
-    XCTAssertThrowsError(try serializer.encode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
-        .Error else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testEncodeDictionaryWithInvalidNestedDictionary() {
     let input =
       ["TEST_NestedDict": ["TEST_CustomObj": CustomObject()] as NSDictionary] as NSDictionary
 
-    XCTAssertThrowsError(try serializer.encode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
-        .Error else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testDecodeDictionary() throws {
@@ -275,28 +247,14 @@ class FunctionsSerializerTests: XCTestCase {
   func testDecodeDictionaryWithInvalidElements() {
     let input = ["TEST_CustomObj": CustomObject()] as NSDictionary
 
-    XCTAssertThrowsError(try serializer.decode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
-        .Error else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testDecodeDictionaryWithInvalidNestedDictionary() {
     let input =
       ["TEST_NestedDict": ["TEST_CustomObj": CustomObject()] as NSDictionary] as NSDictionary
 
-    XCTAssertThrowsError(try serializer.decode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
-        .Error else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testEncodeUnknownType() {
@@ -317,26 +275,29 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeUnsupportedType() {
     let input = CustomObject()
 
-    XCTAssertThrowsError(try serializer.encode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
-      else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testDecodeUnsupportedType() {
     let input = CustomObject()
 
-    XCTAssertThrowsError(try serializer.decode(input)) { error in
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
-      else {
-        return XCTFail("Unexpected error: \(error)")
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+}
+
+// MARK: - Utilities
+
+extension FunctionsSerializerTests {
+  private func assert<T>(_ expression: @autoclosure () throws -> T,
+                         throwsUnsupportedTypeErrorWithName expectedTypeName: String,
+                         line: UInt = #line) {
+    XCTAssertThrowsError(try expression(), line: line) { error in
+      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
+        .Error else {
+        return XCTFail("Unexpected error: \(error)", line: line)
       }
 
-      XCTAssertEqual(typeName, "CustomObject")
+      XCTAssertEqual(typeName, expectedTypeName, line: line)
     }
   }
 }
