@@ -32,8 +32,8 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   cd  "${local_sdk_repo_dir}"
 fi
 
-git --no-pager log -n 5 --oneline main
-exit 1
+git fetch origin main
+git checkout main
 
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
