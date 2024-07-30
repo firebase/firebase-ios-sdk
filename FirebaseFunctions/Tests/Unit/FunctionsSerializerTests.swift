@@ -190,10 +190,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeArrayWithInvalidElements() {
     let input = ["TEST", CustomObject()] as NSArray
 
-    do {
-      let _ = try serializer.encode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.encode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
         .Error else {
         return XCTFail("Unexpected error: \(error)")
@@ -217,10 +214,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testDecodeArrayWithInvalidElements() {
     let input = ["TEST", CustomObject()] as NSArray
 
-    do {
-      let _ = try serializer.decode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.decode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
         .Error else {
         return XCTFail("Unexpected error: \(error)")
@@ -248,10 +242,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeDictionaryWithInvalidElements() {
     let input = ["TEST_CustomObj": CustomObject()] as NSDictionary
 
-    do {
-      let _ = try serializer.encode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.encode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
         .Error else {
         return XCTFail("Unexpected error: \(error)")
@@ -265,10 +256,7 @@ class FunctionsSerializerTests: XCTestCase {
     let input =
       ["TEST_NestedDict": ["TEST_CustomObj": CustomObject()] as NSDictionary] as NSDictionary
 
-    do {
-      let _ = try serializer.encode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.encode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
         .Error else {
         return XCTFail("Unexpected error: \(error)")
@@ -287,10 +275,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testDecodeDictionaryWithInvalidElements() {
     let input = ["TEST_CustomObj": CustomObject()] as NSDictionary
 
-    do {
-      let _ = try serializer.decode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.decode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
         .Error else {
         return XCTFail("Unexpected error: \(error)")
@@ -304,10 +289,7 @@ class FunctionsSerializerTests: XCTestCase {
     let input =
       ["TEST_NestedDict": ["TEST_CustomObj": CustomObject()] as NSDictionary] as NSDictionary
 
-    do {
-      let _ = try serializer.decode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.decode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
         .Error else {
         return XCTFail("Unexpected error: \(error)")
@@ -335,10 +317,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeUnsupportedType() {
     let input = CustomObject()
 
-    do {
-      let _ = try serializer.encode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.encode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
       else {
         return XCTFail("Unexpected error: \(error)")
@@ -351,10 +330,7 @@ class FunctionsSerializerTests: XCTestCase {
   func testDecodeUnsupportedType() {
     let input = CustomObject()
 
-    do {
-      let _ = try serializer.decode(input)
-      XCTFail("Expected an error")
-    } catch {
+    XCTAssertThrowsError(try serializer.decode(input)) { error in
       guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
       else {
         return XCTFail("Unexpected error: \(error)")
