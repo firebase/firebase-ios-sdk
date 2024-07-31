@@ -185,7 +185,6 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       guard let self = self else { return }
       self.state = .cancelled
       self.fetcher?.stopFetching()
-      print("stopped fetching")
       self.error = error
       self.fire(for: .failure, snapshot: self.snapshot)
       self.removeAllObservers()

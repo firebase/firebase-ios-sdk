@@ -66,7 +66,7 @@ actor StorageFetcherService {
     testBlock = block
   }
 
-  private var testBlock: GTMSessionFetcherTestBlock? = nil
+  private var testBlock: GTMSessionFetcherTestBlock?
 
   /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
   private static var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
