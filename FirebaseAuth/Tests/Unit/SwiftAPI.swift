@@ -726,7 +726,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  func regression13430(error : NSError) -> Int {
+  func regression13430(error: NSError) -> Int {
     if let firebaseError = error as? AuthErrorCode, firebaseError == .networkError {
       return 1
     }

@@ -537,7 +537,8 @@ import Foundation
     }
   }
 
-  /// The error code. It's redundant but implemented for compatibility with the Objective-C implementation.
+  /// The error code. It's redundant but implemented for compatibility with the Objective-C
+  /// implementation.
   public var code: Self {
     return self
   }
