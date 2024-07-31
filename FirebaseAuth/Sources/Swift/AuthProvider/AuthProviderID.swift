@@ -15,9 +15,9 @@
 import Foundation
 
 /// Enumeration of the available Auth Provider IDs.
-public struct AuthProviderID: RawRepresentable, Equatable {
-  public var rawValue: String
-  public init(rawValue: String) {
+public struct AuthProviderID: Equatable {
+  public let rawValue: String
+  private init(rawValue: String) {
     self.rawValue = rawValue
   }
 }
