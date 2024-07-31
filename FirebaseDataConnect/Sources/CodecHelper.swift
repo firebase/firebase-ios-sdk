@@ -30,64 +30,41 @@ public class CodecHelper<K: CodingKey> {
                      container: inout KeyedEncodingContainer<K>) throws {
     switch value {
     case let int64Value as Int64:
-      let int64Value = "\(value)"
+      let int64Converter = Int64CodableConverter()
+      let int64Value = try int64Converter.encode(input: int64Value)
       try container.encode(int64Value, forKey: forKey)
     case let uuidValue as UUID:
-      let noDashUUID = convertToNoDashUUID(uuid: uuidValue)
-      try container.encode(noDashUUID, forKey: forKey)
+      let uuidConverter = UUIDCodableConverter()
+      let uuidValue = try uuidConverter.encode(input: uuidValue)
+      try container.encode(uuidValue, forKey: forKey)
     default:
       try container.encode(value, forKey: forKey)
     }
   }
 
-  private func convertToNoDashUUID(uuid: UUID) -> String {
-    return uuid.uuidString.replacingOccurrences(of: "-", with: "").lowercased()
-  }
+  
 
   // MARK: Decoding
 
   public func decode<T: Decodable>(_ type: T.Type, forKey: K,
                                    container: inout KeyedDecodingContainer<K>) throws -> T {
-    if type == Int64.self {
-      let int64String = try container.decode(String.self, forKey: forKey)
-      guard let int64Value = Int64(int64String) else {
-        throw DataConnectError.decodeFailed
-      }
+    if type == Int64.self || type == Int64?.self {
+      let int64String = try container.decodeIfPresent(String.self, forKey: forKey)
+      let int64Converter = Int64CodableConverter()
+      let int64Value = try int64Converter.decode(input: int64String)
       return int64Value as! T
-    } else if type == UUID.self {
-      let uuidNoDashString = try container.decode(String.self, forKey: forKey)
+    } else if type == UUID.self || type == UUID?.self {
+      let uuidString = try container.decodeIfPresent(String.self, forKey: forKey)
+      let uuidConverter = UUIDCodableConverter()
+      let uuidDecoded = try uuidConverter.decode(input: uuidString)
 
-      guard let uuidString = addDashesToUUIDString(uuidKeyString: uuidNoDashString),
-            let uuid = UUID(uuidString: uuidString) else {
-        throw DataConnectError.decodeFailed
-      }
-      return uuid as! T
+      return uuidDecoded as! T
     }
     return try container.decode(type, forKey: forKey)
   }
 
-  private func addDashesToUUIDString(uuidKeyString: String) -> String? {
-    guard uuidKeyString.count == 32 else {
-      return nil
-    }
-
-    let sourceChars = [Character](uuidKeyString)
-    var targetChars = [Character]()
-
-    var indx = 0
-    while indx < sourceChars.count {
-      switch indx {
-      case 8, 12, 16, 20:
-        targetChars.append("-")
-      default:
-        break
-      }
-      targetChars.append(sourceChars[indx])
-      indx += 1
-    }
-
-    return String(targetChars)
-  }
+  
 
   public init() {}
 }
+
