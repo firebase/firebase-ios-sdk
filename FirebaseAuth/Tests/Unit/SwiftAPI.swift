@@ -702,4 +702,27 @@ class AuthAPI_hOnlyTests: XCTestCase {
     if let _: Date = metadata.lastSignInDate,
        let _: Date = metadata.creationDate {}
   }
+
+  func regression13429(id: AuthProviderID) -> Int {
+    switch id {
+    case .apple:
+      return 1
+    case .email:
+      return 2
+    case .facebook:
+      return 3
+    case .gameCenter:
+      return 4
+    case .gitHub:
+      return 5
+    case .google:
+      return 6
+    case .phone:
+      return 7
+    case .custom("myCustom"):
+      return 8
+    default:
+      return 9
+    }
+  }
 }

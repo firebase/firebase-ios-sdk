@@ -15,12 +15,43 @@
 import Foundation
 
 /// Enumeration of the available Auth Provider IDs.
-public enum AuthProviderID: String {
-  case apple = "apple.com"
-  case email = "password"
-  case facebook = "facebook.com"
-  case gameCenter = "gc.apple.com"
-  case gitHub = "github.com"
-  case google = "google.com"
-  case phone
+public struct AuthProviderID: RawRepresentable, Equatable {
+  public var rawValue: String
+  public init(rawValue: String) {
+    self.rawValue = rawValue
+  }
+}
+
+public extension AuthProviderID {
+  static var apple: Self {
+    Self(rawValue: "apple.com")
+  }
+
+  static var email: Self {
+    Self(rawValue: "password")
+  }
+
+  static var facebook: Self {
+    Self(rawValue: "facebook.com")
+  }
+
+  static var gameCenter: Self {
+    Self(rawValue: "gc.apple.com")
+  }
+
+  static var gitHub: Self {
+    Self(rawValue: "github.com")
+  }
+
+  static var google: Self {
+    Self(rawValue: "google.com")
+  }
+
+  static var phone: Self {
+    Self(rawValue: "phone")
+  }
+
+  static func custom(_ value: String) -> Self {
+    Self(rawValue: value)
+  }
 }
