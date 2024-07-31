@@ -161,6 +161,8 @@ jobs:
       podspec_repo_branch: main
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Get token
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \

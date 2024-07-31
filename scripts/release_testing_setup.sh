@@ -31,16 +31,12 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   set -x
   cd  "${local_sdk_repo_dir}"
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
-  set -x
   git fetch --tags --quiet origin main
   git checkout main
 fi
 
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
-test_version=$(git tag -l --sort=-version:refname CocoaPods-*[0-9] | head -n 1)
-test_version=$(git tag -l --sort=-version:refname 'CocoaPods-*[0-9]' | head -n 1)
-test_version=$(git tag -l --sort=-version:refname --merged main CocoaPods-*[0-9] | head -n 1)
 test_version=$(git tag -l --sort=-version:refname --merged main 'CocoaPods-*[0-9]' | head -n 1)
 git for-each-ref --sort=-creatordate --format '%(creatordate:short) %(refname:short)' refs/tags | head -n 3
 if [ -z "$test_version" ]; then
