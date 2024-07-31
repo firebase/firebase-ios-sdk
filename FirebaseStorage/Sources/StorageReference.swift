@@ -246,7 +246,6 @@ import Foundation
   /// in the Firebase Console.
   /// - Throws: An error if the download URL could not be retrieved.
   /// - Returns: The URL on success.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
   open func downloadURL() async throws -> URL {
     return try await withCheckedThrowingContinuation { continuation in
       self.downloadURL { result in
@@ -361,7 +360,6 @@ import Foundation
   /// `listAll()` is only available for projects using Firebase Rules Version 2.
   /// - Throws: An error if the list operation failed.
   /// - Returns: All items and prefixes under the current `StorageReference`.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
   open func listAll() async throws -> StorageListResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.listAll { result in
@@ -446,7 +444,6 @@ import Foundation
   /// Retrieves metadata associated with an object at the current path.
   /// - Throws: An error if the object metadata could not be retrieved.
   /// - Returns: The object metadata on success.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
   open func getMetadata() async throws -> StorageMetadata {
     return try await withCheckedThrowingContinuation { continuation in
       self.getMetadata { result in
@@ -473,7 +470,6 @@ import Foundation
   /// - Parameter metadata: A `StorageMetadata` object with the metadata to update.
   /// - Throws: An error if the metadata update operation failed.
   /// - Returns: The object metadata on success.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
   open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
     return try await withCheckedThrowingContinuation { continuation in
       self.updateMetadata(metadata) { result in
@@ -500,7 +496,6 @@ import Foundation
 
   /// Deletes the object at the current path.
   /// - Throws: An error if the delete operation failed.
-  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
   open func delete() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.delete { error in
