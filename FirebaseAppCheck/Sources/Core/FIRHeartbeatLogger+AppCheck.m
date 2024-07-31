@@ -31,3 +31,7 @@ static NSString *const kFIRHeartbeatLoggerPayloadHeaderKey = @"X-firebase-client
 }
 
 @end
+
+/// Stub used to force the linker to include the categories in this file.
+void FIRInclude_FIRHeartbeatLogger_AppCheck_Category(void) {
+}

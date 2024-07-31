@@ -24,3 +24,7 @@
 }
 
 @end
+
+/// Stub used to force the linker to include the categories in this file.
+void FIRInclude_FIRApp_AppCheck_Category(void) {
+}
