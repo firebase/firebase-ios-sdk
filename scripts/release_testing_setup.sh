@@ -31,7 +31,7 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   set -x
   cd  "${local_sdk_repo_dir}"
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
-  git fetch --tags origin main
+  git fetch --tags --quiet origin main
   git checkout main
 fi
 
