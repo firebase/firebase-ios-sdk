@@ -725,4 +725,22 @@ class AuthAPI_hOnlyTests: XCTestCase {
       return 9
     }
   }
+
+  func regression13430(error: NSError) -> Int {
+    if let firebaseError = error as? AuthErrorCode, firebaseError == .networkError {
+      return 1
+    }
+
+    if let firebaseError = error as? AuthErrorCode, firebaseError.code == .invalidPhoneNumber {
+      switch firebaseError.localizedDescription {
+      case "TOO_SHORT":
+        return 1
+      case "TOO_LONG":
+        return 1
+      default:
+        return 1
+      }
+    }
+    return 2
+  }
 }

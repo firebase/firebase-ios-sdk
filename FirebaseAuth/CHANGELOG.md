@@ -1,4 +1,5 @@
 # 11.1.0
+- [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)
 - [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking
   to any code that implemented an exhaustive `switch` on `AuthProviderID` in 11.0.0 - the `switch`
   will need expansion. (#13429)
