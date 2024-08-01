@@ -22,7 +22,7 @@ import FirebaseCore
 @_implementationOnly import FirebaseCoreExtension
 
 private final class StorageInstanceCache: @unchecked Sendable {
-  public static let shared = StorageInstanceCache()
+  static let shared = StorageInstanceCache()
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
   /// instances of Storage associated with the given app.
