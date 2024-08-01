@@ -21,7 +21,7 @@ import XCTest
 class StorageUpdateMetadataTests: StorageTestHelpers {
   var fetcherService: GTMSessionFetcherService?
   var dispatchQueue: DispatchQueue?
-  var metadata: StorageMetadata?
+  var metadata: StorageMetadata!
 
   override func setUp() {
     super.setUp()
@@ -53,7 +53,6 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     let ref = StorageReference(storage: storage(), path: path)
     StorageUpdateMetadataTask.updateMetadataTask(
       reference: ref,
-      fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
       metadata: metadata!
     ) { metadata, error in
@@ -62,23 +61,14 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     waitForExpectation(test: self)
   }
 
-  func testSuccessfulFetch() {
-    let expectation = self.expectation(description: #function)
-    fetcherService!.testBlock = successBlock(withMetadata: metadata)
+  func testSuccessfulFetch() async throws {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(successBlock(withMetadata: metadata))
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageUpdateMetadataTask.updateMetadataTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      metadata: metadata!
-    ) { metadata, error in
-      XCTAssertNil(error)
-      XCTAssertEqual(self.metadata?.bucket, metadata?.bucket)
-      XCTAssertEqual(self.metadata?.name, metadata?.name)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let ref = StorageReference(storage: storage, path: path)
+    let metadata = try await ref.updateMetadata(metadata)
+    XCTAssertEqual(self.metadata?.bucket, metadata.bucket)
+    XCTAssertEqual(self.metadata?.name, metadata.name)
   }
 
   func testSuccessfulFetchWithEmulator() {
@@ -96,7 +86,6 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     let ref = StorageReference(storage: storage, path: path)
     StorageUpdateMetadataTask.updateMetadataTask(
       reference: ref,
-      fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
       metadata: metadata!
     ) { metadata, error in
@@ -105,58 +94,40 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     waitForExpectation(test: self)
   }
 
-  func testUnsuccessfulFetchUnauthenticated() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService!.testBlock = unauthenticatedBlock()
+  func testUnsuccessfulFetchUnauthenticated() async {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(unauthenticatedBlock())
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageUpdateMetadataTask.updateMetadataTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      metadata: metadata!
-    ) { metadata, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthenticated.rawValue)
-      expectation.fulfill()
+    let ref = StorageReference(storage: storage, path: path)
+    do {
+      let _ = try await ref.updateMetadata(metadata)
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthenticated.rawValue)
     }
-    waitForExpectation(test: self)
   }
 
-  func testUnsuccessfulFetchUnauthorized() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService!.testBlock = unauthorizedBlock()
+  func testUnsuccessfulFetchUnauthorized() async {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(unauthorizedBlock())
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageUpdateMetadataTask.updateMetadataTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      metadata: metadata!
-    ) { metadata, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthorized.rawValue)
-      expectation.fulfill()
+    let ref = StorageReference(storage: storage, path: path)
+    do {
+      let _ = try await ref.updateMetadata(metadata)
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
     }
-    waitForExpectation(test: self)
   }
 
-  func testUnsuccessfulFetchObjectDoesntExist() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService!.testBlock = notFoundBlock()
+  func testUnsuccessfulFetchObjectDoesntExist() async {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(notFoundBlock())
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageUpdateMetadataTask.updateMetadataTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      metadata: metadata!
-    ) { metadata, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.objectNotFound.rawValue)
-      expectation.fulfill()
+    let ref = StorageReference(storage: storage, path: path)
+    do {
+      let _ = try await ref.updateMetadata(metadata)
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
     }
-    waitForExpectation(test: self)
   }
 
   func testUnsuccessfulFetchBadJSON() {
@@ -167,7 +138,6 @@ class StorageUpdateMetadataTests: StorageTestHelpers {
     let ref = StorageReference(storage: storage(), path: path)
     StorageUpdateMetadataTask.updateMetadataTask(
       reference: ref,
-      fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self,
       metadata: metadata!
     ) { metadata, error in

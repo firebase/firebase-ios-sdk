@@ -54,68 +54,71 @@ import Foundation
       }
 
       self.state = .queueing
-      var request = self.baseRequest
-      request.httpMethod = "POST"
-      request.timeoutInterval = self.reference.storage.maxUploadRetryTime
 
       let dataRepresentation = self.uploadMetadata.dictionaryRepresentation()
       let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
 
-      request.httpBody = bodyData
-      request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-      if let count = bodyData?.count {
-        request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
-      }
-
-      var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
-      if components?.host == "www.googleapis.com",
-         let path = components?.path {
-        components?.percentEncodedPath = "/upload\(path)"
-      }
-      guard let path = self.GCSEscapedString(self.uploadMetadata.path) else {
-        fatalError("Internal error enqueueing a Storage task")
-      }
-      components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
-
-      request.url = components?.url
-
-      guard let contentType = self.uploadMetadata.contentType else {
-        fatalError("Internal error enqueueing a Storage task")
-      }
-      let uploadFetcher = GTMSessionUploadFetcher(
-        request: request,
-        uploadMIMEType: contentType,
-        chunkSize: self.reference.storage.uploadChunkSizeBytes,
-        fetcherService: self.fetcherService
-      )
-      if let uploadData {
-        uploadFetcher.uploadData = uploadData
-        uploadFetcher.comment = "Data UploadTask"
-      } else if let fileURL {
-        uploadFetcher.uploadFileURL = fileURL
-        uploadFetcher.comment = "File UploadTask"
-
-        if GULAppEnvironmentUtil.isAppExtension() {
-          uploadFetcher.useBackgroundSession = false
-        }
-      }
-      uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
-
-      uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
-                                                       totalBytesExpectedToSend: Int64) in
-          guard let self = self else { return }
-          self.state = .progress
-          self.progress.completedUnitCount = totalBytesSent
-          self.progress.totalUnitCount = totalBytesExpectedToSend
-          self.metadata = self.uploadMetadata
-          self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .running
-      }
-      self.uploadFetcher = uploadFetcher
-
-      // Process fetches
-      self.state = .running
       Task {
+        let fetcherService = await reference.storage.fetcherService
+          .fetcherService(reference.storage)
+        var request = self.baseRequest
+        request.httpMethod = "POST"
+        request.timeoutInterval = self.reference.storage.maxUploadRetryTime
+        request.httpBody = bodyData
+        request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
+        if let count = bodyData?.count {
+          request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
+        }
+
+        var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+        if components?.host == "www.googleapis.com",
+           let path = components?.path {
+          components?.percentEncodedPath = "/upload\(path)"
+        }
+        guard let path = self.GCSEscapedString(self.uploadMetadata.path) else {
+          fatalError("Internal error enqueueing a Storage task")
+        }
+        components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
+
+        request.url = components?.url
+
+        guard let contentType = self.uploadMetadata.contentType else {
+          fatalError("Internal error enqueueing a Storage task")
+        }
+
+        let uploadFetcher = GTMSessionUploadFetcher(
+          request: request,
+          uploadMIMEType: contentType,
+          chunkSize: self.reference.storage.uploadChunkSizeBytes,
+          fetcherService: fetcherService
+        )
+        if let uploadData {
+          uploadFetcher.uploadData = uploadData
+          uploadFetcher.comment = "Data UploadTask"
+        } else if let fileURL {
+          uploadFetcher.uploadFileURL = fileURL
+          uploadFetcher.comment = "File UploadTask"
+
+          if GULAppEnvironmentUtil.isAppExtension() {
+            uploadFetcher.useBackgroundSession = false
+          }
+        }
+        uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
+
+        uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
+                                                         totalBytesExpectedToSend: Int64) in
+            guard let self = self else { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesSent
+            self.progress.totalUnitCount = totalBytesExpectedToSend
+            self.metadata = self.uploadMetadata
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
+        }
+        self.uploadFetcher = uploadFetcher
+
+        // Process fetches
+        self.state = .running
         do {
           let data = try await self.uploadFetcher?.beginFetch()
           // Fire last progress updates
@@ -208,14 +211,13 @@ import Foundation
   // MARK: - Internal Implementations
 
   init(reference: StorageReference,
-       service: GTMSessionFetcherService,
        queue: DispatchQueue,
        file: URL? = nil,
        data: Data? = nil,
        metadata: StorageMetadata) {
     uploadMetadata = metadata
     uploadData = data
-    super.init(reference: reference, service: service, queue: queue, file: file)
+    super.init(reference: reference, queue: queue, file: file)
 
     if uploadMetadata.contentType == nil {
       uploadMetadata.contentType = StorageUtils.MIMETypeForExtension(file?.pathExtension)

@@ -14,21 +14,13 @@
 
 import Foundation
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
 /// Task which provides the ability to get a download URL for an object in Firebase Storage.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageGetDownloadURLTask {
   static func getDownloadURLTask(reference: StorageReference,
-                                 fetcherService: GTMSessionFetcherService,
                                  queue: DispatchQueue,
                                  completion: ((_: URL?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
-                        fetcherService: fetcherService,
                         queue: queue,
                         httpMethod: "GET",
                         fetcherComment: "GetDownloadURLTask") { (data: Data?, error: Error?) in

@@ -56,7 +56,6 @@ class StorageDeleteTests: StorageTestHelpers {
     let ref = StorageReference(storage: storage(), path: path)
     StorageDeleteTask.deleteTask(
       reference: ref,
-      fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { _, error in
       expectation.fulfill()
@@ -82,7 +81,6 @@ class StorageDeleteTests: StorageTestHelpers {
     let ref = StorageReference(storage: storage(), path: path)
     StorageDeleteTask.deleteTask(
       reference: ref,
-      fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { _, error in
       expectation.fulfill()
@@ -105,7 +103,6 @@ class StorageDeleteTests: StorageTestHelpers {
     let ref = StorageReference(storage: storage, path: path)
     StorageDeleteTask.deleteTask(
       reference: ref,
-      fetcherService: fetcherService!.self,
       queue: dispatchQueue!.self
     ) { _, error in
       expectation.fulfill()
@@ -113,54 +110,39 @@ class StorageDeleteTests: StorageTestHelpers {
     waitForExpectation(test: self)
   }
 
-  func testUnsuccessfulFetchUnauthenticated() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService!.testBlock = unauthenticatedBlock()
+  func testUnsuccessfulFetchUnauthenticated() async {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(unauthenticatedBlock())
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageDeleteTask.deleteTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { _, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthenticated.rawValue)
-      expectation.fulfill()
+    let ref = StorageReference(storage: storage, path: path)
+    do {
+      try await ref.delete()
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthenticated.rawValue)
     }
-    waitForExpectation(test: self)
   }
 
-  func testUnsuccessfulFetchUnauthorized() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService!.testBlock = unauthorizedBlock()
+  func testUnsuccessfulFetchUnauthorized() async {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(unauthorizedBlock())
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageDeleteTask.deleteTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { _, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.unauthorized.rawValue)
-      expectation.fulfill()
+    let ref = StorageReference(storage: storage, path: path)
+    do {
+      try await ref.delete()
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.unauthorized.rawValue)
     }
-    waitForExpectation(test: self)
   }
 
-  func testUnsuccessfulFetchObjectDoesntExist() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService!.testBlock = notFoundBlock()
+  func testUnsuccessfulFetchObjectDoesntExist() async {
+    let storage = storage()
+    await storage.fetcherService.updateTestBlock(notFoundBlock())
     let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    StorageDeleteTask.deleteTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self
-    ) { _, error in
-      XCTAssertEqual((error as? NSError)!.code, StorageErrorCode.objectNotFound.rawValue)
-      expectation.fulfill()
+    let ref = StorageReference(storage: storage, path: path)
+    do {
+      try await ref.delete()
+    } catch {
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
     }
-    waitForExpectation(test: self)
   }
 }

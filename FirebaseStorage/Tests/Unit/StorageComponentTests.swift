@@ -32,14 +32,14 @@ class StorageComponentTests: StorageTestHelpers {
 
   /// Tests that a Storage instance can be created properly.
   func testStorageInstanceCreation() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
+    let app = try XCTUnwrap(app)
     let storage1 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
     XCTAssertNotNil(storage1)
   }
 
   /// Tests that a Storage instances are reused properly.
   func testMultipleComponentInstancesCreated() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
+    let app = try XCTUnwrap(app)
     let storage1 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
     let storage2 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
 
