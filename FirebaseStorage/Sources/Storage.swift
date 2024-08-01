@@ -283,10 +283,10 @@ import FirebaseCore
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
   /// instances of Storage associated with the given app.
-  private static var instances: [String: Storage] = [:]
+  private nonisolated(unsafe) static var instances: [String: Storage] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
-  private static var instancesLock: os_unfair_lock = .init()
+  private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
 
   var host: String
   var scheme: String
