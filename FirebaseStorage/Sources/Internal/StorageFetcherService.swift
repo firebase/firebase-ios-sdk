@@ -25,37 +25,36 @@ import Foundation
 actor StorageFetcherService {
   private var _fetcherService: GTMSessionFetcherService?
 
-  func fetcherService(_ storage: Storage) -> GTMSessionFetcherService {
+  func fetcherService(_ storage: Storage) async -> GTMSessionFetcherService {
     if let _fetcherService {
       return _fetcherService
     }
     let app = storage.app
-    if StorageFetcherService.fetcherServiceMap[app.name] == nil {
-      StorageFetcherService.fetcherServiceMap[app.name] = [:]
-    }
-    var fetcherService = StorageFetcherService.fetcherServiceMap[app.name]?[storage.storageBucket]
-    if fetcherService == nil {
-      fetcherService = GTMSessionFetcherService()
-      fetcherService?.isRetryEnabled = true
-      fetcherService?.retryBlock = retryWhenOffline
-      fetcherService?.allowLocalhostRequest = true
-      fetcherService?.maxRetryInterval = storage.maxOperationRetryInterval
-      fetcherService?.testBlock = testBlock
+    if let fetcherService = await FetcherServiceMap.shared.get(appName: app.name,
+                                                               bucket: storage.storageBucket) {
+      return fetcherService
+    } else {
+      let fetcherService = GTMSessionFetcherService()
+      fetcherService.isRetryEnabled = true
+      fetcherService.retryBlock = retryWhenOffline
+      fetcherService.allowLocalhostRequest = true
+      fetcherService.maxRetryInterval = storage.maxOperationRetryInterval
+      fetcherService.testBlock = testBlock
       let authorizer = StorageTokenAuthorizer(
         googleAppID: app.options.googleAppID,
         callbackQueue: storage.callbackQueue,
         authProvider: storage.auth,
         appCheck: storage.appCheck
       )
-      fetcherService?.authorizer = authorizer
-      StorageFetcherService.fetcherServiceMap[app.name]?[storage.storageBucket] = fetcherService
+      fetcherService.authorizer = authorizer
+      if storage.usesEmulator {
+        fetcherService.allowLocalhostRequest = true
+        fetcherService.allowedInsecureSchemes = ["http"]
+      }
+      await FetcherServiceMap.shared.set(appName: app.name, bucket: storage.storageBucket,
+                                         fetcher: fetcherService)
+      return fetcherService
     }
-    if storage.usesEmulator {
-      fetcherService?.allowLocalhostRequest = true
-      fetcherService?.allowedInsecureSchemes = ["http"]
-    }
-    _fetcherService = fetcherService
-    return fetcherService!
   }
 
   /// Update the testBlock for unit testing. Save it as a property since this may be called before
@@ -69,9 +68,6 @@ actor StorageFetcherService {
 
   private var testBlock: GTMSessionFetcherTestBlock?
 
-  /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
-  private static var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
-
   private var retryWhenOffline: GTMSessionFetcherRetryBlock = {
     (suggestedWillRetry: Bool,
      error: Error?,
@@ -83,5 +79,23 @@ actor StorageFetcherService {
       shouldRetry = (error as? NSError)?.code == URLError.notConnectedToInternet.rawValue
     }
     response(shouldRetry)
+  }
+
+  /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
+  private actor FetcherServiceMap {
+    static let shared = FetcherServiceMap()
+
+    var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
+
+    func get(appName: String, bucket: String) -> GTMSessionFetcherService? {
+      return fetcherServiceMap[appName]?[bucket]
+    }
+
+    func set(appName: String, bucket: String, fetcher: GTMSessionFetcherService) {
+      if fetcherServiceMap[appName] == nil {
+        fetcherServiceMap[appName] = [:]
+      }
+      fetcherServiceMap[appName]?[bucket] = fetcher
+    }
   }
 }
