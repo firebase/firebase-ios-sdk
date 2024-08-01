@@ -1,5 +1,5 @@
 # 11.1.0
-- [feature] Add VectorValue type support.
+- [feature] Add `VectorValue` type support.
 
 # 11.0.0
 - [removed] **Breaking change**: The deprecated `FirebaseFirestoreSwift` module
