@@ -32,7 +32,6 @@ if [ "$TESTINGMODE" = "release_testing" ]; then
   cd  "${local_sdk_repo_dir}"
 elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   git fetch --tags --quiet origin main
-  git checkout main
 fi
 
 # The chunk below is to determine the latest version by searching

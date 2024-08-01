@@ -35,9 +35,7 @@ jobs:
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
     - name: Update SpecsTesting repo setup
       run: |
-         test_version="${nightly_version}" \
-           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
-           podspec_repo_branch="${podspec_repo_branch}" \
+         podspec_repo_branch="${podspec_repo_branch}" \
            scripts/release_testing_setup.sh prerelease_testing
       env:
          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -170,9 +168,7 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          # Update/create a nightly tag to the head of the main branch.
-         test_version="${nightly_version}" \
-           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
-           podspec_repo_branch="${podspec_repo_branch}" \
+         podspec_repo_branch="${podspec_repo_branch}" \
            scripts/release_testing_setup.sh prerelease_testing
       env:
          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
