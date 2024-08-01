@@ -30,12 +30,10 @@ actor StorageFetcherService {
       return _fetcherService
     }
     let app = storage.app
-    var bucketMap = StorageFetcherService.fetcherServiceMap[app.name]
-    if bucketMap == nil {
-      bucketMap = [:]
-      StorageFetcherService.fetcherServiceMap[app.name] = bucketMap
+    if StorageFetcherService.fetcherServiceMap[app.name] == nil {
+      StorageFetcherService.fetcherServiceMap[app.name] = [:]
     }
-    var fetcherService = bucketMap?[storage.storageBucket]
+    var fetcherService = StorageFetcherService.fetcherServiceMap[app.name]?[storage.storageBucket]
     if fetcherService == nil {
       fetcherService = GTMSessionFetcherService()
       fetcherService?.isRetryEnabled = true
@@ -50,7 +48,7 @@ actor StorageFetcherService {
         appCheck: storage.appCheck
       )
       fetcherService?.authorizer = authorizer
-      bucketMap?[storage.storageBucket] = fetcherService
+      StorageFetcherService.fetcherServiceMap[app.name]?[storage.storageBucket] = fetcherService
     }
     if storage.usesEmulator {
       fetcherService?.allowLocalhostRequest = true
@@ -64,6 +62,9 @@ actor StorageFetcherService {
   /// fetcherService is initialized.
   func updateTestBlock(_ block: @escaping GTMSessionFetcherTestBlock) {
     testBlock = block
+    if let _fetcherService {
+      _fetcherService.testBlock = testBlock
+    }
   }
 
   private var testBlock: GTMSessionFetcherTestBlock?
