@@ -21,31 +21,6 @@ import FirebaseCore
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
-private final class StorageInstanceCache: @unchecked Sendable {
-  static let shared = StorageInstanceCache()
-
-  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
-  /// instances of Storage associated with the given app.
-  private var instances: [String: Storage] = [:]
-
-  /// Lock to manage access to the instances array to avoid race conditions.
-  private var instancesLock: os_unfair_lock = .init()
-
-  private init() {}
-
-  func storage(app: FirebaseApp, bucket: String) -> Storage {
-    os_unfair_lock_lock(&instancesLock)
-    defer { os_unfair_lock_unlock(&instancesLock) }
-
-    if let instance = instances[bucket] {
-      return instance
-    }
-    let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
-    instances[bucket] = newInstance
-    return newInstance
-  }
-}
-
 /// Firebase Storage is a service that supports uploading and downloading binary objects,
 /// such as images, videos, and other files to Google Cloud Storage. Instances of `Storage`
 /// are not thread-safe, but can be accessed from any thread.
@@ -347,6 +322,33 @@ private final class StorageInstanceCache: @unchecked Sendable {
         fatalError("Internal Error: Storage bucket cannot be initialized with a path")
       }
       return path.bucket
+    }
+  }
+}
+
+extension Storage {
+  private final class InstanceCache: @unchecked Sendable {
+    static let shared = InstanceCache()
+
+    /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are
+    /// instances of Storage associated with the given app.
+    private var instances: [String: Storage] = [:]
+
+    /// Lock to manage access to the instances array to avoid race conditions.
+    private var instancesLock: os_unfair_lock = .init()
+
+    private init() {}
+
+    func storage(app: FirebaseApp, bucket: String) -> Storage {
+      os_unfair_lock_lock(&instancesLock)
+      defer { os_unfair_lock_unlock(&instancesLock) }
+
+      if let instance = instances[bucket] {
+        return instance
+      }
+      let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
+      instances[bucket] = newInstance
+      return newInstance
     }
   }
 }
