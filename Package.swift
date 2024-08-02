@@ -1307,6 +1307,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        "FirebaseSharedSwift",
       ],
       path: "FirebaseVertexAI/Sources"
     ),
