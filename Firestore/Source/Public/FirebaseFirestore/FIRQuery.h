@@ -19,6 +19,8 @@
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 #import "FIRSnapshotListenOptions.h"
+#import "FIRFirestoreDistanceMeasure.h"
+#import "FIRFindNearestOptions.h"
 
 @class FIRAggregateQuery;
 @class FIRAggregateField;
@@ -27,6 +29,8 @@
 @class FIRFilter;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
+@class FIRVectorQuery;
+@class FIRVectorValue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,6 +52,32 @@ NS_SWIFT_NAME(Query)
 
 /** The `Firestore` instance that created this query (useful for performing transactions, etc.). */
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
+
+- (nonnull FIRVectorQuery *)findNearestWithField:(nonnull NSString *)field
+    queryVector:(nonnull NSArray<NSNumber *> *)queryVector
+    limit:(int64_t)limit
+    distanceMeasure:(FIRFirestoreDistanceMeasure)distanceMeasure
+    NS_SWIFT_NAME(findNearest(field:queryVector:limit:distanceMeasure:));
+
+- (nonnull FIRVectorQuery *)findNearestWithFieldPath:(nonnull FIRFieldPath *)fieldPath
+    queryVectorValue:(nonnull FIRVectorValue *)queryVectorValue
+    limit:(int64_t)limit
+    distanceMeasure:(FIRFirestoreDistanceMeasure)distanceMeasure
+    NS_SWIFT_NAME(findNearest(fieldPath:queryVectorValue:limit:distanceMeasure:));
+
+- (nonnull FIRVectorQuery *)findNearestWithField:(nonnull NSString *)field
+    queryVector:(nonnull NSArray<NSNumber *> *)queryVector
+    limit:(int64_t)limit
+    distanceMeasure:(FIRFirestoreDistanceMeasure)distanceMeasure
+    options:(nonnull FIRFindNearestOptions *)options
+    NS_SWIFT_NAME(findNearest(field:queryVector:limit:distanceMeasure:options:));
+
+- (nonnull FIRVectorQuery *)findNearestWithFieldPath:(nonnull FIRFieldPath *)fieldPath
+    queryVectorValue:(nonnull FIRVectorValue *)queryVectorValue
+    limit:(int64_t)limit
+    distanceMeasure:(FIRFirestoreDistanceMeasure)distanceMeasure
+    options:(nonnull FIRFindNearestOptions *)options
+    NS_SWIFT_NAME(findNearest(fieldPath:queryVectorValue:limit:distanceMeasure:options:));
 
 #pragma mark - Retrieving Data
 /**
