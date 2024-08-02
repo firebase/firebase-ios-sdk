@@ -240,7 +240,7 @@ import FirebaseCore
   }
 
   // MARK: - Internal and Private APIs
-  
+
   private final class InstanceCache: @unchecked Sendable {
     static let shared = InstanceCache()
 
