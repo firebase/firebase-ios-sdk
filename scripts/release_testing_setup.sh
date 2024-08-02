@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script will `git clone` the SDK repo to local and look for the latest
-# release branch
+# Note: This script uses the currently checked out repo.
 set -xe
 
 TESTINGMODE=${1-}
