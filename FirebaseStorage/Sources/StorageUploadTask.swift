@@ -59,8 +59,7 @@ import Foundation
       let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
 
       Task {
-        let fetcherService = await reference.storage.fetcherService
-          .fetcherService(reference.storage)
+        let fetcherService = await StorageFetcherService.shared.service(reference.storage)
         var request = self.baseRequest
         request.httpMethod = "POST"
         request.timeoutInterval = self.reference.storage.maxUploadRetryTime

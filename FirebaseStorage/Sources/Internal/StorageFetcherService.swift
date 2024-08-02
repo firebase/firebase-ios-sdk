@@ -23,15 +23,16 @@ import Foundation
 /// Manage Storage's fetcherService
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor StorageFetcherService {
+  static let shared = StorageFetcherService()
+
   private var _fetcherService: GTMSessionFetcherService?
 
-  func fetcherService(_ storage: Storage) async -> GTMSessionFetcherService {
+  func service(_ storage: Storage) async -> GTMSessionFetcherService {
     if let _fetcherService {
       return _fetcherService
     }
     let app = storage.app
-    if let fetcherService = await FetcherServiceMap.shared.get(appName: app.name,
-                                                               bucket: storage.storageBucket) {
+    if let fetcherService = getFromMap(appName: app.name, bucket: storage.storageBucket) {
       return fetcherService
     } else {
       let fetcherService = GTMSessionFetcherService()
@@ -51,15 +52,14 @@ actor StorageFetcherService {
         fetcherService.allowLocalhostRequest = true
         fetcherService.allowedInsecureSchemes = ["http"]
       }
-      await FetcherServiceMap.shared.set(appName: app.name, bucket: storage.storageBucket,
-                                         fetcher: fetcherService)
+      setMap(appName: app.name, bucket: storage.storageBucket, fetcher: fetcherService)
       return fetcherService
     }
   }
 
   /// Update the testBlock for unit testing. Save it as a property since this may be called before
   /// fetcherService is initialized.
-  func updateTestBlock(_ block: @escaping GTMSessionFetcherTestBlock) {
+  func updateTestBlock(_ block: GTMSessionFetcherTestBlock?) {
     testBlock = block
     if let _fetcherService {
       _fetcherService.testBlock = testBlock
@@ -82,20 +82,13 @@ actor StorageFetcherService {
   }
 
   /// Map of apps to a dictionary of buckets to GTMSessionFetcherService.
-  private actor FetcherServiceMap {
-    static let shared = FetcherServiceMap()
+  private var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
 
-    var fetcherServiceMap: [String: [String: GTMSessionFetcherService]] = [:]
+  private func getFromMap(appName: String, bucket: String) -> GTMSessionFetcherService? {
+    return fetcherServiceMap[appName]?[bucket]
+  }
 
-    func get(appName: String, bucket: String) -> GTMSessionFetcherService? {
-      return fetcherServiceMap[appName]?[bucket]
-    }
-
-    func set(appName: String, bucket: String, fetcher: GTMSessionFetcherService) {
-      if fetcherServiceMap[appName] == nil {
-        fetcherServiceMap[appName] = [:]
-      }
-      fetcherServiceMap[appName]?[bucket] = fetcher
-    }
+  private func setMap(appName: String, bucket: String, fetcher: GTMSessionFetcherService) {
+    fetcherServiceMap[appName, default: [:]][bucket] = fetcher
   }
 }

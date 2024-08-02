@@ -40,6 +40,9 @@ class StorageTestHelpers: XCTestCase {
       FirebaseApp.configure(name: appName, options: options)
       app = FirebaseApp.app(name: appName)
     }
+    addTeardownBlock {
+      await StorageFetcherService.shared.updateTestBlock(nil)
+    }
   }
 
   func rootReference() -> StorageReference {
