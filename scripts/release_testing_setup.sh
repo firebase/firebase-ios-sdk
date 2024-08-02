@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script will `git clone` the SDK repo to local and look for the latest
-# release branch
+# Note: This script uses the currently checked out repo.
 set -xe
 
 TESTINGMODE=${1-}
@@ -22,17 +21,8 @@ if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
 
-if [ "$TESTINGMODE" = "release_testing" ]; then
-  mkdir -p "${local_sdk_repo_dir}"
-  echo "git clone from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
-  set +x
-  # Using token here to update tags later.
-  git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
-  set -x
-  cd  "${local_sdk_repo_dir}"
-elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
-  git fetch --tags --quiet origin main
-fi
+git fetch --tags --quiet origin main
+git checkout main
 
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
