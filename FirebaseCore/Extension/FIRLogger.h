@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <os/log.h>
 
 #import <FirebaseCore/FIRLoggerLevel.h>
 
@@ -70,6 +71,12 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
  * (required) whether or not this function is called from the Analytics component.
  */
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
+
+extern NSString *FIRLogMessageCode(NSString *categoryID, NSInteger messageID);
+
+extern NSString *FIRLogPrefix(NSString *category, NSString *categoryID, NSString *messageID);
+
+extern os_log_t FIRLogOSLogObject(NSString *category);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
