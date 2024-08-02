@@ -266,8 +266,6 @@ import FirebaseCore
     }
   }
 
-  let fetcherService = StorageFetcherService()
-
   let dispatchQueue: DispatchQueue
 
   init(app: FirebaseApp, bucket: String) {

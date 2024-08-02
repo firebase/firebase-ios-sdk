@@ -121,7 +121,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       fetcher = GTMSessionFetcher(downloadResumeData: resumeData)
       fetcher.comment = "Resuming DownloadTask"
     } else {
-      let fetcherService = await reference.storage.fetcherService.fetcherService(reference.storage)
+      let fetcherService = await StorageFetcherService.shared.service(reference.storage)
 
       fetcher = fetcherService.fetcher(with: request)
       fetcher.comment = "Starting DownloadTask"

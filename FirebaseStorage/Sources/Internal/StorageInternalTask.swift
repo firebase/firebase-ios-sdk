@@ -38,9 +38,7 @@ class StorageInternalTask: StorageTask {
     dispatchQueue.async { [self] in
       self.state = .queueing
       Task {
-        let fetcherService = await reference.storage.fetcherService
-          .fetcherService(reference.storage)
-
+        let fetcherService = await StorageFetcherService.shared.service(reference.storage)
         var request = request ?? self.baseRequest
         request.httpMethod = httpMethod
         request.timeoutInterval = self.reference.storage.maxOperationRetryTime
