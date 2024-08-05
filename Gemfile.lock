@@ -1,6 +1,7 @@
 GIT
   remote: https://github.com/CocoaPods/Xcodeproj.git
   revision: bf23c4c04f723c3d147c76a29c04d3dcbe67759c
+  ref: bf23c4c
   specs:
     xcodeproj (1.24.0)
       CFPropertyList (>= 2.3.3, < 4.0)
@@ -182,7 +183,7 @@ DEPENDENCIES
   cocoapods-generate (= 2.2.5)
   danger (= 8.4.5)
   rexml (~> 3.3.2)
-  xcodeproj (~> 1.24)!
+  xcodeproj!
 
 BUNDLED WITH
    2.1.4

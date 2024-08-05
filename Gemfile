@@ -17,5 +17,5 @@ gem 'cocoapods-generate', '2.2.5'
 gem 'danger', '8.4.5'
 
 # TODO(https://github.com/CocoaPods/Xcodeproj/issues/947): Delete the next two lines when xcodeproj releases.
-gem 'xcodeproj', '~> 1.24', git: 'https://github.com/CocoaPods/Xcodeproj.git'
+gem 'xcodeproj', git: 'https://github.com/CocoaPods/Xcodeproj.git',  ref: "bf23c4c"
 gem "rexml", "~> 3.3.2"
