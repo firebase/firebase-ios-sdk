@@ -23,7 +23,7 @@ public final class HeartbeatController {
   /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
   /// Used for standardizing dates for calendar-day comparison.
-  static let dateStandardizer: (Date) -> (Date) = {
+  static let dateStandardizer: @Sendable (Date) -> (Date) = {
     var calendar = Calendar(identifier: .iso8601)
     calendar.locale = Locale(identifier: "en_US_POSIX")
     calendar.timeZone = TimeZone(secondsFromGMT: 0)!
