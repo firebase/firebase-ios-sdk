@@ -44,6 +44,7 @@ typedef NS_ENUM(NSUInteger, FIRListenSource) {
  * of this class control settings like whether metadata-only changes trigger events and the
  * preferred data source.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SnapshotListenOptions)
 @interface FIRSnapshotListenOptions : NSObject
 

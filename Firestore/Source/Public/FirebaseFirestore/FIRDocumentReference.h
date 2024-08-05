@@ -40,6 +40,7 @@ typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot
  * a subcollection.
  */
 NS_SWIFT_NAME(DocumentReference)
+NS_SWIFT_SENDABLE
 @interface FIRDocumentReference : NSObject
 
 /** :nodoc: */
