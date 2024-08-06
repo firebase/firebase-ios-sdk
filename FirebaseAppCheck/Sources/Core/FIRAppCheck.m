@@ -267,6 +267,20 @@ static id<FIRAppCheckProviderFactory> _providerFactory;
       stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
 }
 
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_FIRApp_AppCheck_Category(void);
+extern void FIRInclude_FIRHeartbeatLogger_AppCheck_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_FIRApp_AppCheck_Category();
+  FIRInclude_FIRHeartbeatLogger_AppCheck_Category();
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

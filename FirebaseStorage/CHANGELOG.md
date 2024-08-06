@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix a potential data race in Storage initialization. (#13369)
+
 # 11.0.0
 - [fixed] Updated error handling to support both Swift error enum handling and NSError error
   handling. Some of the Swift enums have additional parameters which may be a **breaking** change.

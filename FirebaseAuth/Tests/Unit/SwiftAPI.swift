@@ -702,4 +702,45 @@ class AuthAPI_hOnlyTests: XCTestCase {
     if let _: Date = metadata.lastSignInDate,
        let _: Date = metadata.creationDate {}
   }
+
+  func regression13429(id: AuthProviderID) -> Int {
+    switch id {
+    case .apple:
+      return 1
+    case .email:
+      return 2
+    case .facebook:
+      return 3
+    case .gameCenter:
+      return 4
+    case .gitHub:
+      return 5
+    case .google:
+      return 6
+    case .phone:
+      return 7
+    case .custom("myCustom"):
+      return 8
+    default:
+      return 9
+    }
+  }
+
+  func regression13430(error: NSError) -> Int {
+    if let firebaseError = error as? AuthErrorCode, firebaseError == .networkError {
+      return 1
+    }
+
+    if let firebaseError = error as? AuthErrorCode, firebaseError.code == .invalidPhoneNumber {
+      switch firebaseError.localizedDescription {
+      case "TOO_SHORT":
+        return 1
+      case "TOO_LONG":
+        return 1
+      default:
+        return 1
+      }
+    }
+    return 2
+  }
 }

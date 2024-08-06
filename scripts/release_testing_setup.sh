@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script will `git clone` the SDK repo to local and look for the latest
-# release branch
+# Note: This script uses the currently checked out repo.
 set -xe
 
 TESTINGMODE=${1-}
@@ -22,17 +21,16 @@ if [ -f "${HOME}/.cocoapods/repos" ]; then
   find "${HOME}/.cocoapods/repos" -type d -maxdepth 1 -exec sh -c 'pod repo remove $(basename {})' \;
 fi
 
-mkdir -p "${local_sdk_repo_dir}"
-echo "git clone from github.com/firebase/firebase-ios-sdk.git to ${local_sdk_repo_dir}"
-set +x
-# Using token here to update tags later.
-git clone -q https://"${BOT_TOKEN}"@github.com/firebase/firebase-ios-sdk.git "${local_sdk_repo_dir}"
-set -x
+git fetch --tags --quiet origin main
+git checkout main
 
-cd  "${local_sdk_repo_dir}"
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease testing, beta version will be excluded.
-test_version=$(git tag -l --sort=-version:refname --merged main CocoaPods-*[0-9] | head -n 1)
+test_version=$(git tag -l --sort=-version:refname --merged main 'CocoaPods-*[0-9]' | head -n 1)
+if [ -z "$test_version" ]; then
+  echo "Latest tag could not be found. Exiting." >&2
+  exit 1
+fi
 
 git config --global user.email "google-oss-bot@example.com"
 git config --global user.name "google-oss-bot"

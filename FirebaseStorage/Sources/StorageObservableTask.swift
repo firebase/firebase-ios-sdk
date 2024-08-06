@@ -14,12 +14,6 @@
 
 import Foundation
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
 /**
  * An extended `StorageTask` providing observable semantics that can be used for responding to changes
  * in task state.
@@ -134,7 +128,6 @@ import Foundation
   // MARK: - Internal Implementations
 
   init(reference: StorageReference,
-       service: GTMSessionFetcherService,
        queue: DispatchQueue,
        file: URL?) {
     handlerDictionaries = [
@@ -146,7 +139,7 @@ import Foundation
     ]
     handleToStatusMap = [:]
     fileURL = file
-    super.init(reference: reference, service: service, queue: queue)
+    super.init(reference: reference, queue: queue)
   }
 
   func updateHandlerDictionary(for status: StorageTaskStatus,

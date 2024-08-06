@@ -27,35 +27,33 @@ class StorageInternalTask: StorageTask {
 
   @discardableResult
   init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
        queue: DispatchQueue,
        request: URLRequest? = nil,
        httpMethod: String,
        fetcherComment: String,
        completion: ((_: Data?, _: Error?) -> Void)?) {
-    super.init(reference: reference, service: fetcherService, queue: queue)
+    super.init(reference: reference, queue: queue)
 
     // Prepare a task and begins execution.
     dispatchQueue.async { [self] in
       self.state = .queueing
-      var request = request ?? self.baseRequest
-      request.httpMethod = httpMethod
-      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
-
-      let fetcher = self.fetcherService.fetcher(with: request)
-      fetcher.comment = fetcherComment
-      self.fetcher = fetcher
-
       Task {
-        let callbackQueue = reference.storage.fetcherService != nil ?
-          reference.storage.fetcherServiceForApp.callbackQueue : DispatchQueue.main
+        let fetcherService = await StorageFetcherService.shared.service(reference.storage)
+        var request = request ?? self.baseRequest
+        request.httpMethod = httpMethod
+        request.timeoutInterval = self.reference.storage.maxOperationRetryTime
+
+        let fetcher = fetcherService.fetcher(with: request)
+        fetcher.comment = fetcherComment
+        self.fetcher = fetcher
+        let callbackQueue = reference.storage.callbackQueue
         do {
           let data = try await self.fetcher?.beginFetch()
-          callbackQueue?.async {
+          callbackQueue.async {
             completion?(data, nil)
           }
         } catch {
-          callbackQueue?.async {
+          callbackQueue.async {
             completion?(nil, StorageErrorCode.error(withServerError: error as NSError,
                                                     ref: self.reference))
           }

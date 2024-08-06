@@ -24,11 +24,9 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageDeleteTask {
   static func deleteTask(reference: StorageReference,
-                         fetcherService: GTMSessionFetcherService,
                          queue: DispatchQueue,
                          completion: ((_: Data?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
-                        fetcherService: fetcherService,
                         queue: queue,
                         httpMethod: "DELETE",
                         fetcherComment: "DeleteTask",

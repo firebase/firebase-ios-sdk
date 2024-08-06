@@ -440,16 +440,12 @@ enum FunctionsConstants {
                              cachePolicy: .useProtocolCachePolicy,
                              timeoutInterval: timeout)
     let fetcher = fetcherService.fetcher(with: request)
-    let body = NSMutableDictionary()
 
     // Encode the data in the body.
-    var localData = data
-    if data == nil {
-      localData = NSNull()
-    }
+    let data = data ?? NSNull()
     // Force unwrap to match the old invalid argument thrown.
-    let encoded = try! serializer.encode(localData!)
-    body["data"] = encoded
+    let encoded = try! serializer.encode(data)
+    let body = ["data": encoded]
 
     do {
       let payload = try JSONSerialization.data(withJSONObject: body)
