@@ -21,21 +21,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(FindNearestOptions)
 @interface FIRFindNearestOptions : NSObject
-@property (nonatomic, readonly) FIRFieldPath *distanceResultFieldPath;
-@property (nonatomic, readonly) NSNumber *distanceThreshold;
+@property(nonatomic, readonly) FIRFieldPath *distanceResultFieldPath;
+@property(nonatomic, readonly) NSNumber *distanceThreshold;
 
 - (nonnull instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (nonnull FIRFindNearestOptions *)optionsWithDistanceResultField:
-    (NSString *)distanceResultField;
+- (nonnull FIRFindNearestOptions *)optionsWithDistanceResultField:(NSString *)distanceResultField;
 
 - (nonnull FIRFindNearestOptions *)optionsWithDistanceResultFieldPath:
     (FIRFieldPath *)distanceResultFieldPath;
 
-- (nonnull FIRFindNearestOptions *)optionsWithDistanceThreshold:
-    (NSNumber *)distanceThreshold;
+- (nonnull FIRFindNearestOptions *)optionsWithDistanceThreshold:(NSNumber *)distanceThreshold;
 
 @end
-
 
 NS_ASSUME_NONNULL_END

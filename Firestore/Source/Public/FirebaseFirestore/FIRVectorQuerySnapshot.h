@@ -30,5 +30,4 @@ NS_SWIFT_NAME(VectorQuerySnapshot)
 
 @end
 
-
 NS_ASSUME_NONNULL_END

@@ -33,8 +33,8 @@ NS_SWIFT_NAME(VectorQuery)
  *     snapshot will be `nil` only if error is `non-nil`.
  */
 - (void)getDocumentsWithSource:(FIRFirestoreVectorSource)source
-                   completion:(void (^)(FIRVectorQuerySnapshot *_Nullable snapshot,
-                                        NSError *_Nullable error))completion
+                    completion:(void (^)(FIRVectorQuerySnapshot *_Nullable snapshot,
+                                         NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocuments(source:completion:));
 
 @end
