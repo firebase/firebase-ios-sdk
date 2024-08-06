@@ -187,6 +187,12 @@ class FunctionsSerializerTests: XCTestCase {
     XCTAssertEqual(input, try serializer.encode(input) as? NSArray)
   }
 
+  func testEncodeArrayWithInvalidElements() {
+    let input = ["TEST", CustomObject()] as NSArray
+
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
   func testDecodeArray() throws {
     let input = [
       1 as Int64,
@@ -198,7 +204,13 @@ class FunctionsSerializerTests: XCTestCase {
     XCTAssertEqual(expected, try serializer.decode(input) as? NSArray)
   }
 
-  func testEncodeMap() {
+  func testDecodeArrayWithInvalidElements() {
+    let input = ["TEST", CustomObject()] as NSArray
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  func testEncodeDictionary() throws {
     let input = [
       "foo": 1 as Int32,
       "bar": "hello",
@@ -213,10 +225,36 @@ class FunctionsSerializerTests: XCTestCase {
     XCTAssertEqual(expected, try serializer.encode(input) as? NSDictionary)
   }
 
-  func testDecodeMap() {
+  func testEncodeDictionaryWithInvalidElements() {
+    let input = ["TEST_CustomObj": CustomObject()] as NSDictionary
+
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  func testEncodeDictionaryWithInvalidNestedDictionary() {
+    let input =
+      ["TEST_NestedDict": ["TEST_CustomObj": CustomObject()] as NSDictionary] as NSDictionary
+
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  func testDecodeDictionary() throws {
     let input = ["foo": 1, "bar": "hello", "baz": [3, 9_876_543_210]] as NSDictionary
     let expected = ["foo": 1, "bar": "hello", "baz": [3, 9_876_543_210]] as NSDictionary
     XCTAssertEqual(expected, try serializer.decode(input) as? NSDictionary)
+  }
+
+  func testDecodeDictionaryWithInvalidElements() {
+    let input = ["TEST_CustomObj": CustomObject()] as NSDictionary
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  func testDecodeDictionaryWithInvalidNestedDictionary() {
+    let input =
+      ["TEST_NestedDict": ["TEST_CustomObj": CustomObject()] as NSDictionary] as NSDictionary
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testEncodeUnknownType() {
@@ -237,37 +275,34 @@ class FunctionsSerializerTests: XCTestCase {
   func testEncodeUnsupportedType() {
     let input = CustomObject()
 
-    do {
-      let _ = try serializer.encode(input)
-      XCTFail("Expected an error")
-    } catch {
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
-      else {
-        return XCTFail("Unexpected error: \(error)")
-      }
-
-      XCTAssertEqual(typeName, "CustomObject")
-    }
+    try assert(serializer.encode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
 
   func testDecodeUnsupportedType() {
     let input = CustomObject()
 
-    do {
-      let _ = try serializer.decode(input)
-      XCTFail("Expected an error")
-    } catch {
-      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer.Error
-      else {
-        return XCTFail("Unexpected error: \(error)")
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+}
+
+// MARK: - Utilities
+
+extension FunctionsSerializerTests {
+  private func assert<T>(_ expression: @autoclosure () throws -> T,
+                         throwsUnsupportedTypeErrorWithName expectedTypeName: String,
+                         line: UInt = #line) {
+    XCTAssertThrowsError(try expression(), line: line) { error in
+      guard case let .unsupportedType(typeName: typeName) = error as? FunctionsSerializer
+        .Error else {
+        return XCTFail("Unexpected error: \(error)", line: line)
       }
 
-      XCTAssertEqual(typeName, "CustomObject")
+      XCTAssertEqual(typeName, expectedTypeName, line: line)
     }
   }
 }
 
 /// Used to represent a type that cannot be encoded or decoded.
-private struct CustomObject {
+private class CustomObject {
   let id = 123
 }

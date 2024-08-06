@@ -48,7 +48,7 @@ import Foundation
 }
 
 /// Error codes used by Firebase Auth.
-@objc(FIRAuthErrorCode) public enum AuthErrorCode: Int {
+@objc(FIRAuthErrorCode) public enum AuthErrorCode: Int, Error {
   /// Indicates a validation error with the custom token.
   case invalidCustomToken = 17000
 
@@ -535,6 +535,12 @@ import Foundation
     case .recaptchaActionCreationFailed:
       return kErrorRecaptchaActionCreationFailed
     }
+  }
+
+  /// The error code. It's redundant but implemented for compatibility with the Objective-C
+  /// implementation.
+  public var code: Self {
+    return self
   }
 
   var errorCodeString: String {

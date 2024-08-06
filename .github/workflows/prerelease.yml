@@ -20,10 +20,6 @@ jobs:
     runs-on: macos-14
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      # The SDK repo will be cloned to this dir and podspecs from
-      # 'podspec_repo_branch' of this repo will be validated and pushed to the
-      # testing repo.
-      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       local_repo: specstesting
       podspec_repo_branch: main
     outputs:
@@ -31,6 +27,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Generate matrix
       id: generate_matrix
       run: |
@@ -39,10 +37,7 @@ jobs:
         echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
     - name: Update SpecsTesting repo setup
       run: |
-         test_version="${nightly_version}" \
-           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
-           local_sdk_repo_dir="${local_sdk_repo_dir}" \
-           podspec_repo_branch="${podspec_repo_branch}" \
+         podspec_repo_branch="${podspec_repo_branch}" \
            scripts/release_testing_setup.sh prerelease_testing
       env:
          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,8 +64,8 @@ jobs:
       with:
         name: firebase-ios-sdk
         path: |
-          ${{ env.local_sdk_repo_dir }}/*.podspec
-          ${{ env.local_sdk_repo_dir }}/*.podspec.json
+          *.podspec
+          *.podspec.json
   buildup_SpecsTesting_repo_FirebaseCore:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
@@ -163,10 +158,11 @@ jobs:
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
-      local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       podspec_repo_branch: main
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     - name: Get token
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
@@ -174,17 +170,13 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          # Update/create a nightly tag to the head of the main branch.
-         test_version="${nightly_version}" \
-           sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" \
-           local_sdk_repo_dir="${local_sdk_repo_dir}" \
-           podspec_repo_branch="${podspec_repo_branch}" \
+         podspec_repo_branch="${podspec_repo_branch}" \
            scripts/release_testing_setup.sh prerelease_testing
       env:
          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push updated podspecs
       run: |
         botaccess=`cat bot-access.txt`
-        cd "${local_sdk_repo_dir}"
         # Changes in post submit tests will be fetched by getting diff between
         # the HEAD and HEAD^ of the main branch.
         common_commit=$(git rev-parse HEAD^)
@@ -205,7 +197,7 @@ jobs:
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsTesting.git
-        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo "${local_sdk_repo_dir}" --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" --keep-repo --include-pods "${updated_podspecs[@]}"
+        BOT_TOKEN="${botaccess}" .build/debug/spec-repo-builder --sdk-repo $(pwd) --local-spec-repo-name "${local_repo}" --sdk-repo-name SpecsTesting --github-account Firebase --pod-sources 'https://${BOT_TOKEN}@github.com/Firebase/SpecsTesting' "https://github.com/firebase/SpecsDev.git" "https://github.com/firebase/SpecsStaging.git" "https://cdn.cocoapods.org/" "FirebaseFirestoreTestingSupport" "FirebaseAuthTestingSupport" "FirebaseCombineSwift" --keep-repo --include-pods "${updated_podspecs[@]}"
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.

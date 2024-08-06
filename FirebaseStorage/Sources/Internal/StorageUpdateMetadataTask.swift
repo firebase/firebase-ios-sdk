@@ -14,17 +14,10 @@
 
 import Foundation
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
 /// A Task that lists the entries under a StorageReference
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageUpdateMetadataTask {
   static func updateMetadataTask(reference: StorageReference,
-                                 fetcherService: GTMSessionFetcherService,
                                  queue: DispatchQueue,
                                  metadata: StorageMetadata,
                                  completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
@@ -37,7 +30,6 @@ enum StorageUpdateMetadataTask {
     }
 
     StorageInternalTask(reference: reference,
-                        fetcherService: fetcherService,
                         queue: queue,
                         request: request,
                         httpMethod: "PATCH",

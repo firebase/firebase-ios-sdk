@@ -28,14 +28,7 @@ extension FunctionsSerializer {
   }
 }
 
-class FunctionsSerializer: NSObject {
-  private let dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    formatter.timeZone = TimeZone(identifier: "UTC")
-    return formatter
-  }()
-
+final class FunctionsSerializer {
   // MARK: - Internal APIs
 
   func encode(_ object: Any) throws -> AnyObject {
@@ -47,22 +40,16 @@ class FunctionsSerializer: NSObject {
       return object as AnyObject
     } else if object is NSDictionary {
       let dict = object as! NSDictionary
-      let encoded: NSMutableDictionary = .init()
-      dict.enumerateKeysAndObjects { key, obj, _ in
-        // TODO(wilsonryan): Not exact translation
-        let anyObj = obj as AnyObject
-        let stringKey = key as! String
-        let value = try! encode(anyObj)
-        encoded[stringKey] = value
+      let encoded = NSMutableDictionary()
+      try dict.forEach { key, value in
+        encoded[key] = try encode(value)
       }
       return encoded
     } else if object is NSArray {
       let array = object as! NSArray
       let encoded = NSMutableArray()
-      for item in array {
-        let anyItem = item as AnyObject
-        let encodedItem = try encode(anyItem)
-        encoded.add(encodedItem)
+      try array.forEach { element in
+        try encoded.add(encode(element))
       }
       return encoded
 
@@ -91,14 +78,11 @@ class FunctionsSerializer: NSObject {
       }
       return decoded
     } else if let array = object as? NSArray {
-      let result = NSMutableArray(capacity: array.count)
-      for obj in array {
-        // TODO: Is this data loss? The API is a bit weird.
-        if let decoded = try decode(obj) {
-          result.add(decoded)
-        }
+      let decoded = NSMutableArray(capacity: array.count)
+      try array.forEach { element in
+        try decoded.add(decode(element) as Any)
       }
-      return result
+      return decoded
     } else if object is NSNumber || object is NSString || object is NSNull {
       return object as AnyObject
     }
