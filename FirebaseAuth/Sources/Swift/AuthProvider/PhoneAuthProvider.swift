@@ -122,9 +122,6 @@ import Foundation
         } catch {
           throw error
         }
-      } catch {
-        throw error
-      }
     }
 
     /// Verify ownership of the second factor phone number by the current user.

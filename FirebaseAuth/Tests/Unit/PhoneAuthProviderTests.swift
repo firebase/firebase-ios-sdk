@@ -622,20 +622,22 @@
       let uiDelegate = reCAPTCHAfallback ? FakeUIDelegate() : nil
 
       // 2. After setting up the parameters, call `verifyPhoneNumber`.
-      provider
-        .verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate) { verificationID, error in
-
-          // 8. After the response triggers the callback in the FakePresenter, verify the callback.
-          XCTAssertTrue(Thread.isMainThread)
-          if errorCode != 0 {
-            XCTAssertNil(verificationID)
-            XCTAssertEqual((error as? NSError)?.code, errorCode)
-          } else {
-            XCTAssertNil(error)
-            XCTAssertEqual(verificationID, self.kTestVerificationID)
-          }
-          expectation.fulfill()
-        }
+      do {
+          // Call the async function to verify the phone number
+        let verificationID = try await provider.verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate)
+        
+          // Check that we are on the main thread
+        XCTAssertTrue(Thread.isMainThread)
+        
+          // Assert that the verificationID matches the expected value
+        XCTAssertEqual(verificationID, self.kTestVerificationID)
+      } catch {
+          // If an error occurs, assert that verificationID is nil and the error code matches the expected value
+        XCTAssertNil(verificationID)
+        XCTAssertEqual((error as? NSError)?.code, errorCode)
+      }
+      
+        // Make sure the test waits for expectations to be fulfilled
       waitForExpectations(timeout: 5)
     }
 

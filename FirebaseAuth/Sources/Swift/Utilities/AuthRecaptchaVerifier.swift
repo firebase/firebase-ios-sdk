@@ -49,8 +49,6 @@
     // Convenience property for mapping values
     var stringValue: String { rawValue }
   }
-    var stringValue: String { rawValue }
-  }
 
   enum AuthRecaptchaAction: String {
     case defaultAction
