@@ -28,7 +28,7 @@ public extension FieldValue {
     let nsNumbers = array.map { double in
       NSNumber(value: double)
     }
-    return FieldValue.__vector(from: nsNumbers)
+    return FieldValue.__vector(with: nsNumbers)
   }
 
   /// Creates a new `VectorValue` constructed with a copy of the given array of Floats.
@@ -38,6 +38,6 @@ public extension FieldValue {
     let nsNumbers = array.map { float in
       NSNumber(value: float)
     }
-    return FieldValue.__vector(from: nsNumbers)
+    return FieldValue.__vector(with: nsNumbers)
   }
 }

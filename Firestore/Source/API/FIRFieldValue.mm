@@ -177,8 +177,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTNumericIncrementFieldValue alloc] initWithOperand:@(l)];
 }
 
-+ (nonnull FIRVectorValue *)vectorFromNSNumbers:(nonnull NSArray<NSNumber *> *)values {
-  return [[FIRVectorValue alloc] initWithArray:values];
++ (nonnull FIRVectorValue *)vectorWithArray:(nonnull NSArray<NSNumber *> *)array {
+  return [[FIRVectorValue alloc] initWithArray:array];
 }
 
 @end

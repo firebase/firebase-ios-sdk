@@ -132,10 +132,10 @@ NS_ASSUME_NONNULL_BEGIN
     const google_firestore_v1_Value &value = mapValue.fields[i].value;
     if ((0 == key.compare(absl::string_view("value"))) &&
         value.which_value_type == google_firestore_v1_Value_array_value_tag) {
-      return [FIRFieldValue vectorFromNSNumbers:[self convertedArray:value.array_value]];
+      return [FIRFieldValue vectorWithArray:[self convertedArray:value.array_value]];
     }
   }
-  return [FIRFieldValue vectorFromNSNumbers:@[]];
+  return [FIRFieldValue vectorWithArray:@[]];
 }
 
 - (NSArray<id> *)convertedArray:(const google_firestore_v1_ArrayValue &)arrayValue {
