@@ -33,6 +33,7 @@ final class LoggingTests: XCTestCase {
     FirebaseLogger.vertexAI.notice(messageID: messageID, "This is a NOTICE message.")
     FirebaseLogger.vertexAI.warning(messageID: messageID, "This is a WARNING message.")
     FirebaseLogger.vertexAI.error(messageID: messageID, "This is an ERROR message.")
+    XCTFail("Fail to show up in logs.")
   }
 
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
@@ -48,5 +49,6 @@ final class LoggingTests: XCTestCase {
       .error("Private Privacy: bundleID[\(bundleID, privacy: .private)]")
     FirebaseLogger.vertexAI.osLogger()
       .error("Sensitive Privacy: bundleID[\(bundleID, privacy: .sensitive)]")
+    XCTFail("Fail to show up in logs.")
   }
 }
