@@ -322,13 +322,17 @@ struct GenerativeAIService {
 
     private func printCURLCommand(from request: URLRequest) {
       let command = cURLCommand(from: request)
-      if FirebaseLogger.vertexAI.isLoggableLevel(.debug) {
-        os_log(.debug, log: FirebaseLogger.vertexAI.logObject(), """
-        [FirebaseVertexAI] Creating request with the equivalent cURL command:
+      let logLevel = FirebaseLoggerLevel.debug
+      let messagePrefix = FirebaseLogger.vertexAI
+        .messagePrefix(messageID: LogMessageID.curlCommandForRequest.rawValue)
+
+      if FirebaseLogger.isLoggableLevel(logLevel) {
+        FirebaseLogger.vertexAI.osLogger().log(level: FirebaseLogger.osLogType(logLevel), """
+        \(messagePrefix, privacy: .public) Creating request with the equivalent cURL command:
         ----- cURL command -----
-        %{private}@
+        \(command, privacy: .private)
         ------------------------
-        """, command)
+        """)
       }
     }
   #endif // DEBUG

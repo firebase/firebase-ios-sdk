@@ -125,6 +125,12 @@ public class FirebaseLogger {
     return FIRLogOSLogObject(category)
   }
 
+  /// Returns a Swift Logger struct that may be used when using OSLog directly.
+  @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
+  public func osLogger() -> Logger {
+    return Logger(logObject())
+  }
+
   // MARK: - Private Helpers
 
   private func log(level: FirebaseLoggerLevel, messageID: Int, _ message: String,
