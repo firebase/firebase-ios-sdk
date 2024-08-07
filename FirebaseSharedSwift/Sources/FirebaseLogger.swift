@@ -42,7 +42,7 @@ public class FirebaseLogger {
   ///   - messageID: A six digit integer message identifier that is unique within the category.
   ///   - message: The message to log; may be a format string.
   ///   - arguments: A comma-separated list of arguments to substitute into `message`, if it is a
-  /// format string.
+  ///     format string.
   public func notice(messageID: Int, _ message: String, _ arguments: any CVarArg...) {
     log(level: .notice, messageID: messageID, message, arguments)
   }
@@ -53,7 +53,7 @@ public class FirebaseLogger {
   ///   - messageID: A six digit integer message identifier that is unique within the category.
   ///   - message: The message to log; may be a format string.
   ///   - arguments: A comma-separated list of arguments to substitute into `message`, if it is a
-  /// format string.
+  ///     format string.
   public func info(messageID: Int, _ message: String, _ arguments: any CVarArg...) {
     log(level: .info, messageID: messageID, message, arguments)
   }
@@ -64,7 +64,7 @@ public class FirebaseLogger {
   ///   - messageID: A six digit integer message identifier that is unique within the category.
   ///   - message: The message to log; may be a format string.
   ///   - arguments: A comma-separated list of arguments to substitute into `message`, if it is a
-  /// format string.
+  ///   format string.
   public func debug(messageID: Int, _ message: String, _ arguments: any CVarArg...) {
     log(level: .debug, messageID: messageID, message, arguments)
   }
@@ -75,7 +75,7 @@ public class FirebaseLogger {
   ///   - messageID: A six digit integer message identifier that is unique within the category.
   ///   - message: The message to log; may be a format string.
   ///   - arguments: A comma-separated list of arguments to substitute into `message`, if it is a
-  /// format string.
+  ///     format string.
   public func warning(messageID: Int, _ message: String, _ arguments: any CVarArg...) {
     log(level: .warning, messageID: messageID, message, arguments)
   }
@@ -86,7 +86,7 @@ public class FirebaseLogger {
   ///   - messageID: A six digit integer message identifier that is unique within the category.
   ///   - message: The message to log; may be a format string.
   ///   - arguments: A comma-separated list of arguments to substitute into `message`, if it is a
-  /// format string.
+  ///     format string.
   public func error(messageID: Int, _ message: String, _ arguments: any CVarArg...) {
     log(level: .error, messageID: messageID, message, arguments)
   }
@@ -120,7 +120,47 @@ public class FirebaseLogger {
     return FIRLogPrefix(category, categoryIdentifier, messageID)
   }
 
-  /// Returns the log object that should be used when using OSLog directly.
+  /// Returns the log object that may be used when using OSLog directly.
+  ///
+  /// ## Example Usage
+  /// ```swift
+  /// // Create a FirebaseLogger for the product.
+  /// let logger = FirebaseLogger(category: "FirebaseProduct", categoryIdentifier: "FBP")
+  ///
+  /// // Check if messages with the chosen log level (severity) should be logged.
+  /// if FirebaseLogger.isLoggableLevel(FirebaseLoggerLevel.debug) {
+  ///   os_log(
+  ///     // Get the equivalent OSLogType for the chosen log level.
+  ///     FirebaseLogger.osLogType(FirebaseLoggerLevel.debug),
+  ///     // Write to the OSLog log object for your FirebaseLogger.
+  ///     log: logger.logObject(),
+  ///     // Add the standard Firebase log message prefix with `%{public}@` since the contents of
+  ///     // dynamic strings are redacted by default.
+  ///     "%{public}@ Logged in - User name: %@, ID: %{private}ld, admin: %{BOOL}d",
+  ///     // The standard Firebase log message prefix does not contain sensitive user data but
+  ///     // dynamic string values are redacted by default; use the `%{public}@` format specifier to
+  ///     // prevent redacting.
+  ///     logger.messagePrefix(messageID: 1),
+  ///     // The user name is sensitive user data but is redacted by default; the `%@` format
+  ///     // specifier is sufficient.
+  ///     getUserName(),
+  ///     // The user ID is sensitive user data but integer values are not redacted by default;
+  ///     // redact using the `%{private}ld` format specifier.
+  ///     getUserID(),
+  ///     // The user's administrator status is not sensitive user data and is not redacted by
+  ///     // default; the `%{BOOL}d` format specifier is sufficient.
+  ///     getUserAdmin()
+  ///   )
+  /// }
+  /// ```
+  ///
+  /// - Important: When writing log messages that **do not** contain sensitive data, it is
+  ///   preferable to use the convenience logging methods ``notice(messageID:_:_:)``,
+  ///   ``info(messageID:_:_:)``, ``debug(messageID:_:_:)``, ``warning(messageID:_:_:)`` or
+  ///   ``error(messageID:_:_:)``; these methods default to `OSLogPrivacy.public`.
+  ///
+  /// - Tip: The `Logger` struct returned by ``osLogger()`` provides a nicer API for SDKs
+  ///   targeting iOS 14+ and equivalent.
   public func logObject() -> OSLog {
     return FIRLogOSLogObject(category)
   }
