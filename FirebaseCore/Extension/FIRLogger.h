@@ -72,9 +72,11 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
  */
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
 
+extern os_log_type_t FIRLoggerLevelToOSLogType(FIRLoggerLevel level);
+
 extern NSString *FIRLogMessageCode(NSString *categoryID, NSInteger messageID);
 
-extern NSString *FIRLogPrefix(NSString *category, NSString *categoryID, NSString *messageID);
+extern NSString *FIRLogPrefix(NSString *category, NSString *categoryID, NSInteger messageID);
 
 extern os_log_t FIRLogOSLogObject(NSString *category);
 

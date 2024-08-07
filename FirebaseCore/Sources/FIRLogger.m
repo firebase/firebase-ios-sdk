@@ -124,11 +124,27 @@ __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel lo
   return GULIsLoggableLevel((GULLoggerLevel)loggerLevel);
 }
 
+extern os_log_type_t FIRLoggerLevelToOSLogType(FIRLoggerLevel level) {
+  // TODO: Replace with call to GoogleUtilities, e.g., GULLoggerLevelToOSLogType(level)
+  // This implementation is for prototyping purposes only.
+  switch (level) {
+    case FIRLoggerLevelError:
+      return OS_LOG_TYPE_ERROR;
+    case FIRLoggerLevelWarning:
+    case FIRLoggerLevelNotice:
+      return OS_LOG_TYPE_DEFAULT;
+    case FIRLoggerLevelInfo:
+      return OS_LOG_TYPE_INFO;
+    case FIRLoggerLevelDebug:
+      return OS_LOG_TYPE_DEBUG;
+  }
+}
+
 NSString *FIRLogMessageCode(NSString *categoryID, NSInteger messageID) {
   return [NSString stringWithFormat:@"I-%@%06ld", categoryID, (long)messageID];
 }
 
-NSString *FIRLogPrefix(NSString *category, NSString *categoryID, NSString *messageID) {
+NSString *FIRLogPrefix(NSString *category, NSString *categoryID, NSInteger messageID) {
   // TODO: Replace with call to GoogleUtilities, e.g., GULOSLogPrefix(category, messageID)
   // This implementation is for prototyping purposes only.
   return [NSString stringWithFormat:@"%@ - %@[%@]", FIRFirebaseVersion(), category,

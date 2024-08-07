@@ -97,8 +97,16 @@ public class FirebaseLogger {
   ///
   /// - Parameters:
   ///   - level: The logging level to check.
-  public func isLoggableLevel(_ level: FirebaseLoggerLevel) -> Bool {
+  public static func isLoggableLevel(_ level: FirebaseLoggerLevel) -> Bool {
     FIRIsLoggableLevel(level, false)
+  }
+
+  /// Returns the `OSLogType` equivalent of the specified `FirebaseLoggerLevel`.
+  ///
+  /// - Parameters:
+  ///   - level: The desired Firebase logging level.
+  public static func osLogType(_ level: FirebaseLoggerLevel) -> OSLogType {
+    return FIRLoggerLevelToOSLogType(level)
   }
 
   /// Returns the prefix that should be prepended to log messages when using OSLog directly.
@@ -109,8 +117,7 @@ public class FirebaseLogger {
   /// - Parameters:
   ///   - messageID: A six digit integer message identifier that is unique within the category.
   public func messagePrefix(messageID: Int) -> String {
-    let code = FIRLogMessageCode(categoryIdentifier, messageID)
-    return FIRLogPrefix(category, categoryIdentifier, code)
+    return FIRLogPrefix(category, categoryIdentifier, messageID)
   }
 
   /// Returns the log object that should be used when using OSLog directly.
