@@ -1,0 +1,7 @@
+connectorId: "kitchen-sink"
+authMode: "PUBLIC" 
+
+generate:
+   swiftSdk:
+     outputDir: "/Users/aashishp/Code/firebase-ios-sdk/FirebaseDataConnect/Tests/Integration/Gen"
+     package: "KitchenSink"
