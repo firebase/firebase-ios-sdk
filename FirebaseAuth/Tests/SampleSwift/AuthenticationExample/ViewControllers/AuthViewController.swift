@@ -468,14 +468,14 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func verifyClient() {
-    AppManager.shared.auth().tokenManager.getTokenInternal { token, error in
-      if token == nil {
+    AppManager.shared.auth().tokenManager.getTokenInternal { result in
+      guard case .success(let token) = result else {
         print("Verify iOS Client failed.")
         return
       }
       let request = VerifyClientRequest(
-        withAppToken: token?.string,
-        isSandbox: token?.type == .sandbox,
+        withAppToken: token.string,
+        isSandbox: token.type == .sandbox,
         requestConfiguration: AppManager.shared.auth().requestConfiguration
       )
 
