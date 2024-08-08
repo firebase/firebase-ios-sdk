@@ -7,6 +7,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, FIRFirestoreVectorSource) {
-  FIRFirestoreVectorSourceServer,
-} NS_SWIFT_NAME(FirestoreVectorSource);
+typedef NS_ENUM(NSUInteger, FIRVectorSource) {
+  FIRVectorSourceServer,
+} NS_SWIFT_NAME(VectorSource);

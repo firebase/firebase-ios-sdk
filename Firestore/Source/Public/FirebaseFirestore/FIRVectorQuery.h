@@ -6,8 +6,8 @@
 //
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreVectorSource.h"
 #import "FIRVectorQuerySnapshot.h"
+#import "FIRVectorSource.h"
 
 @class FIRAggregateQuery;
 @class FIRAggregateField;
@@ -32,10 +32,9 @@ NS_SWIFT_NAME(VectorQuery)
  * @param completion a block to execute once the results have been successfully read.
  *     snapshot will be `nil` only if error is `non-nil`.
  */
-- (void)getDocumentsWithSource:(FIRFirestoreVectorSource)source
+- (void)getDocumentsWithSource:(FIRVectorSource)source
                     completion:(void (^)(FIRVectorQuerySnapshot *_Nullable snapshot,
-                                         NSError *_Nullable error))completion
-    NS_SWIFT_NAME(getDocuments(source:completion:));
+                                         NSError *_Nullable error))completion NS_REFINED_FOR_SWIFT;
 
 @end
 

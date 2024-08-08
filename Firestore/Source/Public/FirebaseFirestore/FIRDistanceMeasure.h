@@ -7,8 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, FIRFirestoreDistanceMeasure) {
-  FIRFirestoreDistanceMeasureCosine,
-  FIRFirestoreDistanceMeasureEuclidean,
-  FIRFirestoreDistanceMeasureDotProduct
+typedef NS_ENUM(NSUInteger, FIRDistanceMeasure) {
+  FIRDistanceMeasureCosine,
+  FIRDistanceMeasureEuclidean,
+  FIRDistanceMeasureDotProduct
 } NS_SWIFT_NAME(FirestoreDistanceMeasure);
