@@ -49,4 +49,42 @@ final class LoggingTests: XCTestCase {
     FirebaseLogger.vertexAI.osLogger()
       .error("Sensitive Privacy: bundleID[\(bundleID, privacy: .sensitive)]")
   }
+
+  @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
+  func testSwiftLoggerPrivacy() {
+    guard let bundleID = Bundle.main.bundleIdentifier else {
+      XCTFail("Bundle ID was nil.")
+      return
+    }
+    let logger = Logger(subsystem: "com.google.firebase", category: "[FirebaseVertexAI]")
+    logger.error("Default Privacy: bundleID[\(bundleID)]")
+    logger.error("Public Privacy: bundleID[\(bundleID, privacy: .public)]")
+    logger.error("Private Privacy: bundleID[\(bundleID, privacy: .private)]")
+    logger.error("Sensitive Privacy: bundleID[\(bundleID, privacy: .sensitive)]")
+  }
+
+  @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
+  func testOSLogPrivacy() {
+    guard let bundleID = Bundle.main.bundleIdentifier else {
+      XCTFail("Bundle ID was nil.")
+      return
+    }
+    let logObj = OSLog(subsystem: "com.google.firebase", category: "[FirebaseVertexAI]")
+    os_log(.error, log: logObj, "Default Privacy: bundleID[\(bundleID)]")
+    os_log(.error, log: logObj, "Public Privacy: bundleID[\(bundleID, privacy: .public)]")
+    os_log(.error, log: logObj, "Private Privacy: bundleID[\(bundleID, privacy: .private)]")
+    os_log(.error, log: logObj, "Sensitive Privacy: bundleID[\(bundleID, privacy: .sensitive)]")
+  }
+
+  func testOSLogLegacyPrivacy() {
+    guard let bundleID = Bundle.main.bundleIdentifier else {
+      XCTFail("Bundle ID was nil.")
+      return
+    }
+    let logObj = OSLog(subsystem: "com.google.firebase", category: "[FirebaseVertexAI]")
+    os_log(.error, log: logObj, "Default Privacy: bundleID[%@]", bundleID)
+    os_log(.error, log: logObj, "Public Privacy: bundleID[%{public}@]", bundleID)
+    os_log(.error, log: logObj, "Private Privacy: bundleID[%{private}@]", bundleID)
+    os_log(.error, log: logObj, "Sensitive Privacy: bundleID[%{sensitive}@]", bundleID)
+  }
 }
