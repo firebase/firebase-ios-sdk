@@ -68,7 +68,10 @@
       kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
         // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
         if applicableCallbacks.count == self.pendingCallbacks.count {
-          self.callback(withToken: nil, error: nil)
+          self.callback(
+            withToken: nil,
+            error: AuthErrorUtils.missingAppTokenError(underlyingError: nil)
+          )
         }
       }
     }
