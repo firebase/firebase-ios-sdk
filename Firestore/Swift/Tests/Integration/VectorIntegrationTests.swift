@@ -34,6 +34,21 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
     try await vectorQuery.getDocuments(source: VectorSource.server)
   }
 
+  func exampleFindNearestWithOptions() async throws {
+    let collection = collectionRef()
+
+    let vectorQuery = collection.findNearest(
+      fieldPath: "embedding",
+      queryVector: [1.0, 2.0, 3.0],
+      limit: 10,
+      distanceMeasure: FirestoreDistanceMeasure.cosine,
+      options: FindNearestOptions().withDistanceResultFieldPath("distance")
+        .withDistanceThreshold(0.5)
+    )
+
+    try await vectorQuery.getDocuments(source: VectorSource.server)
+  }
+
   func testWriteAndReadVectorEmbeddings() async throws {
     let collection = collectionRef()
 
