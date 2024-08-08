@@ -469,7 +469,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func verifyClient() {
     AppManager.shared.auth().tokenManager.getTokenInternal { result in
-      guard case .success(let token) = result else {
+      guard case let .success(token) = result else {
         print("Verify iOS Client failed.")
         return
       }
