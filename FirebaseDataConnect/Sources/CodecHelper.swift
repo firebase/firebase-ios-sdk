@@ -42,8 +42,6 @@ public class CodecHelper<K: CodingKey> {
     }
   }
 
-  
-
   // MARK: Decoding
 
   public func decode<T: Decodable>(_ type: T.Type, forKey: K,
@@ -63,8 +61,5 @@ public class CodecHelper<K: CodingKey> {
     return try container.decode(type, forKey: forKey)
   }
 
-  
-
   public init() {}
 }
-

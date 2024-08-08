@@ -1,0 +1,32 @@
+
+query GetStandardScalar($id: UUID!) @auth(level: PUBLIC) {
+    standardScalars(id: $id) {
+        id
+        number
+        text
+        decimal
+    }
+}
+
+query GetScalarBoundary($id: UUID!) @auth(level: PUBLIC) {
+    scalarBoundary(id: $id) {
+        maxNumber
+        minNumber
+        maxDecimal
+        minDecimal
+    }
+}
+
+query GetLargeNum($id: UUID!) @auth(level: PUBLIC) {
+    largeIntType(id: $id) {
+        num
+        maxNum
+        minNum
+    }
+}
+
+query GetLocalDateType($id: UUID!) @auth(level: PUBLIC) {
+    localDateType(id: $id) {
+        localDate
+    }
+}

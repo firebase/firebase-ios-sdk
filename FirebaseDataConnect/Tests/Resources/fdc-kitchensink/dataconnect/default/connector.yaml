@@ -1,0 +1,7 @@
+connectorId: "kitchen-sink"
+authMode: "PUBLIC" 
+
+generate:
+   swiftSdk:
+     outputDir: "../../../Gen"
+     package: "KitchenSink"

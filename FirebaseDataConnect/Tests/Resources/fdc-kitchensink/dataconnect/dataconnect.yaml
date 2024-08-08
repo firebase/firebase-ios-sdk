@@ -1,0 +1,11 @@
+specVersion: "v1alpha"
+serviceId: "fdc-kitchensink"
+location: "us-central1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "kitchensink"
+      cloudSql:
+        instanceId: "fdc-test"
+connectorDirs: ["./default"]

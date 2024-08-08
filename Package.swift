@@ -675,13 +675,20 @@ let package = Package(
         "FirebaseCoreExtension",
         "FirebaseSharedSwift",
       ],
-      path: "FirebaseDataConnect/Sources"
+      path: "FirebaseDataConnect/Sources",
+      swiftSettings: [
+        .enableExperimentalFeature("StrictConcurrency"),
+      ]
     ),
     .testTarget(
       name: "FirebaseDataConnectTests",
       dependencies: ["FirebaseDataConnect"],
       path: "FirebaseDataConnect/Tests",
-      resources: [.process("Tests/Resources")]
+      exclude: ["Gen/KitchenSink/Package.swift"],
+      resources: [
+        .process("Resources/GoogleService-Info.plist"),
+        .copy("Resources/fdc-kitchensink"),
+      ]
     ),
     .target(
       name: "FirebaseSharedSwift",
