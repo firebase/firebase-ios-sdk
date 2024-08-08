@@ -41,6 +41,11 @@ jobs:
         retry_on: error
         retry_wait_seconds: 120
         command: scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
+    - uses: actions/upload-artifact@v4
+      if: ${{ always() }}
+      with:
+        name: xcodebuild-raw-logs
+        path: xcodebuild.log
 
   spm-integration:
     strategy:
