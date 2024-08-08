@@ -3,6 +3,8 @@
 - [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking
   to any code that implemented an exhaustive `switch` on `AuthProviderID` in 11.0.0 - the `switch`
   will need expansion. (#13429)
+- [fixed] Fix crash in phone authentication flow from implicitly unwrapping
+  `nil` error. (#13470)
 
 # 11.0.0
 - [fixed] Fixed auth domain matching code to prioritize matching `firebaseapp.com` over `web.app`
