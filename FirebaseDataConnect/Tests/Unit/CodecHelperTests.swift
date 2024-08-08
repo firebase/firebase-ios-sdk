@@ -27,7 +27,7 @@ final class CodecHelperTests: XCTestCase {
     let uuidStr = "B7ACD615-1140-48F6-A522-26260D5C9367"
     let uuid = UUID(uuidString: uuidStr)
 
-    //lowercase this for test since the UUID class converts uuid to lowercase
+    // lowercase this for test since the UUID class converts uuid to lowercase
     let uuidNoDashStr = "B7ACD615114048F6A52226260D5C9367".lowercased()
 
     let uuidConverter = UUIDCodableConverter()
@@ -61,12 +61,11 @@ final class CodecHelperTests: XCTestCase {
     let uuidString: String? = nil
     let uuid: UUID? = try uuidConverter.decode(input: uuidString)
     XCTAssertNil(uuid)
-
   }
 
   func testInt64ToString() throws {
     let int64Converter = Int64CodableConverter()
-    let int64Val: Int64 = 9223372036854775807
+    let int64Val: Int64 = 9_223_372_036_854_775_807
     let expectedVal = "9223372036854775807"
 
     let convertedVal = try int64Converter.encode(input: int64Val)
@@ -75,7 +74,7 @@ final class CodecHelperTests: XCTestCase {
 
   func testStringToInt64() throws {
     let int64Converter = Int64CodableConverter()
-    let expectedVal: Int64 = 9223372036854775807
+    let expectedVal: Int64 = 9_223_372_036_854_775_807
     let stringVal = "9223372036854775807"
 
     let convertedVal = try int64Converter.decode(input: stringVal)
@@ -92,18 +91,16 @@ final class CodecHelperTests: XCTestCase {
     let codecValsDecoded = try jsonDecoder.decode(TestCodecValues.self, from: jsonData)
 
     XCTAssertEqual(codecVals, codecValsDecoded)
-
   }
 
   struct TestCodecValues: Codable, Equatable {
-
     enum CodingKeys: String, CodingKey {
       case largeVal
       case uuidVal
     }
 
-    var largeVal: Int64 = 9223372036854775807
-    var uuidVal: UUID = UUID()
+    var largeVal: Int64 = 9_223_372_036_854_775_807
+    var uuidVal: UUID = .init()
 
     init() {}
 
@@ -111,8 +108,8 @@ final class CodecHelperTests: XCTestCase {
       var container = try decoder.container(keyedBy: CodingKeys.self)
       let codecHelper = CodecHelper<CodingKeys>()
 
-      self.largeVal = try codecHelper.decode(Int64.self, forKey: .largeVal, container: &container)
-      self.uuidVal = try codecHelper.decode(UUID.self, forKey: .uuidVal, container: &container)
+      largeVal = try codecHelper.decode(Int64.self, forKey: .largeVal, container: &container)
+      uuidVal = try codecHelper.decode(UUID.self, forKey: .uuidVal, container: &container)
     }
 
     func encode(to encoder: any Encoder) throws {
@@ -123,6 +120,4 @@ final class CodecHelperTests: XCTestCase {
       try codecHelper.encode(uuidVal, forKey: .uuidVal, container: &container)
     }
   }
-
 }
-

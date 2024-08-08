@@ -15,7 +15,7 @@
 import Foundation
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-internal protocol CodableConverter {
+protocol CodableConverter {
   associatedtype E: Encodable
   associatedtype D: Decodable
 
@@ -24,8 +24,7 @@ internal protocol CodableConverter {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-internal class Int64CodableConverter: CodableConverter {
-
+class Int64CodableConverter: CodableConverter {
   func encode(input: Int64?) throws -> String? {
     guard let input else {
       return nil
@@ -47,15 +46,13 @@ internal class Int64CodableConverter: CodableConverter {
   }
 }
 
-
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-internal class UUIDCodableConverter: CodableConverter {
-
+class UUIDCodableConverter: CodableConverter {
   func encode(input: UUID?) throws -> String? {
     guard let input else {
       return nil
     }
-    
+
     let uuidNoDashString = convertToNoDashUUID(uuid: input)
     return uuidNoDashString
   }
@@ -68,7 +65,6 @@ internal class UUIDCodableConverter: CodableConverter {
     }
 
     return UUID(uuidString: dashesAddedUUID)
-
   }
 
   private func convertToNoDashUUID(uuid: UUID) -> String {

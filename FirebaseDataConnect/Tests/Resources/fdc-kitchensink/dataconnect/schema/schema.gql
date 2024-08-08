@@ -1,0 +1,35 @@
+#Types for Scalar Tests
+type TestId @table {
+    id: UUID!
+}
+
+type TestAutoId @table {
+    id: UUID! @default(expr: "uuidV4()")
+}
+
+type StandardScalars @table {
+    id: UUID!
+    number: Int!
+    text: String!
+    decimal: Float!
+}
+
+type ScalarBoundary @table {
+    id: UUID!
+    maxNumber: Int!
+    minNumber: Int!
+    maxDecimal: Float!
+    minDecimal: Float!
+}
+
+type LargeIntType @table {
+    id: UUID!
+    num: Int64!
+    maxNum: Int64!
+    minNum: Int64!
+}
+
+type LocalDateType @table {
+    id: UUID!
+    localDate: Date
+}

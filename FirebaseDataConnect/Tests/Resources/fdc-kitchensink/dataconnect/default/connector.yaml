@@ -3,5 +3,5 @@ authMode: "PUBLIC"
 
 generate:
    swiftSdk:
-     outputDir: "/Users/aashishp/Code/firebase-ios-sdk/FirebaseDataConnect/Tests/Integration/Gen"
+     outputDir: "../../../Gen"
      package: "KitchenSink"
