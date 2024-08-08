@@ -87,4 +87,15 @@ final class LoggingTests: XCTestCase {
     os_log(.error, log: logObj, "Private Privacy: bundleID[%{private}@]", bundleID)
     os_log(.error, log: logObj, "Sensitive Privacy: bundleID[%{sensitive}@]", bundleID)
   }
+
+  func testOSLogLegacyPrivacy_defaultLog() {
+    guard let bundleID = Bundle.main.bundleIdentifier else {
+      XCTFail("Bundle ID was nil.")
+      return
+    }
+    os_log(.error, "Default Privacy: bundleID[%@]", bundleID)
+    os_log(.error, "Public Privacy: bundleID[%{public}@]", bundleID)
+    os_log(.error, "Private Privacy: bundleID[%{private}@]", bundleID)
+    os_log(.error, "Sensitive Privacy: bundleID[%{sensitive}@]", bundleID)
+  }
 }
