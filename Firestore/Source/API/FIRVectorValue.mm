@@ -22,35 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRVectorValue () {
-  /** Internal vector representation */
-  std::vector<double> _internalValue;
-}
-
-@end
-
 @implementation FIRVectorValue
 
-- (NSArray<NSNumber *> *)array {
-  size_t length = _internalValue.size();
-  NSMutableArray<NSNumber *> *outArray =
-      [[NSMutableArray<NSNumber *> alloc] initWithCapacity:length];
-  for (size_t i = 0; i < length; i++) {
-    [outArray addObject:[[NSNumber alloc] initWithDouble:self->_internalValue.at(i)]];
-  }
-
-  return outArray;
-}
+@synthesize array = _internalValue;
 
 - (instancetype)initWithArray:(NSArray<NSNumber *> *)array {
   if (self = [super init]) {
-    std::vector<double> converted;
-    converted.reserve(array.count);
-    for (NSNumber *value in array) {
-      converted.emplace_back([value doubleValue]);
-    }
-
-    _internalValue = std::move(converted);
+    _internalValue = [NSArray arrayWithArray:array];
   }
   return self;
 }
@@ -66,15 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FIRVectorValue *otherVector = ((FIRVectorValue *)object);
 
-  if (self->_internalValue.size() != otherVector->_internalValue.size()) {
-    return NO;
-  }
-
-  for (size_t i = 0; i < self->_internalValue.size(); i++) {
-    if (self->_internalValue[i] != otherVector->_internalValue[i]) return NO;
-  }
-
-  return YES;
+  return [self.array isEqualToArray:otherVector.array];
 }
 
 @end
