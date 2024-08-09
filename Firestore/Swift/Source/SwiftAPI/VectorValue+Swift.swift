@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-@_exported import class FirebaseCore.Timestamp
-
-import FirebaseSharedSwift
-import Foundation
-
 #if SWIFT_PACKAGE
   @_exported import FirebaseFirestoreInternalWrapper
 #else
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
-  static func isPassthroughType<T>(_ t: T) -> Bool {
-    return
-      t is GeoPoint ||
-      t is Timestamp ||
-      t is FieldValue ||
-      t is DocumentReference ||
-      t is VectorValue
+public extension VectorValue {
+  convenience init(_ array: [Double]) {
+    let nsNumbers = array.map { float in
+      NSNumber(value: float)
+    }
+
+    self.init(__array: nsNumbers)
+  }
+
+  /// Returns a raw number array representation of the vector.
+  /// - Returns: An array of Double values representing the vector.
+  var array: [Double] {
+    return __array.map { Double(truncating: $0) }
   }
 }

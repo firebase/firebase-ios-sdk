@@ -288,6 +288,12 @@ nanopb::Message<google_firestore_v1_Value> Map(Args... key_value_pairs) {
   return details::MakeMap(std::move(key_value_pairs)...);
 }
 
+template <typename... Args>
+nanopb::Message<google_firestore_v1_Value> VectorType(Args&&... values) {
+  return Map("__type__", "__vector__", "value",
+             details::MakeArray(std::move(values)...));
+}
+
 model::DocumentKey Key(absl::string_view path);
 
 model::FieldPath Field(absl::string_view field);

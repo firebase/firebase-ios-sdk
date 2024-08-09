@@ -821,6 +821,24 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   ExpectRoundTrip(model, proto, TypeOrder::kMap);
 }
 
+TEST_F(SerializerTest, EncodesVectorValue) {
+  Message<google_firestore_v1_Value> model =
+      Map("__type__", "__vector__", "value", Array(1.0, 2.0, 3.0));
+
+  v1::Value array_proto;
+  *array_proto.mutable_array_value()->add_values() = ValueProto(1.0);
+  *array_proto.mutable_array_value()->add_values() = ValueProto(2.0);
+  *array_proto.mutable_array_value()->add_values() = ValueProto(3.0);
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__type__"] = ValueProto("__vector__");
+  (*fields)["value"] = array_proto;
+
+  ExpectRoundTrip(model, proto, TypeOrder::kVector);
+}
+
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   // Technically, serialized Value protos can contain multiple values. (The last
   // one "wins".) However, well-behaved proto emitters (such as libprotobuf)

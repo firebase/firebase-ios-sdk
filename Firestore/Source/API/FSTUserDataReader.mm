@@ -25,6 +25,7 @@
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
 #import "FIRGeoPoint.h"
+#import "FIRVectorValue.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
@@ -341,6 +342,42 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
+- (Message<google_firestore_v1_Value>)parseVectorValue:(FIRVectorValue *)vectorValue
+                                               context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+
+  result->map_value.fields_count = 2;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kTypeValueFieldKey);
+  result->map_value.fields[0].value = *[self encodeStringValue:MakeString(@"__vector__")].release();
+
+  NSArray<NSNumber *> *vectorArray = vectorValue.array;
+
+  __block Message<google_firestore_v1_Value> arrayMessage;
+  arrayMessage->which_value_type = google_firestore_v1_Value_array_value_tag;
+  arrayMessage->array_value.values_count = CheckedSize([vectorArray count]);
+  arrayMessage->array_value.values =
+      nanopb::MakeArray<google_firestore_v1_Value>(arrayMessage->array_value.values_count);
+
+  [vectorArray enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *) {
+    if (![entry isKindOfClass:[NSNumber class]]) {
+      ThrowInvalidArgument("VectorValues must only contain numeric values.",
+                           context.FieldDescription());
+    }
+
+    // Vector values must always use Double encoding
+    arrayMessage->array_value.values[idx] = *[self encodeDouble:[entry doubleValue]].release();
+  }];
+
+  result->map_value.fields[1].key = nanopb::CopyBytesArray(model::kVectorValueFieldKey);
+  result->map_value.fields[1].value = *arrayMessage.release();
+
+  return std::move(result);
+}
+
 - (Message<google_firestore_v1_Value>)parseArray:(NSArray<id> *)array
                                          context:(ParseContext &&)context {
   __block Message<google_firestore_v1_Value> result;
@@ -529,7 +566,9 @@ NS_ASSUME_NONNULL_BEGIN
           _databaseID.database_id(), context.FieldDescription());
     }
     return [self encodeReference:_databaseID key:reference.key];
-
+  } else if ([input isKindOfClass:[FIRVectorValue class]]) {
+    FIRVectorValue *vector = input;
+    return [self parseVectorValue:vector context:std::move(context)];
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),
                          context.FieldDescription());
