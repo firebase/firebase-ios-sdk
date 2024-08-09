@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-
 #include "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
