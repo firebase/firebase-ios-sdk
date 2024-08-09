@@ -31,8 +31,8 @@ mutation createScalarBoundary($id: UUID!, $maxNumber: Int!, $minNumber: Int!, $m
 mutation createLargeNum($id: UUID!, $num: Int64!, $maxNum: Int64!, $minNum: Int64!) @auth(level: PUBLIC) {
     largeIntType_insert(data: {
         id: $id,
-        num: $num, 
-        maxNum: $maxNum, 
+        num: $num,
+        maxNum: $maxNum,
         minNum: $minNum
     })
 }

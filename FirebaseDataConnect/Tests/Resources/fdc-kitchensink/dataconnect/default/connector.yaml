@@ -1,5 +1,5 @@
 connectorId: "kitchen-sink"
-authMode: "PUBLIC" 
+authMode: "PUBLIC"
 
 generate:
    swiftSdk:
