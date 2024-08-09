@@ -21,6 +21,34 @@ import Foundation
 // iOS 15 required for test implementation, not vector feature
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VectorIntegrationTests: FSTIntegrationTestCase {
+  func exampleFindNearest() async throws {
+    let collection = collectionRef()
+
+    let vectorQuery = collection.findNearest(
+      fieldPath: "embedding",
+      queryVector: [1.0, 2.0, 3.0],
+      limit: 10,
+      distanceMeasure: FirestoreDistanceMeasure.cosine
+    )
+
+    try await vectorQuery.getDocuments(source: VectorSource.server)
+  }
+
+  func exampleFindNearestWithOptions() async throws {
+    let collection = collectionRef()
+
+    let vectorQuery = collection.findNearest(
+      fieldPath: "embedding",
+      queryVector: [1.0, 2.0, 3.0],
+      limit: 10,
+      distanceMeasure: FirestoreDistanceMeasure.cosine,
+      options: FindNearestOptions().withDistanceResultFieldPath("distance")
+        .withDistanceThreshold(0.5)
+    )
+
+    try await vectorQuery.getDocuments(source: VectorSource.server)
+  }
+
   func testWriteAndReadVectorEmbeddings() async throws {
     let collection = collectionRef()
 

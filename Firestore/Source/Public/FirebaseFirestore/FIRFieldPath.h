@@ -36,7 +36,8 @@ NS_SWIFT_NAME(FieldPath)
  * @param fieldNames A list of field names.
  * @return A `FieldPath` that points to a field location in a document.
  */
-- (instancetype)initWithFields:(NSArray<NSString *> *)fieldNames NS_SWIFT_NAME(init(_:));
+- (instancetype)initWithFields:(NSArray<NSString *> *)fieldNames
+    NS_SWIFT_NAME(init(_:)) NS_DESIGNATED_INITIALIZER;
 
 /**
  * A special sentinel `FieldPath` to refer to the ID of a document. It can be used in queries to
