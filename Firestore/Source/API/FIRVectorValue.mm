@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <vector>
 
 #include "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
