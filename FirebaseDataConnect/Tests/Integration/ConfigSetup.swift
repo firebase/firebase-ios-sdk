@@ -21,8 +21,19 @@ enum KitchenSinkError: Error {
   case configureFailed
 }
 
-extension KitchenSinkClient {
+actor ProjectConfigurator {
+  static let shared = ProjectConfigurator()
+
+  private init() {}
+
+  private var setupComplete = false
+
   func configureProject(useDummyEngine: Bool = true) async throws {
+    guard !setupComplete else {
+      // setup already complete
+      return
+    }
+
     guard let resourcePath = Bundle.module.resourcePath
     else { throw KitchenSinkError.configureFailed }
     let projectDirPath = URL(fileURLWithPath: resourcePath)
@@ -46,5 +57,6 @@ extension KitchenSinkClient {
       from: configureBody.data(using: .utf8)!
     )
     print("responseData \(response)")
+    setupComplete = true
   }
 }

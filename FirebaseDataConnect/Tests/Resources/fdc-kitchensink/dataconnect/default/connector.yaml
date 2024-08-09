@@ -3,5 +3,5 @@ authMode: "PUBLIC"
 
 generate:
    swiftSdk:
-     outputDir: "../../../Gen"
+     outputDir: "../../../../Gen"
      package: "KitchenSink"

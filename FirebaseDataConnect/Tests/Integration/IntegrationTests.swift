@@ -27,16 +27,6 @@ final class IntegrationTests: XCTestCase {
     }
   }
 
-  private let setupQ = DispatchQueue(
-    label: "setupFDCIntegrationsTests",
-    autoreleaseFrequency: .workItem
-  )
-  private var _setupComplete = false
-  private var setupComplete: Bool {
-    set { setupQ.sync { _setupComplete = newValue } }
-    get { setupQ.sync { _setupComplete }}
-  }
-
   override class func setUp() {
     setupFirebaseApp()
     DataConnect.kitchenSinkClient.useEmulator(port: 3628)
@@ -44,17 +34,10 @@ final class IntegrationTests: XCTestCase {
 
   override func setUp(completion: @escaping ((any Error)?) -> Void) {
     Task {
-      guard !self.setupComplete else {
-        // emulator already configured with test project
-        return
-      }
-
       do {
-        try await DataConnect.kitchenSinkClient.configureProject()
-        self.setupComplete = true
+        try await ProjectConfigurator.shared.configureProject()
         completion(nil)
       } catch {
-        self.setupComplete = false
         completion(error)
       }
     }
