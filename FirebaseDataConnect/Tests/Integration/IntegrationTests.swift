@@ -44,17 +44,14 @@ final class IntegrationTests: XCTestCase {
 
   override func setUp(completion: @escaping ((any Error)?) -> Void) {
     Task {
-      print("setupComplete \(self.setupComplete) \(self)")
       guard !self.setupComplete else {
         // emulator already configured with test project
-        print("Project already configured")
         return
       }
 
       do {
         try await DataConnect.kitchenSinkClient.configureProject()
         self.setupComplete = true
-        print("setupComplete = true")
         completion(nil)
       } catch {
         self.setupComplete = false
