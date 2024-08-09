@@ -24,11 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRVectorValue
 
-@synthesize array = _internalValue;
-
 - (instancetype)initWithArray:(NSArray<NSNumber *> *)array {
   if (self = [super init]) {
-    _internalValue = [NSArray arrayWithArray:array];
+    _array = [array valueForKey:@"doubleValue"];
   }
   return self;
 }

@@ -1524,6 +1524,12 @@
 		EE6DBFB0874A50578CE97A7F /* leveldb_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0840319686A223CC4AD3FAB1 /* leveldb_remote_document_cache_test.cc */; };
 		EECC1EC64CA963A8376FA55C /* persistence_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9113B6F513D0473AEABBAF1F /* persistence_testing.cc */; };
 		EF3518F84255BAF3EBD317F6 /* exponential_backoff_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */; };
+		EF3A65482C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */; };
+		EF3A65492C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */; };
+		EF3A654A2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */; };
+		EF3A654B2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */; };
+		EF3A654C2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */; };
+		EF3A654D2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */; };
 		EF409F2A8AE28D177CCF635D /* Validation_BloomFilterTest_MD5_50000_0001_membership_test_result.json in Resources */ = {isa = PBXBuildFile; fileRef = 5B96CC29E9946508F022859C /* Validation_BloomFilterTest_MD5_50000_0001_membership_test_result.json */; };
 		EF43FF491B9282E0330E4CA2 /* remote_event_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 584AE2C37A55B408541A6FF3 /* remote_event_test.cc */; };
 		EF4FB3034994E6386F3C78FF /* leveldb_overlay_migration_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8A6D52723B1BABE1B7B8D8F /* leveldb_overlay_migration_manager_test.cc */; };
@@ -2083,6 +2089,7 @@
 		E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		E76F0CDF28E5FA62D21DE648 /* leveldb_target_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_target_cache_test.cc; sourceTree = "<group>"; };
 		ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRVectorValueTests.mm; sourceTree = "<group>"; };
 		EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRAggregateTests.mm; sourceTree = "<group>"; };
 		EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AggregationIntegrationTests.swift; sourceTree = "<group>"; };
 		EF83ACD5E1E9F25845A9ACED /* leveldb_migrations_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_migrations_test.cc; sourceTree = "<group>"; };
@@ -2923,6 +2930,7 @@
 				FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */,
 				5492E04D202154AA00B64F25 /* FIRSnapshotMetadataTests.mm */,
 				CF39ECA1293D21A0A2AB2626 /* FIRTransactionOptionsTests.mm */,
+				EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */,
 				5492E047202154AA00B64F25 /* FSTAPIHelpers.h */,
 				5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */,
 				8D9892F204959C50613F16C8 /* FSTUserDataReaderTests.mm */,
@@ -4116,6 +4124,7 @@
 				D39F0216BF1EA8CD54C76CF8 /* FIRQueryUnitTests.mm in Sources */,
 				2EAD77559EC654E6CA4D3E21 /* FIRSnapshotMetadataTests.mm in Sources */,
 				16FF9073CA381CA43CA9BF29 /* FIRTransactionOptionsTests.mm in Sources */,
+				EF3A654A2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */,
 				9D71628E38D9F64C965DF29E /* FSTAPIHelpers.mm in Sources */,
 				F4F00BF4E87D7F0F0F8831DB /* FSTEventAccumulator.mm in Sources */,
 				4F55A97F725D86E5CC6BE2DC /* FSTExceptionCatcher.m in Sources */,
@@ -4333,6 +4342,7 @@
 				518BF03D57FBAD7C632D18F8 /* FIRQueryUnitTests.mm in Sources */,
 				ED420D8F49DA5C41EEF93913 /* FIRSnapshotMetadataTests.mm in Sources */,
 				DBFE8B2E803C1D0DECB71FF6 /* FIRTransactionOptionsTests.mm in Sources */,
+				EF3A654C2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */,
 				6E4854B19B120C6F0F8192CC /* FSTAPIHelpers.mm in Sources */,
 				73E42D984FB36173A2BDA57C /* FSTEventAccumulator.mm in Sources */,
 				21E588CF29C72813D8A7A0A1 /* FSTExceptionCatcher.m in Sources */,
@@ -4565,6 +4575,7 @@
 				58B84B550725D9812729C7F7 /* FIRTransactionOptionsTests.mm in Sources */,
 				75D124966E727829A5F99249 /* FIRTypeTests.mm in Sources */,
 				12DB753599571E24DCED0C2C /* FIRValidationTests.mm in Sources */,
+				EF3A654D2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */,
 				BC0C98A9201E8F98B9A176A9 /* FIRWriteBatchTests.mm in Sources */,
 				D550446303227FB1B381133C /* FSTAPIHelpers.mm in Sources */,
 				A4ECA8335000CBDF94586C94 /* FSTDatastoreTests.mm in Sources */,
@@ -4806,6 +4817,7 @@
 				339D4DD13E1518BA79FF12EA /* FIRTransactionOptionsTests.mm in Sources */,
 				5F05A801B1EA44BC1264E55A /* FIRTypeTests.mm in Sources */,
 				8403D519C916C72B9C7F2FA1 /* FIRValidationTests.mm in Sources */,
+				EF3A654B2C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */,
 				8705C4856498F66E471A0997 /* FIRWriteBatchTests.mm in Sources */,
 				881E55152AB34465412F8542 /* FSTAPIHelpers.mm in Sources */,
 				4A64A339BCA77B9F875D1D8B /* FSTDatastoreTests.mm in Sources */,
@@ -5042,6 +5054,7 @@
 				CB2C731116D6C9464220626F /* FIRQueryUnitTests.mm in Sources */,
 				5492E057202154AB00B64F25 /* FIRSnapshotMetadataTests.mm in Sources */,
 				85A33A9CE33207C2333DDD32 /* FIRTransactionOptionsTests.mm in Sources */,
+				EF3A65482C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */,
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
 				38C37F0CE0AB18F1AAE6E67C /* FSTExceptionCatcher.m in Sources */,
@@ -5293,6 +5306,7 @@
 				913C2DB6951A2ED24778686C /* FIRTransactionOptionsTests.mm in Sources */,
 				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
 				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
+				EF3A65492C66B9560041EE69 /* FIRVectorValueTests.mm in Sources */,
 				5492E078202154D600B64F25 /* FIRWriteBatchTests.mm in Sources */,
 				D9EF7FC0E3F8646B272B427E /* FSTAPIHelpers.mm in Sources */,
 				5492E082202154EC00B64F25 /* FSTDatastoreTests.mm in Sources */,
