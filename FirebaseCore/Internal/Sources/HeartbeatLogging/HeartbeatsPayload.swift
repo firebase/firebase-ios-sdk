@@ -115,8 +115,8 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
 // MARK: - Static Defaults
 
 extension HeartbeatsPayload {
-  /// Convenience instance that represents an empty payload.
-  static let emptyPayload = HeartbeatsPayload()
+  /// Conveniently creates an  instance that represents an empty payload.
+  static var emptyPayload: Self { HeartbeatsPayload() }
 
   /// A default date formatter that uses `yyyy-MM-dd` format.
   public static let dateFormatter: DateFormatter = {
