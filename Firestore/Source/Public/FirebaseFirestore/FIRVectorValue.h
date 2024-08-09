@@ -25,7 +25,7 @@ NS_SWIFT_NAME(VectorValue)
 @interface FIRVectorValue : NSObject
 
 /** Returns a copy of the raw number array that represents the vector. */
-@property(readonly) NSArray<NSNumber *> *array NS_REFINED_FOR_SWIFT;
+@property(atomic, readonly) NSArray<NSNumber *> *array NS_REFINED_FOR_SWIFT;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
