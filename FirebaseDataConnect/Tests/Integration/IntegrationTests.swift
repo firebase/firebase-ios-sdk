@@ -83,6 +83,7 @@ final class IntegrationTests: XCTestCase {
     let testInt = Int(Int32.random(in: Int32.min ... Int32.max))
     // The following fails since server returns a different value.
     // The value is outside the 32-bit range and GQL Int is 32-bits.
+    // Tracked internally with issue - b/358198261
     // let testInt = -6196243450739521536
 
     let executeResult = try await DataConnect.kitchenSinkClient.createStandardScalarMutationRef(
