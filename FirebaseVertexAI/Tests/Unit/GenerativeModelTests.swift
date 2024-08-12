@@ -251,7 +251,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     guard case let .functionCall(functionCall) = part else {
-      XCTFail("Part is not a FunctionCall.")
+      XCTFail("Part is not a FunctionCall")
       return
     }
     XCTAssertEqual(functionCall.name, "sum")
