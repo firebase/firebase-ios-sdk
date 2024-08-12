@@ -1,7 +1,7 @@
 connectorId: "kitchen-sink"
 authMode: "PUBLIC"
 
-# If you are changing the fdc-kitchensink schem or operations
+# If you are changing the fdc-kitchensink schema or operations
 # Adjust the outputDir to your local path
 # Copy the generated files from generated "Sources" folder 
 # into the FirebaseDataConnect/Tests/Integration folder
