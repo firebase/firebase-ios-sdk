@@ -44,7 +44,7 @@ public protocol HTTPHeaderRepresentable {
 ///       ]
 ///     }
 ///
-public struct HeartbeatsPayload: Codable {
+public struct HeartbeatsPayload: Codable, Sendable {
   /// The version of the payload. See go/firebase-apple-heartbeats for details regarding current
   /// version.
   static let version: Int = 2
@@ -115,8 +115,8 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
 // MARK: - Static Defaults
 
 extension HeartbeatsPayload {
-  /// Conveniently creates an  instance that represents an empty payload.
-  static var emptyPayload: Self { HeartbeatsPayload() }
+  /// Convenience instance that represents an empty payload.
+  static let emptyPayload = HeartbeatsPayload()
 
   /// A default date formatter that uses `yyyy-MM-dd` format.
   public static let dateFormatter: DateFormatter = {
