@@ -675,10 +675,7 @@ let package = Package(
         "FirebaseCoreExtension",
         "FirebaseSharedSwift",
       ],
-      path: "FirebaseDataConnect/Sources",
-      swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency"),
-      ]
+      path: "FirebaseDataConnect/Sources"
     ),
     .testTarget(
       name: "FirebaseDataConnectTests",
