@@ -686,7 +686,6 @@ let package = Package(
       path: "FirebaseDataConnect/Tests",
       exclude: ["Gen/KitchenSink/Package.swift"],
       resources: [
-        .process("Resources/GoogleService-Info.plist"),
         .copy("Resources/fdc-kitchensink"),
       ]
     ),
