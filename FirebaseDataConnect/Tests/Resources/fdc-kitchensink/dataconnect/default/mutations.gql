@@ -1,0 +1,45 @@
+
+mutation createTestId($id: UUID!) @auth(level: PUBLIC) {
+    testId_insert(data: {
+        id: $id
+    })
+}
+
+mutation createTestAutoId @auth(level: PUBLIC) {
+    testAutoId_insert(data: {})
+}
+
+mutation createStandardScalar($id: UUID!, $number: Int!, $text: String!, $decimal: Float!) @auth(level: PUBLIC) {
+    standardScalars_insert(data: {
+        id: $id,
+        number: $number,
+        text: $text,
+        decimal: $decimal
+    })
+}
+
+mutation createScalarBoundary($id: UUID!, $maxNumber: Int!, $minNumber: Int!, $maxDecimal: Float!, $minDecimal: Float!) @auth(level: PUBLIC) {
+    scalarBoundary_insert(data: {
+        id: $id,
+        maxNumber: $maxNumber,
+        minNumber: $minNumber,
+        maxDecimal: $maxDecimal,
+        minDecimal: $minDecimal
+    })
+}
+
+mutation createLargeNum($id: UUID!, $num: Int64!, $maxNum: Int64!, $minNum: Int64!) @auth(level: PUBLIC) {
+    largeIntType_insert(data: {
+        id: $id,
+        num: $num,
+        maxNum: $maxNum,
+        minNum: $minNum
+    })
+}
+
+mutation createLocalDate($id: UUID!, $localDate: Date!) @auth(level: PUBLIC) {
+    localDateType_insert(data: {
+        id: $id
+        localDate: $localDate
+    })
+}

@@ -1,0 +1,12 @@
+connectorId: "kitchen-sink"
+authMode: "PUBLIC"
+
+# If you are changing the fdc-kitchensink schema or operations
+# Adjust the outputDir to your local path
+# Copy the generated files from generated "Sources" folder
+# into the FirebaseDataConnect/Tests/Integration folder
+# In future, we can consider a Test only Swift build plugin to gen the files, to avoid this.
+generate:
+   swiftSdk:
+     outputDir: "/Users/aashishp/Scratchpad/KitchenSinkSwiftGen"
+     package: "KitchenSink"

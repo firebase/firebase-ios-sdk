@@ -681,7 +681,10 @@ let package = Package(
       name: "FirebaseDataConnectTests",
       dependencies: ["FirebaseDataConnect"],
       path: "FirebaseDataConnect/Tests",
-      resources: [.process("Tests/Resources")]
+      exclude: ["Gen/KitchenSink/Package.swift"],
+      resources: [
+        .copy("Resources/fdc-kitchensink"),
+      ]
     ),
     .target(
       name: "FirebaseSharedSwift",
