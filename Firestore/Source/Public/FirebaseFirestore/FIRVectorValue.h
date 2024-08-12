@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Represents a vector type in Firestore documents.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(VectorValue)
 @interface FIRVectorValue : NSObject
 
