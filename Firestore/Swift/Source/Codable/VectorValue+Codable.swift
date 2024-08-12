@@ -58,4 +58,4 @@ extension CodableVectorValue {
 }
 
 /** Extends VectorValue to conform to Codable. */
-extension VectorValue: CodableVectorValue {}
+extension FirebaseFirestore.VectorValue: FirebaseFirestore.CodableVectorValue {}
