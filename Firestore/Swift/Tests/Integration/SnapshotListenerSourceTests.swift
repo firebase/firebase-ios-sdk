@@ -673,4 +673,84 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     defaultRegistration.remove()
     cacheRegistration.remove()
   }
+
+  func testListenToDocumentsWithVectors() throws {
+    let collection = collectionRef()
+    let doc = collection.document()
+
+    let registration = collection.whereField("purpose", isEqualTo: "vector tests")
+      .addSnapshotListener(eventAccumulator.valueEventHandler)
+
+    var querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, true)
+
+    doc.setData([
+      "purpose": "vector tests",
+      "vector0": FieldValue.vector([0.0]),
+      "vector1": FieldValue.vector([1, 2, 3.99]),
+    ])
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector0"] as! VectorValue,
+      FieldValue.vector([0.0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector1"] as! VectorValue,
+      FieldValue.vector([1, 2, 3.99])
+    )
+
+    doc.setData([
+      "purpose": "vector tests",
+      "vector0": FieldValue.vector([0.0]),
+      "vector1": FieldValue.vector([1, 2, 3.99]),
+      "vector2": FieldValue.vector([0.0, 0, 0]),
+    ])
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector0"] as! VectorValue,
+      FieldValue.vector([0.0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector1"] as! VectorValue,
+      FieldValue.vector([1, 2, 3.99])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector2"] as! VectorValue,
+      FieldValue.vector([0.0, 0, 0])
+    )
+
+    doc.updateData([
+      "vector3": FieldValue.vector([-1, -200, -999.0]),
+    ])
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector0"] as! VectorValue,
+      FieldValue.vector([0.0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector1"] as! VectorValue,
+      FieldValue.vector([1, 2, 3.99])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector2"] as! VectorValue,
+      FieldValue.vector([0.0, 0, 0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector3"] as! VectorValue,
+      FieldValue.vector([-1, -200, -999.0])
+    )
+
+    doc.delete()
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, true)
+
+    eventAccumulator.assertNoAdditionalEvents()
+    registration.remove()
+  }
 }

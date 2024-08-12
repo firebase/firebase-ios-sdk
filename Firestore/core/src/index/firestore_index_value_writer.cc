@@ -21,6 +21,7 @@
 #include <string>
 
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
 namespace firebase {
@@ -46,6 +47,7 @@ enum IndexType {
   kReference = 37,
   kGeopoint = 45,
   kArray = 50,
+  kVector = 53,
   kMap = 55,
   kReferenceSegment = 60,
   // A terminator that indicates that a truncatable value was not truncated.
@@ -103,6 +105,31 @@ void WriteIndexArray(const google_firestore_v1_ArrayValue& array_index_value,
   for (pb_size_t i = 0; i < array_index_value.values_count; ++i) {
     WriteIndexValueAux(array_index_value.values[i], encoder);
   }
+}
+
+void WriteIndexVector(const google_firestore_v1_MapValue& map_index_value,
+                      DirectionalIndexByteEncoder* encoder) {
+  WriteValueTypeLabel(encoder, IndexType::kVector);
+
+  absl::optional<pb_size_t> valueIndex =
+      model::IndexOfKey(map_index_value, model::kRawVectorValueFieldKey,
+                        model::kVectorValueFieldKey);
+
+  if (!valueIndex.has_value() ||
+      map_index_value.fields[valueIndex.value()].value.which_value_type !=
+          google_firestore_v1_Value_array_value_tag) {
+    return WriteIndexArray(model::MinArray().array_value, encoder);
+  }
+
+  auto value = map_index_value.fields[valueIndex.value()].value;
+
+  // Vectors sort first by length
+  WriteValueTypeLabel(encoder, IndexType::kNumber);
+  encoder->WriteLong(value.array_value.values_count);
+
+  // Vectors then sort by position value
+  WriteIndexString(model::kVectorValueFieldKey, encoder);
+  WriteIndexValueAux(value, encoder);
 }
 
 void WriteIndexMap(google_firestore_v1_MapValue map_index_value,
@@ -182,6 +209,9 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
       // In that case, we encode the max int value instead.
       if (model::IsMaxValue(index_value)) {
         WriteValueTypeLabel(encoder, std::numeric_limits<int>::max());
+        break;
+      } else if (model::IsVectorValue(index_value)) {
+        WriteIndexVector(index_value.map_value, encoder);
         break;
       }
       WriteIndexMap(index_value.map_value, encoder);
