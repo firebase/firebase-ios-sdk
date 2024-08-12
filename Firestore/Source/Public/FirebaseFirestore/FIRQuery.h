@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRDistanceMeasure.h"
+#import "FIRFindNearestOptions.h"
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 #import "FIRSnapshotListenOptions.h"
@@ -27,6 +29,8 @@
 @class FIRFilter;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
+@class FIRVectorQuery;
+@class FIRVectorValue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,6 +52,13 @@ NS_SWIFT_NAME(Query)
 
 /** The `Firestore` instance that created this query (useful for performing transactions, etc.). */
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
+
+- (nonnull FIRVectorQuery *)findNearestWithFieldPath:(nonnull FIRFieldPath *)fieldPath
+                                    queryVectorValue:(nonnull FIRVectorValue *)queryVectorValue
+                                               limit:(int64_t)limit
+                                     distanceMeasure:(FIRDistanceMeasure)distanceMeasure
+                                             options:(nonnull FIRFindNearestOptions *)options
+    NS_REFINED_FOR_SWIFT;
 
 #pragma mark - Retrieving Data
 /**
