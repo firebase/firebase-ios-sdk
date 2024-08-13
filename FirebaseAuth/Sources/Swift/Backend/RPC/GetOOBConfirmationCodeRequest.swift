@@ -78,6 +78,9 @@ private let kCanHandleCodeInAppKey = "canHandleCodeInApp"
 /// The key for the "dynamic link domain" value in the request.
 private let kDynamicLinkDomainKey = "dynamicLinkDomain"
 
+/// The key for the " link domain" value in the request.
+private let kLinkDomainKey = "linkDomain"
+
 /// The value for the "PASSWORD_RESET" request type.
 private let kPasswordResetRequestTypeValue = "PASSWORD_RESET"
 
@@ -140,6 +143,9 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The Firebase Dynamic Link domain used for out of band code flow.
   private(set) var dynamicLinkDomain: String?
 
+  /// The Firebase Hosting  domain used for out of band code flow.
+  private(set) var linkDomain: String?
+
   /// Response to the captcha.
   var captchaResponse: String?
 
@@ -172,6 +178,7 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     androidInstallApp = actionCodeSettings?.androidInstallIfNotAvailable ?? false
     handleCodeInApp = actionCodeSettings?.handleCodeInApp ?? false
     dynamicLinkDomain = actionCodeSettings?.dynamicLinkDomain
+    linkDomain = actionCodeSettings?.linkDomain
 
     super.init(
       endpoint: kGetOobConfirmationCodeEndpoint,
@@ -273,6 +280,9 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     }
     if let dynamicLinkDomain {
       body[kDynamicLinkDomainKey] = dynamicLinkDomain
+    }
+    if let linkDomain {
+      body[kLinkDomainKey] = linkDomain
     }
     if let captchaResponse {
       body[kCaptchaResponseKey] = captchaResponse
