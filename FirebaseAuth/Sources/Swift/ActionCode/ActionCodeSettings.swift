@@ -40,7 +40,6 @@ import Foundation
   @objc open var androidInstallIfNotAvailable: Bool = false
 
   /// The Firebase Dynamic Link domain used for out of band code flow.
-  @available(*, deprecated, message: "Use linkDomain instead.")
   @objc open var dynamicLinkDomain: String?
 
   /// The out of band code custom domain for handling code in app
