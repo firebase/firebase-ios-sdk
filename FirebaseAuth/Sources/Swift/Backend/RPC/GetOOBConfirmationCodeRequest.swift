@@ -143,7 +143,7 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The Firebase Dynamic Link domain used for out of band code flow.
   private(set) var dynamicLinkDomain: String?
 
-  /// The Firebase Hosting  domain used for out of band code flow.
+  /// The Firebase Hosting domain used for out of band code flow.
   private(set) var linkDomain: String?
 
   /// Response to the captcha.
