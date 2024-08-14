@@ -32,6 +32,7 @@ class PasswordlessViewController: OtherAuthViewController {
   // MARK: - Firebase 🔥
 
   private let authorizedDomain: String = "ENTER AUTHORIZED DOMAIN"
+  private let customDomain: String = "ENTER AUTHORIZED HOSTING DOMAIN"
 
   private func sendSignInLink(to email: String) {
     let actionCodeSettings = ActionCodeSettings()
@@ -42,6 +43,7 @@ class PasswordlessViewController: OtherAuthViewController {
     // The sign-in operation must be completed in the app.
     actionCodeSettings.handleCodeInApp = true
     actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+    actionCodeSettings.linkDomain = customDomain
 
     AppManager.shared.auth()
       .sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
