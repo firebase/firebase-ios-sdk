@@ -78,7 +78,7 @@ private let kCanHandleCodeInAppKey = "canHandleCodeInApp"
 /// The key for the "dynamic link domain" value in the request.
 private let kDynamicLinkDomainKey = "dynamicLinkDomain"
 
-/// The key for the " link domain" value in the request.
+/// The key for the "link domain" value in the request.
 private let kLinkDomainKey = "linkDomain"
 
 /// The value for the "PASSWORD_RESET" request type.
