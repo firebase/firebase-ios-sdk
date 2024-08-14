@@ -42,7 +42,7 @@ import Foundation
   /// The Firebase Dynamic Link domain used for out of band code flow.
   @objc open var dynamicLinkDomain: String?
 
-  /// The out of band code custom domain for handling code in app
+  /// The out of band custom domain for handling code in app.
   @objc open var linkDomain: String?
 
   /// Sets the iOS bundle ID.
