@@ -160,7 +160,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .linkDomain:
       changeActionCodeLinkDomain(at: indexPath)
-      
+
     case .requestVerifyEmail:
       requestVerifyEmail()
 
@@ -569,7 +569,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       self.tableView.reloadData()
     })
   }
-  
+
   private func changeActionCodeLinkDomain(at indexPath: IndexPath) {
     showTextInputPrompt(with: "Link Domain:", completion: { newLinkDomain in
       self.actionCodeLinkDomain = newLinkDomain
