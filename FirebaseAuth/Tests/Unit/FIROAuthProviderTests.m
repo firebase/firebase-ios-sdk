@@ -162,10 +162,11 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
   XCTAssertEqualObjects(OAuthCredential.IDToken, kFakeIDToken);
 }
 
-/** @fn testGetCredentialWithUIDelegateWithClientIDonMainThread
-    @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
+/** @fn testGetCredentialWithUIDelegateWithClientIDOnMainThread
+    @brief Verifies @c getCredentialWithUIDelegate:completion: calls its completion handler on the
+   main thread. Regression test for  firebase/FirebaseUI-iOS#1199.
  */
-- (void)testGetCredentialWithUIDelegateWithClientID {
+- (void)testGetCredentialWithUIDelegateWithClientIDOnMainThread {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
 
   FIROptions *options =
