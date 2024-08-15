@@ -343,11 +343,13 @@ import Foundation
     @objc(getCredentialWithUIDelegate:completion:)
     open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
-        getCredentialWith(uiDelegate) { credential, error in
-          if let credential = credential {
-            continuation.resume(returning: credential)
-          } else {
-            continuation.resume(throwing: error!) // TODO: Change to ?? and generate unknown error
+        DispatchQueue.main.async {
+          self.getCredentialWith(uiDelegate) { credential, error in
+            if let credential = credential {
+              continuation.resume(returning: credential)
+            } else {
+              continuation.resume(throwing: error!) // TODO: Change to ?? and generate unknown error
+            }
           }
         }
       }
