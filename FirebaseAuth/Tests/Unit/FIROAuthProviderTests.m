@@ -180,7 +180,7 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
   [auth setMainBundleUrlTypes:@[ @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]} ]];
 
   FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:auth];
-  [provider getCredentialWithUIDelegate:self
+  [provider getCredentialWithUIDelegate:nil
                              completion:^(FIRAuthCredential *_Nullable credential,
                                           NSError *_Nullable error) {
                                XCTAssertTrue([NSThread isMainThread]);
