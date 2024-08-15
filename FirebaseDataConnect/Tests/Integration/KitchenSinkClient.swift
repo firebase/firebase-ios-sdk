@@ -1,6 +1,7 @@
 import FirebaseDataConnect
 import Foundation
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public extension DataConnect {
   static var kitchenSinkClient: KitchenSinkClient = {
     let dc = DataConnect.dataConnect(connectorConfig: KitchenSinkClient.connectorConfig)
@@ -8,6 +9,7 @@ public extension DataConnect {
   }()
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class KitchenSinkClient {
   var dataConnect: DataConnect
 
