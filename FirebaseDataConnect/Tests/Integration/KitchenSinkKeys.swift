@@ -10,6 +10,7 @@ public struct LargeIntTypeKey {
   }
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension LargeIntTypeKey: Codable {
   public init(from decoder: any Decoder) throws {
     var container = try decoder.container(keyedBy: CodingKeys.self)
@@ -50,6 +51,7 @@ public struct LocalDateTypeKey {
   }
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension LocalDateTypeKey: Codable {
   public init(from decoder: any Decoder) throws {
     var container = try decoder.container(keyedBy: CodingKeys.self)
@@ -90,6 +92,7 @@ public struct ScalarBoundaryKey {
   }
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension ScalarBoundaryKey: Codable {
   public init(from decoder: any Decoder) throws {
     var container = try decoder.container(keyedBy: CodingKeys.self)
@@ -130,6 +133,7 @@ public struct StandardScalarsKey {
   }
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension StandardScalarsKey: Codable {
   public init(from decoder: any Decoder) throws {
     var container = try decoder.container(keyedBy: CodingKeys.self)
@@ -170,6 +174,7 @@ public struct TestAutoIdKey {
   }
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension TestAutoIdKey: Codable {
   public init(from decoder: any Decoder) throws {
     var container = try decoder.container(keyedBy: CodingKeys.self)
@@ -210,6 +215,7 @@ public struct TestIdKey {
   }
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension TestIdKey: Codable {
   public init(from decoder: any Decoder) throws {
     var container = try decoder.container(keyedBy: CodingKeys.self)

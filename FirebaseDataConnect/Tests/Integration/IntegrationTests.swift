@@ -17,6 +17,7 @@ import XCTest
 import FirebaseCore
 @testable import FirebaseDataConnect
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 final class IntegrationTests: XCTestCase {
   class func setupFirebaseApp() {
     if FirebaseApp.app() == nil {

@@ -21,6 +21,7 @@ enum KitchenSinkError: Error {
   case configureFailed
 }
 
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 actor ProjectConfigurator {
   static let shared = ProjectConfigurator()
 
