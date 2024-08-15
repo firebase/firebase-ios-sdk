@@ -42,7 +42,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: String = codeSettings.androidPackageName,
        let _: String = codeSettings.androidMinimumVersion,
        let _: String = codeSettings.dynamicLinkDomain,
-       let _: String = codeSettings.linkDomain {},
+       let _: String = codeSettings.linkDomain {}
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
