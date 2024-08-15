@@ -17,7 +17,6 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 @import FirebaseAuth;
@@ -112,7 +111,6 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
     @brief A fake callback URL (minus the scheme) containing a fake response URL.
  */
 
-
 @interface FIROAuthProviderTests : XCTestCase
 
 @end
@@ -170,23 +168,23 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
 - (void)testGetCredentialWithUIDelegateWithClientID {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
 
-  FIROptions *options = [[FIROptions alloc]
-                         initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
-                      GCMSenderID:@"00000000000000000-00000000000-000000000"];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
+                                  GCMSenderID:@"00000000000000000-00000000000-000000000"];
   options.APIKey = kFakeAPIKey;
   options.projectID = @"myProjectID";
-  options.clientID = kFakeClientID ;
+  options.clientID = kFakeClientID;
   [FIRApp configureWithName:@"objAppName" options:options];
   FIRAuth *auth = [FIRAuth authWithApp:[FIRApp appNamed:@"objAppName"]];
-  [auth setMainBundleUrlTypes:@[@{@"CFBundleURLSchemes": @[kFakeReverseClientID]}]];
+  [auth setMainBundleUrlTypes:@[ @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]} ]];
 
   FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:auth];
   [provider getCredentialWithUIDelegate:self
-                             completion:^(FIRAuthCredential * _Nullable credential,
-                                          NSError * _Nullable error) {
-    XCTAssertTrue([NSThread isMainThread]);
-    [expectation fulfill];
-  }];
+                             completion:^(FIRAuthCredential *_Nullable credential,
+                                          NSError *_Nullable error) {
+                               XCTAssertTrue([NSThread isMainThread]);
+                               [expectation fulfill];
+                             }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 @end

@@ -2320,8 +2320,12 @@ extension Auth: AuthInterop {
 
   // MARK: Internal properties
 
-  /// Allow tests to swap in an alternate mainBundle.
-  @objc public var mainBundleUrlTypes: [[String: Any]]!
+  /// Allow tests to swap in an alternate mainBundle, including ObjC unit tests via CocoaPods.
+  #if FIREBASE_CI
+    @objc public var mainBundleUrlTypes: [[String: Any]]!
+  #else
+    var mainBundleUrlTypes: [[String: Any]]!
+  #endif
 
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
