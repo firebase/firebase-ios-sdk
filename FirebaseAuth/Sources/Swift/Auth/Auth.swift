@@ -2321,7 +2321,7 @@ extension Auth: AuthInterop {
   // MARK: Internal properties
 
   /// Allow tests to swap in an alternate mainBundle.
-  var mainBundleUrlTypes: [[String: Any]]!
+  @objc public var mainBundleUrlTypes: [[String: Any]]!
 
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
