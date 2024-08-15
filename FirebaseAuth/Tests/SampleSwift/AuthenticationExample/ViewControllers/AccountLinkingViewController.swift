@@ -317,6 +317,9 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
   /// Similar to in `PasswordlessViewController`, enter the authorized domain.
   /// Please refer to this Quickstart's README for more information.
   private let authorizedDomain: String = "ENTER AUTHORIZED DOMAIN"
+
+  /// This is the replacement for customized dynamic link domain.
+  private let customDomain: String = "ENTER AUTHORIZED HOSTING DOMAIN"
   /// Maintain a reference to the email entered for linking user to Passwordless.
   private var email: String?
 
@@ -343,6 +346,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     // The sign-in operation must be completed in the app.
     actionCodeSettings.handleCodeInApp = true
     actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+    actionCodeSettings.linkDomain = customDomain
 
     AppManager.shared.auth()
       .sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
