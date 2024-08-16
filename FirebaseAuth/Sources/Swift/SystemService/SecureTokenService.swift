@@ -59,27 +59,14 @@ class SecureTokenService: NSObject, NSSecureCoding {
   ///
   ///    Invoked asynchronously on the auth global work queue in the future.
   /// - Parameter forceRefresh: Forces the token to be refreshed.
-  /// - Parameter callback: Callback block that will be called to return either the token or an
-  /// error.
-  func fetchAccessToken(forcingRefresh forceRefresh: Bool,
-                        callback: @escaping (String?, Error?, Bool) -> Void) {
-    taskQueue.enqueueTask { complete in
-      if !forceRefresh, self.hasValidAccessToken() {
-        complete()
-        callback(self.accessToken, nil, false)
-      } else {
-        AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
-        Task {
-          do {
-            let (token, tokenUpdated) = try await self.requestAccessToken(retryIfExpired: true)
-            complete()
-            callback(token, nil, tokenUpdated)
-          } catch {
-            complete()
-            callback(nil, error, false)
-          }
-        }
-      }
+  /// - Returns : A tuple with the token and flag of whetehr it was updated.
+  @MainActor
+  func fetchAccessToken(forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
+    if !forceRefresh, hasValidAccessToken() {
+      return (accessToken, false)
+    } else {
+      AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
+      return try await requestAccessToken(retryIfExpired: true)
     }
   }
 

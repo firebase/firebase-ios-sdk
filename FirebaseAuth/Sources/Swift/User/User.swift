@@ -376,7 +376,12 @@ extension User: NSSecureCoding {}
             return
           }
           // Successful reauthenticate
-          self.setTokenService(tokenService: user.tokenService) { error in
+          do {
+            try await self.setTokenService(tokenService: user.tokenService)
+            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                            result: authResult,
+                                                            error: nil)
+          } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: authResult,
                                                             error: error)
@@ -852,47 +857,47 @@ extension User: NSSecureCoding {}
           completeAndCallbackWithError(AuthErrorUtils.noSuchProviderError())
           return
         }
-        request.deleteProviders = [provider]
-        Task {
-          do {
-            let response = try await AuthBackend.call(with: request)
-            // We can't just use the provider info objects in SetAccountInfoResponse
-            // because they don't have localID and email fields. Remove the specific
-            // provider manually.
-            self.providerDataRaw.removeValue(forKey: provider)
-            if provider == EmailAuthProvider.id {
-              self.hasEmailPasswordCredential = false
-            }
-            #if os(iOS)
-              // After successfully unlinking a phone auth provider, remove the phone number
-              // from the cached user info.
-              if provider == PhoneAuthProvider.id {
-                self.phoneNumber = nil
-              }
-            #endif
-            if let idToken = response.idToken,
-               let refreshToken = response.refreshToken {
-              let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
-                                                    accessToken: idToken,
-                                                    accessTokenExpirationDate: response
-                                                      .approximateExpirationDate,
-                                                    refreshToken: refreshToken)
-              self.setTokenService(tokenService: tokenService) { error in
-                completeAndCallbackWithError(error)
-              }
-              return
-            }
-            if let error = self.updateKeychain() {
-              completeAndCallbackWithError(error)
-              return
-            }
-            completeAndCallbackWithError(nil)
-          } catch {
-            self.signOutIfTokenIsInvalid(withError: error)
-            completeAndCallbackWithError(error)
-            return
-          }
-        }
+//        request.deleteProviders = [provider]
+//        Task {
+//          do {
+//            let response = try await AuthBackend.call(with: request)
+//            // We can't just use the provider info objects in SetAccountInfoResponse
+//            // because they don't have localID and email fields. Remove the specific
+//            // provider manually.
+//            self.providerDataRaw.removeValue(forKey: provider)
+//            if provider == EmailAuthProvider.id {
+//              self.hasEmailPasswordCredential = false
+//            }
+//            #if os(iOS)
+//              // After successfully unlinking a phone auth provider, remove the phone number
+//              // from the cached user info.
+//              if provider == PhoneAuthProvider.id {
+//                self.phoneNumber = nil
+//              }
+//            #endif
+//            if let idToken = response.idToken,
+//               let refreshToken = response.refreshToken {
+//              let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
+//                                                    accessToken: idToken,
+//                                                    accessTokenExpirationDate: response
+//                                                      .approximateExpirationDate,
+//                                                    refreshToken: refreshToken)
+//              self.setTokenService(tokenService: tokenService) { error in
+//                completeAndCallbackWithError(error)
+//              }
+//              return
+//            }
+//            if let error = self.updateKeychain() {
+//              completeAndCallbackWithError(error)
+//              return
+//            }
+//            completeAndCallbackWithError(nil)
+//          } catch {
+//            self.signOutIfTokenIsInvalid(withError: error)
+//            completeAndCallbackWithError(error)
+//            return
+//          }
+//        }
       }
     }
   }
@@ -1350,11 +1355,13 @@ extension User: NSSecureCoding {}
                     accessTokenExpirationDate: accountInfoResponse.approximateExpirationDate,
                     refreshToken: refreshToken
                   )
-                  self.setTokenService(tokenService: tokenService) { error in
+                  do {
+                    try await self.setTokenService(tokenService: tokenService)
+                  } catch {
                     complete()
                     callback(error)
+                    return
                   }
-                  return
                 }
                 complete()
                 callback(nil)
@@ -1379,19 +1386,11 @@ extension User: NSSecureCoding {}
   /// are saved in the keychain before calling back.
   /// - Parameter tokenService: The new token service object.
   /// - Parameter callback: The block to be called in the global auth working queue once finished.
-  private func setTokenService(tokenService: SecureTokenService,
-                               callback: @escaping (Error?) -> Void) {
-    tokenService.fetchAccessToken(forcingRefresh: false) { token, error, tokenUpdated in
-      if let error {
-        callback(error)
-        return
-      }
-      self.tokenService = tokenService
-      if let error = self.updateKeychain() {
-        callback(error)
-        return
-      }
-      callback(nil)
+  private func setTokenService(tokenService: SecureTokenService) async throws {
+    let (token, tokenUpdated) = try await tokenService.fetchAccessToken(forcingRefresh: false)
+    self.tokenService = tokenService
+    if let error = self.updateKeychain() {
+      throw error
     }
   }
 
@@ -1764,31 +1763,32 @@ extension User: NSSecureCoding {}
   /// on the  global work thread in the future.
   func internalGetToken(forceRefresh: Bool = false,
                         callback: @escaping (String?, Error?) -> Void) {
-    tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
-      if let error {
-        self.signOutIfTokenIsInvalid(withError: error)
+    Task {
+      do {
+        let token = try await internalGetTokenAsync(forceRefresh: forceRefresh)
+        callback(token, nil)
+      } catch {
         callback(nil, error)
-        return
       }
-      if tokenUpdated {
-        if let error = self.updateKeychain() {
-          callback(nil, error)
-          return
-        }
-      }
-      callback(token, nil)
     }
   }
 
+  /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+  /// - Parameter forceRefresh
   func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.internalGetToken(forceRefresh: forceRefresh) { token, error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume(returning: token!)
+    do {
+      let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
+        forcingRefresh: forceRefresh
+      )
+      if tokenUpdated {
+        if let error = updateKeychain() {
+          throw error
         }
       }
+      return token!
+    } catch {
+      signOutIfTokenIsInvalid(withError: error)
+      throw error
     }
   }
 
