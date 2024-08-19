@@ -671,6 +671,7 @@ let package = Package(
       dependencies: [
         .product(name: "GRPC", package: "grpc-swift"),
         "FirebaseAuth",
+        "FirebaseAppCheck",
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseSharedSwift",

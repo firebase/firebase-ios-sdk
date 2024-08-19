@@ -14,6 +14,7 @@
 
 import Foundation
 
+import FirebaseAppCheck
 import FirebaseAuth
 import FirebaseCoreInternal
 import FirebaseSharedSwift
@@ -40,9 +41,14 @@ actor GrpcClient: CustomStringConvertible {
 
   private let auth: Auth
 
+  private let appCheckEnabled = false
+
+  private let appCheck: AppCheck?
+
   private enum RequestHeaders {
     static let googRequestParamsHeader = "x-goog-request-params"
     static let authorizationHeader = "x-firebase-auth-token"
+    static let appCheckHeader = "X-Firebase-AppCheck"
   }
 
   private let googRequestHeaderValue: String
@@ -67,11 +73,13 @@ actor GrpcClient: CustomStringConvertible {
   }()
 
   init(projectId: String, settings: DataConnectSettings, connectorConfig: ConnectorConfig,
-       auth: Auth) {
+       auth: Auth,
+       appCheck: AppCheck?) {
     self.projectId = projectId
     serverSettings = settings
     self.connectorConfig = connectorConfig
     self.auth = auth
+    self.appCheck = appCheck
 
     connectorName =
       "projects/\(projectId)/locations/\(connectorConfig.location)/services/\(connectorConfig.serviceId)/connectors/\(connectorConfig.connector)"
@@ -173,12 +181,11 @@ actor GrpcClient: CustomStringConvertible {
 
     headers.add(name: RequestHeaders.googRequestParamsHeader, value: googRequestHeaderValue)
 
-    // add token if available
-
+    // Add Auth token if available
     do {
       if let token = try await auth.currentUser?.getIDToken() {
         headers.add(name: RequestHeaders.authorizationHeader, value: "\(token)")
-        print("added token \(token)")
+        print("added Auth token \(token)")
 
       } else {
         FirebaseLogger.dataConnect.debug("No auth token available. Not adding auth header.")
@@ -186,6 +193,25 @@ actor GrpcClient: CustomStringConvertible {
     } catch {
       FirebaseLogger.dataConnect
         .debug("Cannot get auth token successfully due to: \(error). Not adding auth header.")
+    }
+
+    // Add AppCheck token if available
+    if appCheckEnabled {
+      do {
+        if let token = try await appCheck?.token(forcingRefresh: false) {
+          headers.add(name: RequestHeaders.appCheckHeader, value: "\(token)")
+          FirebaseLogger.dataConnect
+            .debug("App Check token added: \(token)")
+        } else {
+          FirebaseLogger.dataConnect
+            .debug("App Check token unavailable. Not adding App Check header.")
+        }
+      } catch {
+        FirebaseLogger.dataConnect
+          .debug(
+            "Cannot get App Check token successfully due to: \(error). Not adding App Check header."
+          )
+      }
     }
 
     let options = CallOptions(customMetadata: headers)
