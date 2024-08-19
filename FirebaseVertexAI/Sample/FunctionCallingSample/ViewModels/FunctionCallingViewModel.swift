@@ -44,21 +44,21 @@ class FunctionCallingViewModel: ObservableObject {
         FunctionDeclaration(
           name: "get_exchange_rate",
           description: "Get the exchange rate for currencies between countries",
-          parameters: [
-            "currency_from": Schema(
-              type: .string,
-              format: "enum",
+          parameters:
+          FunctionParameter(
+            name: "currency_from",
+            schema: .enumeration(
               description: "The currency to convert from in ISO 4217 format",
-              enumValues: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"]
-            ),
-            "currency_to": Schema(
-              type: .string,
-              format: "enum",
+              enumValues: "USD", "EUR", "JPY", "GBP", "AUD", "CAD"
+            )
+          ),
+          FunctionParameter(
+            name: "currency_to",
+            schema: .enumeration(
               description: "The currency to convert to in ISO 4217 format",
-              enumValues: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"]
-            ),
-          ],
-          requiredParameters: ["currency_from", "currency_to"]
+              enumValues: "USD", "EUR", "JPY", "GBP", "AUD", "CAD"
+            )
+          )
         ),
       ])]
     )

@@ -19,6 +19,16 @@ import Foundation
 /// These types can be objects, but also primitives and arrays. Represents a select subset of an
 /// [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
 public class Schema {
+  public enum StringFormat {
+    case custom(String)
+  }
+
+  public enum IntegerFormat {
+    case int32
+    case int64
+    case custom(String)
+  }
+
   /// The data type.
   let type: DataType
 
@@ -59,11 +69,32 @@ public class Schema {
   ///   - items: Schema of the elements of type ``DataType/array``.
   ///   - properties: Properties of type ``DataType/object``.
   ///   - requiredProperties: Required properties of type ``DataType/object``.
-  public init(type: DataType, format: String? = nil, description: String? = nil,
-              nullable: Bool? = nil,
-              enumValues: [String]? = nil, items: Schema? = nil,
-              properties: [String: Schema]? = nil,
-              requiredProperties: [String]? = nil) {
+  @available(*, deprecated, message: """
+  Use static methods `string(description:format:nullable:)`, `number(description:format:nullable:)`,
+  etc., instead.
+  """)
+  public convenience init(type: DataType, format: String? = nil, description: String? = nil,
+                          nullable: Bool? = nil,
+                          enumValues: [String]? = nil, items: Schema? = nil,
+                          properties: [String: Schema]? = nil,
+                          requiredProperties: [String]? = nil) {
+    self.init(
+      type: type,
+      format: format,
+      description: description,
+      nullable: nullable ?? false,
+      enumValues: enumValues,
+      items: items,
+      properties: properties,
+      requiredProperties: requiredProperties
+    )
+  }
+
+  required init(type: DataType, format: String? = nil, description: String? = nil,
+                nullable: Bool = false,
+                enumValues: [String]? = nil, items: Schema? = nil,
+                properties: [String: Schema]? = nil,
+                requiredProperties: [String]? = nil) {
     self.type = type
     self.format = format
     self.description = description
@@ -72,6 +103,165 @@ public class Schema {
     self.items = items
     self.properties = properties
     self.requiredProperties = requiredProperties
+  }
+
+  public static func string(description: String? = nil, nullable: Bool = false,
+                            format: StringFormat? = nil) -> Schema {
+    return self.init(
+      type: .string,
+      format: format?.rawValue, description: description,
+      nullable: nullable
+    )
+  }
+
+  public static func enumeration(description: String? = nil, nullable: Bool = false,
+                                 enumValues: String...) -> Schema {
+    return Schema.enumeration(description: description, nullable: nullable, enumValues: enumValues)
+  }
+
+  static func enumeration(description: String?, nullable: Bool, enumValues: [String]) -> Schema {
+    return self.init(
+      type: .string,
+      format: "enum", description: description,
+      nullable: nullable,
+      enumValues: enumValues
+    )
+  }
+
+  public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
+    return self.init(
+      type: .number,
+      format: "double",
+      description: description,
+      nullable: nullable
+    )
+  }
+
+  public static func float(description: String? = nil, nullable: Bool = false) -> Schema {
+    return self.init(
+      type: .number,
+      format: "float",
+      description: description,
+      nullable: nullable
+    )
+  }
+
+  public static func integer(description: String? = nil, nullable: Bool = false,
+                             format: IntegerFormat? = nil) -> Schema {
+    return self.init(
+      type: .integer,
+      format: format?.rawValue,
+      description: description,
+      nullable: nullable
+    )
+  }
+
+  public static func boolean(description: String? = nil, nullable: Bool = false) -> Schema {
+    return self.init(type: .boolean, description: description, nullable: nullable)
+  }
+
+  public static func array(description: String? = nil, nullable: Bool = false,
+                           schema: Schema) -> Schema {
+    return self.init(type: .array, description: description, nullable: nullable, items: schema)
+  }
+
+  public static func object(description: String? = nil, nullable: Bool = false,
+                            properties: [String: ObjectProperty]) -> Schema {
+    var objectProperties = [String: Schema]()
+    var requiredProperties = [String]()
+    for (name, property) in properties {
+      objectProperties[name] = property.schema
+      if property.required {
+        requiredProperties.append(name)
+      }
+    }
+
+    return self.init(
+      type: .object,
+      description: description,
+      nullable: nullable,
+      properties: objectProperties,
+      requiredProperties: requiredProperties
+    )
+  }
+}
+
+public struct ObjectProperty {
+  let required: Bool
+  let schema: Schema
+
+  init(required: Bool = true, schema: Schema) {
+    self.required = required
+    self.schema = schema
+  }
+
+  public static func string(required: Bool = true, description: String? = nil,
+                            nullable: Bool = false,
+                            format: Schema.StringFormat? = nil) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .string(description: description, nullable: nullable, format: format)
+    )
+  }
+
+  public static func enumeration(required: Bool = true, description: String? = nil,
+                                 nullable: Bool = false,
+                                 enumValues: String...) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .enumeration(description: description, nullable: nullable, enumValues: enumValues)
+    )
+  }
+
+  public static func double(required: Bool = true, description: String? = nil,
+                            nullable: Bool = false) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .double(description: description, nullable: nullable)
+    )
+  }
+
+  public static func float(required: Bool = true, description: String? = nil,
+                           nullable: Bool = false) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .float(description: description, nullable: nullable)
+    )
+  }
+
+  public static func integer(required: Bool = true, description: String? = nil,
+                             nullable: Bool = false,
+                             format: Schema.IntegerFormat? = nil) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .integer(description: description, nullable: nullable, format: format)
+    )
+  }
+
+  public static func boolean(required: Bool = true, description: String? = nil,
+                             nullable: Bool = false) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .boolean(description: description, nullable: nullable)
+    )
+  }
+
+  public static func array(required: Bool = true, description: String? = nil,
+                           nullable: Bool = false,
+                           schema: Schema) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .array(description: description, nullable: nullable, schema: schema)
+    )
+  }
+
+  public static func object(required: Bool = true, description: String? = nil,
+                            nullable: Bool = false,
+                            properties: [String: ObjectProperty]) -> ObjectProperty {
+    return self.init(
+      required: required,
+      schema: .object(description: description, nullable: nullable, properties: properties)
+    )
   }
 }
 
@@ -114,3 +304,45 @@ extension Schema: Encodable {
 }
 
 extension DataType: Encodable {}
+
+// MARK: - RawRepresentable Conformance
+
+extension Schema.IntegerFormat: RawRepresentable {
+  public init?(rawValue: String) {
+    switch rawValue {
+    case "int32":
+      self = .int32
+    case "int64":
+      self = .int64
+    default:
+      self = .custom(rawValue)
+    }
+  }
+
+  public var rawValue: String {
+    switch self {
+    case .int32:
+      return "int32"
+    case .int64:
+      return "int64"
+    case let .custom(format):
+      return format
+    }
+  }
+}
+
+extension Schema.StringFormat: RawRepresentable {
+  public init?(rawValue: String) {
+    switch rawValue {
+    default:
+      self = .custom(rawValue)
+    }
+  }
+
+  public var rawValue: String {
+    switch self {
+    case let .custom(format):
+      return format
+    }
+  }
+}

@@ -23,6 +23,18 @@ public struct FunctionCall: Equatable, Sendable {
   public let args: JSONObject
 }
 
+public struct FunctionParameter {
+  let name: String
+  let required: Bool
+  let schema: Schema
+
+  public init(name: String, required: Bool = true, schema: Schema) {
+    self.name = name
+    self.required = required
+    self.schema = schema
+  }
+}
+
 /// Structured representation of a function declaration.
 ///
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
@@ -43,17 +55,21 @@ public struct FunctionDeclaration {
   ///   - name: The name of the function; must be a-z, A-Z, 0-9, or contain underscores and dashes,
   ///   with a maximum length of 63.
   ///   - description: A brief description of the function.
-  ///   - parameters: Describes the parameters to this function; the keys are parameter names and
-  ///   the values are ``Schema`` objects describing them.
-  ///   - requiredParameters: A list of required parameters by name.
-  public init(name: String, description: String, parameters: [String: Schema]?,
-              requiredParameters: [String]? = nil) {
+  ///   - parameters: Describes the parameters to this function.
+  public init(name: String, description: String, parameters: FunctionParameter...) {
     self.name = name
     self.description = description
-    self.parameters = Schema(
-      type: .object,
-      properties: parameters,
-      requiredProperties: requiredParameters
+    var properties = [String: ObjectProperty]()
+    for parameter in parameters {
+      properties[parameter.name] = ObjectProperty(
+        required: parameter.required,
+        schema: parameter.schema
+      )
+    }
+    self.parameters = Schema.object(
+      description: description,
+      nullable: false,
+      properties: properties
     )
   }
 }
