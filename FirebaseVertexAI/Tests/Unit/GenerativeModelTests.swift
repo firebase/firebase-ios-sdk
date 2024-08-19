@@ -116,17 +116,20 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(citationSource1.uri, "https://www.example.com/some-citation-1")
     XCTAssertEqual(citationSource1.startIndex, 0)
     XCTAssertEqual(citationSource1.endIndex, 128)
+    XCTAssertNil(citationSource1.title)
     XCTAssertNil(citationSource1.license)
     let citationSource2 = try XCTUnwrap(citationMetadata.citationSources[1])
-    XCTAssertEqual(citationSource2.uri, "https://www.example.com/some-citation-2")
+    XCTAssertEqual(citationSource2.title, "some-citation-2")
     XCTAssertEqual(citationSource2.startIndex, 130)
     XCTAssertEqual(citationSource2.endIndex, 265)
+    XCTAssertNil(citationSource2.uri)
     XCTAssertNil(citationSource2.license)
     let citationSource3 = try XCTUnwrap(citationMetadata.citationSources[2])
     XCTAssertEqual(citationSource3.uri, "https://www.example.com/some-citation-3")
     XCTAssertEqual(citationSource3.startIndex, 272)
     XCTAssertEqual(citationSource3.endIndex, 431)
     XCTAssertEqual(citationSource3.license, "mit")
+    XCTAssertNil(citationSource3.title)
   }
 
   func testGenerateContent_success_quoteReply() async throws {
@@ -951,13 +954,25 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(lastCandidate.finishReason, .stop)
     XCTAssertEqual(citations.count, 6)
     XCTAssertTrue(citations
-      .contains(where: {
-        $0.startIndex == 574 && $0.endIndex == 705 && !$0.uri.isEmpty && $0.license == ""
-      }))
+      .contains {
+        $0.startIndex == 0 && $0.endIndex == 128
+          && $0.uri == "https://www.example.com/some-citation-1" && $0.title == nil
+          && $0.license == nil
+      })
     XCTAssertTrue(citations
-      .contains(where: {
-        $0.startIndex == 899 && $0.endIndex == 1026 && !$0.uri.isEmpty && $0.license == ""
-      }))
+      .contains {
+        $0.startIndex == 130 && $0.endIndex == 265 && $0.uri == nil
+          && $0.title == "some-citation-2" && $0.license == nil
+      })
+    XCTAssertTrue(citations
+      .contains {
+        $0.startIndex == 272 && $0.endIndex == 431
+          && $0.uri == "https://www.example.com/some-citation-3" && $0.title == nil
+          && $0.license == "mit"
+      })
+    XCTAssertFalse(citations.contains { $0.uri?.isEmpty ?? false })
+    XCTAssertFalse(citations.contains { $0.title?.isEmpty ?? false })
+    XCTAssertFalse(citations.contains { $0.license?.isEmpty ?? false })
   }
 
   func testGenerateContentStream_appCheck_validToken() async throws {
@@ -1283,9 +1298,9 @@ final class GenerativeModelTests: XCTestCase {
   )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
-    guard #unavailable(watchOS 2) else {
+    #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
-    }
+    #endif // os(watchOS)
     return { request in
       // This is *not* an HTTPURLResponse
       let response = URLResponse(
@@ -1309,9 +1324,9 @@ final class GenerativeModelTests: XCTestCase {
   )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
-    guard #unavailable(watchOS 2) else {
+    #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
-    }
+    #endif // os(watchOS)
     let fileURL = try XCTUnwrap(Bundle.module.url(forResource: name, withExtension: ext))
     return { request in
       let requestURL = try XCTUnwrap(request.url)
