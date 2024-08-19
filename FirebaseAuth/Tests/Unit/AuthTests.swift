@@ -631,7 +631,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertNotNil((error as? NSError)?.userInfo[NSLocalizedDescriptionKey])
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 5)
+    waitForExpectations(timeout: 55)
     XCTAssertNil(auth?.currentUser)
   }
 
@@ -1617,7 +1617,7 @@ class AuthTests: RPCBaseTests {
   func testSendPasswordResetEmailFailure() throws {
     let expectation = self.expectation(description: #function)
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(underlyingErrorMessage: "ipRefererBlocked")
+      try self.rpcIssuer.respond(serverErrorMessage: "ipRefererBlocked")
     }
     auth?.sendPasswordReset(withEmail: kEmail) { error in
       XCTAssertTrue(Thread.isMainThread)

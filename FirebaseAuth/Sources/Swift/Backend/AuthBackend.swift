@@ -120,15 +120,13 @@ class AuthBackend: NSObject {
       request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
     }
     if let appCheck = requestConfiguration.appCheck {
-      do {
-        let tokenResult = await appCheck.getToken(forcingRefresh: false)
-        if let error = tokenResult.error {
-          AuthLog.logWarning(code: "I-AUT000018",
-                             message: "Error getting App Check token; using placeholder " +
-                             "token instead. Error: \(error)")
-        }
-        request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+      let tokenResult = await appCheck.getToken(forcingRefresh: false)
+      if let error = tokenResult.error {
+        AuthLog.logWarning(code: "I-AUT000018",
+                           message: "Error getting App Check token; using placeholder " +
+                           "token instead. Error: \(error)")
       }
+      request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
     }
     return request
   }
@@ -140,7 +138,7 @@ protocol AuthBackendImplementation {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
+class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
   var rpcIssuer: AuthBackendRPCIssuer
   override init() {
     rpcIssuer = AuthBackendRPCIssuerImplementation()
@@ -156,7 +154,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   /// * See FIRAuthInternalErrorCodeRPCResponseDecodingError
   /// - Parameter request: The request.
   /// - Returns: The response.
-  fileprivate func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+  func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     let response = try await callInternal(with: request)
     if let auth = request.requestConfiguration().auth,
        let mfaError = Self.generateMFAError(response: response, auth: auth) {
@@ -284,7 +282,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       }
       dictionary = decodedDictionary
     } catch let jsonError {
-      throw AuthErrorUtils.unexpectedResponse(data: data, underlyingError: jsonError)
+      throw AuthErrorUtils.unexpectedResponse(data: data, underlyingError: jsonError as NSError)
     }
 
     let response = T.Response()
@@ -316,9 +314,9 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     return response
   }
 
-  private class func clientError(withServerErrorMessage serverErrorMessage: String,
+  class func clientError(withServerErrorMessage serverErrorMessage: String,
                                  errorDictionary: [String: Any],
-                                 response: AuthRPCResponse,
+                                 response: AuthRPCResponse?,
                                  error: Error?) -> Error? {
     let split = serverErrorMessage.split(separator: ":")
     let shortErrorMessage = split.first?.trimmingCharacters(in: .whitespacesAndNewlines)

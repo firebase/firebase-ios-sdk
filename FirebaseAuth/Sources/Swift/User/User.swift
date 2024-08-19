@@ -857,47 +857,49 @@ extension User: NSSecureCoding {}
           completeAndCallbackWithError(AuthErrorUtils.noSuchProviderError())
           return
         }
-//        request.deleteProviders = [provider]
-//        Task {
-//          do {
-//            let response = try await AuthBackend.call(with: request)
-//            // We can't just use the provider info objects in SetAccountInfoResponse
-//            // because they don't have localID and email fields. Remove the specific
-//            // provider manually.
-//            self.providerDataRaw.removeValue(forKey: provider)
-//            if provider == EmailAuthProvider.id {
-//              self.hasEmailPasswordCredential = false
-//            }
-//            #if os(iOS)
-//              // After successfully unlinking a phone auth provider, remove the phone number
-//              // from the cached user info.
-//              if provider == PhoneAuthProvider.id {
-//                self.phoneNumber = nil
-//              }
-//            #endif
-//            if let idToken = response.idToken,
-//               let refreshToken = response.refreshToken {
-//              let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
-//                                                    accessToken: idToken,
-//                                                    accessTokenExpirationDate: response
-//                                                      .approximateExpirationDate,
-//                                                    refreshToken: refreshToken)
-//              self.setTokenService(tokenService: tokenService) { error in
-//                completeAndCallbackWithError(error)
-//              }
-//              return
-//            }
-//            if let error = self.updateKeychain() {
-//              completeAndCallbackWithError(error)
-//              return
-//            }
-//            completeAndCallbackWithError(nil)
-//          } catch {
-//            self.signOutIfTokenIsInvalid(withError: error)
-//            completeAndCallbackWithError(error)
-//            return
-//          }
-//        }
+        request.deleteProviders = [provider]
+        Task {
+          do {
+            let response = try await AuthBackend.call(with: request)
+            // We can't just use the provider info objects in SetAccountInfoResponse
+            // because they don't have localID and email fields. Remove the specific
+            // provider manually.
+            self.providerDataRaw.removeValue(forKey: provider)
+            if provider == EmailAuthProvider.id {
+              self.hasEmailPasswordCredential = false
+            }
+            #if os(iOS)
+              // After successfully unlinking a phone auth provider, remove the phone number
+              // from the cached user info.
+              if provider == PhoneAuthProvider.id {
+                self.phoneNumber = nil
+              }
+            #endif
+            if let idToken = response.idToken,
+               let refreshToken = response.refreshToken {
+              let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
+                                                    accessToken: idToken,
+                                                    accessTokenExpirationDate: response
+                                                      .approximateExpirationDate,
+                                                    refreshToken: refreshToken)
+              do {
+                try await self.setTokenService(tokenService: tokenService)
+              } catch {
+                completeAndCallbackWithError(error)
+              }
+              return
+            }
+            if let error = self.updateKeychain() {
+              completeAndCallbackWithError(error)
+              return
+            }
+            completeAndCallbackWithError(nil)
+          } catch {
+            self.signOutIfTokenIsInvalid(withError: error)
+            completeAndCallbackWithError(error)
+            return
+          }
+        }
       }
     }
   }
@@ -1387,7 +1389,7 @@ extension User: NSSecureCoding {}
   /// - Parameter tokenService: The new token service object.
   /// - Parameter callback: The block to be called in the global auth working queue once finished.
   private func setTokenService(tokenService: SecureTokenService) async throws {
-    let (token, tokenUpdated) = try await tokenService.fetchAccessToken(forcingRefresh: false)
+    let (_, _) = try await tokenService.fetchAccessToken(forcingRefresh: false)
     self.tokenService = tokenService
     if let error = self.updateKeychain() {
       throw error

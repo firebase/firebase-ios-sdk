@@ -59,7 +59,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
   ///
   ///    Invoked asynchronously on the auth global work queue in the future.
   /// - Parameter forceRefresh: Forces the token to be refreshed.
-  /// - Returns : A tuple with the token and flag of whetehr it was updated.
+  /// - Returns : A tuple with the token and flag of whether it was updated.
   @MainActor
   func fetchAccessToken(forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
     if !forceRefresh, hasValidAccessToken() {

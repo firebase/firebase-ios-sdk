@@ -24,6 +24,7 @@ import XCTest
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
+
   /** @property requestURL
       @brief The URL which was requested.
    */
@@ -76,6 +77,18 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?
   var recaptchaSiteKey = "unset recaptcha siteKey"
+
+  func asyncCallToURL<T>(with request: T, body: Data?, contentType: String) async throws -> Data where T : FirebaseAuth.AuthRPCRequest {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.asyncCallToURL(with: request, body: body, contentType: contentType) { data, error in
+        if let data {
+          continuation.resume(returning: data)
+        } else {
+          continuation.resume(throwing: error!)
+        }
+      }
+    }
+  }
 
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
@@ -138,10 +151,10 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       requestData = body
       // Use the real implementation so that the complete request can
       // be verified during testing.
-      AuthBackend.request(withURL: requestURL!,
-                          contentType: contentType,
-                          requestConfiguration: request.requestConfiguration()) { request in
-        self.completeRequest = request
+      Task {
+        self.completeRequest = await AuthBackend.request(withURL: requestURL!,
+                                                               contentType: contentType,
+                                                               requestConfiguration: request.requestConfiguration())
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
@@ -156,29 +169,39 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
     }
   }
 
-  @discardableResult func respond(serverErrorMessage errorMessage: String) throws -> Data {
+  func respond(serverErrorMessage errorMessage: String) throws {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
-    return try respond(serverErrorMessage: errorMessage, error: error)
+    try respond(serverErrorMessage: errorMessage, error: error)
   }
 
-  @discardableResult
-  func respond(serverErrorMessage errorMessage: String, error: NSError) throws -> Data {
-    return try respond(withJSON: ["error": ["message": errorMessage]], error: error)
+  func respond(serverErrorMessage errorMessage: String, error: NSError) throws {
+    guard let clientError = AuthBackendRPCImplementation.clientError(
+                       withServerErrorMessage: errorMessage,
+                       errorDictionary: [:],
+                        response: nil,
+                        error: error) else {
+      try respond(
+        withData: nil,
+        error: AuthErrorUtils
+          .unexpectedResponse(
+            data: nil,
+            underlyingError: error) as NSError
+          )
+      return
+    }
+    try respond(withData:nil, error: clientError as NSError)
   }
 
   @discardableResult func respond(underlyingErrorMessage errorMessage: String,
                                   message: String = "See the reason") throws -> Data {
-    let error = NSError(domain: NSCocoaErrorDomain, code: 0)
     return try respond(withJSON: ["error": ["message": message,
-                                            "errors": [["reason": errorMessage]]] as [String: Any]],
-                       error: error)
+                                            "errors": [["reason": errorMessage]]] as [String: Any]])
   }
 
-  @discardableResult func respond(withJSON json: [String: Any],
-                                  error: NSError? = nil) throws -> Data {
+  @discardableResult func respond(withJSON json: [String: Any]) throws -> Data {
     let data = try JSONSerialization.data(withJSONObject: json,
                                           options: JSONSerialization.WritingOptions.prettyPrinted)
-    try respond(withData: data, error: error)
+    try respond(withData: data, error: nil)
     return data
   }
 

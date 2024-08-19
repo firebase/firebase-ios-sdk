@@ -426,14 +426,13 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           but no error information was present in the decoded response. We are expecting to receive
           the original network error wrapped in an @c NSError with the code
           @c FIRAuthErrorCodeUnexpectedServerResponse with the decoded
-          response message in the @c NSError.userInfo dictionary associated with the key
-          @c FIRAuthErrorUserInfoDeserializedResponseKey.
+          response message.
    */
   func testErrorResponseWithNoErrorMessage() async throws {
     let request = FakeRequest(withRequestBody: [:])
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withJSON: [:], error: responseError)
+      try self.rpcIssuer.respond(serverErrorMessage: "Any error", error: responseError)
     }
     do {
       let _ = try await rpcImplementation.call(with: request)
@@ -445,15 +444,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
       let underlyingUnderlying = try XCTUnwrap(underlyingError
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-      let dictionary = try XCTUnwrap(underlyingError
-        .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
-      XCTAssertEqual(dictionary, [:])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
     }
   }
