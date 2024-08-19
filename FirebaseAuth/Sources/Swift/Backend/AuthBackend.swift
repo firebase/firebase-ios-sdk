@@ -31,7 +31,7 @@ protocol AuthBackendRPCIssuer: NSObjectProtocol {
   ///  on the auth global  work queue in the future.
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
-                                         contentType: String) async throws -> Data
+                                         contentType: String) async -> (Data?, Error?)
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -50,7 +50,7 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
 
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
-                                         contentType: String) async throws -> Data {
+                                         contentType: String) async -> (Data?, Error?) {
     let requestConfiguration = request.requestConfiguration()
     let request = await AuthBackend.request(withURL: request.requestURL(),
                         contentType: contentType,
@@ -61,10 +61,11 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
       fetcher.allowedInsecureSchemes = ["http"]
     }
     fetcher.bodyData = body
-    do {
-      return try await fetcher.beginFetch()
-    } catch {
-      throw AuthErrorUtils.networkError(underlyingError: error)
+
+    return await withUnsafeContinuation { continuation in
+      fetcher.beginFetch() { data, error in
+        continuation.resume(returning: (data, error))
+      }
     }
   }
 }
@@ -138,7 +139,7 @@ protocol AuthBackendImplementation {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
+private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
   var rpcIssuer: AuthBackendRPCIssuer
   override init() {
     rpcIssuer = AuthBackendRPCIssuerImplementation()
@@ -154,7 +155,7 @@ class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
   /// * See FIRAuthInternalErrorCodeRPCResponseDecodingError
   /// - Parameter request: The request.
   /// - Returns: The response.
-  func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+  fileprivate func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     let response = try await callInternal(with: request)
     if let auth = request.requestConfiguration().auth,
        let mfaError = Self.generateMFAError(response: response, auth: auth) {
@@ -266,26 +267,77 @@ class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
         throw AuthErrorUtils.JSONSerializationErrorForUnencodableType()
       }
     }
-    let data = try await rpcIssuer.asyncCallToURL(with: request,
-                                                  body: bodyData,
-                                                  contentType: "application/json")
-
+    let (data, error) = await rpcIssuer
+      .asyncCallToURL(with: request, body: bodyData, contentType: "application/json")
+    // If there is an error with no body data at all, then this must be a
+    // network error.
+    guard let data = data else {
+      if let error = error {
+        throw AuthErrorUtils.networkError(underlyingError: error)
+      } else {
+        // TODO: this was ignored before
+        fatalError("Auth Internal error: RPC call didn't return data or an error.")
+      }
+    }
     // Try to decode the HTTP response data which may contain either a
     // successful response or error message.
     var dictionary: [String: AnyHashable]
     do {
-      let rawDecode = try JSONSerialization.jsonObject(
-        with: data,
-        options: JSONSerialization.ReadingOptions.mutableLeaves)
+      let rawDecode = try JSONSerialization.jsonObject(with: data,
+                                                       options: JSONSerialization
+        .ReadingOptions
+        .mutableLeaves)
       guard let decodedDictionary = rawDecode as? [String: AnyHashable] else {
-        throw AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode)
+        if error != nil {
+          throw AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: rawDecode,
+                                                       underlyingError: error)
+        } else {
+          throw AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode)
+        }
       }
       dictionary = decodedDictionary
     } catch let jsonError {
-      throw AuthErrorUtils.unexpectedResponse(data: data, underlyingError: jsonError as NSError)
+      if error != nil {
+        // We have an error, but we couldn't decode the body, so we have no
+        // additional information other than the raw response and the
+        // original NSError (the jsonError is inferred by the error code
+        // (AuthErrorCodeUnexpectedHTTPResponse, and is irrelevant.)
+        throw AuthErrorUtils.unexpectedErrorResponse(data: data, underlyingError: error)
+      } else {
+        // This is supposed to be a "successful" response, but we couldn't
+        // deserialize the body.
+        throw AuthErrorUtils.unexpectedResponse(data: data, underlyingError: jsonError)
+      }
     }
 
     let response = T.Response()
+
+    // At this point we either have an error with successfully decoded
+    // details in the body, or we have a response which must pass further
+    // validation before we know it's truly successful. We deal with the
+    // case where we have an error with successfully decoded error details
+    // first:
+    if error != nil {
+      if let errorDictionary = dictionary["error"] as? [String: AnyHashable] {
+        if let errorMessage = errorDictionary["message"] as? String {
+          if let clientError = AuthBackendRPCImplementation.clientError(
+            withServerErrorMessage: errorMessage,
+            errorDictionary: errorDictionary,
+            response: response,
+            error: error
+          ) {
+            throw clientError
+          }
+        }
+        // Not a message we know, return the message directly.
+        throw AuthErrorUtils.unexpectedErrorResponse(
+          deserializedResponse: errorDictionary,
+          underlyingError: error)
+      }
+      // No error message at all, return the decoded response.
+      throw AuthErrorUtils
+        .unexpectedErrorResponse(deserializedResponse: dictionary, underlyingError: error)
+    }
 
     // Finally, we try to populate the response object with the JSON values.
     do {
@@ -304,7 +356,7 @@ class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
             withServerErrorMessage: errorMessage,
             errorDictionary: dictionary,
             response: response,
-            error: nil
+            error: error
           ) {
             throw clientError
           }
@@ -314,9 +366,9 @@ class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
     return response
   }
 
-  class func clientError(withServerErrorMessage serverErrorMessage: String,
+  private class func clientError(withServerErrorMessage serverErrorMessage: String,
                                  errorDictionary: [String: Any],
-                                 response: AuthRPCResponse?,
+                                 response: AuthRPCResponse,
                                  error: Error?) -> Error? {
     let split = serverErrorMessage.split(separator: ":")
     let shortErrorMessage = split.first?.trimmingCharacters(in: .whitespacesAndNewlines)

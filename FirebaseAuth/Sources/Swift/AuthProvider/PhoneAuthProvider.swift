@@ -201,7 +201,7 @@ import Foundation
     }
 
     /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
+    /// - Parameter retryOnInvalidAppCredential: Whether or not the flow should be retried if an
     ///  AuthErrorCodeInvalidAppCredential error is returned from the backend.
     /// - Parameter phoneNumber: The phone number to be verified.
     /// - Parameter callback: The callback to be invoked on the global work queue when the flow is
