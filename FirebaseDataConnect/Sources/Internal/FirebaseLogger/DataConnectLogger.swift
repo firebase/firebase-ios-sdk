@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseSharedSwift
-
 extension FirebaseLogger {
   static let dataConnect = FirebaseLogger(category: "data_connect")
 }
