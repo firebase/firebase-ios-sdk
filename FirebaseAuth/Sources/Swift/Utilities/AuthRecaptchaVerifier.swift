@@ -121,7 +121,7 @@
       guard let siteKey = siteKey() else {
         throw AuthErrorUtils.recaptchaSiteKeyMissing()
       }
-      let actionString = actionToStringMap[action] ?? ""
+      let actionString = action.stringValue
       #if !(COCOAPODS || SWIFT_PACKAGE)
         // No recaptcha on internal build system.
         return actionString
