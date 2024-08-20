@@ -282,20 +282,10 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     // Try to decode the HTTP response data which may contain either a
     // successful response or error message.
     var dictionary: [String: AnyHashable]
+    var rawDecode: Any
     do {
-      let rawDecode = try JSONSerialization.jsonObject(with: data,
-                                                       options: JSONSerialization
-        .ReadingOptions
-        .mutableLeaves)
-      guard let decodedDictionary = rawDecode as? [String: AnyHashable] else {
-        if error != nil {
-          throw AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: rawDecode,
-                                                       underlyingError: error)
-        } else {
-          throw AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode)
-        }
-      }
-      dictionary = decodedDictionary
+      rawDecode = try JSONSerialization.jsonObject(
+        with: data, options: JSONSerialization.ReadingOptions.mutableLeaves)
     } catch let jsonError {
       if error != nil {
         // We have an error, but we couldn't decode the body, so we have no
@@ -309,6 +299,15 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         throw AuthErrorUtils.unexpectedResponse(data: data, underlyingError: jsonError)
       }
     }
+    guard let decodedDictionary = rawDecode as? [String: AnyHashable] else {
+      if error != nil {
+        throw AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: rawDecode,
+                                                     underlyingError: error)
+      } else {
+        throw AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode)
+      }
+    }
+    dictionary = decodedDictionary
 
     let response = T.Response()
 

@@ -1617,7 +1617,7 @@ class AuthTests: RPCBaseTests {
   func testSendPasswordResetEmailFailure() throws {
     let expectation = self.expectation(description: #function)
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(serverErrorMessage: "ipRefererBlocked")
+      try self.rpcIssuer.respond(underlyingErrorMessage: "ipRefererBlocked")
     }
     auth?.sendPasswordReset(withEmail: kEmail) { error in
       XCTAssertTrue(Thread.isMainThread)
