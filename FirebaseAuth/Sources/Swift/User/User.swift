@@ -376,12 +376,7 @@ extension User: NSSecureCoding {}
             return
           }
           // Successful reauthenticate
-          do {
-            try await self.setTokenService(tokenService: user.tokenService)
-            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                            result: authResult,
-                                                            error: nil)
-          } catch {
+          self.setTokenService(tokenService: user.tokenService) { error in
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: authResult,
                                                             error: error)
@@ -882,9 +877,7 @@ extension User: NSSecureCoding {}
                                                     accessTokenExpirationDate: response
                                                       .approximateExpirationDate,
                                                     refreshToken: refreshToken)
-              do {
-                try await self.setTokenService(tokenService: tokenService)
-              } catch {
+              self.setTokenService(tokenService: tokenService) { error in
                 completeAndCallbackWithError(error)
               }
               return
@@ -1357,13 +1350,11 @@ extension User: NSSecureCoding {}
                     accessTokenExpirationDate: accountInfoResponse.approximateExpirationDate,
                     refreshToken: refreshToken
                   )
-                  do {
-                    try await self.setTokenService(tokenService: tokenService)
-                  } catch {
+                  self.setTokenService(tokenService: tokenService) { error in
                     complete()
                     callback(error)
-                    return
                   }
+                  return
                 }
                 complete()
                 callback(nil)
@@ -1388,11 +1379,19 @@ extension User: NSSecureCoding {}
   /// are saved in the keychain before calling back.
   /// - Parameter tokenService: The new token service object.
   /// - Parameter callback: The block to be called in the global auth working queue once finished.
-  private func setTokenService(tokenService: SecureTokenService) async throws {
-    let (_, _) = try await tokenService.fetchAccessToken(forcingRefresh: false)
-    self.tokenService = tokenService
-    if let error = self.updateKeychain() {
-      throw error
+  private func setTokenService(tokenService: SecureTokenService,
+                               callback: @escaping (Error?) -> Void) {
+    tokenService.fetchAccessToken(forcingRefresh: false) { token, error, tokenUpdated in
+      if let error {
+        callback(error)
+        return
+      }
+      self.tokenService = tokenService
+      if let error = self.updateKeychain() {
+        callback(error)
+        return
+      }
+      callback(nil)
     }
   }
 
@@ -1765,32 +1764,31 @@ extension User: NSSecureCoding {}
   /// on the  global work thread in the future.
   func internalGetToken(forceRefresh: Bool = false,
                         callback: @escaping (String?, Error?) -> Void) {
-    Task {
-      do {
-        let token = try await internalGetTokenAsync(forceRefresh: forceRefresh)
-        callback(token, nil)
-      } catch {
+    tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
+      if let error {
+        self.signOutIfTokenIsInvalid(withError: error)
         callback(nil, error)
+        return
       }
+      if tokenUpdated {
+        if let error = self.updateKeychain() {
+          callback(nil, error)
+          return
+        }
+      }
+      callback(token, nil)
     }
   }
 
-  /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-  /// - Parameter forceRefresh
   func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
-    do {
-      let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
-        forcingRefresh: forceRefresh
-      )
-      if tokenUpdated {
-        if let error = updateKeychain() {
-          throw error
+    return try await withCheckedThrowingContinuation { continuation in
+      self.internalGetToken(forceRefresh: forceRefresh) { token, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: token!)
         }
       }
-      return token!
-    } catch {
-      signOutIfTokenIsInvalid(withError: error)
-      throw error
     }
   }
 
