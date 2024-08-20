@@ -138,6 +138,24 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
       checkAndDisplayNextContextualMessageForAnalyticsEvent:eventName];
 }
 
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_FIRInAppMessaging_Bootstrap_Category(void);
+extern void FIRInclude_UIApplication_FIRForegroundWindowScene_Category(void);
+extern void FIRInclude_NSString_InterlaceStrings_Category(void);
+extern void FIRInclude_UIColor_HexString_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_FIRInAppMessaging_Bootstrap_Category();
+  FIRInclude_UIApplication_FIRForegroundWindowScene_Category();
+  FIRInclude_NSString_InterlaceStrings_Category();
+  FIRInclude_UIColor_HexString_Category();
+}
+
 @end
 
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

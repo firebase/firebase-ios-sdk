@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A Filter represents a restriction on one or more field values and can be used to refine
  * the results of a Query.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(Filter)
 @interface FIRFilter : NSObject
 

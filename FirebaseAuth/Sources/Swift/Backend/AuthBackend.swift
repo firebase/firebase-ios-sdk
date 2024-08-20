@@ -14,7 +14,6 @@
 
 import FirebaseCore
 import FirebaseCoreExtension
-import FirebaseCoreInternal
 import Foundation
 #if COCOAPODS
   import GTMSessionFetcher
@@ -540,7 +539,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       return AuthErrorUtils.credentialAlreadyInUseError(
         message: serverDetailErrorMessage, credential: credential, email: email
       )
-
     default:
       if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
         for underlyingError in underlyingErrors {

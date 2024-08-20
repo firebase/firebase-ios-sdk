@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *apiServerHost;
 @property(nonatomic, copy) NSString *apiHttpProtocol;  // http or https. It should be always
                                                        // https on production. Allow http to
-                                                       // faciliate testing in non-prod environment
+                                                       // facilitate testing in non-prod environment
 @property(nonatomic) NSTimeInterval fetchMinIntervalInMinutes;
 
 // settings related to activity logger
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) FIRIAMClearcutStrategy *clearcutStrategy;
 
 // The global flag at whole Firebase level for automatic data collection. On FIAM SDK startup,
-// it would be retreived from FIRApp's corresponding setting.
+// it would be retrieved from FIRApp's corresponding setting.
 @property(nonatomic, getter=isFirebaseAutoDataCollectionEnabled)
     BOOL firebaseAutoDataCollectionEnabled;
 

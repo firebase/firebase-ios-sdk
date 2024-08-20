@@ -16,19 +16,28 @@ import Foundation
 
 /// An object that provides API to log and flush heartbeats from a synchronized storage container.
 public final class HeartbeatController {
+  /// Used for standardizing dates for calendar-day comparison.
+  private enum DateStandardizer {
+    private static let calendar: Calendar = {
+      var calendar = Calendar(identifier: .iso8601)
+      calendar.locale = Locale(identifier: "en_US_POSIX")
+      calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+      return calendar
+    }()
+
+    static func standardize(_ date: Date) -> (Date) {
+      return calendar.startOfDay(for: date)
+    }
+  }
+
   /// The thread-safe storage object to log and flush heartbeats from.
   private let storage: HeartbeatStorageProtocol
   /// The max capacity of heartbeats to store in storage.
   private let heartbeatsStorageCapacity: Int = 30
   /// Current date provider. It is used for testability.
   private let dateProvider: () -> Date
-  /// Used for standardizing dates for calendar-day comparision.
-  static let dateStandardizer: (Date) -> (Date) = {
-    var calendar = Calendar(identifier: .iso8601)
-    calendar.locale = Locale(identifier: "en_US_POSIX")
-    calendar.timeZone = TimeZone(secondsFromGMT: 0)!
-    return calendar.startOfDay(for:)
-  }()
+  /// Used for standardizing dates for calendar-day comparison.
+  private static let dateStandardizer = DateStandardizer.self
 
   /// Public initializer.
   /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
@@ -54,7 +63,7 @@ public final class HeartbeatController {
   init(storage: HeartbeatStorageProtocol,
        dateProvider: @escaping () -> Date = Date.init) {
     self.storage = storage
-    self.dateProvider = { Self.dateStandardizer(dateProvider()) }
+    self.dateProvider = { Self.dateStandardizer.standardize(dateProvider()) }
   }
 
   /// Asynchronously logs a new heartbeat, if needed.

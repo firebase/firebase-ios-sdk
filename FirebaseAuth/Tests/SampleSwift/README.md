@@ -137,7 +137,7 @@ We have already included the **`FBSDKLoginKit`** cocoapod in the `Podfile`. This
 
 - Go to the [Facebook Developers Site](https://developers.facebook.com) and follow all
   instructions to set up a new iOS app. When asked for a bundle ID, use
-  `com.google.firebase.quickstart.AuthenticationExample`. This is the default bundle identifier for this quickstart. If you change it, be sure that the bundle identifer entered on the Facebook developer console matches that of the bundle identifier for the quickstart.
+  `com.google.firebase.quickstart.AuthenticationExample`. This is the default bundle identifier for this quickstart. If you change it, be sure that the bundle identifier entered on the Facebook developer console matches that of the bundle identifier for the quickstart.
 - Follow Facebook's [iOS getting started guide](https://developers.facebook.com/docs/ios/getting-started/). You can skip steps 1 and 3 since
   we've already set up the dependencies and initialization code in this sample.
 - Go to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:

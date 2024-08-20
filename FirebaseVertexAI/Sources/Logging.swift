@@ -15,7 +15,7 @@
 import Foundation
 import OSLog
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct Logging {
   /// Subsystem that should be used for all Loggers.
   static let subsystem = "com.google.firebase.vertex-ai"
@@ -28,7 +28,7 @@ struct Logging {
 
   /// The argument required to enable additional logging in the Google AI SDK; used for migration.
   ///
-  /// To facillitate migration between the SDKs, this launch argument is also accepted to enable
+  /// To facilitate migration between the SDKs, this launch argument is also accepted to enable
   /// additional logging at this time, though it is expected to be removed in the future.
   static let migrationEnableArgumentKey = "-GoogleGenerativeAIDebugLogEnabled"
 

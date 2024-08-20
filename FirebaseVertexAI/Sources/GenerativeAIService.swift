@@ -17,7 +17,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GenerativeAIService {
   /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"
@@ -122,7 +122,7 @@ struct GenerativeAIService {
         }
 
         // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
-        var extraLines: String = ""
+        var extraLines = ""
 
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase

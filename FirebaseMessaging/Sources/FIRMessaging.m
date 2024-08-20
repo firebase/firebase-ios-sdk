@@ -60,7 +60,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 NSString *const FIRMessagingErrorDomain = @"com.google.fcm";
 
-const BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
+BOOL FIRMessagingIsAPNSSyncMessage(NSDictionary *message) {
   if ([message[kFIRMessagingMessageViaAPNSRootKey] isKindOfClass:[NSDictionary class]]) {
     NSDictionary *aps = message[kFIRMessagingMessageViaAPNSRootKey];
     if (aps && [aps isKindOfClass:[NSDictionary class]]) {
@@ -502,7 +502,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (NSString *)FCMToken {
-  // Gets the current default token, and requets a new one if it doesn't exist.
+  // Gets the current default token, and requests a new one if it doesn't exist.
   NSString *token = [self.tokenManager tokenAndRequestIfNotExist];
   return token;
 }
@@ -1026,6 +1026,20 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 + (NSString *)FIRMessagingSDKCurrentLocale {
   return [self currentLocale];
+}
+
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_NSDictionary_FIRMessaging_Category(void);
+extern void FIRInclude_NSError_FIRMessaging_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_NSDictionary_FIRMessaging_Category();
+  FIRInclude_NSError_FIRMessaging_Category();
 }
 
 @end

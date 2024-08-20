@@ -9,7 +9,7 @@
 ## Limitations
 
 - Product availability varies by platform. See [the chart on this page](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
-  for information on product availabilty for each platform.
+  for information on product availability for each platform.
 
 ## Installation
 

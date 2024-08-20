@@ -1,8 +1,20 @@
+# Unreleased
+- [fixed] Marked all public classes with only readonly properties as `Sendable` to address
+  Swift Concurrency Check warning. (#12666)
+
+# 11.1.0
+- [feature] Add `VectorValue` type support.
+
 # 11.0.0
-- [removed] **Breaking change**: The deprecated `FirebaseFirestore` module has
-  been removed. See
+- [removed] **Breaking change**: The deprecated `FirebaseFirestoreSwift` module
+  has been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
+- [changed] **Breaking change**: LRU Garbage Collector is now the default GC for memory cache, eager GC is now
+  opt-in (via MemoryCacheSettings(garbageCollectorSettings: MemoryEagerGCSettings())) instead of the default one.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
+- [changed] Update gRPC dependency to 1.65.
 
 # 10.25.0
 - [fixed] Allow blob of data with zero length. (#11773, #12620)

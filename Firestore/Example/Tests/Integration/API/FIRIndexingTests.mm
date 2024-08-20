@@ -110,7 +110,7 @@
  * sitting inside SDK. So this test only checks the API of auto index creation.
  */
 - (void)testAutoIndexCreationSetSuccessfully {
-  // Use persistent disk cache (explict)
+  // Use persistent disk cache (explicit)
   FIRFirestoreSettings *settings = [self.db settings];
   [settings setCacheSettings:[[FIRPersistentCacheSettings alloc] init]];
   [self.db setSettings:settings];

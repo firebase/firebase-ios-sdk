@@ -23,6 +23,7 @@ import SharedTestUtilities
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageComponentTests: StorageTestHelpers {
   /// Test that the objc class is available for the component system to update the user agent.
   func testComponentsBeingRegistered() throws {
@@ -31,14 +32,14 @@ class StorageComponentTests: StorageTestHelpers {
 
   /// Tests that a Storage instance can be created properly.
   func testStorageInstanceCreation() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
+    let app = try XCTUnwrap(app)
     let storage1 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
     XCTAssertNotNil(storage1)
   }
 
   /// Tests that a Storage instances are reused properly.
   func testMultipleComponentInstancesCreated() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
+    let app = try XCTUnwrap(app)
     let storage1 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
     let storage2 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
 

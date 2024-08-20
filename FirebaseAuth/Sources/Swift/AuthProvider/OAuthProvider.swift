@@ -34,11 +34,13 @@ import Foundation
   ///   - providerID: The provider ID of the IDP for which this auth provider instance will be
   /// configured.
   /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
-  @available(
-    swift,
-    deprecated: 0.01,
-    message: "Use `provider(providerID: AuthProviderID) -> OAuthProvider` instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      swift,
+      deprecated: 0.01,
+      message: "Use `provider(providerID: AuthProviderID) -> OAuthProvider` instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(providerWithProviderID:) open class func provider(providerID: String) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: Auth.auth())
   }
@@ -58,11 +60,13 @@ import Foundation
   /// configured.
   ///   - auth: The auth instance to be associated with the OAuthProvider instance.
   /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
-  @available(
-    swift,
-    deprecated: 0.01,
-    message: "Use `provider(providerID: AuthProviderID, auth: Auth) -> OAuthProvider` instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      swift,
+      deprecated: 0.01,
+      message: "Use `provider(providerID: AuthProviderID, auth: Auth) -> OAuthProvider` instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(providerWithProviderID:auth:) open class func provider(providerID: String,
                                                                auth: Auth) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: auth)
@@ -134,11 +138,13 @@ import Foundation
   /// - Parameter accessToken: The access token associated with the Auth credential be created, if
   /// available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
-  @available(
-    swift,
-    deprecated: 0.01,
-    message: "Use `credential(providerID: AuthProviderID, idToken: String, accessToken: String? = nil) -> OAuthCredential` instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      swift,
+      deprecated: 0.01,
+      message: "Use `credential(providerID: AuthProviderID, idToken: String, accessToken: String? = nil) -> OAuthCredential` instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(credentialWithProviderID:IDToken:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 idToken: String,
@@ -169,11 +175,13 @@ import Foundation
   /// - Parameter accessToken: The access token associated with the Auth credential be created, if
   /// available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
-  @available(
-    swift,
-    deprecated: 0.01,
-    message: "Use `credential(providerID: AuthProviderID, accessToken: String) -> OAuthCredential` instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      swift,
+      deprecated: 0.01,
+      message: "Use `credential(providerID: AuthProviderID, accessToken: String) -> OAuthCredential` instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(credentialWithProviderID:accessToken:)
   public static func credential(withProviderID providerID: String,
                                 accessToken: String) -> OAuthCredential {
@@ -197,11 +205,13 @@ import Foundation
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
   /// - Parameter accessToken: The access token associated with the Auth credential be created.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
-  @available(
-    swift,
-    deprecated: 0.01,
-    message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      swift,
+      deprecated: 0.01,
+      message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String,
@@ -220,11 +230,13 @@ import Foundation
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
   /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
   /// - Returns: An AuthCredential.
-  @available(
-    swift,
-    deprecated: 0.01,
-    message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
-  )
+  #if !FIREBASE_CI
+    @available(
+      swift,
+      deprecated: 0.01,
+      message: "Use `credential(providerID: AuthProviderID, idToken: String, rawNonce: String, accessToken: String? = nil) -> OAuthCredential` instead."
+    )
+  #endif // !FIREBASE_CI
   @objc(credentialWithProviderID:IDToken:rawNonce:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String) -> OAuthCredential {
@@ -329,6 +341,7 @@ import Foundation
     /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
+    @MainActor
     open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
         getCredentialWith(uiDelegate) { credential, error in

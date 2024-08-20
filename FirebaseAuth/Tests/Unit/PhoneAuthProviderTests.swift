@@ -210,7 +210,7 @@
       )
     }
 
-    // TODO: This test is skipped. What was formerly an Objective C exception is now a Swift fatal_error.
+    // TODO: This test is skipped. What was formerly an Objective-C exception is now a Swift fatal_error.
     // The test runs correctly, but it's not clear how to automate fatal_error testing. Switching to
     // Swift exceptions would break the API.
     /** @fn testVerifyPhoneNumberUIDelegateRaiseException
@@ -692,9 +692,9 @@
     }
 
     class FakeTokenManager: AuthAPNSTokenManager {
-      override func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
+      override func getTokenInternal(callback: @escaping (Result<AuthAPNSToken, Error>) -> Void) {
         let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
-        callback(nil, error)
+        callback(.failure(error))
       }
     }
 

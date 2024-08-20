@@ -114,4 +114,42 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   OCMVerifyAll(self.appAttestProviderMock);
 }
 
+#pragma mark - Limited-Use Token
+
+- (void)testGetLimitedUseTokenSuccess {
+  GACAppCheckToken *validInternalToken = [[GACAppCheckToken alloc] initWithToken:@"TEST_ValidToken"
+                                                                  expirationDate:[NSDate date]
+                                                                  receivedAtDate:[NSDate date]];
+  OCMExpect([self.appAttestProviderMock
+      getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:validInternalToken,
+                                                                    [NSNull null], nil])]);
+
+  [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
+                                                    NSError *_Nullable error) {
+    XCTAssertEqualObjects(token.token, validInternalToken.token);
+    XCTAssertEqualObjects(token.expirationDate, validInternalToken.expirationDate);
+    XCTAssertEqualObjects(token.receivedAtDate, validInternalToken.receivedAtDate);
+    XCTAssertNil(error);
+  }];
+
+  OCMVerifyAll(self.appAttestProviderMock);
+}
+
+- (void)testGetLimitedUseTokenProviderError {
+  NSError *expectedError = [NSError errorWithDomain:@"TEST_LimitedUseToken_Error"
+                                               code:-1
+                                           userInfo:nil];
+  OCMExpect([self.appAttestProviderMock
+      getLimitedUseTokenWithCompletion:([OCMArg invokeBlockWithArgs:[NSNull null], expectedError,
+                                                                    nil])]);
+
+  [self.provider getLimitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token,
+                                                    NSError *_Nullable error) {
+    XCTAssertNil(token);
+    XCTAssertIdentical(error, expectedError);
+  }];
+
+  OCMVerifyAll(self.appAttestProviderMock);
+}
+
 @end

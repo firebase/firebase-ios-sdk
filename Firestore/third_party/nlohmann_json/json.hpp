@@ -5142,7 +5142,7 @@ auto input_adapter(T (&array)[N]) -> decltype(input_adapter(array, array + N))
 }
 
 // This class only handles inputs of input_buffer_adapter type.
-// It's required so that expressions like {ptr, len} can be implicitely casted
+// It's required so that expressions like {ptr, len} can be implicitly casted
 // to the correct adapter.
 class span_input_adapter
 {
@@ -9916,7 +9916,7 @@ class binary_reader
 
     @return whether conversion completed
 
-    @note This function needs to respect the system's endianess, because
+    @note This function needs to respect the system's endianness, because
           bytes in CBOR, MessagePack, and UBJSON are stored in network order
           (big endian) and therefore need reordering on little endian systems.
     */
@@ -10088,7 +10088,7 @@ class binary_reader
     /// the number of characters read
     std::size_t chars_read = 0;
 
-    /// whether we can assume little endianess
+    /// whether we can assume little endianness
     const bool is_little_endian = little_endianess();
 
     /// the SAX parser
@@ -14227,7 +14227,7 @@ class binary_writer
     @tparam OutputIsLittleEndian Set to true if output data is
                                  required to be little endian
 
-    @note This function needs to respect the system's endianess, because bytes
+    @note This function needs to respect the system's endianness, because bytes
           in CBOR, MessagePack, and UBJSON are stored in network order (big
           endian) and therefore need reordering on little endian systems.
     */
@@ -14310,7 +14310,7 @@ class binary_writer
     }
 
   private:
-    /// whether we can assume little endianess
+    /// whether we can assume little endianness
     const bool is_little_endian = little_endianess();
 
     /// the output
@@ -21337,7 +21337,7 @@ class basic_json
           `key()` returns an empty string.
 
     @warning Using `items()` on temporary objects is dangerous. Make sure the
-             object's lifetime exeeds the iteration. See
+             object's lifetime exceeds the iteration. See
              <https://github.com/nlohmann/json/issues/2040> for more
              information.
 

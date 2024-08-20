@@ -44,7 +44,7 @@
   _fileManager = fileManager;
 
   if (!queue) {
-    FIRCLSDebugLog(@"Failed to intialize FIRCLSRolloutsPersistenceManager, logging queue is nil");
+    FIRCLSDebugLog(@"Failed to initialize FIRCLSRolloutsPersistenceManager, logging queue is nil");
     return nil;
   }
   _rolloutsLoggingQueue = queue;

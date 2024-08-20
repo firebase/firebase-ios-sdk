@@ -29,6 +29,7 @@ import Foundation
  * If no queue is specified, it defaults to the main queue.
  * This class is thread-safe.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageTask) open class StorageTask: NSObject {
   /**
    * An immutable view of the task and associated metadata, progress, error, etc.
@@ -80,16 +81,11 @@ import Foundation
    */
   let dispatchQueue: DispatchQueue
 
-  let fetcherService: GTMSessionFetcherService
-
   let baseRequest: URLRequest
 
   init(reference: StorageReference,
-       service: GTMSessionFetcherService,
        queue: DispatchQueue) {
     self.reference = reference
-    fetcherService = service
-    fetcherService.maxRetryInterval = reference.storage.maxOperationRetryInterval
     dispatchQueue = queue
     state = .unknown
     progress = Progress(totalUnitCount: 0)

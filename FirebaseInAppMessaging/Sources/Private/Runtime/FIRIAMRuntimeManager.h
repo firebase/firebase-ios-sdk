@@ -26,6 +26,7 @@
 NS_ASSUME_NONNULL_BEGIN
 // A class for managing the objects/dependencies for supporting different fiam flows at runtime
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMRuntimeManager : NSObject
 @property(nonatomic, nonnull) FIRIAMSDKSettings *currentSetting;
 @property(nonatomic, nonnull) FIRIAMActivityLogger *activityLogger;

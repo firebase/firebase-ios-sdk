@@ -20,59 +20,16 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-/**
- * Task which provides the ability to delete an object in Firebase Storage.
- */
-class StorageDeleteTask: StorageTask, StorageTaskManagement {
-  private var fetcher: GTMSessionFetcher?
-  private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  private var taskCompletion: ((_ error: Error?) -> Void)?
-
-  init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
-       queue: DispatchQueue,
-       completion: ((_: Error?) -> Void)?) {
-    super.init(reference: reference, service: fetcherService, queue: queue)
-    taskCompletion = completion
-  }
-
-  deinit {
-    self.fetcher?.stopFetching()
-  }
-
-  /**
-   * Prepares a task and begins execution.
-   */
-  func enqueue() {
-    let completion = taskCompletion
-    taskCompletion = { (error: Error?) in
-      completion?(error)
-      // Reference self in completion handler in order to retain self until completion is called.
-      self.taskCompletion = nil
-    }
-    dispatchQueue.async { [weak self] in
-      guard let self = self else { return }
-      self.state = .queueing
-      var request = self.baseRequest
-      request.httpMethod = "DELETE"
-      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
-
-      let fetcher = self.fetcherService.fetcher(with: request)
-      fetcher.comment = "DeleteTask"
-      self.fetcher = fetcher
-
-      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
-        guard let self = self else { return }
-        if let error, self.error == nil {
-          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
-        }
-        self.taskCompletion?(self.error)
-        self.fetcherCompletion = nil
-      }
-
-      self.fetcher?.beginFetch { [weak self] data, error in
-        self?.fetcherCompletion?(data, error as? NSError)
-      }
-    }
+/// Task which provides the ability to delete an object in Firebase Storage.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+enum StorageDeleteTask {
+  static func deleteTask(reference: StorageReference,
+                         queue: DispatchQueue,
+                         completion: ((_: Data?, _: Error?) -> Void)?) {
+    StorageInternalTask(reference: reference,
+                        queue: queue,
+                        httpMethod: "DELETE",
+                        fetcherComment: "DeleteTask",
+                        completion: completion)
   }
 }

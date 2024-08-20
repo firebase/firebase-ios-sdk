@@ -26,7 +26,6 @@ let package = Package(
     .executable(name: "zip-builder", targets: ["ZipBuilder"]),
     .executable(name: "podspecs-tester", targets: ["PodspecsTester"]),
     .executable(name: "manifest", targets: ["ManifestParser"]),
-    .executable(name: "privacy-manifest-generator", targets: ["PrivacyManifestGenerator"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.1.0")),
@@ -53,13 +52,6 @@ let package = Package(
     ),
     .target(
       name: "Utils"
-    ),
-    .target(
-      name: "PrivacyManifestGenerator",
-      dependencies: ["ArgumentParser", "PrivacyKit"]
-    ),
-    .target(
-      name: "PrivacyKit"
     ),
   ]
 )

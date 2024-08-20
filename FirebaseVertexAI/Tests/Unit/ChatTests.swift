@@ -17,7 +17,7 @@ import XCTest
 
 @testable import FirebaseVertexAI
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ChatTests: XCTestCase {
   var urlSession: URLSession!
 
@@ -37,6 +37,11 @@ final class ChatTests: XCTestCase {
       withExtension: "txt"
     ))
 
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #endif // os(watchOS)
     MockURLProtocol.requestHandler = { request in
       let response = HTTPURLResponse(
         url: request.url!,

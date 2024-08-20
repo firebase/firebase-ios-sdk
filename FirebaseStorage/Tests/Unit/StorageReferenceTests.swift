@@ -23,6 +23,7 @@ import SharedTestUtilities
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageReferenceTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -220,7 +221,7 @@ class StorageReferenceTests: XCTestCase {
         XCTFail("Unexpected success.", file: #file, line: #line)
       case let .failure(error):
         switch error {
-        case let StorageError.unknown(message, serverError):
+        case let StorageError.unknown(message, _):
           let expectedDescription = "File at URL: \(dummyFileURL.absoluteString) " +
             "is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
           XCTAssertEqual(expectedDescription, message)

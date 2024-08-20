@@ -50,7 +50,7 @@ struct LruParams;
 
 /**
  * A set of helper methods needed by LruGarbageCollectorTest that customize it
- * to the specific implemetnation it is testing.
+ * to the specific implementation it is testing.
  */
 class LruGarbageCollectorTestHelper {
  public:

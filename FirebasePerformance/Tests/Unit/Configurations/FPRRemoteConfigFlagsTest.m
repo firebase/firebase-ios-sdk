@@ -46,7 +46,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 }
 
 - (void)testCacheResetAfterEverySuccessfulFetch {
-  // Initializate the remote config and config flags
+  // Initialize the remote config and config flags
   FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];

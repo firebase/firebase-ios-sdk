@@ -193,7 +193,7 @@ final class DatabaseAPITests {
     let values = [AnyHashable: Any]()
     var transactionResult = TransactionResult()
 
-    // Retreive Child DatabaseReference
+    // Retrieve Child DatabaseReference
     databaseReference = databaseReference.child(child)
     databaseReference = databaseReference.childByAutoId()
 

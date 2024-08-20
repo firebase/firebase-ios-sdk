@@ -49,6 +49,7 @@ using testutil::Map;
 using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Query;
+using testutil::VectorType;
 using testutil::Version;
 
 std::unique_ptr<Persistence> PersistenceFactory() {
@@ -180,13 +181,13 @@ TEST_F(LevelDbIndexManagerTest, OrderByKeyFilter) {
     AddDoc("coll/val3", Map("count", 3));
 
     {
-      SCOPED_TRACE("Verifing OrderByKey ASC");
+      SCOPED_TRACE("Verifying OrderByKey ASC");
       auto query = Query("coll").AddingOrderBy(OrderBy("count"));
       VerifyResults(query, {"coll/val1", "coll/val2", "coll/val3"});
     }
 
     {
-      SCOPED_TRACE("Verifing OrderByKey DESC");
+      SCOPED_TRACE("Verifying OrderByKey DESC");
       auto query = Query("coll").AddingOrderBy(OrderBy("count", "desc"));
       VerifyResults(query, {"coll/val3", "coll/val2", "coll/val1"});
     }
@@ -204,11 +205,11 @@ TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
                               .AddingFilter(Filter("c", "<", 5))
                               .AddingOrderBy(OrderBy("c", "asc"));
     {
-      SCOPED_TRACE("Verifing original");
+      SCOPED_TRACE("Verifying original");
       VerifyResults(original_query, {"coll/val2", "coll/val3", "coll/val4"});
     }
     {
-      SCOPED_TRACE("Verifing non-restricted bound");
+      SCOPED_TRACE("Verifying non-restricted bound");
       auto query_with_non_restricted_bound =
           original_query
               .StartingAt(Bound::FromValue(Array(1), /* inclusive= */ false))
@@ -217,7 +218,7 @@ TEST_F(LevelDbIndexManagerTest, AscendingOrderWithLessThanFilter) {
                     {"coll/val2", "coll/val3", "coll/val4"});
     }
     {
-      SCOPED_TRACE("Verifing restricted bound");
+      SCOPED_TRACE("Verifying restricted bound");
       auto query_with_restricted_bound =
           original_query
               .StartingAt(Bound::FromValue(Array(2), /* inclusive= */ false))
@@ -776,7 +777,7 @@ TEST_F(LevelDbIndexManagerTest, EqualsWithNotEqualsOnSameField) {
       for (const auto& filter : filter_result_pair.first) {
         query = query.AddingFilter(filter);
       }
-      SCOPED_TRACE(absl::StrCat("Verifing case#", counter++));
+      SCOPED_TRACE(absl::StrCat("Verifying case#", counter++));
       VerifyResults(query, filter_result_pair.second);
     }
   });
@@ -925,6 +926,52 @@ TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
     {
       SCOPED_TRACE("With deleted doc1");
       VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexVectorValueFields) {
+  persistence_->Run("TestIndexVectorValueFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "embedding", model::Segment::kAscending));
+
+    AddDoc("coll/arr1", Map("embedding", Array(1.0, 2.0, 3.0)));
+    AddDoc("coll/map2", Map("embedding", Map()));
+    AddDoc("coll/doc3", Map("embedding", VectorType(4.0, 5.0, 6.0)));
+    AddDoc("coll/doc4", Map("embedding", VectorType(5.0)));
+
+    auto query = Query("coll").AddingOrderBy(OrderBy("embedding"));
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(query,
+                    {"coll/arr1", "coll/doc4", "coll/doc3", "coll/map2"});
+    }
+
+    query =
+        Query("coll")
+            .AddingOrderBy(OrderBy("embedding"))
+            .AddingFilter(Filter("embedding", "==", VectorType(4.0, 5.0, 6.0)));
+    {
+      SCOPED_TRACE("vector<4.0, 5.0, 6.0>");
+      VerifyResults(query, {"coll/doc3"});
+    }
+
+    query =
+        Query("coll")
+            .AddingOrderBy(OrderBy("embedding"))
+            .AddingFilter(Filter("embedding", ">", VectorType(4.0, 5.0, 6.0)));
+    {
+      SCOPED_TRACE("> vector<4.0, 5.0, 6.0>");
+      VerifyResults(query, {});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("embedding"))
+                .AddingFilter(Filter("embedding", ">", VectorType(4.0)));
+    {
+      SCOPED_TRACE("> vector<4.0>");
+      VerifyResults(query, {"coll/doc4", "coll/doc3"});
     }
   });
 }

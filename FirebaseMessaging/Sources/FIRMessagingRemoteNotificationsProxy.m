@@ -353,7 +353,7 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
 
 // This is useful to generate from a stable, "known missing" selector, as the IMP can be compared
 // in case we are setting an implementation for a class that was previously "unswizzled" into a
-// non-existant implementation.
+// non-existent implementation.
 - (IMP)nonExistantMethodImplementationForClass:(Class)klass {
   SEL nonExistantSelector = NSSelectorFromString(@"aNonExistantMethod");
   IMP nonExistantMethodImplementation = class_getMethodImplementation(klass, nonExistantSelector);

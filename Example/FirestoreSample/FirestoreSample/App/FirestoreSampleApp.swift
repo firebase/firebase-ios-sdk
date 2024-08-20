@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import FirebaseAuth
-import FirebaseCore
 import FirebaseFirestore
 import SwiftUI
 

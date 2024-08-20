@@ -140,7 +140,7 @@ struct SpecRepoBuilder: ParsableCommand {
   var excludePods: [String] = []
 
   @Option(help: "GitHub Account Name.")
-  var githubAccount: String = "FirebasePrivate"
+  var githubAccount: String = "Firebase"
 
   @Option(help: "GitHub Repo Name.")
   var sdkRepoName: String = "SpecsTesting"
@@ -238,7 +238,7 @@ struct SpecRepoBuilder: ParsableCommand {
         if depPrefix.hasSuffix(Constants.specDependencyLabel) {
           // e.g. In Firebase.podspec, Firebase/Core will not be considered a
           // dependency.
-          // "ss.dependency 'Firebase/Core'" will be splitted in
+          // "ss.dependency 'Firebase/Core'" will be split in
           // ["ss.dependency", "'Firebase", "Core'"]
           let podNameRaw = String(tokens[1]).replacingOccurrences(of: "'", with: "")
           // In the example above, deps here will not include Firebase since

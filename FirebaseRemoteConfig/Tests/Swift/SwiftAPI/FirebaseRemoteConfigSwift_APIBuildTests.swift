@@ -46,7 +46,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     @unknown default: break
     }
 
-    // Used to pass into the intializers for the custom errors below.
+    // Used to pass into the initializers for the custom errors below.
     let nsError = NSError(domain: "", code: 0, userInfo: nil)
 
     // TODO(ncooke3): Global constants should be lowercase.

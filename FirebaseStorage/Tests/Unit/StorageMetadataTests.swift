@@ -19,6 +19,7 @@ import GTMSessionFetcherCore
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageMetadataTests: StorageTestHelpers {
   func testInitializeNoMetadata() {
     let metadata = StorageMetadata(dictionary: [:])
@@ -111,11 +112,8 @@ class StorageMetadataTests: StorageTestHelpers {
   func testInitializeEmptyDownloadURL() {
     let metaDict = ["bucket": "bucket", "name": "/path/to/object"]
     let rootReference = rootReference()
-    let task = StorageGetDownloadURLTask(reference: rootReference,
-                                         fetcherService: GTMSessionFetcherService(),
-                                         queue: DispatchQueue.main,
-                                         completion: nil)
-    let actualURL = task.downloadURLFromMetadataDictionary(metaDict)
+    let actualURL = StorageGetDownloadURLTask.downloadURLFromMetadataDictionary(metaDict,
+                                                                                rootReference)
     XCTAssertNil(actualURL)
   }
 
@@ -130,11 +128,8 @@ class StorageMetadataTests: StorageTestHelpers {
     let escapedPath = StorageUtils.GCSEscapedString(metaDict["name"]!)
     let expectedURL =
       "https://firebasestorage.googleapis.com:443/v0/b/bucket/o/\(escapedPath)?alt=media&token=12345"
-    let task = StorageGetDownloadURLTask(reference: rootReference,
-                                         fetcherService: GTMSessionFetcherService(),
-                                         queue: DispatchQueue.main,
-                                         completion: nil)
-    let actualURL = task.downloadURLFromMetadataDictionary(metaDict)
+    let actualURL = StorageGetDownloadURLTask.downloadURLFromMetadataDictionary(metaDict,
+                                                                                rootReference)
     XCTAssertEqual(actualURL?.absoluteString, expectedURL)
   }
 
@@ -151,11 +146,8 @@ class StorageMetadataTests: StorageTestHelpers {
     let escapedPath = StorageUtils.GCSEscapedString("path/to/object")
     let expectedURL =
       "https://firebasestorage.googleapis.com:443/v0/b/bucket/o/\(escapedPath)?alt=media&token=12345"
-    let task = StorageGetDownloadURLTask(reference: rootReference,
-                                         fetcherService: GTMSessionFetcherService(),
-                                         queue: DispatchQueue.main,
-                                         completion: nil)
-    let actualURL = task.downloadURLFromMetadataDictionary(metaDict)
+    let actualURL = StorageGetDownloadURLTask.downloadURLFromMetadataDictionary(metaDict,
+                                                                                rootReference)
     XCTAssertEqual(actualURL?.absoluteString, expectedURL)
   }
 

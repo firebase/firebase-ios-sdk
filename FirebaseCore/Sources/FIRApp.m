@@ -232,7 +232,8 @@ static FIRApp *sDefaultApp;
               @"application initialization. This can be done in "
               @"in the App Delegate's application(_:didFinishLaunchingWithOptions:)` "
               @"(or the `@main` struct's initializer in SwiftUI). "
-              @"Read more: https://goo.gl/ctyzm8.");
+              @"Read more: "
+              @"https://firebase.google.com/docs/ios/setup#initialize_firebase_in_your_app");
   return nil;
 }
 
@@ -625,7 +626,7 @@ static FIRApp *sDefaultApp;
  *
  * @param appID Contents of GOOGLE_APP_ID from the plist file.
  * @param version Indicates what version of the app id format this string should be.
- * @return YES if provided string fufills the expected format, NO otherwise.
+ * @return YES if provided string fulfills the expected format, NO otherwise.
  */
 + (BOOL)validateAppIDFormat:(NSString *)appID withVersion:(NSString *)version {
   if (!appID.length || !version.length) {
@@ -707,8 +708,8 @@ static FIRApp *sDefaultApp;
  *
  * @param appID Contents of GOOGLE_APP_ID from the plist file.
  * @param version Indicates what version of the app id format this string should be.
- * @return YES if provided string fufills the expected hashed bundle ID and the version is known, NO
- *         otherwise.
+ * @return YES if provided string fulfills the expected hashed bundle ID and the version is known,
+ *         NO otherwise.
  */
 + (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version {
   // Extract the hashed bundle ID from the given app ID.

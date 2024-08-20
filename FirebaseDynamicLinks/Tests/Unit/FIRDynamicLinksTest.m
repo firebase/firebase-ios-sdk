@@ -1774,8 +1774,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 - (void)removeAllFIRApps {
   NSDictionary *apps = [FIRApp allApps];
   for (FIRApp *app in apps.allValues) {
-    [app deleteApp:^(BOOL succes) {
-      if (!succes) {
+    [app deleteApp:^(BOOL success) {
+      if (!success) {
         NSLog(@"Error deleting FIRApp before tests - config tests may fail.");
       }
     }];

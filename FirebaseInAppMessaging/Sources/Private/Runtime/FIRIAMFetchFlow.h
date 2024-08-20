@@ -44,6 +44,7 @@ typedef void (^FIRIAMFetchMessageCompletionHandler)(
 // Parent class for supporting different fetching flows. Subclass is supposed to trigger
 // checkAndFetch at appropriate moments based on its fetch strategy
 NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS extensions.")
+API_AVAILABLE(ios(13.0), tvos(13.0))
 @interface FIRIAMFetchFlow : NSObject
 - (instancetype)initWithSetting:(FIRIAMFetchSetting *)setting
                    messageCache:(FIRIAMMessageClientCache *)cache

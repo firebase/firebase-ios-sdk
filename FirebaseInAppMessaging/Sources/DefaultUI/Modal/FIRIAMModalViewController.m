@@ -185,7 +185,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 // In both landscape or portrait mode, the title, body & button are aligned vertically and they form
 // together have an impact on the height for that column. Many times, we need to calculate a
 // suitable heights for them to help decide the layout. The height calculation is influced by quite
-// a few factors: the text lenght of title and body, the presence/absense of body & button and
+// a few factors: the text length of title and body, the presence/absence of body & button and
 // available card/window sizes. So these are wrapped within
 // estimateTextButtomColumnHeightWithDisplayWidth which produce a TitleBodyButtonHeightInfo struct
 // to give the estimates of the heights of different elements.
@@ -389,7 +389,7 @@ struct TitleBodyButtonHeightInfo {
 
     // now we can estimate the new card width given the desired image size
 
-    // this assumes we use half of the window width for diplaying the text/button column
+    // this assumes we use half of the window width for displaying the text/button column
     CGFloat cardFitWidth = imageDisplaySize.width + self.view.window.frame.size.width / 2 +
                            LandScapePaddingBetweenImageAndTextColumn;
 

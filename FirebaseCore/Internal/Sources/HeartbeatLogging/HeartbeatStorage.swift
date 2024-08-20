@@ -37,7 +37,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   /// Designated initializer.
   /// - Parameters:
-  ///   - id: A string identifer.
+  ///   - id: A string identifier.
   ///   - storage: The underlying storage container where heartbeat data is stored.
   init(id: String,
        storage: Storage) {

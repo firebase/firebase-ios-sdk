@@ -47,7 +47,7 @@ final class CoreAPITests {
 
     // Delete Firebase app
     if let app = FirebaseApp.app() {
-      app.delete { _ /* succes */ in
+      app.delete { _ /* success */ in
         // ...
       }
 

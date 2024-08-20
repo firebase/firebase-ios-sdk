@@ -33,7 +33,7 @@ extern NSString *const FIRAuthErrorUserInfoNameKey NS_SWIFT_NAME(AuthErrorUserIn
           - `AuthErrorCodeAccountExistsWithDifferentCredential`
           - `AuthErrorCodeCredentialAlreadyInUse`
           - `AuthErrorCodeEmailAlreadyInUse`
-        may contain an `NSError.userInfo` dictinary object which contains this key. The value
+        may contain an `NSError.userInfo` dictionary object which contains this key. The value
         associated with this key is an NSString of the email address of the account that already
         exists.
  */

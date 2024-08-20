@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.0.0"
+let firebaseVersion = "11.1.0"
 
 let package = Package(
   name: "Firebase",
@@ -134,15 +134,11 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      branch: "release-10.0"
-      // TODO: Update to 10.0.0 when ready.
-      // "10.0.0" ..< "11.0.0"
+      "10.0.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      branch: "release-8.0"
-      // TODO: Update to 8.0.0 when ready.
-      // "8.0.0" ..< "9.0.0"
+      "8.0.0" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -150,7 +146,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
-      "2.30909.0" ..< "2.30911.0"
+      "2.30910.0" ..< "2.30911.0"
     ),
     abseilDependency(),
     grpcDependency(),
@@ -176,9 +172,7 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git",
-             branch: "release-11.0"),
-    // TODO: Update to 11.0.0 when ready.
-    // "11.0.0" ..< "12.0.0",
+             "11.0.1" ..< "12.0.0"),
   ],
   targets: [
     .target(
@@ -310,17 +304,17 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.28.0/FirebaseAnalytics.zip",
-      checksum: "50af00e4f2b62e60f8c1686538285aaa10989df35a170c1761f9626edee4a79d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.1.0/FirebaseAnalytics.zip",
+      checksum: "7477b92093cc001e713a3442bcf8725b83764294452c04f36164c8706d224510"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
-      dependencies: ["FirebaseAnalytics"],
+      dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/SwiftUnit"
     ),
     .testTarget(
       name: "AnalyticsObjCAPI",
-      dependencies: ["FirebaseAnalytics"],
+      dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/ObjCAPI"
     ),
 
@@ -467,8 +461,10 @@ let package = Package(
         // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
         "PhoneAuthProviderTests.swift",
         "AuthNotificationManagerTests.swift",
-        "ObjCAPITests.m", // Only builds via CocoaPods until mixed language or its own target.
-        "ObjCGlobalTests.m", // Only builds via CocoaPods until mixed language or its own target.
+        // TODO: The following tests run in CocoaPods only, until mixed language or separate target.
+        "ObjCAPITests.m",
+        "ObjCGlobalTests.m",
+        "FIROAuthProviderTests.m",
       ]
     ),
     .target(
@@ -1230,7 +1226,6 @@ let package = Package(
               "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "AppCheckCore", package: "app-check"),
-              .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
@@ -1318,7 +1313,7 @@ let package = Package(
       dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
-        .process("Responses"),
+        .process("vertexai-sdk-test-data/mock-responses"),
       ],
       cSettings: [
         .headerSearchPath("../../../"),
@@ -1348,7 +1343,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.28.0")
+  return .package(url: appMeasurementURL, exact: "11.1.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1364,7 +1359,7 @@ func abseilDependency() -> Package.Dependency {
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024011601.1" ..< "1.2024011700.0"
+      "1.2024011602.0" ..< "1.2024011700.0"
     )
   }
 
@@ -1377,9 +1372,9 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.62.3" ..< "1.63.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.62.2" ..< "1.63.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1517,8 +1512,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.27.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "38f6d1bb13fabca97f53c0ef5bf283b2fbbbf460eac8fa875cd3faab597097b8"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.1.0/rc1/FirebaseFirestoreInternal.zip",
+        checksum: "fc5453c2dc5f77426a62992bda3bcea21051b27c0f697f3a8ec461ecfafcdc44"
       )
     }
   }()

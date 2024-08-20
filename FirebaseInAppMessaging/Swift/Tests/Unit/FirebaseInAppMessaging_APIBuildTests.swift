@@ -33,13 +33,10 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let _: Bool = inAppMessaging.messageDisplaySuppressed
     inAppMessaging.messageDisplaySuppressed = true
 
-    // TODO(ncooke3): This should probably be removed in favor of the one in
-    // FirebaseCore?
     let _: Bool = inAppMessaging.automaticDataCollectionEnabled
     inAppMessaging.automaticDataCollectionEnabled = true
 
     let _: FirebaseInAppMessaging.InAppMessagingDisplay = inAppMessaging.messageDisplayComponent
-    // FIXME(ncooke3): Below.
     let displayConformer: FirebaseInAppMessaging.InAppMessagingDisplay! = nil
     inAppMessaging.messageDisplayComponent = displayConformer
 
@@ -48,7 +45,6 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let delegate: FirebaseInAppMessaging.InAppMessagingDisplayDelegate? = inAppMessaging.delegate
     inAppMessaging.delegate = nil
 
-    // TODO(ncooke3): Does it make sense for these params to be nullable?
     let nullableText: String? = nil
     let nullableURL: URL? = nil
     let action = FirebaseInAppMessaging.InAppMessagingAction(
@@ -70,8 +66,8 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
     let _: UIColor = button.buttonBackgroundColor
 
     _ = FirebaseInAppMessaging.InAppMessagingDisplayMessageType.RawValue()
-    let messsageType: FirebaseInAppMessaging.InAppMessagingDisplayMessageType! = nil
-    switch messsageType! {
+    let messageType: FirebaseInAppMessaging.InAppMessagingDisplayMessageType! = nil
+    switch messageType! {
     case .modal: break
     case .banner: break
     case .imageOnly: break
@@ -160,7 +156,7 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
       messageID: nonnullText,
       campaignName: nonnullText,
       renderAsTestMessage: true,
-      messageType: messsageType,
+      messageType: messageType,
       triggerType: triggerType
     )
     let _: FirebaseInAppMessaging.InAppMessagingCampaignInfo = displayMessage.campaignInfo

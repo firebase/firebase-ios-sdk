@@ -333,7 +333,7 @@
               handler:^(NSError *error) {
                 if (!error) {
                   // Do not send the token back in case the save was unsuccessful. Since with
-                  // the new asychronous fetch mechanism this can lead to infinite loops, for
+                  // the new asynchronous fetch mechanism this can lead to infinite loops, for
                   // example, we will return a valid token even though we weren't able to store
                   // it in our cache. The first token will lead to a onTokenRefresh callback
                   // wherein the user again calls `getToken` but since we weren't able to save

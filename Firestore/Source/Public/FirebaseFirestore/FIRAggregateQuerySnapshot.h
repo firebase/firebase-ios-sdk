@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The results of executing an `AggregateQuery`.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AggregateQuerySnapshot)
 @interface FIRAggregateQuerySnapshot : NSObject
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurement'
-    s.version          = '11.0.0'
+    s.version          = '11.1.0'
     s.summary          = 'Shared measurement methods for Google libraries. Not intended for direct use.'
 
     s.description      = <<-DESC
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/4d5ec9a36b6d4fd4/GoogleAppMeasurement-10.28.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/f60e4b9034ff4db0/GoogleAppMeasurement-11.1.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
     s.default_subspecs = 'AdIdSupport'
 
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '11.0.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '11.1.0'
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
     end
 

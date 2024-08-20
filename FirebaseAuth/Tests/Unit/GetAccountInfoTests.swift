@@ -26,7 +26,7 @@ class GetAccountInfoTests: RPCBaseTests {
 
   /** var kIDTokenKey
       brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-          despite it's confusing (backwards compatiable) parameter name.
+          despite it's confusing (backwards compatible) parameter name.
    */
   let kIDTokenKey = "idToken"
 

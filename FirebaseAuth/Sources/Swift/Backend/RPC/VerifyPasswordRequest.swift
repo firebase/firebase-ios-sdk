@@ -53,7 +53,7 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The email of the user.
   private(set) var email: String
 
-  /// The password inputed by the user.
+  /// The password inputted by the user.
   private(set) var password: String
 
   /// The GITKit token for the non-trusted IDP, which is to be confirmed by the user.

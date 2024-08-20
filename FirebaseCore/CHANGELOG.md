@@ -13,6 +13,10 @@
   been removed. See
   https://firebase.google.com/docs/ios/swift-migration for migration
   instructions.
+- Update underlying FIRLogger implementation from `asl` to `os_log`.
+- Remove `FIRLoggerForceSTDERR` configuration option.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
 
 # Firebase 10.25.0
 - [changed] Firebase now requires at least Xcode 15.2. See
@@ -202,7 +206,7 @@
   libraries, an error like `Missing package product 'FirebaseSwift-Beta'` will appear. In your
   project's settings, go to "General" and scroll down to `Frameworks, Libraries, and Embedded
   Content`. Select the missing package, and remove it. Then, click the `+` button to add the
-  assocciated library without the `-Beta` suffix. Any `import` statements in your project
+  associated library without the `-Beta` suffix. Any `import` statements in your project
   should be changed accordingly.
 - [changed] The `FirebaseStorageSwift-Beta` and `FirebaseFunctionsSwift-Beta` libraries have been
   merged into `FirebaseStorage` and `FirebaseFunctions` respectively and should be removed from your
@@ -483,7 +487,7 @@ The Firebase Installations SDK introduces the [Firebase Installations API](https
 
 # 2019-04-02 -- v5.4.1 -- M46
 - [changed] Avoid using NSRegularExpression in FIRApp.
-- [changed] Improve error meessage for invalid app names. (#2614)
+- [changed] Improve error message for invalid app names. (#2614)
 - [changed] FIRApp thread safety fixes. (#2639)
 
 # 2019-03-19 -- v5.4.0 -- M45

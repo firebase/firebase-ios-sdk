@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '11.0.0'
+  s.version          = '11.1.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -36,7 +36,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source_files = [
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
-    base_dir + 'third_party/SocketRocket/fbase64.c',
     'FirebaseDatabase/Swift/Sources/**/*.swift',
     'FirebaseAuth/Interop/**/*.h',
     'FirebaseCore/Extension/*.h',

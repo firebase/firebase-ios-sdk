@@ -112,7 +112,7 @@ void QueryListener::OnError(Status error) {
 }
 
 /**
- * Returns whether a snaphsot was raised.
+ * Returns whether a snapshot was raised.
  */
 bool QueryListener::OnOnlineStateChanged(OnlineState online_state) {
   online_state_ = online_state;

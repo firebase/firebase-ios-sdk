@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
-#else
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+@_exported import class FirebaseCore.Timestamp
 
 /// A type that can initialize itself from a Firestore Timestamp, which makes
 /// it suitable for use with the `@ServerTimestamp` property wrapper.

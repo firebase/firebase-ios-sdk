@@ -191,7 +191,7 @@
   FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:sampleURLRequest];
   XCTAssertNotNil(trace);
 
-  // Expected lenght of the URL should be the domainLength, number of times path was appended which
+  // Expected length of the URL should be the domainLength, number of times path was appended which
   // does not make the length go beyond the max limit.
   NSInteger expectedLength = domainString.length + (numberOfAppends - 1) * appendString.length;
   XCTAssertEqual(trace.trimmedURLString.length, expectedLength);

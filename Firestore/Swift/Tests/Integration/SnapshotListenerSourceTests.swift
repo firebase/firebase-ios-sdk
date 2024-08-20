@@ -182,15 +182,14 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
 
     // Setup a `limit` query.
     let limit = collRef.order(by: "sort", descending: false).limit(to: 2)
-    let limitAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let limitAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     var limitRegistration = limit.addSnapshotListener(
       options: options,
       listener: limitAccumulator.valueEventHandler
     )
     // Setup a mirroring `limitToLast` query.
     let limitToLast = collRef.order(by: "sort", descending: true).limit(toLast: 2)
-    let limitToLastAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let limitToLastAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     var limitToLastRegistration = limitToLast.addSnapshotListener(
       options: options,
       listener: limitToLastAccumulator.valueEventHandler
@@ -259,7 +258,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isGreaterThanOrEqualTo: 1).order(by: "sort")
 
     // Listen to the query with default options, which will also populates the cache
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
 
     var querySnap = defaultAccumulator.awaitEvent(withName: "snapshot")
@@ -267,8 +266,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     XCTAssertEqual(querySnap.metadata.isFromCache, false)
 
     // Listen to the same query from cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -293,8 +291,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isNotEqualTo: 0).order(by: "sort")
 
     // Listen to the cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -306,7 +303,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     XCTAssertEqual(querySnap.metadata.isFromCache, true)
 
     // Listen to the same query from server
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     querySnap = defaultAccumulator.awaitEvent(withName: "snapshot")
     try assertQuerySnapshotDataEquals(querySnap, [["k": "b", "sort": 1]])
@@ -366,7 +363,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isNotEqualTo: 0).order(by: "sort")
 
     // Listen to the cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
       .withIncludeMetadataChanges(true)
     let cacheRegistration = query.addSnapshotListener(
@@ -379,7 +376,7 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     XCTAssertEqual(querySnap.metadata.isFromCache, true)
 
     // Listen to the same query from server
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(
       includeMetadataChanges: true,
       listener: defaultAccumulator.valueEventHandler
@@ -435,11 +432,10 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isNotEqualTo: 0).order(by: "sort")
 
     // Listen to the query with both source options
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     defaultAccumulator.awaitEvent(withName: "snapshot")
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -472,11 +468,10 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isNotEqualTo: 0).order(by: "sort")
 
     // Listen to the query with both source options
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     defaultAccumulator.awaitEvent(withName: "snapshot")
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -509,15 +504,14 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isGreaterThan: 0).order(by: "sort")
 
     // Listen to the query with default options, which will also populates the cache
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     var defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     var querySnap = defaultAccumulator.awaitEvent(withName: "snapshot")
     var expected = [["k": "b", "sort": 1]]
     try assertQuerySnapshotDataEquals(querySnap, expected)
 
     // Listen to the same query from cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     var cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -640,15 +634,14 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     let query = collRef.whereField("sort", isGreaterThan: 0).order(by: "sort")
 
     // Listen to the query with default options, which will also populates the cache
-    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>.init(forTest: self)
+    let defaultAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let defaultRegistration = query.addSnapshotListener(defaultAccumulator.valueEventHandler)
     var querySnap = defaultAccumulator.awaitEvent(withName: "snapshot")
     var expected = [["k": "b", "sort": 1]]
     try assertQuerySnapshotDataEquals(querySnap, expected)
 
     // Listen to the same query from cache
-    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>
-      .init(forTest: self)
+    let cacheAccumulator = FSTEventAccumulator<QuerySnapshot>(forTest: self)
     let options = SnapshotListenOptions().withSource(ListenSource.cache)
     let cacheRegistration = query.addSnapshotListener(
       options: options,
@@ -679,5 +672,85 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     cacheAccumulator.assertNoAdditionalEvents()
     defaultRegistration.remove()
     cacheRegistration.remove()
+  }
+
+  func testListenToDocumentsWithVectors() throws {
+    let collection = collectionRef()
+    let doc = collection.document()
+
+    let registration = collection.whereField("purpose", isEqualTo: "vector tests")
+      .addSnapshotListener(eventAccumulator.valueEventHandler)
+
+    var querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, true)
+
+    doc.setData([
+      "purpose": "vector tests",
+      "vector0": FieldValue.vector([0.0]),
+      "vector1": FieldValue.vector([1, 2, 3.99]),
+    ])
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector0"] as! VectorValue,
+      FieldValue.vector([0.0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector1"] as! VectorValue,
+      FieldValue.vector([1, 2, 3.99])
+    )
+
+    doc.setData([
+      "purpose": "vector tests",
+      "vector0": FieldValue.vector([0.0]),
+      "vector1": FieldValue.vector([1, 2, 3.99]),
+      "vector2": FieldValue.vector([0.0, 0, 0]),
+    ])
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector0"] as! VectorValue,
+      FieldValue.vector([0.0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector1"] as! VectorValue,
+      FieldValue.vector([1, 2, 3.99])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector2"] as! VectorValue,
+      FieldValue.vector([0.0, 0, 0])
+    )
+
+    doc.updateData([
+      "vector3": FieldValue.vector([-1, -200, -999.0]),
+    ])
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector0"] as! VectorValue,
+      FieldValue.vector([0.0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector1"] as! VectorValue,
+      FieldValue.vector([1, 2, 3.99])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector2"] as! VectorValue,
+      FieldValue.vector([0.0, 0, 0])
+    )
+    XCTAssertEqual(
+      querySnap.documents[0].data()["vector3"] as! VectorValue,
+      FieldValue.vector([-1, -200, -999.0])
+    )
+
+    doc.delete()
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, true)
+
+    eventAccumulator.assertNoAdditionalEvents()
+    registration.remove()
   }
 }

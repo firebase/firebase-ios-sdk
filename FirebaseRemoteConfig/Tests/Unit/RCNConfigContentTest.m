@@ -326,7 +326,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   // Check that no one of first three calls of `-checkAndWaitForInitialDatabaseLoad` do not produce
   // timeout error <end>.
-  // This make us sure that there no threads "stucked" on `-checkAndWaitForInitialDatabaseLoad`.
+  // This make us sure that there no threads "stuck" on `-checkAndWaitForInitialDatabaseLoad`.
   [self waitForExpectationsWithTimeout:0.5 * kDatabaseLoadTimeoutSecs handler:nil];
 }
 

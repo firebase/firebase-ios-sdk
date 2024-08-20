@@ -1,9 +1,22 @@
+# 11.1.0
+- [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)
+- [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking
+  to any code that implemented an exhaustive `switch` on `AuthProviderID` in 11.0.0 - the `switch`
+  will need expansion. (#13429)
+- [fixed] Fix crash introduced in 11.0.0 in phone authentication flow from
+  implicitly unwrapping `nil` error after a token timeout. (#13470)
+- [fixed] Objective-C only: `[OAuthProvider getCredentialWithUIDelegate]` was not calling its
+  completion handler in the main thread. Regressed in 11.0.0. The fix is only for CocoaPods and
+  Swift Package Manager. The zip and Carthage fix will roll out in 11.2.0.
+  (https://github.com/firebase/FirebaseUI-iOS/issues/1199)
+
 # 11.0.0
 - [fixed] Fixed auth domain matching code to prioritize matching `firebaseapp.com` over `web.app`
   even if the server returns the `web.app` domain listed first. (#7992)
 - [added] Introduced the Swift enum `AuthProviderID` for the Auth Provider IDs. (#9236)
 - [deprecated] Swift APIs using `String`-typed `productID`s have been deprecated in favor
   of newly added API that leverages the `AuthProviderID` enum.
+- [fixed] Breaking API: The `email` property in `ActionCodeInfo` is now non-optional.
 
 # 10.21.0
 - [fixed] Fixed multifactor resolver to use the correct Auth instance instead of
@@ -384,7 +397,7 @@
 # 3.0.3
 - [added] Adds documentation for all possible errors returned by each method.
 - [fixed] Improves error handling and messages for a variety of error conditions.
-- [fixed] Whether or not an user is considered anonymous is now consistent with other
+- [fixed] Whether or not a user is considered anonymous is now consistent with other
   platforms.
 - [changed] A saved signed in user is now siloed between different Firebase projects
   within the same app.

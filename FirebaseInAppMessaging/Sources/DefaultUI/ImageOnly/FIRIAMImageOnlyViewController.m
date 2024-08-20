@@ -145,7 +145,7 @@
       adjustedImageViewWidth =
           adjustedImageViewHeight * self.imageOriginalSize.width / self.imageOriginalSize.height;
       FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID110003",
-                  @"Use max avilable image display height as %lf", adjustedImageViewHeight);
+                  @"Use max available image display height as %lf", adjustedImageViewHeight);
     }
   } else {
     // image can be rendered fully at its original size
