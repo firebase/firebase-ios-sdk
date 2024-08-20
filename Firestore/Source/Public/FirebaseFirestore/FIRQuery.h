@@ -41,6 +41,7 @@ typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
  * A `Query` refers to a query which you can read or listen to. You can also construct
  * refined `Query` objects by adding filters and ordering.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(Query)
 @interface FIRQuery : NSObject
 /** :nodoc: */

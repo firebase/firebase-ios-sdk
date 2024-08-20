@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sentinel values that can be used when writing document fields with `setData()` or `updateData()`.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FieldValue)
 @interface FIRFieldValue : NSObject
 

@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Represents an aggregation that can be performed by Firestore.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AggregateField)
 @interface FIRAggregateField : NSObject
 

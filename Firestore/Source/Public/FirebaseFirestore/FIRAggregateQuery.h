@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A query that calculates aggregations over an underlying query.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(AggregateQuery)
 @interface FIRAggregateQuery : NSObject
 

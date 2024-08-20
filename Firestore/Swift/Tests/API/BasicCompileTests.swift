@@ -493,36 +493,40 @@ func terminateDb(database db: Firestore) {
   }
 }
 
-#if swift(>=5.5.2)
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func testAsyncAwait(database db: Firestore) async throws {
-    try await db.enableNetwork()
-    try await db.disableNetwork()
-    try await db.waitForPendingWrites()
-    try await db.clearPersistence()
-    try await db.terminate()
-    try await db.runTransaction { _, _ in
-      0
-    }
-
-    let batch = db.batch()
-    try await batch.commit()
-
-    _ = await db.getQuery(named: "foo")
-    _ = try await db.loadBundle(Data())
-
-    let collection = db.collection("coll")
-    try await collection.getDocuments()
-    try await collection.getDocuments(source: FirestoreSource.default)
-
-    let document = try await collection.addDocument(data: [:])
-
-    try await document.setData([:])
-    try await document.setData([:], merge: true)
-    try await document.setData([:], mergeFields: [])
-    try await document.updateData([:])
-    try await document.delete()
-    try await document.getDocument()
-    try await document.getDocument(source: FirestoreSource.default)
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+func testAsyncAwait(database db: Firestore) async throws {
+  try await db.enableNetwork()
+  try await db.disableNetwork()
+  try await db.waitForPendingWrites()
+  try await db.clearPersistence()
+  try await db.terminate()
+  _ = try await db.runTransaction { _, _ in
+    0
   }
-#endif
+
+  let batch = db.batch()
+  try await batch.commit()
+
+  _ = await db.getQuery(named: "foo")
+  _ = try await db.loadBundle(Data())
+
+  let collection = db.collection("coll")
+  try await collection.getDocuments()
+  try await collection.getDocuments(source: FirestoreSource.default)
+
+  let document = try await collection.addDocument(data: [:])
+
+  try await document.setData([:])
+  try await document.setData([:], merge: true)
+  try await document.setData([:], mergeFields: [])
+  try await document.updateData([:])
+  try await document.delete()
+  try await document.getDocument()
+  try await document.getDocument(source: FirestoreSource.default)
+}
+
+actor regression12666 {
+  func getUser() async throws {
+    _ = try await Firestore.firestore().collection("users").getDocuments()
+  }
+}

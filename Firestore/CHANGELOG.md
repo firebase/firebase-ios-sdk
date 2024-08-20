@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Marked all public classes with only readonly properties as `Sendable` to address
+  Swift Concurrency Check warning. (#12666)
+
 # 11.1.0
 - [feature] Add `VectorValue` type support.
 
