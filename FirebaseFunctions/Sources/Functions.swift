@@ -441,13 +441,10 @@ enum FunctionsConstants {
                              timeoutInterval: timeout)
     let fetcher = fetcherService.fetcher(with: request)
 
-    // Encode the data in the body.
-    let data = data ?? NSNull()
-    // Force unwrap to match the old invalid argument thrown.
-    let encoded = try! serializer.encode(data)
-    let body = ["data": encoded]
-
     do {
+      let data = data ?? NSNull()
+      let encoded = try serializer.encode(data)
+      let body = ["data": encoded]
       let payload = try JSONSerialization.data(withJSONObject: body)
       fetcher.bodyData = payload
     } catch {
@@ -488,79 +485,76 @@ enum FunctionsConstants {
       fetcher.allowedInsecureSchemes = ["http"]
     }
 
-    fetcher.beginFetch { data, error in
-      // If there was an HTTP error, convert it to our own error domain.
-      var localError: Error?
-      if let error = error as NSError? {
-        if error.domain == kGTMSessionFetcherStatusDomain {
-          localError = FunctionsErrorForResponse(
-            status: error.code,
-            body: data,
-            serializer: self.serializer
-          )
-        } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
-          localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
-        }
-        // If there was an error, report it to the user and stop.
-        if let localError {
-          completion(.failure(localError))
-        } else {
-          completion(.failure(error))
-        }
-        return
-      } else {
-        // If there wasn't an HTTP error, see if there was an error in the body.
-        if let bodyError = FunctionsErrorForResponse(
-          status: 200,
-          body: data,
-          serializer: self.serializer
-        ) {
-          completion(.failure(bodyError))
-          return
-        }
-      }
-
-      // Porting: this check is new since we didn't previously check if `data` was nil.
-      guard let data = data else {
-        completion(.failure(FunctionsErrorCode.internal.generatedError(userInfo: nil)))
-        return
-      }
-
-      let responseJSONObject: Any
+    fetcher.beginFetch { [self] data, error in
+      let result: Result<HTTPSCallableResult, any Error>
       do {
-        responseJSONObject = try JSONSerialization.jsonObject(with: data)
+        let data = try responseData(data: data, error: error)
+        let json = try responseDataJSON(from: data)
+        // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
+        let payload = try serializer.decode(json)
+        // TODO: Remove `as Any` once `decode(_:)` is refactored
+        result = .success(HTTPSCallableResult(data: payload as Any))
       } catch {
-        completion(.failure(error))
-        return
+        result = .failure(error)
       }
 
-      guard let responseJSON = responseJSONObject as? NSDictionary else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-        completion(.failure(FunctionsErrorCode.internal.generatedError(userInfo: userInfo)))
-        return
+      DispatchQueue.main.async {
+        completion(result)
       }
-
-      // TODO(klimt): Allow "result" instead of "data" for now, for backwards compatibility.
-      let dataJSON = responseJSON["data"] ?? responseJSON["result"]
-      guard let dataJSON = dataJSON as AnyObject? else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
-        completion(.failure(FunctionsErrorCode.internal.generatedError(userInfo: userInfo)))
-        return
-      }
-
-      let resultData: Any?
-      do {
-        resultData = try self.serializer.decode(dataJSON)
-      } catch {
-        completion(.failure(error))
-        return
-      }
-
-      // TODO: Force unwrap... gross
-      let result = HTTPSCallableResult(data: resultData!)
-      // TODO: This copied comment appears to be incorrect - it's impossible to have a nil callable result
-      // If there's no result field, this will return nil, which is fine.
-      completion(.success(result))
     }
+  }
+
+  private func responseData(data: Data?, error: (any Error)?) throws -> Data {
+    // Case 1: `error` is not `nil` -> always throws
+    if let error = error as NSError? {
+      let localError: (any Error)?
+      if error.domain == kGTMSessionFetcherStatusDomain {
+        localError = FunctionsErrorForResponse(
+          status: error.code,
+          body: data,
+          serializer: serializer
+        )
+      } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
+        localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
+      } else {
+        localError = nil
+      }
+
+      throw localError ?? error
+    }
+
+    // Case 2: `data` is `nil` -> always throws
+    guard let data else {
+      throw FunctionsErrorCode.internal.generatedError(userInfo: nil)
+    }
+
+    // Case 3: `data` is not `nil` but might specify a custom error -> throws conditionally
+    if let bodyError = FunctionsErrorForResponse(
+      status: 200,
+      body: data,
+      serializer: serializer
+    ) {
+      throw bodyError
+    }
+
+    // Case 4: `error` is `nil`; `data` is not `nil`; `data` doesn’t specify an error -> OK
+    return data
+  }
+
+  private func responseDataJSON(from data: Data) throws -> Any {
+    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+
+    guard let responseJSON = responseJSONObject as? NSDictionary else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsErrorCode.internal.generatedError(userInfo: userInfo)
+    }
+
+    // `result` is checked for backwards compatibility:
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
+      throw FunctionsErrorCode.internal.generatedError(userInfo: userInfo)
+    }
+
+    return dataJSON
   }
 }

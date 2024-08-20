@@ -39,9 +39,9 @@ final class ChatTests: XCTestCase {
 
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
-    guard #unavailable(watchOS 2) else {
+    #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
-    }
+    #endif // os(watchOS)
     MockURLProtocol.requestHandler = { request in
       let response = HTTPURLResponse(
         url: request.url!,

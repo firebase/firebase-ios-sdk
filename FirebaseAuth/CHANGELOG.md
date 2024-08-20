@@ -3,6 +3,12 @@
 - [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking
   to any code that implemented an exhaustive `switch` on `AuthProviderID` in 11.0.0 - the `switch`
   will need expansion. (#13429)
+- [fixed] Fix crash introduced in 11.0.0 in phone authentication flow from
+  implicitly unwrapping `nil` error after a token timeout. (#13470)
+- [fixed] Objective-C only: `[OAuthProvider getCredentialWithUIDelegate]` was not calling its
+  completion handler in the main thread. Regressed in 11.0.0. The fix is only for CocoaPods and
+  Swift Package Manager. The zip and Carthage fix will roll out in 11.2.0.
+  (https://github.com/firebase/FirebaseUI-iOS/issues/1199)
 
 # 11.0.0
 - [fixed] Fixed auth domain matching code to prioritize matching `firebaseapp.com` over `web.app`

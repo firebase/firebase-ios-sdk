@@ -15,6 +15,7 @@
  */
 
 #import <FirebaseFirestore/FIRFieldValue.h>
+#import <FirebaseFirestore/FIRVectorValue.h>
 
 #import <XCTest/XCTest.h>
 
