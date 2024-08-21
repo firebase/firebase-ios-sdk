@@ -377,7 +377,8 @@ extension User: NSSecureCoding {}
           }
           // Successful reauthenticate
           do {
-            try await self.setTokenService(tokenService: user.tokenService)
+            try await self.userProfileUpdate.setTokenService(user: self,
+                                                             tokenService: user.tokenService)
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: authResult,
                                                             error: nil)
@@ -652,7 +653,8 @@ extension User: NSSecureCoding {}
   /// This method may also return error codes associated with `updateEmail(to:)` and
   /// `updatePassword(to:)` on `User`.
   /// - Parameter credential: The credential for the identity provider.
-  /// - Parameter completion: Optionally; the block invoked when the unlinking is complete, or fails.
+  /// - Parameter completion: Optionally; the block invoked when the unlinking is complete, or
+  /// fails.
   @objc(linkWithCredential:completion:)
   open func link(with credential: AuthCredential,
                  completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -669,18 +671,18 @@ extension User: NSSecureCoding {}
         self.link(withEmailCredential: emailCredential, completion: completion)
         return
       }
-#if !os(watchOS)
-      if let gameCenterCredential = credential as? GameCenterAuthCredential {
-        self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
-        return
-      }
-#endif
-#if os(iOS)
-      if let phoneCredential = credential as? PhoneAuthCredential {
-        self.link(withPhoneCredential: phoneCredential, completion: completion)
-        return
-      }
-#endif
+      #if !os(watchOS)
+        if let gameCenterCredential = credential as? GameCenterAuthCredential {
+          self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
+          return
+        }
+      #endif
+      #if os(iOS)
+        if let phoneCredential = credential as? PhoneAuthCredential {
+          self.link(withPhoneCredential: phoneCredential, completion: completion)
+          return
+        }
+      #endif
 
       Task {
         do {
@@ -1233,7 +1235,7 @@ extension User: NSSecureCoding {}
     Task {
       do {
         try await userProfileUpdate.executeUserUpdateWithChanges(user: self,
-                                                                 changeBlock:changeBlock)
+                                                                 changeBlock: changeBlock)
         await MainActor.run {
           callback(nil)
         }
@@ -1245,50 +1247,19 @@ extension User: NSSecureCoding {}
     }
   }
 
-  // TODO: delete me
-  /// Sets a new token service for the `User` instance.
-  ///
-  /// The method makes sure the token service has access and refresh token and the new tokens
-  /// are saved in the keychain before calling back.
-  /// - Parameter tokenService: The new token service object.
-  /// - Parameter callback: The block to be called in the global auth working queue once finished.
-  private func setTokenService(tokenService: SecureTokenService) async throws {
-    let (_, _) = try await tokenService.fetchAccessToken(forcingRefresh: false)
-    self.tokenService = tokenService
-    if let error = self.updateKeychain() {
-      throw error
-    }
-  }
-
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
   func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
-                                                                  Error?) -> Void) {
-    internalGetToken { token, error in
-      if let error {
-        callback(nil, error)
-        return
-      }
-      guard let token else {
-        fatalError("Internal Error: Both error and token are nil.")
-      }
-      guard let requestConfiguration = self.auth?.requestConfiguration else {
-        fatalError("Internal Error: Unexpected nil requestConfiguration.")
-      }
-      let request = GetAccountInfoRequest(accessToken: token,
-                                          requestConfiguration: requestConfiguration)
-      Task {
-        do {
-          let accountInfoResponse = try await AuthBackend.call(with: request)
-          self.update(withGetAccountInfoResponse: accountInfoResponse)
-          if let error = self.updateKeychain() {
-            callback(nil, error)
-            return
-          }
-          callback(accountInfoResponse.users?.first, nil)
-        } catch {
-          self.signOutIfTokenIsInvalid(withError: error)
+                                                          Error?) -> Void) {
+    Task {
+      do {
+        let responseUser = try await userProfileUpdate.getAccountInfoRefreshingCache(self)
+        await MainActor.run {
+          callback(responseUser, nil)
+        }
+      } catch {
+        await MainActor.run {
           callback(nil, error)
         }
       }
@@ -1588,26 +1559,13 @@ extension User: NSSecureCoding {}
                                          refreshToken: String,
                                          expirationDate: Date?,
                                          requestConfiguration: AuthRequestConfiguration) async throws {
-    tokenService = SecureTokenService(
-      withRequestConfiguration: requestConfiguration,
-      accessToken: idToken,
-      accessTokenExpirationDate: expirationDate,
-      refreshToken: refreshToken
-    )
-    let accessToken = try await internalGetTokenAsync()
-    let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                      requestConfiguration: requestConfiguration)
-    do {
-      let response = try await AuthBackend.call(with: getAccountInfoRequest)
-      isAnonymous = false
-      update(withGetAccountInfoResponse: response)
-    } catch {
-      signOutIfTokenIsInvalid(withError: error)
-      throw error
-    }
-    if let error = updateKeychain() {
-      throw error
-    }
+    return try await userProfileUpdate
+      .updateTokenAndRefreshUser(
+        user: self,
+        idToken: idToken,
+        refreshToken: refreshToken,
+        expirationDate: expirationDate
+      )
   }
 
   /// Signs out this user if the user or the token is invalid.
@@ -1799,7 +1757,7 @@ extension User: NSSecureCoding {}
     // The `heartbeatLogger` and `appCheck` will be set later via a property update.
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey, appID: appID)
     userProfileUpdate = UserProfileUpdate()
-#if os(iOS)
+    #if os(iOS)
       self.multiFactor = multiFactor ?? MultiFactor()
       super.init()
       multiFactor?.user = self

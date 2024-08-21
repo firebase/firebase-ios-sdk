@@ -82,7 +82,6 @@ actor UserProfileUpdate {
           accessTokenExpirationDate: response.approximateExpirationDate,
           refreshToken: refreshToken
         )
-        // TODO: remove user parameter?
         try await setTokenService(user: user, tokenService: tokenService)
         return user
       }
@@ -101,14 +100,15 @@ actor UserProfileUpdate {
   /// atomically in regards to other calls to this method.
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   func executeUserUpdateWithChanges(user: User,
-                                            changeBlock: @escaping (GetAccountInfoResponseUser,
-                                                                    SetAccountInfoRequest)
-                                              -> Void) async throws {
+                                    changeBlock: @escaping (GetAccountInfoResponseUser,
+                                                            SetAccountInfoRequest)
+                                      -> Void) async throws {
     let userAccountInfo = try await getAccountInfoRefreshingCache(user)
     let accessToken = try await user.internalGetTokenAsync()
 
     // Mutate setAccountInfoRequest in block
-    let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: user.requestConfiguration)
+    let setAccountInfoRequest =
+      SetAccountInfoRequest(requestConfiguration: user.requestConfiguration)
     setAccountInfoRequest.accessToken = accessToken
     changeBlock(userAccountInfo, setAccountInfoRequest)
     do {
@@ -130,10 +130,10 @@ actor UserProfileUpdate {
   }
 
   // Update the new token and refresh user info again.
-  private func updateTokenAndRefreshUser(user: User,
-                                         idToken: String,
-                                         refreshToken: String,
-                                         expirationDate: Date?) async throws {
+  func updateTokenAndRefreshUser(user: User,
+                                 idToken: String,
+                                 refreshToken: String,
+                                 expirationDate: Date?) async throws {
     user.tokenService = SecureTokenService(
       withRequestConfiguration: user.requestConfiguration,
       accessToken: idToken,
@@ -141,8 +141,10 @@ actor UserProfileUpdate {
       refreshToken: refreshToken
     )
     let accessToken = try await user.internalGetTokenAsync()
-    let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                      requestConfiguration: user.requestConfiguration)
+    let getAccountInfoRequest = GetAccountInfoRequest(
+      accessToken: accessToken,
+      requestConfiguration: user.requestConfiguration
+    )
     do {
       let response = try await AuthBackend.call(with: getAccountInfoRequest)
       user.isAnonymous = false
@@ -162,8 +164,8 @@ actor UserProfileUpdate {
   /// are saved in the keychain before calling back.
   /// - Parameter tokenService: The new token service object.
   /// - Parameter callback: The block to be called in the global auth working queue once finished.
-  private func setTokenService(user: User, tokenService: SecureTokenService) async throws {
-    let (_, _) = try await tokenService.fetchAccessToken(forcingRefresh: false)
+  func setTokenService(user: User, tokenService: SecureTokenService) async throws {
+    _ = try await tokenService.fetchAccessToken(forcingRefresh: false)
     user.tokenService = tokenService
     if let error = user.updateKeychain() {
       throw error
@@ -173,7 +175,7 @@ actor UserProfileUpdate {
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  private func getAccountInfoRefreshingCache(_ user: User) async throws
+  func getAccountInfoRefreshingCache(_ user: User) async throws
     -> GetAccountInfoResponseUser {
     let token = try await user.internalGetTokenAsync()
     let request = GetAccountInfoRequest(accessToken: token,
