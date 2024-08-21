@@ -39,15 +39,6 @@
     case off = "OFF"
 
     // Convenience property for mapping values
-  var stringValue: String { self.rawValue }
-}
-
-  enum AuthRecaptchaEnablementStatus: String, CaseIterable {
-    case enforce = "ENFORCE"
-    case audit = "AUDIT"
-    case off = "OFF"
-
-    // Convenience property for mapping values
     var stringValue: String { rawValue }
   }
 
@@ -176,12 +167,6 @@
       let request = GetRecaptchaConfigRequest(requestConfiguration: requestConfiguration)
       let response = try await AuthBackend.call(with: request)
       AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
-      // Response's site key is of the format projects/<project-id>/keys/<site-key>'
-      guard let keys = response.recaptchaKey?.components(separatedBy: "/"),
-            keys.count == 4 else {
-        throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
-      }
-      let siteKey = keys[3]
       var enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus] = [:]
       if let enforcementState = response.enforcementState {
         for state in enforcementState {
@@ -193,6 +178,15 @@
           }
           enablementStatus[provider] = enforcement
         }
+      }
+      var siteKey = ""
+      // Response's site key is of the format projects/<project-id>/keys/<site-key>'
+      if let recaptchaKey = response.recaptchaKey {
+        let keys = recaptchaKey.components(separatedBy: "/")
+        if keys.count != 4 {
+          throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
+        }
+        siteKey = keys[3]
       }
       let config = AuthRecaptchaConfig(siteKey: siteKey, enablementStatus: enablementStatus)
 

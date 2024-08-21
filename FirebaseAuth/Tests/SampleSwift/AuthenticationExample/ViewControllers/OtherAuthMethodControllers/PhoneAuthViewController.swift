@@ -27,7 +27,7 @@ class PhoneAuthViewController: OtherAuthViewController {
   }
 
   // MARK: - Firebase 🔥
-  
+
   private func phoneAuthLogin(_ phoneNumber: String) {
     let phoneNumber = String(format: "+%@", phoneNumber)
     Task {
