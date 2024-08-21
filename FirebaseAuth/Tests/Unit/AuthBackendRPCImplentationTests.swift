@@ -589,7 +589,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      let _ = try? await rpcImplementation.call(with: request)
+      _ = try? await rpcImplementation.call(with: request)
       // Make sure completRequest updates.
       usleep(10000)
 
@@ -618,7 +618,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Just force return from async call.
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      let _ = try? await rpcImplementation.call(with: request)
+      _ = try? await rpcImplementation.call(with: request)
       // Make sure completRequest updates.
       usleep(10000)
 
@@ -650,7 +650,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      let _ = try? await rpcImplementation.call(with: request)
+      _ = try? await rpcImplementation.call(with: request)
       // Make sure completRequest updates.
       usleep(10000)
 

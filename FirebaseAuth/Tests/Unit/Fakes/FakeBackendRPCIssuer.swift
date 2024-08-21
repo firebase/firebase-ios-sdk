@@ -24,7 +24,6 @@ import XCTest
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
-
   /** @property requestURL
       @brief The URL which was requested.
    */
@@ -78,7 +77,9 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var secureTokenErrorString: String?
   var recaptchaSiteKey = "unset recaptcha siteKey"
 
-  func asyncCallToURL<T>(with request: T, body: Data?, contentType: String) async -> (Data?, Error?) where T : FirebaseAuth.AuthRPCRequest {
+  func asyncCallToURL<T>(with request: T, body: Data?,
+                         contentType: String) async -> (Data?, Error?)
+    where T: FirebaseAuth.AuthRPCRequest {
     return await withCheckedContinuation { continuation in
       self.asyncCallToURL(with: request, body: body, contentType: contentType) { data, error in
         continuation.resume(returning: (data, error))
@@ -149,8 +150,9 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       // be verified during testing.
       Task {
         self.completeRequest = await AuthBackend.request(withURL: requestURL!,
-                                                               contentType: contentType,
-                                                               requestConfiguration: request.requestConfiguration())
+                                                         contentType: contentType,
+                                                         requestConfiguration: request
+                                                           .requestConfiguration())
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
@@ -178,9 +180,10 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
                                   message: String = "See the reason") throws -> Data {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
     return try respond(
-withJSON: ["error": ["message": message,
-                     "errors": [["reason": errorMessage]]] as [String: Any]],
-error: error)
+      withJSON: ["error": ["message": message,
+                           "errors": [["reason": errorMessage]]] as [String: Any]],
+      error: error
+    )
   }
 
   @discardableResult func respond(withJSON json: [String: Any]) throws -> Data {

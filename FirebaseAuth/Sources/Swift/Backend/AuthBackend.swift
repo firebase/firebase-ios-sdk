@@ -53,9 +53,9 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
                                          contentType: String) async -> (Data?, Error?) {
     let requestConfiguration = request.requestConfiguration()
     let request = await AuthBackend.request(withURL: request.requestURL(),
-                        contentType: contentType,
-                        requestConfiguration: requestConfiguration)
-    let fetcher = self.fetcherService.fetcher(with: request)
+                                            contentType: contentType,
+                                            requestConfiguration: requestConfiguration)
+    let fetcher = fetcherService.fetcher(with: request)
     if let _ = requestConfiguration.emulatorHostAndPort {
       fetcher.allowLocalhostRequest = true
       fetcher.allowedInsecureSchemes = ["http"]
@@ -63,7 +63,7 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
     fetcher.bodyData = body
 
     return await withUnsafeContinuation { continuation in
-      fetcher.beginFetch() { data, error in
+      fetcher.beginFetch { data, error in
         continuation.resume(returning: (data, error))
       }
     }
@@ -125,7 +125,7 @@ class AuthBackend: NSObject {
       if let error = tokenResult.error {
         AuthLog.logWarning(code: "I-AUT000018",
                            message: "Error getting App Check token; using placeholder " +
-                           "token instead. Error: \(error)")
+                             "token instead. Error: \(error)")
       }
       request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
     }
@@ -249,9 +249,9 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         throw AuthErrorUtils.RPCRequestEncodingError(underlyingError: error)
       }
       var JSONWritingOptions: JSONSerialization.WritingOptions = .init(rawValue: 0)
-#if DEBUG
-      JSONWritingOptions = JSONSerialization.WritingOptions.prettyPrinted
-#endif
+      #if DEBUG
+        JSONWritingOptions = JSONSerialization.WritingOptions.prettyPrinted
+      #endif
 
       guard JSONSerialization.isValidJSONObject(postBody) else {
         throw AuthErrorUtils.JSONSerializationErrorForUnencodableType()
@@ -285,7 +285,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     var rawDecode: Any
     do {
       rawDecode = try JSONSerialization.jsonObject(
-        with: data, options: JSONSerialization.ReadingOptions.mutableLeaves)
+        with: data, options: JSONSerialization.ReadingOptions.mutableLeaves
+      )
     } catch let jsonError {
       if error != nil {
         // We have an error, but we couldn't decode the body, so we have no
@@ -331,7 +332,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         // Not a message we know, return the message directly.
         throw AuthErrorUtils.unexpectedErrorResponse(
           deserializedResponse: errorDictionary,
-          underlyingError: error)
+          underlyingError: error
+        )
       }
       // No error message at all, return the decoded response.
       throw AuthErrorUtils
