@@ -1417,7 +1417,7 @@ extension User: NSSecureCoding {}
         } catch {
           self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          complete: nil, result: nil, error: error)
+                                                          result: nil, error: error)
         }
       }
     }
@@ -1653,14 +1653,10 @@ extension User: NSSecureCoding {}
   private class func callInMainThreadWithAuthDataResultAndError(callback: (
     (AuthDataResult?, Error?) -> Void
   )?,
-  complete: AuthSerialTaskCompletionBlock? = nil,
   result: AuthDataResult? = nil,
   error: Error? = nil) {
     if let callback {
       DispatchQueue.main.async {
-        if let complete {
-          complete()
-        }
         callback(result, error)
       }
     }
