@@ -51,7 +51,6 @@ class SecureTokenService: NSObject, NSSecureCoding {
     self.accessToken = accessToken
     self.refreshToken = refreshToken
     self.accessTokenExpirationDate = accessTokenExpirationDate
-    taskQueue = AuthSerialTaskQueue()
   }
 
   /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
@@ -69,8 +68,6 @@ class SecureTokenService: NSObject, NSSecureCoding {
       return try await requestAccessToken(retryIfExpired: true)
     }
   }
-
-  private let taskQueue: AuthSerialTaskQueue
 
   // MARK: NSSecureCoding
 
@@ -119,8 +116,8 @@ class SecureTokenService: NSObject, NSSecureCoding {
   /// Makes a request to STS for an access token.
   ///
   /// This handles both the case that the token has not been granted yet and that it just
-  /// needs to be refreshed. The caller is responsible for making sure that this is occurring in
-  /// a  `_taskQueue` task.
+  /// needs to be refreshed. The caller is responsible for making sure that this is serially on the main
+  /// thread.
   ///
   /// Because this method is guaranteed to only be called from tasks enqueued in
   /// `_taskQueue`, we do not need any @synchronized guards around access to _accessToken/etc.
