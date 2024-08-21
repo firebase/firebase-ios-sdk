@@ -631,7 +631,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertNotNil((error as? NSError)?.userInfo[NSLocalizedDescriptionKey])
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 55)
+    waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
 

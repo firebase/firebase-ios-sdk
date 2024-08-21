@@ -590,7 +590,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         try self.rpcIssuer.respond(withJSON: [:])
       }
       _ = try? await rpcImplementation.call(with: request)
-      // Make sure completRequest updates.
+      // Make sure completeRequest updates.
       usleep(10000)
 
       // Then
@@ -619,7 +619,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         try self.rpcIssuer.respond(withJSON: [:])
       }
       _ = try? await rpcImplementation.call(with: request)
-      // Make sure completRequest updates.
+      // Make sure completeRequest updates.
       usleep(10000)
 
       let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
