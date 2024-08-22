@@ -1,3 +1,7 @@
+# 11.2.0
+- [Fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
+  betas. (#13480)
+
 # 11.1.0
 - [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)
 - [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking

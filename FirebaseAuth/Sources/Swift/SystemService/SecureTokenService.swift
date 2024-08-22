@@ -16,10 +16,102 @@ import Foundation
 
 private let kFiveMinutes = 5 * 60.0
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+actor SecureTokenServiceInternal {
+  /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
+  ///   received in the callback should be considered short lived and not cached.
+  ///
+  ///    Invoked asynchronously on the auth global work queue in the future.
+  /// - Parameter forceRefresh: Forces the token to be refreshed.
+  /// - Returns : A tuple with the token and flag of whether it was updated.
+  func fetchAccessToken(forcingRefresh forceRefresh: Bool,
+                        service: SecureTokenService) async throws -> (String?, Bool) {
+    if !forceRefresh, hasValidAccessToken(service: service) {
+      return (service.accessToken, false)
+    } else {
+      AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
+      return try await requestAccessToken(retryIfExpired: true, service: service)
+    }
+  }
+
+  /// Makes a request to STS for an access token.
+  ///
+  /// This handles both the case that the token has not been granted yet and that it just needs
+  /// needs to be refreshed.
+  ///
+  /// - Returns: Token and Bool indicating if update occurred.
+  private func requestAccessToken(retryIfExpired: Bool,
+                                  service: SecureTokenService) async throws -> (String?, Bool) {
+    // TODO: This was a crash in ObjC SDK, should it callback with an error?
+    guard let refreshToken = service.refreshToken,
+          let requestConfiguration = service.requestConfiguration else {
+      fatalError("refreshToken and requestConfiguration should not be nil")
+    }
+
+    let request = SecureTokenRequest.refreshRequest(refreshToken: refreshToken,
+                                                    requestConfiguration: requestConfiguration)
+    let response = try await AuthBackend.call(with: request)
+    var tokenUpdated = false
+    if let newAccessToken = response.accessToken,
+       newAccessToken.count > 0,
+       newAccessToken != service.accessToken {
+      if let tokenResult = try? AuthTokenResult.tokenResult(token: newAccessToken) {
+        // There is an edge case where the request for a new access token may be made right
+        // before the app goes inactive, resulting in the callback being invoked much later
+        // with an expired access token. This does not fully solve the issue, as if the
+        // callback is invoked less than an hour after the request is made, a token is not
+        // re-requested here but the approximateExpirationDate will still be off since that
+        // is computed at the time the token is received.
+        if retryIfExpired {
+          let expirationDate = tokenResult.expirationDate
+          if expirationDate.timeIntervalSinceNow <= kFiveMinutes {
+            // We only retry once, to avoid an infinite loop in the case that an end-user has
+            // their local time skewed by over an hour.
+            return try await requestAccessToken(retryIfExpired: false, service: service)
+          }
+        }
+      }
+      service.accessToken = newAccessToken
+      service.accessTokenExpirationDate = response.approximateExpirationDate
+      tokenUpdated = true
+      AuthLog.logDebug(
+        code: "I-AUT000017",
+        message: "Updated access token. Estimated expiration date: " +
+          "\(String(describing: service.accessTokenExpirationDate)), current date: \(Date())"
+      )
+    }
+    if let newRefreshToken = response.refreshToken,
+       newRefreshToken != service.refreshToken {
+      service.refreshToken = newRefreshToken
+      tokenUpdated = true
+    }
+    return (response.accessToken, tokenUpdated)
+  }
+
+  private func hasValidAccessToken(service: SecureTokenService) -> Bool {
+    if let accessTokenExpirationDate = service.accessTokenExpirationDate,
+       accessTokenExpirationDate.timeIntervalSinceNow > kFiveMinutes {
+      AuthLog.logDebug(code: "I-AUT000017",
+                       message: "Has valid access token. Estimated expiration date:" +
+                         "\(accessTokenExpirationDate), current date: \(Date())")
+      return true
+    }
+    AuthLog.logDebug(
+      code: "I-AUT000017",
+      message: "Does not have valid access token. Estimated expiration date:" +
+        "\(String(describing: service.accessTokenExpirationDate)), current date: \(Date())"
+    )
+    return false
+  }
+}
+
 /// A class represents a credential that proves the identity of the app.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSecureTokenService) // objc Needed for decoding old versions
 class SecureTokenService: NSObject, NSSecureCoding {
+  /// Internal actor to enforce serialization
+  private let internalService: SecureTokenServiceInternal
+
   /// The configuration for making requests to server.
   var requestConfiguration: AuthRequestConfiguration?
 
@@ -47,11 +139,11 @@ class SecureTokenService: NSObject, NSSecureCoding {
        accessToken: String,
        accessTokenExpirationDate: Date?,
        refreshToken: String) {
+    internalService = SecureTokenServiceInternal()
     self.requestConfiguration = requestConfiguration
     self.accessToken = accessToken
-    self.refreshToken = refreshToken
     self.accessTokenExpirationDate = accessTokenExpirationDate
-    taskQueue = AuthSerialTaskQueue()
+    self.refreshToken = refreshToken
   }
 
   /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
@@ -59,31 +151,10 @@ class SecureTokenService: NSObject, NSSecureCoding {
   ///
   ///    Invoked asynchronously on the auth global work queue in the future.
   /// - Parameter forceRefresh: Forces the token to be refreshed.
-  /// - Parameter callback: Callback block that will be called to return either the token or an
-  /// error.
-  func fetchAccessToken(forcingRefresh forceRefresh: Bool,
-                        callback: @escaping (String?, Error?, Bool) -> Void) {
-    taskQueue.enqueueTask { complete in
-      if !forceRefresh, self.hasValidAccessToken() {
-        complete()
-        callback(self.accessToken, nil, false)
-      } else {
-        AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
-        Task {
-          do {
-            let (token, tokenUpdated) = try await self.requestAccessToken(retryIfExpired: true)
-            complete()
-            callback(token, nil, tokenUpdated)
-          } catch {
-            complete()
-            callback(nil, error, false)
-          }
-        }
-      }
-    }
+  /// - Returns : A tuple with the token and flag of whether it was updated.
+  func fetchAccessToken(forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
+    return try await internalService.fetchAccessToken(forcingRefresh: forceRefresh, service: self)
   }
-
-  private let taskQueue: AuthSerialTaskQueue
 
   // MARK: NSSecureCoding
 
@@ -125,78 +196,5 @@ class SecureTokenService: NSObject, NSSecureCoding {
       accessTokenExpirationDate,
       forKey: SecureTokenService.kAccessTokenExpirationDateKey
     )
-  }
-
-  // MARK: Private methods
-
-  /// Makes a request to STS for an access token.
-  ///
-  /// This handles both the case that the token has not been granted yet and that it just
-  /// needs to be refreshed. The caller is responsible for making sure that this is occurring in
-  /// a  `_taskQueue` task.
-  ///
-  /// Because this method is guaranteed to only be called from tasks enqueued in
-  /// `_taskQueue`, we do not need any @synchronized guards around access to _accessToken/etc.
-  /// since only one of those tasks is ever running at a time, and those tasks are the only
-  /// access to and mutation of these instance variables.
-  /// - Returns: Token and Bool indicating if update occurred.
-  private func requestAccessToken(retryIfExpired: Bool) async throws -> (String?, Bool) {
-    // TODO: This was a crash in ObjC SDK, should it callback with an error?
-    guard let refreshToken, let requestConfiguration else {
-      fatalError("refreshToken and requestConfiguration should not be nil")
-    }
-
-    let request = SecureTokenRequest.refreshRequest(refreshToken: refreshToken,
-                                                    requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.call(with: request)
-    var tokenUpdated = false
-    if let newAccessToken = response.accessToken,
-       newAccessToken.count > 0,
-       newAccessToken != accessToken {
-      if let tokenResult = try? AuthTokenResult.tokenResult(token: newAccessToken) {
-        // There is an edge case where the request for a new access token may be made right
-        // before the app goes inactive, resulting in the callback being invoked much later
-        // with an expired access token. This does not fully solve the issue, as if the
-        // callback is invoked less than an hour after the request is made, a token is not
-        // re-requested here but the approximateExpirationDate will still be off since that
-        // is computed at the time the token is received.
-        if retryIfExpired {
-          let expirationDate = tokenResult.expirationDate
-          if expirationDate.timeIntervalSinceNow <= kFiveMinutes {
-            // We only retry once, to avoid an infinite loop in the case that an end-user has
-            // their local time skewed by over an hour.
-            return try await requestAccessToken(retryIfExpired: false)
-          }
-        }
-      }
-      accessToken = newAccessToken
-      accessTokenExpirationDate = response.approximateExpirationDate
-      tokenUpdated = true
-      AuthLog.logDebug(
-        code: "I-AUT000017",
-        message: "Updated access token. Estimated expiration date: " +
-          "\(String(describing: accessTokenExpirationDate)), current date: \(Date())"
-      )
-    }
-    if let newRefreshToken = response.refreshToken,
-       newRefreshToken != self.refreshToken {
-      self.refreshToken = newRefreshToken
-      tokenUpdated = true
-    }
-    return (response.accessToken, tokenUpdated)
-  }
-
-  private func hasValidAccessToken() -> Bool {
-    if let accessTokenExpirationDate,
-       accessTokenExpirationDate.timeIntervalSinceNow > kFiveMinutes {
-      AuthLog.logDebug(code: "I-AUT000017",
-                       message: "Has valid access token. Estimated expiration date:" +
-                         "\(accessTokenExpirationDate), current date: \(Date())")
-      return true
-    }
-    AuthLog.logDebug(code: "I-AUT000017",
-                     message: "Does not have valid access token. Estimated expiration date:" +
-                       "\(String(describing: accessTokenExpirationDate)), current date: \(Date())")
-    return false
   }
 }

@@ -77,6 +77,16 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var secureTokenErrorString: String?
   var recaptchaSiteKey = "unset recaptcha siteKey"
 
+  func asyncCallToURL<T>(with request: T, body: Data?,
+                         contentType: String) async -> (Data?, Error?)
+    where T: FirebaseAuth.AuthRPCRequest {
+    return await withCheckedContinuation { continuation in
+      self.asyncCallToURL(with: request, body: body, contentType: contentType) { data, error in
+        continuation.resume(returning: (data, error))
+      }
+    }
+  }
+
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
                                          contentType: String,
@@ -138,10 +148,11 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       requestData = body
       // Use the real implementation so that the complete request can
       // be verified during testing.
-      AuthBackend.request(withURL: requestURL!,
-                          contentType: contentType,
-                          requestConfiguration: request.requestConfiguration()) { request in
-        self.completeRequest = request
+      Task {
+        self.completeRequest = await AuthBackend.request(withURL: requestURL!,
+                                                         contentType: contentType,
+                                                         requestConfiguration: request
+                                                           .requestConfiguration())
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
@@ -156,22 +167,23 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
     }
   }
 
-  @discardableResult func respond(serverErrorMessage errorMessage: String) throws -> Data {
+  func respond(serverErrorMessage errorMessage: String) throws {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
-    return try respond(serverErrorMessage: errorMessage, error: error)
+    try respond(serverErrorMessage: errorMessage, error: error)
   }
 
-  @discardableResult
-  func respond(serverErrorMessage errorMessage: String, error: NSError) throws -> Data {
-    return try respond(withJSON: ["error": ["message": errorMessage]], error: error)
+  func respond(serverErrorMessage errorMessage: String, error: NSError) throws {
+    let _ = try respond(withJSON: ["error": ["message": errorMessage]], error: error)
   }
 
   @discardableResult func respond(underlyingErrorMessage errorMessage: String,
                                   message: String = "See the reason") throws -> Data {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
-    return try respond(withJSON: ["error": ["message": message,
-                                            "errors": [["reason": errorMessage]]] as [String: Any]],
-                       error: error)
+    return try respond(
+      withJSON: ["error": ["message": message,
+                           "errors": [["reason": errorMessage]]] as [String: Any]],
+      error: error
+    )
   }
 
   @discardableResult func respond(withJSON json: [String: Any],
