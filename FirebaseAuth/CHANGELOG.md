@@ -1,4 +1,5 @@
-# 11.2.0 Fix crashes that could occur in Swift continuation blocks running in the Xcode 16
+# 11.2.0
+- [Fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
   betas. (#13480)
 
 # 11.1.0
