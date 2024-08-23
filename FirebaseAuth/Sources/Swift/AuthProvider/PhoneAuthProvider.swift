@@ -346,15 +346,12 @@ import Foundation
       } catch {
         let nserror = error as NSError
         // reCAPTCHA Flow if it's an invalid app credential or a missing app token.
-        if (nserror.code == AuthErrorCode.internalError.rawValue &&
-          (nserror.userInfo[NSUnderlyingErrorKey] as? NSError)?.code ==
-          AuthErrorCode.invalidAppCredential.rawValue) ||
-          nserror.code == AuthErrorCode.missingAppToken.rawValue {
-          return try await CodeIdentity
-            .recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
-        } else {
+        guard nserror.code == AuthErrorCode.invalidAppCredential.rawValue || nserror
+          .code == AuthErrorCode.missingAppToken.rawValue else {
           throw error
         }
+        return try await CodeIdentity
+          .recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
       }
     }
 
