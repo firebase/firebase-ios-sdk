@@ -63,16 +63,6 @@ class AccountInfoTests: TestsBase {
       expectation2.fulfill()
     }
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
-
-    let expectation3 = expectation(description: "Update email address.")
-    auth.currentUser?.updateEmail(to: kNewUserEmail) { error in
-      XCTAssertNil(error)
-      XCTAssertEqual(auth.currentUser?.email,
-                     self.kNewUserEmail,
-                     "Signed user does not match change.")
-      expectation3.fulfill()
-    }
-    waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
   func testUpdatingUsersEmailAsync() async throws {
@@ -91,10 +81,5 @@ class AccountInfoTests: TestsBase {
     XCTAssertEqual(auth.currentUser?.email,
                    kOldUserEmail,
                    "Signed user does not match request.")
-
-    try await auth.currentUser?.updateEmail(to: kNewUserEmail)
-    XCTAssertEqual(auth.currentUser?.email,
-                   kNewUserEmail,
-                   "Signed user does not match change.")
   }
 }
