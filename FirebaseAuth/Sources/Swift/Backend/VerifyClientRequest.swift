@@ -32,7 +32,9 @@ class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
     if let appToken = appToken {
       postBody[Self.appTokenKey] = appToken
     }
-    postBody[Self.isSandboxKey] = isSandbox
+    if isSandbox {
+      postBody[Self.isSandboxKey] = true
+    }
     return postBody
   }
 
@@ -42,11 +44,10 @@ class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The flag that denotes if the appToken  pertains to Sandbox or Production.
   private(set) var isSandbox: Bool
 
-  init(withAppToken: String?,
+  init(withAppToken appToken: String?,
        isSandbox: Bool,
        requestConfiguration: AuthRequestConfiguration) {
-    appToken = withAppToken
-    self.isSandbox = isSandbox
+    self.appToken = appToken
     self.isSandbox = isSandbox
     super.init(endpoint: Self.verifyClientEndpoint, requestConfiguration: requestConfiguration)
   }

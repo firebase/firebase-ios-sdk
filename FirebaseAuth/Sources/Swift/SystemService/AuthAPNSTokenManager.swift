@@ -143,18 +143,11 @@
       }
 
       // TODO: resolve https://github.com/firebase/firebase-ios-sdk/issues/10921
-      if Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" {
-        // Distributed via TestFlight
-        return defaultAppTypeProd
-      }
+      // to support TestFlight
 
-      let path = Bundle.main.bundlePath + "embedded.mobileprovision"
-      guard let url = URL(string: path) else {
-        AuthLog.logInfo(code: "I-AUT000007", message: "\(path) does not exist")
-        return defaultAppTypeProd
-      }
+      let path = Bundle.main.bundlePath + "/" + "embedded.mobileprovision"
       do {
-        let profileData = try Data(contentsOf: url)
+        let profileData = try NSData(contentsOfFile: path) as Data
 
         // The "embedded.mobileprovision" sometimes contains characters with value 0, which signals
         // the end of a c-string and halts the ASCII parser, or with value > 127, which violates
@@ -177,7 +170,7 @@
 
         let scanner = Scanner(string: embeddedProfile)
         if scanner.scanUpToString("<plist") != nil {
-          guard let plistContents = scanner.scanUpToString("</plist>"),
+          guard let plistContents = scanner.scanUpToString("</plist>")?.appending("</plist>"),
                 let data = plistContents.data(using: .utf8) else {
             return defaultAppTypeProd
           }
@@ -194,7 +187,8 @@
                               message: "Provisioning profile has specifically provisioned devices, " +
                                 "most likely a Dev profile.")
             }
-            guard let apsEnvironment = plistMap["Entitlements.aps-environment"] as? String else {
+            guard let entitlements = plistMap["Entitlements"] as? [String: Any],
+                  let apsEnvironment = entitlements["aps-environment"] as? String else {
               AuthLog.logInfo(code: "I-AUT000013",
                               message: "No aps-environment set. If testing on a device APNS is not " +
                                 "correctly configured. Please recheck your provisioning profiles.")
