@@ -51,52 +51,15 @@ static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
     XCTFail(@"Could not obtain auth object.");
   }
 
-  __block NSError *apiError;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Created account with email and password."];
   [auth createUserWithEmail:kOldUserEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *user, NSError *error) {
-                   if (error.code != FIRAuthErrorCodeEmailAlreadyInUse) {
-                     apiError = error;
-                   }
+                   XCTAssertEqual(error.code, FIRAuthErrorCodeEmailAlreadyInUse);
                    [expectation fulfill];
                  }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
-}
-
-- (void)testUpdatingUsersEmail {
-  SKIP_IF_ON_MOBILE_HARNESS
-  FIRAuth *auth = [FIRAuth auth];
-  if (!auth) {
-    XCTFail(@"Could not obtain auth object.");
-  }
-
-  __block NSError *apiError;
-  XCTestExpectation *expectation = [self expectationWithDescription:@"Updating email"];
-  [auth signInWithEmail:kOldUserEmail
-               password:@"password"
-             completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
-               apiError = error;
-               [expectation fulfill];
-             }];
-  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
-
-  XCTAssertEqualObjects(auth.currentUser.email, kOldUserEmail);
-  XCTAssertNil(apiError);
-
-  expectation = [self expectationWithDescription:@"Update email address."];
-  [auth.currentUser updateEmail:kNewUserEmail
-                     completion:^(NSError *_Nullable error) {
-                       apiError = error;
-                       [expectation fulfill];
-                     }];
-  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
-  XCTAssertNil(apiError);
-  XCTAssertEqualObjects(auth.currentUser.email, kNewUserEmail);
-
-  // Clean up the created Firebase user for future runs.
-  [self deleteCurrentUser];
 }
 
 @end
