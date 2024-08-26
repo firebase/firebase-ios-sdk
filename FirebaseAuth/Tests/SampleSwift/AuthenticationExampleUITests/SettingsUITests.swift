@@ -50,11 +50,11 @@ class SettingsUITests: XCTestCase {
 
     // Swap Firebase App
     let appCell = app.cells.containing(.staticText, identifier: "Active App").element
-    XCTAssertTrue(appCell.staticTexts["gcip-ios-test"].exists)
+    XCTAssertTrue(appCell.staticTexts["fir-ios-auth-sample"].exists)
     appCell.tap()
     XCTAssertTrue(appCell.staticTexts["fb-sa-upgraded"].exists)
     appCell.tap()
-    XCTAssertTrue(appCell.staticTexts["gcip-ios-test"].exists)
+    XCTAssertTrue(appCell.staticTexts["fir-ios-auth-sample"].exists)
 
     // Current Access Group
     let accessCell = app.cells.containing(.staticText, identifier: "Current Access Group").element
