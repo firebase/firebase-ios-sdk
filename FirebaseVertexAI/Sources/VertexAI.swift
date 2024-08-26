@@ -88,22 +88,8 @@ public class VertexAI: NSObject {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    guard let projectID = app.options.projectID else {
-      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
-    }
-
-    let modelResourceName = modelResourceName(
-      modelName: modelName,
-      projectID: projectID,
-      location: location
-    )
-
-    guard let apiKey = app.options.apiKey else {
-      fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
-    }
-
     return GenerativeModel(
-      name: modelResourceName,
+      name: modelResourceName(modelName: modelName),
       projectID: projectID,
       apiKey: apiKey,
       generationConfig: generationConfig,
@@ -137,16 +123,29 @@ public class VertexAI: NSObject {
   /// Lock to manage access to the `instances` array to avoid race conditions.
   private static var instancesLock: os_unfair_lock = .init()
 
+  let projectID: String
+  let apiKey: String
   let location: String
 
   init(app: FirebaseApp, location: String) {
     self.app = app
-    self.location = location
     appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
     auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
+
+    guard let projectID = app.options.projectID else {
+      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
+    }
+    self.projectID = projectID
+
+    guard let apiKey = app.options.apiKey else {
+      fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
+    }
+    self.apiKey = apiKey
+
+    self.location = location
   }
 
-  private func modelResourceName(modelName: String, projectID: String, location: String) -> String {
+  func modelResourceName(modelName: String) -> String {
     guard !modelName.isEmpty && modelName
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
