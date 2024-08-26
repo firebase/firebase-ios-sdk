@@ -222,8 +222,10 @@ extension FunctionsErrorCode {
         description = code.descriptionForErrorCode
       }
 
-      // Update `details` only if the object can be decoded.
-      if let innerDetails = errorDetails["details"],
+      details = errorDetails["details"] as AnyObject?
+      // Update `details` only if decoding succeeds;
+      // otherwise, keep the original object.
+      if let innerDetails = details,
          let decodedDetails = try? serializer.decode(innerDetails) {
         details = decodedDetails
       }
