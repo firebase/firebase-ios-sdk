@@ -75,7 +75,8 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?
-  var recaptchaSiteKey = "unset recaptcha siteKey"
+  var recaptchaSiteKey = "projects/fakeProjectId/keys/mockSiteKey"
+  var recaptchaEnabled: Bool = true
 
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
@@ -111,9 +112,33 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       }
       return
     } else if let _ = request as? GetRecaptchaConfigRequest {
-      guard let _ = try? respond(withJSON: ["recaptchaKey": recaptchaSiteKey])
-      else {
-        fatalError("GetRecaptchaConfigRequest respond failed")
+      if recaptchaEnabled { // Check if reCAPTCHA is enabled
+        let recaptchaKey = recaptchaSiteKey // iOS key from your config
+        let enforcementState = [
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "ENFORCE"],
+          ["provider": "PHONE_PROVIDER", "enforcementState": "ENFORCE"]
+        ]
+        guard let _ = try? respond(withJSON: [
+          "recaptchaKey": recaptchaKey,
+          "recaptchaEnforcementState": enforcementState,
+          "managedRules": [
+            ["endScore": 0.1, "action": "BLOCK"]
+          ],
+          "useSmsBotScore": true,
+          "useSmsTollFraudProtection": false
+        ]) else {
+          fatalError("GetRecaptchaConfigRequest respond failed")
+        }
+      } else { // reCAPTCHA OFF
+        let enforcementState = [
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
+          ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"]
+        ]
+        guard let _ = try? respond(withJSON: [
+          "recaptchaEnforcementState": enforcementState,
+        ]) else {
+          fatalError("GetRecaptchaConfigRequest respond failed")
+        }
       }
       return
     } else if let _ = request as? SecureTokenRequest {

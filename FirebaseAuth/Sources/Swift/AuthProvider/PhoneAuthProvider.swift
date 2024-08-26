@@ -102,52 +102,25 @@ import Foundation
     /// identifies the user trying to enroll. For sign-in, this identifies that the user already
     /// passed the first factor challenge.
     /// - Returns: The verification ID
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func verifyPhoneNumber(_ phoneNumber: String,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                multiFactorSession: MultiFactorSession? = nil) async throws
-      -> String {
-      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-                                                    urlTypes: auth.mainBundleUrlTypes) else {
-        fatalError(
-          "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-        )
-      }
-      do {
-//          let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-//          let enablementStatus = recaptchaVerifier.enablementStatus(forProvider: .phone)
-        // regular phone number login
-        if let verificationID = try await internalVerify(
-          phoneNumber: phoneNumber,
-          uiDelegate: uiDelegate,
-          multiFactorSession: multiFactorSession
-        ) {
-          return verificationID
-        } else {
-          throw AuthErrorUtils.invalidVerificationIDError(message: "Invalid verification ID")
-        }
-      } catch {
-        throw error
-      }
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func verifyPhoneNumber(_ phoneNumber: String,
+                              uiDelegate: AuthUIDelegate? = nil,
+                              multiFactorSession: MultiFactorSession? = nil) async throws -> String {
+    guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+                                                  urlTypes: auth.mainBundleUrlTypes) else {
+      fatalError(
+        "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
+      )
     }
-
-//  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-//  open func verifyPhoneNumberWithRecaptcha(_ phoneNumber: String,
-//                              uiDelegate: AuthUIDelegate? = nil,
-//                              multiFactorSession: MultiFactorSession? = nil) async throws
-//  -> String {
-//    guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-//                                                  urlTypes: auth.mainBundleUrlTypes) else {
-//      fatalError(
-//        "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-//      )
-//    }
-//    do {
-//
-//    } catch {
-//      throw error
-//    }
-//  }
+    
+    if let verificationID = try await internalVerify(phoneNumber: phoneNumber,
+                                                     uiDelegate: uiDelegate,
+                                                     multiFactorSession: multiFactorSession) {
+      return verificationID
+    } else {
+      throw AuthErrorUtils.invalidVerificationIDError(message: "Invalid verification ID")
+    }
+  }
 
     /// Verify ownership of the second factor phone number by the current user.
     /// - Parameter multiFactorInfo: The phone multi factor whose number need to be verified.
@@ -177,19 +150,15 @@ import Foundation
     /// identifies the user trying to enroll. For sign-in, this identifies that the user already
     /// passed the first factor challenge.
     /// - Returns: The verification ID.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                multiFactorSession: MultiFactorSession?) async throws -> String {
-      do {
-        multiFactorSession?.multiFactorInfo = multiFactorInfo
-        return try await verifyPhoneNumber(multiFactorInfo.phoneNumber,
-                                           uiDelegate: uiDelegate,
-                                           multiFactorSession: multiFactorSession)
-      } catch {
-        throw error
-      }
-    }
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+                              uiDelegate: AuthUIDelegate? = nil,
+                              multiFactorSession: MultiFactorSession?) async throws -> String {
+    multiFactorSession?.multiFactorInfo = multiFactorInfo
+    return try await verifyPhoneNumber(multiFactorInfo.phoneNumber,
+                                       uiDelegate: uiDelegate,
+                                       multiFactorSession: multiFactorSession)
+  }
 
     /// Creates an `AuthCredential` for the phone number provider identified by the
     ///    verification ID and verification code.
@@ -207,50 +176,31 @@ import Foundation
                                  verificationCode: verificationCode)
     }
 
-    private func internalVerify(phoneNumber: String,
-                                uiDelegate: AuthUIDelegate?,
-                                multiFactorSession: MultiFactorSession? = nil) async throws
-      -> String? {
-      guard phoneNumber.count > 0 else {
-        throw AuthErrorUtils.missingPhoneNumberError(message: nil)
-      }
-      guard let manager = auth.notificationManager else {
-        throw AuthErrorUtils.notificationNotForwardedError()
-      }
-      guard await manager.checkNotificationForwarding() else {
-        throw AuthErrorUtils.notificationNotForwardedError()
-      }
-      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
-      let enablement = recaptchaVerifier.enablementStatus(forProvider: .phone)
-      if enablement == .off {
-        return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-                                                         retryOnInvalidAppCredential: true,
-                                                         multiFactorSession: multiFactorSession,
-                                                         uiDelegate: uiDelegate)
-      } else {
-        do {
-          if enablement == .audit {
-            return try await verifyClAndSendVerificationCodeWithRecaptcha(
-              toPhoneNumber: phoneNumber,
-              retryOnInvalidAppCredential: true,
-              multiFactorSession: multiFactorSession,
-              uiDelegate: uiDelegate
-            )
-          } else {
-            return try await verifyClAndSendVerificationCodeWithRecaptcha(
-              toPhoneNumber: phoneNumber,
-              retryOnInvalidAppCredential: false,
-              multiFactorSession: multiFactorSession,
-              uiDelegate: uiDelegate
-            )
-          }
-        } catch {
-          print("ERROR: ", error)
-          throw error
-        }
-      }
+  private func internalVerify(phoneNumber: String,
+                              uiDelegate: AuthUIDelegate?,
+                              multiFactorSession: MultiFactorSession? = nil) async throws -> String? {
+    guard !phoneNumber.isEmpty else {
+      throw AuthErrorUtils.missingPhoneNumberError(message: nil)
     }
+    guard let manager = auth.notificationManager else {
+      throw AuthErrorUtils.notificationNotForwardedError()
+    }
+    guard await manager.checkNotificationForwarding() else {
+      throw AuthErrorUtils.notificationNotForwardedError()
+    }
+    
+    let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+    try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
+    
+    switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
+    case .off:
+      return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber, retryOnInvalidAppCredential: true, multiFactorSession: multiFactorSession,uiDelegate: uiDelegate)
+    case .audit:
+      return try await verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber: phoneNumber, retryOnInvalidAppCredential: true, multiFactorSession: multiFactorSession, uiDelegate: uiDelegate)
+    case .enforce:
+      return try await verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber: phoneNumber, retryOnInvalidAppCredential: true, multiFactorSession: multiFactorSession, uiDelegate: uiDelegate)
+    }
+  }
 
     private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
                                                               retryOnInvalidAppCredential: Bool,
@@ -297,11 +247,7 @@ import Foundation
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       } catch {
-        return try await handleVerifyErrorWithRetry(error: error,
-                                                    phoneNumber: phoneNumber,
-                                                    retryOnInvalidAppCredential: retryOnInvalidAppCredential,
-                                                    multiFactorSession: nil,
-                                                    uiDelegate: uiDelegate)
+        return try await handleVerifyErrorWithRetry(error: error,phoneNumber: phoneNumber,retryOnInvalidAppCredential:retryOnInvalidAppCredential,multiFactorSession: nil, uiDelegate: uiDelegate)
       }
     }
 
@@ -314,16 +260,16 @@ import Foundation
                                                               multiFactorSession session: MultiFactorSession?,
                                                               uiDelegate: AuthUIDelegate?) async throws
       -> String? {
-//    if let settings = auth.settings,
-//       settings.isAppVerificationDisabledForTesting {
-//      let request = SendVerificationCodeRequest(
-//        phoneNumber: phoneNumber,
-//        codeIdentity: CodeIdentity.empty,
-//        requestConfiguration: auth.requestConfiguration
-//      )
-//      let response = try await AuthBackend.call(with: request)
-//      return response.verificationID
-//    }
+    if let settings = auth.settings,
+       settings.isAppVerificationDisabledForTesting {
+      let request = SendVerificationCodeRequest(
+        phoneNumber: phoneNumber,
+        codeIdentity: CodeIdentity.empty,
+        requestConfiguration: auth.requestConfiguration
+      )
+      let response = try await AuthBackend.call(with: request)
+      return response.verificationID
+    }
       guard let session else {
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: phoneNumber,
@@ -360,7 +306,6 @@ import Foundation
           return response.responseInfo?.sessionInfo
         }
       } catch {
-        print("Error= ", error)
         return try await handleVerifyErrorWithRetry(
           error: error,
           phoneNumber: phoneNumber,
@@ -387,12 +332,6 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-//        let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-//        let enforcement = recaptchaVerifier.enablementStatus(forProvider: .phone)
-//        if(enforcement != .off) {
-//          try await recaptchaVerifier.injectRecaptchaFields(request: request, provider: .phone,
-//          action: .sendVerificationCode)
-//        }
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       }

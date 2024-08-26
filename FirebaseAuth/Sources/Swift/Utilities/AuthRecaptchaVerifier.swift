@@ -23,10 +23,10 @@
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthRecaptchaConfig {
-    let siteKey: String
+    var siteKey: String?
     let enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]
 
-    init(siteKey: String,
+    init(siteKey: String? = nil,
          enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
       self.siteKey = siteKey
       self.enablementStatus = enablementStatus
@@ -167,7 +167,12 @@
       let request = GetRecaptchaConfigRequest(requestConfiguration: requestConfiguration)
       let response = try await AuthBackend.call(with: request)
       AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
+      try await parseRecaptchaConfigFromResponse(response: response)
+    }
+    
+    func parseRecaptchaConfigFromResponse(response: GetRecaptchaConfigResponse) async throws {
       var enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus] = [:]
+      var isRecaptchaEnabled: Bool = false
       if let enforcementState = response.enforcementState {
         for state in enforcementState {
           guard let providerString = state["provider"] as? String,
@@ -177,16 +182,21 @@
             continue // Skip to the next state in the loop
           }
           enablementStatus[provider] = enforcement
+          if enforcement != .off {
+            isRecaptchaEnabled = true
+          }
         }
       }
       var siteKey = ""
       // Response's site key is of the format projects/<project-id>/keys/<site-key>'
-      if let recaptchaKey = response.recaptchaKey {
-        let keys = recaptchaKey.components(separatedBy: "/")
-        if keys.count != 4 {
-          throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
+      if isRecaptchaEnabled {
+        if let recaptchaKey = response.recaptchaKey {
+          let keys = recaptchaKey.components(separatedBy: "/")
+          if keys.count != 4 {
+            throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
+          }
+          siteKey = keys[3]
         }
-        siteKey = keys[3]
       }
       let config = AuthRecaptchaConfig(siteKey: siteKey, enablementStatus: enablementStatus)
 
