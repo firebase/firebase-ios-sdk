@@ -12,25 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 import FirebaseCore
-@testable import FirebaseVertexAI
-
+import Foundation
 import SharedTestUtilities
-
 import XCTest
+
+@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 class VertexComponentTests: XCTestCase {
-  static var app: FirebaseApp!
+  static let projectID = "test-project-id"
+  static let apiKey = "test-api-key"
+
+  static var app: FirebaseApp?
+
+  let location = "test-location"
 
   override class func setUp() {
     super.setUp()
     if app == nil {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.projectID = "myProjectID"
+      options.projectID = VertexComponentTests.projectID
+      options.apiKey = VertexComponentTests.apiKey
       FirebaseApp.configure(options: options)
       app = FirebaseApp(instanceWithName: "test", options: options)
     }
@@ -44,15 +48,20 @@ class VertexComponentTests: XCTestCase {
   /// Tests that a vertex instance can be created properly.
   func testVertexInstanceCreation() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = VertexAI.vertexAI(app: app, location: "my-location")
+
+    let vertex = VertexAI.vertexAI(app: app, location: location)
+
     XCTAssertNotNil(vertex)
+    XCTAssertEqual(vertex.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(vertex.location, location)
   }
 
   /// Tests that a vertex instances are reused properly.
   func testMultipleComponentInstancesCreated() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex1 = VertexAI.vertexAI(app: app, location: "my-location")
-    let vertex2 = VertexAI.vertexAI(app: app, location: "my-location")
+    let vertex1 = VertexAI.vertexAI(app: app, location: location)
+    let vertex2 = VertexAI.vertexAI(app: app, location: location)
 
     // Ensure they're the same instance.
     XCTAssert(vertex1 === vertex2)
@@ -68,7 +77,8 @@ class VertexComponentTests: XCTestCase {
     try autoreleasepool {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.projectID = "myProjectID"
+      options.projectID = VertexComponentTests.projectID
+      options.apiKey = VertexComponentTests.apiKey
       let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
       weakApp = try XCTUnwrap(app1)
       let vertex = VertexAI(app: app1, location: "transitory location")
@@ -77,5 +87,34 @@ class VertexComponentTests: XCTestCase {
     }
     XCTAssertNil(weakApp)
     XCTAssertNil(weakVertex)
+  }
+
+  func testModelResourceName() throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = VertexAI.vertexAI(app: app, location: location)
+    let model = "test-model-name"
+
+    let modelResourceName = vertex.modelResourceName(modelName: model)
+
+    XCTAssertEqual(
+      modelResourceName,
+      "projects/\(vertex.projectID)/locations/\(vertex.location)/publishers/google/models/\(model)"
+    )
+  }
+
+  func testGenerativeModel() async throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = VertexAI.vertexAI(app: app, location: location)
+    let modelName = "test-model-name"
+    let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let systemInstruction = ModelContent(role: "system", parts: "test-system-instruction-prompt")
+
+    let generativeModel = vertex.generativeModel(
+      modelName: modelName,
+      systemInstruction: systemInstruction
+    )
+
+    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
+    XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
   }
 }

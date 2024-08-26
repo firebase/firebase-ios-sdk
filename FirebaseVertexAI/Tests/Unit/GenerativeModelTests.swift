@@ -28,6 +28,8 @@ final class GenerativeModelTests: XCTestCase {
     .init(category: .harassment, probability: .negligible),
     .init(category: .dangerousContent, probability: .negligible),
   ].sorted()
+  let testModelResourceName =
+    "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
 
   var urlSession: URLSession!
   var model: GenerativeModel!
@@ -37,7 +39,7 @@ final class GenerativeModelTests: XCTestCase {
     configuration.protocolClasses = [MockURLProtocol.self]
     urlSession = try XCTUnwrap(URLSession(configuration: configuration))
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -303,7 +305,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -324,7 +326,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -346,7 +348,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_validAuthToken() async throws {
     let authToken = "test-valid-token"
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -367,7 +369,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_auth_nilAuthToken() async throws {
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -733,7 +735,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -978,7 +980,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -1000,7 +1002,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContentStream_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -1146,7 +1148,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -1224,7 +1226,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
-      name: "my-model",
+      name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
       tools: nil,
@@ -1237,57 +1239,6 @@ final class GenerativeModelTests: XCTestCase {
     let response = try await model.countTokens(testPrompt)
 
     XCTAssertEqual(response.totalTokens, 6)
-  }
-
-  // MARK: - Model Resource Name
-
-  func testModelResourceName_noPrefix() async throws {
-    let modelName = "my-model"
-    let modelResourceName = "models/\(modelName)"
-
-    model = GenerativeModel(
-      name: modelName,
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
-      tools: nil,
-      requestOptions: RequestOptions(),
-      appCheck: nil,
-      auth: nil
-    )
-
-    XCTAssertEqual(model.modelResourceName, modelResourceName)
-  }
-
-  func testModelResourceName_modelsPrefix() async throws {
-    let modelResourceName = "models/my-model"
-
-    model = GenerativeModel(
-      name: modelResourceName,
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
-      tools: nil,
-      requestOptions: RequestOptions(),
-      appCheck: nil,
-      auth: nil
-    )
-
-    XCTAssertEqual(model.modelResourceName, modelResourceName)
-  }
-
-  func testModelResourceName_tunedModelsPrefix() async throws {
-    let tunedModelResourceName = "tunedModels/my-model"
-
-    model = GenerativeModel(
-      name: tunedModelResourceName,
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
-      tools: nil,
-      requestOptions: RequestOptions(),
-      appCheck: nil,
-      auth: nil
-    )
-
-    XCTAssertEqual(model.modelResourceName, tunedModelResourceName)
   }
 
   // MARK: - Helpers

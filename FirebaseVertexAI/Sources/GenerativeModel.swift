@@ -20,9 +20,6 @@ import Foundation
 /// content based on various input types.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class GenerativeModel {
-  // The prefix for a model resource in the Gemini API.
-  private static let modelResourcePrefix = "models/"
-
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -73,7 +70,7 @@ public final class GenerativeModel {
        appCheck: AppCheckInterop?,
        auth: AuthInterop?,
        urlSession: URLSession = .shared) {
-    modelResourceName = GenerativeModel.modelResourceName(name: name)
+    modelResourceName = name
     generativeAIService = GenerativeAIService(
       projectID: projectID,
       apiKey: apiKey,
@@ -294,15 +291,6 @@ public final class GenerativeModel {
       return try await generativeAIService.loadRequest(request: countTokensRequest)
     } catch {
       throw CountTokensError.internalError(underlying: error)
-    }
-  }
-
-  /// Returns a model resource name of the form "models/model-name" based on `name`.
-  private static func modelResourceName(name: String) -> String {
-    if name.contains("/") {
-      return name
-    } else {
-      return modelResourcePrefix + name
     }
   }
 
