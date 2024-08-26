@@ -49,8 +49,19 @@ import Foundation
  */
 
 enum Credentials {
+  /// The `CLIENT_ID` key from a`GoogleService-Info.plist`. If this cannot be
+  /// found, enable Google Sign In enabled as an authentication provider in the
+  /// corresponding Firebase project and re-download the
+  /// `GoogleService-Info.plist`.
   static let kGoogleClientID = KGOOGLE_CLIENT_ID
+  /// This is the refresh token associated with the
+  /// `firebase.ios.testing@gmail.com` test acount.
+  /// In the event this token needs to be generated, this refresh token is
+  /// returned upon successful sign-in via GSI via the `GIDSignInResult`'s
+  /// `user.refreshToken.tokenString` property.
   static let kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN
+  /// This is the display name for the `firebase.ios.testing@gmail.com` test
+  /// account.
   static let kGoogleUserName = KGOOGLE_USER_NAME
   static let kFacebookAppID = KFACEBOOK_APP_ID
   static let kFacebookAppAccessToken = KFACEBOOK_APP_ACCESS_TOKEN
