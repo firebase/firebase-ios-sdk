@@ -1,4 +1,4 @@
-FirebaseAuth/Tests/SampleSwift/SwiftApplication.plist
+FirebaseAuth/Tests/SampleSwift/AuthenticationExample/SwiftApplication.plist
 FirebaseAuth/Tests/SampleSwift/ObjCApiTests/AuthCredentials.h
 FirebaseAuth/Tests/SampleSwift/GoogleService-Info_multi.plist
 FirebaseAuth/Tests/SampleSwift/GoogleService-Info.plist

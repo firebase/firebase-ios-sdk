@@ -78,7 +78,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
           FirebaseAuth/Tests/SampleSwift/ObjCApiTests/AuthCredentials.h "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg \
-          FirebaseAuth/Tests/SampleSwift/SwiftApplication.plist "$plist_secret"
+          FirebaseAuth/Tests/SampleSwift/AuthenticationExample/SwiftApplication.plist "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
           FirebaseAuth/Tests/SampleSwift/AuthCredentials.h "$plist_secret"
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
