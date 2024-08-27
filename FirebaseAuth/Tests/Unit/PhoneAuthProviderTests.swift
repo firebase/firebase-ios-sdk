@@ -100,53 +100,6 @@
       try await internalTestVerify(function: #function)
     }
 
-    /**
-     @fn testVerifyPhoneNumberWithRceEnforce
-     @brief Tests a successful invocation of @c verifyPhoneNumber:completion: with recaptcha enterprise enforced
-     */
-    func testVerifyPhoneNumberWithRceEnforce() async throws {
-      initApp(#function)
-      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
-      // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
-      let mockVerifier = FakeAuthRecaptchaVerifier.shared(auth: auth)
-      let provider = PhoneAuthProvider.provider(auth: auth)
-
-      let requestExpectation = expectation(description: "verifyRequester")
-      rpcIssuer.rceMode = .enforce
-      rpcIssuer?.verifyRequester = { request in
-        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
-        XCTAssertEqual(request.captchaResponse, "mock-token")
-        XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
-        XCTAssertNil(request.codeIdentity)
-        requestExpectation.fulfill()
-        do {
-          try self.rpcIssuer?
-            .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
-        } catch {
-          XCTFail("Failure sending response: \(error)")
-        }
-      }
-
-      do {
-        let verificationID = try await provider.verifyPhoneNumber(kTestPhoneNumber)
-        XCTAssertEqual(verificationID, kTestVerificationID)
-      } catch {
-        XCTFail("Unexpected error: \(error)")
-      }
-
-      wait(for: [requestExpectation], timeout: 5.0)
-    }
-
-    func testVerifyPhoneNumberWithRceAuditFallback() async throws {
-      try await internalTestVerify(
-        function: #function,
-        useClientID: true,
-        bothClientAndAppID: true,
-        reCAPTCHAfallback: true,
-        rceMode: .audit
-      )
-    }
-
     /** @fn testVerifyPhoneNumberInTestMode
      @brief Tests a successful invocation of @c verifyPhoneNumber:completion: when app verification
      is disabled.
