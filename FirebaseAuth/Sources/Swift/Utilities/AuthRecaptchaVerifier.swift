@@ -169,10 +169,10 @@
       AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
       try await parseRecaptchaConfigFromResponse(response: response)
     }
-    
+
     func parseRecaptchaConfigFromResponse(response: GetRecaptchaConfigResponse) async throws {
       var enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus] = [:]
-      var isRecaptchaEnabled: Bool = false
+      var isRecaptchaEnabled = false
       if let enforcementState = response.enforcementState {
         for state in enforcementState {
           guard let providerString = state["provider"] as? String,

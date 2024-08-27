@@ -116,7 +116,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
         let recaptchaKey = recaptchaSiteKey // iOS key from your config
         let enforcementState = [
           ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": rceMode.rawValue],
-          ["provider": "PHONE_PROVIDER", "enforcementState": rceMode.rawValue]
+          ["provider": "PHONE_PROVIDER", "enforcementState": rceMode.rawValue],
         ]
         guard let _ = try? respond(withJSON: [
           "recaptchaKey": recaptchaKey,
@@ -127,7 +127,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       } else { // reCAPTCHA OFF
         let enforcementState = [
           ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
-          ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"]
+          ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
         ]
         guard let _ = try? respond(withJSON: [
           "recaptchaEnforcementState": enforcementState,

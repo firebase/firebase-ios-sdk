@@ -45,7 +45,7 @@
     private let kRecaptchaVersion: String = "RECAPTCHA_ENTERPRISE"
 
     static var auth: Auth?
-    //static var authRecaptchaVerifier: AuthRecaptchaVerifier
+    // static var authRecaptchaVerifier: AuthRecaptchaVerifier
 
     /** @fn testCredentialWithVerificationID
      @brief Tests the @c credentialWithToken method to make sure that it returns a valid AuthCredential instance.
@@ -89,8 +89,8 @@
      */
     func testVerifyInvalidPhoneNumber() async throws {
       try await internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
-                             errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
-                             function: #function)
+                                   errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
+                                   function: #function)
     }
 
     /** @fn testVerifyPhoneNumber
@@ -99,7 +99,7 @@
     func testVerifyPhoneNumber() async throws {
       try await internalTestVerify(function: #function)
     }
-    
+
     /**
      @fn testVerifyPhoneNumberWithRceEnforce
      @brief Tests a successful invocation of @c verifyPhoneNumber:completion: with recaptcha enterprise enforced
@@ -110,8 +110,8 @@
       // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
       let mockVerifier = FakeAuthRecaptchaVerifier.shared(auth: auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
-      
-      let requestExpectation = self.expectation(description: "verifyRequester")
+
+      let requestExpectation = expectation(description: "verifyRequester")
       rpcIssuer.rceMode = .enforce
       rpcIssuer?.verifyRequester = { request in
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
@@ -126,20 +126,25 @@
           XCTFail("Failure sending response: \(error)")
         }
       }
-      
+
       do {
-        let verificationID = try await provider.verifyPhoneNumber(self.kTestPhoneNumber)
-        XCTAssertEqual(verificationID, self.kTestVerificationID)
+        let verificationID = try await provider.verifyPhoneNumber(kTestPhoneNumber)
+        XCTAssertEqual(verificationID, kTestVerificationID)
       } catch {
         XCTFail("Unexpected error: \(error)")
       }
-      
+
       wait(for: [requestExpectation], timeout: 5.0)
     }
 
-    
     func testVerifyPhoneNumberWithRceAuditFallback() async throws {
-      try await internalTestVerify(function: #function, useClientID: true, bothClientAndAppID: true, reCAPTCHAfallback: true, rceMode: .audit)
+      try await internalTestVerify(
+        function: #function,
+        useClientID: true,
+        bothClientAndAppID: true,
+        reCAPTCHAfallback: true,
+        rceMode: .audit
+      )
     }
 
     /** @fn testVerifyPhoneNumberInTestMode
@@ -156,8 +161,8 @@
      */
     func testVerifyPhoneNumberInTestModeFailure() async throws {
       try await internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
-                             errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
-                             function: #function, testMode: true)
+                                   errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
+                                   function: #function, testMode: true)
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
@@ -173,7 +178,7 @@
      */
     func testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow() async throws {
       try await internalTestVerify(function: #function, useClientID: true,
-                             bothClientAndAppID: true, reCAPTCHAfallback: true)
+                                   bothClientAndAppID: true, reCAPTCHAfallback: true)
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateClientIdFlow
@@ -590,8 +595,7 @@
                                     reCAPTCHAfallback: Bool = false,
                                     forwardingNotification: Bool = true,
                                     presenterError: Error? = nil,
-                                    rceMode: AuthRecaptchaEnablementStatus = .off
-    ) async throws {
+                                    rceMode: AuthRecaptchaEnablementStatus = .off) async throws {
       initApp(function, useClientID: useClientID, bothClientAndAppID: bothClientAndAppID,
               testMode: testMode,
               forwardingNotification: forwardingNotification)
@@ -622,18 +626,18 @@
         }
       }
       if reCAPTCHAfallback {
-          // Use fake authURLPresenter so we can test the parameters that get sent to it.
+        // Use fake authURLPresenter so we can test the parameters that get sent to it.
         let urlString = errorURLString ??
-        PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken
+          PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken
         let errorTest = errorURLString != nil
         PhoneAuthProviderTests.auth?.authURLPresenter =
-        FakePresenter(
-          urlString: urlString,
-          clientID: useClientID ? PhoneAuthProviderTests.kFakeClientID : nil,
-          firebaseAppID: useClientID ? nil : PhoneAuthProviderTests.kFakeFirebaseAppID,
-          errorTest: errorTest,
-          presenterError: presenterError
-        )
+          FakePresenter(
+            urlString: urlString,
+            clientID: useClientID ? PhoneAuthProviderTests.kFakeClientID : nil,
+            firebaseAppID: useClientID ? nil : PhoneAuthProviderTests.kFakeFirebaseAppID,
+            errorTest: errorTest,
+            presenterError: presenterError
+          )
       }
       if errorURLString == nil, presenterError == nil {
         let requestExpectation = self.expectation(description: "verifyRequester")
@@ -667,16 +671,20 @@
       let uiDelegate = reCAPTCHAfallback ? FakeUIDelegate() : nil
       // 2. After setting up the parameters, call `verifyPhoneNumber`.
       do {
-          // Call the async function to verify the phone number
-        let verificationID = try await provider.verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate)
-          // Assert that the verificationID matches the expected value
-        XCTAssertEqual(verificationID, self.kTestVerificationID)
+        // Call the async function to verify the phone number
+        let verificationID = try await provider.verifyPhoneNumber(
+          kTestPhoneNumber,
+          uiDelegate: uiDelegate
+        )
+        // Assert that the verificationID matches the expected value
+        XCTAssertEqual(verificationID, kTestVerificationID)
       } catch {
-          // If an error occurs, assert that verificationID is nil and the error code matches the expected value
+        // If an error occurs, assert that verificationID is nil and the error code matches the
+        // expected value
         XCTAssertEqual((error as? NSError)?.code, errorCode)
       }
       expectation.fulfill()
-        // Make sure the test waits for expectations to be fulfilled
+      // Make sure the test waits for expectations to be fulfilled
       await waitForExpectations(timeout: 5.0)
     }
 
@@ -729,11 +737,11 @@
         }
       }
     }
-    
+
     class FakeAuthRecaptchaVerifier: AuthRecaptchaVerifier {
       var captchaResponse: String = "captchaResponse"
       var fakeError: Error?
-      
+
       override func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
         if let error = fakeError {
           throw error
@@ -741,7 +749,6 @@
         return captchaResponse
       }
     }
-
 
     class FakeTokenManager: AuthAPNSTokenManager {
       override func getTokenInternal(callback: @escaping (Result<AuthAPNSToken, Error>) -> Void) {
