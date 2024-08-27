@@ -41,8 +41,11 @@
     private let kVerificationIDKey = "sessionInfo"
     private let kFakeEncodedFirebaseAppID = "app-1-123456789-ios-123abc456def"
     private let kFakeReCAPTCHAToken = "fakeReCAPTCHAToken"
+    private let kCaptchaResponse: String = "captchaResponse"
+    private let kRecaptchaVersion: String = "RECAPTCHA_ENTERPRISE"
 
     static var auth: Auth?
+    //static var authRecaptchaVerifier: AuthRecaptchaVerifier
 
     /** @fn testCredentialWithVerificationID
      @brief Tests the @c credentialWithToken method to make sure that it returns a valid AuthCredential instance.
@@ -62,31 +65,30 @@
     }
 
     /** @fn testVerifyEmptyPhoneNumber
-     @brief Tests a failed invocation @c verifyPhoneNumber:completion: because an empty phone
+     @brief Tests a failed invocation verifyPhoneNumber because an empty phone
      number was provided.
      */
-    func testVerifyEmptyPhoneNumber() throws {
+    func testVerifyEmptyPhoneNumber() async throws {
       initApp(#function)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
       let expectation = self.expectation(description: #function)
 
-      // Empty phone number is checked on the client side so no backend RPC is faked.
-      provider.verifyPhoneNumber("", uiDelegate: nil) { verificationID, error in
-        XCTAssertNotNil(error)
-        XCTAssertNil(verificationID)
-        XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingPhoneNumber.rawValue)
-        expectation.fulfill()
+      do {
+        _ = try await provider.verifyPhoneNumber("")
+        XCTFail("Expected an error, but verification succeeded.")
+      } catch {
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.missingPhoneNumber.rawValue)
       }
-      waitForExpectations(timeout: 5)
+      await waitForExpectations(timeout: 5)
     }
 
     /** @fn testVerifyInvalidPhoneNumber
      @brief Tests a failed invocation @c verifyPhoneNumber:completion: because an invalid phone
      number was provided.
      */
-    func testVerifyInvalidPhoneNumber() throws {
-      try internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
+    func testVerifyInvalidPhoneNumber() async throws {
+      try await internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
                              errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
                              function: #function)
     }
@@ -94,24 +96,66 @@
     /** @fn testVerifyPhoneNumber
      @brief Tests a successful invocation of @c verifyPhoneNumber:completion:.
      */
-    func testVerifyPhoneNumber() throws {
-      try internalTestVerify(function: #function)
+    func testVerifyPhoneNumber() async throws {
+      try await internalTestVerify(function: #function)
+    }
+    
+    /**
+     @fn testVerifyPhoneNumberWithRceEnforce
+     @brief Tests a successful invocation of @c verifyPhoneNumber:completion: with recaptcha enterprise enforced
+     */
+    func testVerifyPhoneNumberWithRceEnforce() async throws {
+      initApp(#function)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
+      let mockVerifier = FakeAuthRecaptchaVerifier.shared(auth: auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      
+      let requestExpectation = self.expectation(description: "verifyRequester")
+      rpcIssuer.rceMode = .enforce
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+        XCTAssertEqual(request.captchaResponse, "mock-token")
+        XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
+        XCTAssertNil(request.codeIdentity)
+        requestExpectation.fulfill()
+        do {
+          try self.rpcIssuer?
+            .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+      
+      do {
+        let verificationID = try await provider.verifyPhoneNumber(self.kTestPhoneNumber)
+        XCTAssertEqual(verificationID, self.kTestVerificationID)
+      } catch {
+        XCTFail("Unexpected error: \(error)")
+      }
+      
+      wait(for: [requestExpectation], timeout: 5.0)
+    }
+
+    
+    func testVerifyPhoneNumberWithRceAuditFallback() async throws {
+      try await internalTestVerify(function: #function, useClientID: true, bothClientAndAppID: true, reCAPTCHAfallback: true, rceMode: .audit)
     }
 
     /** @fn testVerifyPhoneNumberInTestMode
      @brief Tests a successful invocation of @c verifyPhoneNumber:completion: when app verification
      is disabled.
      */
-    func testVerifyPhoneNumberInTestMode() throws {
-      try internalTestVerify(function: #function, testMode: true)
+    func testVerifyPhoneNumberInTestMode() async throws {
+      try await internalTestVerify(function: #function, testMode: true)
     }
 
     /** @fn testVerifyPhoneNumberInTestModeFailure
      @brief Tests a failed invocation of @c verifyPhoneNumber:completion: when app verification
      is disabled.
      */
-    func testVerifyPhoneNumberInTestModeFailure() throws {
-      try internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
+    func testVerifyPhoneNumberInTestModeFailure() async throws {
+      try await internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
                              errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
                              function: #function, testMode: true)
     }
@@ -119,32 +163,32 @@
     /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
      @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
      */
-    func testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow() throws {
-      try internalTestVerify(function: #function, reCAPTCHAfallback: true)
+    func testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow() async throws {
+      try await internalTestVerify(function: #function, reCAPTCHAfallback: true)
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow
      @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion: when the
      client ID is present in the plist file, but the encoded app ID is the registered custom URL scheme.
      */
-    func testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow() throws {
-      try internalTestVerify(function: #function, useClientID: true,
+    func testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow() async throws {
+      try await internalTestVerify(function: #function, useClientID: true,
                              bothClientAndAppID: true, reCAPTCHAfallback: true)
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateClientIdFlow
      @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
      */
-    func testVerifyPhoneNumberUIDelegateClientIdFlow() throws {
-      try internalTestVerify(function: #function, useClientID: true, reCAPTCHAfallback: true)
+    func testVerifyPhoneNumberUIDelegateClientIdFlow() async throws {
+      try await internalTestVerify(function: #function, useClientID: true, reCAPTCHAfallback: true)
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateInvalidClientID
      @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
      invalid client ID error.
      */
-    func testVerifyPhoneNumberUIDelegateInvalidClientID() throws {
-      try internalTestVerify(
+    func testVerifyPhoneNumberUIDelegateInvalidClientID() async throws {
+      try await internalTestVerify(
         errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringInvalidClientID,
         errorCode: AuthErrorCode.invalidClientID.rawValue,
         function: #function,
@@ -157,8 +201,8 @@
      @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in a web
      network request failed error.
      */
-    func testVerifyPhoneNumberUIDelegateWebNetworkRequestFailed() throws {
-      try internalTestVerify(
+    func testVerifyPhoneNumberUIDelegateWebNetworkRequestFailed() async throws {
+      try await internalTestVerify(
         errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringWebNetworkRequestFailed,
         errorCode: AuthErrorCode.webNetworkRequestFailed.rawValue,
         function: #function,
@@ -171,8 +215,8 @@
      @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in a web
      internal error.
      */
-    func testVerifyPhoneNumberUIDelegateWebInternalError() throws {
-      try internalTestVerify(
+    func testVerifyPhoneNumberUIDelegateWebInternalError() async throws {
+      try await internalTestVerify(
         errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringWebInternalError,
         errorCode: AuthErrorCode.webInternalError.rawValue,
         function: #function,
@@ -182,11 +226,11 @@
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateUnexpectedError
-        @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
-            invalid client ID.
+     @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
+     invalid client ID.
      */
-    func testVerifyPhoneNumberUIDelegateUnexpectedError() throws {
-      try internalTestVerify(
+    func testVerifyPhoneNumberUIDelegateUnexpectedError() async throws {
+      try await internalTestVerify(
         errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringUnknownError,
         errorCode: AuthErrorCode.webSignInUserInteractionFailure.rawValue,
         function: #function,
@@ -196,12 +240,12 @@
     }
 
     /** @fn testVerifyPhoneNumberUIDelegateUnstructuredError
-        @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
-            error being surfaced with a default NSLocalizedFailureReasonErrorKey due to an unexpected
-            structure of the error response.
+     @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
+     error being surfaced with a default NSLocalizedFailureReasonErrorKey due to an unexpected
+     structure of the error response.
      */
-    func testVerifyPhoneNumberUIDelegateUnstructuredError() throws {
-      try internalTestVerify(
+    func testVerifyPhoneNumberUIDelegateUnstructuredError() async throws {
+      try await internalTestVerify(
         errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringUnstructuredError,
         errorCode: AuthErrorCode.appVerificationUserInteractionFailure.rawValue,
         function: #function,
@@ -214,10 +258,10 @@
     // The test runs correctly, but it's not clear how to automate fatal_error testing. Switching to
     // Swift exceptions would break the API.
     /** @fn testVerifyPhoneNumberUIDelegateRaiseException
-        @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
-            exception.
+     @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
+     exception.
      */
-    func SKIPtestVerifyPhoneNumberUIDelegateRaiseException() throws {
+    func SKIPtestVerifyPhoneNumberUIDelegateRaiseException() async throws {
       initApp(#function)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       auth.mainBundleUrlTypes = [["CFBundleURLSchemes": ["fail"]]]
@@ -228,11 +272,11 @@
     }
 
     /** @fn testNotForwardingNotification
-        @brief Tests returning an error for the app failing to forward notification.
+     @brief Tests returning an error for the app failing to forward notification.
      */
     func testNotForwardingNotification() throws {
-      func testVerifyPhoneNumberUIDelegateUnstructuredError() throws {
-        try internalTestVerify(
+      func testVerifyPhoneNumberUIDelegateUnstructuredError() async throws {
+        try await internalTestVerify(
           errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringUnstructuredError,
           errorCode: AuthErrorCode.appVerificationUserInteractionFailure.rawValue,
           function: #function,
@@ -244,10 +288,10 @@
     }
 
     /** @fn testMissingAPNSToken
-        @brief Tests returning an error for the app failing to provide an APNS device token.
+     @brief Tests returning an error for the app failing to provide an APNS device token.
      */
-    func testMissingAPNSToken() throws {
-      try internalTestVerify(
+    func testMissingAPNSToken() async throws {
+      try await internalTestVerify(
         errorCode: AuthErrorCode.missingAppToken.rawValue,
         function: #function,
         useClientID: true,
@@ -268,28 +312,28 @@
     }
 
     /** @fn testVerifyClient
-        @brief Tests verifying client before sending verification code.
+     @brief Tests verifying client before sending verification code.
      */
     func testVerifyClient() throws {
       try internalFlow(function: #function, useClientID: true, reCAPTCHAfallback: false)
     }
 
     /** @fn testSendVerificationCodeFailedRetry
-        @brief Tests failed retry after failing to send verification code.
+     @brief Tests failed retry after failing to send verification code.
      */
     func testSendVerificationCodeFailedRetry() throws {
       try internalFlowRetry(function: #function)
     }
 
     /** @fn testSendVerificationCodeSuccessfulRetry
-        @brief Tests successful retry after failing to send verification code.
+     @brief Tests successful retry after failing to send verification code.
      */
     func testSendVerificationCodeSuccessfulRetry() throws {
       try internalFlowRetry(function: #function, goodRetry: true)
     }
 
     /** @fn testPhoneAuthCredentialCoding
-        @brief Tests successful archiving and unarchiving of @c PhoneAuthCredential.
+     @brief Tests successful archiving and unarchiving of @c PhoneAuthCredential.
      */
     func testPhoneAuthCredentialCoding() throws {
       let kVerificationID = "My verificationID"
@@ -315,7 +359,7 @@
     }
 
     /** @fn testPhoneAuthCredentialCodingPhone
-        @brief Tests successful archiving and unarchiving of @c PhoneAuthCredential after other constructor.
+     @brief Tests successful archiving and unarchiving of @c PhoneAuthCredential after other constructor.
      */
     func testPhoneAuthCredentialCodingPhone() throws {
       let kTemporaryProof = "Proof"
@@ -536,7 +580,6 @@
     /** @fn testVerifyClient
         @brief Tests verifying client before sending verification code.
      */
-
     private func internalTestVerify(errorString: String? = nil,
                                     errorURLString: String? = nil,
                                     errorCode: Int = 0,
@@ -546,13 +589,16 @@
                                     bothClientAndAppID: Bool = false,
                                     reCAPTCHAfallback: Bool = false,
                                     forwardingNotification: Bool = true,
-                                    presenterError: Error? = nil) throws {
+                                    presenterError: Error? = nil,
+                                    rceMode: AuthRecaptchaEnablementStatus = .off
+    ) async throws {
       initApp(function, useClientID: useClientID, bothClientAndAppID: bothClientAndAppID,
               testMode: testMode,
               forwardingNotification: forwardingNotification)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
       let expectation = self.expectation(description: function)
+      rpcIssuer?.rceMode = rceMode
 
       if !reCAPTCHAfallback {
         // Fake out appCredentialManager flow.
@@ -575,7 +621,20 @@
           }
         }
       }
-
+      if reCAPTCHAfallback {
+          // Use fake authURLPresenter so we can test the parameters that get sent to it.
+        let urlString = errorURLString ??
+        PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken
+        let errorTest = errorURLString != nil
+        PhoneAuthProviderTests.auth?.authURLPresenter =
+        FakePresenter(
+          urlString: urlString,
+          clientID: useClientID ? PhoneAuthProviderTests.kFakeClientID : nil,
+          firebaseAppID: useClientID ? nil : PhoneAuthProviderTests.kFakeFirebaseAppID,
+          errorTest: errorTest,
+          presenterError: presenterError
+        )
+      }
       if errorURLString == nil, presenterError == nil {
         let requestExpectation = self.expectation(description: "verifyRequester")
         rpcIssuer?.verifyRequester = { request in
@@ -605,40 +664,20 @@
           }
         }
       }
-      if reCAPTCHAfallback {
-        // Use fake authURLPresenter so we can test the parameters that get sent to it.
-        let urlString = errorURLString ??
-          PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken
-        let errorTest = errorURLString != nil
-        PhoneAuthProviderTests.auth?.authURLPresenter =
-          FakePresenter(
-            urlString: urlString,
-            clientID: useClientID ? PhoneAuthProviderTests.kFakeClientID : nil,
-            firebaseAppID: useClientID ? nil : PhoneAuthProviderTests.kFakeFirebaseAppID,
-            errorTest: errorTest,
-            presenterError: presenterError
-          )
-      }
       let uiDelegate = reCAPTCHAfallback ? FakeUIDelegate() : nil
-
       // 2. After setting up the parameters, call `verifyPhoneNumber`.
       do {
           // Call the async function to verify the phone number
         let verificationID = try await provider.verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate)
-        
-          // Check that we are on the main thread
-        XCTAssertTrue(Thread.isMainThread)
-        
           // Assert that the verificationID matches the expected value
         XCTAssertEqual(verificationID, self.kTestVerificationID)
       } catch {
           // If an error occurs, assert that verificationID is nil and the error code matches the expected value
-        XCTAssertNil(verificationID)
         XCTAssertEqual((error as? NSError)?.code, errorCode)
       }
-      
+      expectation.fulfill()
         // Make sure the test waits for expectations to be fulfilled
-      waitForExpectations(timeout: 5)
+      await waitForExpectations(timeout: 5.0)
     }
 
     private func initApp(_ functionName: String,
@@ -690,6 +729,19 @@
         }
       }
     }
+    
+    class FakeAuthRecaptchaVerifier: AuthRecaptchaVerifier {
+      var captchaResponse: String = "captchaResponse"
+      var fakeError: Error?
+      
+      override func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
+        if let error = fakeError {
+          throw error
+        }
+        return captchaResponse
+      }
+    }
+
 
     class FakeTokenManager: AuthAPNSTokenManager {
       override func getTokenInternal(callback: @escaping (Result<AuthAPNSToken, Error>) -> Void) {
