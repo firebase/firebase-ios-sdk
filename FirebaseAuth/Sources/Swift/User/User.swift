@@ -404,7 +404,7 @@ extension User: NSSecureCoding {}
   }
 
   /// Renews the user's authentication tokens by validating a fresh set of credentials supplied
-  ///    by the user  and returns additional identity provider data.
+  /// by the user  and returns additional identity provider data.
   ///
   /// If the user associated with the supplied credential is different from the current user,
   /// or if the validation of the supplied credentials fails; an error is returned and the current

@@ -353,7 +353,7 @@ class AuthMenuData: DataSourceProvidable {
      customAuthDomainSection, appSection, oobSection, multifactorSection]
 
   static var authLinkSections: [Section] {
-    let allItems = AuthMenuData.sections.flatMap { $0.items }
+    let allItems = [providerSection, emailPasswordSection, otherSection].flatMap { $0.items }
     let header = "Manage linking between providers"
     let footer =
       "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
