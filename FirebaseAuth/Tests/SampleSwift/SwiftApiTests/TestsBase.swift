@@ -54,9 +54,9 @@ class TestsBase: XCTestCase {
   }
 
   func deleteCurrentUser() {
-    let auth = Auth.auth()
+    guard let currentUser = Auth.auth().currentUser else { return }
     let expectation = self.expectation(description: "Delete current user finished.")
-    auth.currentUser?.delete { error in
+    currentUser.delete { error in
       if let error {
         print("Anonymous sign in error: \(error)")
       }
