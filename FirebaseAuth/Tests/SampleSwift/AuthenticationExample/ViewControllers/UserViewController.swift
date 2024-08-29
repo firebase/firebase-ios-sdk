@@ -248,7 +248,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
           }
 
           let nonce = try CryptoUtils.randomNonceString()
-          let credential = OAuthProvider.credential(withProviderID: "apple.com",
+          let credential = OAuthProvider.credential(providerID: .apple,
                                                     idToken: idTokenString,
                                                     rawNonce: nonce)
 
@@ -375,6 +375,8 @@ extension UserViewController: ASAuthorizationControllerDelegate,
                                didCompleteWithAuthorization authorization: ASAuthorization) {
     if case let appleIDCredential as ASAuthorizationAppleIDCredential = authorization.credential {
       continuation?.resume(returning: appleIDCredential)
+    } else {
+      fatalError("Unexpected authorization credential type.")
     }
   }
 
