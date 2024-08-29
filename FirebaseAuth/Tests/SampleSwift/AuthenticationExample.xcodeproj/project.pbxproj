@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8848764F29D3149200780FA6 /* GoogleService-Info.plist */; };
+		B8F672CF2C805B5300DFDFD4 /* PhoneAuthTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F672CE2C805B5200DFDFD4 /* PhoneAuthTest.swift */; };
+		B8F672D72C806E6A00DFDFD4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B8F672D62C806E6A00DFDFD4 /* GoogleService-Info.plist */; };
 		DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B636E2BEC2DC300607B82 /* FirebaseAuth */; };
 		DE8B63722BEC2FB900607B82 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63712BEC2FB900607B82 /* GoogleSignIn */; };
 		DE8B63742BEC2FB900607B82 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */; };
@@ -31,9 +32,8 @@
 		DE8FD4942A7D9E2700B6831A /* PhoneMultiFactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4912A7D9D9E00B6831A /* PhoneMultiFactorTests.swift */; };
 		DEC2E5DD2A95331E0090260A /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2E5DC2A95331D0090260A /* SettingsViewController.swift */; };
 		DEC2E5DF2A9583CA0090260A /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2E5DE2A9583CA0090260A /* AppManager.swift */; };
-		DEC2E5E42A966DE20090260A /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */; };
 		DED37F632AB0C4F7003A67E4 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */; };
-		DEE261C52C21E9F500EECAC5 /* RecaptchaEnterprise in Frameworks */ = {isa = PBXBuildFile; productRef = DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */; };
+		DEE261C52C21E9F500EECAC5 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		EA02F68524A000E00079D000 /* UserActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68424A000E00079D000 /* UserActions.swift */; };
 		EA02F68D24A063E90079D000 /* LoginDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68C24A063E90079D000 /* LoginDelegate.swift */; };
 		EA062D5D24A0FEB6006714D3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA062D5C24A0FEB6006714D3 /* README.md */; };
@@ -87,7 +87,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		8848764F29D3149200780FA6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		B8F672CE2C805B5200DFDFD4 /* PhoneAuthTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneAuthTest.swift; sourceTree = "<group>"; };
+		B8F672D62C806E6A00DFDFD4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = SwiftApplication.plist; sourceTree = "<group>"; };
 		DE8FD4682A7D660A00B6831A /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
@@ -109,7 +110,6 @@
 		DE8FD4972A7DB00600B6831A /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
 		DEC2E5DC2A95331D0090260A /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		DEC2E5DE2A9583CA0090260A /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
-		DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info_multi.plist"; sourceTree = SOURCE_ROOT; };
 		DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		EA02F68424A000E00079D000 /* UserActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActions.swift; sourceTree = "<group>"; };
 		EA02F68C24A063E90079D000 /* LoginDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDelegate.swift; sourceTree = "<group>"; };
@@ -157,7 +157,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE261C52C21E9F500EECAC5 /* RecaptchaEnterprise in Frameworks */,
+				DEE261C52C21E9F500EECAC5 /* (null) in Frameworks */,
 				DE8B63772BEC302200607B82 /* FacebookLogin in Frameworks */,
 				DE8B63742BEC2FB900607B82 /* GoogleSignInSwift in Frameworks */,
 				DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */,
@@ -305,7 +305,7 @@
 		EAE4CBC324855E3A00245E92 /* AuthenticationExample */ = {
 			isa = PBXGroup;
 			children = (
-				DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */,
+				B8F672D62C806E6A00DFDFD4 /* GoogleService-Info.plist */,
 				DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */,
 				EA062D5C24A0FEB6006714D3 /* README.md */,
 				EA20B506249CA63300B5E581 /* AuthenticationExample.entitlements */,
@@ -316,7 +316,6 @@
 				EA20B47724973BB100B5E581 /* CustomViews */,
 				EAB3A17A2494626F00385291 /* Utility */,
 				EAE4CBCD24855E3D00245E92 /* Assets.xcassets */,
-				8848764F29D3149200780FA6 /* GoogleService-Info.plist */,
 				EA217894248979E200736757 /* LaunchScreen.storyboard */,
 				DEC2E5DE2A9583CA0090260A /* AppManager.swift */,
 			);
@@ -326,6 +325,7 @@
 		EAE4CBDA24855E3E00245E92 /* SwiftApiTests */ = {
 			isa = PBXGroup;
 			children = (
+				B8F672CE2C805B5200DFDFD4 /* PhoneAuthTest.swift */,
 				DE8FD4912A7D9D9E00B6831A /* PhoneMultiFactorTests.swift */,
 				DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */,
 				DE8FD46E2A7D660B00B6831A /* AnonymousTests.swift */,
@@ -390,7 +390,6 @@
 				DE8B63712BEC2FB900607B82 /* GoogleSignIn */,
 				DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */,
 				DE8B63762BEC302200607B82 /* FacebookLogin */,
-				DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */,
 			);
 			productName = "Swifty Auth";
 			productReference = EAE4CBC124855E3A00245E92 /* AuthenticationExample.app */;
@@ -504,8 +503,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA217895248979E200736757 /* LaunchScreen.storyboard in Resources */,
-				8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */,
-				DEC2E5E42A966DE20090260A /* GoogleService-Info_multi.plist in Resources */,
+				B8F672D72C806E6A00DFDFD4 /* GoogleService-Info.plist in Resources */,
 				EAE4CBCE24855E3D00245E92 /* Assets.xcassets in Resources */,
 				EA062D5D24A0FEB6006714D3 /* README.md in Resources */,
 			);
@@ -584,6 +582,7 @@
 				DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */,
 				DE8FD4942A7D9E2700B6831A /* PhoneMultiFactorTests.swift in Sources */,
 				DE8FD4742A7D660B00B6831A /* TestsBase.swift in Sources */,
+				B8F672CF2C805B5300DFDFD4 /* PhoneAuthTest.swift in Sources */,
 				DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -788,6 +787,7 @@
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = EQHXZ8M8AV;
 				INFOPLIST_FILE = AuthenticationExample/SwiftApplication.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -797,6 +797,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "FirebaseAuthSDKSampleApp Dev";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
