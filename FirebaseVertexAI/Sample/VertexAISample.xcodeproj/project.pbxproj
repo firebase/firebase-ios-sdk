@@ -599,7 +599,7 @@
 			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
 			requirement = {
 				kind = revision;
-				revision = 5df8a4adedd6ae4eb2455ef60ff75183984daeb8;
+				revision = 55441810c0f678c78ed7e2ebd46dde89228e02fc;
 			};
 		};
 		DEA09AC32B1FCE22001962D9 /* XCRemoteSwiftPackageReference "NetworkImage" */ = {
