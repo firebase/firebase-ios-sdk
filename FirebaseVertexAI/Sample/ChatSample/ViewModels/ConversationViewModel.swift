@@ -79,7 +79,7 @@ class ConversationViewModel: ObservableObject {
       messages.append(systemMessage)
 
       do {
-        let responseStream = chat.sendMessageStream(text)
+        let responseStream = await chat.sendMessageStream(text)
         for try await chunk in responseStream {
           messages[messages.count - 1].pending = false
           if let text = chunk.text {

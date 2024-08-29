@@ -116,12 +116,12 @@ class FunctionCallingViewModel: ObservableObject {
     let functionResponses = try await processFunctionCalls()
     let responseStream: AsyncThrowingStream<GenerateContentResponse, Error>
     if functionResponses.isEmpty {
-      responseStream = chat.sendMessageStream(text)
+      responseStream = await chat.sendMessageStream(text)
     } else {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      responseStream = chat.sendMessageStream(functionResponses.modelContent())
+      responseStream = await chat.sendMessageStream(functionResponses.modelContent())
     }
     for try await chunk in responseStream {
       processResponseContent(content: chunk)
