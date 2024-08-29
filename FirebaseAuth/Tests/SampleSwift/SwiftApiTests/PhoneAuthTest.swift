@@ -20,7 +20,8 @@ import XCTest
 
 class PhoneAuthTests: TestsBase {
   let phoneNumber = "+12345678910"
-  // This test verification code is specified for the given test phone number in the developer console.
+  // This test verification code is specified for the given test phone number in the developer
+  // console.
   let verificationCode = "123456"
 
   func testSignInWithPhoneNumber() throws {
