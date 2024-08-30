@@ -60,4 +60,27 @@ class PhoneAuthTests: TestsBase {
 
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
+
+  func testSignInWithPhoneNumberAsync_Success() async throws {
+    Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+    let auth = Auth.auth()
+
+    // Start phone number verification
+    let verificationID = try await PhoneAuthProvider.provider().verifyPhoneNumber(
+      phoneNumber,
+      uiDelegate: nil
+    )
+    XCTAssertNotNil(verificationID, "Expected a verification ID")
+
+    // Create the phone auth credential
+    let credential = PhoneAuthProvider.provider().credential(
+      withVerificationID: verificationID,
+      verificationCode: verificationCode
+    )
+
+    // Sign in with the credential
+    let authResult = try await auth.signIn(with: credential)
+    XCTAssertNotNil(authResult, "Expected a non-nil AuthResult")
+    XCTAssertEqual(auth.currentUser?.phoneNumber, phoneNumber, "Phone number does not match")
+  }
 }
