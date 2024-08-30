@@ -24,7 +24,7 @@ public typealias JSONObject = [String: JSONValue]
 ///
 /// This may be decoded from, or encoded to, a
 /// [`google.protobuf.Value`](https://protobuf.dev/reference/protobuf/google.protobuf/#value).
-public enum JSONValue {
+public enum JSONValue: Sendable {
   /// A `null` value.
   case null
 

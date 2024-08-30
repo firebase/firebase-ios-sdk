@@ -15,7 +15,7 @@
 import Foundation
 
 /// A predicted function call returned from the model.
-public struct FunctionCall: Equatable {
+public struct FunctionCall: Equatable, Sendable {
   /// The name of the function to call.
   public let name: String
 
@@ -131,7 +131,7 @@ public struct ToolConfig {
 /// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCall`` made based on model prediction.
-public struct FunctionResponse: Equatable {
+public struct FunctionResponse: Equatable, Sendable {
   /// The name of the function that was called.
   let name: String
 
