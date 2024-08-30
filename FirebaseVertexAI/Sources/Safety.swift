@@ -18,7 +18,7 @@ import Foundation
 /// of this type may be assigned to a category for every model-generated response, not just
 /// responses that exceed a certain threshold.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct SafetyRating: Equatable, Hashable {
+public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The category describing the potential harm a piece of content may pose. See
   /// ``SafetySetting/HarmCategory`` for a list of possible values.
   public let category: SafetySetting.HarmCategory
@@ -37,7 +37,7 @@ public struct SafetyRating: Equatable, Hashable {
 
   /// The probability that a given model output falls under a harmful content category. This does
   /// not indicate the severity of harm for a piece of content.
-  public enum HarmProbability: String {
+  public enum HarmProbability: String, Sendable {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "UNKNOWN"
 
@@ -81,7 +81,7 @@ public struct SafetyFeedback {
 public struct SafetySetting {
   /// A type describing safety attributes, which include harmful categories and topics that can
   /// be considered sensitive.
-  public enum HarmCategory: String {
+  public enum HarmCategory: String, Sendable {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "HARM_CATEGORY_UNKNOWN"
 
@@ -102,7 +102,7 @@ public struct SafetySetting {
   }
 
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public enum BlockThreshold: String {
+  public enum BlockThreshold: String, Sendable {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "UNKNOWN"
 

@@ -18,10 +18,10 @@ import Foundation
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelContent: Equatable {
+public struct ModelContent: Equatable, Sendable {
   /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
   /// of ``Part``, different data types may not mix.
-  public enum Part: Equatable {
+  public enum Part: Equatable, Sendable {
     /// Text value.
     case text(String)
 
