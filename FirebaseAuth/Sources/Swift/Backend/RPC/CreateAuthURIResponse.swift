@@ -33,8 +33,8 @@ class CreateAuthURIResponse: AuthRPCResponse {
   /// A list of provider IDs the passed identifier could use to sign in with.
   var allProviders: [String]?
 
-  /// A list of sign-in methods available for the passed  identifier.
-  var signinMethods: [String]?
+  /// A list of sign-in methods available for the passed identifier.
+  var signinMethods: [String] = []
 
   /// Bare initializer.
   required init() {}
@@ -45,6 +45,6 @@ class CreateAuthURIResponse: AuthRPCResponse {
     registered = dictionary["registered"] as? Bool ?? false
     forExistingProvider = dictionary["forExistingProvider"] as? Bool ?? false
     allProviders = dictionary["allProviders"] as? [String]
-    signinMethods = dictionary["signinMethods"] as? [String]
+    signinMethods = dictionary["signinMethods"] as? [String] ?? []
   }
 }
