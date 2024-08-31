@@ -76,7 +76,7 @@ class EmailPasswordTests: TestsBase {
                    kExistingEmailToSignIn,
                    "Signed user does not match request.")
     // Regression test for #13550. Auth enumeration protection is enabled for
-    // the test project so the no sign in methods should be returned.
+    // the test project, so no sign in methods should be returned.
     let signInMethods = try await auth.fetchSignInMethods(forEmail: kExistingEmailToSignIn)
     XCTAssertEqual(signInMethods, [])
   }
