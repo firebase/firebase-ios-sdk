@@ -33,7 +33,7 @@ class CreateAuthURIResponse: AuthRPCResponse {
   /// A list of provider IDs the passed identifier could use to sign in with.
   var allProviders: [String]?
 
-  /// A list of sign-in methods available for the passed  identifier.
+  /// A list of sign-in methods available for the passed identifier.
   var signinMethods: [String] = []
 
   /// Bare initializer.
