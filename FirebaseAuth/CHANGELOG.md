@@ -2,7 +2,11 @@
 - [Fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
   betas. (#13480)
 - [Fixed] Fixed Phone Auth via Sandbox APNS tokens that broke in 11.0.0. (#13479)
-- [Fixed] Fix crash when fetching sign in methods due to unexpected nil. (#13550)
+- [Fixed] Fix crash when fetching sign in methods due to unexpected nil.
+  Previously, fetching sign in methods could return both a `nil` array of sign
+  in methods and a `nil` error. In such cases, an empty array is instead
+  returned with the `nil` error. (#13550)
+
 
 # 11.1.0
 - [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)
