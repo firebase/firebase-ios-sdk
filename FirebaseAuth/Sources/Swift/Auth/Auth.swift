@@ -290,7 +290,7 @@ extension Auth: AuthInterop {
                                      completion: (([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = CreateAuthURIRequest(identifier: email,
-                                         continueURI: "http:www.google.com",
+                                         continueURI: "http://www.google.com/",
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
