@@ -295,9 +295,9 @@ extension Auth: AuthInterop {
       Task {
         do {
           let response = try await AuthBackend.call(with: request)
-          Auth.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
+          Auth.wrapMainAsync(callback: completion, with: .success(response.signinMethods))
         } catch {
-          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          Auth.wrapMainAsync(callback: completion, with: .failure(error))
         }
       }
     }
@@ -1004,9 +1004,9 @@ extension Auth: AuthInterop {
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
                                               newEmail: response.verifiedEmail)
-          Auth.wrapMainAsync(callback: completion, withParam: actionCodeInfo, error: nil)
+          Auth.wrapMainAsync(callback: completion, with: .success(actionCodeInfo))
         } catch {
-          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          Auth.wrapMainAsync(callback: completion, with: .failure(error))
         }
       }
     }
@@ -2223,7 +2223,11 @@ extension Auth: AuthInterop {
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
       { callback, result, error in
-        Auth.wrapMainAsync(callback: callback, withParam: result, error: error)
+        if let result {
+          Auth.wrapMainAsync(callback: callback, with: .success(result))
+        } else if let error {
+          Auth.wrapMainAsync(callback: callback, with: .failure(error))
+        }
       }
     return { authResult, error in
       if let error {
@@ -2260,11 +2264,14 @@ extension Auth: AuthInterop {
   }
 
   class func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
-                                   withParam param: T?,
-                                   error: Error?) -> Void {
-    if let callback {
-      DispatchQueue.main.async {
-        callback(param, error)
+                                   with result: Result<T, Error>) -> Void {
+    guard let callback else { return }
+    DispatchQueue.main.async {
+      switch result {
+      case let .success(success):
+        callback(success, nil)
+      case let .failure(error):
+        callback(nil, error)
       }
     }
   }

@@ -86,9 +86,9 @@ import Foundation
               uiDelegate: uiDelegate,
               multiFactorSession: multiFactorSession
             )
-            Auth.wrapMainAsync(callback: completion, withParam: verificationID, error: nil)
+            Auth.wrapMainAsync(callback: completion, with: .success(verificationID ?? ""))
           } catch {
-            Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+            Auth.wrapMainAsync(callback: completion, with: .failure(error))
           }
         }
       }
