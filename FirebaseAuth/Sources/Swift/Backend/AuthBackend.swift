@@ -484,8 +484,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         code: AuthErrorCode.maximumSecondFactorCountExceeded,
         message: serverDetailErrorMessage
       )
-    case "TENANT_ID_MISMATCH": return AuthErrorUtils
-      .tenantIDMismatchError()
+    case "TENANT_ID_MISMATCH": return AuthErrorUtils.tenantIDMismatchError()
     case "TOKEN_EXPIRED": return AuthErrorUtils
       .userTokenExpiredError(message: serverDetailErrorMessage)
     case "UNSUPPORTED_FIRST_FACTOR": return AuthErrorUtils

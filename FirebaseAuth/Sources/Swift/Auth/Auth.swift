@@ -1667,9 +1667,11 @@ extension Auth: AuthInterop {
           try self.internalUseUserAccessGroup(storedUserAccessGroup)
         } else {
           let user = try self.getUser()
-          try self.updateCurrentUser(user, byForce: false, savingToDisk: false)
           if let user {
             self.tenantID = user.tenantID
+          }
+          try self.updateCurrentUser(user, byForce: false, savingToDisk: false)
+          if let user {
             self.lastNotifiedUserToken = user.rawAccessToken()
           }
         }
@@ -1941,8 +1943,7 @@ extension Auth: AuthInterop {
     }
     if let user {
       if user.tenantID != nil || tenantID != nil, tenantID != user.tenantID {
-        let error = AuthErrorUtils.tenantIDMismatchError()
-        throw error
+        throw AuthErrorUtils.tenantIDMismatchError()
       }
     }
     var throwError: Error?
