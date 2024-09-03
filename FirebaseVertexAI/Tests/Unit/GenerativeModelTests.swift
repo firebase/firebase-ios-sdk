@@ -760,7 +760,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = model.generateContentStream("Hi")
+      let stream = await model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
@@ -784,7 +784,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = model.generateContentStream(testPrompt)
+      let stream = await model.generateContentStream(testPrompt)
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
@@ -807,7 +807,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = model.generateContentStream("Hi")
+      let stream = await model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
@@ -827,7 +827,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = model.generateContentStream("Hi")
+      let stream = await model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
@@ -847,7 +847,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = model.generateContentStream("Hi")
+      let stream = await model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
@@ -866,7 +866,7 @@ final class GenerativeModelTests: XCTestCase {
         withExtension: "txt"
       )
 
-    let stream = model.generateContentStream("Hi")
+    let stream = await model.generateContentStream("Hi")
     do {
       for try await content in stream {
         XCTAssertNotNil(content.text)
@@ -887,7 +887,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     var responses = 0
-    let stream = model.generateContentStream("Hi")
+    let stream = await model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       responses += 1
@@ -904,7 +904,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     var responses = 0
-    let stream = model.generateContentStream("Hi")
+    let stream = await model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       responses += 1
@@ -921,7 +921,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     var hadUnknown = false
-    let stream = model.generateContentStream("Hi")
+    let stream = await model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       if let ratings = content.candidates.first?.safetyRatings,
@@ -940,7 +940,7 @@ final class GenerativeModelTests: XCTestCase {
         withExtension: "txt"
       )
 
-    let stream = model.generateContentStream("Hi")
+    let stream = await model.generateContentStream("Hi")
     var citations = [Citation]()
     var responses = [GenerateContentResponse]()
     for try await content in stream {
@@ -996,7 +996,7 @@ final class GenerativeModelTests: XCTestCase {
         appCheckToken: appCheckToken
       )
 
-    let stream = model.generateContentStream(testPrompt)
+    let stream = await model.generateContentStream(testPrompt)
     for try await _ in stream {}
   }
 
@@ -1018,7 +1018,7 @@ final class GenerativeModelTests: XCTestCase {
         appCheckToken: AppCheckInteropFake.placeholderTokenValue
       )
 
-    let stream = model.generateContentStream(testPrompt)
+    let stream = await model.generateContentStream(testPrompt)
     for try await _ in stream {}
   }
 
@@ -1030,7 +1030,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     var responses = [GenerateContentResponse]()
 
-    let stream = model.generateContentStream(testPrompt)
+    let stream = await model.generateContentStream(testPrompt)
     for try await response in stream {
       responses.append(response)
     }
@@ -1056,7 +1056,7 @@ final class GenerativeModelTests: XCTestCase {
 
     var responseCount = 0
     do {
-      let stream = model.generateContentStream("Hi")
+      let stream = await model.generateContentStream("Hi")
       for try await content in stream {
         XCTAssertNotNil(content.text)
         responseCount += 1
@@ -1076,7 +1076,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_nonHTTPResponse() async throws {
     MockURLProtocol.requestHandler = try nonHTTPRequestHandler()
 
-    let stream = model.generateContentStream("Hi")
+    let stream = await model.generateContentStream("Hi")
     do {
       for try await content in stream {
         XCTFail("Unexpected content in stream: \(content)")
@@ -1096,7 +1096,7 @@ final class GenerativeModelTests: XCTestCase {
         withExtension: "txt"
       )
 
-    let stream = model.generateContentStream(testPrompt)
+    let stream = await model.generateContentStream(testPrompt)
     do {
       for try await content in stream {
         XCTFail("Unexpected content in stream: \(content)")
@@ -1120,7 +1120,7 @@ final class GenerativeModelTests: XCTestCase {
         withExtension: "txt"
       )
 
-    let stream = model.generateContentStream(testPrompt)
+    let stream = await model.generateContentStream(testPrompt)
     do {
       for try await content in stream {
         XCTFail("Unexpected content in stream: \(content)")
@@ -1159,7 +1159,7 @@ final class GenerativeModelTests: XCTestCase {
     )
 
     var responses = 0
-    let stream = model.generateContentStream(testPrompt)
+    let stream = await model.generateContentStream(testPrompt)
     for try await content in stream {
       XCTAssertNotNil(content.text)
       responses += 1

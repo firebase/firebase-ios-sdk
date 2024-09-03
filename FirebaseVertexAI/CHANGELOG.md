@@ -1,6 +1,9 @@
 # 11.2.0
 - [fixed] Resolved a decoding error for citations without a `uri` and added
   support for decoding `title` fields, which were previously ignored. (#13518)
+- [changed] **Breaking Change**: The methods for starting streaming requests
+  (`generateContentStream` and `sendMessageStream`) and creating a chat instance
+  (`startChat`) are now asynchronous and must be called with `await`. (#13545)
 
 # 10.29.0
 - [feature] Added community support for watchOS. (#13215)
