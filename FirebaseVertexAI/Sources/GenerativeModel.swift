@@ -19,7 +19,7 @@ import Foundation
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public final class GenerativeModel {
+public final actor GenerativeModel {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -219,31 +219,37 @@ public final class GenerativeModel {
 
     var responseIterator = generativeAIService.loadRequestStream(request: generateContentRequest)
       .makeAsyncIterator()
-    return AsyncThrowingStream {
-      let response: GenerateContentResponse?
-      do {
-        response = try await responseIterator.next()
-      } catch {
-        throw GenerativeModel.generateContentError(from: error)
-      }
+    return AsyncThrowingStream { contination in
+      Task {
+        do {
+          // The responseIterator will return `nil` when it's done.
+          while let response = try await responseIterator.next() {
+            // Check the prompt feedback to see if the prompt was blocked.
+            if response.promptFeedback?.blockReason != nil {
+              contination.finish(throwing: GenerateContentError.promptBlocked(response: response))
+              return
+            }
 
-      // The responseIterator will return `nil` when it's done.
-      guard let response = response else {
-        // This is the end of the stream! Signal it by sending `nil`.
-        return nil
-      }
+            // If the stream ended early unexpectedly, throw an error.
+            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
+              contination.finish(throwing: GenerateContentError.responseStoppedEarly(
+                reason: finishReason,
+                response: response
+              ))
+              return
+            }
 
-      // Check the prompt feedback to see if the prompt was blocked.
-      if response.promptFeedback?.blockReason != nil {
-        throw GenerateContentError.promptBlocked(response: response)
-      }
+            // Response was valid content, pass it along and continue.
+            contination.yield(response)
+          }
 
-      // If the stream ended early unexpectedly, throw an error.
-      if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
-        throw GenerateContentError.responseStoppedEarly(reason: finishReason, response: response)
-      } else {
-        // Response was valid content, pass it along and continue.
-        return response
+          // This is the end of the stream! Signal it by calling `finish`.
+          contination.finish()
+          return
+        } catch {
+          contination.finish(throwing: GenerativeModel.generateContentError(from: error))
+          return
+        }
       }
     }
   }
