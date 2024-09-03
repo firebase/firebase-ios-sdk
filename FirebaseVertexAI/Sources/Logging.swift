@@ -38,10 +38,10 @@ struct Logging {
 
   /// The default logger that is visible for all users. Note: we shouldn't be using anything lower
   /// than `.notice`.
-  static var `default` = Logger(subsystem: subsystem, category: defaultCategory)
+  static let `default` = Logger(subsystem: subsystem, category: defaultCategory)
 
   /// A non default
-  static var network: Logger = {
+  static let network: Logger = {
     if additionalLoggingEnabled() {
       return Logger(subsystem: subsystem, category: "NetworkResponse")
     } else {
@@ -51,7 +51,7 @@ struct Logging {
   }()
 
   ///
-  static var verbose: Logger = {
+  static let verbose: Logger = {
     if additionalLoggingEnabled() {
       return Logger(subsystem: subsystem, category: defaultCategory)
     } else {
