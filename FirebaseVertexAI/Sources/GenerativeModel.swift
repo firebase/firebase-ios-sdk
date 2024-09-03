@@ -217,39 +217,31 @@ public final actor GenerativeModel {
                                                         isStreaming: true,
                                                         options: requestOptions)
 
-    var responseIterator = generativeAIService.loadRequestStream(request: generateContentRequest)
-      .makeAsyncIterator()
-    return AsyncThrowingStream { contination in
-      Task {
-        do {
-          // The responseIterator will return `nil` when it's done.
-          while let response = try await responseIterator.next() {
-            // Check the prompt feedback to see if the prompt was blocked.
-            if response.promptFeedback?.blockReason != nil {
-              contination.finish(throwing: GenerateContentError.promptBlocked(response: response))
-              return
-            }
+    let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
 
-            // If the stream ended early unexpectedly, throw an error.
-            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
-              contination.finish(throwing: GenerateContentError.responseStoppedEarly(
-                reason: finishReason,
-                response: response
-              ))
-              return
-            }
-
-            // Response was valid content, pass it along and continue.
-            contination.yield(response)
+    return AsyncThrowingStream {
+      do {
+        for try await response in responseStream {
+          // Check the prompt feedback to see if the prompt was blocked.
+          if response.promptFeedback?.blockReason != nil {
+            throw GenerateContentError.promptBlocked(response: response)
           }
 
-          // This is the end of the stream! Signal it by calling `finish`.
-          contination.finish()
-          return
-        } catch {
-          contination.finish(throwing: GenerativeModel.generateContentError(from: error))
-          return
+          // If the stream ended early unexpectedly, throw an error.
+          if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
+            throw GenerateContentError.responseStoppedEarly(
+              reason: finishReason,
+              response: response
+            )
+          } else {
+            // Response was valid content, pass it along and continue.
+            return response
+          }
         }
+        // This is the end of the stream! Signal it by sending `nil`.
+        return nil
+      } catch {
+        throw GenerativeModel.generateContentError(from: error)
       }
     }
   }
