@@ -25,6 +25,19 @@ private let imageCompressionQuality: CGFloat = 0.8
 /// For some image types like `CIImage`, creating valid model content requires creating a JPEG
 /// representation of the image that may not yet exist, which may be computationally expensive.
 public enum ImageConversionError: Error {
+  /// The image that could not be converted.
+  public enum SourceImage {
+    #if canImport(UIKit)
+      case uiImage(UIImage)
+    #elseif canImport(AppKit)
+      case nsImage(NSImage)
+    #endif // canImport(UIKit)
+    case cgImage(CGImage)
+    #if canImport(CoreImage)
+      case ciImage(CIImage)
+    #endif // canImport(CoreImage)
+  }
+
   /// The image (the receiver of the call `toModelContentParts()`) was invalid.
   case invalidUnderlyingImage
 
@@ -32,8 +45,8 @@ public enum ImageConversionError: Error {
   case couldNotAllocateDestination
 
   /// JPEG image data conversion failed, accompanied by the original image, which may be an
-  /// instance of `NSImageRep`, `UIImage`, `CGImage`, or `CIImage`.
-  case couldNotConvertToJPEG(Any)
+  /// instance of `NSImage`, `UIImage`, `CGImage`, or `CIImage`.
+  case couldNotConvertToJPEG(SourceImage)
 }
 
 #if canImport(UIKit)
@@ -42,7 +55,7 @@ public enum ImageConversionError: Error {
   extension UIImage: ThrowingPartsRepresentable {
     public func tryPartsValue() throws -> [ModelContent.Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
-        throw ImageConversionError.couldNotConvertToJPEG(self)
+        throw ImageConversionError.couldNotConvertToJPEG(.uiImage(self))
       }
       return [ModelContent.Part.data(mimetype: "image/jpeg", data)]
     }
@@ -59,7 +72,7 @@ public enum ImageConversionError: Error {
       let bmp = NSBitmapImageRep(cgImage: cgImage)
       guard let data = bmp.representation(using: .jpeg, properties: [.compressionFactor: 0.8])
       else {
-        throw ImageConversionError.couldNotConvertToJPEG(bmp)
+        throw ImageConversionError.couldNotConvertToJPEG(.nsImage(self))
       }
       return [ModelContent.Part.data(mimetype: "image/jpeg", data)]
     }
@@ -84,7 +97,7 @@ public enum ImageConversionError: Error {
       if CGImageDestinationFinalize(imageDestination) {
         return [.data(mimetype: "image/jpeg", output as Data)]
       }
-      throw ImageConversionError.couldNotConvertToJPEG(self)
+      throw ImageConversionError.couldNotConvertToJPEG(.cgImage(self))
     }
   }
 #endif // !os(watchOS)
@@ -105,7 +118,7 @@ public enum ImageConversionError: Error {
       if let jpegData = jpegData {
         return [.data(mimetype: "image/jpeg", jpegData)]
       }
-      throw ImageConversionError.couldNotConvertToJPEG(self)
+      throw ImageConversionError.couldNotConvertToJPEG(.ciImage(self))
     }
   }
 #endif // canImport(CoreImage)
