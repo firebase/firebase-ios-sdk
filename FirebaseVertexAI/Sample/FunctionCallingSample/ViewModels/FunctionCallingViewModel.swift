@@ -62,20 +62,17 @@ class FunctionCallingViewModel: ObservableObject {
         ),
       ])]
     )
+    Task {
+      await startNewChat()
+    }
   }
 
   func sendMessage(_ text: String, streaming: Bool = true) async {
-    error = nil
-    chatTask?.cancel()
-
+    stop()
     chatTask = Task {
       busy = true
       defer {
         busy = false
-      }
-
-      if chat == nil {
-        chat = await model.startChat()
       }
 
       // first, add the user's message to the chat
@@ -103,11 +100,14 @@ class FunctionCallingViewModel: ObservableObject {
     }
   }
 
-  func startNewChat() {
+  func startNewChat() async {
+    busy = true
+    defer {
+      busy = false
+    }
     stop()
-    error = nil
-    chat = nil
     messages.removeAll()
+    chat = await model.startChat()
   }
 
   func stop() {

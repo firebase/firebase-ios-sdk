@@ -21,8 +21,8 @@ class ConversationViewModel: ObservableObject {
   /// This array holds both the user's and the system's chat messages
   @Published var messages = [ChatMessage]()
 
-  /// Indicates we're waiting for the model to finish
-  @Published var busy = false
+  /// Indicates we're waiting for the model to finish or the UI is loading
+  @Published var busy = true
 
   @Published var error: Error?
   var hasError: Bool {
@@ -37,13 +37,13 @@ class ConversationViewModel: ObservableObject {
 
   init() {
     model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.5-flash")
+    Task {
+      await startNewChat()
+    }
   }
 
   func sendMessage(_ text: String, streaming: Bool = true) async {
-    error = nil
-    if chat == nil {
-      chat = await model.startChat()
-    }
+    stop()
     if streaming {
       await internalSendMessageStreaming(text)
     } else {
@@ -51,11 +51,14 @@ class ConversationViewModel: ObservableObject {
     }
   }
 
-  func startNewChat() {
+  func startNewChat() async {
+    busy = true
+    defer {
+      busy = false
+    }
     stop()
-    error = nil
-    chat = nil
     messages.removeAll()
+    chat = await model.startChat()
   }
 
   func stop() {
@@ -64,8 +67,6 @@ class ConversationViewModel: ObservableObject {
   }
 
   private func internalSendMessageStreaming(_ text: String) async {
-    chatTask?.cancel()
-
     chatTask = Task {
       busy = true
       defer {
@@ -100,8 +101,6 @@ class ConversationViewModel: ObservableObject {
   }
 
   private func internalSendMessage(_ text: String) async {
-    chatTask?.cancel()
-
     chatTask = Task {
       busy = true
       defer {
