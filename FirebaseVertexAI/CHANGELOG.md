@@ -1,4 +1,4 @@
-# Unreleased
+# 11.2.0
 - [fixed] Resolved a decoding error for citations without a `uri` and added
   support for decoding `title` fields, which were previously ignored. (#13518)
 
