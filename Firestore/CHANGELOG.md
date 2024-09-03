@@ -1,4 +1,4 @@
-# Unreleased
+# 11.2.0
 - [fixed] Marked all public classes with only readonly properties as `Sendable` to address
   Swift Concurrency Check warning. (#12666)
 
