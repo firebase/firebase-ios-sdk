@@ -85,7 +85,7 @@ class ConversationViewModel: ObservableObject {
         guard let chat else {
           throw ChatError.notInitialized
         }
-        let responseStream = await chat.sendMessageStream(text)
+        let responseStream = try await chat.sendMessageStream(text)
         for try await chunk in responseStream {
           messages[messages.count - 1].pending = false
           if let text = chunk.text {
