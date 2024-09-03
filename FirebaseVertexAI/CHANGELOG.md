@@ -6,6 +6,9 @@
   asynchronous and must be called with `try await`. (#13545, #13573)
 - [changed] **Breaking Change**: Creating a chat instance (`startChat`) is now
   asynchronous and must be called with `await`. (#13545)
+- [changed] **Breaking Change**: The source image in the
+  `ImageConversionError.couldNotConvertToJPEG` error case is now an enum value
+  instead of the `Any` type. (#13575)
 
 # 10.29.0
 - [feature] Added community support for watchOS. (#13215)
