@@ -78,7 +78,7 @@ jobs:
       targeted_pod: FirebaseCore
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v4.1.7
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -120,7 +120,7 @@ jobs:
       targeted_pod: ${{ matrix.podspec }}
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v4.1.7
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
