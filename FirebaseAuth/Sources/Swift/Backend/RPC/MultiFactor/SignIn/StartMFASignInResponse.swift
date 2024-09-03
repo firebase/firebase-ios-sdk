@@ -18,7 +18,7 @@ import Foundation
 class StartMFASignInResponse: AuthRPCResponse {
   required init() {}
 
-  var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
+  private(set) var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneResponseInfo"] as? [String: AnyHashable] {
