@@ -72,23 +72,15 @@ import Foundation
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession? = nil,
                                 completion: ((_: String?, _: Error?) -> Void)?) {
-      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-                                                    urlTypes: auth.mainBundleUrlTypes) else {
-        fatalError(
-          "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-        )
-      }
-      kAuthGlobalWorkQueue.async {
-        Task {
-          do {
-            let verificationID = try await self.internalVerify(
-              phoneNumber: phoneNumber,
-              uiDelegate: uiDelegate,
-              multiFactorSession: multiFactorSession
-            )
-            Auth.wrapMainAsync(callback: completion, withParam: verificationID, error: nil)
-          } catch {
-            Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+      Task {
+        do {
+          let verificationID = try await verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession)
+          await MainActor.run {
+            completion?(verificationID, nil)
+          }
+        } catch {
+          await MainActor.run {
+            completion?(nil, error)
           }
         }
       }
@@ -136,11 +128,18 @@ import Foundation
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession?,
                                 completion: ((_: String?, _: Error?) -> Void)?) {
-      multiFactorSession?.multiFactorInfo = multiFactorInfo
-      verifyPhoneNumber(multiFactorInfo.phoneNumber,
-                        uiDelegate: uiDelegate,
-                        multiFactorSession: multiFactorSession,
-                        completion: completion)
+      Task {
+        do {
+          let verificationID = try await verifyPhoneNumber(with: multiFactorInfo, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession)
+          await MainActor.run {
+            completion?(verificationID, nil)
+          }
+        } catch {
+          await MainActor.run {
+            completion?(nil, error)
+          }
+        }
+      }
     }
 
     /// Verify ownership of the second factor phone number by the current user.
