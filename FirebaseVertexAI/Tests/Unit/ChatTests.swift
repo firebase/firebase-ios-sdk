@@ -64,7 +64,7 @@ final class ChatTests: XCTestCase {
     )
     let chat = Chat(model: model, history: [])
     let input = "Test input"
-    let stream = await chat.sendMessageStream(input)
+    let stream = try await chat.sendMessageStream(input)
 
     // Ensure the values are parsed correctly
     for try await value in stream {

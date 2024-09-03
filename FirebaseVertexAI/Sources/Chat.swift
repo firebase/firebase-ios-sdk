@@ -85,7 +85,7 @@ public actor Chat {
   /// - Parameter parts: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
   @available(macOS 12.0, *)
-  public func sendMessageStream(_ parts: any ThrowingPartsRepresentable...)
+  public func sendMessageStream(_ parts: any ThrowingPartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try sendMessageStream([ModelContent(parts: parts)])
   }
@@ -95,21 +95,16 @@ public actor Chat {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
   @available(macOS 12.0, *)
-  public func sendMessageStream(_ content: @autoclosure () throws -> [ModelContent])
+  public func sendMessageStream(_ content: @autoclosure () throws -> [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     let resolvedContent: [ModelContent]
     do {
       resolvedContent = try content()
     } catch let underlying {
-      return AsyncThrowingStream { continuation in
-        let error: Error
-        if let contentError = underlying as? ImageConversionError {
-          error = GenerateContentError.promptImageContentError(underlying: contentError)
-        } else {
-          error = GenerateContentError.internalError(underlying: underlying)
-        }
-        continuation.finish(throwing: error)
+      if let contentError = underlying as? ImageConversionError {
+        throw GenerateContentError.promptImageContentError(underlying: contentError)
       }
+      throw GenerateContentError.internalError(underlying: underlying)
     }
 
     return AsyncThrowingStream { continuation in
@@ -121,7 +116,7 @@ public actor Chat {
 
         // Send the history alongside the new message as context.
         let request = history + newContent
-        let stream = await model.generateContentStream(request)
+        let stream = try await model.generateContentStream(request)
         do {
           for try await chunk in stream {
             // Capture any content that's streaming. This should be populated if there's no error.
