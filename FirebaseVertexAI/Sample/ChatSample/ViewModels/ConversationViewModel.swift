@@ -30,18 +30,20 @@ class ConversationViewModel: ObservableObject {
   }
 
   private var model: GenerativeModel
-  private var chat: Chat
+  private var chat: Chat? = nil
   private var stopGenerating = false
 
   private var chatTask: Task<Void, Never>?
 
   init() {
     model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.5-flash")
-    chat = model.startChat()
   }
 
   func sendMessage(_ text: String, streaming: Bool = true) async {
     error = nil
+    if chat == nil {
+      chat = await model.startChat()
+    }
     if streaming {
       await internalSendMessageStreaming(text)
     } else {
@@ -52,7 +54,7 @@ class ConversationViewModel: ObservableObject {
   func startNewChat() {
     stop()
     error = nil
-    chat = model.startChat()
+    chat = nil
     messages.removeAll()
   }
 
@@ -79,7 +81,10 @@ class ConversationViewModel: ObservableObject {
       messages.append(systemMessage)
 
       do {
-        let responseStream = chat.sendMessageStream(text)
+        guard let chat else {
+          throw ChatError.notInitialized
+        }
+        let responseStream = await chat.sendMessageStream(text)
         for try await chunk in responseStream {
           messages[messages.count - 1].pending = false
           if let text = chunk.text {
@@ -112,10 +117,12 @@ class ConversationViewModel: ObservableObject {
       messages.append(systemMessage)
 
       do {
-        var response: GenerateContentResponse?
-        response = try await chat.sendMessage(text)
+        guard let chat = chat else {
+          throw ChatError.notInitialized
+        }
+        let response = try await chat.sendMessage(text)
 
-        if let responseText = response?.text {
+        if let responseText = response.text {
           // replace pending message with backend response
           messages[messages.count - 1].message = responseText
           messages[messages.count - 1].pending = false
@@ -126,5 +133,9 @@ class ConversationViewModel: ObservableObject {
         messages.removeLast()
       }
     }
+  }
+
+  enum ChatError: Error {
+    case notInitialized
   }
 }
