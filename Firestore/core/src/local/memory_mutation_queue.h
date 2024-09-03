@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_MUTATION_QUEUE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_MEMORY_MUTATION_QUEUE_H_
 
+#include <deque>
 #include <set>
 #include <vector>
 
@@ -59,7 +60,7 @@ class MemoryMutationQueue : public MutationQueue {
   void RemoveMutationBatch(const model::MutationBatch& batch) override;
 
   std::vector<model::MutationBatch> AllMutationBatches() override {
-    return queue_;
+    return std::vector<model::MutationBatch>(queue_.begin(), queue_.end());
   }
 
   std::vector<model::MutationBatch> AllMutationBatchesAffectingDocumentKeys(
