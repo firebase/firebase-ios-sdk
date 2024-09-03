@@ -509,7 +509,7 @@ enum FunctionsConstants {
     if let error = error as NSError? {
       let localError: (any Error)?
       if error.domain == kGTMSessionFetcherStatusDomain {
-        localError = FunctionsErrorForResponse(
+        localError = FunctionsErrorCode.errorForResponse(
           status: error.code,
           body: data,
           serializer: serializer
@@ -529,7 +529,7 @@ enum FunctionsConstants {
     }
 
     // Case 3: `data` is not `nil` but might specify a custom error -> throws conditionally
-    if let bodyError = FunctionsErrorForResponse(
+    if let bodyError = FunctionsErrorCode.errorForResponse(
       status: 200,
       body: data,
       serializer: serializer
