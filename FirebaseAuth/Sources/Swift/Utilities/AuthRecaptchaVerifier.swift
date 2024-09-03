@@ -33,6 +33,7 @@
     }
   }
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   enum AuthRecaptchaEnablementStatus: String, CaseIterable {
     case enforce = "ENFORCE"
     case audit = "AUDIT"
@@ -42,6 +43,7 @@
     var stringValue: String { rawValue }
   }
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   enum AuthRecaptchaProvider: String, CaseIterable {
     case password = "EMAIL_PASSWORD_PROVIDER"
     case phone = "PHONE_PROVIDER"
@@ -50,6 +52,7 @@
     var stringValue: String { rawValue }
   }
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   enum AuthRecaptchaAction: String {
     case defaultAction
     case signInWithPassword
@@ -175,8 +178,8 @@
       var isRecaptchaEnabled = false
       if let enforcementState = response.enforcementState {
         for state in enforcementState {
-          guard let providerString = state["provider"] as? String,
-                let enforcementString = state["enforcementState"] as? String,
+          guard let providerString = state["provider"],
+                let enforcementString = state["enforcementState"],
                 let provider = AuthRecaptchaProvider(rawValue: providerString),
                 let enforcement = AuthRecaptchaEnablementStatus(rawValue: enforcementString) else {
             continue // Skip to the next state in the loop
