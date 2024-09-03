@@ -74,7 +74,11 @@ import Foundation
                                 completion: ((_: String?, _: Error?) -> Void)?) {
       Task {
         do {
-          let verificationID = try await verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession)
+          let verificationID = try await verifyPhoneNumber(
+            phoneNumber,
+            uiDelegate: uiDelegate,
+            multiFactorSession: multiFactorSession
+          )
           await MainActor.run {
             completion?(verificationID, nil)
           }
@@ -130,7 +134,11 @@ import Foundation
                                 completion: ((_: String?, _: Error?) -> Void)?) {
       Task {
         do {
-          let verificationID = try await verifyPhoneNumber(with: multiFactorInfo, uiDelegate: uiDelegate, multiFactorSession: multiFactorSession)
+          let verificationID = try await verifyPhoneNumber(
+            with: multiFactorInfo,
+            uiDelegate: uiDelegate,
+            multiFactorSession: multiFactorSession
+          )
           await MainActor.run {
             completion?(verificationID, nil)
           }

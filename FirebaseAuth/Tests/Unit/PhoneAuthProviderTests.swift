@@ -547,15 +547,13 @@
                                     bothClientAndAppID: Bool = false,
                                     reCAPTCHAfallback: Bool = false,
                                     forwardingNotification: Bool = true,
-                                    presenterError: Error? = nil,
-                                    rceMode: AuthRecaptchaEnablementStatus = .off) async throws {
+                                    presenterError: Error? = nil) async throws {
       initApp(function, useClientID: useClientID, bothClientAndAppID: bothClientAndAppID,
               testMode: testMode,
               forwardingNotification: forwardingNotification)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
       let expectation = self.expectation(description: function)
-      rpcIssuer?.rceMode = rceMode
 
       if !reCAPTCHAfallback {
         // Fake out appCredentialManager flow.

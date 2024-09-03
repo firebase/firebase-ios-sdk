@@ -76,7 +76,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?
   var recaptchaSiteKey = "projects/fakeProjectId/keys/mockSiteKey"
-  var rceMode: AuthRecaptchaEnablementStatus = .off
+  var rceMode: String = "OFF"
 
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
@@ -112,11 +112,11 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       }
       return
     } else if let _ = request as? GetRecaptchaConfigRequest {
-      if rceMode != .off { // Check if reCAPTCHA is enabled
+      if rceMode != "OFF" { // Check if reCAPTCHA is enabled
         let recaptchaKey = recaptchaSiteKey // iOS key from your config
         let enforcementState = [
-          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": rceMode.rawValue],
-          ["provider": "PHONE_PROVIDER", "enforcementState": rceMode.rawValue],
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": rceMode],
+          ["provider": "PHONE_PROVIDER", "enforcementState": rceMode],
         ]
         guard let _ = try? respond(withJSON: [
           "recaptchaKey": recaptchaKey,
