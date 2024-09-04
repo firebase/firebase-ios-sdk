@@ -47,8 +47,16 @@ class GetRecaptchaConfigTests: RPCBaseTests {
     let request = GetRecaptchaConfigRequest(requestConfiguration: makeRequestConfiguration())
 
     rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+    let enforcementMode = "AUDIT"
+    rpcIssuer.rceMode = enforcementMode
     let response = try await AuthBackend.call(with: request)
     XCTAssertEqual(response.recaptchaKey, kTestRecaptchaKey)
-    XCTAssertNil(response.enforcementState)
+    XCTAssertEqual(
+      response.enforcementState,
+      [
+        ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": enforcementMode],
+        ["provider": "PHONE_PROVIDER", "enforcementState": enforcementMode],
+      ]
+    )
   }
 }
