@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
+import FirebaseCoreExtension
 import Foundation
 import XCTest
 
