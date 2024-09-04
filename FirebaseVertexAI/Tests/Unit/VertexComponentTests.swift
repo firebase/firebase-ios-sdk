@@ -14,7 +14,6 @@
 
 import FirebaseCore
 import Foundation
-import SharedTestUtilities
 import XCTest
 
 @testable import FirebaseVertexAI
