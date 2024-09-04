@@ -559,7 +559,7 @@
                                                                   secret: kTestSecret)
       } else {
         // 1. Intercept, handle, and test the projectConfiguration RPC calls.
-        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        let projectConfigExpectation = expectation(description: "projectConfiguration")
         expectations.append(projectConfigExpectation)
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
@@ -590,7 +590,7 @@
           )
       }
       if errorURLString == nil, presenterError == nil {
-        let requestExpectation = self.expectation(description: "verifyRequester")
+        let requestExpectation = expectation(description: "verifyRequester")
         expectations.append(requestExpectation)
         rpcIssuer?.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
