@@ -220,7 +220,7 @@ import Foundation
       case .enforce:
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: phoneNumber,
-          retryOnInvalidAppCredential: true,
+          retryOnInvalidAppCredential: false,
           multiFactorSession: multiFactorSession,
           uiDelegate: uiDelegate,
           recaptchaVerifier: recaptchaVerifier
