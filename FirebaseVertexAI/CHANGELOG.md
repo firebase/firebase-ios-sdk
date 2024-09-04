@@ -9,6 +9,10 @@
 - [changed] **Breaking Change**: The source image in the
   `ImageConversionError.couldNotConvertToJPEG` error case is now an enum value
   instead of the `Any` type. (#13575)
+- [added] Added support for specifying a JSON `responseSchema` in
+  `GenerationConfig`; see
+  [control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  for more details. (#13576)
 
 # 10.29.0
 - [feature] Added community support for watchOS. (#13215)
