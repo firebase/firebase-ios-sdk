@@ -122,7 +122,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -184,7 +184,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -238,7 +238,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -290,7 +290,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -361,7 +361,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -417,7 +417,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -477,7 +477,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -522,7 +522,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
       - uses: actions/checkout@v4
       - name: Get framework dir
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.7
         with:
           name: Firebase-actions-dir
       - uses: ruby/setup-ruby@v1
@@ -562,7 +562,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -619,7 +619,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
@@ -675,7 +675,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
     - uses: ruby/setup-ruby@v1
