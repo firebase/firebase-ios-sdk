@@ -60,6 +60,7 @@ final class PartsRepresentableTests: XCTestCase {
       let image = CIImage.empty()
       do {
         _ = try image.tryPartsValue()
+        XCTFail("Expected model content from invalid image to error")
       } catch {
         guard let imageError = (error as? ImageConversionError) else {
           XCTFail("Got unexpected error type: \(error)")
@@ -67,15 +68,16 @@ final class PartsRepresentableTests: XCTestCase {
         }
         switch imageError {
         case let .couldNotConvertToJPEG(source):
-          // String(describing:) works around a type error.
-          XCTAssertEqual(String(describing: source), String(describing: image))
-          return
-        case _:
+          guard case let .ciImage(ciImage) = source else {
+            XCTFail("Unexpected image source: \(source)")
+            return
+          }
+          XCTAssertEqual(ciImage, image)
+        default:
           XCTFail("Expected image conversion error, got \(imageError) instead")
           return
         }
       }
-      XCTFail("Expected model content from invalid image to error")
     }
   #endif // canImport(CoreImage)
 
@@ -84,6 +86,7 @@ final class PartsRepresentableTests: XCTestCase {
       let image = UIImage()
       do {
         _ = try image.tryPartsValue()
+        XCTFail("Expected model content from invalid image to error")
       } catch {
         guard let imageError = (error as? ImageConversionError) else {
           XCTFail("Got unexpected error type: \(error)")
@@ -91,15 +94,16 @@ final class PartsRepresentableTests: XCTestCase {
         }
         switch imageError {
         case let .couldNotConvertToJPEG(source):
-          // String(describing:) works around a type error.
-          XCTAssertEqual(String(describing: source), String(describing: image))
-          return
-        case _:
+          guard case let .uiImage(uiImage) = source else {
+            XCTFail("Unexpected image source: \(source)")
+            return
+          }
+          XCTAssertEqual(uiImage, image)
+        default:
           XCTFail("Expected image conversion error, got \(imageError) instead")
           return
         }
       }
-      XCTFail("Expected model content from invalid image to error")
     }
 
     func testModelContentFromUIImageIsNotEmpty() throws {
