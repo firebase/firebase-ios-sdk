@@ -199,7 +199,7 @@ import Foundation
       }
 
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
+      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: false)
 
       switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
       case .off:
