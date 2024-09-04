@@ -146,7 +146,10 @@
       let provider = PhoneAuthProvider.provider(auth: auth)
       let invalidRecaptchaTokenError = AuthErrorUtils
         .invalidRecaptchaTokenError(message: "INVALID_RECAPTCHA_TOKEN")
-      let mockVerifier = FakeAuthRecaptchaVerifier(error: invalidRecaptchaTokenError)
+      let mockVerifier = FakeAuthRecaptchaVerifier(
+        captchaResponse: "invalidToken",
+        error: invalidRecaptchaTokenError
+      )
       AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "ENFORCE"
       do {
@@ -172,7 +175,10 @@
       let provider = PhoneAuthProvider.provider(auth: auth)
       let missingRecaptchaTokenError = AuthErrorUtils
         .missingRecaptchaTokenError(message: "MISSING_RECAPTCHA_TOKEN")
-      let mockVerifier = FakeAuthRecaptchaVerifier(error: missingRecaptchaTokenError)
+      let mockVerifier = FakeAuthRecaptchaVerifier(
+        captchaResponse: "",
+        error: missingRecaptchaTokenError
+      )
       AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "ENFORCE"
       do {
@@ -648,7 +654,7 @@
                                                                   secret: kTestSecret)
       } else {
         // 1. Intercept, handle, and test the projectConfiguration RPC calls.
-        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        let projectConfigExpectation = expectation(description: "projectConfiguration")
         expectations.append(projectConfigExpectation)
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
@@ -679,7 +685,7 @@
           )
       }
       if errorURLString == nil, presenterError == nil {
-        let requestExpectation = self.expectation(description: "verifyRequester")
+        let requestExpectation = expectation(description: "verifyRequester")
         expectations.append(requestExpectation)
         rpcIssuer?.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
