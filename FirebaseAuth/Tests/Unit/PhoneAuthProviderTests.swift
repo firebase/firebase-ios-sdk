@@ -80,7 +80,7 @@
       } catch {
         XCTAssertEqual((error as NSError).code, AuthErrorCode.missingPhoneNumber.rawValue)
       }
-      await waitForExpectations(timeout: 5)
+      await fulfillment(of: [expectation], timeout: 5.0)
     }
 
     /** @fn testVerifyInvalidPhoneNumber
@@ -553,7 +553,7 @@
               forwardingNotification: forwardingNotification)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let expectation = self.expectation(description: function)
+      var expectations = [expectation(description: function)]
 
       if !reCAPTCHAfallback {
         // Fake out appCredentialManager flow.
@@ -561,7 +561,7 @@
                                                                   secret: kTestSecret)
       } else {
         // 1. Intercept, handle, and test the projectConfiguration RPC calls.
-        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        let projectConfigExpectation = expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
           projectConfigExpectation.fulfill()
@@ -591,7 +591,8 @@
           )
       }
       if errorURLString == nil, presenterError == nil {
-        let requestExpectation = self.expectation(description: "verifyRequester")
+        let requestExpectation = expectation(description: "verifyRequester")
+        expectations.append(requestExpectation)
         rpcIssuer?.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
           switch request.codeIdentity {
@@ -632,11 +633,11 @@
       } catch {
         // If an error occurs, assert that verificationID is nil and the error code matches the
         // expected value
-        XCTAssertEqual((error as? NSError)?.code, errorCode)
+        XCTAssertEqual((error as NSError).code, errorCode)
       }
-      expectation.fulfill()
+      expectations[0].fulfill()
       // Make sure the test waits for expectations to be fulfilled
-      await waitForExpectations(timeout: 5.0)
+      await fulfillment(of: expectations, timeout: 5.0)
     }
 
     private func initApp(_ functionName: String,
