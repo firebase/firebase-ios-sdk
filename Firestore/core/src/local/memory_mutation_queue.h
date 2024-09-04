@@ -129,7 +129,7 @@ class MemoryMutationQueue : public MutationQueue {
    * Once the held write acknowledgements become visible they are removed from
    * the head of the queue along with any tombstones that follow.
    */
-  std::vector<model::MutationBatch> queue_;
+  std::deque<model::MutationBatch> queue_;
 
   /**
    * The next value to use when assigning sequential IDs to each mutation
