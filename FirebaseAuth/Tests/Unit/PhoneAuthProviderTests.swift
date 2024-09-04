@@ -640,6 +640,7 @@
               forwardingNotification: forwardingNotification)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
+      var expectations: [XCTestExpectation] = []
 
       if !reCAPTCHAfallback {
         // Fake out appCredentialManager flow.
@@ -647,8 +648,11 @@
                                                                   secret: kTestSecret)
       } else {
         // 1. Intercept, handle, and test the projectConfiguration RPC calls.
+        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        expectations.append(projectConfigExpectation)
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
+          projectConfigExpectation.fulfill()
           do {
             // Response for the underlying VerifyClientRequest RPC call.
             try self.rpcIssuer?.respond(
@@ -675,6 +679,8 @@
           )
       }
       if errorURLString == nil, presenterError == nil {
+        let requestExpectation = self.expectation(description: "verifyRequester")
+        expectations.append(requestExpectation)
         rpcIssuer?.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
           switch request.codeIdentity {
@@ -688,6 +694,7 @@
           case .empty:
             XCTAssertTrue(testMode)
           }
+          requestExpectation.fulfill()
           do {
             // Response for the underlying SendVerificationCode RPC call.
             if let errorString {
@@ -716,6 +723,7 @@
         // expected value
         XCTAssertEqual((error as NSError).code, errorCode)
       }
+      await fulfillment(of: expectations, timeout: 5.0)
     }
 
     private func initApp(_ functionName: String,
