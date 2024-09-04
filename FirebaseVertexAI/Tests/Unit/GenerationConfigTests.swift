@@ -48,7 +48,7 @@ final class GenerationConfigTests: XCTestCase {
     let candidateCount = 2
     let maxOutputTokens = 256
     let stopSequences = ["END", "DONE"]
-    let responseMIMEType = "text/plain"
+    let responseMIMEType = "application/json"
     let generationConfig = GenerationConfig(
       temperature: temperature,
       topP: topP,
@@ -56,7 +56,8 @@ final class GenerationConfigTests: XCTestCase {
       candidateCount: candidateCount,
       maxOutputTokens: maxOutputTokens,
       stopSequences: stopSequences,
-      responseMIMEType: responseMIMEType
+      responseMIMEType: responseMIMEType,
+      responseSchema: Schema(type: .array, items: Schema(type: .string))
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -67,6 +68,12 @@ final class GenerationConfigTests: XCTestCase {
       "candidateCount" : \(candidateCount),
       "maxOutputTokens" : \(maxOutputTokens),
       "responseMIMEType" : "\(responseMIMEType)",
+      "responseSchema" : {
+        "items" : {
+          "type" : "STRING"
+        },
+        "type" : "ARRAY"
+      },
       "stopSequences" : [
         "END",
         "DONE"
@@ -78,16 +85,46 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
-  func testEncodeGenerationConfig_responseMIMEType() throws {
-    let mimeType = "image/jpeg"
-    let generationConfig = GenerationConfig(responseMIMEType: mimeType)
+  func testEncodeGenerationConfig_jsonResponse() throws {
+    let mimeType = "application/json"
+    let generationConfig = GenerationConfig(
+      responseMIMEType: mimeType,
+      responseSchema: Schema(
+        type: .object,
+        properties: [
+          "firstName": Schema(type: .string),
+          "lastName": Schema(type: .string),
+          "age": Schema(type: .integer),
+        ],
+        requiredProperties: ["firstName", "lastName", "age"]
+      )
+    )
 
     let jsonData = try encoder.encode(generationConfig)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "responseMIMEType" : "\(mimeType)"
+      "responseMIMEType" : "\(mimeType)",
+      "responseSchema" : {
+        "properties" : {
+          "age" : {
+            "type" : "INTEGER"
+          },
+          "firstName" : {
+            "type" : "STRING"
+          },
+          "lastName" : {
+            "type" : "STRING"
+          }
+        },
+        "required" : [
+          "firstName",
+          "lastName",
+          "age"
+        ],
+        "type" : "OBJECT"
+      }
     }
     """)
   }

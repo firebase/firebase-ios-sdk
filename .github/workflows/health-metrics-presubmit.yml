@@ -337,7 +337,7 @@ jobs:
           scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
           metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
           gcloud auth activate-service-account --key-file metrics-access.json
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         id: download
         with:
           path: /Users/runner/test

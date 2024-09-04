@@ -104,7 +104,9 @@ struct ConversationScreen: View {
   }
 
   private func newChat() {
-    viewModel.startNewChat()
+    Task {
+      await viewModel.startNewChat()
+    }
   }
 }
 

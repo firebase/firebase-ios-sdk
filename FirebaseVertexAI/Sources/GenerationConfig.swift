@@ -70,6 +70,17 @@ public struct GenerationConfig {
   /// - `application/json`: JSON response in the candidates.
   public let responseMIMEType: String?
 
+  /// Output schema of the generated candidate text.
+  /// If set, a compatible ``responseMIMEType`` must also be set.
+  ///
+  /// Compatible MIME types:
+  ///   - `application/json`: Schema for JSON response.
+  ///
+  /// Refer to the [Control generated
+  /// output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  /// guide for more details.
+  public let responseSchema: Schema?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// - Parameter temperature: See ``temperature``
@@ -78,9 +89,12 @@ public struct GenerationConfig {
   /// - Parameter candidateCount: See ``candidateCount``
   /// - Parameter maxOutputTokens: See ``maxOutputTokens``
   /// - Parameter stopSequences: See ``stopSequences``
+  /// - Parameter responseMIMEType: See ``responseMIMEType``
+  /// - Parameter responseSchema: See ``responseSchema``
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
-              stopSequences: [String]? = nil, responseMIMEType: String? = nil) {
+              stopSequences: [String]? = nil, responseMIMEType: String? = nil,
+              responseSchema: Schema? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -90,6 +104,7 @@ public struct GenerationConfig {
     self.maxOutputTokens = maxOutputTokens
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
+    self.responseSchema = responseSchema
   }
 }
 

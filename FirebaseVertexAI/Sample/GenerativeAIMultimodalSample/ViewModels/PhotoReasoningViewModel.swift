@@ -84,7 +84,7 @@ class PhotoReasoningViewModel: ObservableObject {
         }
       }
 
-      let outputContentStream = model.generateContentStream(prompt, images)
+      let outputContentStream = try await model.generateContentStream(prompt, images)
 
       // stream response
       for try await outputContent in outputContentStream {

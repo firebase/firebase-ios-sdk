@@ -1,6 +1,18 @@
 # 11.2.0
 - [fixed] Resolved a decoding error for citations without a `uri` and added
   support for decoding `title` fields, which were previously ignored. (#13518)
+- [changed] **Breaking Change**: The methods for starting streaming requests
+  (`generateContentStream` and `sendMessageStream`) are now throwing and
+  asynchronous and must be called with `try await`. (#13545, #13573)
+- [changed] **Breaking Change**: Creating a chat instance (`startChat`) is now
+  asynchronous and must be called with `await`. (#13545)
+- [changed] **Breaking Change**: The source image in the
+  `ImageConversionError.couldNotConvertToJPEG` error case is now an enum value
+  instead of the `Any` type. (#13575)
+- [added] Added support for specifying a JSON `responseSchema` in
+  `GenerationConfig`; see
+  [control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  for more details. (#13576)
 
 # 10.29.0
 - [feature] Added community support for watchOS. (#13215)

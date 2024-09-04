@@ -170,8 +170,8 @@ final class VertexAIAPITests: XCTestCase {
     #endif
 
     // Chat
-    _ = genAI.startChat()
-    _ = genAI.startChat(history: [ModelContent(parts: "abc")])
+    _ = await genAI.startChat()
+    _ = await genAI.startChat(history: [ModelContent(parts: "abc")])
   }
 
   // Public API tests for GenerateContentResponse.
