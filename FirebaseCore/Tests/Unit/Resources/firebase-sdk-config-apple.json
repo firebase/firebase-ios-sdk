@@ -7,5 +7,6 @@
   "api_key": "correct_api_key",
   "realtime_database_url": "https://abc-xyz-123.firebaseio.com",
   "storage_bucket": "project-id-123.storage.firebase.com",
-  "measurement_id": "Test-measurement-id"
+  "measurement_id": "Test-measurement-id",
+  "oauth_client_id": "correct_client_id"
 }

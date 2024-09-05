@@ -47,7 +47,7 @@ extern NSString *const kFIRLibraryVersionID;
   [FIROptionsMock mockFIROptions];
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  [self assertOptionsMatchDefaults:options];
   XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
 
@@ -76,7 +76,7 @@ extern NSString *const kFIRLibraryVersionID;
 - (void)testDefaultOptions {
   [FIROptionsMock mockFIROptions];
   FIROptions *options = [FIROptions defaultOptions];
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  [self assertOptionsMatchDefaults:options];
   XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
 
@@ -155,7 +155,7 @@ extern NSString *const kFIRLibraryVersionID;
 - (void)testInitWithContentsOfPlistFile {
   NSString *filePath = [self validGoogleServicesInfoPlistPath];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  [self assertOptionsMatchDefaults:options];
   XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
@@ -172,7 +172,7 @@ extern NSString *const kFIRLibraryVersionID;
 - (void)testInitWithContentsOfJsonFile {
   NSString *filePath = [self validJsonConfigPath];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  [self assertOptionsMatchDefaults:options];
   XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
@@ -187,9 +187,8 @@ extern NSString *const kFIRLibraryVersionID;
 }
 #endif
 
-- (void)testInitCustomizedOptions {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+- (void)testInitCustomizedOptionsPlist {
+  FIROptions *options = [self oldAppOptions];
   options.APIKey = kAPIKey;
   options.bundleID = kBundleID;
   options.clientID = kClientID;
@@ -197,33 +196,92 @@ extern NSString *const kFIRLibraryVersionID;
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   options.projectID = kProjectID;
   options.storageBucket = kStorageBucket;
-  [self assertOptionsMatchDefaults:options andProjectID:YES];
+  [self assertOptionsMatchDefaults:options];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 }
 
-- (void)assertOptionsMatchDefaults:(FIROptions *)options andProjectID:(BOOL)matchProjectID {
+- (void)testInitCustomizedOptionsJson {
+  FIROptions *options = [self appOptions];
+  options.bundleID = kBundleID;
+  options.clientID = kClientID;
+  options.databaseURL = kDatabaseURL;
+  options.deepLinkURLScheme = kDeepLinkURLScheme;
+  options.storageBucket = kStorageBucket;
+  [self assertOptionsMatchDefaults:options];
+  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
+}
+
+- (void)assertOptionsMatchDefaults:(FIROptions *)options {
   XCTAssertEqualObjects(options.googleAppID, kGoogleAppID);
   XCTAssertEqualObjects(options.APIKey, kAPIKey);
-  // TODO: wait for backend fix
-  /// XCTAssertEqualObjects(options.clientID, kClientID);
-  XCTAssertEqualObjects(options.GCMSenderID, kGCMSenderID);
+  XCTAssertEqualObjects(options.clientID, kClientID);
+  XCTAssertEqualObjects(options.GCMSenderID, kProjectNumber);
   XCTAssertEqualObjects(options.libraryVersionID, kFIRLibraryVersionID);
   XCTAssertEqualObjects(options.databaseURL, kDatabaseURL);
   XCTAssertEqualObjects(options.storageBucket, kStorageBucket);
   XCTAssertEqualObjects(options.bundleID, kBundleID);
-
-  // Custom `matchProjectID` parameter to be removed once the deprecated `FIROptions` constructor is
-  // removed.
-  if (matchProjectID) {
-    XCTAssertEqualObjects(options.projectID, kProjectID);
-  }
+  XCTAssertEqualObjects(options.projectID, kProjectID);
 }
 
-- (void)testCopyingProperties {
+- (void)testCopyingPropertiesPlist {
   NSMutableString *mutableString;
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options = [self appOptions];
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.APIKey = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.APIKey, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.bundleID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.bundleID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.clientID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.clientID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.GCMSenderID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.GCMSenderID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.projectID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.projectID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.googleAppID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.googleAppID, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.databaseURL = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.databaseURL, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.deepLinkURLScheme = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.deepLinkURLScheme, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.storageBucket = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.storageBucket, @"1");
+
+  mutableString = [[NSMutableString alloc] initWithString:@"1"];
+  options.appGroupID = mutableString;
+  [mutableString appendString:@"2"];
+  XCTAssertEqualObjects(options.appGroupID, @"1");
+}
+
+- (void)testCopyingPropertiesJSON {
+  NSMutableString *mutableString;
+  FIROptions *options = [self appOptions];
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.APIKey = mutableString;
   [mutableString appendString:@"2"];
@@ -289,14 +347,21 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kNewDeepLinkURLScheme);
   XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
 
-  // customized options
-  FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                              GCMSenderID:kGCMSenderID];
+  // customized options with plist
+  FIROptions *customizedOptions = [self oldAppOptions];
   customizedOptions.deepLinkURLScheme = kDeepLinkURLScheme;
   FIROptions *copyCustomizedOptions = [customizedOptions copy];
   [copyCustomizedOptions setDeepLinkURLScheme:kNewDeepLinkURLScheme];
   XCTAssertEqualObjects(customizedOptions.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertEqualObjects(copyCustomizedOptions.deepLinkURLScheme, kNewDeepLinkURLScheme);
+
+  // customized options with json
+  FIROptions *customizedOptionsJSON = [self appOptions];
+  customizedOptionsJSON.deepLinkURLScheme = kDeepLinkURLScheme;
+  FIROptions *copyCustomizedOptionsJSON = [customizedOptionsJSON copy];
+  [copyCustomizedOptionsJSON setDeepLinkURLScheme:kNewDeepLinkURLScheme];
+  XCTAssertEqualObjects(customizedOptionsJSON.deepLinkURLScheme, kDeepLinkURLScheme);
+  XCTAssertEqualObjects(copyCustomizedOptionsJSON.deepLinkURLScheme, kNewDeepLinkURLScheme);
 }
 
 - (void)testAnalyticsConstants {
@@ -629,8 +694,7 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testModifyingOptionsThrows {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options = [self appOptions];
   options.editingLocked = YES;
 
   // Modification to every property should result in an exception.
@@ -647,8 +711,7 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testVersionFormat {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options = [self appOptions];
   __unused NSString *libraryVersion = options.libraryVersionID;
   options = nil;
 
@@ -663,8 +726,7 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testVersionConsistency {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options = [self appOptions];
   __unused NSString *libraryVersion = options.libraryVersionID;
   options = nil;
 
@@ -680,8 +742,7 @@ extern NSString *const kFIRLibraryVersionID;
 // Repeat test with more Objective-C.
 - (void)testVersionConsistency2 {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options = [self appOptions];
   __unused NSString *libraryVersion = options.libraryVersionID;
   options = nil;
 
@@ -721,6 +782,19 @@ extern NSString *const kFIRLibraryVersionID;
 
   XCTAssertNotNil(filePath);
   return filePath;
+}
+
+- (FIROptions *)appOptions {
+  return [[FIROptions alloc] initWithAppID:kGoogleAppID
+                             projectNumber:kProjectNumber
+                                 projectID:kProjectID
+                                    apiKey:kAPIKey];
+}
+
+- (FIROptions *)oldAppOptions {
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  return [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kProjectNumber];
+#pragma clang diagnostic pop
 }
 
 @end

@@ -121,7 +121,21 @@ NS_SWIFT_NAME(FirebaseOptions)
  */
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
-    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:))NS_DESIGNATED_INITIALIZER;
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Deprecated API. Use `init(appID:projectNumber:projectID:apiKey:` instead")
+        NS_SWIFT_NAME(init(googleAppID:gcmSenderID:))NS_DESIGNATED_INITIALIZER;
+
+/**
+ * Initializes a customized instance of `FirebaseOptions` with required fields. Use the mutable
+ * properties to modify fields for configuring specific services. Note that it is not possible to
+ * customize `FirebaseOptions` for Firebase Analytics which expects a static file named
+ * `firebase-sdk-config-apple.json` - https://github.com/firebase/firebase-ios-sdk/issues/230.
+ */
+- (instancetype)initWithAppID:(NSString *)appID
+                projectNumber:(NSString *)projectNumber
+                    projectID:(NSString *)projectID
+                       apiKey:(NSString *)apiKey
+    NS_SWIFT_NAME(init(appID:projectNumber:projectID:apiKey:)) NS_DESIGNATED_INITIALIZER;
 
 /** Unavailable. Please use `init(contentsOfFile:)` or `init(googleAppID:gcmSenderID:)` instead. */
 - (instancetype)init NS_UNAVAILABLE;

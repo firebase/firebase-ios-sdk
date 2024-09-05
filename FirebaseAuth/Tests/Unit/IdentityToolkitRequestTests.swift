@@ -114,8 +114,10 @@ class IdentityToolkitRequestTests: XCTestCase {
       @brief Tests the request correctly populated the tenant ID from a non default app.
    */
   func testExpectedTenantIDWithNonDefaultFIRApp() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
+    let options = FirebaseOptions(appID: "0:0000000000000:ios:0000000000000000",
+                                  projectNumber: "00000000000000000-00000000000-000000000",
+                                  projectID: "myProjectID",
+                                  apiKey: kAPIKey)
     options.apiKey = kAPIKey
     let nonDefaultApp = FirebaseApp(instanceWithName: "nonDefaultApp", options: options)
     let nonDefaultAuth = Auth(app: nonDefaultApp)

@@ -33,10 +33,10 @@ class AuthTests: RPCBaseTests {
 
   override func setUp() {
     super.setUp()
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = AuthTests.kFakeAPIKey
-    options.projectID = "myProjectID"
+    let options = FirebaseOptions(appID: "0:0000000000000:ios:0000000000000000",
+                                  projectNumber: "00000000000000000-00000000000-000000000",
+                                  projectID: "myProjectID",
+                                  apiKey: AuthTests.kFakeAPIKey)
     let name = "test-AuthTests\(AuthTests.testNum)"
     AuthTests.testNum = AuthTests.testNum + 1
     FirebaseApp.configure(name: name, options: options)

@@ -45,7 +45,7 @@ NSString *const kFIRJSONConfigBundleID = @"bundle_id";
 NSString *const kFIRJSONConfigApiKey = @"api_key";
 NSString *const kFIRJSONConfigRTDBURL = @"realtime_database_url";
 NSString *const kFIRJSONConfigStorageBucket = @"storage_bucket";
-NSString *const kFIRJSONConfigMeasurementID = @"measurement_id";
+NSString *const kFIRJSONConfigClientID = @"oauth_client_id";
 
 // Library version ID formatted like:
 // @"5"     // Major version (one or more digits)
@@ -163,7 +163,15 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   if (data == nil) {
     return nil;
   }
-  return [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+  NSError *error;
+  NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data
+                                                       options:kNilOptions
+                                                         error:&error];
+  if (error != nil) {
+    FIRLogError(kFIRLoggerCore, @"I-COR000018", @"Decoding JSON: %@ at path: '%@.", error, path);
+    return nil;
+  }
+  return dict;
 }
 
 // Returns the path of the file with a given file name and file type.
@@ -263,6 +271,26 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   return self;
 }
 
+- (instancetype)initWithAppID:(NSString *)appID
+                projectNumber:(NSString *)projectNumber
+                    projectID:(NSString *)projectID
+                       apiKey:(NSString *)apiKey {
+  self = [super init];
+  if (self) {
+    NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
+    [mutableOptionsDict setValue:appID forKey:kFIRJSONConfigAppID];
+    [mutableOptionsDict setValue:projectNumber forKey:kFIRJSONConfigProjectNumber];
+    [mutableOptionsDict setValue:projectID forKey:kFIRJSONConfigProjectID];
+    [mutableOptionsDict setValue:apiKey forKey:kFIRJSONConfigApiKey];
+    [mutableOptionsDict setValue:@"2" forKey:kFIRJSONConfigVersion];
+    [mutableOptionsDict setValue:[[NSBundle mainBundle] bundleIdentifier]
+                          forKey:kFIRJSONConfigBundleID];
+    self.optionsDictionary = mutableOptionsDict;
+    _version = 2;
+  }
+  return self;
+}
+
 - (NSString *)APIKey {
   NSString *key = _version == 2 ? kFIRJSONConfigApiKey : kFIRAPIKey;
   return self.optionsDictionary[key];
@@ -281,12 +309,14 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (NSString *)clientID {
-  return self.optionsDictionary[kFIRClientID];
+  NSString *key = _version == 2 ? kFIRJSONConfigClientID : kFIRClientID;
+  return self.optionsDictionary[key];
 }
 
 - (void)setClientID:(NSString *)clientID {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRClientID] = [clientID copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigClientID : kFIRClientID;
+  _optionsDictionary[key] = [clientID copy];
 }
 
 - (NSString *)trackingID {

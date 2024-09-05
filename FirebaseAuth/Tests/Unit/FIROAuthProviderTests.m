@@ -168,12 +168,10 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
  */
 - (void)testGetCredentialWithUIDelegateWithClientIDOnMainThread {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
-                                  GCMSenderID:@"00000000000000000-00000000000-000000000"];
-  options.APIKey = kFakeAPIKey;
-  options.projectID = @"myProjectID";
+  FIROptions *options = [[FIROptions alloc] initWithAppID:@"0:0000000000000:ios:0000000000000000"
+                                            projectNumber:@"00000000000000000-00000000000-000000000"
+                                                projectID:@"myProjectID"
+                                                   apiKey:kFakeAPIKey];
   options.clientID = kFakeClientID;
   [FIRApp configureWithName:@"objAppName" options:options];
   FIRAuth *auth = [FIRAuth authWithApp:[FIRApp appNamed:@"objAppName"]];
