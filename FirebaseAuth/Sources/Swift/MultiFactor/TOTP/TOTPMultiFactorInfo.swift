@@ -34,7 +34,13 @@ import Foundation
 
     @available(*, unavailable)
     required init?(coder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
+      totpInfo = nil
+      super.init(coder: coder)
+    }
+
+    @available(*, unavailable)
+    override class var supportsSecureCoding: Bool {
+      super.supportsSecureCoding
     }
   }
 #endif
