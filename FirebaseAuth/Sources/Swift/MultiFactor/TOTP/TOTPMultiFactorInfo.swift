@@ -32,13 +32,11 @@ import Foundation
       super.init(proto: proto, factorID: PhoneMultiFactorInfo.TOTPMultiFactorID)
     }
 
-    @available(*, unavailable)
     required init?(coder: NSCoder) {
       totpInfo = nil
       super.init(coder: coder)
     }
 
-    @available(*, unavailable)
     override class var supportsSecureCoding: Bool {
       super.supportsSecureCoding
     }
