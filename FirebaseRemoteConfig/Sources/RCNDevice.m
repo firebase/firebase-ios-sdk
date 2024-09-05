@@ -105,7 +105,7 @@ NSDictionary<NSString *, NSArray *> *FIRRemoteConfigFirebaseLocaleMap(void) {
     // Maltese
     @"mt" : @[ @"mt_MT" ],
     // Marathi
-       @"mr" : @[ @"mr_IN" ],
+    @"mr" : @[ @"mr_IN" ],
     // Polish
     @"pl" : @[ @"pl", @"pl_PL", @"pl-PL" ],
     // Romanian
