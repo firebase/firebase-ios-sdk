@@ -167,7 +167,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   }
   if (error) {
     NSString *message = nil;
-    if (options.usingOptionsFromDefaultConfig) {
+    if (options.usingOptionsFromDefaultPlist) {
       // Configured using config file
       message = [NSString
           stringWithFormat:
@@ -177,7 +177,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
               @"Error: %@\n\n"
               @"Please fix these issues to ensure that Firebase is correctly configured in "
               @"your project.",
-              kPlistFileName, kPlistFileType, error.localizedFailureReason];
+              kServiceInfoFileName, kServiceInfoFileType, error.localizedFailureReason];
     } else {
       // Configured manually
       message = [NSString

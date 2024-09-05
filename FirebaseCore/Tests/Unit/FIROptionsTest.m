@@ -49,7 +49,7 @@ extern NSString *const kFIRLibraryVersionID;
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
-  XCTAssertTrue(options.usingOptionsFromDefaultConfig);
+  XCTAssertTrue(options.usingOptionsFromDefaultPlist);
 
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
@@ -78,7 +78,7 @@ extern NSString *const kFIRLibraryVersionID;
   FIROptions *options = [FIROptions defaultOptions];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
-  XCTAssertTrue(options.usingOptionsFromDefaultConfig);
+  XCTAssertTrue(options.usingOptionsFromDefaultPlist);
 
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
@@ -90,8 +90,8 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testDefaultOptionsAreInitializedOncePlist {
   id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
-  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kPlistFileName
-                                                      andFileType:kPlistFileType
+  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                      andFileType:kServiceInfoFileType
                                                         inBundles:[FIRBundleUtil relevantBundles]])
       .andReturn([self validGoogleServicesInfoPlistPath]);
   XCTAssertNotNil([FIROptions defaultOptions]);
@@ -122,8 +122,8 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testDefaultOptionsDictionaryIsInitializedOncePlist {
   id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
-  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kPlistFileName
-                                                      andFileType:kPlistFileType
+  OCMExpect([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                      andFileType:kServiceInfoFileType
                                                         inBundles:[FIRBundleUtil relevantBundles]])
       .andReturn([self validGoogleServicesInfoPlistPath]);
   XCTAssertNotNil([FIROptions defaultOptionsDictionary]);
@@ -157,7 +157,7 @@ extern NSString *const kFIRLibraryVersionID;
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultConfig);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -174,7 +174,7 @@ extern NSString *const kFIRLibraryVersionID;
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertNil(options.deepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultConfig);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -199,7 +199,7 @@ extern NSString *const kFIRLibraryVersionID;
   options.storageBucket = kStorageBucket;
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultConfig);
+  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 }
 
 - (void)assertOptionsMatchDefaults:(FIROptions *)options andProjectID:(BOOL)matchProjectID {

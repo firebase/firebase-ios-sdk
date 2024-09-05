@@ -56,8 +56,8 @@ NSString *const kInvalidPlistAlertMessage = @"This sample app needs to be update
     return NO;
   }
 
-  NSString *plistFilePath = [bundle pathForResource:kPlistFileName
-                                             ofType:kPlistFileType];
+  NSString *plistFilePath = [bundle pathForResource:kServiceInfoFileName
+                                             ofType:kServiceInfoFileType];
   if (!plistFilePath.length) {
     return NO;
   }

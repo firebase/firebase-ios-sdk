@@ -55,9 +55,9 @@ NSString *const kFIRJSONConfigMeasurementID = @"measurement_id";
 NSString *kFIRLibraryVersionID;
 
 // Plist file name.
-NSString *const kPlistFileName = @"GoogleService-Info";
+NSString *const kServiceInfoFileName = @"GoogleService-Info";
 // Plist file type.
-NSString *const kPlistFileType = @"plist";
+NSString *const kServiceInfoFileType = @"plist";
 
 // json file name.
 NSString *const kJsonFileName = @"firebase-sdk-config-apple";
@@ -130,7 +130,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 + (NSDictionary *)defaultOptionsDictionary {
   dispatch_once(&sDefaultOptionsDictionaryOnceToken, ^{
     NSString *jsonFilePath = [FIROptions filePathWithName:kJsonFileName type:kJsonFileType];
-    NSString *plistFilePath = [FIROptions filePathWithName:kPlistFileName type:kPlistFileType];
+    NSString *plistFilePath = [FIROptions filePathWithName:kServiceInfoFileName
+                                                      type:kServiceInfoFileType];
     if (jsonFilePath == nil && plistFilePath == nil) {
       return;
     }
@@ -138,7 +139,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
       FIRLogError(kFIRLoggerCore, @"I-COR000015",
                   @"Found both '%@.%@' and '%@.%@'."
                   @"Ignoring the plist file and using the json file",
-                  kJsonFileName, kJsonFileType, kPlistFileName, kPlistFileType);
+                  kJsonFileName, kJsonFileType, kServiceInfoFileName, kServiceInfoFileType);
     }
     if (jsonFilePath != nil) {
       sDefaultOptionsDictionary = [self dictionaryFromJsonPath:jsonFilePath];
@@ -187,7 +188,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   self = [super init];
   if (self) {
     _optionsDictionary = [optionsDictionary mutableCopy];
-    _usingOptionsFromDefaultConfig = YES;
+    _usingOptionsFromDefaultPlist = YES;
     if ([_optionsDictionary[kFIRJSONConfigVersion] isEqual:@"2"]) {
       _version = 2;
     } else {
@@ -204,7 +205,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
     newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
     newOptions.editingLocked = self.isEditingLocked;
-    newOptions.usingOptionsFromDefaultConfig = self.usingOptionsFromDefaultConfig;
+    newOptions.usingOptionsFromDefaultPlist = self.usingOptionsFromDefaultPlist;
   }
   return newOptions;
 }
@@ -438,7 +439,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
     return NO;
   }
 
-  // We don't care about the `editingLocked` or `usingOptionsFromDefaultConfig` properties since
+  // We don't care about the `editingLocked` or `usingOptionsFromDefaultPlist` properties since
   // those relate to lifecycle and construction, we only care if the contents of the options
   // themselves are equal.
   return YES;

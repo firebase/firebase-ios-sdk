@@ -33,8 +33,9 @@ extern NSString *const kFIRProjectID;
 /**
  * Keys for the config file names.
  */
-extern NSString *const kPlistFileName;
-extern NSString *const kPlistFileType;
+// TODO(next major): Rename from "kServiceInfo*" to "kPlist*"
+extern NSString *const kServiceInfoFileName;
+extern NSString *const kServiceInfoFileType;
 extern NSString *const kJsonFileName;
 extern NSString *const kJsonFileType;
 
@@ -86,11 +87,12 @@ extern NSString *const kJsonFileType;
  */
 @property(nonatomic, readonly, copy) NSString *libraryVersionID;
 
+// TODO(next major): Rename to usingOptionsFromDefaultConfig.
 /**
  * The flag indicating whether this object was constructed with the values in the default config
  * file.
  */
-@property(nonatomic) BOOL usingOptionsFromDefaultConfig;
+@property(nonatomic) BOOL usingOptionsFromDefaultPlist;
 
 /**
  * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
