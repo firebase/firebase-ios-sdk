@@ -1,0 +1,11 @@
+{
+  "version": "2",
+  "project_number": "correct_gcm_sender_id",
+  "project_id": "abc-xyz-123",
+  "app_id": "1:123:ios:123abc",
+  "bundle_id": "com.google.FirebaseSDKTests",
+  "api_key": "correct_api_key",
+  "realtime_database_url": "https://abc-xyz-123.firebaseio.com",
+  "storage_bucket": "project-id-123.storage.firebase.com",
+  "measurement_id": "Test-measurement-id"
+}

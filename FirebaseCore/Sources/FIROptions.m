@@ -36,6 +36,17 @@ NSString *const kFIRIsMeasurementEnabled = @"IS_MEASUREMENT_ENABLED";
 NSString *const kFIRIsAnalyticsCollectionEnabled = @"FIREBASE_ANALYTICS_COLLECTION_ENABLED";
 NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED";
 
+// Keys for the JSON config file
+NSString *const kFIRJSONConfigVersion = @"version";
+NSString *const kFIRJSONConfigProjectNumber = @"project_number";
+NSString *const kFIRJSONConfigProjectID = @"project_id";
+NSString *const kFIRJSONConfigAppID = @"app_id";
+NSString *const kFIRJSONConfigBundleID = @"bundle_id";
+NSString *const kFIRJSONConfigApiKey = @"api_key";
+NSString *const kFIRJSONConfigRTDBURL = @"realtime_database_url";
+NSString *const kFIRJSONConfigStorageBucket = @"storage_bucket";
+NSString *const kFIRJSONConfigMeasurementID = @"measurement_id";
+
 // Library version ID formatted like:
 // @"5"     // Major version (one or more digits)
 // @"04"    // Minor version (exactly 2 digits)
@@ -44,9 +55,14 @@ NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLL
 NSString *kFIRLibraryVersionID;
 
 // Plist file name.
-NSString *const kServiceInfoFileName = @"GoogleService-Info";
+NSString *const kPlistFileName = @"GoogleService-Info";
 // Plist file type.
-NSString *const kServiceInfoFileType = @"plist";
+NSString *const kPlistFileType = @"plist";
+
+// json file name.
+NSString *const kJsonFileName = @"firebase-sdk-config-apple";
+// json file type.
+NSString *const kJsonFileType = @"json";
 
 // Exception raised from attempting to modify a FIROptions after it's been copied to a FIRApp.
 NSString *const kFIRExceptionBadModification =
@@ -62,10 +78,15 @@ NSString *const kFIRExceptionBadModification =
 
 /**
  * Calls `analyticsOptionsDictionaryWithInfoDictionary:` using [NSBundle mainBundle].infoDictionary.
- * It combines analytics options from both the infoDictionary and the GoogleService-Info.plist.
+ * It combines analytics options from both the infoDictionary and the config file.
  * Values which are present in the main plist override values from the GoogleService-Info.plist.
  */
 @property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
+
+/**
+ * Version of the config file.
+ */
+@property(nonatomic, readonly) NSInteger version;
 
 /**
  * Combination of analytics options from both the infoDictionary and the GoogleService-Info.plist.
@@ -108,34 +129,49 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 + (NSDictionary *)defaultOptionsDictionary {
   dispatch_once(&sDefaultOptionsDictionaryOnceToken, ^{
-    NSString *plistFilePath = [FIROptions plistFilePathWithName:kServiceInfoFileName];
-    if (plistFilePath == nil) {
+    NSString *jsonFilePath = [FIROptions filePathWithName:kJsonFileName type:kJsonFileType];
+    NSString *plistFilePath = [FIROptions filePathWithName:kPlistFileName type:kPlistFileType];
+    if (jsonFilePath == nil && plistFilePath == nil) {
       return;
     }
-    sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
+    if (jsonFilePath != nil && plistFilePath != nil) {
+      FIRLogError(kFIRLoggerCore, @"I-COR000015",
+                  @"Found both '%@.%@' and '%@.%@'."
+                  @"Ignoring the plist file and using the json file",
+                  kJsonFileName, kJsonFileType, kPlistFileName, kPlistFileType);
+    }
+    if (jsonFilePath != nil) {
+      sDefaultOptionsDictionary = [self dictionaryFromJsonPath:jsonFilePath];
+    } else {
+      sDefaultOptionsDictionary = [NSDictionary dictionaryWithContentsOfFile:plistFilePath];
+    }
     if (sDefaultOptionsDictionary == nil) {
       FIRLogError(kFIRLoggerCore, @"I-COR000011",
                   @"The configuration file is not a dictionary: "
-                  @"'%@.%@'.",
-                  kServiceInfoFileName, kServiceInfoFileType);
+                  @"'%@'.",
+                  plistFilePath);
     }
   });
 
   return sDefaultOptionsDictionary;
 }
 
-// Returns the path of the plist file with a given file name.
-+ (NSString *)plistFilePathWithName:(NSString *)fileName {
-  NSArray *bundles = [FIRBundleUtil relevantBundles];
-  NSString *plistFilePath =
-      [FIRBundleUtil optionsDictionaryPathWithResourceName:fileName
-                                               andFileType:kServiceInfoFileType
-                                                 inBundles:bundles];
-  if (plistFilePath == nil) {
-    FIRLogError(kFIRLoggerCore, @"I-COR000012", @"Could not locate configuration file: '%@.%@'.",
-                fileName, kServiceInfoFileType);
+/// Generate the options dictionary from a JSON file.
++ (NSDictionary *)dictionaryFromJsonPath:(NSString *)path {
+  NSData *data = [NSData dataWithContentsOfFile:path];
+  if (data == nil) {
+    return nil;
   }
-  return plistFilePath;
+  return [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+}
+
+// Returns the path of the file with a given file name and file type.
++ (NSString *)filePathWithName:(NSString *)fileName type:(NSString *)fileType {
+  NSArray *bundles = [FIRBundleUtil relevantBundles];
+  NSString *filePath = [FIRBundleUtil optionsDictionaryPathWithResourceName:fileName
+                                                                andFileType:fileType
+                                                                  inBundles:bundles];
+  return filePath;
 }
 
 + (void)resetDefaultOptions {
@@ -151,7 +187,12 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   self = [super init];
   if (self) {
     _optionsDictionary = [optionsDictionary mutableCopy];
-    _usingOptionsFromDefaultPlist = YES;
+    _usingOptionsFromDefaultConfig = YES;
+    if ([_optionsDictionary[kFIRJSONConfigVersion] isEqual:@"2"]) {
+      _version = 2;
+    } else {
+      _version = 1;
+    }
   }
   return self;
 }
@@ -163,7 +204,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
     newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
     newOptions.editingLocked = self.isEditingLocked;
-    newOptions.usingOptionsFromDefaultPlist = self.usingOptionsFromDefaultPlist;
+    newOptions.usingOptionsFromDefaultConfig = self.usingOptionsFromDefaultConfig;
   }
   return newOptions;
 }
@@ -176,19 +217,30 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   return nil;
 }
 
-- (instancetype)initWithContentsOfFile:(NSString *)plistPath {
+- (instancetype)initWithContentsOfFile:(NSString *)path {
   self = [super init];
   if (self) {
-    if (plistPath == nil) {
-      FIRLogError(kFIRLoggerCore, @"I-COR000013", @"The plist file path is nil.");
+    if (path == nil) {
+      FIRLogError(kFIRLoggerCore, @"I-COR000013", @"The file path is nil.");
       return nil;
     }
-    _optionsDictionary = [[NSDictionary dictionaryWithContentsOfFile:plistPath] mutableCopy];
+    if ([path hasSuffix:@".json"]) {
+      _optionsDictionary = [[FIROptions dictionaryFromJsonPath:path] mutableCopy];
+      if (![_optionsDictionary[kFIRJSONConfigVersion] isEqual:@"2"]) {
+        FIRLogError(kFIRLoggerCore, @"I-COR000016",
+                    @"Only version 2 is currently supported for JSON config files");
+        return nil;
+      }
+      _version = 2;
+    } else {
+      _optionsDictionary = [[NSDictionary dictionaryWithContentsOfFile:path] mutableCopy];
+      _version = 1;
+    }
     if (_optionsDictionary == nil) {
       FIRLogError(kFIRLoggerCore, @"I-COR000014",
                   @"The configuration file at %@ does not exist or "
                   @"is not a well-formed plist file.",
-                  plistPath);
+                  path);
       return nil;
     }
     // TODO: Do we want to validate the dictionary here? It says we do that already in
@@ -205,12 +257,14 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
     [mutableOptionsDict setValue:GCMSenderID forKey:kFIRGCMSenderID];
     [mutableOptionsDict setValue:[[NSBundle mainBundle] bundleIdentifier] forKey:kFIRBundleID];
     self.optionsDictionary = mutableOptionsDict;
+    _version = 1;
   }
   return self;
 }
 
 - (NSString *)APIKey {
-  return self.optionsDictionary[kFIRAPIKey];
+  NSString *key = _version == 2 ? kFIRJSONConfigApiKey : kFIRAPIKey;
+  return self.optionsDictionary[key];
 }
 
 - (void)checkEditingLocked {
@@ -221,7 +275,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 - (void)setAPIKey:(NSString *)APIKey {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRAPIKey] = [APIKey copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigApiKey : kFIRAPIKey;
+  _optionsDictionary[key] = [APIKey copy];
 }
 
 - (NSString *)clientID {
@@ -243,21 +298,25 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (NSString *)GCMSenderID {
-  return self.optionsDictionary[kFIRGCMSenderID];
+  NSString *key = _version == 2 ? kFIRJSONConfigProjectNumber : kFIRGCMSenderID;
+  return self.optionsDictionary[key];
 }
 
 - (void)setGCMSenderID:(NSString *)GCMSenderID {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRGCMSenderID] = [GCMSenderID copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigProjectNumber : kFIRGCMSenderID;
+  _optionsDictionary[key] = [GCMSenderID copy];
 }
 
 - (NSString *)projectID {
-  return self.optionsDictionary[kFIRProjectID];
+  NSString *key = _version == 2 ? kFIRJSONConfigProjectID : kFIRProjectID;
+  return self.optionsDictionary[key];
 }
 
 - (void)setProjectID:(NSString *)projectID {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRProjectID] = [projectID copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigProjectID : kFIRProjectID;
+  _optionsDictionary[key] = [projectID copy];
 }
 
 - (NSString *)androidClientID {
@@ -270,12 +329,14 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (NSString *)googleAppID {
-  return self.optionsDictionary[kFIRGoogleAppID];
+  NSString *key = _version == 2 ? kFIRJSONConfigAppID : kFIRGoogleAppID;
+  return self.optionsDictionary[key];
 }
 
 - (void)setGoogleAppID:(NSString *)googleAppID {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRGoogleAppID] = [googleAppID copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigAppID : kFIRGoogleAppID;
+  _optionsDictionary[key] = [googleAppID copy];
 }
 
 - (NSString *)libraryVersionID {
@@ -297,22 +358,25 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (NSString *)databaseURL {
-  return self.optionsDictionary[kFIRDatabaseURL];
+  NSString *key = _version == 2 ? kFIRJSONConfigRTDBURL : kFIRDatabaseURL;
+  return self.optionsDictionary[key];
 }
 
 - (void)setDatabaseURL:(NSString *)databaseURL {
   [self checkEditingLocked];
-
-  _optionsDictionary[kFIRDatabaseURL] = [databaseURL copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigRTDBURL : kFIRDatabaseURL;
+  _optionsDictionary[key] = [databaseURL copy];
 }
 
 - (NSString *)storageBucket {
-  return self.optionsDictionary[kFIRStorageBucket];
+  NSString *key = _version == 2 ? kFIRJSONConfigStorageBucket : kFIRStorageBucket;
+  return self.optionsDictionary[key];
 }
 
 - (void)setStorageBucket:(NSString *)storageBucket {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigStorageBucket : kFIRStorageBucket;
+  _optionsDictionary[key] = [storageBucket copy];
 }
 
 - (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
@@ -321,12 +385,14 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (NSString *)bundleID {
-  return self.optionsDictionary[kFIRBundleID];
+  NSString *key = _version == 2 ? kFIRJSONConfigBundleID : kFIRBundleID;
+  return self.optionsDictionary[key];
 }
 
 - (void)setBundleID:(NSString *)bundleID {
   [self checkEditingLocked];
-  _optionsDictionary[kFIRBundleID] = [bundleID copy];
+  NSString *key = _version == 2 ? kFIRJSONConfigBundleID : kFIRBundleID;
+  _optionsDictionary[key] = [bundleID copy];
 }
 
 - (void)setAppGroupID:(NSString *)appGroupID {

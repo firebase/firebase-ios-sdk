@@ -31,11 +31,12 @@ extern NSString *const kFIRBundleID;
 extern NSString *const kFIRProjectID;
 
 /**
- * Keys for the plist file name
+ * Keys for the config file names.
  */
-extern NSString *const kServiceInfoFileName;
-
-extern NSString *const kServiceInfoFileType;
+extern NSString *const kPlistFileName;
+extern NSString *const kPlistFileType;
+extern NSString *const kJsonFileName;
+extern NSString *const kJsonFileType;
 
 /**
  * This header file exposes the initialization of FirebaseOptions to internal use.
@@ -86,10 +87,10 @@ extern NSString *const kServiceInfoFileType;
 @property(nonatomic, readonly, copy) NSString *libraryVersionID;
 
 /**
- * The flag indicating whether this object was constructed with the values in the default plist
+ * The flag indicating whether this object was constructed with the values in the default config
  * file.
  */
-@property(nonatomic) BOOL usingOptionsFromDefaultPlist;
+@property(nonatomic) BOOL usingOptionsFromDefaultConfig;
 
 /**
  * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
