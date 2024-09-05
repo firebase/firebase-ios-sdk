@@ -420,6 +420,7 @@ import Foundation
         }
         throw AuthErrorUtils.unexpectedResponse(deserializedResponse: nil, underlyingError: error)
       }
+      print(error)
       throw error
     }
 

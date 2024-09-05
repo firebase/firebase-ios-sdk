@@ -145,7 +145,7 @@
     func testVerifyPhoneNumberWithRceEnforceInvalidRecaptcha() async throws {
       initApp(#function)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
-        // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
+      // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
       let provider = PhoneAuthProvider.provider(auth: auth)
       let mockVerifier = FakeAuthRecaptchaVerifier()
       AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
@@ -158,7 +158,10 @@
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
         do {
           try self.rpcIssuer?
-            .respond(serverErrorMessage: "INVALID_RECAPTCHA_TOKEN")
+            .respond(
+              serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
+              error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError
+            )
         } catch {
           XCTFail("Failure sending response: \(error)")
         }
@@ -171,27 +174,38 @@
           uiDelegate: nil,
           recaptchaVerifier: mockVerifier
         )
-        //XCTAssertEqual(result, kTestVerificationID)
+        // XCTAssertEqual(result, kTestVerificationID)
       } catch {
-        XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidRecaptchaToken.code.rawValue)
+        // Traverse the nested error to find the root cause
+        let underlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError
+        let rootError = underlyingError?.userInfo[NSUnderlyingErrorKey] as? NSError
+
+        // Compare the root error code to the expected error code
+        XCTAssertEqual(rootError?.code, AuthErrorCode.invalidRecaptchaToken.code.rawValue)
       }
       await fulfillment(of: [requestExpectation], timeout: 5.0)
     }
-    
+
     /**
      @fn testVerifyPhoneNumberWithRceEnforceSDKNotLinked
      @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise enforced
      */
     func testVerifyPhoneNumberWithRceEnforceRecaptchaSDKNotLinked() async throws {
-      return try await testRecaptchaFlowError(function: #function, rceError: AuthErrorUtils.recaptchaSDKNotLinkedError())
+      return try await testRecaptchaFlowError(
+        function: #function,
+        rceError: AuthErrorUtils.recaptchaSDKNotLinkedError()
+      )
     }
-    
+
     /**
      @fn testVerifyPhoneNumberWithRceEnforceSDKNotLinked
      @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise enforced
      */
     func testVerifyPhoneNumberWithRceEnforceRecaptchaActionCreationFailed() async throws {
-      return try await testRecaptchaFlowError(function: #function, rceError: AuthErrorUtils.recaptchaActionCreationFailed())
+      return try await testRecaptchaFlowError(
+        function: #function,
+        rceError: AuthErrorUtils.recaptchaActionCreationFailed()
+      )
     }
 
     /** @fn testVerifyPhoneNumberInTestMode
@@ -435,11 +449,11 @@
       }
       XCTAssertEqual(unarchivedCredential.provider, PhoneAuthProvider.id)
     }
-    
-    private func testRecaptchaFlowError(function: String, rceError: Error) async throws{
+
+    private func testRecaptchaFlowError(function: String, rceError: Error) async throws {
       initApp(function)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
-        // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
+      // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
       // Mocking the output of verify() method
       let provider = PhoneAuthProvider.provider(auth: auth)
       let mockVerifier = FakeAuthRecaptchaVerifier(error: rceError)
