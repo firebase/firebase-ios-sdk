@@ -438,7 +438,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
     return NO;
   }
 
-  // We don't care about the `editingLocked` or `usingOptionsFromDefaultPlist` properties since
+  // We don't care about the `editingLocked` or `usingOptionsFromDefaultConfig` properties since
   // those relate to lifecycle and construction, we only care if the contents of the options
   // themselves are equal.
   return YES;
