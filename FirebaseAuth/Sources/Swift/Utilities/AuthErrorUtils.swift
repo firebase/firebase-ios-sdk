@@ -203,8 +203,8 @@ class AuthErrorUtils: NSObject {
     error(code: .missingAndroidPackageName, message: message)
   }
 
-  static func invalidRecaptchaTokenError(message: String?) -> Error {
-    error(code: .invalidRecaptchaToken, message: message)
+  static func invalidRecaptchaTokenError() -> Error {
+    error(code: .invalidRecaptchaToken)
   }
 
   static func unauthorizedDomainError(message: String?) -> Error {
@@ -241,10 +241,6 @@ class AuthErrorUtils: NSObject {
 
   static func missingVerificationIDError(message: String?) -> Error {
     error(code: .missingVerificationID, message: message)
-  }
-
-  static func missingRecaptchaTokenError(message: String?) -> Error {
-    error(code: .missingRecaptchaToken, message: message)
   }
 
   static func invalidVerificationIDError(message: String?) -> Error {
