@@ -113,14 +113,19 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func toggleAccessGroup() {
-    if AppManager.shared.auth().userAccessGroup == nil {
-      guard let bundleDictionary = Bundle.main.infoDictionary,
-            let group = bundleDictionary["AppIdentifierPrefix"] as? String else {
-        fatalError("Configure AppIdentifierPrefix in the plist")
+    do {
+      if AppManager.shared.auth().userAccessGroup == nil {
+        guard let bundleDictionary = Bundle.main.infoDictionary,
+              let group = bundleDictionary["AppIdentifierPrefix"] as? String else {
+          fatalError("Configure AppIdentifierPrefix in the plist")
+        }
+        try AppManager.shared.auth().useUserAccessGroup(group +
+          "com.google.firebase.auth.keychainGroup1")
+      } else {
+        try AppManager.shared.auth().useUserAccessGroup(nil)
       }
-      AppManager.shared.auth().userAccessGroup = group + "com.google.firebase.auth.keychainGroup1"
-    } else {
-      AppManager.shared.auth().userAccessGroup = nil
+    } catch {
+      fatalError("Failed to set userAccessGroup with error \(error)")
     }
   }
 
