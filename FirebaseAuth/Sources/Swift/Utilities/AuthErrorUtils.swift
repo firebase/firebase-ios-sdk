@@ -371,7 +371,7 @@ class AuthErrorUtils: NSObject {
   }
 
   static func keychainError(function: String, status: OSStatus) -> Error {
-    let message = SecCopyErrorMessageString(status, nil)
+    let message = SecCopyErrorMessageString(status, nil) as String? ?? ""
     let reason = "\(function) (\(status)) \(message)"
     return error(code: .keychainError, userInfo: [NSLocalizedFailureReasonErrorKey: reason])
   }
