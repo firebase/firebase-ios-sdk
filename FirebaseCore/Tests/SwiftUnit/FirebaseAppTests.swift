@@ -86,8 +86,7 @@ class FirebaseAppTests: XCTestCase {
   func testConfigureWithOptions() throws {
     expectAppConfigurationNotification(appName: Constants.App.defaultName, isDefaultApp: true)
 
-    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                  gcmSenderID: Constants.Options.gcmSenderID)
+    let options = appOptions()
     options.clientID = Constants.Options.clientID
     let configurationAttempt = {
       try ExceptionCatcher.catchException {
@@ -99,7 +98,7 @@ class FirebaseAppTests: XCTestCase {
     let app = try XCTUnwrap(FirebaseApp.app(), "Failed to unwrap default app")
     XCTAssertEqual(app.name, Constants.App.defaultName)
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
-    XCTAssertEqual(app.options.gcmSenderID, Constants.Options.gcmSenderID)
+    XCTAssertEqual(app.options.projectNumber, Constants.Options.projectNumber)
     XCTAssertEqual(app.options.clientID, Constants.Options.clientID)
     XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
@@ -109,8 +108,7 @@ class FirebaseAppTests: XCTestCase {
   func testConfigureWithNameAndOptions() throws {
     expectAppConfigurationNotification(appName: Constants.testAppName1, isDefaultApp: false)
 
-    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                  gcmSenderID: Constants.Options.gcmSenderID)
+    let options = appOptions()
     options.clientID = Constants.Options.clientID
 
     let configurationAttempt = {
@@ -126,7 +124,7 @@ class FirebaseAppTests: XCTestCase {
     )
     XCTAssertEqual(app.name, Constants.testAppName1)
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
-    XCTAssertEqual(app.options.gcmSenderID, Constants.Options.gcmSenderID)
+    XCTAssertEqual(app.options.projectNumber, Constants.Options.projectNumber)
     XCTAssertEqual(app.options.clientID, Constants.Options.clientID)
     XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
@@ -142,8 +140,7 @@ class FirebaseAppTests: XCTestCase {
   }
 
   func testConfigureMultipleApps() throws {
-    let options1 = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                   gcmSenderID: Constants.Options.gcmSenderID)
+    let options1 = appOptions()
     options1.deepLinkURLScheme = Constants.Options.deepLinkURLScheme
 
     expectAppConfigurationNotification(appName: Constants.testAppName1, isDefaultApp: false)
@@ -153,15 +150,13 @@ class FirebaseAppTests: XCTestCase {
     let app1 = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName1), "Failed to unwrap app1")
     XCTAssertEqual(app1.name, Constants.testAppName1)
     XCTAssertEqual(app1.options.googleAppID, Constants.Options.googleAppID)
-    XCTAssertEqual(app1.options.gcmSenderID, Constants.Options.gcmSenderID)
+    XCTAssertEqual(app1.options.projectNumber, Constants.Options.projectNumber)
     XCTAssertEqual(app1.options.deepLinkURLScheme, Constants.Options.deepLinkURLScheme)
     XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
     // Configure a different app with valid customized options.
-    let options2 = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                   gcmSenderID: Constants.Options.gcmSenderID)
+    let options2 = appOptions()
     options2.bundleID = Constants.Options.bundleID
-    options2.apiKey = Constants.Options.apiKey
 
     expectAppConfigurationNotification(appName: Constants.testAppName2, isDefaultApp: false)
 
@@ -175,7 +170,7 @@ class FirebaseAppTests: XCTestCase {
     let app2 = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName2), "Failed to unwrap app2")
     XCTAssertEqual(app2.name, Constants.testAppName2)
     XCTAssertEqual(app2.options.googleAppID, Constants.Options.googleAppID)
-    XCTAssertEqual(app2.options.gcmSenderID, Constants.Options.gcmSenderID)
+    XCTAssertEqual(app2.options.projectNumber, Constants.Options.projectNumber)
     XCTAssertEqual(app2.options.bundleID, Constants.Options.bundleID)
     XCTAssertEqual(app2.options.apiKey, Constants.Options.apiKey)
     XCTAssertTrue(FirebaseApp.allApps?.count == 2)
@@ -211,16 +206,14 @@ class FirebaseAppTests: XCTestCase {
   func testAllApps() throws {
     XCTAssertNil(FirebaseApp.allApps)
 
-    let options1 = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                   gcmSenderID: Constants.Options.gcmSenderID)
+    let options1 = appOptions()
     FirebaseApp.configure(name: Constants.testAppName1, options: options1)
     let app1 = try XCTUnwrap(
       FirebaseApp.app(name: Constants.testAppName1),
       "App1 could not be unwrapped"
     )
 
-    let options2 = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                   gcmSenderID: Constants.Options.gcmSenderID)
+    let options2 = appOptions()
     FirebaseApp.configure(name: Constants.testAppName2, options: options2)
     let app2 = try XCTUnwrap(
       FirebaseApp.app(name: Constants.testAppName2),
@@ -242,8 +235,7 @@ class FirebaseAppTests: XCTestCase {
 
     expectAppConfigurationNotification(appName: Constants.testAppName1, isDefaultApp: false)
 
-    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                  gcmSenderID: Constants.Options.gcmSenderID)
+    let options = appOptions()
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
 
     let app = try XCTUnwrap(FirebaseApp.app(name: Constants.testAppName1), "Could not unwrap app")
@@ -269,8 +261,7 @@ class FirebaseAppTests: XCTestCase {
   func testGetNameOfApp() throws {
     XCTAssertNil(FirebaseApp.app(name: Constants.testAppName1))
 
-    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                  gcmSenderID: Constants.Options.gcmSenderID)
+    let options = appOptions()
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
 
     let app = try XCTUnwrap(
@@ -286,8 +277,7 @@ class FirebaseAppTests: XCTestCase {
     let defaultOptions = FirebaseOptions.defaultOptions()
     XCTAssertEqual(defaultApp.options, defaultOptions)
 
-    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                  gcmSenderID: Constants.Options.gcmSenderID)
+    let options = appOptions()
     let superSecretURLScheme = "com.supersecret.googledeeplinkurl"
     options.deepLinkURLScheme = superSecretURLScheme
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
@@ -298,14 +288,12 @@ class FirebaseAppTests: XCTestCase {
     )
     XCTAssertEqual(app.name, Constants.testAppName1)
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
-    XCTAssertEqual(app.options.gcmSenderID, Constants.Options.gcmSenderID)
+    XCTAssertEqual(app.options.projectNumber, Constants.Options.projectNumber)
     XCTAssertEqual(app.options.deepLinkURLScheme, superSecretURLScheme)
   }
 
   func testFirebaseDataCollectionDefaultEnabled() throws {
-    let app = FirebaseApp(instanceWithName: "emptyApp",
-                          options: FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                                   gcmSenderID: Constants.Options.gcmSenderID))
+    let app = FirebaseApp(instanceWithName: "emptyApp", options: appOptions())
 
     // defaults to true unless otherwise set to no in app's Info.plist
     XCTAssertTrue(app.isDataCollectionDefaultEnabled)
@@ -340,15 +328,14 @@ class FirebaseAppTests: XCTestCase {
   // MARK: - Helpers
 
   private func expectAppConfigurationNotification(appName: String, isDefaultApp: Bool) {
-    let expectedUserInfo: NSDictionary = [
-      "FIRAppNameKey": appName,
-      "FIRAppIsDefaultAppKey": NSNumber(value: isDefaultApp),
-      "FIRGoogleAppIDKey": Constants.Options.googleAppID,
-    ]
-
     expectation(forNotification: NSNotification.Name.firAppReadyToConfigureSDK,
                 object: FirebaseApp.self, handler: { notification -> Bool in
                   if let userInfo = notification.userInfo {
+                    let expectedUserInfo: NSDictionary = [
+                      "FIRAppNameKey": appName,
+                      "FIRAppIsDefaultAppKey": NSNumber(value: isDefaultApp),
+                      "FIRGoogleAppIDKey": Constants.Options.googleAppID,
+                    ]
                     if expectedUserInfo.isEqual(to: userInfo) {
                       return true
                     }
@@ -357,5 +344,14 @@ class FirebaseAppTests: XCTestCase {
                   }
                   return false
                 })
+  }
+
+  private func appOptions() -> FirebaseOptions {
+    return FirebaseOptions(
+      appID: Constants.Options.googleAppID,
+      projectNumber: Constants.Options.projectNumber,
+      projectID: Constants.Options.projectID,
+      apiKey: Constants.Options.apiKey
+    )
   }
 }

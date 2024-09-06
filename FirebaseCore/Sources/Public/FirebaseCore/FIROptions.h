@@ -58,7 +58,13 @@ NS_SWIFT_NAME(FirebaseOptions)
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
  * configure Firebase Cloud Messaging.
  */
-@property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID);
+@property(nonatomic, copy) NSString *projectNumber;
+
+/**
+ * The Project Number from the Google Developer's console, for example @"012345678901", used to
+ * configure Firebase Cloud Messaging.
+ */
+@property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID) DEPRECATED_ATTRIBUTE;
 
 /**
  * The Project ID from the Firebase console, for example @"abc-xyz-123".

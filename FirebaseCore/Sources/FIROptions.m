@@ -328,15 +328,23 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   _optionsDictionary[kFIRTrackingID] = [trackingID copy];
 }
 
-- (NSString *)GCMSenderID {
+- (NSString *)projectNumber {
   NSString *key = _version == 2 ? kFIRJSONConfigProjectNumber : kFIRGCMSenderID;
   return self.optionsDictionary[key];
 }
 
-- (void)setGCMSenderID:(NSString *)GCMSenderID {
+- (void)setProjectNumber:(NSString *)projectNumber {
   [self checkEditingLocked];
   NSString *key = _version == 2 ? kFIRJSONConfigProjectNumber : kFIRGCMSenderID;
-  _optionsDictionary[key] = [GCMSenderID copy];
+  _optionsDictionary[key] = [projectNumber copy];
+}
+
+- (NSString *)GCMSenderID {
+  return self.projectNumber;
+}
+
+- (void)setGCMSenderID:(NSString *)GCMSenderID {
+  [self setProjectNumber:GCMSenderID];
 }
 
 - (NSString *)projectID {

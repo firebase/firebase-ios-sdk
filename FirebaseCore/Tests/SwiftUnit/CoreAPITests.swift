@@ -101,7 +101,7 @@ final class CoreAPITests {
     }
 
     // FirebaseOptions initializers
-    _ = FirebaseOptions(googleAppID: "googleAppID", gcmSenderID: "gcmSenderID")
+    _ = FirebaseOptions(appID: "appID", projectNumber: "pno", projectID: "pid", apiKey: "api")
 
     if let _ /* options */ = FirebaseOptions(contentsOfFile: "path/to/file") {
       // ...
@@ -110,7 +110,7 @@ final class CoreAPITests {
     // Properties
     if let options = FirebaseOptions.defaultOptions() {
       _ = options.bundleID
-      _ = options.gcmSenderID
+      _ = options.projectNumber
       _ = options.googleAppID
 
       if let _ /* apiKey */ = options.apiKey {

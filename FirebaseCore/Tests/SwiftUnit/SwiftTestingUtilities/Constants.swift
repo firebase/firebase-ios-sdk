@@ -24,7 +24,7 @@ public enum Constants {
     static let apiKey = "correct_api_key"
     static let bundleID = "com.google.FirebaseSDKTests"
     static let clientID = "correct_client_id"
-    static let gcmSenderID = "correct_gcm_sender_id"
+    static let projectNumber = "correct_gcm_sender_id"
     static let projectID = "abc-xyz-123"
     static let googleAppID = "1:123:ios:123abc"
     static let databaseURL = "https://abc-xyz-123.firebaseio.com"
