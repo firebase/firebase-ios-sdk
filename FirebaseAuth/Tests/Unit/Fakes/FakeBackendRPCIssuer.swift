@@ -71,7 +71,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var respondBlock: (() throws -> Void)?
   var nextRespondBlock: (() throws -> Void)?
 
-  var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
+  var fakeGetAccountProviderJSON: [[String: Any]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?

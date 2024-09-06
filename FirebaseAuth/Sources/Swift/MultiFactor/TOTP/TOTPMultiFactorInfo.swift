@@ -22,19 +22,18 @@ import Foundation
   ///
   /// This class is available on iOS only.
   class TOTPMultiFactorInfo: MultiFactorInfo {
-    /// This is the totp info for the second factor.
-    let totpInfo: NSObject?
-
     /// Initialize the AuthProtoMFAEnrollment instance with proto.
     /// - Parameter proto: AuthProtoMFAEnrollment proto object.
     init(proto: AuthProtoMFAEnrollment) {
-      totpInfo = proto.totpInfo
       super.init(proto: proto, factorID: PhoneMultiFactorInfo.TOTPMultiFactorID)
     }
 
     required init?(coder: NSCoder) {
-      totpInfo = nil
       super.init(coder: coder)
+    }
+
+    override func encode(with coder: NSCoder) {
+      super.encode(with: coder)
     }
 
     override class var supportsSecureCoding: Bool {

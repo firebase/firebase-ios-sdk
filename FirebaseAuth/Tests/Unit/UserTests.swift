@@ -149,7 +149,8 @@ class UserTests: RPCBaseTests {
           "enrolledAt": kEnrolledAt,
         ],
         [
-          "totpInfo": "123456",
+          // In practice, this will be an empty dictionary.
+          "totpInfo": [AnyHashable: Any](),
           "mfaEnrollmentId": kEnrollmentID,
           "displayName": kDisplayName,
           "enrolledAt": kEnrolledAt,
