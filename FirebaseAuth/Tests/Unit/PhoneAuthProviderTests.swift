@@ -116,6 +116,7 @@
         XCTAssertEqual(request.captchaResponse, self.kCaptchaResponse)
         XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
+        requestExpectation.fulfill()
         do {
           try self.rpcIssuer?
             .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
@@ -123,7 +124,6 @@
           XCTFail("Failure sending response: \(error)")
         }
       }
-      requestExpectation.fulfill()
       do {
         let result = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
@@ -156,6 +156,7 @@
         XCTAssertEqual(request.captchaResponse, "NO_RECAPTCHA")
         XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
+        requestExpectation.fulfill()
         do {
           try self.rpcIssuer?
             .respond(
@@ -166,7 +167,6 @@
           XCTFail("Failure sending response: \(error)")
         }
       }
-      requestExpectation.fulfill()
       do {
         _ = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
