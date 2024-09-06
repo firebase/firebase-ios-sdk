@@ -120,7 +120,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
           fatalError("Configure AppIdentifierPrefix in the plist")
         }
         try AppManager.shared.auth().useUserAccessGroup(group +
-                                                        ".com.google.firebase.auth.keychainGroup1")
+          "com.google.firebase.auth.keychainGroup1")
       } else {
         try AppManager.shared.auth().useUserAccessGroup(nil)
       }
