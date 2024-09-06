@@ -32,10 +32,6 @@ import Foundation
       super.init(coder: coder)
     }
 
-    override func encode(with coder: NSCoder) {
-      super.encode(with: coder)
-    }
-
     override class var supportsSecureCoding: Bool {
       super.supportsSecureCoding
     }
