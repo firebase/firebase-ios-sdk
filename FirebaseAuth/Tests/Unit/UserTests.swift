@@ -150,11 +150,11 @@ class UserTests: RPCBaseTests {
         ],
         [
           // In practice, this will be an empty dictionary.
-          "totpInfo": [AnyHashable: Any](),
+          "totpInfo": [AnyHashable: AnyHashable](),
           "mfaEnrollmentId": kEnrollmentID,
           "displayName": kDisplayName,
           "enrolledAt": kEnrolledAt,
-        ],
+        ] as [AnyHashable: AnyHashable],
       ],
     ]]
 
