@@ -39,16 +39,42 @@ class GetRecaptchaConfigTests: RPCBaseTests {
     )
   }
 
-  /** @fn testSuccessfulGetRecaptchaConfigRequest
-      @brief This test simulates a successful @c getRecaptchaConfig Flow.
+  /** @fn testSuccessfulGetRecaptchaConfigRequestRecaptchaEnabled
+      @brief This test simulates a successful @c getRecaptchaConfig Flow when recaptcha is enabled.
    */
-  func testSuccessfulGetRecaptchaConfigRequest() async throws {
+  func testSuccessfulGetRecaptchaConfigRequestRecaptchaEnabled() async throws {
     let kTestRecaptchaKey = "projects/123/keys/456"
     let request = GetRecaptchaConfigRequest(requestConfiguration: makeRequestConfiguration())
 
     rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+    let enforcementMode = "AUDIT"
+    rpcIssuer.rceMode = enforcementMode
     let response = try await AuthBackend.call(with: request)
     XCTAssertEqual(response.recaptchaKey, kTestRecaptchaKey)
-    XCTAssertNil(response.enforcementState)
+    XCTAssertEqual(
+      response.enforcementState,
+      [
+        ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": enforcementMode],
+        ["provider": "PHONE_PROVIDER", "enforcementState": enforcementMode],
+      ]
+    )
+  }
+
+  /** @fn testSuccessfulGetRecaptchaConfigRequestRecaptchaDisabled
+   @brief This test simulates a successful @c getRecaptchaConfig Flow when recaptcha is disabled.
+   */
+  func testSuccessfulGetRecaptchaConfigRequestRecaptchaDisabled() async throws {
+    let request = GetRecaptchaConfigRequest(requestConfiguration: makeRequestConfiguration())
+    let enforcementMode = "OFF"
+    rpcIssuer.rceMode = enforcementMode
+    let response = try await AuthBackend.call(with: request)
+    XCTAssertEqual(response.recaptchaKey, nil)
+    XCTAssertEqual(
+      response.enforcementState,
+      [
+        ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": enforcementMode],
+        ["provider": "PHONE_PROVIDER", "enforcementState": enforcementMode],
+      ]
+    )
   }
 }
