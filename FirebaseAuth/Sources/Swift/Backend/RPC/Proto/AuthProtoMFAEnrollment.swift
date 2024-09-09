@@ -16,6 +16,8 @@ import Foundation
 
 class AuthProtoMFAEnrollment: NSObject, AuthProto {
   let phoneInfo: String?
+  // In practice, this will be an empty dictionary. The presence of which
+  // indicates TOTP MFA enrollment rather than phone MFA enrollment.
   let totpInfo: NSObject?
   let mfaEnrollmentID: String?
   let displayName: String?
