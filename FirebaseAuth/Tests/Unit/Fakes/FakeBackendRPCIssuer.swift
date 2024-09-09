@@ -153,7 +153,6 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
                                   contentType: contentType,
                                   requestConfiguration: request.requestConfiguration())
       }
-
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
     if let respondBlock {
