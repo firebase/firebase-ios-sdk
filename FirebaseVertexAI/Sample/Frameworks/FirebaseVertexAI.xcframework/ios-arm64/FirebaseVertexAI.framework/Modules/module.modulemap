@@ -1,0 +1,11 @@
+framework module FirebaseVertexAI {
+  umbrella header "FirebaseVertexAI-umbrella.h"
+
+  export *
+  module * { export * }
+}
+
+module FirebaseVertexAI.Swift {
+  header "FirebaseVertexAI-Swift.h"
+  requires objc
+}

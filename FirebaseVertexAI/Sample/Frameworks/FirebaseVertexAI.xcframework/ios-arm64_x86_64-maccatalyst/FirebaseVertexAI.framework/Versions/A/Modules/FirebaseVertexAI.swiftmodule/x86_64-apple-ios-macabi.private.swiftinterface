@@ -1,0 +1,514 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
+// swift-module-flags: -target x86_64-apple-ios15.0-macabi -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name FirebaseVertexAI
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import FirebaseAppCheckInterop
+import FirebaseAuthInterop
+import FirebaseCore
+@_exported import FirebaseVertexAI
+import Foundation
+import OSLog
+import Swift
+import UIKit
+import UniformTypeIdentifiers
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+#if compiler(>=5.3) && $Actors
+@_hasMissingDesignatedInitializers @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public actor Chat {
+  public var history: [FirebaseVertexAI.ModelContent]
+  #if compiler(>=5.3) && $AsyncAwait
+  public func sendMessage(_ parts: any FirebaseVertexAI.ThrowingPartsRepresentable...) async throws -> FirebaseVertexAI.GenerateContentResponse
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  public func sendMessage(_ content: @autoclosure () throws -> [FirebaseVertexAI.ModelContent]) async throws -> FirebaseVertexAI.GenerateContentResponse
+  #endif
+  @available(macOS 12.0, *)
+  public func sendMessageStream(_ parts: any FirebaseVertexAI.ThrowingPartsRepresentable...) throws -> _Concurrency.AsyncThrowingStream<FirebaseVertexAI.GenerateContentResponse, any Swift.Error>
+  @available(macOS 12.0, *)
+  public func sendMessageStream(_ content: @autoclosure () throws -> [FirebaseVertexAI.ModelContent]) throws -> _Concurrency.AsyncThrowingStream<FirebaseVertexAI.GenerateContentResponse, any Swift.Error>
+  @objc deinit
+  @available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 11.0, macCatalyst 15.0, *)
+  @_semantics("defaultActor") nonisolated final public var unownedExecutor: _Concurrency.UnownedSerialExecutor {
+    get
+  }
+}
+#endif
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct CountTokensResponse {
+  public let totalTokens: Swift.Int
+  public let totalBillableCharacters: Swift.Int
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.CountTokensResponse : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+public struct FunctionCall : Swift.Equatable, Swift.Sendable {
+  public let name: Swift.String
+  public let args: FirebaseVertexAI.JSONObject
+  public static func == (a: FirebaseVertexAI.FunctionCall, b: FirebaseVertexAI.FunctionCall) -> Swift.Bool
+}
+public struct FunctionDeclaration {
+  public init(name: Swift.String, description: Swift.String, parameters: [Swift.String : FirebaseVertexAI.Schema]?, requiredParameters: [Swift.String]? = nil)
+}
+public struct Tool {
+  public init(functionDeclarations: [FirebaseVertexAI.FunctionDeclaration]?)
+}
+public struct FunctionCallingConfig {
+  public enum Mode : Swift.String {
+    case auto
+    case any
+    case none
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public init(mode: FirebaseVertexAI.FunctionCallingConfig.Mode? = nil, allowedFunctionNames: [Swift.String]? = nil)
+}
+public struct ToolConfig {
+  public init(functionCallingConfig: FirebaseVertexAI.FunctionCallingConfig? = nil)
+}
+public struct FunctionResponse : Swift.Equatable, Swift.Sendable {
+  public init(name: Swift.String, response: FirebaseVertexAI.JSONObject)
+  public static func == (a: FirebaseVertexAI.FunctionResponse, b: FirebaseVertexAI.FunctionResponse) -> Swift.Bool
+}
+extension FirebaseVertexAI.FunctionCall : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension FirebaseVertexAI.FunctionCall : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.FunctionDeclaration : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.Tool : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.FunctionCallingConfig : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.FunctionCallingConfig.Mode : Swift.Encodable {
+}
+extension FirebaseVertexAI.ToolConfig : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.FunctionResponse : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public enum GenerateContentError : Swift.Error {
+  case promptImageContentError(underlying: FirebaseVertexAI.ImageConversionError)
+  case internalError(underlying: any Swift.Error)
+  case promptBlocked(response: FirebaseVertexAI.GenerateContentResponse)
+  case responseStoppedEarly(reason: FirebaseVertexAI.FinishReason, response: FirebaseVertexAI.GenerateContentResponse)
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GenerateContentResponse : Swift.Sendable {
+  public struct UsageMetadata : Swift.Sendable {
+    public let promptTokenCount: Swift.Int
+    public let candidatesTokenCount: Swift.Int
+    public let totalTokenCount: Swift.Int
+  }
+  public let candidates: [FirebaseVertexAI.CandidateResponse]
+  public let promptFeedback: FirebaseVertexAI.PromptFeedback?
+  public let usageMetadata: FirebaseVertexAI.GenerateContentResponse.UsageMetadata?
+  public var text: Swift.String? {
+    get
+  }
+  public var functionCalls: [FirebaseVertexAI.FunctionCall] {
+    get
+  }
+  public init(candidates: [FirebaseVertexAI.CandidateResponse], promptFeedback: FirebaseVertexAI.PromptFeedback? = nil, usageMetadata: FirebaseVertexAI.GenerateContentResponse.UsageMetadata? = nil)
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct CandidateResponse : Swift.Sendable {
+  public let content: FirebaseVertexAI.ModelContent
+  public let safetyRatings: [FirebaseVertexAI.SafetyRating]
+  public let finishReason: FirebaseVertexAI.FinishReason?
+  public let citationMetadata: FirebaseVertexAI.CitationMetadata?
+  public init(content: FirebaseVertexAI.ModelContent, safetyRatings: [FirebaseVertexAI.SafetyRating], finishReason: FirebaseVertexAI.FinishReason?, citationMetadata: FirebaseVertexAI.CitationMetadata?)
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct CitationMetadata : Swift.Sendable {
+  public let citationSources: [FirebaseVertexAI.Citation]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct Citation : Swift.Sendable {
+  public let startIndex: Swift.Int
+  public let endIndex: Swift.Int
+  public let uri: Swift.String?
+  public let title: Swift.String?
+  public let license: Swift.String?
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public enum FinishReason : Swift.String, Swift.Sendable {
+  case unknown
+  case unspecified
+  case stop
+  case maxTokens
+  case safety
+  case recitation
+  case other
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct PromptFeedback : Swift.Sendable {
+  public enum BlockReason : Swift.String, Swift.Sendable {
+    case unknown
+    case unspecified
+    case safety
+    case other
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public let blockReason: FirebaseVertexAI.PromptFeedback.BlockReason?
+  public let safetyRatings: [FirebaseVertexAI.SafetyRating]
+  public init(blockReason: FirebaseVertexAI.PromptFeedback.BlockReason?, safetyRatings: [FirebaseVertexAI.SafetyRating])
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.GenerateContentResponse : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.GenerateContentResponse.UsageMetadata : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.CandidateResponse : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.CitationMetadata : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.Citation : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.FinishReason : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.PromptFeedback.BlockReason : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.PromptFeedback : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GenerationConfig {
+  public let temperature: Swift.Float?
+  public let topP: Swift.Float?
+  public let topK: Swift.Int?
+  public let candidateCount: Swift.Int?
+  public let maxOutputTokens: Swift.Int?
+  public let stopSequences: [Swift.String]?
+  public let responseMIMEType: Swift.String?
+  public let responseSchema: FirebaseVertexAI.Schema?
+  public init(temperature: Swift.Float? = nil, topP: Swift.Float? = nil, topK: Swift.Int? = nil, candidateCount: Swift.Int? = nil, maxOutputTokens: Swift.Int? = nil, stopSequences: [Swift.String]? = nil, responseMIMEType: Swift.String? = nil, responseSchema: FirebaseVertexAI.Schema? = nil)
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.GenerationConfig : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct RequestOptions {
+  public init(timeout: Foundation.TimeInterval? = nil)
+}
+#if compiler(>=5.3) && $Actors
+@_hasMissingDesignatedInitializers @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+final public actor GenerativeModel {
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func generateContent(_ parts: any FirebaseVertexAI.ThrowingPartsRepresentable...) async throws -> FirebaseVertexAI.GenerateContentResponse
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func generateContent(_ content: @autoclosure () throws -> [FirebaseVertexAI.ModelContent]) async throws -> FirebaseVertexAI.GenerateContentResponse
+  #endif
+  @available(macOS 12.0, *)
+  final public func generateContentStream(_ parts: any FirebaseVertexAI.ThrowingPartsRepresentable...) throws -> _Concurrency.AsyncThrowingStream<FirebaseVertexAI.GenerateContentResponse, any Swift.Error>
+  @available(macOS 12.0, *)
+  final public func generateContentStream(_ content: @autoclosure () throws -> [FirebaseVertexAI.ModelContent]) throws -> _Concurrency.AsyncThrowingStream<FirebaseVertexAI.GenerateContentResponse, any Swift.Error>
+  final public func startChat(history: [FirebaseVertexAI.ModelContent] = []) -> FirebaseVertexAI.Chat
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func countTokens(_ parts: any FirebaseVertexAI.ThrowingPartsRepresentable...) async throws -> FirebaseVertexAI.CountTokensResponse
+  #endif
+  #if compiler(>=5.3) && $AsyncAwait
+  final public func countTokens(_ content: @autoclosure () throws -> [FirebaseVertexAI.ModelContent]) async throws -> FirebaseVertexAI.CountTokensResponse
+  #endif
+  @objc deinit
+  @available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 11.0, macCatalyst 15.0, *)
+  @_semantics("defaultActor") nonisolated final public var unownedExecutor: _Concurrency.UnownedSerialExecutor {
+    get
+  }
+}
+#endif
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public enum CountTokensError : Swift.Error {
+  case internalError(underlying: any Swift.Error)
+}
+public typealias JSONObject = [Swift.String : FirebaseVertexAI.JSONValue]
+public enum JSONValue : Swift.Sendable {
+  case null
+  case number(Swift.Double)
+  case string(Swift.String)
+  case bool(Swift.Bool)
+  case object(FirebaseVertexAI.JSONObject)
+  case array([FirebaseVertexAI.JSONValue])
+}
+extension FirebaseVertexAI.JSONValue : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension FirebaseVertexAI.JSONValue : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.JSONValue : Swift.Equatable {
+  public static func == (a: FirebaseVertexAI.JSONValue, b: FirebaseVertexAI.JSONValue) -> Swift.Bool
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ModelContent : Swift.Equatable, Swift.Sendable {
+  public enum Part : Swift.Equatable, Swift.Sendable {
+    case text(Swift.String)
+    case data(mimetype: Swift.String, Foundation.Data)
+    case fileData(mimetype: Swift.String, uri: Swift.String)
+    case functionCall(FirebaseVertexAI.FunctionCall)
+    case functionResponse(FirebaseVertexAI.FunctionResponse)
+    public static func jpeg(_ data: Foundation.Data) -> FirebaseVertexAI.ModelContent.Part
+    public static func png(_ data: Foundation.Data) -> FirebaseVertexAI.ModelContent.Part
+    public var text: Swift.String? {
+      get
+    }
+    public static func == (a: FirebaseVertexAI.ModelContent.Part, b: FirebaseVertexAI.ModelContent.Part) -> Swift.Bool
+  }
+  public let role: Swift.String?
+  public let parts: [FirebaseVertexAI.ModelContent.Part]
+  public init(role: Swift.String? = "user", parts: some ThrowingPartsRepresentable) throws
+  public init(role: Swift.String? = "user", parts: some PartsRepresentable)
+  public init(role: Swift.String? = "user", parts: [FirebaseVertexAI.ModelContent.Part])
+  public init(role: Swift.String? = "user", _ parts: any FirebaseVertexAI.ThrowingPartsRepresentable...) throws
+  public init(role: Swift.String? = "user", _ parts: [any FirebaseVertexAI.PartsRepresentable])
+  public static func == (a: FirebaseVertexAI.ModelContent, b: FirebaseVertexAI.ModelContent) -> Swift.Bool
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.ModelContent : Swift.Codable {
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.ModelContent.Part : Swift.Codable {
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public protocol ThrowingPartsRepresentable {
+  func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public protocol PartsRepresentable : FirebaseVertexAI.ThrowingPartsRepresentable {
+  var partsValue: [FirebaseVertexAI.ModelContent.Part] { get }
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.PartsRepresentable {
+  public func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.ModelContent.Part : FirebaseVertexAI.ThrowingPartsRepresentable {
+  public typealias ErrorType = Swift.Never
+  public func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Swift.Array : FirebaseVertexAI.ThrowingPartsRepresentable where Element == any FirebaseVertexAI.ThrowingPartsRepresentable {
+  public func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Swift.String : FirebaseVertexAI.PartsRepresentable {
+  public var partsValue: [FirebaseVertexAI.ModelContent.Part] {
+    get
+  }
+}
+public enum ImageConversionError : Swift.Error {
+  public enum SourceImage {
+    case uiImage(UIKit.UIImage)
+    case cgImage(CoreGraphics.CGImage)
+    case ciImage(CoreImage.CIImage)
+  }
+  case invalidUnderlyingImage
+  case couldNotAllocateDestination
+  case couldNotConvertToJPEG(FirebaseVertexAI.ImageConversionError.SourceImage)
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension UIKit.UIImage : FirebaseVertexAI.ThrowingPartsRepresentable {
+  public func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+extension CoreGraphics.CGImage : FirebaseVertexAI.ThrowingPartsRepresentable {
+  public func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+extension CoreImage.CIImage : FirebaseVertexAI.ThrowingPartsRepresentable {
+  public func tryPartsValue() throws -> [FirebaseVertexAI.ModelContent.Part]
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct SafetyRating : Swift.Equatable, Swift.Hashable, Swift.Sendable {
+  public let category: FirebaseVertexAI.SafetySetting.HarmCategory
+  public let probability: FirebaseVertexAI.SafetyRating.HarmProbability
+  public init(category: FirebaseVertexAI.SafetySetting.HarmCategory, probability: FirebaseVertexAI.SafetyRating.HarmProbability)
+  public enum HarmProbability : Swift.String, Swift.Sendable {
+    case unknown
+    case unspecified
+    case negligible
+    case low
+    case medium
+    case high
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public static func == (a: FirebaseVertexAI.SafetyRating, b: FirebaseVertexAI.SafetyRating) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct SafetyFeedback {
+  public let rating: FirebaseVertexAI.SafetyRating
+  public let setting: FirebaseVertexAI.SafetySetting
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct SafetySetting {
+  public enum HarmCategory : Swift.String, Swift.Sendable {
+    case unknown
+    case unspecified
+    case harassment
+    case hateSpeech
+    case sexuallyExplicit
+    case dangerousContent
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public enum BlockThreshold : Swift.String, Swift.Sendable {
+    case unknown
+    case unspecified
+    case blockLowAndAbove
+    case blockMediumAndAbove
+    case blockOnlyHigh
+    case blockNone
+    public init?(rawValue: Swift.String)
+    public typealias RawValue = Swift.String
+    public var rawValue: Swift.String {
+      get
+    }
+  }
+  public let harmCategory: FirebaseVertexAI.SafetySetting.HarmCategory
+  public let threshold: FirebaseVertexAI.SafetySetting.BlockThreshold
+  public init(harmCategory: FirebaseVertexAI.SafetySetting.HarmCategory, threshold: FirebaseVertexAI.SafetySetting.BlockThreshold)
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetyRating.HarmProbability : Swift.Codable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetyRating : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetyFeedback : Swift.Decodable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.HarmCategory : Swift.Codable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.BlockThreshold : Swift.Codable {
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting : Swift.Codable {
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+public class Schema {
+  public init(type: FirebaseVertexAI.DataType, format: Swift.String? = nil, description: Swift.String? = nil, nullable: Swift.Bool? = nil, enumValues: [Swift.String]? = nil, items: FirebaseVertexAI.Schema? = nil, properties: [Swift.String : FirebaseVertexAI.Schema]? = nil, requiredProperties: [Swift.String]? = nil)
+  @objc deinit
+}
+public enum DataType : Swift.String {
+  case string
+  case number
+  case integer
+  case boolean
+  case array
+  case object
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+extension FirebaseVertexAI.Schema : Swift.Encodable {
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension FirebaseVertexAI.DataType : Swift.Encodable {
+}
+@objc @_hasMissingDesignatedInitializers @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public class VertexAI : ObjectiveC.NSObject {
+  public static func vertexAI(location: Swift.String = "us-central1") -> FirebaseVertexAI.VertexAI
+  public static func vertexAI(app: FirebaseCore.FirebaseApp, location: Swift.String = "us-central1") -> FirebaseVertexAI.VertexAI
+  #if compiler(>=5.3) && $Actors
+  public func generativeModel(modelName: Swift.String, generationConfig: FirebaseVertexAI.GenerationConfig? = nil, safetySettings: [FirebaseVertexAI.SafetySetting]? = nil, tools: [FirebaseVertexAI.Tool]? = nil, toolConfig: FirebaseVertexAI.ToolConfig? = nil, systemInstruction: FirebaseVertexAI.ModelContent? = nil, requestOptions: FirebaseVertexAI.RequestOptions = RequestOptions()) -> FirebaseVertexAI.GenerativeModel
+  #endif
+  @objc deinit
+}
+extension FirebaseVertexAI.FunctionCallingConfig.Mode : Swift.Equatable {}
+extension FirebaseVertexAI.FunctionCallingConfig.Mode : Swift.Hashable {}
+extension FirebaseVertexAI.FunctionCallingConfig.Mode : Swift.RawRepresentable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.FinishReason : Swift.Equatable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.FinishReason : Swift.Hashable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.FinishReason : Swift.RawRepresentable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.PromptFeedback.BlockReason : Swift.Equatable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.PromptFeedback.BlockReason : Swift.Hashable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.PromptFeedback.BlockReason : Swift.RawRepresentable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetyRating.HarmProbability : Swift.Equatable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetyRating.HarmProbability : Swift.Hashable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetyRating.HarmProbability : Swift.RawRepresentable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.HarmCategory : Swift.Equatable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.HarmCategory : Swift.Hashable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.HarmCategory : Swift.RawRepresentable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.BlockThreshold : Swift.Equatable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.BlockThreshold : Swift.Hashable {}
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseVertexAI.SafetySetting.BlockThreshold : Swift.RawRepresentable {}
+extension FirebaseVertexAI.DataType : Swift.Equatable {}
+extension FirebaseVertexAI.DataType : Swift.Hashable {}
+extension FirebaseVertexAI.DataType : Swift.RawRepresentable {}

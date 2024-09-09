@@ -1,0 +1,1990 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "TopLevel",
+    "printedName": "TopLevel",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "_ObjC_HeartbeatController",
+        "printedName": "_ObjC_HeartbeatController",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(id:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "_ObjC_HeartbeatController",
+                "printedName": "FirebaseCoreInternal._ObjC_HeartbeatController",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController(im)initWithId:",
+            "mangledName": "$s20FirebaseCoreInternal25_ObjC_HeartbeatControllerC2idACSS_tcfc",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment",
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "log",
+            "printedName": "log(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController(im)log:",
+            "mangledName": "$s20FirebaseCoreInternal25_ObjC_HeartbeatControllerC3logyySSF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "flush",
+            "printedName": "flush()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "_ObjC_HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal._ObjC_HeartbeatsPayload",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController(im)flush",
+            "mangledName": "$s20FirebaseCoreInternal25_ObjC_HeartbeatControllerC5flushAA01_D19C_HeartbeatsPayloadCyF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "flushHeartbeatFromToday",
+            "printedName": "flushHeartbeatFromToday()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "_ObjC_HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal._ObjC_HeartbeatsPayload",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController(im)flushHeartbeatFromToday",
+            "mangledName": "$s20FirebaseCoreInternal25_ObjC_HeartbeatControllerC05flushE9FromTodayAA01_D19C_HeartbeatsPayloadCyF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "_ObjC_HeartbeatController",
+                "printedName": "FirebaseCoreInternal._ObjC_HeartbeatController",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController(im)init",
+            "mangledName": "$s20FirebaseCoreInternal25_ObjC_HeartbeatControllerCACycfc",
+            "moduleName": "FirebaseCoreInternal",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatController",
+        "mangledName": "$s20FirebaseCoreInternal25_ObjC_HeartbeatControllerC",
+        "moduleName": "FirebaseCoreInternal",
+        "objc_name": "FIRHeartbeatController",
+        "declAttributes": [
+          "AccessControl",
+          "ObjCMembers",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "_ObjC_HeartbeatsPayload",
+        "printedName": "_ObjC_HeartbeatsPayload",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "_ObjC_HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal._ObjC_HeartbeatsPayload",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal.HeartbeatsPayload",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadCyAcA0eF0Vcfc",
+            "mangledName": "$s20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadCyAcA0eF0Vcfc",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "headerValue",
+            "printedName": "headerValue()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload(im)headerValue",
+            "mangledName": "$s20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadC11headerValueSSyF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "isEmpty",
+            "printedName": "isEmpty",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload(py)isEmpty",
+            "mangledName": "$s20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadC7isEmptySbvp",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload(im)isEmpty",
+                "mangledName": "$s20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadC7isEmptySbvg",
+                "moduleName": "FirebaseCoreInternal",
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "_ObjC_HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal._ObjC_HeartbeatsPayload",
+                "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload(im)init",
+            "mangledName": "$s20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadCACycfc",
+            "moduleName": "FirebaseCoreInternal",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@FirebaseCoreInternal@objc(cs)FIRHeartbeatsPayload",
+        "mangledName": "$s20FirebaseCoreInternal23_ObjC_HeartbeatsPayloadC",
+        "moduleName": "FirebaseCoreInternal",
+        "objc_name": "FIRHeartbeatsPayload",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "HTTPHeaderRepresentable",
+            "printedName": "HTTPHeaderRepresentable",
+            "usr": "s:20FirebaseCoreInternal23HTTPHeaderRepresentableP",
+            "mangledName": "$s20FirebaseCoreInternal23HTTPHeaderRepresentableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "HeartbeatController",
+        "printedName": "HeartbeatController",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(id:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatController",
+                "printedName": "FirebaseCoreInternal.HeartbeatController",
+                "usr": "s:20FirebaseCoreInternal19HeartbeatControllerC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20FirebaseCoreInternal19HeartbeatControllerC2idACSS_tcfc",
+            "mangledName": "$s20FirebaseCoreInternal19HeartbeatControllerC2idACSS_tcfc",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "Convenience",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "init_kind": "Convenience"
+          },
+          {
+            "kind": "Function",
+            "name": "log",
+            "printedName": "log(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal19HeartbeatControllerC3logyySSF",
+            "mangledName": "$s20FirebaseCoreInternal19HeartbeatControllerC3logyySSF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "flush",
+            "printedName": "flush()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal.HeartbeatsPayload",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal19HeartbeatControllerC5flushAA17HeartbeatsPayloadVyF",
+            "mangledName": "$s20FirebaseCoreInternal19HeartbeatControllerC5flushAA17HeartbeatsPayloadVyF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "DiscardableResult",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "flushHeartbeatFromToday",
+            "printedName": "flushHeartbeatFromToday()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal.HeartbeatsPayload",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal19HeartbeatControllerC05flushD9FromTodayAA17HeartbeatsPayloadVyF",
+            "mangledName": "$s20FirebaseCoreInternal19HeartbeatControllerC05flushD9FromTodayAA17HeartbeatsPayloadVyF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "DiscardableResult",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:20FirebaseCoreInternal19HeartbeatControllerC",
+        "mangledName": "$s20FirebaseCoreInternal19HeartbeatControllerC",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "hasMissingDesignatedInitializers": true
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "GoogleUtilities",
+        "printedName": "GoogleUtilities",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "ImplementationOnly"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "HTTPHeaderRepresentable",
+        "printedName": "HTTPHeaderRepresentable",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "headerValue",
+            "printedName": "headerValue()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal23HTTPHeaderRepresentableP11headerValueSSyF",
+            "mangledName": "$s20FirebaseCoreInternal23HTTPHeaderRepresentableP11headerValueSSyF",
+            "moduleName": "FirebaseCoreInternal",
+            "genericSig": "<τ_0_0 where τ_0_0 : FirebaseCoreInternal.HTTPHeaderRepresentable>",
+            "sugared_genericSig": "<Self where Self : FirebaseCoreInternal.HTTPHeaderRepresentable>",
+            "protocolReq": true,
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:20FirebaseCoreInternal23HTTPHeaderRepresentableP",
+        "mangledName": "$s20FirebaseCoreInternal23HTTPHeaderRepresentableP",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "HeartbeatsPayload",
+        "printedName": "HeartbeatsPayload",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "isEmpty",
+            "printedName": "isEmpty",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV7isEmptySbvp",
+            "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV7isEmptySbvp",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV7isEmptySbvg",
+                "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV7isEmptySbvg",
+                "moduleName": "FirebaseCoreInternal",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal.HeartbeatsPayload",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "FirebaseCoreInternal",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV6encode2toys7Encoder_p_tKF",
+            "moduleName": "FirebaseCoreInternal",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "headerValue",
+            "printedName": "headerValue()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV11headerValueSSyF",
+            "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV11headerValueSSyF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "dateFormatter",
+            "printedName": "dateFormatter",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "DateFormatter",
+                "printedName": "Foundation.DateFormatter",
+                "usr": "c:objc(cs)NSDateFormatter"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV13dateFormatterSo06NSDateG0CvpZ",
+            "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV13dateFormatterSo06NSDateG0CvpZ",
+            "moduleName": "FirebaseCoreInternal",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DateFormatter",
+                    "printedName": "Foundation.DateFormatter",
+                    "usr": "c:objc(cs)NSDateFormatter"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV13dateFormatterSo06NSDateG0CvgZ",
+                "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV13dateFormatterSo06NSDateG0CvgZ",
+                "moduleName": "FirebaseCoreInternal",
+                "static": true,
+                "implicit": true,
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal.HeartbeatsPayload",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HeartbeatsPayload",
+                "printedName": "FirebaseCoreInternal.HeartbeatsPayload",
+                "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV2eeoiySbAC_ACtFZ",
+            "moduleName": "FirebaseCoreInternal",
+            "static": true,
+            "implicit": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:20FirebaseCoreInternal17HeartbeatsPayloadV",
+        "mangledName": "$s20FirebaseCoreInternal17HeartbeatsPayloadV",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "HTTPHeaderRepresentable",
+            "printedName": "HTTPHeaderRepresentable",
+            "usr": "s:20FirebaseCoreInternal23HTTPHeaderRepresentableP",
+            "mangledName": "$s20FirebaseCoreInternal23HTTPHeaderRepresentableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "FirebaseCoreInternal",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "Data",
+        "printedName": "Data",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "base64URLEncodedString",
+            "printedName": "base64URLEncodedString(options:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Base64EncodingOptions",
+                "printedName": "Foundation.NSData.Base64EncodingOptions",
+                "hasDefaultArg": true,
+                "usr": "c:@E@NSDataBase64EncodingOptions"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:10Foundation4DataV20FirebaseCoreInternalE22base64URLEncodedString7optionsSSSo27NSDataBase64EncodingOptionsV_tF",
+            "mangledName": "$s10Foundation4DataV20FirebaseCoreInternalE22base64URLEncodedString7optionsSSSo27NSDataBase64EncodingOptionsV_tF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(base64URLEncoded:options:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.Data?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Base64DecodingOptions",
+                "printedName": "Foundation.NSData.Base64DecodingOptions",
+                "hasDefaultArg": true,
+                "usr": "c:@E@NSDataBase64DecodingOptions"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:10Foundation4DataV20FirebaseCoreInternalE16base64URLEncoded7optionsACSgSS_So27NSDataBase64DecodingOptionsVtcfc",
+            "mangledName": "$s10Foundation4DataV20FirebaseCoreInternalE16base64URLEncoded7optionsACSgSS_So27NSDataBase64DecodingOptionsVtcfc",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "zipped",
+            "printedName": "zipped()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Data",
+                "printedName": "Foundation.Data",
+                "usr": "s:10Foundation4DataV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:10Foundation4DataV20FirebaseCoreInternalE6zippedACyKF",
+            "mangledName": "$s10Foundation4DataV20FirebaseCoreInternalE6zippedACyKF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "unzipped",
+            "printedName": "unzipped()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Data",
+                "printedName": "Foundation.Data",
+                "usr": "s:10Foundation4DataV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:10Foundation4DataV20FirebaseCoreInternalE8unzippedACyKF",
+            "mangledName": "$s10Foundation4DataV20FirebaseCoreInternalE8unzippedACyKF",
+            "moduleName": "FirebaseCoreInternal",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:10Foundation4DataV",
+        "mangledName": "$s10Foundation4DataV",
+        "moduleName": "Foundation",
+        "intro_Macosx": "10.10",
+        "intro_iOS": "8.0",
+        "intro_tvOS": "9.0",
+        "intro_watchOS": "2.0",
+        "declAttributes": [
+          "Frozen",
+          "Available",
+          "Available",
+          "Available",
+          "Available"
+        ],
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RandomAccessCollection",
+            "printedName": "RandomAccessCollection",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt8",
+                    "printedName": "Swift.UInt8",
+                    "usr": "s:s5UInt8V"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Index",
+                "printedName": "Index",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "SubSequence",
+                "printedName": "SubSequence",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Indices",
+                "printedName": "Indices",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Range",
+                    "printedName": "Swift.Range<Swift.Int>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sn"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:Sk",
+            "mangledName": "$sSk"
+          },
+          {
+            "kind": "Conformance",
+            "name": "MutableCollection",
+            "printedName": "MutableCollection",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt8",
+                    "printedName": "Swift.UInt8",
+                    "usr": "s:s5UInt8V"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Index",
+                "printedName": "Index",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "SubSequence",
+                "printedName": "SubSequence",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SM",
+            "mangledName": "$sSM"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RangeReplaceableCollection",
+            "printedName": "RangeReplaceableCollection",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "SubSequence",
+                "printedName": "SubSequence",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:Sm",
+            "mangledName": "$sSm"
+          },
+          {
+            "kind": "Conformance",
+            "name": "MutableDataProtocol",
+            "printedName": "MutableDataProtocol",
+            "usr": "s:10Foundation19MutableDataProtocolP",
+            "mangledName": "$s10Foundation19MutableDataProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ContiguousBytes",
+            "printedName": "ContiguousBytes",
+            "usr": "s:10Foundation15ContiguousBytesP",
+            "mangledName": "$s10Foundation15ContiguousBytesP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "BidirectionalCollection",
+            "printedName": "BidirectionalCollection",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt8",
+                    "printedName": "Swift.UInt8",
+                    "usr": "s:s5UInt8V"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Index",
+                "printedName": "Index",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "SubSequence",
+                "printedName": "SubSequence",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Indices",
+                "printedName": "Indices",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Range",
+                    "printedName": "Swift.Range<Swift.Int>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sn"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SK",
+            "mangledName": "$sSK"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Collection",
+            "printedName": "Collection",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt8",
+                    "printedName": "Swift.UInt8",
+                    "usr": "s:s5UInt8V"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Index",
+                "printedName": "Index",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Iterator",
+                "printedName": "Iterator",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Iterator",
+                    "printedName": "Foundation.Data.Iterator",
+                    "usr": "s:10Foundation4DataV8IteratorV"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "SubSequence",
+                "printedName": "SubSequence",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Indices",
+                "printedName": "Indices",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Range",
+                    "printedName": "Swift.Range<Swift.Int>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "usr": "s:Sn"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:Sl",
+            "mangledName": "$sSl"
+          },
+          {
+            "kind": "Conformance",
+            "name": "DataProtocol",
+            "printedName": "DataProtocol",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Regions",
+                "printedName": "Regions",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "CollectionOfOne",
+                    "printedName": "Swift.CollectionOfOne<Foundation.Data>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Data",
+                        "printedName": "Foundation.Data",
+                        "usr": "s:10Foundation4DataV"
+                      }
+                    ],
+                    "usr": "s:s15CollectionOfOneV"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:10Foundation12DataProtocolP",
+            "mangledName": "$s10Foundation12DataProtocolP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sequence",
+            "printedName": "Sequence",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt8",
+                    "printedName": "Swift.UInt8",
+                    "usr": "s:s5UInt8V"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeWitness",
+                "name": "Iterator",
+                "printedName": "Iterator",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Iterator",
+                    "printedName": "Foundation.Data.Iterator",
+                    "usr": "s:10Foundation4DataV8IteratorV"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:ST",
+            "mangledName": "$sST"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ReferenceConvertible",
+            "printedName": "ReferenceConvertible",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ReferenceType",
+                "printedName": "ReferenceType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSData",
+                    "printedName": "Foundation.NSData",
+                    "usr": "c:objc(cs)NSData"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:10Foundation20ReferenceConvertibleP",
+            "mangledName": "$s10Foundation20ReferenceConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_ObjectiveCBridgeable",
+            "printedName": "_ObjectiveCBridgeable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "_ObjectiveCType",
+                "printedName": "_ObjectiveCType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSData",
+                    "printedName": "Foundation.NSData",
+                    "usr": "c:objc(cs)NSData"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s21_ObjectiveCBridgeableP",
+            "mangledName": "$ss21_ObjectiveCBridgeableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomReflectable",
+            "printedName": "CustomReflectable",
+            "usr": "s:s17CustomReflectableP",
+            "mangledName": "$ss17CustomReflectableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          }
+        ]
+      }
+    ],
+    "json_format_version": 8
+  },
+  "ConstValues": [
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/_ObjC_HeartbeatController.swift",
+      "kind": "StringLiteral",
+      "offset": 763,
+      "length": 25,
+      "value": "\"FirebaseCoreInternal._ObjC_HeartbeatController\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/_ObjC_HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 755,
+      "length": 23,
+      "value": "\"FirebaseCoreInternal._ObjC_HeartbeatsPayload\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Heartbeat.swift",
+      "kind": "IntegerLiteral",
+      "offset": 869,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Heartbeat.swift",
+      "kind": "IntegerLiteral",
+      "offset": 982,
+      "length": 5,
+      "value": "86400"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Heartbeat.swift",
+      "kind": "IntegerLiteral",
+      "offset": 869,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Heartbeat.swift",
+      "kind": "IntegerLiteral",
+      "offset": 869,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Heartbeat.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1167,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Heartbeat.swift",
+      "kind": "Array",
+      "offset": 2219,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatController.swift",
+      "kind": "StringLiteral",
+      "offset": 987,
+      "length": 13,
+      "value": "\"en_US_POSIX\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatController.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1053,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatController.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1421,
+      "length": 2,
+      "value": "30"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2471,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "StringLiteral",
+      "offset": 3670,
+      "length": 3,
+      "value": "\" \""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "StringLiteral",
+      "offset": 3681,
+      "length": 3,
+      "value": "\"-\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "StringLiteral",
+      "offset": 3744,
+      "length": 46,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "StringLiteral",
+      "offset": 3763,
+      "length": 5,
+      "value": "\" error\/\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "StringLiteral",
+      "offset": 3789,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsBundle.swift",
+      "kind": "Array",
+      "offset": 4657,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1682,
+      "length": 1,
+      "value": "2"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 2264,
+      "length": 12,
+      "value": "\"heartbeats\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 2264,
+      "length": 12,
+      "value": "\"heartbeats\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "Array",
+      "offset": 2595,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4122,
+      "length": 12,
+      "value": "\"yyyy-MM-dd\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4177,
+      "length": 13,
+      "value": "\"en_US_POSIX\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4242,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "Array",
+      "offset": 4704,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4778,
+      "length": 3,
+      "value": "\"\/\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4789,
+      "length": 3,
+      "value": "\"_\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4826,
+      "length": 3,
+      "value": "\"+\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4837,
+      "length": 3,
+      "value": "\"-\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4874,
+      "length": 3,
+      "value": "\"=\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 4885,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "Array",
+      "offset": 5266,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 5344,
+      "length": 3,
+      "value": "\"_\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 5355,
+      "length": 3,
+      "value": "\"\/\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 5392,
+      "length": 3,
+      "value": "\"-\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 5403,
+      "length": 3,
+      "value": "\"+\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "IntegerLiteral",
+      "offset": 5538,
+      "length": 1,
+      "value": "4"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatsPayload.swift",
+      "kind": "StringLiteral",
+      "offset": 5570,
+      "length": 3,
+      "value": "\"=\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatStorage.swift",
+      "kind": "StringLiteral",
+      "offset": 1921,
+      "length": 29,
+      "value": "\"com.heartbeat.storage.\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatStorage.swift",
+      "kind": "StringLiteral",
+      "offset": 1949,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/HeartbeatStorage.swift",
+      "kind": "Dictionary",
+      "offset": 2159,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "StringLiteral",
+      "offset": 1233,
+      "length": 62,
+      "value": "\"Out-of-bounds push at index \""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "StringLiteral",
+      "offset": 1274,
+      "length": 2,
+      "value": "\" to ring buffer with\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "StringLiteral",
+      "offset": 1308,
+      "length": 27,
+      "value": "\"end index of \""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "StringLiteral",
+      "offset": 1333,
+      "length": 1,
+      "value": "\".\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1993,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2500,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2931,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 3107,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/RingBuffer.swift",
+      "kind": "IntegerLiteral",
+      "offset": 3198,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/Storage.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3154,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 758,
+      "length": 26,
+      "value": "\"google-heartbeat-storage\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 905,
+      "length": 30,
+      "value": "\"com.google.heartbeat.storage\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 1459,
+      "length": 3,
+      "value": "\":\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 1470,
+      "length": 3,
+      "value": "\"_\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 1503,
+      "length": 27,
+      "value": "\"heartbeats-\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 1529,
+      "length": 1,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1634,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1702,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 2367,
+      "length": 18,
+      "value": "\"heartbeats-\""
+    },
+    {
+      "filePath": "\/var\/folders\/72\/1_pq_fmd68z11lwcbjh9cyj00000gn\/T\/ZipRelease\/2024-09-08T14-54-14\/project-watchos\/Pods\/FirebaseCoreInternal\/FirebaseCore\/Internal\/Sources\/HeartbeatLogging\/StorageFactory.swift",
+      "kind": "StringLiteral",
+      "offset": 2384,
+      "length": 1,
+      "value": "\"\""
+    }
+  ]
+}

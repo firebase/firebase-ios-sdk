@@ -1,0 +1,6 @@
+framework module AppCheckCore {
+umbrella header "AppCheckCore-umbrella.h"
+export *
+module * { export * }
+  link framework "Security"
+}

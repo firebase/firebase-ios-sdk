@@ -1,0 +1,59 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
+// swift-module-flags: -target arm64-apple-ios12.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name FirebaseCoreInternal
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+@_exported import FirebaseCoreInternal
+import Foundation
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+@objc(FIRHeartbeatController) @objcMembers public class _ObjC_HeartbeatController : ObjectiveC.NSObject {
+  @objc public init(id: Swift.String)
+  @objc public func log(_ agent: Swift.String)
+  @objc public func flush() -> FirebaseCoreInternal._ObjC_HeartbeatsPayload
+  @objc public func flushHeartbeatFromToday() -> FirebaseCoreInternal._ObjC_HeartbeatsPayload
+  @objc deinit
+}
+@objc(FIRHeartbeatsPayload) public class _ObjC_HeartbeatsPayload : ObjectiveC.NSObject, FirebaseCoreInternal.HTTPHeaderRepresentable {
+  public init(_ heartbeatsPayload: FirebaseCoreInternal.HeartbeatsPayload)
+  @objc public func headerValue() -> Swift.String
+  @objc public var isEmpty: Swift.Bool {
+    @objc get
+  }
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers final public class HeartbeatController {
+  convenience public init(id: Swift.String)
+  final public func log(_ agent: Swift.String)
+  @discardableResult
+  final public func flush() -> FirebaseCoreInternal.HeartbeatsPayload
+  @discardableResult
+  final public func flushHeartbeatFromToday() -> FirebaseCoreInternal.HeartbeatsPayload
+  @objc deinit
+}
+public protocol HTTPHeaderRepresentable {
+  func headerValue() -> Swift.String
+}
+public struct HeartbeatsPayload : Swift.Codable, Swift.Sendable {
+  public var isEmpty: Swift.Bool {
+    get
+  }
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+extension FirebaseCoreInternal.HeartbeatsPayload : FirebaseCoreInternal.HTTPHeaderRepresentable {
+  public func headerValue() -> Swift.String
+}
+extension FirebaseCoreInternal.HeartbeatsPayload {
+  public static let dateFormatter: Foundation.DateFormatter
+}
+extension FirebaseCoreInternal.HeartbeatsPayload : Swift.Equatable {
+  public static func == (a: FirebaseCoreInternal.HeartbeatsPayload, b: FirebaseCoreInternal.HeartbeatsPayload) -> Swift.Bool
+}
+extension Foundation.Data {
+  public func base64URLEncodedString(options: Foundation.Data.Base64EncodingOptions = []) -> Swift.String
+  public init?(base64URLEncoded base64URLString: Swift.String, options: Foundation.Data.Base64DecodingOptions = [])
+  public func zipped() throws -> Foundation.Data
+  public func unzipped() throws -> Foundation.Data
+}
