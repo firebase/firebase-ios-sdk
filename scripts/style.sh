@@ -170,6 +170,9 @@ s%^./%%
 \%\.pb\.% d
 \%\.nanopb\.% d
 
+# Keep Firebase xcframework formatting in Vertex AI sample
+\%^FirebaseVertexAI/Sample/Frameworks/.*% d
+
 # Format C-ish sources only
 \%\.(h|m|mm|cc|swift)$% p
 '
