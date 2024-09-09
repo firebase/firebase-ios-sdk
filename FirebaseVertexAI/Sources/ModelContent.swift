@@ -179,10 +179,13 @@ extension ModelContent.Part: Codable {
       self = .data(mimetype: mimetype, bytes)
     } else if values.contains(.functionCall) {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
+    } else if values.contains(.functionResponse) {
+      self = try .functionResponse(values.decode(FunctionResponse.self, forKey: .functionResponse))
     } else {
-      throw DecodingError.dataCorrupted(.init(
-        codingPath: [CodingKeys.text, CodingKeys.inlineData],
-        debugDescription: "No text, inline data or function call was found."
+      let unexpectedKeys = values.allKeys.map { $0.stringValue }
+      throw DecodingError.dataCorrupted(DecodingError.Context(
+        codingPath: values.codingPath,
+        debugDescription: "Unexpected ModelContent.Part type(s): \(unexpectedKeys)"
       ))
     }
   }
