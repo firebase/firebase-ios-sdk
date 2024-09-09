@@ -225,6 +225,17 @@ import Foundation
       }
     }
 
+    /// Initiates the verification flow by sending a verification code with reCAPTCHA protection to
+    /// the provided phone number.
+    /// - Parameters:
+    ///   - phoneNumber: The phone number to which the verification code should be sent.
+    ///   - retryOnInvalidAppCredential: A boolean indicating whether to retry the flow if an
+    /// AuthErrorCodeInvalidAppCredential error occurs.
+    ///   - uiDelegate: An optional delegate for handling UI events during the verification process.
+    ///   - recaptchaVerifier: An instance of `AuthRecaptchaVerifier` to inject reCAPTCHA fields
+    /// into the request.
+    /// - Returns: A string containing the verification ID if the request is successful; otherwise,
+    /// handles the error and returns nil.
     private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
                                                               retryOnInvalidAppCredential: Bool,
                                                               uiDelegate: AuthUIDelegate?,
@@ -251,12 +262,15 @@ import Foundation
       }
     }
 
-    /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
-    ///  AuthErrorCodeInvalidAppCredential error is returned from the backend.
-    /// - Parameter phoneNumber: The phone number to be verified.
-    /// - Parameter callback: The callback to be invoked on the global work queue when the flow is
-    /// finished.
+    /// Initiates the verification flow by sending a verification code to the provided phone number
+    /// using a silent push notification.
+    /// - Parameters:
+    ///   - phoneNumber: The phone number to which the verification code should be sent.
+    ///   - retryOnInvalidAppCredential: A boolean indicating whether to retry the flow if an
+    /// AuthErrorCodeInvalidAppCredential error occurs.
+    ///   - uiDelegate: An optional delegate for handling UI events during the verification process.
+    /// - Returns: A string containing the verification ID if the request is successful; otherwise,
+    /// handles the error and returns nil.
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
                                                  uiDelegate: AuthUIDelegate?) async throws
@@ -280,10 +294,19 @@ import Foundation
       }
     }
 
-    /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
-    /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
-    /// - Parameter phoneNumber: The phone number to be verified.
+    /// Initiates the verification flow by sending a verification code with reCAPTCHA protection,
+    /// optionally considering a multi-factor session.
+    /// - Parameters:
+    ///   - phoneNumber: The phone number to which the verification code should be sent.
+    ///   - retryOnInvalidAppCredential: A boolean indicating whether to retry the flow if an
+    /// AuthErrorCodeInvalidAppCredential error occurs.
+    ///   - session: An optional `MultiFactorSession` instance to include in the verification flow
+    /// for multi-factor authentication.
+    ///   - uiDelegate: An optional delegate for handling UI events during the verification process.
+    ///   - recaptchaVerifier: An instance of `AuthRecaptchaVerifier` to inject reCAPTCHA fields
+    /// into the request.
+    /// - Returns: A string containing the verification ID or session info if the request is
+    /// successful; otherwise, handles the error and returns nil.
     private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
                                                               retryOnInvalidAppCredential: Bool,
                                                               multiFactorSession session: MultiFactorSession?,
@@ -346,10 +369,17 @@ import Foundation
       }
     }
 
-    /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
-    /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
-    /// - Parameter phoneNumber: The phone number to be verified.
+    /// Initiates the verification flow by sending a verification code, optionally considering a
+    /// multi-factor session using silent push notification.
+    /// - Parameters:
+    ///   - phoneNumber: The phone number to which the verification code should be sent.
+    ///   - retryOnInvalidAppCredential: A boolean indicating whether to retry the flow if an
+    /// AuthErrorCodeInvalidAppCredential error occurs.
+    ///   - session: An optional `MultiFactorSession` instance to include in the verification flow
+    /// for multi-factor authentication.
+    ///   - uiDelegate: An optional delegate for handling UI events during the verification process.
+    /// - Returns: A string containing the verification ID or session info if the request is
+    /// successful; otherwise, handles the error and returns nil.
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
                                                  multiFactorSession session: MultiFactorSession?,
