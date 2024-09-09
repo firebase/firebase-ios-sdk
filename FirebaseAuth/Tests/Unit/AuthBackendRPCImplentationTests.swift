@@ -594,7 +594,6 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       // Then
       let expectedHeader = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload.headerValue()
       let completeRequest = await rpcIssuer.completeRequest.value
-
       let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
       XCTAssertEqual(headerValue, expectedHeader)
     }
