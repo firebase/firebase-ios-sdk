@@ -590,12 +590,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         try self.rpcIssuer.respond(withJSON: [:])
       }
       _ = try? await rpcImplementation.call(with: request)
-      // Make sure completeRequest updates.
-      usleep(10000)
 
       // Then
       let expectedHeader = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload.headerValue()
-      let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
+      let completeRequest = await rpcIssuer.completeRequest.value
+
       let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
       XCTAssertEqual(headerValue, expectedHeader)
     }
@@ -619,10 +618,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         try self.rpcIssuer.respond(withJSON: [:])
       }
       _ = try? await rpcImplementation.call(with: request)
-      // Make sure completeRequest updates.
-      usleep(10000)
 
-      let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
+      let completeRequest = await rpcIssuer.completeRequest.value
       let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertEqual(headerValue, fakeAppCheck.fakeAppCheckToken)
     }
@@ -651,11 +648,9 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         try self.rpcIssuer.respond(withJSON: [:])
       }
       _ = try? await rpcImplementation.call(with: request)
-      // Make sure completRequest updates.
-      usleep(10000)
 
       // Then
-      let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
+      let completeRequest = await rpcIssuer.completeRequest.value
       XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
     }
   #endif // COCOAPODS || SWIFT_PACKAGE
