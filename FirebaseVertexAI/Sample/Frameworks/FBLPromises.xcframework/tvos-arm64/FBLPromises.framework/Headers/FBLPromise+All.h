@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise <Value>(AllAdditions)
+@interface FBLPromise<Value>(AllAdditions)
 
 /**
  Wait until all of the given promises are fulfilled.
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
  Convenience dot-syntax wrappers for `FBLPromise` `all` operators.
  Usage: FBLPromise.all(@[ ... ])
  */
-@interface FBLPromise <Value>(DotSyntax_AllAdditions)
+@interface FBLPromise<Value>(DotSyntax_AllAdditions)
 
 + (FBLPromise<NSArray *> * (^)(NSArray *))all FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSArray *> * (^)(dispatch_queue_t, NSArray *))allOn FBL_PROMISES_DOT_SYNTAX

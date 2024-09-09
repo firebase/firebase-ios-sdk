@@ -18,10 +18,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise <Value>(AsyncAdditions)
+@interface FBLPromise<Value>(AsyncAdditions)
 
 typedef void (^FBLPromiseFulfillBlock)(Value __nullable value) NS_SWIFT_UNAVAILABLE("");
-typedef void (^FBLPromiseRejectBlock)(NSError* error) NS_SWIFT_UNAVAILABLE("");
+typedef void (^FBLPromiseRejectBlock)(NSError *error) NS_SWIFT_UNAVAILABLE("");
 typedef void (^FBLPromiseAsyncWorkBlock)(FBLPromiseFulfillBlock fulfill,
                                          FBLPromiseRejectBlock reject) NS_SWIFT_UNAVAILABLE("");
 
@@ -49,7 +49,7 @@ typedef void (^FBLPromiseAsyncWorkBlock)(FBLPromiseFulfillBlock fulfill,
  Convenience dot-syntax wrappers for `FBLPromise` `async` operators.
  Usage: FBLPromise.async(^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) { ... })
  */
-@interface FBLPromise <Value>(DotSyntax_AsyncAdditions)
+@interface FBLPromise<Value>(DotSyntax_AsyncAdditions)
 
 + (FBLPromise* (^)(FBLPromiseAsyncWorkBlock))async FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise* (^)(dispatch_queue_t, FBLPromiseAsyncWorkBlock))asyncOn FBL_PROMISES_DOT_SYNTAX

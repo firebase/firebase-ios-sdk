@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise <Value>(ThenAdditions)
+@interface FBLPromise<Value>(ThenAdditions)
 
 typedef id __nullable (^FBLPromiseThenWorkBlock)(Value __nullable value) NS_SWIFT_UNAVAILABLE("");
 
@@ -52,10 +52,10 @@ typedef id __nullable (^FBLPromiseThenWorkBlock)(Value __nullable value) NS_SWIF
  Convenience dot-syntax wrappers for `FBLPromise` `then` operators.
  Usage: promise.then(^id(id value) { ... })
  */
-@interface FBLPromise <Value>(DotSyntax_ThenAdditions)
+@interface FBLPromise<Value>(DotSyntax_ThenAdditions)
 
-- (FBLPromise * (^)(FBLPromiseThenWorkBlock))then FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-- (FBLPromise * (^)(dispatch_queue_t, FBLPromiseThenWorkBlock))thenOn FBL_PROMISES_DOT_SYNTAX
+- (FBLPromise* (^)(FBLPromiseThenWorkBlock))then FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
+- (FBLPromise* (^)(dispatch_queue_t, FBLPromiseThenWorkBlock))thenOn FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
 
 @end

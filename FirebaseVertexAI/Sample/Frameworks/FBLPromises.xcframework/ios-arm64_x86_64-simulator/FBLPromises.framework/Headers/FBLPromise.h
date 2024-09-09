@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 @end
 
-@interface FBLPromise <Value>()
+@interface FBLPromise<Value>()
 
 /**
  Adds an object to the set of pending objects to keep strongly while the promise is pending.
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 #define FBL_PROMISES_DOT_SYNTAX
 #endif
 
-@interface FBLPromise <Value>(DotSyntaxAdditions)
+@interface FBLPromise<Value>(DotSyntaxAdditions)
 
 /**
  Convenience dot-syntax wrappers for FBLPromise.

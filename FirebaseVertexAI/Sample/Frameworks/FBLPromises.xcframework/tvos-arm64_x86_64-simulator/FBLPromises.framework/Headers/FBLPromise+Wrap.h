@@ -28,8 +28,7 @@ typedef void (^FBLPromiseObjectOrErrorCompletion)(id __nullable, NSError* __null
     NS_SWIFT_UNAVAILABLE("");
 typedef void (^FBLPromiseErrorOrObjectCompletion)(NSError* __nullable, id __nullable)
     NS_SWIFT_UNAVAILABLE("");
-typedef void (^FBLPromise2ObjectsOrErrorCompletion)(id __nullable,
-                                                    id __nullable,
+typedef void (^FBLPromise2ObjectsOrErrorCompletion)(id __nullable, id __nullable,
                                                     NSError* __nullable) NS_SWIFT_UNAVAILABLE("");
 typedef void (^FBLPromiseBoolCompletion)(BOOL) NS_SWIFT_UNAVAILABLE("");
 typedef void (^FBLPromiseBoolOrErrorCompletion)(BOOL, NSError* __nullable) NS_SWIFT_UNAVAILABLE("");
@@ -43,7 +42,7 @@ typedef void (^FBLPromiseDoubleOrErrorCompletion)(double, NSError* __nullable)
 /**
  Provides an easy way to convert methods that use common callback patterns into promises.
  */
-@interface FBLPromise <Value>(WrapAdditions)
+@interface FBLPromise<Value>(WrapAdditions)
 
 /**
  @param work A block to perform any operations needed to resolve the promise.
@@ -255,53 +254,58 @@ typedef void (^FBLPromiseDoubleOrErrorCompletion)(double, NSError* __nullable)
  Convenience dot-syntax wrappers for `FBLPromise` `wrap` operators.
  Usage: FBLPromise.wrapCompletion(^(FBLPromiseCompletion handler) {...})
  */
-@interface FBLPromise <Value>(DotSyntax_WrapAdditions)
+@interface FBLPromise<Value>(DotSyntax_WrapAdditions)
 
 + (FBLPromise* (^)(void (^)(FBLPromiseCompletion)))wrapCompletion FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(dispatch_queue_t,
-                   void (^)(FBLPromiseCompletion)))wrapCompletionOn FBL_PROMISES_DOT_SYNTAX
-    NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(void (^)(FBLPromiseObjectCompletion)))
-    wrapObjectCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseObjectCompletion)))
-    wrapObjectCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseCompletion)))wrapCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(void (^)(FBLPromiseObjectCompletion)))wrapObjectCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseObjectCompletion)))wrapObjectCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise* (^)(void (^)(FBLPromiseErrorCompletion)))wrapErrorCompletion FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseErrorCompletion)))
-    wrapErrorCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(void (^)(FBLPromiseObjectOrErrorCompletion)))
-    wrapObjectOrErrorCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseObjectOrErrorCompletion)))
-    wrapObjectOrErrorCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(void (^)(FBLPromiseErrorOrObjectCompletion)))
-    wrapErrorOrObjectCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseErrorOrObjectCompletion)))
-    wrapErrorOrObjectCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(dispatch_queue_t, void (^)(FBLPromiseErrorCompletion)))wrapErrorCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(void (^)(FBLPromiseObjectOrErrorCompletion)))wrapObjectOrErrorCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(dispatch_queue_t,
+                   void (^)(FBLPromiseObjectOrErrorCompletion)))wrapObjectOrErrorCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(void (^)(FBLPromiseErrorOrObjectCompletion)))wrapErrorOrObjectCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise* (^)(dispatch_queue_t,
+                   void (^)(FBLPromiseErrorOrObjectCompletion)))wrapErrorOrObjectCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSArray*>* (^)(void (^)(FBLPromise2ObjectsOrErrorCompletion)))
     wrap2ObjectsOrErrorCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSArray*>* (^)(dispatch_queue_t, void (^)(FBLPromise2ObjectsOrErrorCompletion)))
     wrap2ObjectsOrErrorCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseBoolCompletion)))
-    wrapBoolCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t, void (^)(FBLPromiseBoolCompletion)))
-    wrapBoolCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseBoolOrErrorCompletion)))
-    wrapBoolOrErrorCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t, void (^)(FBLPromiseBoolOrErrorCompletion)))
-    wrapBoolOrErrorCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseIntegerCompletion)))
-    wrapIntegerCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t, void (^)(FBLPromiseIntegerCompletion)))
-    wrapIntegerCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseBoolCompletion)))wrapBoolCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t,
+                              void (^)(FBLPromiseBoolCompletion)))wrapBoolCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseBoolOrErrorCompletion)))wrapBoolOrErrorCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t,
+                              void (^)(FBLPromiseBoolOrErrorCompletion)))wrapBoolOrErrorCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseIntegerCompletion)))wrapIntegerCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t,
+                              void (^)(FBLPromiseIntegerCompletion)))wrapIntegerCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseIntegerOrErrorCompletion)))
     wrapIntegerOrErrorCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSNumber*>* (^)(dispatch_queue_t, void (^)(FBLPromiseIntegerOrErrorCompletion)))
     wrapIntegerOrErrorCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseDoubleCompletion)))
-    wrapDoubleCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t, void (^)(FBLPromiseDoubleCompletion)))
-    wrapDoubleCompletionOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseDoubleCompletion)))wrapDoubleCompletion
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
++ (FBLPromise<NSNumber*>* (^)(dispatch_queue_t,
+                              void (^)(FBLPromiseDoubleCompletion)))wrapDoubleCompletionOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSNumber*>* (^)(void (^)(FBLPromiseDoubleOrErrorCompletion)))
     wrapDoubleOrErrorCompletion FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise<NSNumber*>* (^)(dispatch_queue_t, void (^)(FBLPromiseDoubleOrErrorCompletion)))

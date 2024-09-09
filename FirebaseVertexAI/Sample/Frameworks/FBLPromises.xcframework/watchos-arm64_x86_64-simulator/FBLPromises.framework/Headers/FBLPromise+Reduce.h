@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise <Value>(ReduceAdditions)
+@interface FBLPromise<Value>(ReduceAdditions)
 
 typedef id __nullable (^FBLPromiseReducerBlock)(Value __nullable partial, id next)
     NS_SWIFT_UNAVAILABLE("");
@@ -59,12 +59,12 @@ typedef id __nullable (^FBLPromiseReducerBlock)(Value __nullable partial, id nex
  Convenience dot-syntax wrappers for `FBLPromise` `reduce` operators.
  Usage: promise.reduce(values, ^id(id partial, id next) { ... })
  */
-@interface FBLPromise <Value>(DotSyntax_ReduceAdditions)
+@interface FBLPromise<Value>(DotSyntax_ReduceAdditions)
 
 - (FBLPromise * (^)(NSArray *, FBLPromiseReducerBlock))reduce FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-- (FBLPromise * (^)(dispatch_queue_t, NSArray *, FBLPromiseReducerBlock))
-    reduceOn FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
+- (FBLPromise * (^)(dispatch_queue_t, NSArray *, FBLPromiseReducerBlock))reduceOn
+    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 
 @end
 

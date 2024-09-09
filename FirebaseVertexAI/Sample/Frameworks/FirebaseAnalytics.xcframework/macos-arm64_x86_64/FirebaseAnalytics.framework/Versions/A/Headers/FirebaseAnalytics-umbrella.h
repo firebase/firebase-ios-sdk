@@ -14,10 +14,11 @@
 #import "FIRAnalytics+Consent.h"
 #import "FIRAnalytics+OnDevice.h"
 #import "FIRAnalytics.h"
+#import "FirebaseAnalytics.h"
 #import "FIREventNames.h"
 #import "FIRParameterNames.h"
 #import "FIRUserPropertyNames.h"
-#import "FirebaseAnalytics.h"
 
 FOUNDATION_EXPORT double FirebaseAnalyticsVersionNumber;
 FOUNDATION_EXPORT const unsigned char FirebaseAnalyticsVersionString[];
+

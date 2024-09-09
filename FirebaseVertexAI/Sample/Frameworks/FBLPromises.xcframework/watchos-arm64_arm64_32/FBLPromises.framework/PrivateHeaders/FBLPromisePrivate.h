@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Miscellaneous low-level private interfaces available to extend standard FBLPromise functionality.
  */
-@interface FBLPromise <Value>()
+@interface FBLPromise<Value>()
 
 typedef void (^FBLPromiseOnFulfillBlock)(Value __nullable value) NS_SWIFT_UNAVAILABLE("");
 typedef void (^FBLPromiseOnRejectBlock)(NSError *error) NS_SWIFT_UNAVAILABLE("");

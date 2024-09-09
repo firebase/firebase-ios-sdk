@@ -25,7 +25,7 @@
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventAdImpression NS_SWIFT_NAME(AnalyticsEventAdImpression) =
-                                                               @"ad_impression";
+    @"ad_impression";
 
 /// Add Payment Info event. This event signifies that a user has submitted their payment
 /// information. Note: If you supply the @c AnalyticsParameterValue parameter, you must also supply
@@ -40,7 +40,7 @@ static NSString *const kFIREventAdImpression NS_SWIFT_NAME(AnalyticsEventAdImpre
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventAddPaymentInfo NS_SWIFT_NAME(AnalyticsEventAddPaymentInfo) =
-                                                                 @"add_payment_info";
+    @"add_payment_info";
 
 /// Add Shipping Info event. This event signifies that a user has submitted their shipping
 /// information. Note: If you supply the @c AnalyticsParameterValue parameter, you must also supply
@@ -55,7 +55,7 @@ static NSString *const kFIREventAddPaymentInfo NS_SWIFT_NAME(AnalyticsEventAddPa
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventAddShippingInfo NS_SWIFT_NAME(AnalyticsEventAddShippingInfo) =
-                                                                  @"add_shipping_info";
+    @"add_shipping_info";
 
 /// E-Commerce Add To Cart event. This event signifies that an item(s) was added to a cart for
 /// purchase. Add this event to a funnel with @c AnalyticsEventPurchase to gauge the effectiveness
@@ -81,7 +81,7 @@ static NSString *const kFIREventAddToCart NS_SWIFT_NAME(AnalyticsEventAddToCart)
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventAddToWishlist NS_SWIFT_NAME(AnalyticsEventAddToWishlist) =
-                                                                @"add_to_wishlist";
+    @"add_to_wishlist";
 
 /// App Open event. By logging this event when an App becomes active, developers can understand how
 /// often users leave and return during the course of a Session. Although Sessions are automatically
@@ -102,7 +102,7 @@ static NSString *const kFIREventAppOpen NS_SWIFT_NAME(AnalyticsEventAppOpen) = @
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventBeginCheckout NS_SWIFT_NAME(AnalyticsEventBeginCheckout) =
-                                                                @"begin_checkout";
+    @"begin_checkout";
 
 /// Campaign Detail event. Log this event to supply the referral details of a re-engagement
 /// campaign. Note: you must supply at least one of the required parameters
@@ -122,7 +122,7 @@ static NSString *const kFIREventBeginCheckout NS_SWIFT_NAME(AnalyticsEventBeginC
 ///     <li>@c AnalyticsParameterSourcePlatform (String) (optional)</li>
 /// </ul>
 static NSString *const kFIREventCampaignDetails NS_SWIFT_NAME(AnalyticsEventCampaignDetails) =
-                                                                  @"campaign_details";
+    @"campaign_details";
 
 /// Earn Virtual Currency event. This event tracks the awarding of virtual currency in your app. Log
 /// this along with @c AnalyticsEventSpendVirtualCurrency to better understand your virtual economy.
@@ -132,7 +132,8 @@ static NSString *const kFIREventCampaignDetails NS_SWIFT_NAME(AnalyticsEventCamp
 ///     <li>@c AnalyticsParameterVirtualCurrencyName (String)</li>
 ///     <li>@c AnalyticsParameterValue (Int or Double)</li>
 /// </ul>
-static NSString *const kFIREventEarnVirtualCurrency NS_SWIFT_NAME(AnalyticsEventEarnVirtualCurrency) = @"earn_virtual_currency";
+static NSString *const kFIREventEarnVirtualCurrency
+    NS_SWIFT_NAME(AnalyticsEventEarnVirtualCurrency) = @"earn_virtual_currency";
 
 /// Generate Lead event. Log this event when a lead has been generated in the app to understand the
 /// efficacy of your install and re-engagement campaigns. Note: If you supply the
@@ -144,7 +145,7 @@ static NSString *const kFIREventEarnVirtualCurrency NS_SWIFT_NAME(AnalyticsEvent
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventGenerateLead NS_SWIFT_NAME(AnalyticsEventGenerateLead) =
-                                                               @"generate_lead";
+    @"generate_lead";
 
 /// Join Group event. Log this event when a user joins a group such as a guild, team or family. Use
 /// this event to analyze how popular certain groups or social features are in your app. Params:
@@ -241,7 +242,7 @@ static NSString *const kFIREventRefund NS_SWIFT_NAME(AnalyticsEventRefund) = @"r
 ///     <li>@c AnalyticsParameterValue (Double) (optional)</li>
 /// </ul>
 static NSString *const kFIREventRemoveFromCart NS_SWIFT_NAME(AnalyticsEventRemoveFromCart) =
-                                                                 @"remove_from_cart";
+    @"remove_from_cart";
 
 /// Screen View event. This event signifies a screen view. Use this when a screen transition occurs.
 /// This event can be logged irrespective of whether automatic screen tracking is enabled. Params:
@@ -278,7 +279,7 @@ static NSString *const kFIREventSearch NS_SWIFT_NAME(AnalyticsEventSearch) = @"s
 ///     <li>@c AnalyticsParameterItemID (String)</li>
 /// </ul>
 static NSString *const kFIREventSelectContent NS_SWIFT_NAME(AnalyticsEventSelectContent) =
-                                                                @"select_content";
+    @"select_content";
 
 /// Select Item event. This event signifies that an item was selected by a user from a list. Use the
 /// appropriate parameters to contextualize the event. Use this event to discover the most popular
@@ -304,7 +305,7 @@ static NSString *const kFIREventSelectItem NS_SWIFT_NAME(AnalyticsEventSelectIte
 ///     <li>@c AnalyticsParameterPromotionName (String) (optional)</li>
 /// </ul>
 static NSString *const kFIREventSelectPromotion NS_SWIFT_NAME(AnalyticsEventSelectPromotion) =
-                                                                  @"select_promotion";
+    @"select_promotion";
 
 /// Share event. Apps with social features can log the Share event to identify the most viral
 /// content. Params:
@@ -332,19 +333,20 @@ static NSString *const kFIREventSignUp NS_SWIFT_NAME(AnalyticsEventSignUp) = @"s
 ///     <li>@c AnalyticsParameterVirtualCurrencyName (String)</li>
 ///     <li>@c AnalyticsParameterValue (Int or Double)</li>
 /// </ul>
-static NSString *const kFIREventSpendVirtualCurrency NS_SWIFT_NAME(AnalyticsEventSpendVirtualCurrency) = @"spend_virtual_currency";
+static NSString *const kFIREventSpendVirtualCurrency
+    NS_SWIFT_NAME(AnalyticsEventSpendVirtualCurrency) = @"spend_virtual_currency";
 
 /// Tutorial Begin event. This event signifies the start of the on-boarding process in your app. Use
 /// this in a funnel with @c AnalyticsEventTutorialComplete to understand how many users complete
 /// this process and move on to the full app experience.
 static NSString *const kFIREventTutorialBegin NS_SWIFT_NAME(AnalyticsEventTutorialBegin) =
-                                                                @"tutorial_begin";
+    @"tutorial_begin";
 
 /// Tutorial End event. Use this event to signify the user's completion of your app's on-boarding
 /// process. Add this to a funnel with @c AnalyticsEventTutorialBegin to gauge the completion rate
 /// of your on-boarding process.
 static NSString *const kFIREventTutorialComplete NS_SWIFT_NAME(AnalyticsEventTutorialComplete) =
-                                                                   @"tutorial_complete";
+    @"tutorial_complete";
 
 /// Unlock Achievement event. Log this event when the user has unlocked an achievement in your
 /// game. Since achievements generally represent the breadth of a gaming experience, this event can
@@ -354,7 +356,7 @@ static NSString *const kFIREventTutorialComplete NS_SWIFT_NAME(AnalyticsEventTut
 ///     <li>@c AnalyticsParameterAchievementID (String)</li>
 /// </ul>
 static NSString *const kFIREventUnlockAchievement NS_SWIFT_NAME(AnalyticsEventUnlockAchievement) =
-                                                                    @"unlock_achievement";
+    @"unlock_achievement";
 
 /// E-commerce View Cart event. This event signifies that a user has viewed their cart. Use this to
 /// analyze your purchase funnel. Note: If you supply the @c AnalyticsParameterValue parameter, you
@@ -389,7 +391,7 @@ static NSString *const kFIREventViewItem NS_SWIFT_NAME(AnalyticsEventViewItem) =
 ///     <li>@c AnalyticsParameterItemListName (String) (optional)</li>
 /// </ul>
 static NSString *const kFIREventViewItemList NS_SWIFT_NAME(AnalyticsEventViewItemList) =
-                                                               @"view_item_list";
+    @"view_item_list";
 
 /// View Promotion event. This event signifies that a promotion was shown to a user. Add this event
 /// to a funnel with the @c AnalyticsEventAddToCart and @c AnalyticsEventPurchase to gauge your
@@ -404,7 +406,7 @@ static NSString *const kFIREventViewItemList NS_SWIFT_NAME(AnalyticsEventViewIte
 ///     <li>@c AnalyticsParameterPromotionName (String) (optional)</li>
 /// </ul>
 static NSString *const kFIREventViewPromotion NS_SWIFT_NAME(AnalyticsEventViewPromotion) =
-                                                                @"view_promotion";
+    @"view_promotion";
 
 /// View Search Results event. Log this event when the user has been presented with the results of a
 /// search. Params:
@@ -413,4 +415,4 @@ static NSString *const kFIREventViewPromotion NS_SWIFT_NAME(AnalyticsEventViewPr
 ///     <li>@c AnalyticsParameterSearchTerm (String)</li>
 /// </ul>
 static NSString *const kFIREventViewSearchResults NS_SWIFT_NAME(AnalyticsEventViewSearchResults) =
-                                                                    @"view_search_results";
+    @"view_search_results";
