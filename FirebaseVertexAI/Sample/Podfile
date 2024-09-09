@@ -1,0 +1,12 @@
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+platform :ios, '16.0'
+
+target 'VertexAISample' do
+  use_frameworks!
+
+  # Pods for VertexAISample
+  pod 'FirebaseAppCheck'
+  pod 'FirebaseVertexAI', '11.2-beta'
+end

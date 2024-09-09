@@ -3,11 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		73C5B282D19B47987A733BE9 /* Pods_VertexAISample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E92AC96D8A4E4E968D6457 /* Pods_VertexAISample.framework */; };
 		869200B32B879C4F00482873 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 869200B22B879C4F00482873 /* GoogleService-Info.plist */; };
+		869426E12C8F89DF0018DA04 /* GenerativeAIUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 869426E02C8F89DF0018DA04 /* GenerativeAIUIComponents */; };
 		86C1F4832BC726150026816F /* FunctionCallingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C1F47E2BC726150026816F /* FunctionCallingScreen.swift */; };
 		86C1F4842BC726150026816F /* FunctionCallingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C1F4802BC726150026816F /* FunctionCallingViewModel.swift */; };
 		88263BF02B239C09008AB09B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88263BEE2B239BFE008AB09B /* ErrorView.swift */; };
@@ -26,10 +28,11 @@
 		886F95DF2B17D5010036F07A /* BouncingDots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F5C2B11135000C08E95 /* BouncingDots.swift */; };
 		886F95E02B17D5010036F07A /* ConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F562B1112F600C08E95 /* ConversationViewModel.swift */; };
 		886F95E12B17D5010036F07A /* ConversationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F542B1112CA00C08E95 /* ConversationScreen.swift */; };
-		886F95E32B17D6630036F07A /* GenerativeAIUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 886F95E22B17D6630036F07A /* GenerativeAIUIComponents */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		15AC6374A12B1FEF33709ED7 /* Pods-VertexAISample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VertexAISample.release.xcconfig"; path = "Target Support Files/Pods-VertexAISample/Pods-VertexAISample.release.xcconfig"; sourceTree = "<group>"; };
+		58E92AC96D8A4E4E968D6457 /* Pods_VertexAISample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VertexAISample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		869200B22B879C4F00482873 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		86C1F47E2BC726150026816F /* FunctionCallingScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FunctionCallingScreen.swift; sourceTree = "<group>"; };
 		86C1F4802BC726150026816F /* FunctionCallingViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FunctionCallingViewModel.swift; sourceTree = "<group>"; };
@@ -56,6 +59,7 @@
 		88E10F582B11131900C08E95 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		88E10F5A2B11133E00C08E95 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		88E10F5C2B11135000C08E95 /* BouncingDots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BouncingDots.swift; sourceTree = "<group>"; };
+		BA7ABB1DA4BCD45818EBEEF1 /* Pods-VertexAISample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VertexAISample.debug.xcconfig"; path = "Target Support Files/Pods-VertexAISample/Pods-VertexAISample.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,13 +68,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				886F95D82B17BA420036F07A /* MarkdownUI in Frameworks */,
-				886F95E32B17D6630036F07A /* GenerativeAIUIComponents in Frameworks */,
+				73C5B282D19B47987A733BE9 /* Pods_VertexAISample.framework in Frameworks */,
+				869426E12C8F89DF0018DA04 /* GenerativeAIUIComponents in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6EAD66E22E719C01ED2D5876 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				BA7ABB1DA4BCD45818EBEEF1 /* Pods-VertexAISample.debug.xcconfig */,
+				15AC6374A12B1FEF33709ED7 /* Pods-VertexAISample.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		86C1F47F2BC726150026816F /* Screens */ = {
 			isa = PBXGroup;
 			children = (
@@ -131,6 +145,7 @@
 		88209C222B0FBE1700F64795 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				58E92AC96D8A4E4E968D6457 /* Pods_VertexAISample.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -147,6 +162,7 @@
 				86C1F4822BC726150026816F /* FunctionCallingSample */,
 				8848C8302B0D04BC007B434F /* Products */,
 				88209C222B0FBE1700F64795 /* Frameworks */,
+				6EAD66E22E719C01ED2D5876 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -278,9 +294,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8848C83D2B0D04BD007B434F /* Build configuration list for PBXNativeTarget "VertexAISample" */;
 			buildPhases = (
+				891083326DE8ED8FA8013E7B /* [CP] Check Pods Manifest.lock */,
 				8848C82B2B0D04BC007B434F /* Sources */,
 				8848C82C2B0D04BC007B434F /* Frameworks */,
 				8848C82D2B0D04BC007B434F /* Resources */,
+				63ED5BFC1B7FF29425735533 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -289,7 +307,7 @@
 			name = VertexAISample;
 			packageProductDependencies = (
 				886F95D72B17BA420036F07A /* MarkdownUI */,
-				886F95E22B17D6630036F07A /* GenerativeAIUIComponents */,
+				869426E02C8F89DF0018DA04 /* GenerativeAIUIComponents */,
 			);
 			productName = GenerativeAISample;
 			productReference = 8848C82F2B0D04BC007B434F /* VertexAISample.app */;
@@ -322,6 +340,7 @@
 			packageReferences = (
 				88209C212B0FBDF700F64795 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				DEA09AC32B1FCE22001962D9 /* XCRemoteSwiftPackageReference "NetworkImage" */,
+				869426DF2C8F89DF0018DA04 /* XCLocalSwiftPackageReference "GenerativeAIUIComponents" */,
 			);
 			productRefGroup = 8848C8302B0D04BC007B434F /* Products */;
 			projectDirPath = "";
@@ -344,6 +363,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		63ED5BFC1B7FF29425735533 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VertexAISample/Pods-VertexAISample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VertexAISample/Pods-VertexAISample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VertexAISample/Pods-VertexAISample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		891083326DE8ED8FA8013E7B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VertexAISample-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8848C82B2B0D04BC007B434F /* Sources */ = {
@@ -492,6 +553,7 @@
 		};
 		8848C83E2B0D04BD007B434F /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BA7ABB1DA4BCD45818EBEEF1 /* Pods-VertexAISample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -522,6 +584,7 @@
 		};
 		8848C83F2B0D04BD007B434F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 15AC6374A12B1FEF33709ED7 /* Pods-VertexAISample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -573,6 +636,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		869426DF2C8F89DF0018DA04 /* XCLocalSwiftPackageReference "GenerativeAIUIComponents" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = GenerativeAIUIComponents;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		88209C212B0FBDF700F64795 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -593,14 +663,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		869426E02C8F89DF0018DA04 /* GenerativeAIUIComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = GenerativeAIUIComponents;
+		};
 		886F95D72B17BA420036F07A /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 88209C212B0FBDF700F64795 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
 			productName = MarkdownUI;
-		};
-		886F95E22B17D6630036F07A /* GenerativeAIUIComponents */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = GenerativeAIUIComponents;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

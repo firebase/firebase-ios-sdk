@@ -491,8 +491,10 @@ case "$product-$platform-$method" in
     ;;
 
   VertexSample-*-*)
+    pod install --project-directory=FirebaseVertexAI/Sample
+
     RunXcodebuild \
-      -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
+      -workspace 'FirebaseVertexAI/Sample/VertexAISample.xcworkspace' \
       -scheme "VertexAISample" \
       "${xcb_flags[@]}" \
       build
