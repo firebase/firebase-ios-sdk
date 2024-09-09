@@ -24,7 +24,7 @@ FOUNDATION_EXTERN NSInteger const FBLPromiseRetryDefaultAttemptsCount NS_REFINED
 /** The default delay interval before making a retry attempt is 1.0 second. */
 FOUNDATION_EXTERN NSTimeInterval const FBLPromiseRetryDefaultDelayInterval NS_REFINED_FOR_SWIFT;
 
-@interface FBLPromise<Value>(RetryAdditions)
+@interface FBLPromise <Value>(RetryAdditions)
 
 typedef id __nullable (^FBLPromiseRetryWorkBlock)(void) NS_SWIFT_UNAVAILABLE("");
 typedef BOOL (^FBLPromiseRetryPredicateBlock)(NSInteger, NSError *) NS_SWIFT_UNAVAILABLE("");
@@ -146,16 +146,20 @@ typedef BOOL (^FBLPromiseRetryPredicateBlock)(NSInteger, NSError *) NS_SWIFT_UNA
  Convenience dot-syntax wrappers for `FBLPromise+Retry` operators.
  Usage: FBLPromise.retry(^id { ... })
  */
-@interface FBLPromise<Value>(DotSyntax_RetryAdditions)
+@interface FBLPromise <Value>(DotSyntax_RetryAdditions)
 
 + (FBLPromise * (^)(FBLPromiseRetryWorkBlock))retry FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise * (^)(dispatch_queue_t, FBLPromiseRetryWorkBlock))retryOn FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise * (^)(NSInteger, NSTimeInterval, FBLPromiseRetryPredicateBlock __nullable,
++ (FBLPromise * (^)(NSInteger,
+                    NSTimeInterval,
+                    FBLPromiseRetryPredicateBlock __nullable,
                     FBLPromiseRetryWorkBlock))retryAgain FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-+ (FBLPromise * (^)(dispatch_queue_t, NSInteger, NSTimeInterval,
++ (FBLPromise * (^)(dispatch_queue_t,
+                    NSInteger,
+                    NSTimeInterval,
                     FBLPromiseRetryPredicateBlock __nullable,
                     FBLPromiseRetryWorkBlock))retryAgainOn FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");

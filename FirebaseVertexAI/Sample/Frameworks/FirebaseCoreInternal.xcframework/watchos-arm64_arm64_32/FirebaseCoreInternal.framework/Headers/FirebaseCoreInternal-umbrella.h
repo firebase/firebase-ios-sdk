@@ -10,7 +10,5 @@
 #endif
 #endif
 
-
 FOUNDATION_EXPORT double FirebaseCoreInternalVersionNumber;
 FOUNDATION_EXPORT const unsigned char FirebaseCoreInternalVersionString[];
-

@@ -20,9 +20,7 @@
 /// <pre>
 ///     Analytics.setUserProperty("NO", forName: AnalyticsUserPropertyAllowAdPersonalizationSignals)
 /// </pre>
-static NSString *const kFIRUserPropertyAllowAdPersonalizationSignals
-    NS_SWIFT_NAME(AnalyticsUserPropertyAllowAdPersonalizationSignals) = @"allow_personalized_ads";
+static NSString *const kFIRUserPropertyAllowAdPersonalizationSignals NS_SWIFT_NAME(AnalyticsUserPropertyAllowAdPersonalizationSignals) = @"allow_personalized_ads";
 
 /// The method used to sign in. For example, "google", "facebook" or "twitter".
-static NSString *const kFIRUserPropertySignUpMethod
-    NS_SWIFT_NAME(AnalyticsUserPropertySignUpMethod) = @"sign_up_method";
+static NSString *const kFIRUserPropertySignUpMethod NS_SWIFT_NAME(AnalyticsUserPropertySignUpMethod) = @"sign_up_method";

@@ -25,4 +25,3 @@
 
 FOUNDATION_EXPORT double FirebaseAppCheckVersionNumber;
 FOUNDATION_EXPORT const unsigned char FirebaseAppCheckVersionString[];
-

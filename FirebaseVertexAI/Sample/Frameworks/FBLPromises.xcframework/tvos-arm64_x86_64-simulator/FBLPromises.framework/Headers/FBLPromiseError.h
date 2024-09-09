@@ -31,8 +31,7 @@ typedef NS_ENUM(NSInteger, FBLPromiseErrorCode) {
 } NS_REFINED_FOR_SWIFT;
 
 NS_INLINE BOOL FBLPromiseErrorIsTimedOut(NSError *error) NS_SWIFT_UNAVAILABLE("") {
-  return error.domain == FBLPromiseErrorDomain &&
-         error.code == FBLPromiseErrorCodeTimedOut;
+  return error.domain == FBLPromiseErrorDomain && error.code == FBLPromiseErrorCodeTimedOut;
 }
 
 NS_INLINE BOOL FBLPromiseErrorIsValidationFailure(NSError *error) NS_SWIFT_UNAVAILABLE("") {

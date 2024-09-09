@@ -87,8 +87,8 @@ NS_SWIFT_NAME(Analytics)
 /// @param name The name of the user property to set. Should contain 1 to 24 alphanumeric characters
 ///     or underscores and must start with an alphabetic character. The "firebase_", "google_", and
 ///     "ga_" prefixes are reserved and should not be used for user property names.
-+ (void)setUserPropertyString:(nullable NSString *)value forName:(NSString *)name
-    NS_SWIFT_NAME(setUserProperty(_:forName:));
++ (void)setUserPropertyString:(nullable NSString *)value
+                      forName:(NSString *)name NS_SWIFT_NAME(setUserProperty(_:forName:));
 
 /// Sets the user ID property. This feature must be used in accordance with
 /// <a href="https://www.google.com/policies/privacy">Google's Privacy Policy</a>

@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise<Value>(ValidateAdditions)
+@interface FBLPromise <Value>(ValidateAdditions)
 
 typedef BOOL (^FBLPromiseValidateWorkBlock)(Value __nullable value) NS_SWIFT_UNAVAILABLE("");
 
@@ -48,12 +48,13 @@ typedef BOOL (^FBLPromiseValidateWorkBlock)(Value __nullable value) NS_SWIFT_UNA
  Convenience dot-syntax wrappers for `FBLPromise` `validate` operators.
  Usage: promise.validate(^BOOL(id value) { ... })
  */
-@interface FBLPromise<Value>(DotSyntax_ValidateAdditions)
+@interface FBLPromise <Value>(DotSyntax_ValidateAdditions)
 
 - (FBLPromise * (^)(FBLPromiseValidateWorkBlock))validate FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-- (FBLPromise * (^)(dispatch_queue_t, FBLPromiseValidateWorkBlock))validateOn
-    FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
+- (FBLPromise * (^)(dispatch_queue_t,
+                    FBLPromiseValidateWorkBlock))validateOn FBL_PROMISES_DOT_SYNTAX
+    NS_SWIFT_UNAVAILABLE("");
 
 @end
 

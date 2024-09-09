@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise<Value>(RaceAdditions)
+@interface FBLPromise <Value>(RaceAdditions)
 
 /**
  Wait until any of the given promises are fulfilled.
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  Convenience dot-syntax wrappers for `FBLPromise` `race` operators.
  Usage: FBLPromise.race(@[ ... ])
  */
-@interface FBLPromise<Value>(DotSyntax_RaceAdditions)
+@interface FBLPromise <Value>(DotSyntax_RaceAdditions)
 
 + (FBLPromise * (^)(NSArray *))race FBL_PROMISES_DOT_SYNTAX NS_SWIFT_UNAVAILABLE("");
 + (FBLPromise * (^)(dispatch_queue_t, NSArray *))raceOn FBL_PROMISES_DOT_SYNTAX

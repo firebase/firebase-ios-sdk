@@ -14,4 +14,3 @@
 
 FOUNDATION_EXPORT double FirebaseAuthInteropVersionNumber;
 FOUNDATION_EXPORT const unsigned char FirebaseAuthInteropVersionString[];
-

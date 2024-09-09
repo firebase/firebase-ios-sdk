@@ -10,7 +10,5 @@
 #endif
 #endif
 
-
 FOUNDATION_EXPORT double FirebaseVertexAIVersionNumber;
 FOUNDATION_EXPORT const unsigned char FirebaseVertexAIVersionString[];
-

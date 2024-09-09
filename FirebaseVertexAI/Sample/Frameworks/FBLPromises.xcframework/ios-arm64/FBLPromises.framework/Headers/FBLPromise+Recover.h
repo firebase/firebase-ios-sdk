@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise<Value>(RecoverAdditions)
+@interface FBLPromise <Value>(RecoverAdditions)
 
 typedef id __nullable (^FBLPromiseRecoverWorkBlock)(NSError *error) NS_SWIFT_UNAVAILABLE("");
 
@@ -48,7 +48,7 @@ typedef id __nullable (^FBLPromiseRecoverWorkBlock)(NSError *error) NS_SWIFT_UNA
  Convenience dot-syntax wrappers for `FBLPromise` `recover` operators.
  Usage: promise.recover(^id(NSError *error) {...})
  */
-@interface FBLPromise<Value>(DotSyntax_RecoverAdditions)
+@interface FBLPromise <Value>(DotSyntax_RecoverAdditions)
 
 - (FBLPromise * (^)(FBLPromiseRecoverWorkBlock))recover FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");

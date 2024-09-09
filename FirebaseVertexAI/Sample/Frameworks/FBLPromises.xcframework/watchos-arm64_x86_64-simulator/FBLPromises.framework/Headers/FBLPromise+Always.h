@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FBLPromise<Value>(AlwaysAdditions)
+@interface FBLPromise <Value>(AlwaysAdditions)
 
 typedef void (^FBLPromiseAlwaysWorkBlock)(void) NS_SWIFT_UNAVAILABLE("");
 
@@ -42,11 +42,11 @@ typedef void (^FBLPromiseAlwaysWorkBlock)(void) NS_SWIFT_UNAVAILABLE("");
  Convenience dot-syntax wrappers for `FBLPromise` `always` operators.
  Usage: promise.always(^{...})
  */
-@interface FBLPromise<Value>(DotSyntax_AlwaysAdditions)
+@interface FBLPromise <Value>(DotSyntax_AlwaysAdditions)
 
-- (FBLPromise* (^)(FBLPromiseAlwaysWorkBlock))always FBL_PROMISES_DOT_SYNTAX
+- (FBLPromise * (^)(FBLPromiseAlwaysWorkBlock))always FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
-- (FBLPromise* (^)(dispatch_queue_t, FBLPromiseAlwaysWorkBlock))alwaysOn FBL_PROMISES_DOT_SYNTAX
+- (FBLPromise * (^)(dispatch_queue_t, FBLPromiseAlwaysWorkBlock))alwaysOn FBL_PROMISES_DOT_SYNTAX
     NS_SWIFT_UNAVAILABLE("");
 
 @end
