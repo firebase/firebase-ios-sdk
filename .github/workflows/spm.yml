@@ -39,6 +39,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '8'
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
