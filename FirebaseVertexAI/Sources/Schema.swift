@@ -114,12 +114,12 @@ public class Schema {
     )
   }
 
-  public static func enumeration(description: String? = nil, nullable: Bool = false,
-                                 enumValues: String...) -> Schema {
-    return Schema.enumeration(description: description, nullable: nullable, enumValues: enumValues)
+  public static func enumString(description: String? = nil, nullable: Bool = false,
+                                enumValues: String...) -> Schema {
+    return Schema.enumString(description: description, nullable: nullable, enumValues: enumValues)
   }
 
-  static func enumeration(description: String?, nullable: Bool, enumValues: [String]) -> Schema {
+  static func enumString(description: String?, nullable: Bool, enumValues: [String]) -> Schema {
     return self.init(
       type: .string,
       format: "enum", description: description,
@@ -161,106 +161,27 @@ public class Schema {
   }
 
   public static func array(description: String? = nil, nullable: Bool = false,
-                           schema: Schema) -> Schema {
-    return self.init(type: .array, description: description, nullable: nullable, items: schema)
+                           items: Schema) -> Schema {
+    return self.init(type: .array, description: description, nullable: nullable, items: items)
   }
 
   public static func object(description: String? = nil, nullable: Bool = false,
-                            properties: [String: ObjectProperty]) -> Schema {
-    var objectProperties = [String: Schema]()
-    var requiredProperties = [String]()
-    for (name, property) in properties {
-      objectProperties[name] = property.schema
-      if property.required {
-        requiredProperties.append(name)
+                            properties: [String: Schema],
+                            optionalProperties: [String] = []) -> Schema {
+    var requiredProperties = Set(properties.keys)
+    for optionalProperty in optionalProperties {
+      guard properties.keys.contains(optionalProperty) else {
+        fatalError("Optional property \"\(optionalProperty)\" not defined in object properties.")
       }
+      requiredProperties.remove(optionalProperty)
     }
 
     return self.init(
       type: .object,
       description: description,
       nullable: nullable,
-      properties: objectProperties,
-      requiredProperties: requiredProperties
-    )
-  }
-}
-
-public struct ObjectProperty {
-  let required: Bool
-  let schema: Schema
-
-  init(required: Bool = true, schema: Schema) {
-    self.required = required
-    self.schema = schema
-  }
-
-  public static func string(required: Bool = true, description: String? = nil,
-                            nullable: Bool = false,
-                            format: Schema.StringFormat? = nil) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .string(description: description, nullable: nullable, format: format)
-    )
-  }
-
-  public static func enumeration(required: Bool = true, description: String? = nil,
-                                 nullable: Bool = false,
-                                 enumValues: String...) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .enumeration(description: description, nullable: nullable, enumValues: enumValues)
-    )
-  }
-
-  public static func double(required: Bool = true, description: String? = nil,
-                            nullable: Bool = false) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .double(description: description, nullable: nullable)
-    )
-  }
-
-  public static func float(required: Bool = true, description: String? = nil,
-                           nullable: Bool = false) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .float(description: description, nullable: nullable)
-    )
-  }
-
-  public static func integer(required: Bool = true, description: String? = nil,
-                             nullable: Bool = false,
-                             format: Schema.IntegerFormat? = nil) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .integer(description: description, nullable: nullable, format: format)
-    )
-  }
-
-  public static func boolean(required: Bool = true, description: String? = nil,
-                             nullable: Bool = false) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .boolean(description: description, nullable: nullable)
-    )
-  }
-
-  public static func array(required: Bool = true, description: String? = nil,
-                           nullable: Bool = false,
-                           schema: Schema) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .array(description: description, nullable: nullable, schema: schema)
-    )
-  }
-
-  public static func object(required: Bool = true, description: String? = nil,
-                            nullable: Bool = false,
-                            properties: [String: ObjectProperty]) -> ObjectProperty {
-    return self.init(
-      required: required,
-      schema: .object(description: description, nullable: nullable, properties: properties)
+      properties: properties,
+      requiredProperties: Array(requiredProperties)
     )
   }
 }
