@@ -36,6 +36,7 @@ jobs:
       with:
         pods: ${{ env.PODS }}
         sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
+        # This should match the highest minimum supported iOS version.
         min-ios-version: "15.0"
         search-local-pod-version: true
         notices-path:  ${{ env.NOTICES_PATH }}
