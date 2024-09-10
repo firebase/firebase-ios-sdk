@@ -72,10 +72,9 @@
     private(set) var agentConfig: AuthRecaptchaConfig?
     private(set) var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
     private(set) var recaptchaClient: RCARecaptchaClientProtocol?
-
-    private static let _shared = AuthRecaptchaVerifier()
+    private static var _shared = AuthRecaptchaVerifier()
     private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
-    private init() {}
+    init() {}
 
     class func shared(auth: Auth?) -> AuthRecaptchaVerifier {
       if _shared.auth != auth {
@@ -84,6 +83,11 @@
         _shared.auth = auth
       }
       return _shared
+    }
+
+    class func setShared(_ instance: AuthRecaptchaVerifier, auth: Auth?) {
+      _shared = instance
+      _ = shared(auth: auth)
     }
 
     func siteKey() -> String? {

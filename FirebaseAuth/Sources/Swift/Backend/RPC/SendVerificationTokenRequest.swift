@@ -42,7 +42,7 @@ private let kRecaptchaVersion = "recaptchaVersion"
 private let kTenantIDKey = "tenantId"
 
 ///  A verification code can be an appCredential or a reCaptcha Token
-enum CodeIdentity {
+enum CodeIdentity: Equatable {
   case credential(AuthAppCredential)
   case recaptcha(String)
   case empty
