@@ -77,7 +77,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     // If the item's affiliated provider is currently linked with the user,
     // unlink the provider from the user's account.
     if item.isChecked {
-      unlinkFromProvider(provider.id)
+      Task { await unlinkFromProvider(provider.id) }
       return
     }
 
@@ -86,7 +86,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
       performGoogleAccountLink()
 
     case .apple:
-      performAppleAccountLink()
+      Task { await performAppleAccountLink() }
 
     case .facebook:
       performFacebookAccountLink()
@@ -124,15 +124,53 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     }
   }
 
+  /// Used for Sign in with Apple token revocation flow.
+  private var continuation: CheckedContinuation<ASAuthorizationAppleIDCredential, Error>?
+
   /// Wrapper method that uses Firebase's `unlink(fromProvider:)` API to unlink a user from an auth
   /// provider.
   /// This method will update the UI upon the unlinking's completion.
   /// - Parameter providerID: The string id of the auth provider.
-  private func unlinkFromProvider(_ providerID: String) {
-    user.unlink(fromProvider: providerID) { user, error in
-      guard error == nil else { return self.displayError(error) }
-      print("Unlinked user from auth provider: \(providerID)")
-      self.updateUI()
+  private func unlinkFromProvider(_ providerID: String) async {
+    if providerID == AuthProviderID.apple.rawValue {
+      // Needs SiwA token revocation.
+      do {
+        let needsTokenRevocation = user.providerData
+          .contains { $0.providerID == AuthProviderID.apple.rawValue }
+        if needsTokenRevocation {
+          let appleIDCredential = try await signInWithApple()
+
+          guard let appleIDToken = appleIDCredential.identityToken else {
+            print("Unable to fetch identify token.")
+            return
+          }
+          guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+            print("Unable to serialise token string from data: \(appleIDToken.debugDescription)")
+            return
+          }
+
+          let nonce = try CryptoUtils.randomNonceString()
+          let credential = OAuthProvider.credential(providerID: .apple,
+                                                    idToken: idTokenString,
+                                                    rawNonce: nonce)
+
+          try await user.reauthenticate(with: credential)
+          if
+            let authorizationCode = appleIDCredential.authorizationCode,
+            let authCodeString = String(data: authorizationCode, encoding: .utf8) {
+            try await Auth.auth().revokeToken(withAuthorizationCode: authCodeString)
+          }
+        }
+      } catch {
+        displayError(error)
+      }
+    }
+
+    do {
+      _ = try await user.unlink(fromProvider: providerID)
+      updateUI()
+    } catch {
+      displayError(error)
     }
   }
 
@@ -179,27 +217,26 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
 
   // MARK: - Sign in with Apple Account Linking 🔥
 
-  // For Sign in with Apple
-  var currentNonce: String?
-
   /// This method will initate the Sign In with Apple flow.
   /// See this class's conformance to `ASAuthorizationControllerDelegate` below for
   /// context on how the linking is made.
-  private func performAppleAccountLink() {
+  private func performAppleAccountLink() async {
     do {
-      let nonce = try CryptoUtils.randomNonceString()
-      currentNonce = nonce
-      let appleIDProvider = ASAuthorizationAppleIDProvider()
-      let request = appleIDProvider.createRequest()
-      request.requestedScopes = [.fullName, .email]
-      request.nonce = CryptoUtils.sha256(nonce)
+      let appleIDCredential = try await signInWithApple()
 
-      let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-      authorizationController.delegate = self
-      authorizationController.presentationContextProvider = self
-      authorizationController.performRequests()
+      guard let appleIDToken = appleIDCredential.identityToken else {
+        fatalError("Unable to fetch identify token.")
+      }
+      guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+        fatalError("Unable to serialise token string from data: \(appleIDToken.debugDescription)")
+      }
+
+      let nonce = try CryptoUtils.randomNonceString()
+      let credential = OAuthProvider.credential(providerID: .apple,
+                                                idToken: idTokenString,
+                                                rawNonce: nonce)
+      linkAccount(authCredential: credential)
     } catch {
-      // In the unlikely case that nonce generation fails, show error view.
       displayError(error)
     }
   }
@@ -448,7 +485,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     dataSourceProvider.delegate = self
   }
 
-  private func updateUI() {
+  @MainActor private func updateUI() {
     configureDataSourceProvider()
     animateUpdates(for: tableView)
   }
@@ -488,31 +525,26 @@ extension AccountLinkingViewController: ASAuthorizationControllerDelegate,
   ASAuthorizationControllerPresentationContextProviding {
   // MARK: ASAuthorizationControllerDelegate
 
+  func signInWithApple() async throws -> ASAuthorizationAppleIDCredential {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.continuation = continuation
+      let appleIDProvider = ASAuthorizationAppleIDProvider()
+      let request = appleIDProvider.createRequest()
+      request.requestedScopes = [.fullName, .email]
+
+      let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+      authorizationController.delegate = self
+      authorizationController.performRequests()
+    }
+  }
+
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithAuthorization authorization: ASAuthorization) {
-    guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential
-    else {
-      print("Unable to retrieve AppleIDCredential")
-      return
+    if case let appleIDCredential as ASAuthorizationAppleIDCredential = authorization.credential {
+      continuation?.resume(returning: appleIDCredential)
+    } else {
+      fatalError("Unexpected authorization credential type.")
     }
-
-    guard let nonce = currentNonce else {
-      fatalError("Invalid state: A login callback was received, but no login request was sent.")
-    }
-    guard let appleIDToken = appleIDCredential.identityToken else {
-      print("Unable to fetch identity token")
-      return
-    }
-    guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
-      print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
-      return
-    }
-
-    let credential = OAuthProvider.credential(providerID: .apple,
-                                              idToken: idTokenString,
-                                              rawNonce: nonce)
-    // Once we have created the above `credential`, we can link accounts to it.
-    linkAccount(authCredential: credential)
   }
 
   func authorizationController(controller: ASAuthorizationController,
@@ -520,7 +552,7 @@ extension AccountLinkingViewController: ASAuthorizationControllerDelegate,
     // Ensure that you have:
     //  - enabled `Sign in with Apple` on the Firebase console
     //  - added the `Sign in with Apple` capability for this project
-    print("Sign in with Apple errored: \(error)")
+    continuation?.resume(throwing: error)
   }
 
   // MARK: ASAuthorizationControllerPresentationContextProviding
