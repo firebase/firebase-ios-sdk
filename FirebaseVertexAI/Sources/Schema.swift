@@ -181,7 +181,7 @@ public class Schema {
       description: description,
       nullable: nullable,
       properties: properties,
-      requiredProperties: Array(requiredProperties)
+      requiredProperties: requiredProperties.sorted()
     )
   }
 }
