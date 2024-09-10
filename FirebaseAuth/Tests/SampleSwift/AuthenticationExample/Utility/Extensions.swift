@@ -14,6 +14,29 @@
 
 import FirebaseAuth
 import UIKit
+import SwiftUI
+
+// MARK: - Compat. API for converting `UIColor` to `Color`
+
+extension Color {
+  static func color(uiColor: UIColor) -> Self {
+    if #available(iOS 15.0, *) {
+      return Self(uiColor: uiColor)
+    } else {
+      var r: CGFloat = 0
+      var g: CGFloat = 0
+      var b: CGFloat = 0
+      var a: CGFloat = 0
+      uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+      return Self(
+        red: Double(r),
+        green: Double(g),
+        blue: Double(b),
+        opacity: Double(a)
+      )
+    }
+  }
+}
 
 // MARK: - Extending a `Firebase User` to conform to `DataSourceProvidable`
 

@@ -46,6 +46,7 @@
 		EA20B50C249E8F0700B5E581 /* AuthMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA20B50B249E8F0700B5E581 /* AuthMenu.swift */; };
 		EA20B510249FDB4400B5E581 /* OtherAuthMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA20B50F249FDB4400B5E581 /* OtherAuthMethods.swift */; };
 		EA217895248979E200736757 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA217894248979E200736757 /* LaunchScreen.storyboard */; };
+		EA3348322C90EFF40091D7C2 /* LoginViewSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3348312C90EFE40091D7C2 /* LoginViewSwiftUI.swift */; };
 		EA527CAA24A0766D00ADB9A2 /* OtherAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA527CA924A0766D00ADB9A2 /* OtherAuthViewController.swift */; };
 		EA527CAC24A0EE9600ADB9A2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */; };
 		EAB3A1792494433500385291 /* DataSourceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB3A1782494433500385291 /* DataSourceProvider.swift */; };
@@ -125,6 +126,7 @@
 		EA20B50B249E8F0700B5E581 /* AuthMenu.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = AuthMenu.swift; sourceTree = "<group>"; };
 		EA20B50F249FDB4400B5E581 /* OtherAuthMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherAuthMethods.swift; sourceTree = "<group>"; };
 		EA217894248979E200736757 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EA3348312C90EFE40091D7C2 /* LoginViewSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewSwiftUI.swift; sourceTree = "<group>"; };
 		EA527CA924A0766D00ADB9A2 /* OtherAuthViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtherAuthViewController.swift; sourceTree = "<group>"; };
 		EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		EAB3A1782494433500385291 /* DataSourceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceProvider.swift; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				EAD8BD3F2CE535C400E23E30 /* MFALoginView.swift */,
 				EA20B46B2495A9F900B5E581 /* SignedOutView.swift */,
 				EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */,
+				EA3348312C90EFE40091D7C2 /* LoginViewSwiftUI.swift */,
 			);
 			path = CustomViews;
 			sourceTree = "<group>";
@@ -550,6 +553,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA20B46E2495B2C700B5E581 /* DataSourceProtocols.swift in Sources */,
+				EA3348322C90EFF40091D7C2 /* LoginViewSwiftUI.swift in Sources */,
 				EAB3A1792494433500385291 /* DataSourceProvider.swift in Sources */,
 				EA20B46C2495A9F900B5E581 /* SignedOutView.swift in Sources */,
 				EA527CAA24A0766D00ADB9A2 /* OtherAuthViewController.swift in Sources */,
