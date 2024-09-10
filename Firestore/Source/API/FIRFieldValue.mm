@@ -15,6 +15,7 @@
  */
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -174,6 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)fieldValueForIntegerIncrement:(int64_t)l {
   return [[FSTNumericIncrementFieldValue alloc] initWithOperand:@(l)];
+}
+
++ (nonnull FIRVectorValue *)vectorWithArray:(nonnull NSArray<NSNumber *> *)array {
+  return [[FIRVectorValue alloc] initWithArray:array];
 }
 
 @end

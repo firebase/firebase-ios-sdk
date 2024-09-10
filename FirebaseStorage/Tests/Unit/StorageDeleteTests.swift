@@ -19,29 +19,9 @@ import XCTest
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageDeleteTests: StorageTestHelpers {
-  var fetcherService: GTMSessionFetcherService?
-  var dispatchQueue: DispatchQueue?
-
-  override func setUp() {
-    super.setUp()
-    fetcherService = GTMSessionFetcherService()
-    fetcherService?.authorizer = StorageTokenAuthorizer(
-      googleAppID: "dummyAppID",
-      authProvider: nil,
-      appCheck: nil
-    )
-    dispatchQueue = DispatchQueue(label: "Test dispatch queue")
-  }
-
-  override func tearDown() {
-    fetcherService = nil
-    super.tearDown()
-  }
-
-  func testFetcherConfiguration() {
-    let expectation = self.expectation(description: #function)
-    fetcherService!.testBlock = { (fetcher: GTMSessionFetcher!,
-                                   response: GTMSessionFetcherTestResponse) in
+  func testFetcherConfiguration() async {
+    let testBlock = { (fetcher: GTMSessionFetcher!,
+                       response: GTMSessionFetcherTestResponse) in
         XCTAssertEqual(fetcher.request?.url, self.objectURL())
         XCTAssertEqual(fetcher.request?.httpMethod, "DELETE")
         let httpResponse = HTTPURLResponse(
@@ -52,67 +32,46 @@ class StorageDeleteTests: StorageTestHelpers {
         )
         response(httpResponse, nil, nil)
     }
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    StorageDeleteTask.deleteTask(
-      reference: ref,
-      queue: dispatchQueue!.self
-    ) { _, error in
-      expectation.fulfill()
+    do {
+      let _ = try await ref.delete()
+    } catch {
+      // All testing is in test block.
     }
-    waitForExpectation(test: self)
   }
 
-  func testSuccessfulFetch() {
-    let expectation = self.expectation(description: #function)
-    fetcherService!.testBlock = { (fetcher: GTMSessionFetcher!,
-                                   response: GTMSessionFetcherTestResponse) in
-        XCTAssertEqual(fetcher.request?.url, self.objectURL())
-        XCTAssertEqual(fetcher.request?.httpMethod, "DELETE")
-        let httpResponse = HTTPURLResponse(
-          url: (fetcher.request?.url)!,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: nil
-        )
-        response(httpResponse, nil, nil)
-    }
+  func testSuccessfulFetch() async {
+    await StorageFetcherService.shared.updateTestBlock(successBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
-    StorageDeleteTask.deleteTask(
-      reference: ref,
-      queue: dispatchQueue!.self
-    ) { _, error in
-      expectation.fulfill()
+    do {
+      let _ = try await ref.delete()
+    } catch {
+      // All testing is in test block.
     }
-    waitForExpectation(test: self)
   }
 
-  func testSuccessfulFetchWithEmulator() {
-    let expectation = self.expectation(description: #function)
+  func testSuccessfulFetchWithEmulator() async {
     let storage = self.storage()
     storage.useEmulator(withHost: "localhost", port: 8080)
-    fetcherService?.allowLocalhostRequest = true
-
-    fetcherService!
-      .testBlock = successBlock(
-        withURL: URL(string: "http://localhost:8080/v0/b/bucket/o/object")!
-      )
-
+    let testBlock = successBlock(
+      withURL: URL(string: "http://localhost:8080/v0/b/bucket/o/object")!
+    )
+    await StorageFetcherService.shared.updateTestBlock(successBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
-    StorageDeleteTask.deleteTask(
-      reference: ref,
-      queue: dispatchQueue!.self
-    ) { _, error in
-      expectation.fulfill()
+    do {
+      let _ = try await ref.delete()
+    } catch {
+      // All testing is in test block.
     }
-    waitForExpectation(test: self)
   }
 
   func testUnsuccessfulFetchUnauthenticated() async {
     let storage = storage()
-    await storage.fetcherService.updateTestBlock(unauthenticatedBlock())
+    await StorageFetcherService.shared.updateTestBlock(unauthenticatedBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -124,7 +83,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchUnauthorized() async {
     let storage = storage()
-    await storage.fetcherService.updateTestBlock(unauthorizedBlock())
+    await StorageFetcherService.shared.updateTestBlock(unauthorizedBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -136,7 +95,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchObjectDoesntExist() async {
     let storage = storage()
-    await storage.fetcherService.updateTestBlock(notFoundBlock())
+    await StorageFetcherService.shared.updateTestBlock(notFoundBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {

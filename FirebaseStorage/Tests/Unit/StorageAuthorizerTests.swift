@@ -23,7 +23,6 @@ class StorageAuthorizerTests: StorageTestHelpers {
   var appCheckTokenSuccess: FIRAppCheckTokenResultFake!
   var appCheckTokenError: FIRAppCheckTokenResultFake!
   var fetcher: GTMSessionFetcher!
-  var fetcherService: GTMSessionFetcherService!
   var auth: FIRAuthInteropFake!
   var appCheck: FIRAppCheckFake!
 
@@ -52,7 +51,6 @@ class StorageAuthorizerTests: StorageTestHelpers {
 
   override func tearDown() {
     fetcher = nil
-    fetcherService = nil
     auth = nil
     appCheck = nil
     appCheckTokenSuccess = nil

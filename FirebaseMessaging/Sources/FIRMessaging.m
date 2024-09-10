@@ -1028,4 +1028,18 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return [self currentLocale];
 }
 
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_NSDictionary_FIRMessaging_Category(void);
+extern void FIRInclude_NSError_FIRMessaging_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_NSDictionary_FIRMessaging_Category();
+  FIRInclude_NSError_FIRMessaging_Category();
+}
+
 @end

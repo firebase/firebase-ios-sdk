@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * (referring to a top level field in the document), or a list of field names (referring to a nested
  * field in the document).
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FieldPath)
 @interface FIRFieldPath : NSObject <NSCopying>
 

@@ -267,6 +267,18 @@ static const NSUInteger kExpectedAPIKeyLength = 39;
   return isCompatibleVersion;
 }
 
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_FIRInstallationsItem_RegisterInstallationAPI_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_FIRInstallationsItem_RegisterInstallationAPI_Category();
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

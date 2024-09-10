@@ -39,6 +39,7 @@ typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot
  * may or may not exist. A `DocumentReference` can also be used to create a `CollectionReference` to
  * a subcollection.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DocumentReference)
 @interface FIRDocumentReference : NSObject
 

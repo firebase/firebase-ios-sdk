@@ -2289,7 +2289,7 @@ extension Auth: AuthInterop {
                                             action: AuthRecaptchaAction) async throws -> T
       .Response {
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: self)
-      if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) {
+      if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) != .off {
         try await recaptchaVerifier.injectRecaptchaFields(request: request,
                                                           provider: AuthRecaptchaProvider.password,
                                                           action: action)
@@ -2320,8 +2320,12 @@ extension Auth: AuthInterop {
 
   // MARK: Internal properties
 
-  /// Allow tests to swap in an alternate mainBundle.
-  var mainBundleUrlTypes: [[String: Any]]!
+  /// Allow tests to swap in an alternate mainBundle, including ObjC unit tests via CocoaPods.
+  #if FIREBASE_CI
+    @objc public var mainBundleUrlTypes: [[String: Any]]!
+  #else
+    var mainBundleUrlTypes: [[String: Any]]!
+  #endif
 
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.

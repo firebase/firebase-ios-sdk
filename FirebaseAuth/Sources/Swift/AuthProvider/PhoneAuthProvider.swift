@@ -185,7 +185,7 @@ import Foundation
                                 uiDelegate: AuthUIDelegate?,
                                 multiFactorSession: MultiFactorSession? = nil) async throws
       -> String? {
-      guard phoneNumber.count > 0 else {
+      guard !phoneNumber.isEmpty else {
         throw AuthErrorUtils.missingPhoneNumberError(message: nil)
       }
       guard let manager = auth.notificationManager else {
@@ -194,10 +194,61 @@ import Foundation
       guard await manager.checkNotificationForwarding() else {
         throw AuthErrorUtils.notificationNotForwardedError()
       }
-      return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-                                                       retryOnInvalidAppCredential: true,
-                                                       multiFactorSession: multiFactorSession,
-                                                       uiDelegate: uiDelegate)
+
+      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: false)
+
+      switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
+      case .off:
+        return try await verifyClAndSendVerificationCode(
+          toPhoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: true,
+          multiFactorSession: multiFactorSession,
+          uiDelegate: uiDelegate
+        )
+      case .audit:
+        return try await verifyClAndSendVerificationCodeWithRecaptcha(
+          toPhoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: true,
+          multiFactorSession: multiFactorSession,
+          uiDelegate: uiDelegate,
+          recaptchaVerifier: recaptchaVerifier
+        )
+      case .enforce:
+        return try await verifyClAndSendVerificationCodeWithRecaptcha(
+          toPhoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: false,
+          multiFactorSession: multiFactorSession,
+          uiDelegate: uiDelegate,
+          recaptchaVerifier: recaptchaVerifier
+        )
+      }
+    }
+
+    private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
+                                                              retryOnInvalidAppCredential: Bool,
+                                                              uiDelegate: AuthUIDelegate?,
+                                                              recaptchaVerifier: AuthRecaptchaVerifier) async throws
+      -> String? {
+      let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
+                                                codeIdentity: CodeIdentity.empty,
+                                                requestConfiguration: auth
+                                                  .requestConfiguration)
+      do {
+        try await recaptchaVerifier.injectRecaptchaFields(
+          request: request,
+          provider: .phone,
+          action: .sendVerificationCode
+        )
+        let response = try await AuthBackend.call(with: request)
+        return response.verificationID
+      } catch {
+        return try await handleVerifyErrorWithRetry(error: error,
+                                                    phoneNumber: phoneNumber,
+                                                    retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+                                                    multiFactorSession: nil,
+                                                    uiDelegate: uiDelegate)
+      }
     }
 
     /// Starts the flow to verify the client via silent push notification.
@@ -215,16 +266,83 @@ import Foundation
                                                 codeIdentity: codeIdentity,
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
-
       do {
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       } catch {
-        return try await handleVerifyErrorWithRetry(error: error,
-                                                    phoneNumber: phoneNumber,
-                                                    retryOnInvalidAppCredential: retryOnInvalidAppCredential,
-                                                    multiFactorSession: nil,
-                                                    uiDelegate: uiDelegate)
+        return try await handleVerifyErrorWithRetry(
+          error: error,
+          phoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+          multiFactorSession: nil,
+          uiDelegate: uiDelegate
+        )
+      }
+    }
+
+    /// Starts the flow to verify the client via silent push notification.
+    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
+    /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
+    /// - Parameter phoneNumber: The phone number to be verified.
+    private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
+                                                              retryOnInvalidAppCredential: Bool,
+                                                              multiFactorSession session: MultiFactorSession?,
+                                                              uiDelegate: AuthUIDelegate?,
+                                                              recaptchaVerifier: AuthRecaptchaVerifier) async throws
+      -> String? {
+      if let settings = auth.settings,
+         settings.isAppVerificationDisabledForTesting {
+        let request = SendVerificationCodeRequest(
+          phoneNumber: phoneNumber,
+          codeIdentity: CodeIdentity.empty,
+          requestConfiguration: auth.requestConfiguration
+        )
+        let response = try await AuthBackend.call(with: request)
+        return response.verificationID
+      }
+      guard let session else {
+        return try await verifyClAndSendVerificationCodeWithRecaptcha(
+          toPhoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+          uiDelegate: uiDelegate,
+          recaptchaVerifier: recaptchaVerifier
+        )
+      }
+      let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
+                                                                  codeIdentity: CodeIdentity.empty)
+      do {
+        if let idToken = session.idToken {
+          let request = StartMFAEnrollmentRequest(idToken: idToken,
+                                                  enrollmentInfo: startMFARequestInfo,
+                                                  requestConfiguration: auth.requestConfiguration)
+          try await recaptchaVerifier.injectRecaptchaFields(
+            request: request,
+            provider: .phone,
+            action: .startMfaEnrollment
+          )
+          let response = try await AuthBackend.call(with: request)
+          return response.phoneSessionInfo?.sessionInfo
+        } else {
+          let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
+                                              MFAEnrollmentID: session.multiFactorInfo?.uid,
+                                              signInInfo: startMFARequestInfo,
+                                              requestConfiguration: auth.requestConfiguration)
+          try await recaptchaVerifier.injectRecaptchaFields(
+            request: request,
+            provider: .phone,
+            action: .startMfaSignin
+          )
+          let response = try await AuthBackend.call(with: request)
+          return response.responseInfo?.sessionInfo
+        }
+      } catch {
+        return try await handleVerifyErrorWithRetry(
+          error: error,
+          phoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+          multiFactorSession: session,
+          uiDelegate: uiDelegate
+        )
       }
     }
 
@@ -244,7 +362,6 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-
         let response = try await AuthBackend.call(with: request)
         return response.verificationID
       }
@@ -477,8 +594,9 @@ import Foundation
     private let auth: Auth
     private let callbackScheme: String
     private let usingClientIDScheme: Bool
+    private var recaptchaVerifier: AuthRecaptchaVerifier?
 
-    init(auth: Auth) {
+    init(auth: Auth, recaptchaVerifier: AuthRecaptchaVerifier? = nil) {
       self.auth = auth
       if let clientID = auth.app?.options.clientID {
         let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
@@ -497,6 +615,7 @@ import Foundation
         return
       }
       callbackScheme = ""
+      self.recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
     }
 
     private let kAuthTypeVerifyApp = "verifyApp"

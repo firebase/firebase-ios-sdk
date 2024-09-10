@@ -44,7 +44,7 @@ public protocol HTTPHeaderRepresentable {
 ///       ]
 ///     }
 ///
-public struct HeartbeatsPayload: Codable {
+public struct HeartbeatsPayload: Codable, Sendable {
   /// The version of the payload. See go/firebase-apple-heartbeats for details regarding current
   /// version.
   static let version: Int = 2

@@ -1,3 +1,10 @@
+# Unreleased
+- [fixed] Marked all public classes with only readonly properties as `Sendable` to address
+  Swift Concurrency Check warning. (#12666)
+
+# 11.1.0
+- [feature] Add `VectorValue` type support.
+
 # 11.0.0
 - [removed] **Breaking change**: The deprecated `FirebaseFirestoreSwift` module
   has been removed. See

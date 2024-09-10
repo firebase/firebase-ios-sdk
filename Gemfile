@@ -15,3 +15,6 @@ source 'https://rubygems.org'
 gem 'cocoapods', '1.15.2'
 gem 'cocoapods-generate', '2.2.5'
 gem 'danger', '8.4.5'
+
+# TODO: delete explicit xcodeproj after cocoapods goes beyond 1.15.2.
+gem 'xcodeproj', '1.25.0'

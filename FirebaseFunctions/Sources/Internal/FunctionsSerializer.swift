@@ -28,14 +28,7 @@ extension FunctionsSerializer {
   }
 }
 
-class FunctionsSerializer: NSObject {
-  private let dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    formatter.timeZone = TimeZone(identifier: "UTC")
-    return formatter
-  }()
-
+final class FunctionsSerializer {
   // MARK: - Internal APIs
 
   func encode(_ object: Any) throws -> AnyObject {

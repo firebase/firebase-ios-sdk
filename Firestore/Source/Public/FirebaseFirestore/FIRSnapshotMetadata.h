@@ -19,6 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Metadata about a snapshot, describing the state of the snapshot. */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SnapshotMetadata)
 @interface FIRSnapshotMetadata : NSObject
 

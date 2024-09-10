@@ -125,8 +125,11 @@ public struct Citation {
   /// The exclusive end of a sequence in a model response that derives from a cited source.
   public let endIndex: Int
 
-  /// A link to the cited source.
-  public let uri: String
+  /// A link to the cited source, if available.
+  public let uri: String?
+
+  /// The title of the cited source, if available.
+  public let title: String?
 
   /// The license the cited source work is distributed under, if specified.
   public let license: String?
@@ -303,6 +306,7 @@ extension Citation: Decodable {
     case startIndex
     case endIndex
     case uri
+    case title
     case license
   }
 
@@ -310,8 +314,22 @@ extension Citation: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
     endIndex = try container.decode(Int.self, forKey: .endIndex)
-    uri = try container.decode(String.self, forKey: .uri)
-    license = try container.decodeIfPresent(String.self, forKey: .license)
+    if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
+      self.uri = uri
+    } else {
+      uri = nil
+    }
+    if let title = try container.decodeIfPresent(String.self, forKey: .title), !title.isEmpty {
+      self.title = title
+    } else {
+      title = nil
+    }
+    if let license = try container.decodeIfPresent(String.self, forKey: .license),
+       !license.isEmpty {
+      self.license = license
+    } else {
+      license = nil
+    }
   }
 }
 

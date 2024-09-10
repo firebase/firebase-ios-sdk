@@ -304,8 +304,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.0.0/rc2/FirebaseAnalytics.zip",
-      checksum: "3dffe84e22f11691c147c5f83ba83b66172bb5c11fe09a077f2dd5f8bbd8e2bc"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.1.0/FirebaseAnalytics.zip",
+      checksum: "7477b92093cc001e713a3442bcf8725b83764294452c04f36164c8706d224510"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -461,8 +461,10 @@ let package = Package(
         // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
         "PhoneAuthProviderTests.swift",
         "AuthNotificationManagerTests.swift",
-        "ObjCAPITests.m", // Only builds via CocoaPods until mixed language or its own target.
-        "ObjCGlobalTests.m", // Only builds via CocoaPods until mixed language or its own target.
+        // TODO: The following tests run in CocoaPods only, until mixed language or separate target.
+        "ObjCAPITests.m",
+        "ObjCGlobalTests.m",
+        "FIROAuthProviderTests.m",
       ]
     ),
     .target(
@@ -1341,7 +1343,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.0.0")
+  return .package(url: appMeasurementURL, exact: "11.1.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1510,8 +1512,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.0.0/rc2/FirebaseFirestoreInternal.zip",
-        checksum: "3787634efd3d4e0aec5fac929dcc77c54d9b3765103bfe3d861da3b2315243b7"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.1.0/rc1/FirebaseFirestoreInternal.zip",
+        checksum: "fc5453c2dc5f77426a62992bda3bcea21051b27c0f697f3a8ec461ecfafcdc44"
       )
     }
   }()

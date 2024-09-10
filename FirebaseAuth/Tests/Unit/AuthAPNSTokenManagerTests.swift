@@ -63,21 +63,29 @@
       XCTAssertFalse(fakeApplication!.registerCalled)
       var firstCallbackCalled = false
       let manager = try XCTUnwrap(manager)
-      manager.getTokenInternal { token, error in
+      manager.getTokenInternal { result in
         firstCallbackCalled = true
-        XCTAssertEqual(token?.data, self.data)
-        XCTAssertEqual(token?.type, .sandbox)
-        XCTAssertNil(error)
+        switch result {
+        case let .success(token):
+          XCTAssertEqual(token.data, self.data)
+          XCTAssertEqual(token.type, .sandbox)
+        case let .failure(error):
+          XCTFail("Unexpected error: \(error)")
+        }
       }
       XCTAssertFalse(firstCallbackCalled)
 
       // Add second callback, which is yet to be called either.
       var secondCallbackCalled = false
-      manager.getTokenInternal { token, error in
+      manager.getTokenInternal { result in
         secondCallbackCalled = true
-        XCTAssertEqual(token?.data, self.data)
-        XCTAssertEqual(token?.type, .sandbox)
-        XCTAssertNil(error)
+        switch result {
+        case let .success(token):
+          XCTAssertEqual(token.data, self.data)
+          XCTAssertEqual(token.type, .sandbox)
+        case let .failure(error):
+          XCTFail("Unexpected error: \(error)")
+        }
       }
       XCTAssertFalse(secondCallbackCalled)
 
@@ -96,11 +104,15 @@
 
       // Add third callback, which should be called back immediately.
       var thirdCallbackCalled = false
-      manager.getTokenInternal { token, error in
+      manager.getTokenInternal { result in
         thirdCallbackCalled = true
-        XCTAssertEqual(token?.data, self.data)
-        XCTAssertEqual(token?.type, .sandbox)
-        XCTAssertNil(error)
+        switch result {
+        case let .success(token):
+          XCTAssertEqual(token.data, self.data)
+          XCTAssertEqual(token.type, .sandbox)
+        case let .failure(error):
+          XCTFail("Unexpected error: \(error)")
+        }
       }
       XCTAssertTrue(thirdCallbackCalled)
 
@@ -123,9 +135,16 @@
 
       // Add callback to time out.
       let expectation = self.expectation(description: #function)
-      manager.getTokenInternal { token, error in
-        XCTAssertNil(token)
-        XCTAssertNil(error)
+      manager.getTokenInternal { result in
+        switch result {
+        case let .success(token):
+          XCTFail("Unexpected success: \(token)")
+        case let .failure(error):
+          XCTAssertEqual(
+            error as NSError,
+            AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+          )
+        }
         expectation.fulfill()
       }
       // Time out.
@@ -153,9 +172,13 @@
 
       // Add callback to cancel.
       var callbackCalled = false
-      manager.getTokenInternal { token, error in
-        XCTAssertNil(token)
-        XCTAssertEqual(error as? NSError, self.error as NSError)
+      manager.getTokenInternal { result in
+        switch result {
+        case let .success(token):
+          XCTFail("Unexpected success: \(token)")
+        case let .failure(error):
+          XCTAssertEqual(error as NSError, self.error as NSError)
+        }
         XCTAssertFalse(callbackCalled) // verify callback is not called twice
         callbackCalled = true
       }

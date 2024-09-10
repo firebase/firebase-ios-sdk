@@ -1,4 +1,4 @@
-# Unreleased
+# 11.1.0
 - [fixed] Fix a potential data race in Storage initialization. (#13369)
 
 # 11.0.0

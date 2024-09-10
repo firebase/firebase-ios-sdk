@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A `CollectionReference` object can be used for adding documents, getting document references,
  * and querying for documents (using the methods inherited from `Query`).
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CollectionReference)
 @interface FIRCollectionReference : FIRQuery
 
