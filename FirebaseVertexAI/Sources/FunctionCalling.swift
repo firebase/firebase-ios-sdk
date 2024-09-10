@@ -49,10 +49,9 @@ public struct FunctionDeclaration {
     self.name = name
     self.description = description
     self.parameters = Schema.object(
-      description: description,
       nullable: false,
       properties: parameters,
-      optionalProperties: []
+      optionalProperties: optionalParameters
     )
   }
 }
