@@ -16,6 +16,8 @@
 
 import SwiftUI
 
+import FirebaseAuth
+
 struct LoginViewSwiftUI: View {
   @State private var email: String = ""
   @State private var password: String = ""
@@ -34,15 +36,34 @@ struct LoginViewSwiftUI: View {
             accentColor: .white,
             backgroundColor: .orange
           ) {
-            // TODO(ncooke3): Add action.
+            Task {
+              do {
+                _ = try await AppManager.shared
+                  .auth()
+                  .signIn(withEmail: email, password: password)
+              } catch let error as AuthErrorCode
+                        where error.code == .secondFactorRequired {
+                // TODO(ncooke3): Implement.
+              } catch {
+                // TODO(ncooke3): Implement error display.
+                print(error.localizedDescription)
+              }
+            }
           }
-
           LoginViewButton(
             text: "Create Account",
             accentColor: .orange,
             backgroundColor: .primary
           ) {
-            // TODO(ncooke3): Add action.
+            Task {
+              do {
+                _ = try await AppManager.shared.auth().createUser(withEmail: email, password: password)
+                // TODO(ncooke3): Transition... `self.delegate?.loginDidOccur()`
+              } catch {
+                // TODO(ncooke3): Implement error display.
+                print(error.localizedDescription)
+              }
+            }
           }
         }
         .disabled(email.isEmpty || password.isEmpty)
@@ -70,6 +91,7 @@ private struct SymbolTextField: TextFieldStyle {
   }
 }
 
+// TODO(ncooke3): Use view modifiers?
 private struct LoginViewButton: View {
   let text: String
   let accentColor: Color
