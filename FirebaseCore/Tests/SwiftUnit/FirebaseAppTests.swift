@@ -348,15 +348,12 @@ class FirebaseAppTests: XCTestCase {
 
     expectation(forNotification: NSNotification.Name.firAppReadyToConfigureSDK,
                 object: FirebaseApp.self, handler: { notification -> Bool in
-                  if let userInfo = notification.userInfo {
-                    if NSDictionary(dictionary: expectedUserInfo) ==
-                      NSDictionary(dictionary: userInfo) {
-                      return true
-                    }
-                  } else {
+                  guard let userInfo = notification.userInfo else {
                     XCTFail("Failed to unwrap notification user info")
+                    return false
                   }
-                  return false
+                  return NSDictionary(dictionary: expectedUserInfo) ==
+                    NSDictionary(dictionary: userInfo)
                 })
   }
 }
