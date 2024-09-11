@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import FirebaseAuth
-import UIKit
 import SwiftUI
+import UIKit
 
 // MARK: - Compat. API for converting `UIColor` to `Color`
 
