@@ -20,41 +20,31 @@ struct LoginViewSwiftUI: View {
   @State private var email: String = ""
   @State private var password: String = ""
   var body: some View {
-    VStack {
-      TextField("Email", text: $email)
-        .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
-      TextField("Password", text: $password)
-        .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
-      
-      Button {
-        // TODO(ncooke3): Add action.
-      } label: {
-        HStack {
-          Spacer()
-          Text("Login")
-            .bold()
-            .accentColor(.white)
-          Spacer()
+    Group {
+      VStack {
+        Spacer()
+        TextField("Email", text: $email)
+          .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
+        TextField("Password", text: $password)
+          .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
+        Spacer()
+        LoginViewButton(
+          text: "Login",
+          accentColor: .white,
+          backgroundColor: .orange
+        ) {
+          // TODO(ncooke3): Add action.
         }
-        .padding()
-        .background(Color.orange)
-        .cornerRadius(14)
-      }
-      
-      Button {
-        // TODO(ncooke3): Add action.
-      } label: {
-        HStack {
-          Spacer()
-          Text("Create Account")
-            .bold()
-            .accentColor(.orange)
-          Spacer()
+
+        LoginViewButton(
+          text: "Create Account",
+          accentColor: .orange,
+          backgroundColor: .primary
+        ) {
+          // TODO(ncooke3): Add action.
         }
-        .padding()
-        .background(Color.primary)
-        .cornerRadius(14)
       }
+      Spacer()
     }
     .padding()
   }
@@ -62,7 +52,7 @@ struct LoginViewSwiftUI: View {
 
 private struct SymbolTextField: TextFieldStyle {
   let symbolName: String
-  
+
   func _body(configuration: TextField<Self._Label>) -> some View {
     HStack {
       Image(systemName: symbolName)
@@ -77,6 +67,27 @@ private struct SymbolTextField: TextFieldStyle {
   }
 }
 
+private struct LoginViewButton: View {
+  let text: String
+  let accentColor: Color
+  let backgroundColor: Color
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack {
+        Spacer()
+        Text(text)
+          .bold()
+          .accentColor(accentColor)
+        Spacer()
+      }
+      .padding()
+      .background(backgroundColor)
+      .cornerRadius(14)
+    }
+  }
+}
 
 #Preview {
   LoginViewSwiftUI()
