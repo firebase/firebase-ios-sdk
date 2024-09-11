@@ -28,21 +28,24 @@ struct LoginViewSwiftUI: View {
         TextField("Password", text: $password)
           .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
         Spacer()
-        LoginViewButton(
-          text: "Login",
-          accentColor: .white,
-          backgroundColor: .orange
-        ) {
-          // TODO(ncooke3): Add action.
-        }
+        Group {
+          LoginViewButton(
+            text: "Login",
+            accentColor: .white,
+            backgroundColor: .orange
+          ) {
+            // TODO(ncooke3): Add action.
+          }
 
-        LoginViewButton(
-          text: "Create Account",
-          accentColor: .orange,
-          backgroundColor: .primary
-        ) {
-          // TODO(ncooke3): Add action.
+          LoginViewButton(
+            text: "Create Account",
+            accentColor: .orange,
+            backgroundColor: .primary
+          ) {
+            // TODO(ncooke3): Add action.
+          }
         }
+        .disabled(email.isEmpty || password.isEmpty)
       }
       Spacer()
     }
