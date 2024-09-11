@@ -42,7 +42,7 @@ struct LoginViewSwiftUI: View {
                   .auth()
                   .signIn(withEmail: email, password: password)
               } catch let error as AuthErrorCode
-                        where error.code == .secondFactorRequired {
+                where error.code == .secondFactorRequired {
                 // TODO(ncooke3): Implement.
               } catch {
                 // TODO(ncooke3): Implement error display.
@@ -57,7 +57,10 @@ struct LoginViewSwiftUI: View {
           ) {
             Task {
               do {
-                _ = try await AppManager.shared.auth().createUser(withEmail: email, password: password)
+                _ = try await AppManager.shared.auth().createUser(
+                  withEmail: email,
+                  password: password
+                )
                 // TODO(ncooke3): Transition... `self.delegate?.loginDidOccur()`
               } catch {
                 // TODO(ncooke3): Implement error display.
