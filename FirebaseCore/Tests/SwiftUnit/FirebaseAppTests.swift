@@ -340,7 +340,7 @@ class FirebaseAppTests: XCTestCase {
   // MARK: - Helpers
 
   private func expectAppConfigurationNotification(appName: String, isDefaultApp: Bool) {
-    let expectedUserInfo: [String : Any] = [
+    let expectedUserInfo: [String: Any] = [
       "FIRAppNameKey": appName,
       "FIRAppIsDefaultAppKey": NSNumber(value: isDefaultApp),
       "FIRGoogleAppIDKey": Constants.Options.googleAppID,
@@ -349,7 +349,8 @@ class FirebaseAppTests: XCTestCase {
     expectation(forNotification: NSNotification.Name.firAppReadyToConfigureSDK,
                 object: FirebaseApp.self, handler: { notification -> Bool in
                   if let userInfo = notification.userInfo {
-                    if NSDictionary(dictionary: expectedUserInfo) == NSDictionary(dictionary: userInfo) {
+                    if NSDictionary(dictionary: expectedUserInfo) ==
+                      NSDictionary(dictionary: userInfo) {
                       return true
                     }
                   } else {
