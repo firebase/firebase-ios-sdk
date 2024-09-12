@@ -18,10 +18,18 @@ import Foundation
 /// requests to the backend model.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig {
-  /// A parameter controlling the degree of randomness in token selection. A
-  /// temperature of zero is deterministic, always choosing the
-  /// highest-probability response. Typical values are between 0 and 1
-  /// inclusive. Defaults to 0 if unspecified.
+  /// The temperature controls the degree of randomness in the output produced by the model.
+  ///
+  /// The temperature is used for sampling during response generation, which occurs when ``topP``
+  /// and ``topK`` are applied. Temperature controls the degree of randomness in token selection.
+  /// Lower temperatures are good for prompts that require a less open-ended or creative response,
+  /// while higher temperatures can lead to more diverse or creative results. A temperature of `0`
+  /// means that the highest probability tokens are always selected. In this case, responses for a
+  /// given prompt are *mostly* deterministic, but a small amount of variation is still possible.
+  ///
+  /// Each model has its own temperature range and default value; see [Experiment with parameter
+  /// values]( https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values#temperature)
+  /// for more details.
   public let temperature: Float?
 
   /// The `topP` parameter changes how the model selects tokens for output.
@@ -83,14 +91,16 @@ public struct GenerationConfig {
 
   /// Creates a new `GenerationConfig` value.
   ///
-  /// - Parameter temperature: See ``temperature``
-  /// - Parameter topP: See ``topP``
-  /// - Parameter topK: See ``topK``
-  /// - Parameter candidateCount: See ``candidateCount``
-  /// - Parameter maxOutputTokens: See ``maxOutputTokens``
-  /// - Parameter stopSequences: See ``stopSequences``
-  /// - Parameter responseMIMEType: See ``responseMIMEType``
-  /// - Parameter responseSchema: See ``responseSchema``
+  /// - Parameters:
+  ///   - temperature: The degree of randomness in the output produced by the model; see
+  ///   ``temperature`` for more details.
+  ///   - topP: See ``topP``
+  ///   - topK: See ``topK``
+  ///   - candidateCount: See ``candidateCount``
+  ///   - maxOutputTokens: See ``maxOutputTokens``
+  ///   - stopSequences: See ``stopSequences``
+  ///   - responseMIMEType: See ``responseMIMEType``
+  ///   - responseSchema: See ``responseSchema``
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
