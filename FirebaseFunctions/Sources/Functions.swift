@@ -509,13 +509,13 @@ enum FunctionsConstants {
     if let error = error as NSError? {
       let localError: (any Error)?
       if error.domain == kGTMSessionFetcherStatusDomain {
-        localError = FunctionsErrorCode.errorForResponse(
-          status: error.code,
+        localError = FunctionsError(
+          httpStatusCode: error.code,
           body: data,
           serializer: serializer
         )
       } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
-        localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
+        localError = FunctionsError(.deadlineExceeded)
       } else {
         localError = nil
       }
@@ -525,15 +525,11 @@ enum FunctionsConstants {
 
     // Case 2: `data` is `nil` -> always throws
     guard let data else {
-      throw FunctionsErrorCode.internal.generatedError(userInfo: nil)
+      throw FunctionsError(.internal)
     }
 
     // Case 3: `data` is not `nil` but might specify a custom error -> throws conditionally
-    if let bodyError = FunctionsErrorCode.errorForResponse(
-      status: 200,
-      body: data,
-      serializer: serializer
-    ) {
+    if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
       throw bodyError
     }
 
@@ -546,13 +542,13 @@ enum FunctionsConstants {
 
     guard let responseJSON = responseJSONObject as? NSDictionary else {
       let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-      throw FunctionsErrorCode.internal.generatedError(userInfo: userInfo)
+      throw FunctionsError(.internal, userInfo: userInfo)
     }
 
     // `result` is checked for backwards compatibility:
     guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
-      throw FunctionsErrorCode.internal.generatedError(userInfo: userInfo)
+      throw FunctionsError(.internal, userInfo: userInfo)
     }
 
     return dataJSON

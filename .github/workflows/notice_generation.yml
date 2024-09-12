@@ -36,7 +36,8 @@ jobs:
       with:
         pods: ${{ env.PODS }}
         sources: "https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging,https://cdn.cocoapods.org"
-        min-ios-version: "13.0"
+        # This should match the highest minimum supported iOS version.
+        min-ios-version: "15.0"
         search-local-pod-version: true
         notices-path:  ${{ env.NOTICES_PATH }}
     - name: Create a pull request

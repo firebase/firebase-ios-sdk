@@ -19,6 +19,7 @@ import XCTest
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ModelContentTests: XCTestCase {
+  let decoder = JSONDecoder()
   let encoder = JSONEncoder()
 
   override func setUp() {
@@ -27,7 +28,35 @@ final class ModelContentTests: XCTestCase {
     )
   }
 
-  // MARK: ModelContent.Part Encoding
+  // MARK: - ModelContent.Part Decoding
+
+  func testDecodeFunctionResponsePart() throws {
+    let functionName = "test-function-name"
+    let resultParameter = "test-result-parameter"
+    let resultValue = "test-result-value"
+    let json = """
+    {
+      "functionResponse" : {
+        "name" : "\(functionName)",
+        "response" : {
+          "\(resultParameter)" : "\(resultValue)"
+        }
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(ModelContent.Part.self, from: jsonData)
+
+    guard case let .functionResponse(functionResponse) = part else {
+      XCTFail("Decoded Part was not a FunctionResponse.")
+      return
+    }
+    XCTAssertEqual(functionResponse.name, functionName)
+    XCTAssertEqual(functionResponse.response, [resultParameter: .string(resultValue)])
+  }
+
+  // MARK: - ModelContent.Part Encoding
 
   func testEncodeFileDataPart() throws {
     let mimeType = "image/jpeg"
