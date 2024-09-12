@@ -28,7 +28,7 @@ public struct GenerationConfig {
   /// given prompt are *mostly* deterministic, but a small amount of variation is still possible.
   ///
   /// Each model has its own temperature range and default value; see [Experiment with parameter
-  /// values]( https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values#temperature)
+  /// values](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/adjust-parameter-values#temperature)
   /// for more details.
   public let temperature: Float?
 
