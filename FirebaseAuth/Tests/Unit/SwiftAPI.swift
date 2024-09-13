@@ -353,7 +353,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
         }
       }
       let obj = FederatedAuthImplementation()
-      try await _ = obj.credential(with: nil)
+      _ = try await obj.credential(with: nil)
     }
 
     func FIRFederatedAuthProvider_h() {
