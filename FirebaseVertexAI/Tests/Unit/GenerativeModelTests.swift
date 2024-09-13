@@ -1375,7 +1375,7 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
 struct AppCheckErrorFake: Error {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetyRating: Comparable {
+extension SafetyRating: Swift.Comparable {
   public static func < (lhs: FirebaseVertexAI.SafetyRating,
                         rhs: FirebaseVertexAI.SafetyRating) -> Bool {
     return lhs.category.rawValue < rhs.category.rawValue
