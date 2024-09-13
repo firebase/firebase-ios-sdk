@@ -193,4 +193,4 @@ extension FunctionCallingConfig.Mode: Encodable {}
 
 extension ToolConfig: Encodable {}
 
-extension FunctionResponse: Encodable {}
+extension FunctionResponse: Codable {}

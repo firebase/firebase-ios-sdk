@@ -141,12 +141,21 @@ class UserTests: RPCBaseTests {
       "phoneNumber": kPhoneNumber,
       "createdAt": String(Int(kCreationDateTimeIntervalInSeconds) * 1000), // to nanoseconds
       "lastLoginAt": String(Int(kLastSignInDateTimeIntervalInSeconds) * 1000),
-      "mfaInfo": [[
-        "phoneInfo": kPhoneInfo,
-        "mfaEnrollmentId": kEnrollmentID,
-        "displayName": kDisplayName,
-        "enrolledAt": kEnrolledAt,
-      ]],
+      "mfaInfo": [
+        [
+          "phoneInfo": kPhoneInfo,
+          "mfaEnrollmentId": kEnrollmentID,
+          "displayName": kDisplayName,
+          "enrolledAt": kEnrolledAt,
+        ],
+        [
+          // In practice, this will be an empty dictionary.
+          "totpInfo": [AnyHashable: AnyHashable](),
+          "mfaEnrollmentId": kEnrollmentID,
+          "displayName": kDisplayName,
+          "enrolledAt": kEnrolledAt,
+        ] as [AnyHashable: AnyHashable],
+      ],
     ]]
 
     let expectation = self.expectation(description: #function)
@@ -346,11 +355,15 @@ class UserTests: RPCBaseTests {
 
           // Verify MultiFactorInfo properties.
           let enrolledFactors = try XCTUnwrap(user.multiFactor.enrolledFactors)
+          XCTAssertEqual(enrolledFactors.count, 2)
           XCTAssertEqual(enrolledFactors[0].factorID, PhoneMultiFactorInfo.PhoneMultiFactorID)
-          XCTAssertEqual(enrolledFactors[0].uid, kEnrollmentID)
-          XCTAssertEqual(enrolledFactors[0].displayName, self.kDisplayName)
-          let date = try XCTUnwrap(enrolledFactors[0].enrollmentDate)
-          XCTAssertEqual("\(date)", kEnrolledAtMatch)
+          XCTAssertEqual(enrolledFactors[1].factorID, PhoneMultiFactorInfo.TOTPMultiFactorID)
+          for enrolledFactor in enrolledFactors {
+            XCTAssertEqual(enrolledFactor.uid, kEnrollmentID)
+            XCTAssertEqual(enrolledFactor.displayName, self.kDisplayName)
+            let date = try XCTUnwrap(enrolledFactor.enrollmentDate)
+            XCTAssertEqual("\(date)", kEnrolledAtMatch)
+          }
         #endif
       } catch {
         XCTFail("Caught an error in \(#function): \(error)")

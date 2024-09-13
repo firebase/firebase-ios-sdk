@@ -137,7 +137,7 @@ Alternatively, disable signing in each target:
 
 ### Adding a New Firebase Pod
 
-Refer to [AddNewPod](AddNewPod.md) Markdown file for details.
+Refer to [AddNewPod](docs/AddNewPod.md) Markdown file for details.
 
 ### Managing Headers and Imports
 

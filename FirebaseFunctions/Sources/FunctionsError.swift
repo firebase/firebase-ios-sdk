@@ -101,16 +101,16 @@ public let FunctionsErrorDetailsKey: String = "details"
   case unauthenticated = 16
 }
 
-extension FunctionsErrorCode {
+private extension FunctionsErrorCode {
   /// Takes an HTTP status code and returns the corresponding `FIRFunctionsErrorCode` error code.
   ///
   /// + This is the standard HTTP status code -> error mapping defined in:
   /// https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
   ///
-  /// - Parameter status: An HTTP status code.
+  /// - Parameter httpStatusCode: An HTTP status code.
   /// - Returns: A `FunctionsErrorCode`. Falls back to `internal` for unknown status codes.
-  static func errorCode(forHTTPStatus status: Int) -> Self {
-    switch status {
+  init(httpStatusCode: Int) {
+    self = switch httpStatusCode {
     case 200: .OK
     case 400: .invalidArgument
     case 401: .unauthenticated
@@ -127,102 +127,86 @@ extension FunctionsErrorCode {
     }
   }
 
-  static func errorCode(forName name: String) -> FunctionsErrorCode {
-    switch name {
-    case "OK": return .OK
-    case "CANCELLED": return .cancelled
-    case "UNKNOWN": return .unknown
-    case "INVALID_ARGUMENT": return .invalidArgument
-    case "DEADLINE_EXCEEDED": return .deadlineExceeded
-    case "NOT_FOUND": return .notFound
-    case "ALREADY_EXISTS": return .alreadyExists
-    case "PERMISSION_DENIED": return .permissionDenied
-    case "RESOURCE_EXHAUSTED": return .resourceExhausted
-    case "FAILED_PRECONDITION": return .failedPrecondition
-    case "ABORTED": return .aborted
-    case "OUT_OF_RANGE": return .outOfRange
-    case "UNIMPLEMENTED": return .unimplemented
-    case "INTERNAL": return .internal
-    case "UNAVAILABLE": return .unavailable
-    case "DATA_LOSS": return .dataLoss
-    case "UNAUTHENTICATED": return .unauthenticated
-    default: return .internal
+  init(errorName: String) {
+    self = switch errorName {
+    case "OK": .OK
+    case "CANCELLED": .cancelled
+    case "UNKNOWN": .unknown
+    case "INVALID_ARGUMENT": .invalidArgument
+    case "DEADLINE_EXCEEDED": .deadlineExceeded
+    case "NOT_FOUND": .notFound
+    case "ALREADY_EXISTS": .alreadyExists
+    case "PERMISSION_DENIED": .permissionDenied
+    case "RESOURCE_EXHAUSTED": .resourceExhausted
+    case "FAILED_PRECONDITION": .failedPrecondition
+    case "ABORTED": .aborted
+    case "OUT_OF_RANGE": .outOfRange
+    case "UNIMPLEMENTED": .unimplemented
+    case "INTERNAL": .internal
+    case "UNAVAILABLE": .unavailable
+    case "DATA_LOSS": .dataLoss
+    case "UNAUTHENTICATED": .unauthenticated
+    default: .internal
     }
   }
+}
 
-  var descriptionForErrorCode: String {
-    switch self {
-    case .OK:
-      return "OK"
-    case .cancelled:
-      return "CANCELLED"
-    case .unknown:
-      return "UNKNOWN"
-    case .invalidArgument:
-      return "INVALID ARGUMENT"
-    case .deadlineExceeded:
-      return "DEADLINE EXCEEDED"
-    case .notFound:
-      return "NOT FOUND"
-    case .alreadyExists:
-      return "ALREADY EXISTS"
-    case .permissionDenied:
-      return "PERMISSION DENIED"
-    case .resourceExhausted:
-      return "RESOURCE EXHAUSTED"
-    case .failedPrecondition:
-      return "FAILED PRECONDITION"
-    case .aborted:
-      return "ABORTED"
-    case .outOfRange:
-      return "OUT OF RANGE"
-    case .unimplemented:
-      return "UNIMPLEMENTED"
-    case .internal:
-      return "INTERNAL"
-    case .unavailable:
-      return "UNAVAILABLE"
-    case .dataLoss:
-      return "DATA LOSS"
-    case .unauthenticated:
-      return "UNAUTHENTICATED"
-    }
+/// The object used to report errors that occur during a function’s execution.
+struct FunctionsError: CustomNSError {
+  static let errorDomain = FunctionsErrorDomain
+
+  let code: FunctionsErrorCode
+  let errorUserInfo: [String: Any]
+  var errorCode: FunctionsErrorCode.RawValue { code.rawValue }
+
+  init(_ code: FunctionsErrorCode, userInfo: [String: Any]? = nil) {
+    self.code = code
+    errorUserInfo = userInfo ?? [NSLocalizedDescriptionKey: Self.errorDescription(from: code)]
   }
 
-  func generatedError(userInfo: [String: Any]? = nil) -> NSError {
-    return NSError(domain: FunctionsErrorDomain,
-                   code: rawValue,
-                   userInfo: userInfo ?? [NSLocalizedDescriptionKey: descriptionForErrorCode])
-  }
-
-  static func errorForResponse(status: Int,
-                               body: Data?,
-                               serializer: FunctionsSerializer) -> NSError? {
+  /// Initializes a `FunctionsError` from the HTTP status code and response body.
+  ///
+  /// - Parameters:
+  ///   - httpStatusCode: The HTTP status code reported during a function’s execution. Only a subset
+  /// of codes are supported.
+  ///   - body: The optional response data which may contain information about the error. The
+  /// following schema is expected:
+  ///     ```
+  ///     {
+  ///         "error": {
+  ///             "status": "PERMISSION_DENIED",
+  ///             "message": "You are not allowed to perform this operation",
+  ///             "details": 123 // Any value supported by `FunctionsSerializer`
+  ///     }
+  ///     ```
+  ///   - serializer: The `FunctionsSerializer` used to decode `details` in the error body.
+  init?(httpStatusCode: Int, body: Data?, serializer: FunctionsSerializer) {
     // Start with reasonable defaults from the status code.
-    var code = FunctionsErrorCode.errorCode(forHTTPStatus: status)
-    var description = code.descriptionForErrorCode
-    var details: AnyObject?
+    var code = FunctionsErrorCode(httpStatusCode: httpStatusCode)
+    var description = Self.errorDescription(from: code)
+    var details: Any?
 
     // Then look through the body for explicit details.
     if let body,
-       let json = try? JSONSerialization.jsonObject(with: body) as? NSDictionary,
-       let errorDetails = json["error"] as? NSDictionary {
+       let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
+       let errorDetails = json["error"] as? [String: Any] {
       if let status = errorDetails["status"] as? String {
-        code = .errorCode(forName: status)
+        code = FunctionsErrorCode(errorName: status)
 
         // If the code in the body is invalid, treat the whole response as malformed.
         guard code != .internal else {
-          return code.generatedError(userInfo: nil)
+          self.init(code)
+          return
         }
       }
 
       if let message = errorDetails["message"] as? String {
         description = message
       } else {
-        description = code.descriptionForErrorCode
+        description = Self.errorDescription(from: code)
       }
 
-      details = errorDetails["details"] as AnyObject?
+      details = errorDetails["details"] as Any?
       // Update `details` only if decoding succeeds;
       // otherwise, keep the original object.
       if let innerDetails = details,
@@ -243,6 +227,28 @@ extension FunctionsErrorCode {
     if let details {
       userInfo[FunctionsErrorDetailsKey] = details
     }
-    return code.generatedError(userInfo: userInfo)
+    self.init(code, userInfo: userInfo)
+  }
+
+  private static func errorDescription(from code: FunctionsErrorCode) -> String {
+    switch code {
+    case .OK: "OK"
+    case .cancelled: "CANCELLED"
+    case .unknown: "UNKNOWN"
+    case .invalidArgument: "INVALID ARGUMENT"
+    case .deadlineExceeded: "DEADLINE EXCEEDED"
+    case .notFound: "NOT FOUND"
+    case .alreadyExists: "ALREADY EXISTS"
+    case .permissionDenied: "PERMISSION DENIED"
+    case .resourceExhausted: "RESOURCE EXHAUSTED"
+    case .failedPrecondition: "FAILED PRECONDITION"
+    case .aborted: "ABORTED"
+    case .outOfRange: "OUT OF RANGE"
+    case .unimplemented: "UNIMPLEMENTED"
+    case .internal: "INTERNAL"
+    case .unavailable: "UNAVAILABLE"
+    case .dataLoss: "DATA LOSS"
+    case .unauthenticated: "UNAUTHENTICATED"
+    }
   }
 }

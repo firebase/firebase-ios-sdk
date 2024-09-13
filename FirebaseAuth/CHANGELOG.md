@@ -7,6 +7,9 @@
   in methods and a `nil` error. In such cases, an empty array is instead
   returned with the `nil` error. (#13550)
 - [Fixed] Fixed user session persistence in multi tenant projects. Introduced in 11.0.0. (#13565)
+- [Fixed] Fixed encoding crash that occurs when using TOTP multi-factor
+  authentication. Note that this fix will not be in the 11.2.0 zip and Carthage
+  distributions, but will be included from 11.3.0 onwards. (#13591)
 
 # 11.1.0
 - [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)

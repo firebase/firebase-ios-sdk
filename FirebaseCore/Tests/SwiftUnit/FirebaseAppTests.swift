@@ -328,21 +328,20 @@ class FirebaseAppTests: XCTestCase {
   // MARK: - Helpers
 
   private func expectAppConfigurationNotification(appName: String, isDefaultApp: Bool) {
+    let expectedUserInfo: [String: Any] = [
+      "FIRAppNameKey": appName,
+      "FIRAppIsDefaultAppKey": NSNumber(value: isDefaultApp),
+      "FIRGoogleAppIDKey": Constants.Options.googleAppID,
+    ]
+
     expectation(forNotification: NSNotification.Name.firAppReadyToConfigureSDK,
                 object: FirebaseApp.self, handler: { notification -> Bool in
-                  if let userInfo = notification.userInfo {
-                    let expectedUserInfo: NSDictionary = [
-                      "FIRAppNameKey": appName,
-                      "FIRAppIsDefaultAppKey": NSNumber(value: isDefaultApp),
-                      "FIRGoogleAppIDKey": Constants.Options.googleAppID,
-                    ]
-                    if expectedUserInfo.isEqual(to: userInfo) {
-                      return true
-                    }
-                  } else {
+                  guard let userInfo = notification.userInfo else {
                     XCTFail("Failed to unwrap notification user info")
+                    return false
                   }
-                  return false
+                  return NSDictionary(dictionary: expectedUserInfo) ==
+                    NSDictionary(dictionary: userInfo)
                 })
   }
 
