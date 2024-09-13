@@ -121,8 +121,11 @@ extension SafetyRating.HarmProbability: Decodable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedProbability = SafetyRating.HarmProbability(rawValue: value) else {
-      Logging.default
-        .error("[FirebaseVertexAI] Unrecognized HarmProbability with value \"\(value)\".")
+      Logging.logEvent(
+        level: .error,
+        message: "Unrecognized HarmProbability with value \"\(value)\".",
+        messageCode: .generateContentResponseUnrecognizedHarmProbability
+      )
       self = .unknown
       return
     }

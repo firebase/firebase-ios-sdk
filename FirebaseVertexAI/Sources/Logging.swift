@@ -13,59 +13,55 @@
 // limitations under the License.
 
 import Foundation
-import OSLog
+import os.log
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct Logging {
+@_implementationOnly import FirebaseCoreExtension
+
+/// Enum of log messages.
+enum LoggerMessageCode: Int {
+  case unknown = 0
+  case verboseLoggingEnabled
+  case verboseLoggingDisabled
+  case firebaseMLAPIDisabled
+  case generativeModelInitialized
+  case generativeAIServiceNonHTTPResponse
+  case loadRequestResponseError
+  case loadRequestResponseErrorPayload
+  case loadRequestStreamResponseError
+  case loadRequestStreamResponseErrorPayload
+  case loadRequestStreamResponseLine
+  case loadRequestParseResponseFailedJSON
+  case loadRequestParseResponseFailedJSONError
+  case generateContentResponseNoCandidates
+  case generateContentResponseNoText
+  case generateContentResponseUnrecognizedFinishReason
+  case generateContentResponseUnrecognizedBlockReason
+  case generateContentResponseUnrecognizedBlockThreshold
+  case generateContentResponseUnrecognizedHarmProbability
+  case generateContentResponseUnrecognizedHarmCategory
+  case appCheckTokenFetchFailed
+}
+
+enum Logging {
+  /// Log identifier.
+  static let service = "[FirebaseVertexAI]"
+
   /// Subsystem that should be used for all Loggers.
-  static let subsystem = "com.google.firebase.vertex-ai"
+  static let subsystem = "com.google.firebase"
 
-  /// Default category used for most loggers, unless specialized.
-  static let defaultCategory = ""
+  static let logObject = OSLog(subsystem: subsystem, category: service)
 
   /// The argument required to enable additional logging.
   static let enableArgumentKey = "-FIRDebugEnabled"
 
-  /// The argument required to enable additional logging in the Google AI SDK; used for migration.
-  ///
-  /// To facilitate migration between the SDKs, this launch argument is also accepted to enable
-  /// additional logging at this time, though it is expected to be removed in the future.
-  static let migrationEnableArgumentKey = "-GoogleGenerativeAIDebugLogEnabled"
-
-  // No initializer available.
-  @available(*, unavailable)
-  private init() {}
-
-  /// The default logger that is visible for all users. Note: we shouldn't be using anything lower
-  /// than `.notice`.
-  static let `default` = Logger(subsystem: subsystem, category: defaultCategory)
-
-  /// A non default
-  static let network: Logger = {
-    if additionalLoggingEnabled() {
-      return Logger(subsystem: subsystem, category: "NetworkResponse")
-    } else {
-      // Return a valid logger that's using `OSLog.disabled` as the logger, hiding everything.
-      return Logger(.disabled)
-    }
-  }()
-
-  ///
-  static let verbose: Logger = {
-    if additionalLoggingEnabled() {
-      return Logger(subsystem: subsystem, category: defaultCategory)
-    } else {
-      // Return a valid logger that's using `OSLog.disabled` as the logger, hiding everything.
-      return Logger(.disabled)
-    }
-  }()
+  static func logEvent(level: FirebaseLoggerLevel, message: String,
+                       messageCode: LoggerMessageCode) {
+    let code = String(format: "I-VTX%06d", messageCode.rawValue)
+    FirebaseLogger.log(level: level, service: Logging.service, code: code, message: message)
+  }
 
   /// Returns `true` if additional logging has been enabled via a launch argument.
   static func additionalLoggingEnabled() -> Bool {
-    let arguments = ProcessInfo.processInfo.arguments
-    if arguments.contains(enableArgumentKey) || arguments.contains(migrationEnableArgumentKey) {
-      return true
-    }
-    return false
+    return ProcessInfo.processInfo.arguments.contains(enableArgumentKey)
   }
 }
