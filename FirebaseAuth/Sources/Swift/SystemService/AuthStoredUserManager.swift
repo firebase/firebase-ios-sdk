@@ -161,6 +161,10 @@ class AuthStoredUserManager {
     ]
     query[kSecUseDataProtectionKeychain as String] = true
 
+    if (shareAuthStateAcrossDevices) {
+      query[kSecAttrSynchronizable as String] = true
+    }
+
     return query
   }
 }
