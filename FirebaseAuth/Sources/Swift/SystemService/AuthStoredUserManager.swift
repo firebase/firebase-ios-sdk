@@ -119,7 +119,19 @@ class AuthStoredUserManager {
     archiver.encode(user, forKey: Self.storedUserCoderKey)
     archiver.finishEncoding()
 
-    try keychainServices.setItem(archiver.encodedData, withQuery: query)
+    do {
+      try keychainServices.setItem(archiver.encodedData, withQuery: query)
+    } catch let error as NSError {
+      // 11.0.0 ≤ version < 11.3.0
+      guard !shareAuthStateAcrossDevices,
+            error.localizedFailureReason == "SecItemAdd (-25299)" else {
+        throw error
+      }
+      let corruptQuery = query
+        .merging([kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock]) { $1 }
+      try keychainServices.removeItem(query: corruptQuery)
+      try keychainServices.setItem(archiver.encodedData, withQuery: query)
+    }
   }
 
   /// Remove the user that stored locally.
