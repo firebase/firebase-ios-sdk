@@ -97,6 +97,13 @@ class AuthBackend: NSObject {
     return try await implementation().call(with: request)
   }
 
+  class func waitAndReturnInt() async -> Int {
+    print("starting wait for int") // thread 3
+    try! await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds  // thread 8
+    print("returning int") // returned on thread 13 ⚠️
+    return 1
+  }
+
   class func request(withURL url: URL,
                      contentType: String,
                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
@@ -109,13 +116,11 @@ class AuthBackend: NSObject {
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
     if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-      if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-        let heartbeatsHeaderValue = await withUnsafeContinuation { continuation in
-          let heartbeatsHeader = heartbeatLogger.headerValue()
-          continuation.resume(returning: heartbeatsHeader)
-        }
-        request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
-      }
+      // This below call synchronously dispatches to a queue. To avoid blocking
+      // the shared concurrency queue, `async let` will spawn the process on
+      // a separate thread.
+      async let heartbeatsHeaderValue = heartbeatLogger.headerValue()
+      await request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
     }
     request.httpMethod = requestConfiguration.httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
