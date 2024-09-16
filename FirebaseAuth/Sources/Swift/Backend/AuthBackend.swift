@@ -109,7 +109,13 @@ class AuthBackend: NSObject {
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
     if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-      request.setValue(heartbeatLogger.headerValue(), forHTTPHeaderField: "X-Firebase-Client")
+      if let heartbeatLogger = requestConfiguration.heartbeatLogger {
+        let heartbeatsHeaderValue = await withUnsafeContinuation { continuation in
+          let heartbeatsHeader = heartbeatLogger.headerValue()
+          continuation.resume(returning: heartbeatsHeader)
+        }
+        request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
+      }
     }
     request.httpMethod = requestConfiguration.httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
