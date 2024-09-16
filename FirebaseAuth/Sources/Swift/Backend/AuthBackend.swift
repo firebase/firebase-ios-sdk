@@ -97,13 +97,6 @@ class AuthBackend: NSObject {
     return try await implementation().call(with: request)
   }
 
-  class func waitAndReturnInt() async -> Int {
-    print("starting wait for int") // thread 3
-    try! await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds  // thread 8
-    print("returning int") // returned on thread 13 ⚠️
-    return 1
-  }
-
   class func request(withURL url: URL,
                      contentType: String,
                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
