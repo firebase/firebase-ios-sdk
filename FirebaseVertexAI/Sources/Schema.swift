@@ -114,17 +114,12 @@ public class Schema {
     )
   }
 
-  public static func enumString(description: String? = nil, nullable: Bool = false,
-                                enumValues: String...) -> Schema {
-    return Schema.enumString(description: description, nullable: nullable, enumValues: enumValues)
-  }
-
-  static func enumString(description: String?, nullable: Bool, enumValues: [String]) -> Schema {
+  public static func enumeration(values: [String], description: String?, nullable: Bool) -> Schema {
     return self.init(
       type: .string,
       format: "enum", description: description,
       nullable: nullable,
-      enumValues: enumValues
+      enumValues: values
     )
   }
 
@@ -160,8 +155,7 @@ public class Schema {
     return self.init(type: .boolean, description: description, nullable: nullable)
   }
 
-  public static func array(description: String? = nil, nullable: Bool = false,
-                           items: Schema) -> Schema {
+  public static func array(items: Schema, description: String? = nil, nullable: Bool = false) -> Schema {
     return self.init(type: .array, description: description, nullable: nullable, items: items)
   }
 
