@@ -30,28 +30,28 @@ public class Schema {
   }
 
   /// The data type.
-  let type: DataType
+  public let type: DataType
 
   /// The format of the data.
-  let format: String?
+  public let format: String?
 
   /// A brief description of the parameter.
-  let description: String?
+  public let description: String?
 
   /// Indicates if the value may be null.
-  let nullable: Bool?
+  public let nullable: Bool?
 
   /// Possible values of the element of type ``DataType/string`` with "enum" format.
-  let enumValues: [String]?
+  public let enumValues: [String]?
 
   /// Schema of the elements of type ``DataType/array``.
-  let items: Schema?
+  public let items: Schema?
 
   /// Properties of type ``DataType/object``.
-  let properties: [String: Schema]?
+  public let properties: [String: Schema]?
 
   /// Required properties of type ``DataType/object``.
-  let requiredProperties: [String]?
+  public let requiredProperties: [String]?
 
   /// Constructs a new `Schema`.
   ///
@@ -74,8 +74,7 @@ public class Schema {
   etc., instead.
   """)
   public convenience init(type: DataType, format: String? = nil, description: String? = nil,
-                          nullable: Bool? = nil,
-                          enumValues: [String]? = nil, items: Schema? = nil,
+                          nullable: Bool? = nil, enumValues: [String]? = nil, items: Schema? = nil,
                           properties: [String: Schema]? = nil,
                           requiredProperties: [String]? = nil) {
     self.init(
@@ -91,10 +90,8 @@ public class Schema {
   }
 
   required init(type: DataType, format: String? = nil, description: String? = nil,
-                nullable: Bool = false,
-                enumValues: [String]? = nil, items: Schema? = nil,
-                properties: [String: Schema]? = nil,
-                requiredProperties: [String]? = nil) {
+                nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
+                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
     self.type = type
     self.format = format
     self.description = description
@@ -109,26 +106,20 @@ public class Schema {
                             format: StringFormat? = nil) -> Schema {
     return self.init(
       type: .string,
-      format: format?.rawValue, description: description,
-      nullable: nullable
-    )
-  }
-
-  public static func enumeration(values: [String], description: String?, nullable: Bool) -> Schema {
-    return self.init(
-      type: .string,
-      format: "enum", description: description,
-      nullable: nullable,
-      enumValues: values
-    )
-  }
-
-  public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
-    return self.init(
-      type: .number,
-      format: "double",
+      format: format?.rawValue,
       description: description,
       nullable: nullable
+    )
+  }
+
+  public static func enumeration(values: [String], description: String? = nil,
+                                 nullable: Bool = false) -> Schema {
+    return self.init(
+      type: .string,
+      format: "enum",
+      description: description,
+      nullable: nullable,
+      enumValues: values
     )
   }
 
@@ -136,6 +127,15 @@ public class Schema {
     return self.init(
       type: .number,
       format: "float",
+      description: description,
+      nullable: nullable
+    )
+  }
+
+  public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
+    return self.init(
+      type: .number,
+      format: "double",
       description: description,
       nullable: nullable
     )
@@ -155,13 +155,13 @@ public class Schema {
     return self.init(type: .boolean, description: description, nullable: nullable)
   }
 
-  public static func array(items: Schema, description: String? = nil, nullable: Bool = false) -> Schema {
+  public static func array(items: Schema, description: String? = nil,
+                           nullable: Bool = false) -> Schema {
     return self.init(type: .array, description: description, nullable: nullable, items: items)
   }
 
-  public static func object(description: String? = nil, nullable: Bool = false,
-                            properties: [String: Schema],
-                            optionalProperties: [String] = []) -> Schema {
+  public static func object(properties: [String: Schema], optionalProperties: [String] = [],
+                            description: String? = nil, nullable: Bool = false) -> Schema {
     var requiredProperties = Set(properties.keys)
     for optionalProperty in optionalProperties {
       guard properties.keys.contains(optionalProperty) else {
