@@ -12,61 +12,52 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
-
-// Set up your API Key
-// ====================
-// To use the Gemini API, you'll need an API key. To learn more, see the "Set up your API Key"
-// section in the Gemini API quickstart:
-// https://ai.google.dev/gemini-api/docs/quickstart?lang=swift#set-up-api-key
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 final class SafetySettingsSnippets: XCTestCase {
   override func setUpWithError() throws {
-    try XCTSkipIf(
-      APIKey.default.isEmpty,
-      "`\(APIKey.apiKeyEnvVar)` environment variable not set."
-    )
+    try FirebaseApp.configureForSnippets()
+  }
+
+  override func tearDown() async throws {
+    if let app = FirebaseApp.app() {
+      await app.delete()
+    }
   }
 
   func testSafetySettings() {
     // [START safety_settings]
-    let generativeModel =
-      GenerativeModel(
-        // Specify a Gemini model appropriate for your use case
-        name: "gemini-1.5-flash",
-        // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-        // above)
-        apiKey: APIKey.default,
-        safetySettings: [SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove)]
-      )
+    // ...
+
+    let model = VertexAI.vertexAI().generativeModel(
+      modelName: "MODEL_NAME",
+      safetySettings: [
+        SafetySetting(harmCategory: .harassment, threshold: .blockOnlyHigh),
+      ]
+    )
+
+    // ...
     // [END safety_settings]
 
     // Added to silence the compiler warning about unused variable.
-    let _ = String(describing: generativeModel)
+    let _ = String(describing: model)
   }
 
   func testSafetySettingsMulti() {
     // [START safety_settings_multi]
-    let safetySettings = [
-      SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
-      SafetySetting(harmCategory: .harassment, threshold: .blockMediumAndAbove),
-      SafetySetting(harmCategory: .hateSpeech, threshold: .blockOnlyHigh),
-    ]
+    let harassmentSafety = SafetySetting(harmCategory: .harassment, threshold: .blockOnlyHigh)
+    let hateSpeechSafety = SafetySetting(harmCategory: .hateSpeech, threshold: .blockMediumAndAbove)
 
-    let generativeModel =
-      GenerativeModel(
-        // Specify a Gemini model appropriate for your use case
-        name: "gemini-1.5-flash",
-        // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-        // above)
-        apiKey: APIKey.default,
-        safetySettings: safetySettings
-      )
+    let model = VertexAI.vertexAI().generativeModel(
+      modelName: "MODEL_NAME",
+      safetySettings: [harassmentSafety, hateSpeechSafety]
+    )
     // [END safety_settings_multi]
 
     // Added to silence the compiler warning about unused variable.
-    let _ = String(describing: generativeModel)
+    let _ = String(describing: model)
   }
 }

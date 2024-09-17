@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
-
-// Set up your API Key
-// ====================
-// To use the Gemini API, you'll need an API key. To learn more, see the "Set up your API Key"
-// section in the Gemini API quickstart:
-// https://ai.google.dev/gemini-api/docs/quickstart?lang=swift#set-up-api-key
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 final class FunctionCallingSnippets: XCTestCase {
   override func setUpWithError() throws {
-    try XCTSkipIf(
-      APIKey.default.isEmpty,
-      "`\(APIKey.apiKeyEnvVar)` environment variable not set."
-    )
+    try FirebaseApp.configureForSnippets()
+  }
+
+  override func tearDown() async throws {
+    if let app = FirebaseApp.app() {
+      await app.delete()
+    }
   }
 
   func testFunctionCalling() async throws {
@@ -37,36 +35,32 @@ final class FunctionCallingSnippets: XCTestCase {
       return ["brightness": .number(brightness), "colorTemperature": .string(colorTemperature)]
     }
 
-    let generativeModel =
-      GenerativeModel(
-        // Use a model that supports function calling, like a Gemini 1.5 model
-        name: "gemini-1.5-flash",
-        // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-        // above)
-        apiKey: APIKey.default,
-        tools: [Tool(functionDeclarations: [
-          FunctionDeclaration(
-            name: "controlLight",
-            description: "Set the brightness and color temperature of a room light.",
-            parameters: [
-              "brightness": Schema(
-                type: .number,
-                format: "double",
-                description: "Light level from 0 to 100. Zero is off and 100 is full brightness."
-              ),
-              "colorTemperature": Schema(
-                type: .string,
-                format: "enum",
-                description: "Color temperature of the light fixture.",
-                enumValues: ["daylight", "cool", "warm"]
-              ),
-            ],
-            requiredParameters: ["brightness", "colorTemperature"]
-          ),
-        ])]
-      )
+    let model = VertexAI.vertexAI().generativeModel(
+      // Use a model that supports function calling, like a Gemini 1.5 model
+      modelName: "gemini-1.5-flash",
+      tools: [Tool(functionDeclarations: [
+        FunctionDeclaration(
+          name: "controlLight",
+          description: "Set the brightness and color temperature of a room light.",
+          parameters: [
+            "brightness": Schema(
+              type: .number,
+              format: "double",
+              description: "Light level from 0 to 100. Zero is off and 100 is full brightness."
+            ),
+            "colorTemperature": Schema(
+              type: .string,
+              format: "enum",
+              description: "Color temperature of the light fixture.",
+              enumValues: ["daylight", "cool", "warm"]
+            ),
+          ],
+          requiredParameters: ["brightness", "colorTemperature"]
+        ),
+      ])]
+    )
 
-    let chat = generativeModel.startChat()
+    let chat = await model.startChat()
 
     let prompt = "Dim the lights so the room feels cozy and warm."
 

@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
-
-// Set up your API Key
-// ====================
-// To use the Gemini API, you'll need an API key. To learn more, see the "Set up your API Key"
-// section in the Gemini API quickstart:
-// https://ai.google.dev/gemini-api/docs/quickstart?lang=swift#set-up-api-key
 
 @available(iOS 15.0, macCatalyst 15.0, *)
 final class ControlledGenerationSnippets: XCTestCase {
   override func setUpWithError() throws {
-    try XCTSkipIf(
-      APIKey.default.isEmpty,
-      "`\(APIKey.apiKeyEnvVar)` environment variable not set."
-    )
+    try FirebaseApp.configureForSnippets()
+  }
+
+  override func tearDown() async throws {
+    if let app = FirebaseApp.app() {
+      await app.delete()
+    }
   }
 
   func testJSONControlledGeneration() async throws {
@@ -44,12 +42,8 @@ final class ControlledGenerationSnippets: XCTestCase {
       )
     )
 
-    let generativeModel = GenerativeModel(
-      // Specify a model that supports controlled generation like Gemini 1.5 Pro
-      name: "gemini-1.5-pro",
-      // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-      // above)
-      apiKey: APIKey.default,
+    let model = VertexAI.vertexAI().generativeModel(
+      modelName: "gemini-1.5-flash",
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
         responseSchema: jsonSchema
@@ -57,7 +51,7 @@ final class ControlledGenerationSnippets: XCTestCase {
     )
 
     let prompt = "List a few popular cookie recipes."
-    let response = try await generativeModel.generateContent(prompt)
+    let response = try await model.generateContent(prompt)
     if let text = response.text {
       print(text)
     }
@@ -66,11 +60,8 @@ final class ControlledGenerationSnippets: XCTestCase {
 
   func testJSONNoSchema() async throws {
     // [START json_no_schema]
-    let generativeModel = GenerativeModel(
-      name: "gemini-1.5-flash",
-      // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-      // above)
-      apiKey: APIKey.default,
+    let model = VertexAI.vertexAI().generativeModel(
+      modelName: "gemini-1.5-flash",
       generationConfig: GenerationConfig(responseMIMEType: "application/json")
     )
 
@@ -80,7 +71,7 @@ final class ControlledGenerationSnippets: XCTestCase {
     Recipe = {'recipeName': string}
     Return: Array<Recipe>
     """
-    let response = try await generativeModel.generateContent(prompt)
+    let response = try await model.generateContent(prompt)
     if let text = response.text {
       print(text)
     }

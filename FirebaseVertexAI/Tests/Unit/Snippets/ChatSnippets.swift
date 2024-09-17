@@ -12,34 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
-
-// Set up your API Key
-// ====================
-// To use the Gemini API, you'll need an API key. To learn more, see the "Set up your API Key"
-// section in the Gemini API quickstart:
-// https://ai.google.dev/gemini-api/docs/quickstart?lang=swift#set-up-api-key
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 final class ChatSnippets: XCTestCase {
   override func setUpWithError() throws {
-    try XCTSkipIf(
-      APIKey.default.isEmpty,
-      "`\(APIKey.apiKeyEnvVar)` environment variable not set."
-    )
+    try FirebaseApp.configureForSnippets()
+  }
+
+  override func tearDown() async throws {
+    if let app = FirebaseApp.app() {
+      await app.delete()
+    }
   }
 
   func testChat() async throws {
     // [START chat]
-    let generativeModel =
-      GenerativeModel(
-        // Specify a Gemini model appropriate for your use case
-        name: "gemini-1.5-flash",
-        // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-        // above)
-        apiKey: APIKey.default
-      )
+    // Initialize the Vertex AI service
+    let vertex = VertexAI.vertexAI()
+
+    // Initialize the generative model with a model that supports your use case
+    // Gemini 1.5 models are versatile and can be used with all API capabilities
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
 
     // Optionally specify existing chat history
     let history = [
@@ -48,7 +44,7 @@ final class ChatSnippets: XCTestCase {
     ]
 
     // Initialize the chat with optional chat history
-    let chat = generativeModel.startChat(history: history)
+    let chat = await model.startChat(history: history)
 
     // To generate text output, call sendMessage and pass in the message
     let response = try await chat.sendMessage("How many paws are in my house?")
@@ -60,14 +56,12 @@ final class ChatSnippets: XCTestCase {
 
   func testChatStreaming() async throws {
     // [START chat_streaming]
-    let generativeModel =
-      GenerativeModel(
-        // Specify a Gemini model appropriate for your use case
-        name: "gemini-1.5-flash",
-        // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-        // above)
-        apiKey: APIKey.default
-      )
+    // Initialize the Vertex AI service
+    let vertex = VertexAI.vertexAI()
+
+    // Initialize the generative model with a model that supports your use case
+    // Gemini 1.5 models are versatile and can be used with all API capabilities
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
 
     // Optionally specify existing chat history
     let history = [
@@ -76,10 +70,10 @@ final class ChatSnippets: XCTestCase {
     ]
 
     // Initialize the chat with optional chat history
-    let chat = generativeModel.startChat(history: history)
+    let chat = await model.startChat(history: history)
 
     // To stream generated text output, call sendMessageStream and pass in the message
-    let contentStream = chat.sendMessageStream("How many paws are in my house?")
+    let contentStream = try await chat.sendMessageStream("How many paws are in my house?")
     for try await chunk in contentStream {
       if let text = chunk.text {
         print(text)
@@ -88,38 +82,40 @@ final class ChatSnippets: XCTestCase {
     // [END chat_streaming]
   }
 
-  #if canImport(UIKit)
-    func testChatStreamingWithImages() async throws {
-      // [START chat_streaming_with_images]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
-
-      // Optionally specify existing chat history
-      let history = [
-        ModelContent(role: "user", parts: "I'm trying to remember a fable about two animals."),
-        ModelContent(role: "model", parts: "Do you remember what kind of animals were they?"),
-      ]
-
-      guard let image1 = UIImage(systemName: "tortoise") else { fatalError() }
-      guard let image2 = UIImage(systemName: "hare") else { fatalError() }
-
-      // Initialize the chat with optional chat history
-      let chat = generativeModel.startChat(history: history)
-
-      // To stream generated text output, call sendMessageStream and pass in the message
-      let contentStream = chat.sendMessageStream("The animals from these pictures.", image1, image2)
-      for try await chunk in contentStream {
-        if let text = chunk.text {
-          print(text)
-        }
-      }
-      // [END chat_streaming_with_images]
-    }
-  #endif // canImport(UIKit)
+//  #if canImport(UIKit)
+//    func testChatStreamingWithImages() async throws {
+//      // [START chat_streaming_with_images]
+//      let generativeModel =
+//        GenerativeModel(
+//          // Specify a Gemini model appropriate for your use case
+//          name: "gemini-1.5-flash",
+//          // Access your API key from your on-demand resource .plist file (see "Set up your API
+//          /key"
+//          // above)
+//          apiKey: APIKey.default
+//        )
+//
+//      // Optionally specify existing chat history
+//      let history = [
+//        ModelContent(role: "user", parts: "I'm trying to remember a fable about two animals."),
+//        ModelContent(role: "model", parts: "Do you remember what kind of animals were they?"),
+//      ]
+//
+//      guard let image1 = UIImage(systemName: "tortoise") else { fatalError() }
+//      guard let image2 = UIImage(systemName: "hare") else { fatalError() }
+//
+//      // Initialize the chat with optional chat history
+//      let chat = generativeModel.startChat(history: history)
+//
+//      // To stream generated text output, call sendMessageStream and pass in the message
+//      let contentStream = chat.sendMessageStream("The animals from these pictures.", image1,
+//      image2)
+//      for try await chunk in contentStream {
+//        if let text = chunk.text {
+//          print(text)
+//        }
+//      }
+//      // [END chat_streaming_with_images]
+//    }
+//  #endif // canImport(UIKit)
 }

@@ -12,38 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
-
-// Set up your API Key
-// ====================
-// To use the Gemini API, you'll need an API key. To learn more, see the "Set up your API Key"
-// section in the Gemini API quickstart:
-// https://ai.google.dev/gemini-api/docs/quickstart?lang=swift#set-up-api-key
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
 final class SystemInstructionsSnippets: XCTestCase {
   override func setUpWithError() throws {
-    try XCTSkipIf(
-      APIKey.default.isEmpty,
-      "`\(APIKey.apiKeyEnvVar)` environment variable not set."
-    )
+    try FirebaseApp.configureForSnippets()
+  }
+
+  override func tearDown() async throws {
+    if let app = FirebaseApp.app() {
+      await app.delete()
+    }
   }
 
   func testSystemInstruction() {
     // [START system_instruction]
-    let generativeModel =
-      GenerativeModel(
-        // Specify a model that supports system instructions, like a Gemini 1.5 model
-        name: "gemini-1.5-flash",
-        // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-        // above)
-        apiKey: APIKey.default,
-        systemInstruction: ModelContent(role: "system", parts: "You are a cat. Your name is Neko.")
-      )
+    // Initialize the Vertex AI service
+    let vertex = VertexAI.vertexAI()
+
+    // Initialize the generative model
+    // Specify a model that supports system instructions, like a Gemini 1.5 model
+    let model = vertex.generativeModel(
+      modelName: "gemini-1.5-flash",
+      systemInstruction: ModelContent(role: "system", parts: "You are a cat. Your name is Neko.")
+    )
     // [END system_instruction]
 
     // Added to silence the compiler warning about unused variable.
-    let _ = String(describing: generativeModel)
+    let _ = String(describing: model)
   }
 }

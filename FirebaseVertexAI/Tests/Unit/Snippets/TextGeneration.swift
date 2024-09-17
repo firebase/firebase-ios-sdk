@@ -12,81 +12,81 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import GoogleGenerativeAI
+import FirebaseCore
+import FirebaseVertexAI
 import XCTest
 
-// Set up your API Key
-// ====================
-// To use the Gemini API, you'll need an API key. To learn more, see the "Set up your API Key"
-// section in the Gemini API quickstart:
-// https://ai.google.dev/gemini-api/docs/quickstart?lang=swift#set-up-api-key
+@available(iOS 15.0, macCatalyst 15.0, *)
+final class TextGeneration: XCTestCase {
+  override func setUpWithError() throws {
+    try FirebaseApp.configureForSnippets()
+  }
 
-#if canImport(UIKit)
-  @available(iOS 15.0, macCatalyst 15.0, *)
-  final class TextGeneration: XCTestCase {
-    override func setUpWithError() throws {
-      try XCTSkipIf(
-        APIKey.default.isEmpty,
-        "`\(APIKey.apiKeyEnvVar)` environment variable not set."
-      )
+  override func tearDown() async throws {
+    if let app = FirebaseApp.app() {
+      await app.delete()
     }
+  }
 
-    func testTextOnlyPrompt() async throws {
-      // [START text_gen_text_only_prompt]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
+  func testTextOnlyPrompt() async throws {
+    // [START text_gen_text_only_prompt]
+    // Initialize the Vertex AI service
+    let vertex = VertexAI.vertexAI()
 
-      let prompt = "Write a story about a magic backpack."
-      let response = try await generativeModel.generateContent(prompt)
-      if let text = response.text {
+    // Initialize the generative model with a model that supports your use case
+    // Gemini 1.5 models are versatile and can be used with all API capabilities
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+
+    // Provide a prompt that contains text
+    let prompt = "Write a story about a magic backpack."
+
+    // To generate text output, call generateContent with the text input
+    let response = try await model.generateContent(prompt)
+    if let text = response.text {
+      print(text)
+    }
+    // [END text_gen_text_only_prompt]
+  }
+
+  func testTextOnlyPromptStreaming() async throws {
+    // [START text_gen_text_only_prompt_streaming]
+    // Initialize the Vertex AI service
+    let vertex = VertexAI.vertexAI()
+
+    // Initialize the generative model with a model that supports your use case
+    // Gemini 1.5 models are versatile and can be used with all API capabilities
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+
+    // Provide a prompt that contains text
+    let prompt = "Write a story about a magic backpack."
+
+    // To stream generated text output, call generateContentStream with the text input
+    let contentStream = try await model.generateContentStream(prompt)
+    for try await chunk in contentStream {
+      if let text = chunk.text {
         print(text)
       }
-      // [END text_gen_text_only_prompt]
     }
+    // [END text_gen_text_only_prompt_streaming]
+  }
 
-    func testTextOnlyPromptStreaming() async throws {
-      // [START text_gen_text_only_prompt_streaming]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
-
-      let prompt = "Write a story about a magic backpack."
-      // Use streaming with text-only input
-      for try await response in generativeModel.generateContentStream(prompt) {
-        if let text = response.text {
-          print(text)
-        }
-      }
-      // [END text_gen_text_only_prompt_streaming]
-    }
-
+  #if canImport(UIKit)
     func testMultimodalOneImagePrompt() async throws {
       // [START text_gen_multimodal_one_image_prompt]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
+      // Initialize the Vertex AI service
+      let vertex = VertexAI.vertexAI()
+
+      // Initialize the generative model with a model that supports your use case
+      // Gemini 1.5 models are versatile and can be used with all API capabilities
+      let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
 
       guard let image = UIImage(systemName: "cloud.sun") else { fatalError() }
 
+      // Provide a text prompt to include with the image
       let prompt = "What's in this picture?"
 
-      let response = try await generativeModel.generateContent(image, prompt)
+      // To generate text output, call generateContent and pass in the prompt
+      let response = try await model.generateContent(image, prompt)
       if let text = response.text {
         print(text)
       }
@@ -95,21 +95,22 @@ import XCTest
 
     func testMultimodalOneImagePromptStreaming() async throws {
       // [START text_gen_multimodal_one_image_prompt_streaming]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
+      // Initialize the Vertex AI service
+      let vertex = VertexAI.vertexAI()
+
+      // Initialize the generative model with a model that supports your use case
+      // Gemini 1.5 models are versatile and can be used with all API capabilities
+      let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
 
       guard let image = UIImage(systemName: "cloud.sun") else { fatalError() }
 
+      // Provide a text prompt to include with the image
       let prompt = "What's in this picture?"
 
-      for try await response in generativeModel.generateContentStream(image, prompt) {
-        if let text = response.text {
+      // To stream generated text output, call generateContentStream and pass in the prompt
+      let contentStream = try await model.generateContentStream(image, prompt)
+      for try await chunk in contentStream {
+        if let text = chunk.text {
           print(text)
         }
       }
@@ -118,21 +119,21 @@ import XCTest
 
     func testMultimodalMultiImagePrompt() async throws {
       // [START text_gen_multimodal_multi_image_prompt]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
+      // Initialize the Vertex AI service
+      let vertex = VertexAI.vertexAI()
+
+      // Initialize the generative model with a model that supports your use case
+      // Gemini 1.5 models are versatile and can be used with all API capabilities
+      let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
 
       guard let image1 = UIImage(systemName: "cloud.sun") else { fatalError() }
       guard let image2 = UIImage(systemName: "cloud.heavyrain") else { fatalError() }
 
-      let prompt = "What's the difference between these pictures?"
+      // Provide a text prompt to include with the images
+      let prompt = "What's different between these pictures?"
 
-      let response = try await generativeModel.generateContent(image1, image2, prompt)
+      // To generate text output, call generateContent and pass in the prompt
+      let response = try await model.generateContent(image1, image2, prompt)
       if let text = response.text {
         print(text)
       }
@@ -141,26 +142,27 @@ import XCTest
 
     func testMultimodalMultiImagePromptStreaming() async throws {
       // [START text_gen_multimodal_multi_image_prompt_streaming]
-      let generativeModel =
-        GenerativeModel(
-          // Specify a Gemini model appropriate for your use case
-          name: "gemini-1.5-flash",
-          // Access your API key from your on-demand resource .plist file (see "Set up your API key"
-          // above)
-          apiKey: APIKey.default
-        )
+      // Initialize the Vertex AI service
+      let vertex = VertexAI.vertexAI()
+
+      // Initialize the generative model with a model that supports your use case
+      // Gemini 1.5 models are versatile and can be used with all API capabilities
+      let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
 
       guard let image1 = UIImage(systemName: "cloud.sun") else { fatalError() }
       guard let image2 = UIImage(systemName: "cloud.heavyrain") else { fatalError() }
 
-      let prompt = "What's the difference between these pictures?"
+      // Provide a text prompt to include with the images
+      let prompt = "What's different between these pictures?"
 
-      for try await response in generativeModel.generateContentStream(image1, image2, prompt) {
-        if let text = response.text {
+      // To stream generated text output, call generateContentStream and pass in the prompt
+      let contentStream = try await model.generateContentStream(image1, image2, prompt)
+      for try await chunk in contentStream {
+        if let text = chunk.text {
           print(text)
         }
       }
       // [END text_gen_multimodal_multi_image_prompt_streaming]
     }
-  }
-#endif // canImport(UIKit)
+  #endif // canImport(UIKit)
+}
