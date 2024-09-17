@@ -821,7 +821,7 @@ static FIRApp *sDefaultApp;
     @"FIRFunctions" : @"fire-fun",
     @"FIRStorage" : @"fire-str",
     @"FIRVertexAIComponent" : @"fire-vertex",
-    @"FIRFooComponent" : @"fire-foo",
+    @"FIRDataConnectComponent" : @"fire-dc",
   };
   for (NSString *className in swiftLibraries.allKeys) {
     Class klass = NSClassFromString(className);
