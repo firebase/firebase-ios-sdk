@@ -47,8 +47,8 @@ auto KeysView(const Range& range) -> KeysRange<decltype(std::begin(range))> {
 }
 
 template <typename Range, typename K>
-auto KeysViewFrom(const Range& range,
-                  const K& key) -> KeysRange<decltype(range.lower_bound(key))> {
+auto KeysViewFrom(const Range& range, const K& key)
+    -> KeysRange<decltype(range.lower_bound(key))> {
   auto keys_begin = util::make_iterator_first(range.lower_bound(key));
   auto keys_end = util::make_iterator_first(std::end(range));
   return util::make_range(keys_begin, keys_end);

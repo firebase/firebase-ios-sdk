@@ -111,8 +111,8 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
     _userDefaults = userDefaults ? userDefaults : [GULUserDefaults standardUserDefaults];
     // it would be 0 if it does not exist, which is equvilent to saying that
     // you can send now
-    _nextValidSendTimeInMills = (int64_t)
-        [_userDefaults doubleForKey:FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills];
+    _nextValidSendTimeInMills = (int64_t)[_userDefaults
+        doubleForKey:FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills];
 
     NSArray<FIRIAMClearcutLogRecord *> *availableLogs =
         [logStorage popStillValidRecordsForUpTo:strategy.batchSendSize];
