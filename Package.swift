@@ -70,6 +70,10 @@ let package = Package(
       targets: ["FirebaseStorageCombineSwift"]
     ),
     .library(
+      name: "FirebaseCore",
+      targets: ["FirebaseCore"]
+    ),
+    .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
