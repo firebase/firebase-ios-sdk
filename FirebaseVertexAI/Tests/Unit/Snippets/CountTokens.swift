@@ -16,7 +16,7 @@ import FirebaseCore
 import FirebaseVertexAI
 import XCTest
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CountTokensSnippets: XCTestCase {
   override func setUpWithError() throws {
     try FirebaseApp.configureForSnippets()
