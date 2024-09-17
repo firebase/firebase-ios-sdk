@@ -208,10 +208,8 @@
       )
     }
 
-    /**
-     @fn testVerifyPhoneNumberWithRceAudit
-     @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise in audit mode
-     */
+     /// @fn testVerifyPhoneNumberWithRceAudit
+     /// @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise in audit mode
     func testVerifyPhoneNumberWithRceAuditSuccess() async throws {
       initApp(#function)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
