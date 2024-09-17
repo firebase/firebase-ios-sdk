@@ -45,13 +45,13 @@ class FunctionCallingViewModel: ObservableObject {
           name: "get_exchange_rate",
           description: "Get the exchange rate for currencies between countries",
           parameters: [
-            "currency_from": .enumString(
-              description: "The currency to convert from in ISO 4217 format",
-              enumValues: "USD", "EUR", "JPY", "GBP", "AUD", "CAD"
+            "currency_from": .enumeration(
+              values: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"],
+              description: "The currency to convert from in ISO 4217 format"
             ),
-            "currency_to": .enumString(
-              description: "The currency to convert to in ISO 4217 format",
-              enumValues: "USD", "EUR", "JPY", "GBP", "AUD", "CAD"
+            "currency_to": .enumeration(
+              values: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"],
+              description: "The currency to convert to in ISO 4217 format"
             ),
           ]
         ),
