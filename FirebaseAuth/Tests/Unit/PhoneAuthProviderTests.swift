@@ -198,93 +198,6 @@
     }
 
     /**
-     @fn testVerifyPhoneNumberWithRceAuditFallbackToAPNs
-     @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise audit
-     */
-    func testVerifyPhoneNumberWithRceAuditInvalidRecaptcha() async throws {
-      initApp(#function)
-      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
-      let provider = PhoneAuthProvider.provider(auth: auth)
-      let mockVerifier = FakeAuthRecaptchaVerifier()
-      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
-      rpcIssuer.rceMode = "AUDIT"
-      let requestExpectation = expectation(description: "verifyRequester")
-      let verifyClientRequestExpectation = expectation(description: "verifyClientRequest")
-      verifyClientRequestExpectation.expectedFulfillmentCount = 2
-      let verifyRequesterExpectation = expectation(description: "verifyRequester")
-      verifyRequesterExpectation.expectedFulfillmentCount = 2
-      rpcIssuer?.verifyRequester = { request in
-        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
-        XCTAssertEqual(request.captchaResponse, "NO_RECAPTCHA")
-        XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
-        requestExpectation.fulfill()
-        do {
-          try self.rpcIssuer?.respond(
-            serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
-            error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError
-          )
-        } catch {
-          XCTFail("Failure sending response: \(error)")
-        }
-      }
-      do {
-        _ = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
-          toPhoneNumber: kTestPhoneNumber,
-          retryOnInvalidAppCredential: false,
-          uiDelegate: nil,
-          recaptchaVerifier: mockVerifier
-        )
-      } catch {
-        let underlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError
-        let rootError = underlyingError?.userInfo[NSUnderlyingErrorKey] as? NSError
-        XCTAssertEqual(rootError?.code, AuthErrorCode.invalidRecaptchaToken.code.rawValue)
-        auth.appCredentialManager?.fakeCredential = AuthAppCredential(
-          receipt: kTestReceipt,
-          secret: kTestSecret
-        )
-        rpcIssuer?.verifyClientRequester = { request in
-          XCTAssertEqual(request.appToken, "21402324255E")
-          XCTAssertFalse(request.isSandbox)
-          verifyClientRequestExpectation.fulfill()
-          do {
-            try self.rpcIssuer?.respond(withJSON: [
-              "receipt": self.kTestReceipt,
-              "suggestedTimeout": self.kTestTimeout,
-            ])
-          } catch {
-            XCTFail("Failure sending APNs response: \(error)")
-          }
-        }
-        rpcIssuer?.verifyRequester = { request in
-          XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
-          switch request.codeIdentity {
-          case let .credential(credential):
-            XCTAssertEqual(credential.receipt, self.kTestReceipt)
-            XCTAssertEqual(credential.secret, self.kTestSecret)
-          default:
-            XCTFail("Should be credential")
-          }
-          verifyRequesterExpectation.fulfill()
-          do {
-            try self.rpcIssuer?
-              .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
-          } catch {
-            XCTFail("Failure sending verification response: \(error)")
-          }
-        }
-        provider.verifyPhoneNumber(kTestPhoneNumber, uiDelegate: nil) { verificationID, error in
-          XCTAssertTrue(Thread.isMainThread)
-          XCTAssertNil(error)
-          XCTAssertEqual(verificationID, self.kTestVerificationID)
-        }
-      }
-      await fulfillment(
-        of: [requestExpectation, verifyClientRequestExpectation, verifyRequesterExpectation],
-        timeout: 5.0
-      )
-    }
-
-    /**
      @fn testVerifyPhoneNumberWithRceEnforceSDKNotLinked
      @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise enforced
      */
@@ -293,6 +206,132 @@
         function: #function,
         rceError: AuthErrorUtils.recaptchaActionCreationFailed()
       )
+    }
+
+    /// @fn testVerifyPhoneNumberWithRceAuditInvalidRecaptchaFallbackToAPN
+    /// @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise audit
+    func testVerifyPhoneNumberWithRceAuditInvalidRecaptchaFallbackToAPN() async throws {
+      let function = #function
+      initApp(function, useClientID: true, fakeToken: true)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      let mockVerifier = FakeAuthRecaptchaVerifier()
+      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
+      rpcIssuer.rceMode = "AUDIT"
+      let requestExpectation = expectation(description: "verifyRequester")
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+        XCTAssertEqual(request.captchaResponse, "NO_RECAPTCHA")
+        XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
+        XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
+        requestExpectation.fulfill()
+        do {
+          try self.rpcIssuer?
+            .respond(
+              serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
+              error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError
+            )
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+      do {
+        _ = try await provider.verifyClAndSendVerificationCode(
+          toPhoneNumber: kTestPhoneNumber,
+          retryOnInvalidAppCredential: true,
+          uiDelegate: nil
+        )
+      } catch {
+        // Traverse the nested error to find the root cause
+        let underlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError
+        let rootError = underlyingError?.userInfo[NSUnderlyingErrorKey] as? NSError
+
+        // Compare the root error code to the expected error code
+        XCTAssertEqual(rootError?.code, AuthErrorCode.invalidRecaptchaToken.code.rawValue)
+      }
+
+      // fallback
+      let expectation = self.expectation(description: function)
+      let goodRetry = true
+      // Fake push notification.
+      auth.appCredentialManager?.fakeCredential = AuthAppCredential(
+        receipt: kTestReceipt,
+        secret: kTestSecret
+      )
+
+      // 1. Intercept, handle, and test three RPC calls.
+
+      let verifyClientRequestExpectation = self.expectation(description: "verifyClientRequest")
+      verifyClientRequestExpectation.expectedFulfillmentCount = 2
+      rpcIssuer?.verifyClientRequester = { request in
+        XCTAssertEqual(request.appToken, "21402324255E")
+        XCTAssertFalse(request.isSandbox)
+        verifyClientRequestExpectation.fulfill()
+        do {
+          // Response for the underlying VerifyClientRequest RPC call.
+          try self.rpcIssuer?.respond(withJSON: [
+            "receipt": self.kTestReceipt,
+            "suggestedTimeout": self.kTestTimeout,
+          ])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+
+      let verifyRequesterExpectation = self.expectation(description: "verifyRequester")
+      verifyRequesterExpectation.expectedFulfillmentCount = 2
+      var visited = false
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+        switch request.codeIdentity {
+        case let .credential(credential):
+          XCTAssertEqual(credential.receipt, self.kTestReceipt)
+          XCTAssertEqual(credential.secret, self.kTestSecret)
+        default:
+          XCTFail("Should be credential")
+        }
+        verifyRequesterExpectation.fulfill()
+        do {
+          if visited == false || goodRetry == false {
+            // First Response for the underlying SendVerificationCode RPC call.
+            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_APP_CREDENTIAL")
+            visited = true
+          } else {
+            // Second Response for the underlying SendVerificationCode RPC call.
+            try self.rpcIssuer?
+              .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+          }
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+
+      // Use fake authURLPresenter so we can test the parameters that get sent to it.
+      PhoneAuthProviderTests.auth?.authURLPresenter =
+        FakePresenter(
+          urlString: PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken,
+          clientID: PhoneAuthProviderTests.kFakeClientID,
+          firebaseAppID: nil,
+          errorTest: false,
+          presenterError: nil
+        )
+
+      // 2. After setting up the fakes and parameters, call `verifyPhoneNumber`.
+      provider
+        .verifyPhoneNumber(kTestPhoneNumber, uiDelegate: nil) { verificationID, error in
+
+          // 8. After the response triggers the callback in the FakePresenter, verify the callback.
+          XCTAssertTrue(Thread.isMainThread)
+          if goodRetry {
+            XCTAssertNil(error)
+            XCTAssertEqual(verificationID, self.kTestVerificationID)
+          } else {
+            XCTAssertNil(verificationID)
+            XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.internalError.rawValue)
+          }
+          expectation.fulfill()
+        }
+      await fulfillment(of: [expectation], timeout: 5.0)
     }
 
     /** @fn testVerifyPhoneNumberInTestMode
