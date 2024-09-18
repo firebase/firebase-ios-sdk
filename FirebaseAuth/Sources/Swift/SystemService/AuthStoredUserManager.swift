@@ -170,7 +170,8 @@ class AuthStoredUserManager {
     } catch let error as NSError {
       guard shareAuthStateAcrossDevices == false,
             error.localizedFailureReason == "SecItemAdd (-25299)" else {
-        // The error is not related to the 11.0 - 11.2, and should be rethrown.
+        // The error is not related to the 11.0 - 11.2 issue described above,
+        // and should be rethrown.
         throw error
       }
       // We are trying to write a non-iCloud entry but a corrupt iCloud entry
