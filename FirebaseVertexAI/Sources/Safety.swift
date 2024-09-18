@@ -59,22 +59,6 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   }
 }
 
-/// Safety feedback for an entire request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct SafetyFeedback {
-  /// Safety rating evaluated from content.
-  public let rating: SafetyRating
-
-  /// Safety settings applied to the request.
-  public let setting: SafetySetting
-
-  /// Internal initializer.
-  init(rating: SafetyRating, setting: SafetySetting) {
-    self.rating = rating
-    self.setting = setting
-  }
-}
-
 /// A type used to specify a threshold for harmful content, beyond which the model will return a
 /// fallback response instead of generated content.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -143,7 +127,7 @@ public struct SafetySetting {
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetyRating.HarmProbability: Codable {
+extension SafetyRating.HarmProbability: Decodable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedProbability = SafetyRating.HarmProbability(rawValue: value) else {
@@ -161,9 +145,6 @@ extension SafetyRating.HarmProbability: Codable {
 extension SafetyRating: Decodable {}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetyFeedback: Decodable {}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting.HarmCategory: Codable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
@@ -179,7 +160,7 @@ extension SafetySetting.HarmCategory: Codable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetySetting.BlockThreshold: Codable {
+extension SafetySetting.BlockThreshold: Encodable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedThreshold = SafetySetting.BlockThreshold(rawValue: value) else {
@@ -194,4 +175,4 @@ extension SafetySetting.BlockThreshold: Codable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetySetting: Codable {}
+extension SafetySetting: Encodable {}
