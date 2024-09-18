@@ -53,7 +53,6 @@ public let shared = Manifest(
     Pod("FirebasePerformance", platforms: ["ios", "tvos"], zip: true),
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
-    Pod("FirebaseVertexAI", isBeta: true, allowWarnings: true, zip: true),
     Pod("Firebase", allowWarnings: true, platforms: ["ios", "tvos", "macos"], zip: true),
   ]
 )
