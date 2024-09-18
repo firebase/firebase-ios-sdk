@@ -162,7 +162,7 @@ class AuthStoredUserManager {
     // iCloud entry was written), then all future non-iCloud writes would fail
     // due to the mismatching `kSecAttrAccessible` flag and throw an
     // unrecoverable error. To address this the below error handling is used to
-    // detect such cases,remove the "corrupt" iCloud entry stored by the buggy
+    // detect such cases, remove the "corrupt" iCloud entry stored by the buggy
     // version in the non-iCloud bucket, and retry writing the current
     // non-iCloud entry again.
     do {
