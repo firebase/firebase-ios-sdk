@@ -565,7 +565,7 @@ jobs:
     name: Check 222
     steps:
       - name: Check test matrix
-        run: echo needs.changes.outputs.changed
+        run: echo ${{ needs.changes.outputs.changed }}
 
 
   # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
