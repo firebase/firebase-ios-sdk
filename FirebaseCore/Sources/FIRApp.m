@@ -821,11 +821,24 @@ static FIRApp *sDefaultApp;
     @"FIRFunctions" : @"fire-fun",
     @"FIRStorage" : @"fire-str",
     @"FIRVertexAIComponent" : @"fire-vertex",
+    @"FIRDataConnectComponent" : @"fire-dc",
   };
   for (NSString *className in swiftLibraries.allKeys) {
     Class klass = NSClassFromString(className);
     if (klass) {
-      [FIRApp registerLibrary:swiftLibraries[className] withVersion:FIRFirebaseVersion()];
+      NSString *version = FIRFirebaseVersion();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+      SEL sdkVersionSelector = @selector(sdkVersion);
+#pragma clang diagnostic pop
+      if ([klass respondsToSelector:sdkVersionSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        NSString *sdkVersion = (NSString *)[klass performSelector:sdkVersionSelector];
+        if (sdkVersion) version = sdkVersion;
+#pragma clang diagnostic pop
+      }
+      [FIRApp registerLibrary:swiftLibraries[className] withVersion:version];
     }
   }
 }
