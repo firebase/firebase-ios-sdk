@@ -17,6 +17,7 @@ concurrency:
 jobs:
   spm-unit:
     strategy:
+      max-parallel: 1
       matrix:
         target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
         os: [macos-14]
@@ -44,6 +45,7 @@ jobs:
 
   spm-integration:
     strategy:
+      max-parallel: 1
       matrix:
         target: [iOS]
         os: [macos-14]
