@@ -26,6 +26,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
+      max-parallel: 1
       matrix:
         os: [macos-14, macos-13]
         include:
