@@ -18,18 +18,15 @@ jobs:
   spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
-        os: [macos-13, macos-14]
+        target: [iOS, macOS, catalyst, tvOS, watchOS]
+        os: [macos-14]
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: visionOS
           - os: macos-14
             xcode: Xcode_15.2
-        exclude:
           # visionOS will be unsupported on macOS 14 as of September 23, 2024:
           # https://github.com/actions/runner-images/issues/10559
-          - os: macos-14
+          - os: macos-13
+            xcode: Xcode_15.2
             target: visionOS
     runs-on: ${{ matrix.os }}
     env:
