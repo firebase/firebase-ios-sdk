@@ -16,7 +16,7 @@ import Foundation
 
 /// Represents the provider user info part of the response from the setAccountInfo endpoint.
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
-class SetAccountInfoResponseProviderUserInfo: NSObject {
+class SetAccountInfoResponseProviderUserInfo {
   /// The ID of the identity provider.
   var providerID: String?
 

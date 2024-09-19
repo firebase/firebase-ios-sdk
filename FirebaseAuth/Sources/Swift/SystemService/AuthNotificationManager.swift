@@ -18,7 +18,7 @@
 
   /// A class represents a credential that proves the identity of the app.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  class AuthNotificationManager: NSObject {
+  class AuthNotificationManager {
     /// The key to locate payload data in the remote notification.
     private let kNotificationDataKey = "com.google.firebase.auth"
 
