@@ -87,12 +87,6 @@ public struct SafetySetting {
 
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
   public enum BlockThreshold: String, Sendable {
-    /// Unknown. A new server value that isn't recognized by the SDK.
-    case unknown = "UNKNOWN"
-
-    /// Threshold is unspecified.
-    case unspecified = "HARM_BLOCK_THRESHOLD_UNSPECIFIED"
-
     // Content with `.negligible` will be allowed.
     case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
 
@@ -160,19 +154,7 @@ extension SafetySetting.HarmCategory: Codable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetySetting.BlockThreshold: Encodable {
-  public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedThreshold = SafetySetting.BlockThreshold(rawValue: value) else {
-      Logging.default
-        .error("[FirebaseVertexAI] Unrecognized BlockThreshold with value \"\(value)\".")
-      self = .unknown
-      return
-    }
-
-    self = decodedThreshold
-  }
-}
+extension SafetySetting.BlockThreshold: Encodable {}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting: Encodable {}
