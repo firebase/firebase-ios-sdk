@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthWebUtils: NSObject {
+class AuthWebUtils {
   static func randomString(withLength length: Int) -> String {
     var randomString = ""
     for _ in 0 ..< length {
