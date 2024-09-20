@@ -43,12 +43,11 @@ jobs:
     needs: spm-package-resolved
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      PACKAGE_RESOLVED_HASH: ${{needs.spm-package-resolved.outputs.package_resolved_hash}}
     steps:
     - uses: actions/cache@v4
       with:
         path: .build
-        key: ${{ runner.os }}-spm-${PACKAGE_RESOLVED_HASH}
+        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
         restore-keys: |
           ${{ runner.os }}-spm-
     - uses: actions/checkout@v4
@@ -80,13 +79,12 @@ jobs:
     env:
       TEST_RUNNER_VertexAIRunIntegrationTests: 1
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      PACKAGE_RESOLVED_HASH: ${{needs.spm-package-resolved.outputs.package_resolved_hash}}
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
     - uses: actions/cache@v4
       with:
         path: .build
-        key: ${{ runner.os }}-spm-${PACKAGE_RESOLVED_HASH}
+        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
         restore-keys: |
           ${{ runner.os }}-spm-
     - uses: actions/checkout@v4
@@ -142,12 +140,11 @@ jobs:
     needs: spm-package-resolved
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      PACKAGE_RESOLVED_HASH: ${{needs.spm-package-resolved.outputs.package_resolved_hash}}
     steps:
     - uses: actions/cache@v4
       with:
         path: .build
-        key: ${{ runner.os }}-spm-${PACKAGE_RESOLVED_HASH}
+        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
         restore-keys: |
           ${{ runner.os }}-spm-
     - uses: actions/checkout@v4
