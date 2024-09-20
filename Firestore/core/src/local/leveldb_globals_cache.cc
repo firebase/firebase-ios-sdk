@@ -24,7 +24,7 @@ namespace local {
 
 namespace {
 
-const std::string kSessionToken = "session_token";
+const char* kSessionToken = "session_token";
 
 }
 

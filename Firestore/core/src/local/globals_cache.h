@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_GLOBALS_CACHE_H
-#define FIRESTORE_CORE_SRC_LOCAL_GLOBALS_CACHE_H
+#ifndef FIRESTORE_CORE_SRC_LOCAL_GLOBALS_CACHE_H_
+#define FIRESTORE_CORE_SRC_LOCAL_GLOBALS_CACHE_H_
 
 #include "Firestore/core/src/nanopb/byte_string.h"
 
@@ -54,4 +54,4 @@ class GlobalsCache {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_GLOBALS_CACHE_H
+#endif  // FIRESTORE_CORE_SRC_LOCAL_GLOBALS_CACHE_H_

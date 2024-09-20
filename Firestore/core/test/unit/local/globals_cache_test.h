@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H
-#define FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H
+#ifndef FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H_
+#define FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H_
+
+#include <memory>
 
 #include "gtest/gtest.h"
 
@@ -54,4 +56,4 @@ class GlobalsCacheTest : public testing::Test,
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H
+#endif  // FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H_

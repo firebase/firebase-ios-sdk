@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_GLOBALS_CACHE_H
-#define FIRESTORE_CORE_SRC_LOCAL_MEMORY_GLOBALS_CACHE_H
+#ifndef FIRESTORE_CORE_SRC_LOCAL_MEMORY_GLOBALS_CACHE_H_
+#define FIRESTORE_CORE_SRC_LOCAL_MEMORY_GLOBALS_CACHE_H_
 
 #include <string>
 
@@ -46,4 +46,4 @@ class MemoryGlobalsCache : public GlobalsCache {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_LOCAL_MEMORY_GLOBALS_CACHE_H
+#endif  // FIRESTORE_CORE_SRC_LOCAL_MEMORY_GLOBALS_CACHE_H_
