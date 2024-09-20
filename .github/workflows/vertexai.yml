@@ -50,7 +50,6 @@ jobs:
     needs: spm-package-resolved
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      CACHE_KEY: ${{needs.spm-package-resolved.outputs.cache_key}}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
