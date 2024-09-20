@@ -19,18 +19,21 @@ import Foundation
 /// responses that exceed a certain threshold.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetyRating: Equatable, Hashable, Sendable {
-  /// The category describing the potential harm a piece of content may pose. See
-  /// ``SafetySetting/HarmCategory`` for a list of possible values.
-  public let category: SafetySetting.HarmCategory
+  /// The category describing the potential harm a piece of content may pose.
+  ///
+  /// See ``HarmCategory`` for a list of possible values.
+  public let category: HarmCategory
 
-  /// The model-generated probability that a given piece of content falls under the harm category
-  /// described in ``SafetySetting/HarmCategory``. This does not indicate the severity of harm for a
-  /// piece of content. See ``HarmProbability`` for a list of possible values.
+  /// The model-generated probability that the content falls under the specified harm ``category``.
+  ///
+  /// See ``HarmProbability`` for a list of possible values.
+  ///
+  /// > Important: This does not indicate the severity of harm for a piece of content.
   public let probability: HarmProbability
 
   /// Initializes a new `SafetyRating` instance with the given category and probability.
   /// Use this initializer for SwiftUI previews or tests.
-  public init(category: SafetySetting.HarmCategory, probability: HarmProbability) {
+  public init(category: HarmCategory, probability: HarmProbability) {
     self.category = category
     self.probability = probability
   }
@@ -63,25 +66,6 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 /// fallback response instead of generated content.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetySetting {
-  /// A type describing safety attributes, which include harmful categories and topics that can
-  /// be considered sensitive.
-  public enum HarmCategory: String, Sendable {
-    /// Unknown. A new server value that isn't recognized by the SDK.
-    case unknown = "HARM_CATEGORY_UNKNOWN"
-
-    /// Harassment content.
-    case harassment = "HARM_CATEGORY_HARASSMENT"
-
-    /// Negative or harmful comments targeting identity and/or protected attributes.
-    case hateSpeech = "HARM_CATEGORY_HATE_SPEECH"
-
-    /// Contains references to sexual acts or other lewd content.
-    case sexuallyExplicit = "HARM_CATEGORY_SEXUALLY_EXPLICIT"
-
-    /// Promotes or enables access to harmful goods, services, or activities.
-    case dangerousContent = "HARM_CATEGORY_DANGEROUS_CONTENT"
-  }
-
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
   public enum BlockThreshold: String, Sendable {
     // Content with `.negligible` will be allowed.
@@ -115,6 +99,24 @@ public struct SafetySetting {
   }
 }
 
+/// Categories describing the potential harm a piece of content may pose.
+public enum HarmCategory: String, Sendable {
+  /// Unknown. A new server value that isn't recognized by the SDK.
+  case unknown = "HARM_CATEGORY_UNKNOWN"
+
+  /// Harassment content.
+  case harassment = "HARM_CATEGORY_HARASSMENT"
+
+  /// Negative or harmful comments targeting identity and/or protected attributes.
+  case hateSpeech = "HARM_CATEGORY_HATE_SPEECH"
+
+  /// Contains references to sexual acts or other lewd content.
+  case sexuallyExplicit = "HARM_CATEGORY_SEXUALLY_EXPLICIT"
+
+  /// Promotes or enables access to harmful goods, services, or activities.
+  case dangerousContent = "HARM_CATEGORY_DANGEROUS_CONTENT"
+}
+
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -136,10 +138,10 @@ extension SafetyRating.HarmProbability: Decodable {
 extension SafetyRating: Decodable {}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetySetting.HarmCategory: Codable {
+extension HarmCategory: Codable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedCategory = SafetySetting.HarmCategory(rawValue: value) else {
+    guard let decodedCategory = HarmCategory(rawValue: value) else {
       Logging.default
         .error("[FirebaseVertexAI] Unrecognized HarmCategory with value \"\(value)\".")
       self = .unknown
