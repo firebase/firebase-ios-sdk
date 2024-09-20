@@ -18,7 +18,7 @@ jobs:
   spm-package-resolved:
     runs-on: macos-14
     outputs:
-      package_resolved_hash: ${{ steps.cache.outputs.cache-primary-key }}
+      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
@@ -27,13 +27,20 @@ jobs:
         id: swift_package_resolve
         run: |
           swift package resolve
+      - name: Generate cache key
+        id: generate_cache_key
+        run: |
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
       - uses: actions/cache/save@v4
         id: cache
         with:
           path: .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-      - name: Print cache key
-        run: echo "Cache Key:" "${{ toJSON(steps.cache.outputs) }}"
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
+      - name: Print outputs
+        run: |
+          echo "generate_cache_key: " "${{ toJSON(steps.generate_cache_key.outputs) }}"
+          echo "cache: " "${{ toJSON(steps.cache.outputs) }}"
 
   spm-unit:
     strategy:
