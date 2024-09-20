@@ -22,6 +22,7 @@ jobs:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
+      - uses: actions/checkout@v4
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
