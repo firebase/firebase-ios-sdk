@@ -35,7 +35,6 @@ jobs:
 
   spm-unit:
     strategy:
-      max-parallel: 1
       matrix:
         target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
         os: [macos-14]
@@ -47,11 +46,11 @@ jobs:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
+    - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
       with:
         path: .build
         key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
-    - uses: actions/checkout@v4
     - name: Clone mock responses
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
@@ -68,7 +67,6 @@ jobs:
 
   spm-integration:
     strategy:
-      max-parallel: 1
       matrix:
         target: [iOS]
         os: [macos-14]
@@ -82,13 +80,11 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
-    - uses: actions/cache@v4
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
       with:
         path: .build
         key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
-        restore-keys: |
-          ${{ runner.os }}-spm-
-    - uses: actions/checkout@v4
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-integration.plist.gpg \
         FirebaseVertexAI/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
@@ -142,13 +138,11 @@ jobs:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
-    - uses: actions/cache@v4
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
       with:
         path: .build
         key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
-        restore-keys: |
-          ${{ runner.os }}-spm-
-    - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
