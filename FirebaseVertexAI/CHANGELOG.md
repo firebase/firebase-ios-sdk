@@ -1,4 +1,9 @@
 # Unreleased
+- [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
+  inside the `SafetySetting` struct and the `unspecified` case has been
+  removed. (#13686)
+
+# 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
 
 # 11.2.0
