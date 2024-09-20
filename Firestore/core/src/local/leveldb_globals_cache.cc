@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <string>
+
 #include "Firestore/core/src/local/leveldb_globals_cache.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"

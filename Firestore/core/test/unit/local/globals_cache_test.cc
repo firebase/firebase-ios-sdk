@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "globals_cache_test.h"
+#include "Firestore/core/test/unit/local/globals_cache_test.h"
 
 #include "Firestore/core/src/local/globals_cache.h"
 #include "Firestore/core/src/local/persistence.h"
