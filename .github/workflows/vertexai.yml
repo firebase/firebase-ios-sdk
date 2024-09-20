@@ -54,14 +54,15 @@ jobs:
     needs: spm-package-resolved
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      CACHE_KEY: ${{needs.spm-package-resolved.outputs.cache_key}}
     steps:
     - uses: actions/checkout@v4
     - name: Print cache key
-      run: echo "Cache Key:" "${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}"
+      run: echo "Cache Key:" "${CACHE_KEY}"
     - uses: actions/cache/restore@v4
       with:
         path: .build
-        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
+        key: $CACHE_KEY
     - name: Clone mock responses
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
@@ -95,7 +96,7 @@ jobs:
     - uses: actions/cache/restore@v4
       with:
         path: .build
-        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
+        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-integration.plist.gpg \
         FirebaseVertexAI/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
@@ -153,7 +154,7 @@ jobs:
     - uses: actions/cache/restore@v4
       with:
         path: .build
-        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
+        key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
