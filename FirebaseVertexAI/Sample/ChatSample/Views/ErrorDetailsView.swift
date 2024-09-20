@@ -16,7 +16,7 @@ import FirebaseVertexAI
 import MarkdownUI
 import SwiftUI
 
-extension SafetySetting.HarmCategory: CustomStringConvertible {
+extension HarmCategory: CustomStringConvertible {
   public var description: String {
     switch self {
     case .dangerousContent: "Dangerous content"
@@ -24,7 +24,6 @@ extension SafetySetting.HarmCategory: CustomStringConvertible {
     case .hateSpeech: "Hate speech"
     case .sexuallyExplicit: "Sexually explicit"
     case .unknown: "Unknown"
-    case .unspecified: "Unspecified"
     }
   }
 }
