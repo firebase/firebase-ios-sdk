@@ -47,6 +47,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v4
+    - name: Print cache key
+      run: echo "Cache Key:" "${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}"
     - uses: actions/cache/restore@v4
       with:
         path: .build
