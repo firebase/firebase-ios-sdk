@@ -18,7 +18,7 @@ jobs:
   spm-package-resolved:
     runs-on: macos-14
     outputs:
-      package_resolved_hash: ${{ steps.swift_package_resolve.outputs.package_resolved }}
+      package_resolved_hash: ${{ steps.cache.outputs.cache-primary-key }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
@@ -27,8 +27,11 @@ jobs:
         id: swift_package_resolve
         run: |
           swift package resolve
-          package_resolved_sha256=($(shasum -a 256 Package.resolved))
-          echo "package_resolved_hash=$package_resolved_sha256" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
 
   spm-unit:
     strategy:
@@ -44,12 +47,10 @@ jobs:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
-    - uses: actions/cache@v4
+    - uses: actions/cache/restore@v4
       with:
         path: .build
         key: ${{ runner.os }}-spm-${{needs.spm-package-resolved.outputs.package_resolved_hash}}
-        restore-keys: |
-          ${{ runner.os }}-spm-
     - uses: actions/checkout@v4
     - name: Clone mock responses
       run: scripts/update_vertexai_responses.sh
