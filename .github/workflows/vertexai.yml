@@ -32,6 +32,8 @@ jobs:
         with:
           path: .build
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+      - name: Print cache key
+        run: echo "Cache Key:" "${{ steps.cache.outputs.cache-primary-key }}"
 
   spm-unit:
     strategy:
