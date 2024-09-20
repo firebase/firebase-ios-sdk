@@ -69,9 +69,6 @@ public struct SafetySetting {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "HARM_CATEGORY_UNKNOWN"
 
-    /// Unspecified by the server.
-    case unspecified = "HARM_CATEGORY_UNSPECIFIED"
-
     /// Harassment content.
     case harassment = "HARM_CATEGORY_HARASSMENT"
 
