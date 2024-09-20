@@ -28,7 +28,7 @@ class LevelDbPersistence;
 class LevelDbGlobalsCache : public GlobalsCache {
  public:
   /** Creates a new bundle cache in the given LevelDB. */
-  LevelDbGlobalsCache(LevelDbPersistence* db);
+  explicit LevelDbGlobalsCache(LevelDbPersistence* db);
 
   /**
    * Gets session token.
