@@ -29,10 +29,11 @@ using nanopb::ByteString;
 /**
  * General purpose cache for global values.
  *
- * Global state that cuts across components should be saved here. Following are contained herein:
+ * Global state that cuts across components should be saved here. Following are
+ * contained herein:
  *
- * `sessionToken` tracks server interaction across Listen and Write streams. This facilitates cache
- * synchronization and invalidation.
+ * `sessionToken` tracks server interaction across Listen and Write streams.
+ * This facilitates cache synchronization and invalidation.
  */
 class GlobalsCache {
  public:
@@ -47,7 +48,6 @@ class GlobalsCache {
    * Sets session token.
    */
   virtual void SetSessionToken(const ByteString& session_token) = 0;
-
 };
 
 }  // namespace local

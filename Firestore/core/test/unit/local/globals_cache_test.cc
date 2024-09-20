@@ -36,10 +36,11 @@ GlobalsCacheTest::GlobalsCacheTest() : GlobalsCacheTest(GetParam()()) {
 namespace {
 
 TEST_P(GlobalsCacheTest, ReturnsEmptyBytestringWhenSessionTokenNotFound) {
-  persistence_->Run("test_returns_empty_bytestring_when_session_token_not_found", [&] {
-    auto expected = ByteString();
-    EXPECT_EQ(cache_->GetSessionToken(), expected);
-  });
+  persistence_->Run(
+      "test_returns_empty_bytestring_when_session_token_not_found", [&] {
+        auto expected = ByteString();
+        EXPECT_EQ(cache_->GetSessionToken(), expected);
+      });
 }
 
 TEST_P(GlobalsCacheTest, ReturnsSavedSessionToken) {
@@ -59,7 +60,7 @@ TEST_P(GlobalsCacheTest, ReturnsSavedSessionToken) {
   });
 }
 
-}
+}  // namespace
 
 }  // namespace local
 }  // namespace firestore

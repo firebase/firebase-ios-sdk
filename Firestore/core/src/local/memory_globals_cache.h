@@ -28,7 +28,6 @@ namespace local {
 
 class MemoryGlobalsCache : public GlobalsCache {
  public:
-
   /**
    * Gets session token.
    */

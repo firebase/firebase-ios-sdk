@@ -23,7 +23,6 @@
 #include <unordered_map>
 
 #include "Firestore/core/src/credentials/user.h"
-#include "Firestore/core/src/local/leveldb_globals_cache.h"
 #include "Firestore/core/src/local/leveldb_bundle_cache.h"
 #include "Firestore/core/src/local/leveldb_document_overlay_cache.h"
 #include "Firestore/core/src/local/leveldb_globals_cache.h"

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #ifndef FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H
 #define FIRESTORE_CORE_TEST_UNIT_LOCAL_GLOBALS_CACHE_TEST_H
 
