@@ -27,7 +27,7 @@ jobs:
         id: swift_package_resolve
         run: |
           swift package resolve
-          package_resolved_sha256=($(sha256sum Package.resolved))
+          package_resolved_sha256=($(shasum -a 256 Package.resolved))
           echo "package_resolved_hash=$package_resolved_sha256" >> "$GITHUB_OUTPUT"
 
   spm-unit:
