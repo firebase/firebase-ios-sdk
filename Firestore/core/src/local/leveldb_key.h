@@ -769,6 +769,41 @@ class LevelDbNamedQueryKey {
 };
 
 /**
+ * A key in the globals table, storing the bundle Id for each entry.
+ */
+class LevelDbGlobalKey {
+ public:
+  /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key that points to the key for the given global name.
+   */
+  static std::string Key(absl::string_view global_name);
+
+  /**
+   * Decodes the given complete key, storing the decoded values in this
+   * instance.
+   *
+   * @return true if the key successfully decoded, false otherwise. If false is
+   * returned, this instance is in an undefined state until the next call to
+   * `Decode()`.
+   */
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
+
+  /** The global name for this entry. */
+  const std::string& global_name() const {
+    return global_name_;
+  }
+
+ private:
+  std::string global_name_;
+};
+
+/**
  * A key in the index_configuration table, storing the index definition proto,
  * and the collection (group) it applies to.
  */
