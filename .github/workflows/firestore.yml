@@ -342,7 +342,7 @@ jobs:
 
     - name: Build and test
       run: |
-        echo {{ needs.changes.outputs.changed }}
+        echo ${{ needs.changes.outputs.changed }}
         export EXPERIMENTAL_MODE=true
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
