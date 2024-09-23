@@ -1188,7 +1188,7 @@ final class GenerativeModelTests: XCTestCase {
       withExtension: "json"
     )
 
-    let response = try await model.countTokens(ModelContent.Part.data(
+    let response = try await model.countTokens(ModelContent.Part.inlineData(
       mimetype: "image/jpeg",
       Data()
     ))

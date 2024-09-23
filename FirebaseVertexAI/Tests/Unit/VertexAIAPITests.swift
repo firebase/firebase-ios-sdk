@@ -123,7 +123,7 @@ final class VertexAIAPITests: XCTestCase {
     // convert value of type 'String' to expected element type
     // 'Array<ModelContent.Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
     // work.
-    let _ = try ModelContent(parts: [str, ModelContent.Part.data(
+    let _ = try ModelContent(parts: [str, ModelContent.Part.inlineData(
       mimetype: "foo",
       Data()
     )] as [any ThrowingPartsRepresentable])
