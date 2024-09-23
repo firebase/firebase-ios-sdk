@@ -15,4 +15,6 @@
  */
 
 #import "FIRMessaging.h"
+#if __has_include("FIRMessagingExtensionHelper.h")
 #import "FIRMessagingExtensionHelper.h"
+#endif  // __has_include("FIRMessagingExtensionHelper.h")
