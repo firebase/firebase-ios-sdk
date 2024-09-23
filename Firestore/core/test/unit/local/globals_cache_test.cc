@@ -39,7 +39,8 @@ TEST_P(GlobalsCacheTest, ReturnsEmptyBytestringWhenSessionTokenNotFound) {
   persistence_->Run(
       "test_returns_empty_bytestring_when_session_token_not_found", [&] {
         auto expected = ByteString();
-        EXPECT_EQ(cache_->GetSessionToken(), expected);
+        EXPECT_EQ(cache_->GetSessionToken().CompareTo(expected),
+                  ComparisonResult::Same);
       });
 }
 
@@ -48,15 +49,15 @@ TEST_P(GlobalsCacheTest, ReturnsSavedSessionToken) {
     auto expected = ByteString("magic");
     cache_->SetSessionToken(expected);
 
-    auto actual = cache_->GetSessionToken();
-    EXPECT_EQ(actual, expected);
+    EXPECT_EQ(cache_->GetSessionToken().CompareTo(expected),
+              ComparisonResult::Same);
 
     // Overwrite
     expected = ByteString("science");
     cache_->SetSessionToken(expected);
 
-    actual = cache_->GetSessionToken();
-    EXPECT_EQ(actual, expected);
+    EXPECT_EQ(cache_->GetSessionToken().CompareTo(expected),
+              ComparisonResult::Same);
   });
 }
 
