@@ -44,9 +44,6 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     /// Unknown. A new server value that isn't recognized by the SDK.
     case unknown = "UNKNOWN"
 
-    /// The probability was not specified in the server response.
-    case unspecified = "HARM_PROBABILITY_UNSPECIFIED"
-
     /// The probability is zero or close to zero. For benign content, the probability across all
     /// categories will be this value.
     case negligible = "NEGLIGIBLE"
