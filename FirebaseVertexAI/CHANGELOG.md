@@ -1,4 +1,4 @@
-# Unreleased
+# 11.4.0
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
   removed. (#13686)
