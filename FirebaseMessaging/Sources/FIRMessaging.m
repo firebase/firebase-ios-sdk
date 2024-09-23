@@ -40,7 +40,8 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#if __has_include("FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h")
+#if __has_include( \
+    "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h")
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 #endif  // __has_include("FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h")
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
@@ -133,7 +134,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return (FIRMessaging *)instance;
 }
 
-#if __has_include("FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h")
+#if __has_include( \
+    "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h")
 + (FIRMessagingExtensionHelper *)extensionHelper {
   static dispatch_once_t once;
   static FIRMessagingExtensionHelper *extensionHelper;
