@@ -25,7 +25,7 @@ jobs:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
         os: [macos-14]
-        xcode: Xcode_15.2, Xcode_16]
+        xcode: [Xcode_15.2, Xcode_16]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
