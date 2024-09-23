@@ -113,7 +113,7 @@ public struct CandidateResponse: Sendable {
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CitationMetadata: Sendable {
   /// A list of individual cited sources and the parts of the content to which they apply.
-  public let citationSources: [Citation]
+  public let citations: [Citation]
 }
 
 /// A struct describing a source attribution.
