@@ -32,4 +32,3 @@ sed -i '' 's#exact:[[:space:]]*"[0-9.]*"#branch: "main"#' Package.swift
 
 mkdir -p .swiftpm/xcode/xcshareddata/xcschemes
 cp scripts/spm_test_schemes/* .swiftpm/xcode/xcshareddata/xcschemes/
-xcodebuild -list
