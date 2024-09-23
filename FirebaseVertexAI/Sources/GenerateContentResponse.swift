@@ -138,9 +138,8 @@ public struct Citation: Sendable {
 /// A value enumerating possible reasons for a model to terminate a content generation request.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public enum FinishReason: String, Sendable {
+  /// The finish reason is unknown.
   case unknown = "FINISH_REASON_UNKNOWN"
-
-  case unspecified = "FINISH_REASON_UNSPECIFIED"
 
   /// Natural stop point of the model or provided stop sequence.
   case stop = "STOP"
@@ -167,9 +166,6 @@ public struct PromptFeedback: Sendable {
   public enum BlockReason: String, Sendable {
     /// The block reason is unknown.
     case unknown = "UNKNOWN"
-
-    /// The block reason was not specified in the server response.
-    case unspecified = "BLOCK_REASON_UNSPECIFIED"
 
     /// The prompt was blocked because it was deemed unsafe.
     case safety = "SAFETY"
