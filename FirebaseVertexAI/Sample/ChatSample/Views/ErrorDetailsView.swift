@@ -36,7 +36,6 @@ extension SafetyRating.HarmProbability: CustomStringConvertible {
     case .medium: "Medium"
     case .negligible: "Negligible"
     case .unknown: "Unknown"
-    case .unspecified: "Unspecified"
     }
   }
 }

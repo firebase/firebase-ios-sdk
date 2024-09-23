@@ -4,6 +4,9 @@
   removed. (#13686)
 - [changed] **Breaking Change**: The `BlockThreshold` enum in `SafetySetting`
   has been renamed to `HarmBlockThreshold`. (#13696)
+- [changed] **Breaking Change**: The `unspecified` case has been removed from
+  the `FinishReason`, `PromptFeedback` and `HarmProbability` enums; this
+  scenario is now handled by the existing `unknown` case. (#13699)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
