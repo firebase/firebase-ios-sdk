@@ -2,6 +2,8 @@
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
   removed. (#13686)
+- [changed] **Breaking Change**: The `BlockThreshold` enum in `SafetySetting`
+  has been renamed to `HarmBlockThreshold`. (#13696)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
