@@ -7,6 +7,8 @@
 - [changed] **Breaking Change**: The `unspecified` case has been removed from
   the `FinishReason`, `PromptFeedback` and `HarmProbability` enums; this
   scenario is now handled by the existing `unknown` case. (#13699)
+- [changed] **Breaking Change**: The property `citationSources` of
+  `CitationMetadata` has been renamed to `citations`. (#13702)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
