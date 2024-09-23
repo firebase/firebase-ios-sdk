@@ -290,11 +290,7 @@ extension CandidateResponse: Decodable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CitationMetadata: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case citationSources = "citations"
-  }
-}
+extension CitationMetadata: Decodable {}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
