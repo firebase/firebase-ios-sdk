@@ -67,7 +67,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetySetting {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public enum BlockThreshold: String, Sendable {
+  public enum HarmBlockThreshold: String, Sendable {
     // Content with `.negligible` will be allowed.
     case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
 
@@ -90,10 +90,10 @@ public struct SafetySetting {
   public let harmCategory: HarmCategory
 
   /// The threshold describing what content should be blocked.
-  public let threshold: BlockThreshold
+  public let threshold: HarmBlockThreshold
 
   /// Initializes a new safety setting with the given category and threshold.
-  public init(harmCategory: HarmCategory, threshold: BlockThreshold) {
+  public init(harmCategory: HarmCategory, threshold: HarmBlockThreshold) {
     self.harmCategory = harmCategory
     self.threshold = threshold
   }
@@ -153,7 +153,7 @@ extension HarmCategory: Codable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetySetting.BlockThreshold: Encodable {}
+extension SafetySetting.HarmBlockThreshold: Encodable {}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting: Encodable {}
