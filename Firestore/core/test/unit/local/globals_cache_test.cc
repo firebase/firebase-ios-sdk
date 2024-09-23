@@ -23,9 +23,10 @@
 
 namespace firebase {
 namespace firestore {
-namespace local {
 
 using util::ComparisonResult;
+
+namespace local {
 
 GlobalsCacheTest::GlobalsCacheTest(std::unique_ptr<Persistence> persistence)
     : persistence_(std::move(NOT_NULL(persistence))),
