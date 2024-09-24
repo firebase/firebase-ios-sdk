@@ -129,7 +129,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} ${{ matrix.test }}
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
     - name: Fake Console tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }}
 
