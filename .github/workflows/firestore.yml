@@ -436,7 +436,6 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request')
     strategy:
-      max-parallel: 1
       matrix:
         target: [iOS, tvOS, macOS]
         os: [macos-13, macos-14]
