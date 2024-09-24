@@ -11,6 +11,9 @@
   renamed to `inlineData`; no functionality changes. (#13700)
 - [changed] **Breaking Change**: The property `citationSources` of
   `CitationMetadata` has been renamed to `citations`. (#13702)
+- [changed] **Breaking Change**: The constructor for `Schema` is now deprecated;
+  use the new static methods `Schema.string(...)`, `Schema.object(...)`, etc.,
+  instead. (#13616)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
