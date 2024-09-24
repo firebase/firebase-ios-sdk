@@ -1,4 +1,4 @@
-# Unreleased
+# 11.3.0
 - [Fixed] Restore Firebase 10 behavior by querying with the
   `kSecAttrSynchronizable` key when auth state is set to be shared across
   devices. (#13584)

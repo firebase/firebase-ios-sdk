@@ -1,4 +1,4 @@
-# Unreleased
+# 11.3.0
 - [changed] Improve efficiency of memory persistence when processing a large number of writes. (#13572)
 
 # 11.2.0
