@@ -79,7 +79,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-14]
-        xcode: Xcode_15.4
+        xcode: [Xcode_15.4]
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1

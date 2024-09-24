@@ -431,6 +431,8 @@ jobs:
 
   spm-package-resolved:
     runs-on: macos-14
+    env:
+      FIREBASE_SOURCE_FIRESTORE: 1
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
@@ -448,7 +450,7 @@ jobs:
         id: cache
         with:
           path: .build
-          key: ${{ steps.generate_cache_key.outputs.cache_key }
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
   spm-source:
     needs: [check, spm-package-resolved]
