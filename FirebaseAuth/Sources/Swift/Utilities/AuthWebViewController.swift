@@ -99,11 +99,11 @@
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction) async
       -> WKNavigationActionPolicy {
-      let canHandleURL = delegate?.webViewController(
+      _ = delegate?.webViewController(
         self,
         canHandle: navigationAction.request.url ?? url
-      ) ?? false
-      return canHandleURL ? .allow : .cancel
+      )
+      return .allow
     }
 
     func webView(_ webView: WKWebView,
