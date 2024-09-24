@@ -5,8 +5,10 @@
 - [changed] **Breaking Change**: The `BlockThreshold` enum in `SafetySetting`
   has been renamed to `HarmBlockThreshold`. (#13696)
 - [changed] **Breaking Change**: The `unspecified` case has been removed from
-  the `FinishReason`, `PromptFeedback` and `HarmProbability` enums; this
-  scenario is now handled by the existing `unknown` case. (#13699)
+  the `FinishReason`, `BlockReason` and `HarmProbability` enums; this scenario
+  is now handled by the existing `unknown` case. (#13699)
+- [changed] **Breaking Change**: The `data` case in the `Part` enum has been
+  renamed to `inlineData`; no functionality changes. (#13700)
 - [changed] **Breaking Change**: The property `citationSources` of
   `CitationMetadata` has been renamed to `citations`. (#13702)
 

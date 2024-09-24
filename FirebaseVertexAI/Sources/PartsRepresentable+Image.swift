@@ -57,7 +57,7 @@ public enum ImageConversionError: Error {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
         throw ImageConversionError.couldNotConvertToJPEG(.uiImage(self))
       }
-      return [ModelContent.Part.data(mimetype: "image/jpeg", data)]
+      return [ModelContent.Part.inlineData(mimetype: "image/jpeg", data)]
     }
   }
 
@@ -74,7 +74,7 @@ public enum ImageConversionError: Error {
       else {
         throw ImageConversionError.couldNotConvertToJPEG(.nsImage(self))
       }
-      return [ModelContent.Part.data(mimetype: "image/jpeg", data)]
+      return [ModelContent.Part.inlineData(mimetype: "image/jpeg", data)]
     }
   }
 #endif
@@ -95,7 +95,7 @@ public enum ImageConversionError: Error {
         kCGImageDestinationLossyCompressionQuality: imageCompressionQuality,
       ] as CFDictionary)
       if CGImageDestinationFinalize(imageDestination) {
-        return [.data(mimetype: "image/jpeg", output as Data)]
+        return [.inlineData(mimetype: "image/jpeg", output as Data)]
       }
       throw ImageConversionError.couldNotConvertToJPEG(.cgImage(self))
     }
@@ -116,7 +116,7 @@ public enum ImageConversionError: Error {
           context.jpegRepresentation(of: self, colorSpace: $0, options: [:])
         }
       if let jpegData = jpegData {
-        return [.data(mimetype: "image/jpeg", jpegData)]
+        return [.inlineData(mimetype: "image/jpeg", jpegData)]
       }
       throw ImageConversionError.couldNotConvertToJPEG(.ciImage(self))
     }
