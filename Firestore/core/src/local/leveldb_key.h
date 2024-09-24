@@ -769,7 +769,7 @@ class LevelDbNamedQueryKey {
 };
 
 /**
- * A key in the globals table, storing the bundle Id for each entry.
+ * A key in the globals table, storing the name of the global value.
  */
 class LevelDbGlobalKey {
  public:
@@ -779,7 +779,7 @@ class LevelDbGlobalKey {
   static std::string KeyPrefix();
 
   /**
-   * Creates a key that points to the key for the given global name.
+   * Creates a key that points to the key for the given name of global value.
    */
   static std::string Key(absl::string_view global_name);
 
@@ -794,7 +794,7 @@ class LevelDbGlobalKey {
   ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
-  /** The global name for this entry. */
+  /** The name that serves as identifier for global value for this entry. */
   const std::string& global_name() const {
     return global_name_;
   }

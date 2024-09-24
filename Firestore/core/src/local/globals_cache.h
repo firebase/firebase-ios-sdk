@@ -20,11 +20,11 @@
 
 #include "Firestore/core/src/nanopb/byte_string.h"
 
+using firebase::firestore::nanopb::ByteString;
+
 namespace firebase {
 namespace firestore {
 namespace local {
-
-using nanopb::ByteString;
 
 /**
  * General purpose cache for global values.
