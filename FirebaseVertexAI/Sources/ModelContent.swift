@@ -26,7 +26,7 @@ public struct ModelContent: Equatable, Sendable {
     case text(String)
 
     /// Data with a specified media type. Not all media types may be supported by the AI model.
-    case data(mimetype: String, Data)
+    case inlineData(mimetype: String, Data)
 
     /// File data stored in Cloud Storage for Firebase, referenced by URI.
     ///
@@ -53,12 +53,12 @@ public struct ModelContent: Equatable, Sendable {
 
     /// Convenience function for populating a Part with JPEG data.
     public static func jpeg(_ data: Data) -> Self {
-      return .data(mimetype: "image/jpeg", data)
+      return .inlineData(mimetype: "image/jpeg", data)
     }
 
     /// Convenience function for populating a Part with PNG data.
     public static func png(_ data: Data) -> Self {
-      return .data(mimetype: "image/png", data)
+      return .inlineData(mimetype: "image/png", data)
     }
 
     /// Returns the text contents of this ``Part``, if it contains text.
@@ -144,7 +144,7 @@ extension ModelContent.Part: Codable {
     switch self {
     case let .text(a0):
       try container.encode(a0, forKey: .text)
-    case let .data(mimetype, bytes):
+    case let .inlineData(mimetype, bytes):
       var inlineDataContainer = container.nestedContainer(
         keyedBy: InlineDataKeys.self,
         forKey: .inlineData
@@ -176,7 +176,7 @@ extension ModelContent.Part: Codable {
       )
       let mimetype = try dataContainer.decode(String.self, forKey: .mimeType)
       let bytes = try dataContainer.decode(Data.self, forKey: .bytes)
-      self = .data(mimetype: mimetype, bytes)
+      self = .inlineData(mimetype: mimetype, bytes)
     } else if values.contains(.functionCall) {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
     } else if values.contains(.functionResponse) {
