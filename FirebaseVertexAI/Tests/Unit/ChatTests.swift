@@ -69,20 +69,19 @@ final class ChatTests: XCTestCase {
     )
     let chat = Chat(model: model, history: [])
     let input = "Test input"
-    let stream = try await chat.sendMessageStream(input)
+    let stream = try chat.sendMessageStream(input)
 
     // Ensure the values are parsed correctly
     for try await value in stream {
       XCTAssertNotNil(value.text)
     }
 
-    let history = await chat.history
-    XCTAssertEqual(history.count, 2)
-    XCTAssertEqual(history[0].parts[0].text, input)
+    XCTAssertEqual(chat.history.count, 2)
+    XCTAssertEqual(chat.history[0].parts[0].text, input)
 
     let finalText = "1 2 3 4 5 6 7 8"
     let assembledExpectation = ModelContent(role: "model", parts: finalText)
-    XCTAssertEqual(history[0].parts[0].text, input)
-    XCTAssertEqual(history[1], assembledExpectation)
+    XCTAssertEqual(chat.history[0].parts[0].text, input)
+    XCTAssertEqual(chat.history[1], assembledExpectation)
   }
 }

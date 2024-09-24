@@ -50,7 +50,7 @@ class SummarizeViewModel: ObservableObject {
 
       let prompt = "Summarize the following text for me: \(inputText)"
 
-      let outputContentStream = try await model.generateContentStream(prompt)
+      let outputContentStream = try model.generateContentStream(prompt)
 
       // stream response
       for try await outputContent in outputContentStream {

@@ -1,5 +1,9 @@
-# Unreleased
+# 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
+- [changed] **Breaking Change**: Reverted refactor of `GenerativeModel` and
+  `Chat` as Swift actors (#13545) introduced in 11.2; The methods
+  `generateContentStream`, `startChat` and `sendMessageStream` no longer need to
+  be called with `await`. (#13703)
 
 # 11.2.0
 - [fixed] Resolved a decoding error for citations without a `uri` and added

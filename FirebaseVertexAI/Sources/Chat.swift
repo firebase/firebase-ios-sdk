@@ -17,7 +17,7 @@ import Foundation
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public actor Chat {
+public class Chat {
   private let model: GenerativeModel
 
   /// Initializes a new chat representing a 1:1 conversation between model and user.
@@ -116,7 +116,7 @@ public actor Chat {
 
         // Send the history alongside the new message as context.
         let request = history + newContent
-        let stream = try await model.generateContentStream(request)
+        let stream = try model.generateContentStream(request)
         do {
           for try await chunk in stream {
             // Capture any content that's streaming. This should be populated if there's no error.

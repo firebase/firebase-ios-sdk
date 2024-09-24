@@ -21,8 +21,8 @@ class ConversationViewModel: ObservableObject {
   /// This array holds both the user's and the system's chat messages
   @Published var messages = [ChatMessage]()
 
-  /// Indicates we're waiting for the model to finish or the UI is loading
-  @Published var busy = true
+  /// Indicates we're waiting for the model to finish
+  @Published var busy = false
 
   @Published var error: Error?
   var hasError: Bool {
@@ -30,20 +30,18 @@ class ConversationViewModel: ObservableObject {
   }
 
   private var model: GenerativeModel
-  private var chat: Chat? = nil
+  private var chat: Chat
   private var stopGenerating = false
 
   private var chatTask: Task<Void, Never>?
 
   init() {
     model = VertexAI.vertexAI().generativeModel(modelName: "gemini-1.5-flash")
-    Task {
-      await startNewChat()
-    }
+    chat = model.startChat()
   }
 
   func sendMessage(_ text: String, streaming: Bool = true) async {
-    stop()
+    error = nil
     if streaming {
       await internalSendMessageStreaming(text)
     } else {
@@ -51,14 +49,11 @@ class ConversationViewModel: ObservableObject {
     }
   }
 
-  func startNewChat() async {
-    busy = true
-    defer {
-      busy = false
-    }
+  func startNewChat() {
     stop()
+    error = nil
+    chat = model.startChat()
     messages.removeAll()
-    chat = await model.startChat()
   }
 
   func stop() {
@@ -67,6 +62,8 @@ class ConversationViewModel: ObservableObject {
   }
 
   private func internalSendMessageStreaming(_ text: String) async {
+    chatTask?.cancel()
+
     chatTask = Task {
       busy = true
       defer {
@@ -82,10 +79,7 @@ class ConversationViewModel: ObservableObject {
       messages.append(systemMessage)
 
       do {
-        guard let chat else {
-          throw ChatError.notInitialized
-        }
-        let responseStream = try await chat.sendMessageStream(text)
+        let responseStream = try chat.sendMessageStream(text)
         for try await chunk in responseStream {
           messages[messages.count - 1].pending = false
           if let text = chunk.text {
@@ -101,6 +95,8 @@ class ConversationViewModel: ObservableObject {
   }
 
   private func internalSendMessage(_ text: String) async {
+    chatTask?.cancel()
+
     chatTask = Task {
       busy = true
       defer {
@@ -116,12 +112,10 @@ class ConversationViewModel: ObservableObject {
       messages.append(systemMessage)
 
       do {
-        guard let chat = chat else {
-          throw ChatError.notInitialized
-        }
-        let response = try await chat.sendMessage(text)
+        var response: GenerateContentResponse?
+        response = try await chat.sendMessage(text)
 
-        if let responseText = response.text {
+        if let responseText = response?.text {
           // replace pending message with backend response
           messages[messages.count - 1].message = responseText
           messages[messages.count - 1].pending = false
@@ -132,9 +126,5 @@ class ConversationViewModel: ObservableObject {
         messages.removeLast()
       }
     }
-  }
-
-  enum ChatError: Error {
-    case notInitialized
   }
 }
