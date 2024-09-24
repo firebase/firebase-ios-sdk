@@ -28,7 +28,6 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
         os: [macos-14]
         xcode: [Xcode_15.2, Xcode_16]
@@ -58,8 +57,7 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [ios, tvos, macos --skip-tests, watchos]
+        target: [ios, tvos, macos --skip-tests --allow-warnings, watchos]
         os: [macos-14]
         xcode: [Xcode_16]
     runs-on: ${{ matrix.os }}
@@ -222,7 +220,7 @@ jobs:
   #   steps:
   #   - uses: actions/checkout@v4
   #   - uses: ruby/setup-ruby@v1
-  #   - uses: actions/setup-python@v4
+  #   - uses: actions/setup-python@v5
   #     with:
   #      python-version: '3.11'
   #   - name: Setup quickstart

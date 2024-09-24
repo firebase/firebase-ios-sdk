@@ -61,7 +61,7 @@ jobs:
         id: cache
         with:
           path: .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
   spm:
     # Don't run on private repo unless it is a PR.
@@ -146,7 +146,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     - name: Setup quickstart
