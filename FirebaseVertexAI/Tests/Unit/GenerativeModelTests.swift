@@ -113,20 +113,20 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.content.parts.count, 1)
     XCTAssertEqual(response.text, "Some information cited from an external source")
     let citationMetadata = try XCTUnwrap(candidate.citationMetadata)
-    XCTAssertEqual(citationMetadata.citationSources.count, 3)
-    let citationSource1 = try XCTUnwrap(citationMetadata.citationSources[0])
+    XCTAssertEqual(citationMetadata.citations.count, 3)
+    let citationSource1 = try XCTUnwrap(citationMetadata.citations[0])
     XCTAssertEqual(citationSource1.uri, "https://www.example.com/some-citation-1")
     XCTAssertEqual(citationSource1.startIndex, 0)
     XCTAssertEqual(citationSource1.endIndex, 128)
     XCTAssertNil(citationSource1.title)
     XCTAssertNil(citationSource1.license)
-    let citationSource2 = try XCTUnwrap(citationMetadata.citationSources[1])
+    let citationSource2 = try XCTUnwrap(citationMetadata.citations[1])
     XCTAssertEqual(citationSource2.title, "some-citation-2")
     XCTAssertEqual(citationSource2.startIndex, 130)
     XCTAssertEqual(citationSource2.endIndex, 265)
     XCTAssertNil(citationSource2.uri)
     XCTAssertNil(citationSource2.license)
-    let citationSource3 = try XCTUnwrap(citationMetadata.citationSources[2])
+    let citationSource3 = try XCTUnwrap(citationMetadata.citations[2])
     XCTAssertEqual(citationSource3.uri, "https://www.example.com/some-citation-3")
     XCTAssertEqual(citationSource3.startIndex, 272)
     XCTAssertEqual(citationSource3.endIndex, 431)
@@ -947,7 +947,7 @@ final class GenerativeModelTests: XCTestCase {
       responses.append(content)
       XCTAssertNotNil(content.text)
       let candidate = try XCTUnwrap(content.candidates.first)
-      if let sources = candidate.citationMetadata?.citationSources {
+      if let sources = candidate.citationMetadata?.citations {
         citations.append(contentsOf: sources)
       }
     }
