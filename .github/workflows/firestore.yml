@@ -143,11 +143,11 @@ jobs:
 
 
   cmake-prod-db:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    needs: check
 
     strategy:
       matrix:
@@ -230,11 +230,11 @@ jobs:
 
 
   sanitizers-mac:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    needs: check
 
     strategy:
       matrix:
@@ -272,11 +272,11 @@ jobs:
 
 
   sanitizers-ubuntu:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    needs: check
 
     strategy:
       matrix:
@@ -318,12 +318,12 @@ jobs:
 
 
   xcodebuild:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request')
     runs-on: macos-14
-    needs: check
 
     strategy:
       matrix:
@@ -347,12 +347,12 @@ jobs:
 
 
   pod-lib-lint:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request')
     runs-on: macos-13
-    needs: check
     strategy:
       matrix:
         podspec: [
@@ -379,8 +379,8 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: check
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
       matrix:
         podspec: [
@@ -430,10 +430,11 @@ jobs:
             --no-analyze
 
   spm-source:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request')
     strategy:
       matrix:
         target: [iOS, tvOS, macOS]
@@ -447,7 +448,6 @@ jobs:
             xcode: Xcode_15.3
             target: visionOS
     runs-on: ${{ matrix.os }}
-    needs: check
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
@@ -463,12 +463,12 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-14
-    needs: check
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -480,12 +480,12 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
 
   check-firestore-internal-public-headers:
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-14
-    needs: check
     steps:
     - uses: actions/checkout@v4
     - name: Assert that Firestore and FirestoreInternal have identically named headers.
@@ -551,14 +551,12 @@ jobs:
   # to be used as a required check for merging.
   check-required-tests:
     runs-on: ubuntu-latest
-    if: always()
     name: Check all required Firestore tests results
     needs: [cmake, cmake-prod-db, xcodebuild, spm-source, spm-binary]
     steps:
       - name: Check test matrix
-        if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure' || needs.spm.result == 'failure'
+        if: needs.*.result == 'failure'
         run: exit 1
-
 
   # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
   # Firebase UI 12
