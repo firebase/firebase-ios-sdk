@@ -49,7 +49,7 @@ target 'SymbolCollisionTest' do
     pod 'GooglePlaces', '> 8'
     pod 'GoogleSignIn', '> 6'
     pod 'GTMAppAuth'
-    pod 'GoogleTagManager'
+    pod 'GoogleTagManager', '>= 7.4.6'
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
