@@ -78,7 +78,7 @@ jobs:
     - uses: actions/cache/restore@v4
       with:
         path: .build
-        key: ${{ steps.spm-package-resolved.outputs.cache_key }}
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
