@@ -14,6 +14,10 @@
 - [changed] **Breaking Change**: The constructor for `Schema` is now deprecated;
   use the new static methods `Schema.string(...)`, `Schema.object(...)`, etc.,
   instead. (#13616)
+- [changed] **Breaking Change**: The constructor for `FunctionDeclaration` now
+  accepts an array of *optional* parameters instead of a list of *required*
+  parameters; if a parameter is not listed as optional it is assumed to be
+  required. (#13616)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
