@@ -155,7 +155,7 @@ public actor Chat {
         case let .text(str):
           combinedText += str
 
-        case .data, .fileData, .functionCall, .functionResponse:
+        case .inlineData, .fileData, .functionCall, .functionResponse:
           // Don't combine it, just add to the content. If there's any text pending, add that as
           // a part.
           if !combinedText.isEmpty {
