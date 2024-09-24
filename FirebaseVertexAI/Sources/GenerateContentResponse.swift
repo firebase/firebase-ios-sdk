@@ -42,10 +42,9 @@ public struct GenerateContentResponse: Sendable {
   /// The response's content as text, if it exists.
   public var text: String? {
     guard let candidate = candidates.first else {
-      Logging.logEvent(
-        level: .error,
-        message: "Could not get text from a response that had no candidates.",
-        messageCode: .generateContentResponseNoCandidates
+      VertexLog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
       )
       return nil
     }
@@ -56,10 +55,9 @@ public struct GenerateContentResponse: Sendable {
       return text
     }
     guard textValues.count > 0 else {
-      Logging.logEvent(
-        level: .error,
-        message: "Could not get a text part from the first candidate.",
-        messageCode: .generateContentResponseNoText
+      VertexLog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
       )
       return nil
     }
@@ -336,10 +334,9 @@ extension FinishReason: Decodable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedFinishReason = FinishReason(rawValue: value) else {
-      Logging.logEvent(
-        level: .error,
-        message: "Unrecognized FinishReason with value \"\(value)\".",
-        messageCode: .generateContentResponseUnrecognizedFinishReason
+      VertexLog.error(
+        code: .generateContentResponseUnrecognizedFinishReason,
+        "Unrecognized FinishReason with value \"\(value)\"."
       )
       self = .unknown
       return
@@ -354,10 +351,9 @@ extension PromptFeedback.BlockReason: Decodable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedBlockReason = PromptFeedback.BlockReason(rawValue: value) else {
-      Logging.logEvent(
-        level: .error,
-        message: "Unrecognized BlockReason with value \"\(value)\".",
-        messageCode: .generateContentResponseUnrecognizedBlockReason
+      VertexLog.error(
+        code: .generateContentResponseUnrecognizedBlockReason,
+        "Unrecognized BlockReason with value \"\(value)\"."
       )
       self = .unknown
       return

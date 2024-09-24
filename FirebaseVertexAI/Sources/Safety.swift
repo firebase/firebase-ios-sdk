@@ -121,10 +121,9 @@ extension SafetyRating.HarmProbability: Decodable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedProbability = SafetyRating.HarmProbability(rawValue: value) else {
-      Logging.logEvent(
-        level: .error,
-        message: "Unrecognized HarmProbability with value \"\(value)\".",
-        messageCode: .generateContentResponseUnrecognizedHarmProbability
+      VertexLog.error(
+        code: .generateContentResponseUnrecognizedHarmProbability,
+        "Unrecognized HarmProbability with value \"\(value)\"."
       )
       self = .unknown
       return
@@ -142,8 +141,10 @@ extension HarmCategory: Codable {
   public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     guard let decodedCategory = HarmCategory(rawValue: value) else {
-      Logging.default
-        .error("[FirebaseVertexAI] Unrecognized HarmCategory with value \"\(value)\".")
+      VertexLog.error(
+        code: .generateContentResponseUnrecognizedHarmCategory,
+        "Unrecognized HarmCategory with value \"\(value)\"."
+      )
       self = .unknown
       return
     }
