@@ -41,11 +41,9 @@ jobs:
   spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
         os: [macos-14]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.2
+        xcode: [Xcode_15.2, Xcode_16]
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
     env:
