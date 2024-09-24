@@ -67,6 +67,8 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }} --use-static-frameworks
 
   spm-package-resolved:
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}

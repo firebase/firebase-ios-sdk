@@ -86,6 +86,8 @@ jobs:
          ${{ matrix.tests }}
 
   spm-package-resolved:
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}

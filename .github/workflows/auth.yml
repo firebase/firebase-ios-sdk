@@ -78,49 +78,9 @@ jobs:
         retry_wait_seconds: 120
         command: scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} ${{ matrix.tests }} --allow-warnings
 
-  integration-tests:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        scheme: [ObjCApiTests, SwiftApiTests, AuthenticationExampleUITests]
-
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: integration-tests${{ matrix.os }}
-    - name: Install Secrets
-      run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
-          FirebaseAuth/Tests/SampleSwift/ObjCApiTests/AuthCredentials.h "$plist_secret"
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg \
-          FirebaseAuth/Tests/SampleSwift/AuthenticationExample/SwiftApplication.plist "$plist_secret"
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
-          FirebaseAuth/Tests/SampleSwift/AuthCredentials.h "$plist_secret"
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
-          FirebaseAuth/Tests/SampleSwift/GoogleService-Info.plist "$plist_secret"
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info_multi.plist.gpg \
-          FirebaseAuth/Tests/SampleSwift/GoogleService-Info_multi.plist "$plist_secret"
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
-          FirebaseAuth/Tests/SampleSwift/Sample.entitlements "$plist_secret"
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
-          FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift "$plist_secret"
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
-    - uses: nick-fields/retry@v3
-      with:
-        timeout_minutes: 120
-        max_attempts: 3
-        retry_on: error
-        retry_wait_seconds: 120
-        command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS ${{ matrix.scheme }})
-
   spm-package-resolved:
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
@@ -168,6 +128,48 @@ jobs:
         retry_on: error
         retry_wait_seconds: 120
         command: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }}
+
+  integration-tests:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        scheme: [ObjCApiTests, SwiftApiTests, AuthenticationExampleUITests]
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Install Secrets
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
+          FirebaseAuth/Tests/SampleSwift/ObjCApiTests/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg \
+          FirebaseAuth/Tests/SampleSwift/AuthenticationExample/SwiftApplication.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/AuthCredentials.h.gpg \
+          FirebaseAuth/Tests/SampleSwift/AuthCredentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info.plist.gpg \
+          FirebaseAuth/Tests/SampleSwift/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/GoogleService-Info_multi.plist.gpg \
+          FirebaseAuth/Tests/SampleSwift/GoogleService-Info_multi.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Sample.entitlements.gpg \
+          FirebaseAuth/Tests/SampleSwift/Sample.entitlements "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
+          FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift "$plist_secret"
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS ${{ matrix.scheme }})
 
   catalyst:
     # Don't run on private repo unless it is a PR.
