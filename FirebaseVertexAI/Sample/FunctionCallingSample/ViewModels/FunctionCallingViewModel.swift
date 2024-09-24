@@ -33,7 +33,7 @@ class FunctionCallingViewModel: ObservableObject {
   private var functionCalls = [FunctionCall]()
 
   private var model: GenerativeModel
-  private var chat: Chat? = nil
+  private var chat: Chat
 
   private var chatTask: Task<Void, Never>?
 
@@ -62,13 +62,13 @@ class FunctionCallingViewModel: ObservableObject {
         ),
       ])]
     )
-    Task {
-      await startNewChat()
-    }
+    chat = model.startChat()
   }
 
   func sendMessage(_ text: String, streaming: Bool = true) async {
-    stop()
+    error = nil
+    chatTask?.cancel()
+
     chatTask = Task {
       busy = true
       defer {
@@ -100,14 +100,11 @@ class FunctionCallingViewModel: ObservableObject {
     }
   }
 
-  func startNewChat() async {
-    busy = true
-    defer {
-      busy = false
-    }
+  func startNewChat() {
     stop()
+    error = nil
+    chat = model.startChat()
     messages.removeAll()
-    chat = await model.startChat()
   }
 
   func stop() {
@@ -117,17 +114,14 @@ class FunctionCallingViewModel: ObservableObject {
 
   private func internalSendMessageStreaming(_ text: String) async throws {
     let functionResponses = try await processFunctionCalls()
-    guard let chat else {
-      throw ChatError.notInitialized
-    }
     let responseStream: AsyncThrowingStream<GenerateContentResponse, Error>
     if functionResponses.isEmpty {
-      responseStream = try await chat.sendMessageStream(text)
+      responseStream = try chat.sendMessageStream(text)
     } else {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      responseStream = try await chat.sendMessageStream(functionResponses.modelContent())
+      responseStream = try chat.sendMessageStream(functionResponses.modelContent())
     }
     for try await chunk in responseStream {
       processResponseContent(content: chunk)
@@ -136,9 +130,6 @@ class FunctionCallingViewModel: ObservableObject {
 
   private func internalSendMessage(_ text: String) async throws {
     let functionResponses = try await processFunctionCalls()
-    guard let chat else {
-      throw ChatError.notInitialized
-    }
     let response: GenerateContentResponse
     if functionResponses.isEmpty {
       response = try await chat.sendMessage(text)
@@ -188,10 +179,6 @@ class FunctionCallingViewModel: ObservableObject {
     functionCalls = []
 
     return functionResponses
-  }
-
-  enum ChatError: Error {
-    case notInitialized
   }
 
   // MARK: - Callable Functions

@@ -107,20 +107,15 @@ class VertexComponentTests: XCTestCase {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = VertexAI.vertexAI(app: app, location: location)
     let modelName = "test-model-name"
-    let expectedModelResourceName = vertex.modelResourceName(modelName: modelName)
-    let expectedSystemInstruction = ModelContent(
-      role: "system",
-      parts: "test-system-instruction-prompt"
-    )
+    let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let systemInstruction = ModelContent(role: "system", parts: "test-system-instruction-prompt")
 
     let generativeModel = vertex.generativeModel(
       modelName: modelName,
-      systemInstruction: expectedSystemInstruction
+      systemInstruction: systemInstruction
     )
 
-    let modelResourceName = await generativeModel.modelResourceName
-    let systemInstruction = await generativeModel.systemInstruction
-    XCTAssertEqual(modelResourceName, expectedModelResourceName)
-    XCTAssertEqual(systemInstruction, expectedSystemInstruction)
+    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
+    XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
   }
 }
