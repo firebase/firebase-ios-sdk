@@ -453,7 +453,7 @@ final class GenerativeModelTests: XCTestCase {
     }
   }
 
-  // TODO(andrewheard): Remove this test case after the Firebase Vertex AI API launch.
+  // TODO(andrewheard): Remove this test case after the Vertex AI in Firebase API launch.
   func testGenerateContent_failure_firebaseMLAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
@@ -494,7 +494,7 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
         .starts(with: "Vertex AI in Firebase API has not been used in project"))
-      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
+      XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     } catch {
       XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
@@ -799,6 +799,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTFail("Should have caught an error.")
   }
 
+  // TODO(andrewheard): Remove this test case after the Vertex AI in Firebase API launch.
   func testGenerateContentStream_failure_firebaseMLAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
@@ -818,6 +819,31 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
       XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
+      return
+    }
+
+    XCTFail("Should have caught an error.")
+  }
+
+  func testGenerateContentStream_failure_vertexAIInFirebaseAPINotEnabled() async throws {
+    let expectedStatusCode = 403
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-failure-firebasevertexai-api-not-enabled",
+        withExtension: "json",
+        statusCode: expectedStatusCode
+      )
+
+    do {
+      let stream = try model.generateContentStream(testPrompt)
+      for try await _ in stream {
+        XCTFail("No content is there, this shouldn't happen.")
+      }
+    } catch let GenerateContentError.internalError(error as RPCError) {
+      XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
+      XCTAssertEqual(error.status, .permissionDenied)
+      XCTAssertTrue(error.message.starts(with: "Vertex AI in Firebase API has not been used in project"))
+      XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     }
 

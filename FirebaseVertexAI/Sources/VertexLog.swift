@@ -29,7 +29,7 @@ enum VertexLog {
     case verboseLoggingEnabled = 101
 
     // API Enablement Errors
-    case firebaseVertexAIAPIDisabled = 200
+    case vertexAIInFirebaseAPIDisabled = 200
 
     // Model Configuration
     case generativeModelInitialized = 1000

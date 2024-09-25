@@ -31,13 +31,13 @@ struct RPCError: Error {
     self.details = details
   }
 
-  // TODO(andrewheard): Remove this method after the Firebase Vertex AI API launch.
+  // TODO(andrewheard): Remove this method after the Vertex AI in Firebase API launch.
   func isFirebaseMLServiceDisabledError() -> Bool {
     return details.contains { $0.isFirebaseMLServiceDisabledErrorDetails() }
   }
 
-  func isFirebaseVertexAIServiceDisabledError() -> Bool {
-    return details.contains { $0.isFirebaseVertexAIServiceDisabledErrorDetails() }
+  func isVertexAIInFirebaseServiceDisabledError() -> Bool {
+    return details.contains { $0.isVertexAIInFirebaseServiceDisabledErrorDetails() }
   }
 }
 
@@ -95,7 +95,7 @@ struct ErrorDetails {
     return isErrorInfo() && reason == "SERVICE_DISABLED" && domain == "googleapis.com"
   }
 
-  // TODO(andrewheard): Remove this method after the Firebase Vertex AI API launch.
+  // TODO(andrewheard): Remove this method after the Vertex AI in Firebase API launch.
   func isFirebaseMLServiceDisabledErrorDetails() -> Bool {
     guard isServiceDisabledError() else {
       return false
@@ -106,7 +106,7 @@ struct ErrorDetails {
     return true
   }
 
-  func isFirebaseVertexAIServiceDisabledErrorDetails() -> Bool {
+  func isVertexAIInFirebaseServiceDisabledErrorDetails() -> Bool {
     guard isServiceDisabledError() else {
       return false
     }

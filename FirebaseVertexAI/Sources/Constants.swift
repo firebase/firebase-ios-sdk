@@ -22,7 +22,7 @@ import Foundation
 enum Constants {
   /// The Vertex AI backend endpoint URL.
   ///
-  /// TODO(andrewheard): Update to "https://firebasevertexai.googleapis.com" after the Firebase
-  /// Vertex AI API launch.
+  /// TODO(andrewheard): Update to "https://firebasevertexai.googleapis.com" after the Vertex AI in
+  /// Firebase API launch.
   static let baseURL = "https://firebaseml.googleapis.com"
 }

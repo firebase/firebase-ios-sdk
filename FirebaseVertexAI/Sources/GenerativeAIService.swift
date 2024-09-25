@@ -266,9 +266,9 @@ struct GenerativeAIService {
   // Log specific RPC errors that cannot be mitigated or handled by user code.
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
   private func logRPCError(_ error: RPCError) {
-    // TODO(andrewheard): Remove this check after the Firebase Vertex AI API launch.
+    // TODO(andrewheard): Remove this check after the Vertex AI in Firebase API launch.
     if error.isFirebaseMLServiceDisabledError() {
-      VertexLog.error(code: .firebaseVertexAIAPIDisabled, """
+      VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
       The Vertex AI for Firebase SDK requires the Firebase ML API `firebaseml.googleapis.com` to \
       be enabled for your project. Get started in the Firebase Console \
       (https://console.firebase.google.com/project/\(projectID)/genai/vertex) or verify that the \
@@ -278,8 +278,8 @@ struct GenerativeAIService {
       """)
     }
 
-    if error.isFirebaseVertexAIServiceDisabledError() {
-      VertexLog.error(code: .firebaseVertexAIAPIDisabled, """
+    if error.isVertexAIInFirebaseServiceDisabledError() {
+      VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
       The Vertex AI for Firebase SDK requires the Firebase Vertex AI API \
       `firebasevertexai.googleapis.com` to be enabled for your project. Get started by visiting \
       the Firebase Console at: \
