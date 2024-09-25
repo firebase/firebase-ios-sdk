@@ -27,7 +27,6 @@
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/memory_bundle_cache.h"
 #include "Firestore/core/src/local/memory_document_overlay_cache.h"
-#include "Firestore/core/src/local/memory_globals_cache.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/memory_mutation_queue.h"
 #include "Firestore/core/src/local/memory_remote_document_cache.h"
@@ -91,8 +90,6 @@ class MemoryPersistence : public Persistence {
 
   MemoryBundleCache* bundle_cache() override;
 
-  MemoryGlobalsCache* globals_cache() override;
-
   MemoryDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
 
@@ -140,8 +137,6 @@ class MemoryPersistence : public Persistence {
   MemoryIndexManager index_manager_;
 
   MemoryBundleCache bundle_cache_;
-
-  MemoryGlobalsCache globals_cache_;
 
   DocumentOverlayCaches document_overlay_caches_;
   MemoryOverlayMigrationManager overlay_migration_manager_;
