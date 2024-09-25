@@ -18,37 +18,58 @@ import os.log
 @_implementationOnly import FirebaseCoreExtension
 
 enum VertexLog {
-  /// Enum of log messages.
+  /// Log message codes for the Vertex AI SDK
+  ///
+  /// These codes should ideally not be re-used in order to facillitate matching error codes in
+  /// support requests to lines in the SDK. These codes should range between 0 and 999999 to avoid
+  /// being truncated in log messages.
   enum MessageCode: Int {
-    case unknown = 0
-    case verboseLoggingEnabled
-    case verboseLoggingDisabled
-    case firebaseMLAPIDisabled
-    case generativeModelInitialized
-    case generativeAIServiceNonHTTPResponse
-    case loadRequestResponseError
-    case loadRequestResponseErrorPayload
-    case loadRequestStreamResponseError
-    case loadRequestStreamResponseErrorPayload
-    case loadRequestStreamResponseLine
-    case loadRequestParseResponseFailedJSON
-    case loadRequestParseResponseFailedJSONError
-    case generateContentResponseNoCandidates
-    case generateContentResponseNoText
-    case generateContentResponseUnrecognizedFinishReason
-    case generateContentResponseUnrecognizedBlockReason
-    case generateContentResponseUnrecognizedBlockThreshold
-    case generateContentResponseUnrecognizedHarmProbability
-    case generateContentResponseUnrecognizedHarmCategory
-    case appCheckTokenFetchFailed
-  }
+    // Logging Configuration
+    case verboseLoggingDisabled = 100
+    case verboseLoggingEnabled = 101
 
-  /// Log identifier.
-  static let service = "[FirebaseVertexAI]"
+    // API Enablement Errors
+    case firebaseMLAPIDisabled = 200
+
+    // Model Configuration
+    case generativeModelInitialized = 1000
+
+    // Network Errors
+    case generativeAIServiceNonHTTPResponse = 2000
+    case loadRequestResponseError = 2001
+    case loadRequestResponseErrorPayload = 2002
+    case loadRequestStreamResponseError = 2003
+    case loadRequestStreamResponseErrorPayload = 2004
+
+    // Parsing Errors
+    case loadRequestParseResponseFailedJSON = 3000
+    case loadRequestParseResponseFailedJSONError = 3001
+    case generateContentResponseUnrecognizedFinishReason = 3002
+    case generateContentResponseUnrecognizedBlockReason = 3003
+    case generateContentResponseUnrecognizedBlockThreshold = 3004
+    case generateContentResponseUnrecognizedHarmProbability = 3005
+    case generateContentResponseUnrecognizedHarmCategory = 3006
+
+    // SDK State Errors
+    case generateContentResponseNoCandidates = 4000
+    case generateContentResponseNoText = 4001
+    case appCheckTokenFetchFailed = 4002
+
+    // SDK Debugging
+    case loadRequestStreamResponseLine = 5000
+  }
 
   /// Subsystem that should be used for all Loggers.
   static let subsystem = "com.google.firebase"
 
+  /// Log identifier for the Vertex AI SDK.
+  ///
+  /// > Note: This corresponds to the `category` in `OSLog`.
+  static let service = "[FirebaseVertexAI]"
+
+  /// The raw `OSLog` log object.
+  ///
+  /// > Important: This is only needed for direct `os_log` usage.
   static let logObject = OSLog(subsystem: subsystem, category: service)
 
   /// The argument required to enable additional logging.
