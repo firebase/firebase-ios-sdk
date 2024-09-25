@@ -1267,7 +1267,7 @@ final class GenerativeModelTests: XCTestCase {
   private func httpRequestHandler(forResource name: String,
                                   withExtension ext: String,
                                   statusCode: Int = 200,
-                                  timeout: TimeInterval = URLRequest.defaultTimeoutInterval(),
+                                  timeout: TimeInterval = RequestOptions().timeout,
                                   appCheckToken: String? = nil,
                                   authToken: String? = nil) throws -> ((URLRequest) throws -> (
     URLResponse,
@@ -1313,14 +1313,6 @@ private extension String {
   /// Returns the number of occurrences of `substring` in the `String`.
   func occurrenceCount(of substring: String) -> Int {
     return components(separatedBy: substring).count - 1
-  }
-}
-
-private extension URLRequest {
-  /// Returns the default `timeoutInterval` for a `URLRequest`.
-  static func defaultTimeoutInterval() -> TimeInterval {
-    let placeholderURL = URL(string: "https://example.com")!
-    return URLRequest(url: placeholderURL).timeoutInterval
   }
 }
 
