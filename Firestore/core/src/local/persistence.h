@@ -36,7 +36,6 @@ namespace local {
 
 class BundleCache;
 class DocumentOverlayCache;
-class GlobalsCache;
 class IndexManager;
 class MutationQueue;
 class OverlayMigrationManager;
@@ -86,11 +85,6 @@ class Persistence {
 
   /** Releases any resources held during eager shutdown. */
   virtual void Shutdown() = 0;
-
-  /**
-   * Returns GlobalCache representing a general purpose cache for global values.
-   */
-  virtual GlobalsCache* globals_cache() = 0;
 
   /**
    * Returns a MutationQueue representing the persisted mutations for the given
