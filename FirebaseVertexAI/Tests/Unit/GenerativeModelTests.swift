@@ -842,7 +842,8 @@ final class GenerativeModelTests: XCTestCase {
     } catch let GenerateContentError.internalError(error as RPCError) {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
-      XCTAssertTrue(error.message.starts(with: "Vertex AI in Firebase API has not been used in project"))
+      XCTAssertTrue(error.message
+        .starts(with: "Vertex AI in Firebase API has not been used in project"))
       XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     }
