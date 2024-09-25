@@ -369,11 +369,8 @@ struct ZipBuilder {
     guard !podsToInstall.isEmpty else {
       fatalError("Failed to find versions for Firebase release")
     }
-    // We don't release Google-Mobile-Ads-SDK and GoogleSignIn, but we include their latest
-    // version for convenience in the Zip and Carthage builds.
-    podsToInstall.append(CocoaPodUtils.VersionedPod(name: "Google-Mobile-Ads-SDK",
-                                                    version: nil,
-                                                    platforms: ["ios"]))
+    // We don't release GoogleSignIn, but we include their latest version for convenience in the Zip
+    // and Carthage builds.
     podsToInstall.append(CocoaPodUtils.VersionedPod(name: "GoogleSignIn",
                                                     version: nil,
                                                     platforms: ["ios"]))
