@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import os.log
 enum VertexLog {
   /// Log message codes for the Vertex AI SDK
   ///
-  /// These codes should ideally not be re-used in order to facillitate matching error codes in
+  /// These codes should ideally not be re-used in order to facilitate matching error codes in
   /// support requests to lines in the SDK. These codes should range between 0 and 999999 to avoid
   /// being truncated in log messages.
   enum MessageCode: Int {
