@@ -102,6 +102,10 @@ MemoryBundleCache* MemoryPersistence::bundle_cache() {
   return &bundle_cache_;
 }
 
+MemoryGlobalsCache* MemoryPersistence::globals_cache() {
+  return &globals_cache_;
+}
+
 MemoryDocumentOverlayCache* MemoryPersistence::GetDocumentOverlayCache(
     const User& user) {
   auto iter = document_overlay_caches_.find(user);
