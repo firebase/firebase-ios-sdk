@@ -453,6 +453,7 @@ final class GenerativeModelTests: XCTestCase {
     }
   }
 
+  // TODO(andrewheard): Remove this test case after the Firebase Vertex AI API launch.
   func testGenerateContent_failure_firebaseMLAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
@@ -469,6 +470,30 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
+      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
+      return
+    } catch {
+      XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
+    }
+  }
+
+  func testGenerateContent_failure_firebaseVertexAIAPINotEnabled() async throws {
+    let expectedStatusCode = 403
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-failure-firebasevertexai-api-not-enabled",
+        withExtension: "json",
+        statusCode: expectedStatusCode
+      )
+
+    do {
+      _ = try await model.generateContent(testPrompt)
+      XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
+    } catch let GenerateContentError.internalError(error as RPCError) {
+      XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
+      XCTAssertEqual(error.status, .permissionDenied)
+      XCTAssertTrue(error.message
+        .starts(with: "Vertex AI in Firebase API has not been used in project"))
       XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
       return
     } catch {

@@ -31,6 +31,8 @@ public struct RequestOptions {
   let timeout: TimeInterval?
 
   /// The API version to use in requests to the backend.
+  ///
+  /// TODO(andrewheard): Update to "v1beta" after the Firebase Vertex AI API launch.
   let apiVersion = "v2beta"
 
   /// Initializes a request options object.
