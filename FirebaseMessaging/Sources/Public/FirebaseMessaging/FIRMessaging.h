@@ -136,9 +136,7 @@ NS_SWIFT_NAME(MessagingMessageInfo)
 @end
 
 @class FIRMessaging;
-#if __has_include("FIRMessagingExtensionHelper.h")
 @class FIRMessagingExtensionHelper;
-#endif  // __has_include("FIRMessagingExtensionHelper.h")
 
 /**
  * A protocol to handle token update or data message delivery from FCM.
@@ -186,7 +184,6 @@ NS_SWIFT_NAME(Messaging)
  */
 + (instancetype)messaging NS_SWIFT_NAME(messaging());
 
-#if __has_include("FIRMessagingExtensionHelper.h")
 /**
  * Use the MessagingExtensionHelper to populate rich UI content for your notifications.
  * For example, if an image URL is set in your notification payload or on the console,
@@ -197,7 +194,6 @@ NS_SWIFT_NAME(Messaging)
  */
 + (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension())
     NS_AVAILABLE(10.14, 10.0);
-#endif  // __has_include("FIRMessagingExtensionHelper.h")
 
 /**
  *  Unavailable. Use +messaging instead.
