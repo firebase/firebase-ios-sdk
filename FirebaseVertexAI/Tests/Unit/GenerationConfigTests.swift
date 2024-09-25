@@ -57,7 +57,7 @@ final class GenerationConfigTests: XCTestCase {
       maxOutputTokens: maxOutputTokens,
       stopSequences: stopSequences,
       responseMIMEType: responseMIMEType,
-      responseSchema: Schema(type: .array, items: Schema(type: .string))
+      responseSchema: .array(items: .string())
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -70,8 +70,10 @@ final class GenerationConfigTests: XCTestCase {
       "responseMIMEType" : "\(responseMIMEType)",
       "responseSchema" : {
         "items" : {
+          "nullable" : false,
           "type" : "STRING"
         },
+        "nullable" : false,
         "type" : "ARRAY"
       },
       "stopSequences" : [
@@ -89,15 +91,11 @@ final class GenerationConfigTests: XCTestCase {
     let mimeType = "application/json"
     let generationConfig = GenerationConfig(
       responseMIMEType: mimeType,
-      responseSchema: Schema(
-        type: .object,
-        properties: [
-          "firstName": Schema(type: .string),
-          "lastName": Schema(type: .string),
-          "age": Schema(type: .integer),
-        ],
-        requiredProperties: ["firstName", "lastName", "age"]
-      )
+      responseSchema: .object(properties: [
+        "firstName": .string(),
+        "lastName": .string(),
+        "age": .integer(),
+      ])
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -107,21 +105,25 @@ final class GenerationConfigTests: XCTestCase {
     {
       "responseMIMEType" : "\(mimeType)",
       "responseSchema" : {
+        "nullable" : false,
         "properties" : {
           "age" : {
+            "nullable" : false,
             "type" : "INTEGER"
           },
           "firstName" : {
+            "nullable" : false,
             "type" : "STRING"
           },
           "lastName" : {
+            "nullable" : false,
             "type" : "STRING"
           }
         },
         "required" : [
+          "age",
           "firstName",
-          "lastName",
-          "age"
+          "lastName"
         ],
         "type" : "OBJECT"
       }

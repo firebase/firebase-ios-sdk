@@ -43,17 +43,15 @@ public struct FunctionDeclaration {
   ///   - name: The name of the function; must be a-z, A-Z, 0-9, or contain underscores and dashes,
   ///   with a maximum length of 63.
   ///   - description: A brief description of the function.
-  ///   - parameters: Describes the parameters to this function; the keys are parameter names and
-  ///   the values are ``Schema`` objects describing them.
-  ///   - requiredParameters: A list of required parameters by name.
-  public init(name: String, description: String, parameters: [String: Schema]?,
-              requiredParameters: [String]? = nil) {
+  ///   - parameters: Describes the parameters to this function.
+  public init(name: String, description: String, parameters: [String: Schema],
+              optionalParameters: [String] = []) {
     self.name = name
     self.description = description
-    self.parameters = Schema(
-      type: .object,
+    self.parameters = Schema.object(
       properties: parameters,
-      requiredProperties: requiredParameters
+      optionalProperties: optionalParameters,
+      nullable: false
     )
   }
 }
