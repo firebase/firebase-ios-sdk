@@ -16,6 +16,7 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
+import os.log
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GenerativeAIService {
@@ -60,9 +61,15 @@ struct GenerativeAIService {
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
-      Logging.network.error("[FirebaseVertexAI] The server responded with an error: \(response)")
+      VertexLog.error(
+        code: .loadRequestResponseError,
+        "The server responded with an error: \(response)"
+      )
       if let responseString = String(data: data, encoding: .utf8) {
-        Logging.default.error("[FirebaseVertexAI] Response payload: \(responseString)")
+        VertexLog.error(
+          code: .loadRequestResponseErrorPayload,
+          "Response payload: \(responseString)"
+        )
       }
 
       throw parseError(responseData: data)
@@ -108,14 +115,19 @@ struct GenerativeAIService {
 
         // Verify the status code is 200
         guard response.statusCode == 200 else {
-          Logging.network
-            .error("[FirebaseVertexAI] The server responded with an error: \(response)")
+          VertexLog.error(
+            code: .loadRequestStreamResponseError,
+            "The server responded with an error: \(response)"
+          )
           var responseBody = ""
           for try await line in stream.lines {
             responseBody += line + "\n"
           }
 
-          Logging.default.error("[FirebaseVertexAI] Response payload: \(responseBody)")
+          VertexLog.error(
+            code: .loadRequestStreamResponseErrorPayload,
+            "Response payload: \(responseBody)"
+          )
           continuation.finish(throwing: parseError(responseBody: responseBody))
 
           return
@@ -127,7 +139,7 @@ struct GenerativeAIService {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         for try await line in stream.lines {
-          Logging.network.debug("[FirebaseVertexAI] Stream response: \(line)")
+          VertexLog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
           if line.hasPrefix("data:") {
             // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
@@ -179,8 +191,10 @@ struct GenerativeAIService {
       let tokenResult = await appCheck.getToken(forcingRefresh: false)
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
-        Logging.default
-          .debug("[FirebaseVertexAI] Failed to fetch AppCheck token. Error: \(error)")
+        VertexLog.error(
+          code: .appCheckTokenFetchFailed,
+          "Failed to fetch AppCheck token. Error: \(error)"
+        )
       }
     }
 
@@ -202,10 +216,10 @@ struct GenerativeAIService {
   private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {
     // Verify the status code is 200
     guard let response = urlResponse as? HTTPURLResponse else {
-      Logging.default
-        .error(
-          "[FirebaseVertexAI] Response wasn't an HTTP response, internal error \(urlResponse)"
-        )
+      VertexLog.error(
+        code: .generativeAIServiceNonHTTPResponse,
+        "Response wasn't an HTTP response, internal error \(urlResponse)"
+      )
       throw NSError(
         domain: "com.google.generative-ai",
         code: -1,
@@ -253,7 +267,7 @@ struct GenerativeAIService {
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
   private func logRPCError(_ error: RPCError) {
     if error.isFirebaseMLServiceDisabledError() {
-      Logging.default.error("""
+      VertexLog.error(code: .firebaseMLAPIDisabled, """
       The Vertex AI for Firebase SDK requires the Firebase ML API `firebaseml.googleapis.com` to \
       be enabled for your project. Get started in the Firebase Console \
       (https://console.firebase.google.com/project/\(projectID)/genai/vertex) or verify that the \
@@ -269,9 +283,12 @@ struct GenerativeAIService {
       return try JSONDecoder().decode(type, from: data)
     } catch {
       if let json = String(data: data, encoding: .utf8) {
-        Logging.network.error("[FirebaseVertexAI] JSON response: \(json)")
+        VertexLog.error(code: .loadRequestParseResponseFailedJSON, "JSON response: \(json)")
       }
-      Logging.default.error("[FirebaseVertexAI] Error decoding server JSON: \(error)")
+      VertexLog.error(
+        code: .loadRequestParseResponseFailedJSONError,
+        "Error decoding server JSON: \(error)"
+      )
       throw error
     }
   }
@@ -297,9 +314,12 @@ struct GenerativeAIService {
     }
 
     private func printCURLCommand(from request: URLRequest) {
+      guard VertexLog.additionalLoggingEnabled() else {
+        return
+      }
       let command = cURLCommand(from: request)
-      Logging.verbose.debug("""
-      [FirebaseVertexAI] Creating request with the equivalent cURL command:
+      os_log(.debug, log: VertexLog.logObject, """
+      \(VertexLog.service) Creating request with the equivalent cURL command:
       ----- cURL command -----
       \(command, privacy: .private)
       ------------------------

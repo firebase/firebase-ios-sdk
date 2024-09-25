@@ -85,23 +85,15 @@ public final class GenerativeModel {
     self.systemInstruction = systemInstruction
     self.requestOptions = requestOptions
 
-    if Logging.additionalLoggingEnabled() {
-      if ProcessInfo.processInfo.arguments.contains(Logging.migrationEnableArgumentKey) {
-        Logging.verbose.debug("""
-        [FirebaseVertexAI] Verbose logging enabled with the \
-        \(Logging.migrationEnableArgumentKey, privacy: .public) launch argument; please migrate to \
-        the \(Logging.enableArgumentKey, privacy: .public) argument to ensure future compatibility.
-        """)
-      } else {
-        Logging.verbose.debug("[FirebaseVertexAI] Verbose logging enabled.")
-      }
+    if VertexLog.additionalLoggingEnabled() {
+      VertexLog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
     } else {
-      Logging.default.info("""
+      VertexLog.info(code: .verboseLoggingDisabled, """
       [FirebaseVertexAI] To enable additional logging, add \
-      `\(Logging.enableArgumentKey, privacy: .public)` as a launch argument in Xcode.
+      `\(VertexLog.enableArgumentKey)` as a launch argument in Xcode.
       """)
     }
-    Logging.default.debug("[FirebaseVertexAI] Model \(name, privacy: .public) initialized.")
+    VertexLog.debug(code: .generativeModelInitialized, "Model \(name) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
