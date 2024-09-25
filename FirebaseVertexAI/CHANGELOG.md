@@ -18,6 +18,10 @@
   accepts an array of *optional* parameters instead of a list of *required*
   parameters; if a parameter is not listed as optional it is assumed to be
   required. (#13616)
+- [changed] **Breaking Change**: `CountTokensResponse.totalBillableCharacters`
+  is now optional (`Int?`); it may be `null` in cases such as when a
+  `GenerateContentRequest` contains only images or other non-text content.
+  (#13721)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)

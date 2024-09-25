@@ -40,7 +40,7 @@ public struct CountTokensResponse {
   ///
   /// > Important: This does not include billable image, video or other non-text input. See
   /// [Vertex AI pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) for details.
-  public let totalBillableCharacters: Int
+  public let totalBillableCharacters: Int?
 }
 
 // MARK: - Codable Conformances
@@ -53,18 +53,4 @@ extension CountTokensRequest: Encodable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CountTokensResponse: Decodable {
-  enum CodingKeys: CodingKey {
-    case totalTokens
-    case totalBillableCharacters
-  }
-
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    totalTokens = try container.decode(Int.self, forKey: .totalTokens)
-    totalBillableCharacters = try container.decodeIfPresent(
-      Int.self,
-      forKey: .totalBillableCharacters
-    ) ?? 0
-  }
-}
+extension CountTokensResponse: Decodable {}
