@@ -1194,7 +1194,7 @@ final class GenerativeModelTests: XCTestCase {
     ))
 
     XCTAssertEqual(response.totalTokens, 258)
-    XCTAssertEqual(response.totalBillableCharacters, 0)
+    XCTAssertNil(response.totalBillableCharacters)
   }
 
   func testCountTokens_modelNotFound() async throws {
