@@ -23,8 +23,8 @@
   `GenerateContentRequest` contains only images or other non-text content.
   (#13721)
 - [changed] The default request timeout is now 180 seconds instead of the
-  platform-default value for a `URLRequest` (typically 60 seconds); this timeout
-  may still be customized in `RequestOptions`. (#13722)
+  platform-default value of 60 seconds for a `URLRequest`; this timeout may
+  still be customized in `RequestOptions`. (#13722)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
