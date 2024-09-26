@@ -205,10 +205,7 @@ struct GenerativeAIService {
     let encoder = JSONEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     urlRequest.httpBody = try encoder.encode(request)
-
-    if let timeoutInterval = request.options.timeout {
-      urlRequest.timeoutInterval = timeoutInterval
-    }
+    urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
   }

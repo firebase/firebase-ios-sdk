@@ -28,7 +28,7 @@ protocol GenerativeAIRequest: Encodable {
 public struct RequestOptions {
   /// The request’s timeout interval in seconds; if not specified uses the default value for a
   /// `URLRequest`.
-  let timeout: TimeInterval?
+  let timeout: TimeInterval
 
   /// The API version to use in requests to the backend.
   ///
@@ -38,9 +38,8 @@ public struct RequestOptions {
   /// Initializes a request options object.
   ///
   /// - Parameters:
-  ///   - timeout The request’s timeout interval in seconds; if not specified uses the default value
-  ///   for a `URLRequest`.
-  public init(timeout: TimeInterval? = nil) {
+  ///   - timeout The request’s timeout interval in seconds; defaults to 180 seconds.
+  public init(timeout: TimeInterval = 180.0) {
     self.timeout = timeout
   }
 }
