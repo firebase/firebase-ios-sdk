@@ -47,7 +47,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
     "Firestore",
-    "GoogleUtilitiesComponents",
     "FirebasePerformance/ProtoSupport/",
   ]
 
