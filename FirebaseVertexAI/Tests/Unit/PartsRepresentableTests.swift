@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import CoreGraphics
-import FirebaseVertexAI
 import XCTest
 #if canImport(UIKit)
   import UIKit
@@ -23,6 +22,8 @@ import XCTest
 #if canImport(CoreImage)
   import CoreImage
 #endif // canImport(CoreImage)
+
+@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class PartsRepresentableTests: XCTestCase {
@@ -61,22 +62,13 @@ final class PartsRepresentableTests: XCTestCase {
       do {
         _ = try image.tryPartsValue()
         XCTFail("Expected model content from invalid image to error")
+      } catch let imageError as ImageConversionError {
+        guard case .couldNotConvertToJPEG = imageError else {
+          XCTFail("Expected JPEG conversion error, got \(imageError) instead.")
+          return
+        }
       } catch {
-        guard let imageError = (error as? ImageConversionError) else {
-          XCTFail("Got unexpected error type: \(error)")
-          return
-        }
-        switch imageError {
-        case let .couldNotConvertToJPEG(source):
-          guard case let .ciImage(ciImage) = source else {
-            XCTFail("Unexpected image source: \(source)")
-            return
-          }
-          XCTAssertEqual(ciImage, image)
-        default:
-          XCTFail("Expected image conversion error, got \(imageError) instead")
-          return
-        }
+        XCTFail("Got unexpected error type: \(error)")
       }
     }
   #endif // canImport(CoreImage)
@@ -87,22 +79,13 @@ final class PartsRepresentableTests: XCTestCase {
       do {
         _ = try image.tryPartsValue()
         XCTFail("Expected model content from invalid image to error")
+      } catch let imageError as ImageConversionError {
+        guard case .couldNotConvertToJPEG = imageError else {
+          XCTFail("Expected JPEG conversion error, got \(imageError) instead.")
+          return
+        }
       } catch {
-        guard let imageError = (error as? ImageConversionError) else {
-          XCTFail("Got unexpected error type: \(error)")
-          return
-        }
-        switch imageError {
-        case let .couldNotConvertToJPEG(source):
-          guard case let .uiImage(uiImage) = source else {
-            XCTFail("Unexpected image source: \(source)")
-            return
-          }
-          XCTAssertEqual(uiImage, image)
-        default:
-          XCTFail("Expected image conversion error, got \(imageError) instead")
-          return
-        }
+        XCTFail("Got unexpected error type: \(error)")
       }
     }
 
