@@ -1258,7 +1258,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.countTokens("Why is the sky blue?")
       XCTFail("Request should not have succeeded.")
-    } catch let CountTokensError.internalError(rpcError as RPCError) {
+    } catch let rpcError as RPCError {
       XCTAssertEqual(rpcError.httpResponseCode, 404)
       XCTAssertEqual(rpcError.status, .notFound)
       XCTAssert(rpcError.message.hasPrefix("models/test-model-name is not found"))
