@@ -269,16 +269,12 @@ public final class GenerativeModel {
   /// invalid.
   public func countTokens(_ content: @autoclosure () throws -> [ModelContent]) async throws
     -> CountTokensResponse {
-    do {
-      let countTokensRequest = try CountTokensRequest(
-        model: modelResourceName,
-        contents: content(),
-        options: requestOptions
-      )
-      return try await generativeAIService.loadRequest(request: countTokensRequest)
-    } catch {
-      throw CountTokensError.internalError(underlying: error)
-    }
+    let countTokensRequest = try CountTokensRequest(
+      model: modelResourceName,
+      contents: content(),
+      options: requestOptions
+    )
+    return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
@@ -290,10 +286,4 @@ public final class GenerativeModel {
     }
     return GenerateContentError.internalError(underlying: error)
   }
-}
-
-/// An error thrown in `GenerativeModel.countTokens(_:)`.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public enum CountTokensError: Error {
-  case internalError(underlying: Error)
 }

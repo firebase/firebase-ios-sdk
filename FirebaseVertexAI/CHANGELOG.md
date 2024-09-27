@@ -25,6 +25,9 @@
 - [changed] **Breaking Change**: The `ImageConversionError` enum is no longer
   public; image conversion errors are still reported as
   `GenerateContentError.promptImageContentError`. (#13735)
+- [changed] **Breaking Change**: The `CountTokensError` enum has been removed;
+  errors occurring in `GenerativeModel.countTokens(...)` are now thrown directly
+  instead of being wrapped in a `CountTokensError.internalError`. (#13736)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
