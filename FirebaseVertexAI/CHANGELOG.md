@@ -22,6 +22,9 @@
   is now optional (`Int?`); it may be `null` in cases such as when a
   `GenerateContentRequest` contains only images or other non-text content.
   (#13721)
+- [changed] **Breaking Change**: The `CountTokensError` enum has been removed;
+  errors occurring in `GenerativeModel.countTokens(...)` are now thrown directly
+  instead of being wrapped in a `CountTokensError.internalError`. (#13736)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
