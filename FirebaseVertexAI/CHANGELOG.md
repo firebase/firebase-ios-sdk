@@ -22,6 +22,9 @@
   is now optional (`Int?`); it may be `null` in cases such as when a
   `GenerateContentRequest` contains only images or other non-text content.
   (#13721)
+- [changed] **Breaking Change**: The `ImageConversionError` enum is no longer
+  public; image conversion errors are still reported as
+  `GenerateContentError.promptImageContentError`. (#13735)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
