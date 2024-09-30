@@ -122,12 +122,8 @@ let package = Package(
       targets: ["FirebaseStorage"]
     ),
     .library(
-      name: "FirebaseVertexAI",
-      targets: ["FirebaseVertexAI"]
-    ),
-    .library(
       name: "FirebaseVertexAI-Preview",
-      targets: ["FirebaseVertexAIPreview"]
+      targets: ["FirebaseVertexAI"]
     ),
   ],
   dependencies: [
@@ -1310,10 +1306,6 @@ let package = Package(
         "FirebaseCoreExtension",
       ],
       path: "FirebaseVertexAI/Sources"
-    ),
-    .target(
-      name: "FirebaseVertexAIPreview",
-      path: "FirebaseVertexAI/Preview"
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
