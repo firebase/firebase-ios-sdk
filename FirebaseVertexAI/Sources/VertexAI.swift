@@ -22,7 +22,7 @@ import Foundation
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class VertexAI: NSObject {
+public class VertexAI {
   // MARK: - Public APIs
 
   /// The default `VertexAI` instance.
