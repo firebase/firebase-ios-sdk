@@ -24,10 +24,10 @@ import FirebaseCore
     static var auth: Auth?
     override class func setUp() {
       let kFakeAPIKey = "FAKE_API_KEY"
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.apiKey = kFakeAPIKey
-      options.projectID = "myUserProjectID"
+      let options = FirebaseOptions(appID: "0:0000000000000:ios:0000000000000000",
+                                    projectNumber: "00000000000000000-00000000000-000000000",
+                                    projectID: "myUserProjectID",
+                                    apiKey: kFakeAPIKey)
       FirebaseApp.configure(name: "test-mfaResolver", options: options)
       auth = Auth(
         app: FirebaseApp.app(name: "test-mfaResolver")!

@@ -241,7 +241,7 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
                                      p1[7],  p2[7],  p1[8],  p2[8],  p1[9],  p2[9], p1[10],
                                      p2[10], p1[11], p2[11], p1[12], p2[12], '\0'};
     NSString *gcmSenderID = [NSString stringWithUTF8String:gcmSenderIDKey];
-    return [app.options.GCMSenderID isEqualToString:gcmSenderID];
+    return [app.options.projectNumber isEqualToString:gcmSenderID];
   }
   return NO;
 }

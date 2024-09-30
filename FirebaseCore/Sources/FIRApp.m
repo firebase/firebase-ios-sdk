@@ -80,9 +80,9 @@ NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey =
 NSString *const kFirebaseCoreErrorDomain = @"com.firebase.core";
 
 /**
- * The URL to download plist files.
+ * The URL to download config files.
  */
-static NSString *const kPlistURL = @"https://console.firebase.google.com/";
+static NSString *const kConfigFileURL = @"https://console.firebase.google.com/";
 
 @interface FIRApp ()
 
@@ -104,13 +104,13 @@ static FIRApp *sDefaultApp;
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
 #if DEBUG
-    [self findMisnamedGoogleServiceInfoPlist];
+    [self findMisnamedJsonConfig];
 #endif  // DEBUG
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"`FirebaseApp.configure()` could not find "
-                       @"a valid GoogleService-Info.plist in your project. Please download one "
-                       @"from %@.",
-                       kPlistURL];
+                       @"a valid firebase-sdk-config-apple.json in your project. Please "
+                       @"download one from %@.",
+                       kConfigFileURL];
   }
   [FIRApp configureWithOptions:options];
 }
@@ -541,7 +541,7 @@ static FIRApp *sDefaultApp;
                 @"plist file, you may change your app's bundle identifier to '%@'. Or you can "
                 @"download a new configuration file that matches your bundle identifier from %@ "
                 @"and replace the current one.",
-                kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
+                kJsonFileName, kJsonFileType, expectedBundleID, kConfigFileURL);
   }
 }
 
@@ -560,13 +560,13 @@ static FIRApp *sDefaultApp;
   if (!isValid) {
     NSString *expectedBundleID = [self expectedBundleID];
     FIRLogError(kFIRLoggerCore, @"I-COR000009",
-                @"The GOOGLE_APP_ID either in the plist file "
+                @"The GOOGLE_APP_ID either in the config file "
                 @"'%@.%@' or the one set in the customized options is invalid. If you are using "
-                @"the plist file, use the iOS version of bundle identifier to download the file, "
+                @"the config file, use the iOS version of bundle identifier to download the file, "
                 @"and do not manually edit the GOOGLE_APP_ID. You may change your app's bundle "
                 @"identifier to '%@'. Or you can download a new configuration file that matches "
                 @"your bundle identifier from %@ and replace the current one.",
-                kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
+                kJsonFileName, kJsonFileType, expectedBundleID, kConfigFileURL);
   };
   return isValid;
 }
@@ -624,7 +624,7 @@ static FIRApp *sDefaultApp;
  * This method does not verify that the contents of the app id are correct, just that they fulfill
  * the expected format.
  *
- * @param appID Contents of GOOGLE_APP_ID from the plist file.
+ * @param appID Contents of GOOGLE_APP_ID from the config file.
  * @param version Indicates what version of the app id format this string should be.
  * @return YES if provided string fulfills the expected format, NO otherwise.
  */
@@ -706,7 +706,7 @@ static FIRApp *sDefaultApp;
  *
  * Note that the v1 hash algorithm is not permitted on the client and cannot be fully validated.
  *
- * @param appID Contents of GOOGLE_APP_ID from the plist file.
+ * @param appID Contents of GOOGLE_APP_ID from the config file.
  * @param version Indicates what version of the app id format this string should be.
  * @return YES if provided string fulfills the expected hashed bundle ID and the version is known,
  *         NO otherwise.
@@ -747,7 +747,7 @@ static FIRApp *sDefaultApp;
 
 // end App ID validation
 
-#pragma mark - Reading From Plist & User Defaults
+#pragma mark - Reading From Config file & User Defaults
 
 /**
  * Clears the data collection switch from the standard NSUserDefaults for easier testing and
@@ -879,11 +879,11 @@ static FIRApp *sDefaultApp;
 }
 
 #if DEBUG
-+ (void)findMisnamedGoogleServiceInfoPlist {
++ (void)findMisnamedJsonConfig {
   for (NSBundle *bundle in [NSBundle allBundles]) {
     // Not recursive, but we're looking for misnames, not people accidentally
     // hiding their config file in a subdirectory of their bundle.
-    NSArray *plistPaths = [bundle pathsForResourcesOfType:@"plist" inDirectory:nil];
+    NSArray *plistPaths = [bundle pathsForResourcesOfType:@"json" inDirectory:nil];
     for (NSString *path in plistPaths) {
       @autoreleasepool {
         NSDictionary<NSString *, id> *contents = [NSDictionary dictionaryWithContentsOfFile:path];
@@ -896,7 +896,7 @@ static FIRApp *sDefaultApp;
           [NSException raise:kFirebaseCoreErrorDomain
                       format:@"`FirebaseApp.configure()` could not find the default "
                              @"configuration plist in your project, but did find one at "
-                             @"%@. Please rename this file to GoogleService-Info.plist to "
+                             @"%@. Please rename this file to firebase-sdk-config-apple.json to "
                              @"use it as the default configuration.",
                              path];
         }

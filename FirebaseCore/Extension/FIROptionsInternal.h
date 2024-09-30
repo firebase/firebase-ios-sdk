@@ -31,11 +31,13 @@ extern NSString *const kFIRBundleID;
 extern NSString *const kFIRProjectID;
 
 /**
- * Keys for the plist file name
+ * Keys for the config file names.
  */
+// TODO(next major): Rename from "kServiceInfo*" to "kPlist*"
 extern NSString *const kServiceInfoFileName;
-
 extern NSString *const kServiceInfoFileType;
+extern NSString *const kJsonFileName;
+extern NSString *const kJsonFileType;
 
 /**
  * This header file exposes the initialization of FirebaseOptions to internal use.
@@ -85,8 +87,9 @@ extern NSString *const kServiceInfoFileType;
  */
 @property(nonatomic, readonly, copy) NSString *libraryVersionID;
 
+// TODO(next major): Rename to usingOptionsFromDefaultConfig.
 /**
- * The flag indicating whether this object was constructed with the values in the default plist
+ * The flag indicating whether this object was constructed with the values in the default config
  * file.
  */
 @property(nonatomic) BOOL usingOptionsFromDefaultPlist;

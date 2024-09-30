@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const kAPIKey;
 extern NSString *const kCustomizedAPIKey;
 extern NSString *const kClientID;
-extern NSString *const kGCMSenderID;
+extern NSString *const kProjectNumber;
 extern NSString *const kGoogleAppID;
 extern NSString *const kDatabaseURL;
 extern NSString *const kStorageBucket;

@@ -267,10 +267,10 @@ import FirebaseCore
 
     private func initApp(_ functionName: String, useAppID: Bool = false, omitClientID: Bool = false,
                          scheme: String = OAuthProviderTests.kFakeReverseClientID) {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.apiKey = OAuthProviderTests.kFakeAPIKey
-      options.projectID = "myProjectID"
+      let options = FirebaseOptions(appID: "0:0000000000000:ios:0000000000000000",
+                                    projectNumber: "00000000000000000-00000000000-000000000",
+                                    projectID: "myProjectID",
+                                    apiKey: OAuthProviderTests.kFakeAPIKey)
       if useAppID {
         options.googleAppID = OAuthProviderTests.kFakeFirebaseAppID
       }

@@ -20,12 +20,12 @@ import FirebaseCore
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthLifecycleTests: XCTestCase {
-  private let kFakeAPIKey = "FAKE_API_KEY"
-  private let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                        gcmSenderID: "00000000000000000-00000000000-000000000")
-
+  private static let kFakeAPIKey = "FAKE_API_KEY"
+  private let options = FirebaseOptions(appID: "0:0000000000000:ios:0000000000000000",
+                                        projectNumber: "00000000000000000-00000000000-000000000",
+                                        projectID: "",
+                                        apiKey: AuthLifecycleTests.kFakeAPIKey)
   override func setUp() {
-    options.apiKey = kFakeAPIKey
     FirebaseApp.resetApps()
     FirebaseApp.configure(options: options)
   }
@@ -56,7 +56,7 @@ class AuthLifecycleTests: XCTestCase {
    */
   func testAppAPIKey() {
     let auth = Auth.auth()
-    XCTAssertEqual(auth.requestConfiguration.apiKey, kFakeAPIKey)
+    XCTAssertEqual(auth.requestConfiguration.apiKey, AuthLifecycleTests.kFakeAPIKey)
   }
 
   /** @fn testAppAssociation

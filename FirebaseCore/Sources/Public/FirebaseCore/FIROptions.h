@@ -58,7 +58,13 @@ NS_SWIFT_NAME(FirebaseOptions)
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
  * configure Firebase Cloud Messaging.
  */
-@property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID);
+@property(nonatomic, copy) NSString *projectNumber;
+
+/**
+ * The Project Number from the Google Developer's console, for example @"012345678901", used to
+ * configure Firebase Cloud Messaging.
+ */
+@property(nonatomic, copy) NSString *GCMSenderID NS_SWIFT_NAME(gcmSenderID) DEPRECATED_ATTRIBUTE;
 
 /**
  * The Project ID from the Firebase console, for example @"abc-xyz-123".
@@ -98,30 +104,44 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *appGroupID;
 
 /**
- * Initializes a customized instance of FirebaseOptions from the file at the given plist file path.
+ * Initializes a customized instance of FirebaseOptions from the file at the given config file path.
  * This will read the file synchronously from disk.
  * For example:
  * ```swift
- *   if let path = Bundle.main.path(forResource:"GoogleServices-Info", ofType:"plist") {
+ *   if let path = Bundle.main.path(forResource:"firebase-sdk-config-apple", ofType:"json") {
  *       let options = FirebaseOptions(contentsOfFile: path)
  *   }
  * ```
  * Note that it is not possible to customize `FirebaseOptions` for Firebase Analytics which expects
- * a static file named `GoogleServices-Info.plist` -
+ * a static file named `firebase-sdk-config-apple.json` -
  * https://github.com/firebase/firebase-ios-sdk/issues/230.
- * Returns `nil` if the plist file does not exist or is invalid.
+ * Returns `nil` if the config file does not exist or is invalid.
  */
-- (nullable instancetype)initWithContentsOfFile:(NSString *)plistPath NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithContentsOfFile:(NSString *)configPath NS_DESIGNATED_INITIALIZER;
 
 /**
  * Initializes a customized instance of `FirebaseOptions` with required fields. Use the mutable
  * properties to modify fields for configuring specific services. Note that it is not possible to
  * customize `FirebaseOptions` for Firebase Analytics which expects a static file named
- * `GoogleServices-Info.plist` - https://github.com/firebase/firebase-ios-sdk/issues/230.
+ * `firebase-sdk-config-apple.json` - https://github.com/firebase/firebase-ios-sdk/issues/230.
  */
 - (instancetype)initWithGoogleAppID:(NSString *)googleAppID
                         GCMSenderID:(NSString *)GCMSenderID
-    NS_SWIFT_NAME(init(googleAppID:gcmSenderID:))NS_DESIGNATED_INITIALIZER;
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Deprecated API. Use `init(appID:projectNumber:projectID:apiKey:` instead")
+        NS_SWIFT_NAME(init(googleAppID:gcmSenderID:))NS_DESIGNATED_INITIALIZER;
+
+/**
+ * Initializes a customized instance of `FirebaseOptions` with required fields. Use the mutable
+ * properties to modify fields for configuring specific services. Note that it is not possible to
+ * customize `FirebaseOptions` for Firebase Analytics which expects a static file named
+ * `firebase-sdk-config-apple.json` - https://github.com/firebase/firebase-ios-sdk/issues/230.
+ */
+- (instancetype)initWithAppID:(NSString *)appID
+                projectNumber:(NSString *)projectNumber
+                    projectID:(NSString *)projectID
+                       apiKey:(NSString *)apiKey
+    NS_SWIFT_NAME(init(appID:projectNumber:projectID:apiKey:)) NS_DESIGNATED_INITIALIZER;
 
 /** Unavailable. Please use `init(contentsOfFile:)` or `init(googleAppID:gcmSenderID:)` instead. */
 - (instancetype)init NS_UNAVAILABLE;

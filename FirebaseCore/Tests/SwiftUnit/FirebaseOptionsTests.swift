@@ -47,12 +47,16 @@ class FirebaseOptionsTests: XCTestCase {
 
   func testInitWithCustomFields() throws {
     let googleAppID = "5:678:ios:678def"
-    let gcmSenderID = "custom_gcm_sender_id"
-    let options = FirebaseOptions(googleAppID: googleAppID,
-                                  gcmSenderID: gcmSenderID)
+    let projectNumber = "custom_gcm_sender_id"
+    let options = FirebaseOptions(
+      appID: googleAppID,
+      projectNumber: projectNumber,
+      projectID: Constants.Options.projectID,
+      apiKey: Constants.Options.apiKey
+    )
 
     XCTAssertEqual(options.googleAppID, googleAppID)
-    XCTAssertEqual(options.gcmSenderID, gcmSenderID)
+    XCTAssertEqual(options.projectNumber, projectNumber)
 
     let bundleID =
       try XCTUnwrap(Bundle.main.bundleIdentifier, "Could not retrieve bundle identifier")
@@ -62,10 +66,7 @@ class FirebaseOptionsTests: XCTestCase {
   }
 
   func testCustomizedOptions() {
-    let googleAppID = Constants.Options.googleAppID
-    let gcmSenderID = Constants.Options.gcmSenderID
-    let options = FirebaseOptions(googleAppID: googleAppID,
-                                  gcmSenderID: gcmSenderID)
+    let options = appOptions()
     options.bundleID = Constants.Options.bundleID
     options.apiKey = Constants.Options.apiKey
     options.clientID = Constants.Options.clientID
@@ -78,14 +79,11 @@ class FirebaseOptionsTests: XCTestCase {
   }
 
   func testEditingCustomOptions() {
-    let googleAppID = Constants.Options.googleAppID
-    let gcmSenderID = Constants.Options.gcmSenderID
-    let options = FirebaseOptions(googleAppID: googleAppID,
-                                  gcmSenderID: gcmSenderID)
+    let options = appOptions()
 
-    let newGCMSenderID = "newgcmSenderID"
-    options.gcmSenderID = newGCMSenderID
-    XCTAssertEqual(options.gcmSenderID, newGCMSenderID)
+    let newprojectNumber = "newprojectNumber"
+    options.projectNumber = newprojectNumber
+    XCTAssertEqual(options.projectNumber, newprojectNumber)
 
     let newGoogleAppID = "newGoogleAppID"
     options.googleAppID = newGoogleAppID
@@ -101,10 +99,7 @@ class FirebaseOptionsTests: XCTestCase {
   }
 
   func testCopyingProperties() {
-    let googleAppID = Constants.Options.googleAppID
-    let gcmSenderID = Constants.Options.gcmSenderID
-    let options = FirebaseOptions(googleAppID: googleAppID,
-                                  gcmSenderID: gcmSenderID)
+    let options = appOptions()
     var apiKey = "123456789"
     options.apiKey = apiKey
     XCTAssertEqual(options.apiKey, apiKey)
@@ -131,8 +126,7 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(defaultOptions1.hash, defaultOptions2.hash)
     XCTAssertTrue(defaultOptions1.isEqual(defaultOptions2))
 
-    let plainOptions = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
-                                       gcmSenderID: Constants.Options.gcmSenderID)
+    let plainOptions = appOptions()
     XCTAssertFalse(plainOptions.isEqual(defaultOptions1))
   }
 
@@ -142,7 +136,7 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(options.apiKey, Constants.Options.apiKey)
     XCTAssertEqual(options.bundleID, Constants.Options.bundleID)
     XCTAssertEqual(options.clientID, Constants.Options.clientID)
-    XCTAssertEqual(options.gcmSenderID, Constants.Options.gcmSenderID)
+    XCTAssertEqual(options.projectNumber, Constants.Options.projectNumber)
     XCTAssertEqual(options.projectID, Constants.Options.projectID)
     XCTAssertEqual(options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(options.databaseURL, Constants.Options.databaseURL)
@@ -152,12 +146,19 @@ class FirebaseOptionsTests: XCTestCase {
   }
 
   private func assertNullableOptionsAreEmpty(options: FirebaseOptions) {
-    XCTAssertNil(options.apiKey)
     XCTAssertNil(options.clientID)
-    XCTAssertNil(options.projectID)
     XCTAssertNil(options.databaseURL)
     XCTAssertNil(options.deepLinkURLScheme)
     XCTAssertNil(options.storageBucket)
     XCTAssertNil(options.appGroupID)
+  }
+
+  private func appOptions() -> FirebaseOptions {
+    return FirebaseOptions(
+      appID: Constants.Options.googleAppID,
+      projectNumber: Constants.Options.projectNumber,
+      projectID: Constants.Options.projectID,
+      apiKey: Constants.Options.apiKey
+    )
   }
 }

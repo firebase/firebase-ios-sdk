@@ -76,7 +76,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
-    unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
+    unit_tests.resources = [
+      'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist',
+      'FirebaseCore/Tests/Unit/Resources/firebase-sdk-config-apple.json',
+    ]
   end
 
   s.test_spec 'swift-unit' do |swift_unit_tests|
@@ -97,6 +100,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     }
     swift_unit_tests.requires_app_host = true
     swift_unit_tests.dependency 'OCMock'
-    swift_unit_tests.resources = 'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist'
+    swift_unit_tests.resources = [
+      'FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist',
+      'FirebaseCore/Tests/Unit/Resources/firebase-sdk-config-apple.json',
+    ]
   end
 end

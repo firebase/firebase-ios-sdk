@@ -168,7 +168,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   if (error) {
     NSString *message = nil;
     if (options.usingOptionsFromDefaultPlist) {
-      // Configured using plist file
+      // Configured using config file
       message = [NSString
           stringWithFormat:
               @"Firebase Dynamic Links has stopped your project "

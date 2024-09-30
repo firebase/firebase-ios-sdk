@@ -37,7 +37,7 @@
   XCTAssertNoThrow([FIRApp configure]);
   FIRRemoteConfig *rc = [FIRRemoteConfig remoteConfig];
   XCTAssertEqualObjects(rc.GMPProjectID, kGoogleAppID);
-  XCTAssertEqualObjects(rc.senderID, kGCMSenderID);
+  XCTAssertEqualObjects(rc.senderID, kProjectNumber);
 }
 
 - (void)testConfigureConfigWithEmptyGoogleAppID {
@@ -98,7 +98,7 @@
   XCTAssertNoThrow([FIRApp configure]);
   FIRRemoteConfig *rc = [FIRRemoteConfig remoteConfig];
   XCTAssertEqualObjects(rc.GMPProjectID, kGoogleAppID);
-  XCTAssertEqualObjects(rc.senderID, kGCMSenderID);
+  XCTAssertEqualObjects(rc.senderID, kProjectNumber);
 
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:966600170131:ios:a750b5ff97fbf47d"
@@ -106,7 +106,7 @@
   [FIRApp configureWithName:@"nonDefault" options:options];
 
   XCTAssertEqualObjects(rc.GMPProjectID, kGoogleAppID);
-  XCTAssertEqualObjects(rc.senderID, kGCMSenderID);
+  XCTAssertEqualObjects(rc.senderID, kProjectNumber);
 }
 
 @end

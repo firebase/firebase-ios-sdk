@@ -645,10 +645,10 @@
                          testMode: Bool = false,
                          forwardingNotification: Bool = true,
                          fakeToken: Bool = false) {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.apiKey = PhoneAuthProviderTests.kFakeAPIKey
-      options.projectID = "myProjectID"
+      let options = FirebaseOptions(appID: "0:0000000000000:ios:0000000000000000",
+                                    projectNumber: "00000000000000000-00000000000-000000000",
+                                    projectID: "myProjectID",
+                                    apiKey: PhoneAuthProviderTests.kFakeAPIKey)
       if useClientID {
         options.clientID = PhoneAuthProviderTests.kFakeClientID
       }

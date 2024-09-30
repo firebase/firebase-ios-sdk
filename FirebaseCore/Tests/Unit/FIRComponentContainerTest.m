@@ -223,8 +223,10 @@
 
 /// Create a container that has registered the test class.
 - (FIRComponentContainer *)containerWithRegistrants:(NSArray<Class> *)registrants {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                    GCMSenderID:kGCMSenderID];
+  FIROptions *options = [[FIROptions alloc] initWithAppID:kGoogleAppID
+                                            projectNumber:kProjectNumber
+                                                projectID:kProjectID
+                                                   apiKey:kAPIKey];
   _hostApp = [[FIRApp alloc] initInstanceWithName:@"fake_app" options:options];
   NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
 
