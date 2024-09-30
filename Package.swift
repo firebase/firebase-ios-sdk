@@ -146,7 +146,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "3.4.1" ..< "4.0.0"
+      "3.4.1" ..< "5.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
