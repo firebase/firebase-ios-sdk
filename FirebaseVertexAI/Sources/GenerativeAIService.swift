@@ -266,21 +266,22 @@ struct GenerativeAIService {
     // TODO(andrewheard): Remove this check after the Vertex AI in Firebase API launch.
     if error.isFirebaseMLServiceDisabledError() {
       VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
-      The Vertex AI for Firebase SDK requires the Firebase ML API `firebaseml.googleapis.com` to \
-      be enabled for your project. Get started in the Firebase Console \
-      (https://console.firebase.google.com/project/\(projectID)/genai/vertex) or verify that the \
-      API is enabled in the Google Cloud Console \
-      (https://console.developers.google.com/apis/api/firebaseml.googleapis.com/overview?project=\
-      \(projectID)).
+      The Vertex AI in Firebase SDK requires the Firebase ML API (`firebaseml.googleapis.com`) to \
+      be enabled in your Firebase project. Enable this API by visiting the Firebase Console at
+      https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \
+      If you enabled this API recently, wait a few minutes for the action to propagate to our \
+      systems and then retry.
       """)
     }
 
     if error.isVertexAIInFirebaseServiceDisabledError() {
       VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
-      The Vertex AI for Firebase SDK requires the Firebase Vertex AI API \
-      `firebasevertexai.googleapis.com` to be enabled for your project. Get started by visiting \
-      the Firebase Console at: \
-      https://console.firebase.google.com/project/\(projectID)/genai/vertex
+      The Vertex AI in Firebase SDK requires the Vertex AI in Firebase API \
+      (`firebasevertexai.googleapis.com`) to be enabled in your Firebase project. Enable this API \
+      by visiting the Firebase Console at
+      https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \
+      If you enabled this API recently, wait a few minutes for the action to propagate to our \
+      systems and then retry.
       """)
     }
   }
