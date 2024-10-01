@@ -95,7 +95,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                                                       object:self];
 }
 
-- (void)handleSuccessullyFetchedMessages:(NSArray<FIRIAMMessageDefinition *> *)messagesInResponse
+- (void)handleSuccessfullyFetchedMessages:(NSArray<FIRIAMMessageDefinition *> *)messagesInResponse
                        withFetchWaitTime:(NSNumber *_Nullable)fetchWaitTime
                       requestImpressions:(NSArray<FIRIAMImpressionRecord *> *)requestImpressions {
   FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700004", @"%lu messages were fetched successfully.",
@@ -233,7 +233,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
                              [self.activityLogger addLogRecord:record];
 
                              // Now handle the fetched messages.
-                             [self handleSuccessullyFetchedMessages:messages
+                             [self handleSuccessfullyFetchedMessages:messages
                                                   withFetchWaitTime:nextFetchWaitTime
                                                  requestImpressions:impressions];
 
