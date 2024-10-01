@@ -524,9 +524,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let kTestValue = "TestValue"
     rpcIssuer.respondBlock = {
       // It doesn't matter what we respond with here, as long as it's not an error response. The
-      // fake
-      // response will deterministically simulate a decoding error regardless of the response value it
-      // was given.
+      // fake response will deterministically simulate a decoding error regardless of the response
+      // value it was given.
       try self.rpcIssuer.respond(withJSON: [kTestKey: kTestValue])
     }
     let rpcResponse = try await rpcImplementation.call(with: FakeRequest(withRequestBody: [:]))
