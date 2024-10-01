@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
 @property(nonatomic, nonnull) FIRIAMFetchResponseParser *responseParser;
 @end
 
-static NSString *const _userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting =
+static NSString *const _userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting =
     @"firebase-iam-sdk-auto-data-collection";
 
 @implementation FIRIAMRuntimeManager {
@@ -97,7 +97,7 @@ static NSString *const _userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetti
 
 - (FIRIAMAutoDataCollectionSetting)FIAMProgrammaticAutoDataCollectionSetting {
   id settingEntry = [[GULUserDefaults standardUserDefaults]
-      objectForKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
+      objectForKey:_userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting];
 
   if (![settingEntry isKindOfClass:[NSNumber class]]) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM180014",
@@ -192,7 +192,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   // persist the setting
   [[GULUserDefaults standardUserDefaults]
       setObject:@(YES)
-         forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
+         forKey:_userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting];
 
   @synchronized(self) {
     if (!_running) {
@@ -213,7 +213,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   // persist the setting
   [[GULUserDefaults standardUserDefaults]
       setObject:@(NO)
-         forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
+         forKey:_userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting];
 
   @synchronized(self) {
     if (_running) {
