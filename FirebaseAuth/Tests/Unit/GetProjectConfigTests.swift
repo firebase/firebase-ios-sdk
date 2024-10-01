@@ -48,7 +48,7 @@ class GetProjectConfigTests: RPCBaseTests {
     )
   }
 
-  /** @fn testSuccessFulGetProjectConfigRequest
+  /** @fn testSuccessFullGetProjectConfigRequest
       @brief This test checks for a successful response
    */
   func testSuccessfulGetProjectConfigRequest() async throws {
