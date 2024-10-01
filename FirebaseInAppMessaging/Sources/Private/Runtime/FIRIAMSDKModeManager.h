@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger, FIRIAMSDKMode) {
 };
 
 // turn the sdk mode enum integer value into a descriptive string
-NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode);
+NSString *FIRIAMDescriptionStringForSDKMode(FIRIAMSDKMode mode);
 
 extern NSString *const kFIRIAMUserDefaultKeyForSDKMode;
 extern NSString *const kFIRIAMUserDefaultKeyForServerFetchCount;

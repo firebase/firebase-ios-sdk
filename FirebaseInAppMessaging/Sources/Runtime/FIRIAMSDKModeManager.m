@@ -24,7 +24,7 @@
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 
-NSString *FIRIAMDescriptonStringForSDKMode(FIRIAMSDKMode mode) {
+NSString *FIRIAMDescriptionStringForSDKMode(FIRIAMSDKMode mode) {
   switch (mode) {
     case FIRIAMSDKModeTesting:
       return @"Testing Instance";
@@ -76,7 +76,7 @@ NSInteger const kFIRIAMMaxFetchInNewlyInstalledMode = 5;
 
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM290001",
                 @"SDK is in mode of %@ and has seen %d fetches.",
-                FIRIAMDescriptonStringForSDKMode(_sdkMode), (int)_fetchCount);
+                FIRIAMDescriptionStringForSDKMode(_sdkMode), (int)_fetchCount);
   }
   return self;
 }
