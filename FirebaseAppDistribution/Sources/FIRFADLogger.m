@@ -14,6 +14,7 @@
 
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
 FIRLoggerService kFIRLoggerAppDistribution = @"[FirebaseAppDistribution]";
 
