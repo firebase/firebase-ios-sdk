@@ -55,7 +55,7 @@ jobs:
       run: |
        export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
-         --platforms=${{ matrix.target }} --test-specs=--platforms=${{ matrix.test-specs }}
+         --platforms=${{ matrix.target }} --test-specs=${{ matrix.test-specs }}
 
   spm-package-resolved:
     env:
