@@ -361,7 +361,7 @@
   }];
 }
 
-- (void)testOnceChildAddedFiresExaclyOnce {
+- (void)testOnceChildAddedFiresExactlyOnce {
   __block int badCount = 0;
 
   // for(int i = 0; i < 100; i++) {
@@ -400,7 +400,7 @@
   NSLog(@"BADCOUNT: %d", badCount);
 }
 
-- (void)testOnceValueFiresExacltyOnceEvenIfThereIsASetInsideCallback {
+- (void)testOnceValueFiresExactlyOnceEvenIfThereIsASetInsideCallback {
   FIRDatabaseReference* path = [FTestHelpers getRandomNode];
   __block BOOL firstCall = YES;
   __block BOOL done = NO;
