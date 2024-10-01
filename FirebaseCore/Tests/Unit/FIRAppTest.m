@@ -115,7 +115,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // We stop mocking `FIRHeartbeatLogger` in the class `tearDown` method to
   // prevent interfering with other tests that use the real `FIRHeartbeatLogger`.
   // Doing this in the instance `tearDown` causes test failures due to a race
-  // condition between `NSNoticationCenter` and `OCMVerifyAllWithDelay`.
+  // condition between `NSNotificationCenter` and `OCMVerifyAllWithDelay`.
   // Affected tests:
   // - testHeartbeatLogIsAttemptedWhenAppDidBecomeActive
   [OCMClassMock([FIRHeartbeatLogger class]) stopMocking];
@@ -301,7 +301,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithOptions:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
 
-  // Explicily stop the environmentMock.
+  // Explicitly stop the environmentMock.
   [environmentMock stopMocking];
   environmentMock = nil;
 }
@@ -330,7 +330,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
 
-  // Explicily stop the environmentMock.
+  // Explicitly stop the environmentMock.
   [environmentMock stopMocking];
   environmentMock = nil;
 }
