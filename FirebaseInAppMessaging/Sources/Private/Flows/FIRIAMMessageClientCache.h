@@ -84,7 +84,7 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 - (nullable FIRIAMMessageDefinition *)nextOnFirebaseAnalyticEventDisplayMsg:(NSString *)eventName;
 
 // Call this after a message has been rendered to remove it from the cache.
-- (void)removeMessageWithId:(NSString *)messgeId;
+- (void)removeMessageWithId:(NSString *)messageId;
 
 // reset messages data
 - (void)setMessageData:(NSArray<FIRIAMMessageDefinition *> *)messages;
