@@ -57,7 +57,7 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
 // analytics event listening based on the latest message definitions
 // make it weak to avoid retaining cycle
 @property(nonatomic, weak, nullable)
-    FIRIAMDisplayCheckOnAnalyticEventsFlow *analycisEventDislayCheckFlow;
+    FIRIAMDisplayCheckOnAnalyticEventsFlow *analyticsEventDisplayCheckFlow;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithBookkeeper:(id<FIRIAMBookKeeper>)bookKeeper

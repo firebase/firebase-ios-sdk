@@ -369,7 +369,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.displayOnFIRAnalyticEventsFlow =
       [[FIRIAMDisplayCheckOnAnalyticEventsFlow alloc] initWithDisplayFlow:self.displayExecutor];
 
-  self.messageCache.analycisEventDislayCheckFlow = self.displayOnFIRAnalyticEventsFlow;
+  self.messageCache.analyticsEventDisplayCheckFlow = self.displayOnFIRAnalyticEventsFlow;
   [self.messageCache
       loadMessageDataFromServerFetchStorage:self.fetchResultStorage
                              withCompletion:^(BOOL success) {
