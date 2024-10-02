@@ -55,7 +55,7 @@ class AuthViewController: UIViewController {
   // MARK: - Internal Helpers
 
   private func setUserSignedIn(_ user: User?) {
-    if let user = user {
+    if let user {
       providers.isHidden = true
       signedIn.isHidden = false
 

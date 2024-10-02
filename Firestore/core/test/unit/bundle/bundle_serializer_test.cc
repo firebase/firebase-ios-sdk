@@ -28,6 +28,7 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -42,7 +43,6 @@ namespace {
 
 using google::protobuf::Message;
 using google::protobuf::util::MessageDifferencer;
-using google::protobuf::util::MessageToJsonString;
 using nlohmann::json;
 using ProtoBundledDocumentMetadata = ::firestore::BundledDocumentMetadata;
 using ProtoBundleMetadata = ::firestore::BundleMetadata;
@@ -69,6 +69,11 @@ using util::JsonReader;
 
 json Parse(const std::string& s) {
   return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
+}
+
+void MessageToJsonString(const Message& message, std::string* output) {
+  auto status = google::protobuf::util::MessageToJsonString(message, output);
+  HARD_ASSERT(status.ok());
 }
 
 class BundleSerializerTest : public ::testing::Test {

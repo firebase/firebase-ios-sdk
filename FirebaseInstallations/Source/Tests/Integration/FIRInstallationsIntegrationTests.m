@@ -95,8 +95,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   // from the above Installations API call.
   [self addTeardownBlock:^{
     FBLWaitForPromisesWithTimeout(20);
-    XCTAssertNil(FIRHeaderValueFromHeartbeatsPayload(
-        [FIRApp.defaultApp.heartbeatLogger flushHeartbeatsIntoPayload]));
+    XCTAssertNil([FIRApp.defaultApp.heartbeatLogger headerValue]);
   }];
 }
 
@@ -126,8 +125,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   // from the above Installations API call.
   [self addTeardownBlock:^{
     FBLWaitForPromisesWithTimeout(20);
-    XCTAssertNil(FIRHeaderValueFromHeartbeatsPayload(
-        [FIRApp.defaultApp.heartbeatLogger flushHeartbeatsIntoPayload]));
+    XCTAssertNil([FIRApp.defaultApp.heartbeatLogger headerValue]);
   }];
 }
 
@@ -158,8 +156,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   // from the above Installations API call.
   [self addTeardownBlock:^{
     FBLWaitForPromisesWithTimeout(20);
-    XCTAssertNil(FIRHeaderValueFromHeartbeatsPayload(
-        [FIRApp.defaultApp.heartbeatLogger flushHeartbeatsIntoPayload]));
+    XCTAssertNil([FIRApp.defaultApp.heartbeatLogger headerValue]);
   }];
 }
 

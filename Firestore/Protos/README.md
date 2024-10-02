@@ -17,7 +17,7 @@ make -j generate_protos
 Verify diffs, make sure tests still pass, and create a PR.
 
 ### Updating to a new nanopb version:
-  * Modify verion in [nanopb.cmake](cmake/external/nanopb.cmake).
+  * Modify version in [nanopb.cmake](cmake/external/nanopb.cmake).
   * Build.
   * Note build failure.
   * Plug expected hash into [nanopb.cmake](cmake/external/nanopb.cmake).

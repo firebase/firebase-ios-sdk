@@ -97,7 +97,7 @@ class LocalCacheSettings {
   friend class Settings;
 
  public:
-  enum class Kind { kMemory, kPersistent };
+  enum class Kind { kMemory = 1, kPersistent };
   virtual ~LocalCacheSettings() = default;
   friend bool operator==(const LocalCacheSettings& lhs,
                          const LocalCacheSettings& rhs);
@@ -133,12 +133,13 @@ class PersistentCacheSettings : public LocalCacheSettings {
   int64_t size_bytes_;
 };
 
-class MemoryGargabeCollectorSettings {
+class MemoryGarbageCollectorSettings {
  public:
-  enum class MemoryGcKind { kEagerGc, kLruGc };
-  virtual ~MemoryGargabeCollectorSettings() = default;
-  friend bool operator==(const MemoryGargabeCollectorSettings& lhs,
-                         const MemoryGargabeCollectorSettings& rhs);
+  enum class MemoryGcKind { kEagerGc = 1, kLruGc };
+  virtual ~MemoryGarbageCollectorSettings() = default;
+  friend bool operator==(const MemoryGarbageCollectorSettings& lhs,
+                         const MemoryGarbageCollectorSettings& rhs);
+
   virtual size_t Hash() const = 0;
 
   MemoryGcKind kind() const {
@@ -146,25 +147,25 @@ class MemoryGargabeCollectorSettings {
   }
 
  protected:
-  explicit MemoryGargabeCollectorSettings(MemoryGcKind kind) : kind_(kind) {
+  explicit MemoryGarbageCollectorSettings(MemoryGcKind kind) : kind_(kind) {
   }
   MemoryGcKind kind_;
 };
 
-class MemoryEagerGcSettings : public MemoryGargabeCollectorSettings {
+class MemoryEagerGcSettings : public MemoryGarbageCollectorSettings {
  public:
   MemoryEagerGcSettings()
-      : MemoryGargabeCollectorSettings(
-            MemoryGargabeCollectorSettings::MemoryGcKind::kEagerGc) {
+      : MemoryGarbageCollectorSettings(
+            MemoryGarbageCollectorSettings::MemoryGcKind::kEagerGc) {
   }
   size_t Hash() const override;
 };
 
-class MemoryLruGcSettings : public MemoryGargabeCollectorSettings {
+class MemoryLruGcSettings : public MemoryGarbageCollectorSettings {
  public:
   MemoryLruGcSettings()
-      : MemoryGargabeCollectorSettings(
-            MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc),
+      : MemoryGarbageCollectorSettings(
+            MemoryGarbageCollectorSettings::MemoryGcKind::kLruGc),
         size_bytes_(Settings::DefaultCacheSizeBytes) {
   }
 
@@ -185,7 +186,7 @@ class MemoryCacheSettings : public LocalCacheSettings {
  public:
   MemoryCacheSettings()
       : LocalCacheSettings(LocalCacheSettings::Kind::kMemory),
-        settings_(absl::make_unique<MemoryEagerGcSettings>()) {
+        settings_(absl::make_unique<MemoryLruGcSettings>()) {
   }
   MemoryCacheSettings(const MemoryCacheSettings& other);
   MemoryCacheSettings& operator=(const MemoryCacheSettings& other);
@@ -193,17 +194,17 @@ class MemoryCacheSettings : public LocalCacheSettings {
   size_t Hash() const override;
 
   MemoryCacheSettings WithMemoryGarbageCollectorSettings(
-      const MemoryGargabeCollectorSettings& settings);
+      const MemoryGarbageCollectorSettings& settings);
 
-  const MemoryGargabeCollectorSettings& gc_settings() const {
+  const MemoryGarbageCollectorSettings& gc_settings() const {
     return *settings_;
   }
 
  private:
-  static std::unique_ptr<MemoryGargabeCollectorSettings> CopyMemoryGcSettings(
-      const MemoryGargabeCollectorSettings& settings);
+  static std::unique_ptr<MemoryGarbageCollectorSettings> CopyMemoryGcSettings(
+      const MemoryGarbageCollectorSettings& settings);
 
-  std::unique_ptr<MemoryGargabeCollectorSettings> settings_;
+  std::unique_ptr<MemoryGarbageCollectorSettings> settings_;
 };
 
 bool operator!=(const Settings& lhs, const Settings& rhs);

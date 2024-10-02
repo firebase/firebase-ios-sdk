@@ -50,6 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// the cacheTime would be updated.
 @property(nonatomic, copy, nullable) NSDate *cacheTime;
 
+/// Indicates the info was stored on the keychain by version 10.18.0 or earlier.
+@property(nonatomic, readonly) BOOL needsMigration;
+
 /**
  *  Initializes a FIRMessagingTokenInfo object with the required parameters. These
  *  parameters represent all the relevant associated data with a token.

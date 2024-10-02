@@ -74,7 +74,7 @@ class Expectation {
   void Fulfill();
 
   /**
-   * Returns a callback function, that when invoked, fullfills the expectation.
+   * Returns a callback function, that when invoked, fulfills the expectation.
    *
    * The returned function has a lifetime that's independent of the Expectation
    * that created it.

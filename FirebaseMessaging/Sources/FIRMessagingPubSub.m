@@ -16,7 +16,6 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 
-#import <GoogleUtilities/GULSecureCoding.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseMessaging/Sources/FIRMessagingDefines.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
@@ -226,14 +225,15 @@ static NSString *const kPendingSubscriptionsListKey =
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList {
   GULUserDefaults *defaults = [GULUserDefaults standardUserDefaults];
   NSError *error;
-  NSData *pendingData = [GULSecureCoding archivedDataWithRootObject:topicsList error:&error];
+  NSData *pendingData = [NSKeyedArchiver archivedDataWithRootObject:topicsList
+                                              requiringSecureCoding:YES
+                                                              error:&error];
   if (error) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSubArchiveError,
                             @"Failed to archive topic list data %@", error);
     return;
   }
   [defaults setObject:pendingData forKey:kPendingSubscriptionsListKey];
-  [defaults synchronize];
 }
 
 - (void)restorePendingTopicsList {
@@ -242,7 +242,7 @@ static NSString *const kPendingSubscriptionsListKey =
   FIRMessagingPendingTopicsList *subscriptions;
   if (pendingData) {
     NSError *error;
-    subscriptions = [GULSecureCoding
+    subscriptions = [NSKeyedUnarchiver
         unarchivedObjectOfClasses:[NSSet setWithObjects:FIRMessagingPendingTopicsList.class, nil]
                          fromData:pendingData
                             error:&error];
@@ -310,7 +310,7 @@ static NSString *const kTopicRegexPattern = @"/topics/([a-zA-Z0-9-_.~%]+)";
 }
 
 /**
- *  Gets the class describing occurences of topic names and sender IDs in the sender.
+ *  Gets the class describing occurrences of topic names and sender IDs in the sender.
  *
  *  @param topic The topic expression used to generate a pubsub topic
  *

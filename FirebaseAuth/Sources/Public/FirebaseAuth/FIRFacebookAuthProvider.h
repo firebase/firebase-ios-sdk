@@ -30,25 +30,4 @@ extern NSString *const FIRFacebookAuthProviderID NS_SWIFT_NAME(FacebookAuthProvi
  */
 extern NSString *const _Nonnull FIRFacebookAuthSignInMethod NS_SWIFT_NAME(FacebookAuthSignInMethod);
 
-/** @class FIRFacebookAuthProvider
-    @brief Utility class for constructing Facebook credentials.
- */
-NS_SWIFT_NAME(FacebookAuthProvider)
-@interface FIRFacebookAuthProvider : NSObject
-
-/** @fn credentialWithAccessToken:
-    @brief Creates an `AuthCredential` for a Facebook sign in.
-
-    @param accessToken The access token from Facebook.
-    @return An `AuthCredential` containing the Facebook credentials.
- */
-+ (FIRAuthCredential *)credentialWithAccessToken:(NSString *)accessToken;
-
-/** @fn init
-    @brief This class should not be initialized.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
-
 NS_ASSUME_NONNULL_END

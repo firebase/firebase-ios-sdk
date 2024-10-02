@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Script to add a file to an Xcode target.
-# Adapted from https://github.com/firebase/quickstart-ios/blob/master/scripts/info_script.rb
+# Adapted from https://github.com/firebase/quickstart-ios/blob/main/scripts/info_script.rb
 
 require 'xcodeproj'
 project_path = ARGV[0]

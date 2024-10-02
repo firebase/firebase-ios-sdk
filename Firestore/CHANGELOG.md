@@ -1,8 +1,50 @@
+# 11.3.0
+- [changed] Improve efficiency of memory persistence when processing a large number of writes. (#13572)
+
+# 11.2.0
+- [fixed] Marked all public classes with only readonly properties as `Sendable` to address
+  Swift Concurrency Check warning. (#12666)
+
+# 11.1.0
+- [feature] Add `VectorValue` type support.
+
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseFirestoreSwift` module
+  has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [changed] **Breaking change**: LRU Garbage Collector is now the default GC for memory cache, eager GC is now
+  opt-in (via MemoryCacheSettings(garbageCollectorSettings: MemoryEagerGCSettings())) instead of the default one.
+- [changed] Move `Timestamp` class into `FirebaseCore`. `FirebaseFirestore.Timestamp`
+  was changed to `FirebaseCore.Timestamp`. (#13221)
+- [changed] Update gRPC dependency to 1.65.
+
+# 10.25.0
+- [fixed] Allow blob of data with zero length. (#11773, #12620)
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  setter no longer logs a warning since it discouraged valid patterns,
+  e.g., updating the document ID after the document is created in Firestore. (#12756)
+
+# 10.24.0
+- [feature] Enable queries with range & inequality filters on multiple fields. (#12416)
+
+# 10.23.0
+- [feature] Enable snapshot listener option to retrieve data from local cache only. (#12370)
+- [fixed] Update gRPC dependency to 1.62.* (#12098, #12021)
+- [feature] Firestore's binary Swift Package Manager distribution uses
+  XCFrameworks with code signatures (#12238).
+
+# 10.22.0
+- [fixed] Fix the flaky offline behaviour when using `arrayRemove` on `Map` object. (#12378)
+
+# 10.21.0
+- Add an error when trying to build Firestore's binary SPM distribution for
+  visionOS (#12279). See Firestore's 10.12.0 release note for a supported
+  workaround.
+
 # 10.19.0
-- [fixed] Fixed an issue in the local cache synchronization logic where all
-  locally-cached documents that matched a resumed query would be unnecessarily
-  re-downloaded; with the fix it now only downloads the documents that are known
-  to be out-of-sync. (#12044)
+- [fixed] Made an optimization to the synchronization logic for resumed queries
+  to only re-download locally-cached documents that are known to be out-of-sync. (#12044)
 
 # 10.18.0
 - [fixed] Fix Firestore build for visionOS on Xcode 15.1. (#12023)
@@ -467,7 +509,7 @@
 - [changed] Firestore no longer bundles a copy of the gRPC certificates, now
   that the gRPC-C++ CocoaPod includes them. CocoaPods users should be updated
   automatically. Carthage users should follow the [updated
-  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md)
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/main/Carthage.md)
   to get `gRPCCertificates.bundle` from the correct location.
 
 # 0.16.1

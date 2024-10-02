@@ -70,16 +70,33 @@ class QueryEventSource {
 
   /**
    * Initiates a new listen. The LocalStore will be queried for initial data
-   * and the listen will be sent to the `RemoteStore` to get remote data. The
-   * registered SyncEngineCallback will be notified of resulting view
+   * and the listen will be sent to the RemoteStore if the query is listening to
+   * watch. The registered SyncEngineCallback will be notified of resulting view
    * snapshots and/or listen errors.
    *
    * @return the target ID assigned to the query.
    */
-  virtual model::TargetId Listen(Query query) = 0;
+  virtual model::TargetId Listen(Query query, bool should_listen_to_remote) = 0;
 
-  /** Stops listening to a query previously listened to via `Listen`. */
-  virtual void StopListening(const Query& query) = 0;
+  /**
+   * Sends the listen to the RemoteStore to get remote data. Invoked when a
+   * Query starts listening to the remote store, while already listening to the
+   * cache.
+   */
+  virtual void ListenToRemoteStore(Query query) = 0;
+
+  /**
+   * Stops listening to a query previously listened to via `Listen`. Un-listen
+   * to remote store if there is a watch connection established and stayed open.
+   */
+  virtual void StopListening(const Query& query,
+                             bool should_stop_remote_listening) = 0;
+
+  /**
+   * Stops listening to a query from watch. Invoked when a Query stops listening
+   * to the remote store, while still listening to the cache.
+   */
+  virtual void StopListeningToRemoteStoreOnly(const Query& query) = 0;
 };
 
 /**
@@ -107,8 +124,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void SetCallback(SyncEngineCallback* callback) override {
     sync_engine_callback_ = callback;
   }
-  model::TargetId Listen(Query query) override;
-  void StopListening(const Query& query) override;
+  model::TargetId Listen(Query query,
+                         bool should_listen_to_remote = true) override;
+  void ListenToRemoteStore(Query query) override;
+  void StopListening(const Query& query,
+                     bool should_stop_remote_listening = true) override;
+  void StopListeningToRemoteStoreOnly(const Query& query) override;
 
   /**
    * Initiates the write of local mutation batch which involves adding the
@@ -244,6 +265,9 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
       nanopb::ByteString resume_token);
 
   void RemoveAndCleanupTarget(model::TargetId target_id, util::Status status);
+  void StopListeningAndReleaseTarget(const Query& query,
+                                     bool should_stop_remote_listening,
+                                     bool last_listen);
 
   void RemoveLimboTarget(const model::DocumentKey& key);
 

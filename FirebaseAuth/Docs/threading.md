@@ -22,10 +22,7 @@ has its target queue set to this auth global work queue. This way we don't
 have to think about which variables may be contested. We only need to make
 sure all public APIs that may have thread-safety issues make the dispatch.
 The auth global work queue is defined in
-[FIRAuthGlobalWorkQueue.h](../Source/Private/FIRAuthGlobalWorkQueue.h)
-and any serial task queue created by
-[FIRAuthSerialTaskQueue.h](../Source/Private/FIRAuthSerialTaskQueue.h)
-already has its target set properly.
+[FIRAuthGlobalWorkQueue.h](../Source/Private/FIRAuthGlobalWorkQueue.h).
 
 In following sub-sections, we divided methods into three categories, according
 to the two criteria below:

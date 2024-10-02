@@ -29,6 +29,7 @@
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+@import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
@@ -136,7 +137,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
+        ;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -180,7 +182,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                      tokenError:(nullable NSError *)tokenError
                                        identity:(nullable NSString *)identity
                                   identityError:(nullable NSError *)identityError {
-  // Mock the installations retreival method.
+  // Mock the installations retrieval method.
   _installationsMock = OCMClassMock([FIRInstallations class]);
 
   id installationIDCompletionArg =

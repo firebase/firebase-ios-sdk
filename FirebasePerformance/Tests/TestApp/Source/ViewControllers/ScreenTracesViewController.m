@@ -39,11 +39,11 @@
 - (instancetype)initAndSetup {
   self = [super initWithNibName:nil bundle:nil];
   if (self) {
-    ScreenTracesTestScreensListViewController *masterView =
+    ScreenTracesTestScreensListViewController *mainView =
         [[ScreenTracesTestScreensListViewController alloc] initWithNibName:nil bundle:nil];
-    UINavigationController *masterNav =
-        [[UINavigationController alloc] initWithRootViewController:masterView];
-    self.viewControllers = @[ masterNav ];
+    UINavigationController *mainNav =
+        [[UINavigationController alloc] initWithRootViewController:mainView];
+    self.viewControllers = @[ mainNav ];
     self.delegate = self;
   }
   return self;

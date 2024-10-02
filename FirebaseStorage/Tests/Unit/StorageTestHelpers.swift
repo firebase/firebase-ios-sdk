@@ -20,21 +20,28 @@ import GTMSessionFetcherCore
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTestHelpers: XCTestCase {
-  static var app: FirebaseApp!
+  var app: FirebaseApp!
 
+  static var uniqueApp = 0
   func storage() -> Storage {
-    return Storage(app: FirebaseApp.app()!, bucket: "bucket")
+    return Storage(app: app, bucket: "bucket")
   }
 
-  override class func setUp() {
+  override func setUp() {
     super.setUp()
     if app == nil {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
       options.projectID = "myProjectID"
-      FirebaseApp.configure(options: options)
-      app = FirebaseApp(instanceWithName: "test", options: options)
+      StorageTestHelpers.uniqueApp += 1
+      let appName = "test\(StorageTestHelpers.uniqueApp)"
+      FirebaseApp.configure(name: appName, options: options)
+      app = FirebaseApp.app(name: appName)
+    }
+    addTeardownBlock {
+      await StorageFetcherService.shared.updateTestBlock(nil)
     }
   }
 
@@ -45,7 +52,7 @@ class StorageTestHelpers: XCTestCase {
 
   func waitForExpectation(test: XCTest) {
     waitForExpectations(timeout: 10) { error in
-      if let error = error {
+      if let error {
         print("Error \(error)")
       }
     }
@@ -54,7 +61,7 @@ class StorageTestHelpers: XCTestCase {
   func successBlock(withMetadata metadata: StorageMetadata? = nil)
     -> GTMSessionFetcherTestBlock {
     var data: Data?
-    if let metadata = metadata {
+    if let metadata {
       data = try? JSONSerialization.data(withJSONObject: metadata.dictionaryRepresentation())
     }
     return block(forData: data, url: nil, statusCode: 200)
@@ -99,7 +106,7 @@ class StorageTestHelpers: XCTestCase {
                      statusCode code: Int) -> GTMSessionFetcherTestBlock {
     let block = { (fetcher: GTMSessionFetcher, response: GTMSessionFetcherTestResponse) in
       let fetcherURL = fetcher.request?.url!
-      if let url = url {
+      if let url {
         XCTAssertEqual(url, fetcherURL)
       }
       let httpResponse = HTTPURLResponse(
@@ -111,7 +118,7 @@ class StorageTestHelpers: XCTestCase {
       var error: NSError?
       if code >= 400 {
         var userInfo: [String: Any]?
-        if let data = data {
+        if let data {
           userInfo = ["data": data]
         }
         error = NSError(domain: "com.google.HTTPStatus", code: code, userInfo: userInfo)

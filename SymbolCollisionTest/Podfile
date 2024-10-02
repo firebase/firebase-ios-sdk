@@ -1,4 +1,4 @@
-platform :ios, '11.0'
+platform :ios, '14.0'
 
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
@@ -27,7 +27,6 @@ target 'SymbolCollisionTest' do
     pod 'FirebasePerformance', :path => '../'
     pod 'FirebaseRemoteConfig', :path => '../'
     pod 'FirebaseStorage', :path => '../'
-    pod 'GoogleUtilitiesComponents', :path => '../'
 
 #    pod 'FirebaseUI'. - requires use_frameworks!
 
@@ -39,39 +38,23 @@ target 'SymbolCollisionTest' do
 
   # Other Google Pods
     pod 'ARCore'
-#    pod 'Blockly'  `Blockly` does not specify a Swift version ...
-    pod 'DigitsMigrationHelper'
-    pod 'EarlGrey'
 #    pod 'GeoFire' -- requires Firebase/Database 4.0
 #    pod 'google-cast-sdk' -- abseil
     pod 'Google-Mobile-Ads-SDK'
     pod 'GoogleAnalytics'
-    pod 'GoogleAppIndexing'
-    pod 'GoogleAppUtilities'
-    pod 'GoogleAuthUtilities'
-    pod 'GoogleConversionTracking'
-    pod 'GoogleDataTransport'
-    pod 'GoogleIDFASupport'
-    pod 'GoogleInterchangeUtilities'
-    pod 'GoogleMaps'
+    pod 'GoogleMaps', '> 8'
 
 #    pod 'GoogleMobileVision' # After Firebase 6.8.0, conflicts with FirebaseML
-    pod 'GoogleNetworkingUtilities'
-    pod 'GoogleParsingUtilities'
-    pod 'GooglePlacePicker'
-    pod 'GooglePlaces'
-    pod 'GooglePlusUtilities'
+    pod 'GooglePlaces', '> 8'
     pod 'GoogleSignIn', '> 6'
     pod 'GTMAppAuth'
-    pod 'GoogleSymbolUtilities'
-    pod 'GoogleTagManager'
+    pod 'GoogleTagManager', '>= 7.4.6'
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher
     pod 'GTMSessionFetcher'
 #    pod 'GVRSDK' -- absl and protobuf duplicates
     pod 'leveldb-library'
-#    pod 'MDFTextAccessibility' - conflicts with GVRSDK
     pod 'nanopb'
 #    pod 'NearbyMessages' # - conflicts with google-cast-sdk
     pod 'Protobuf'

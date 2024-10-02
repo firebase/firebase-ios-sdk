@@ -39,7 +39,7 @@
  *
  *  @return Helper which allows to read write data to a backup excluded plist.
  */
-- (instancetype)initWithFileName:(NSString *)fileName subDirectory:(NSString *)subDirectory;
+- (instancetype)initWithPlistFile:(NSString *)fileName subDirectory:(NSString *)subDirectory;
 
 /**
  *  Write dictionary data to the backup excluded plist file. If the file does not exist

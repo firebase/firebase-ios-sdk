@@ -85,14 +85,14 @@ void RemoteStore::Start() {
       [this](ConnectivityMonitor::NetworkStatus network_status) {
         if (network_status == ConnectivityMonitor::NetworkStatus::Unavailable) {
           LOG_DEBUG(
-              "RemoteStore %s ignoring connectivity callback for unavailable "
+              "RemoteStore %x ignoring connectivity callback for unavailable "
               "network",
               this);
           return;
         }
 
         if (CanUseNetwork()) {
-          LOG_DEBUG("RemoteStore %s restarting streams as connectivity changed",
+          LOG_DEBUG("RemoteStore %x restarting streams as connectivity changed",
                     this);
           RestartNetwork();
         }
@@ -139,7 +139,7 @@ void RemoteStore::DisableNetworkInternal() {
 }
 
 void RemoteStore::Shutdown() {
-  LOG_DEBUG("RemoteStore %s shutting down", this);
+  LOG_DEBUG("RemoteStore %x shutting down", this);
   is_network_enabled_ = false;
   DisableNetworkInternal();
 
@@ -514,7 +514,7 @@ void RemoteStore::HandleHandshakeError(const Status& status) {
   if (Datastore::IsPermanentError(status)) {
     std::string token = util::ToString(write_stream_->last_stream_token());
     LOG_DEBUG(
-        "RemoteStore %s error before completed handshake; resetting "
+        "RemoteStore %x error before completed handshake; resetting "
         "stream token %s: "
         "error code: '%s', details: '%s'",
         this, token, status.code(), status.error_message());
@@ -590,7 +590,7 @@ void RemoteStore::HandleCredentialChange() {
     // Tear down and re-create our network streams. This will ensure we get a
     // fresh auth token for the new user and re-fill the write pipeline with new
     // mutations from the `LocalStore` (since mutations are per-user).
-    LOG_DEBUG("RemoteStore %s restarting streams for new credential", this);
+    LOG_DEBUG("RemoteStore %x restarting streams for new credential", this);
     RestartNetwork();
   }
 }

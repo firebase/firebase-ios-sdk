@@ -22,8 +22,7 @@
 
 @implementation FIRCLSMockReportManager
 
-- (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark
-                                     report:(FIRCLSInternalReport *)report {
+- (BOOL)startCrashReporterWithProfilingReport:(FIRCLSInternalReport *)report {
   NSLog(@"Crash Reporting system disabled for testing");
 
   return YES;

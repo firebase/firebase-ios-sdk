@@ -17,27 +17,8 @@ import Foundation
 import GTMSessionFetcherCore
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageListTests: StorageTestHelpers {
-  var fetcherService: GTMSessionFetcherService?
-  var dispatchQueue: DispatchQueue?
-
-  override func setUp() {
-    super.setUp()
-    fetcherService = GTMSessionFetcherService()
-    fetcherService?.authorizer = StorageTokenAuthorizer(
-      googleAppID: "dummyAppID",
-      fetcherService: fetcherService!,
-      authProvider: nil,
-      appCheck: nil
-    )
-    dispatchQueue = DispatchQueue(label: "Test dispatch queue")
-  }
-
-  override func tearDown() {
-    fetcherService = nil
-    super.tearDown()
-  }
-
   func testValidatesInput() {
     let expectation = self.expectation(description: #function)
     expectation.expectedFulfillmentCount = 4
@@ -77,22 +58,21 @@ class StorageListTests: StorageTestHelpers {
     waitForExpectation(test: self)
   }
 
-  func testDefaultList() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService?.testBlock = { (fetcher: GTMSessionFetcher,
-                                   response: GTMSessionFetcherTestResponse) in
+  func testDefaultList() async throws {
+    let testBlock = { (fetcher: GTMSessionFetcher,
+                       response: GTMSessionFetcherTestResponse) in
         let url = fetcher.request!.url!
         XCTAssertEqual(url.scheme, "https")
         XCTAssertEqual(url.host, "firebasestorage.googleapis.com")
         XCTAssertEqual(url.port, 443)
         XCTAssertEqual(url.path, "/v0/b/bucket/o")
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)!.queryItems!
-        XCTAssertEqual(queryItems.count, 2)
+        XCTAssertEqual(queryItems.count, 3)
         for item in queryItems {
           switch item.name {
           case "prefix": XCTAssertEqual(item.value, "object/")
           case "delimiter": XCTAssertEqual(item.value, "/")
+          case "maxResults": XCTAssertEqual(item.value, "10")
           default: XCTFail("Unexpected URLComponent Query Item")
           }
         }
@@ -103,41 +83,33 @@ class StorageListTests: StorageTestHelpers {
                                            headerFields: nil)
         response(httpResponse, nil, nil)
     }
-
-    let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageListTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      pageSize: nil,
-      previousPageToken: nil
-    ) { result, error in
-      expectation.fulfill()
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    let ref = storage().reference(withPath: "object")
+    do {
+      let _ = try await ref.list(maxResults: 10)
+    } catch {
+      // All testing is in test block.
     }
-    task.enqueue()
-    waitForExpectation(test: self)
   }
 
-  func testDefaultListWithEmulator() {
-    let expectation = self.expectation(description: #function)
+  func testDefaultListWithEmulator() async throws {
     let storage = self.storage()
     storage.useEmulator(withHost: "localhost", port: 8080)
-    fetcherService?.allowLocalhostRequest = true
 
-    fetcherService?.testBlock = { (fetcher: GTMSessionFetcher,
-                                   response: GTMSessionFetcherTestResponse) in
+    let testBlock = { (fetcher: GTMSessionFetcher,
+                       response: GTMSessionFetcherTestResponse) in
         let url = fetcher.request!.url!
         XCTAssertEqual(url.scheme, "http")
         XCTAssertEqual(url.host, "localhost")
         XCTAssertEqual(url.port, 8080)
         XCTAssertEqual(url.path, "/v0/b/bucket/o")
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)!.queryItems!
-        XCTAssertEqual(queryItems.count, 2)
+        XCTAssertEqual(queryItems.count, 3)
         for item in queryItems {
           switch item.name {
           case "prefix": XCTAssertEqual(item.value, "object/")
           case "delimiter": XCTAssertEqual(item.value, "/")
+          case "maxResults": XCTAssertEqual(item.value, "123")
           default: XCTFail("Unexpected URLComponent Query Item")
           }
         }
@@ -148,30 +120,16 @@ class StorageListTests: StorageTestHelpers {
                                            headerFields: nil)
         response(httpResponse, "{}".data(using: .utf8), nil)
     }
-
-    let path = objectPath()
-    let ref = StorageReference(storage: storage, path: path)
-    let task = StorageListTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      pageSize: nil,
-      previousPageToken: nil
-    ) { result, error in
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-
-    task.enqueue()
-
-    waitForExpectation(test: self)
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    let ref = storage.reference(withPath: "object")
+    let result = try await ref.list(maxResults: 123)
+    XCTAssertEqual(result.items, [])
   }
 
-  func testListWithPageSizeAndPageToken() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService?.testBlock = { (fetcher: GTMSessionFetcher,
-                                   response: GTMSessionFetcherTestResponse) in
+  func testListWithPageSizeAndPageToken() async throws {
+    let storage = self.storage()
+    let testBlock = { (fetcher: GTMSessionFetcher,
+                       response: GTMSessionFetcherTestResponse) in
         let url = fetcher.request!.url!
         XCTAssertEqual(url.scheme, "https")
         XCTAssertEqual(url.host, "firebasestorage.googleapis.com")
@@ -196,37 +154,30 @@ class StorageListTests: StorageTestHelpers {
         response(httpResponse, nil, nil)
     }
 
-    let path = objectPath()
-    let ref = StorageReference(storage: storage(), path: path)
-    let task = StorageListTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      pageSize: 42,
-      previousPageToken: "foo"
-    ) { result, error in
-      expectation.fulfill()
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    let ref = storage.reference(withPath: "object")
+    do {
+      let _ = try await ref.list(maxResults: 42, pageToken: "foo")
+    } catch {
+      // All testing is in test block.
     }
-    task.enqueue()
-    waitForExpectation(test: self)
   }
 
-  func testPercentEncodesPlusToken() {
-    let expectation = self.expectation(description: #function)
-
-    fetcherService?.testBlock = { (fetcher: GTMSessionFetcher,
-                                   response: GTMSessionFetcherTestResponse) in
+  func testPercentEncodesPlusToken() async {
+    let testBlock = { (fetcher: GTMSessionFetcher,
+                       response: GTMSessionFetcherTestResponse) in
         let url = fetcher.request!.url!
         XCTAssertEqual(url.scheme, "https")
         XCTAssertEqual(url.host, "firebasestorage.googleapis.com")
         XCTAssertEqual(url.port, 443)
         XCTAssertEqual(url.path, "/v0/b/bucket/o")
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)!.queryItems!
-        XCTAssertEqual(queryItems.count, 2)
+        XCTAssertEqual(queryItems.count, 3)
         for item in queryItems {
           switch item.name {
           case "prefix": XCTAssertEqual(item.value, "+foo/")
           case "delimiter": XCTAssertEqual(item.value, "/")
+          case "maxResults": XCTAssertEqual(item.value, "97")
           default: XCTFail("Unexpected URLComponent Query Item")
           }
         }
@@ -238,24 +189,17 @@ class StorageListTests: StorageTestHelpers {
         response(httpResponse, nil, nil)
     }
 
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
     let storage = storage()
     let ref = storage.reference(withPath: "+foo")
-    let task = StorageListTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      pageSize: nil,
-      previousPageToken: nil
-    ) { result, error in
-      expectation.fulfill()
+    do {
+      let _ = try await ref.list(maxResults: 97)
+    } catch {
+      // All testing is in test block.
     }
-    task.enqueue()
-    waitForExpectation(test: self)
   }
 
-  func testListWithResponse() throws {
-    let expectation = self.expectation(description: #function)
-
+  func testListWithResponse() async throws {
     let jsonString = "{\n" +
       "  \"prefixes\": [\n" +
       "    \"object/prefixWithoutSlash\",\n" +
@@ -273,11 +217,10 @@ class StorageListTests: StorageTestHelpers {
       "  ],\n" +
       "  \"nextPageToken\": \"foo\"" +
       "}"
-
     let responseData = try XCTUnwrap(jsonString.data(using: .utf8))
 
-    fetcherService?.testBlock = { (fetcher: GTMSessionFetcher,
-                                   response: GTMSessionFetcherTestResponse) in
+    let testBlock = { (fetcher: GTMSessionFetcher,
+                       response: GTMSessionFetcherTestResponse) in
         let httpResponse = HTTPURLResponse(url: (fetcher.request?.url)!,
                                            statusCode: 200,
                                            httpVersion: "HTTP/1.1",
@@ -286,37 +229,22 @@ class StorageListTests: StorageTestHelpers {
     }
 
     let storage = storage()
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
     let ref = storage.reference(withPath: "object")
-    let task = StorageListTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      pageSize: nil,
-      previousPageToken: nil
-    ) { result, error in
-      XCTAssertNotNil(result)
-      XCTAssertNil(error)
-
-      XCTAssertEqual(result?.items, [ref.child("data1.dat"), ref.child("data2.dat")])
-      XCTAssertEqual(
-        result?.prefixes,
-        [ref.child("prefixWithoutSlash"), ref.child("prefixWithSlash")]
-      )
-      XCTAssertEqual(result?.pageToken, "foo")
-
-      expectation.fulfill()
-    }
-    task.enqueue()
-    waitForExpectation(test: self)
+    let result = try await ref.list(maxResults: 1000)
+    XCTAssertEqual(result.items, [ref.child("data1.dat"), ref.child("data2.dat")])
+    XCTAssertEqual(
+      result.prefixes,
+      [ref.child("prefixWithoutSlash"), ref.child("prefixWithSlash")]
+    )
+    XCTAssertEqual(result.pageToken, "foo")
   }
 
-  func testListWithErrorResponse() throws {
-    let expectation = self.expectation(description: #function)
-
+  func testListWithErrorResponse() async {
     let error = NSError(domain: "com.google.firebase.storage", code: 404)
 
-    fetcherService?.testBlock = { (fetcher: GTMSessionFetcher,
-                                   response: GTMSessionFetcherTestResponse) in
+    let testBlock = { (fetcher: GTMSessionFetcher,
+                       response: GTMSessionFetcherTestResponse) in
         let httpResponse = HTTPURLResponse(url: (fetcher.request?.url)!,
                                            statusCode: 403,
                                            httpVersion: "HTTP/1.1",
@@ -325,23 +253,13 @@ class StorageListTests: StorageTestHelpers {
     }
 
     let storage = storage()
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
     let ref = storage.reference(withPath: "object")
-    let task = StorageListTask(
-      reference: ref,
-      fetcherService: fetcherService!.self,
-      queue: dispatchQueue!.self,
-      pageSize: nil,
-      previousPageToken: nil
-    ) { result, error in
-      XCTAssertNotNil(error)
-      XCTAssertNil(result)
-
-      XCTAssertEqual(error!.domain, "FIRStorageErrorDomain")
-      XCTAssertEqual(error!.code, StorageErrorCode.objectNotFound.rawValue)
-
-      expectation.fulfill()
+    do {
+      let _ = try await ref.list(maxResults: 1000)
+    } catch {
+      XCTAssertEqual((error as NSError).domain, "FIRStorageErrorDomain")
+      XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
     }
-    task.enqueue()
-    waitForExpectation(test: self)
   }
 }

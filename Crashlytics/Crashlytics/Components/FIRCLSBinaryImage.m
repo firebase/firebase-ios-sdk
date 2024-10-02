@@ -510,7 +510,7 @@ static void FIRCLSBinaryImageRecordLibraryFrameworkInfo(FIRCLSFile* file, const 
 
   // Because this function is so expensive, we've decided to omit this info for all Apple-supplied
   // frameworks. This really isn't that bad, because we can know their info ahead of time (within a
-  // small margin of error). With this implemenation, we will still record this info for any
+  // small margin of error). With this implementation, we will still record this info for any
   // user-built framework, which in the end is the most important thing.
   if (strncmp(path, "/System", 7) == 0) {
     return;

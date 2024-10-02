@@ -83,7 +83,7 @@ static NSString *const kTopicName = @"topic-Name";
   XCTAssertTrue([FIRMessagingPubSub hasTopicsPrefix:@"/topics/"]);
 }
 
-/// Tests topic prefix wih no prefix.
+/// Tests topic prefix with no prefix.
 - (void)testAddTopicPrefix_withNoPrefix {
   NSString *topic = [FIRMessagingPubSub addPrefixToTopic:@""];
   XCTAssertTrue([FIRMessagingPubSub hasTopicsPrefix:topic]);

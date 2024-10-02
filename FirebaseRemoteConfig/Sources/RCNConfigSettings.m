@@ -110,7 +110,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
 
     _isFetchInProgress = NO;
-    _lastTemplateVersion = [_userDefaultsManager lastTemplateVersion];
+    _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
+    _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];
     _realtimeExponentialBackoffRetryInterval =
         [_userDefaultsManager currentRealtimeThrottlingRetryIntervalSeconds];
     _realtimeExponentialBackoffThrottleEndTime = [_userDefaultsManager realtimeThrottleEndTime];
@@ -186,7 +187,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 // Update internal metadata content to cache and DB.
 - (void)updateInternalContentWithResponse:(NSDictionary *)response {
-  // Remove all the keys with current pakcage name.
+  // Remove all the keys with current package name.
   [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
                                      namespace:_FIRNamespace
                                   isInternalDB:YES];
@@ -292,7 +293,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     [self updateLastFetchTimeInterval:[[NSDate date] timeIntervalSince1970]];
     // Note: We expect the googleAppID to always be available.
     _deviceContext = FIRRemoteConfigDeviceContextWithProjectIdentifier(_googleAppID);
-    [_userDefaultsManager setLastTemplateVersion:templateVersion];
+    _lastFetchedTemplateVersion = templateVersion;
+    [_userDefaultsManager setLastFetchedTemplateVersion:templateVersion];
   }
 
   [self updateMetadataTable];
@@ -375,6 +377,11 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   };
 
   [_DBManager insertMetadataTableWithValues:columnNameToValue completionHandler:nil];
+}
+
+- (void)updateLastActiveTemplateVersion {
+  _lastActiveTemplateVersion = _lastFetchedTemplateVersion;
+  [_userDefaultsManager setLastActiveTemplateVersion:_lastActiveTemplateVersion];
 }
 
 #pragma mark - fetch request

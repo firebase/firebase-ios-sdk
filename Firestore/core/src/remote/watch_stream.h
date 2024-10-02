@@ -56,7 +56,7 @@ class WatchStreamCallback {
 
   /**
    * Called by the `WatchStream` with changes and the snapshot versions
-   * included in in the `WatchChange` responses sent back by the server.
+   * included in the `WatchChange` responses sent back by the server.
    */
   virtual void OnWatchStreamChange(
       const WatchChange& change,

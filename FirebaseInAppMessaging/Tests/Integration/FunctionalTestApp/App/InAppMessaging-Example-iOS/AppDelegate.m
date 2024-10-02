@@ -73,7 +73,7 @@
       handleUniversalLink:userActivity.webpageURL
                completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
                  if (dynamicLink) {
-                   NSLog(@"dynamic link recogized with url as %@", dynamicLink.url.absoluteString);
+                   NSLog(@"dynamic link recognized with url as %@", dynamicLink.url.absoluteString);
                    [self showDeepLink:dynamicLink.url.absoluteString forUrlType:@"universal link"];
                  } else {
                    NSLog(@"error happened %@", error);

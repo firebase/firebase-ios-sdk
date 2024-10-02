@@ -1,0 +1,40 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '13.0'
+
+target 'AuthenticationExample' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for AuthenticationExample
+  ## Firebase 🔥 Pods
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseInstallations', :path => '../../..'
+  pod 'FirebaseAuthInterop', :path => '../../..'
+  pod 'FirebaseAppCheckInterop', :path => '../../..'
+
+  pod 'RecaptchaEnterprise', '~> 18.3'
+
+  ## Pod for Sign in with Google
+  pod 'GoogleSignIn'
+
+  ## Pod for Sign in with Facebook
+  pod 'FBSDKLoginKit', '< 13'
+
+  target 'SwiftApiTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'ObjCApiTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'AuthenticationExampleUITests' do
+    # Pods for testing
+  end
+
+end

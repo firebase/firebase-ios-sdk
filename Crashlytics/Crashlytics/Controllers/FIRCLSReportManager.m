@@ -268,7 +268,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   return _unsentReportsHandled;
 }
 
-- (FBLPromise<NSNumber *> *)startWithProfilingMark:(FIRCLSProfileMark)mark {
+- (FBLPromise<NSNumber *> *)startWithProfiling {
   NSString *executionIdentifier = self.executionIDModel.executionID;
 
   // This needs to be called before the new report is created for
@@ -294,7 +294,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
     FIRCLSErrorLog(@"Unable to setup a new report");
   }
 
-  if (![self startCrashReporterWithProfilingMark:mark report:report]) {
+  if (![self startCrashReporterWithProfilingReport:report]) {
     FIRCLSErrorLog(@"Unable to start crash reporter");
     report = nil;
   }
@@ -361,11 +361,9 @@ typedef NSNumber FIRCLSWrappedReportAction;
   }
 
   if (report != nil) {
-    // capture the start-up time here, but record it asynchronously
-    double endMark = FIRCLSProfileEnd(mark);
-
+    // empty for disabled start-up time
     dispatch_async(FIRCLSGetLoggingQueue(), ^{
-      FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSStartTimeKey, [@(endMark) description]);
+      FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSStartTimeKey, @"");
     });
   }
 
@@ -414,8 +412,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   }
 }
 
-- (BOOL)startCrashReporterWithProfilingMark:(FIRCLSProfileMark)mark
-                                     report:(FIRCLSInternalReport *)report {
+- (BOOL)startCrashReporterWithProfilingReport:(FIRCLSInternalReport *)report {
   if (!report) {
     return NO;
   }
@@ -430,12 +427,12 @@ typedef NSNumber FIRCLSWrappedReportAction;
 
   [self.analyticsManager registerAnalyticsListener];
 
-  [self crashReportingSetupCompleted:mark];
+  [self crashReportingSetupCompleted];
 
   return YES;
 }
 
-- (void)crashReportingSetupCompleted:(FIRCLSProfileMark)mark {
+- (void)crashReportingSetupCompleted {
   // check our handlers
   FIRCLSDispatchAfter(2.0, dispatch_get_main_queue(), ^{
     FIRCLSExceptionCheckHandlers((__bridge void *)(self));
@@ -447,12 +444,12 @@ typedef NSNumber FIRCLSWrappedReportAction;
 #endif
   });
 
-  // remove the launch failure marker and record the startup time
+  // remove the launch failure marker and records and empty string since
+  // we're avoiding mach_absolute_time calls.
   dispatch_async(dispatch_get_main_queue(), ^{
     [self.launchMarker removeLaunchFailureMarker];
     dispatch_async(FIRCLSGetLoggingQueue(), ^{
-      FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSFirstRunloopTurnTimeKey,
-                                             [@(FIRCLSProfileEnd(mark)) description]);
+      FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSFirstRunloopTurnTimeKey, @"");
     });
   });
 }
@@ -461,7 +458,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   // When the ApplicationIdentifierModel fails to initialize, it is usually due to
   // failing computeExecutableInfo. This can happen if the user sets the
   // Exported Symbols File in Build Settings, and leaves off the one symbol
-  // that Crashlytics needs, "__mh_execute_header" (wich is defined in mach-o/ldsyms.h as
+  // that Crashlytics needs, "__mh_execute_header" (which is defined in mach-o/ldsyms.h as
   // _MH_EXECUTE_SYM). From https://github.com/firebase/firebase-ios-sdk/issues/5020
   if (!self.appIDModel) {
     FIRCLSErrorLog(@"Crashlytics could not find the symbol for the app's main function and cannot "

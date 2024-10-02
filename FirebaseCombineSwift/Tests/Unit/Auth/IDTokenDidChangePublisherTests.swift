@@ -113,7 +113,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     cancellable = Auth.auth()
       .idTokenDidChangePublisher()
       .sink { user in
-        if let user = user, user.isAnonymous {
+        if let user, user.isAnonymous {
           expect.fulfill()
         }
       }
@@ -129,7 +129,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
     cancellable = Auth.auth()
       .idTokenDidChangePublisher()
       .sink { user in
-        if let user = user, user.isAnonymous {
+        if let user, user.isAnonymous {
           print(#function)
           expect.fulfill()
         }
@@ -161,7 +161,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
             expect.fulfill()
           }
         } else {
-          if let user = user, user.isAnonymous {
+          if let user, user.isAnonymous {
             expect.fulfill()
           }
         }
@@ -195,7 +195,7 @@ class IDTokenDidChangePublisherTests: XCTestCase {
             expect.fulfill()
           }
         } else {
-          if let user = user, user.isAnonymous {
+          if let user, user.isAnonymous {
             expect.fulfill()
           }
         }

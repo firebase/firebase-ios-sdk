@@ -1,3 +1,16 @@
+# 11.1.0
+- [fixed] Fix a potential data race in Storage initialization. (#13369)
+
+# 11.0.0
+- [fixed] Updated error handling to support both Swift error enum handling and NSError error
+  handling. Some of the Swift enums have additional parameters which may be a **breaking** change.
+  There are additional NSError's for completeness, but nothing related to NSError handling is
+  breaking. (#13071, #10889, #13114)
+
+# 10.24.0
+- [fixed] `putFile` and `putFileAsync` now work in app extensions. A background session
+   configuration is not used when uploading from an app extension (#12579).
+
 # 10.11.0
 - [added] Add progress tracking capability for `putDataAsync`, `putFileAsync`, and
   `writeAsync`. (#10574)
@@ -115,13 +128,13 @@
 - [changed] Reorganized directory structure (#4573).
 
 # 3.4.2
-- [fixed] Internal changes to addres -Wunused-property-ivar violation (#4281).
+- [fixed] Internal changes to address -Wunused-property-ivar violation (#4281).
 
 # 3.4.1
 - [fixed] Fix crash in FIRStorageUploadTask (#3750).
 
 # 3.4.0
-- [fixed] Ensure that users don't accidently invoke `Storage()` instead of `Storage.storage()`.
+- [fixed] Ensure that users don't accidentally invoke `Storage()` instead of `Storage.storage()`.
   If your code calls the constructor of Storage directly, we will throw an assertion failure,
   instead of crashing the process later as the instance is used (#3282).
 

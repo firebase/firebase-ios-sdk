@@ -78,7 +78,6 @@
   FIRComponent *testComponent = [FIRComponent
       componentWithProtocol:@protocol(FIRTestProtocolEagerCached)
         instantiationTiming:FIRInstantiationTimingAlwaysEager
-               dependencies:@[]
               creationBlock:^id _Nullable(FIRComponentContainer *_Nonnull container,
                                           BOOL *_Nonnull isCacheable) {
                 FIRTestClassEagerCached *instance = [[FIRTestClassEagerCached alloc] init];
@@ -144,11 +143,9 @@
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *dep = [FIRDependency dependencyWithProtocol:@protocol(FIRTestProtocolCached)];
   FIRComponent *testComponent = [FIRComponent
       componentWithProtocol:@protocol(FIRTestProtocolCachedWithDep)
         instantiationTiming:FIRInstantiationTimingLazy
-               dependencies:@[ dep ]
               creationBlock:^id _Nullable(FIRComponentContainer *_Nonnull container,
                                           BOOL *_Nonnull isCacheable) {
                 // Fetch from the container in the instantiation block.

@@ -14,8 +14,8 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 // Keys for the strings in the plist file.
@@ -284,7 +284,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
     // The unit tests are set up to catch anything that does not properly convert.
     NSString *version = FIRFirebaseVersion();
     NSArray *components = [version componentsSeparatedByString:@"."];
-    NSString *major = [components objectAtIndex:0];
+    NSString *major = [NSString stringWithFormat:@"%02d", [[components objectAtIndex:0] intValue]];
     NSString *minor = [NSString stringWithFormat:@"%02d", [[components objectAtIndex:1] intValue]];
     NSString *patch = [NSString stringWithFormat:@"%02d", [[components objectAtIndex:2] intValue]];
     kFIRLibraryVersionID = [NSString stringWithFormat:@"%@%@%@000", major, minor, patch];
@@ -441,8 +441,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 }
 
 - (BOOL)isAnalyticsCollectionExplicitlySet {
-  // If it's de-activated, it classifies as explicity set. If not, it's not a good enough indication
-  // that the developer wants FirebaseAnalytics enabled so continue checking.
+  // If it's de-activated, it classifies as explicitly set. If not, it's not a good enough
+  // indication that the developer wants FirebaseAnalytics enabled so continue checking.
   if (self.isAnalyticsCollectionDeactivated) {
     return YES;
   }

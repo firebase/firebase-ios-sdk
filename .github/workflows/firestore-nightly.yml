@@ -1,0 +1,89 @@
+# Copyright 2023 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: firestore_nightly
+
+on:
+  workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Setup check
+      run:  scripts/setup_check.sh
+
+    - name: Run check
+      run:  scripts/check.sh --test-only
+
+  cmake-prod-db:
+    needs: check
+
+    strategy:
+      matrix:
+        os: [macos-14]
+        databaseId: [(default)]
+
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      MINT_PATH: ${{ github.workspace }}/mint
+      TARGET_DATABASE_ID: ${{ matrix.databaseId }}
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Prepare ccache
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
+
+    - name: Cache Mint packages
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.7'
+
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-nightly.plist.gpg \
+        Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
+
+    # Skipping terraform index creation because we are not allowed to download SA key json.
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        export TARGET_BACKEND=nightly
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake

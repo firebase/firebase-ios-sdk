@@ -67,7 +67,7 @@ Other optional arguments:
 - `--no-update-pod-repo`
   - This is for speedups when `pod repo update` has already been run recently.
 - `--minimum-ios-version <minimum-ios-version>`
-  - Change the minimimum iOS version from the default of 10.
+  - Change the minimum iOS version from the default of 10.
 - `--output-dir <output-dir>`
   - The directory to copy the built Zip file. If this is not set, the path to the Zip file will
   be logged to the console.

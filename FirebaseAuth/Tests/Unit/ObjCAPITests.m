@@ -103,7 +103,8 @@
   [auth setCustomAuthDomain:s];
 #if TARGET_OS_IOS
   __unused NSData *d = [auth APNSToken];
-  auth.APNSToken = [[NSData alloc] init];
+  // TODO: It seems like a no-op and a bug to have this API in Objective-C
+  // auth.APNSToken = [[NSData alloc] init];
 #endif
 }
 
@@ -416,6 +417,9 @@
 
 #if TARGET_OS_IOS
 - (void)FIROAuthProvider_h:(FIROAuthProvider *)provider {
+  FIROAuthProvider *p = [FIROAuthProvider providerWithProviderID:@""];
+  p = [FIROAuthProvider providerWithProviderID:@"" auth:[FIRAuth auth]];
+
   FIROAuthCredential *c = [FIROAuthProvider credentialWithProviderID:@"id" accessToken:@"token"];
   c = [FIROAuthProvider credentialWithProviderID:@"id"
                                          IDToken:@"idToken"

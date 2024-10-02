@@ -17,7 +17,7 @@
 #import "AppDelegate.h"
 
 #import "AutoDisplayFlowViewController.h"
-#import "AutoDisplayMesagesTableVC.h"
+#import "AutoDisplayMessagesTableVC.h"
 
 #import <FirebaseInAppMessaging/FIRIAMDisplayCheckOnAppForegroundFlow.h>
 #import <FirebaseInAppMessaging/FIRIAMMessageClientCache.h>
@@ -38,7 +38,7 @@
 @interface AutoDisplayFlowViewController ()
 @property(weak, nonatomic) IBOutlet UISwitch *autoDisplayFlowSwitch;
 
-@property(nonatomic, weak) AutoDisplayMesagesTableVC *messageTableVC;
+@property(nonatomic, weak) AutoDisplayMessagesTableVC *messageTableVC;
 @property(weak, nonatomic) IBOutlet UITextField *autoDisplayIntervalText;
 @property(weak, nonatomic) IBOutlet UITextField *autoFetchIntervalText;
 @property(weak, nonatomic) IBOutlet UITextField *eventNameText;
@@ -171,7 +171,7 @@
   // Pass the selected object to the new view controller.
 
   if ([segue.identifier isEqualToString:@"message-table-segue"]) {
-    self.messageTableVC = (AutoDisplayMesagesTableVC *)[segue destinationViewController];
+    self.messageTableVC = (AutoDisplayMessagesTableVC *)[segue destinationViewController];
   }
 }
 @end

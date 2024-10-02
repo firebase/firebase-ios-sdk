@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Modify the CMakeLists.txt from LevelDb to staticly link Snappy compression
+Modify the CMakeLists.txt from LevelDb to statically link Snappy compression
 support.
 """
 

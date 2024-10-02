@@ -1,3 +1,22 @@
+# 11.2.0
+- [fixed] Fix temporary disconnects when the app goes inactive. The issue was
+  introduced in 10.27.0. (#13529)
+
+# 11.0.0
+- [removed] **Breaking change**: The deprecated `FirebaseDatabaseSwift`
+  module has been removed. See
+  https://firebase.google.com/docs/ios/swift-migration for migration
+  instructions.
+- [removed] Socket Rocket has been removed from the implementation. There should
+  be no impact on functionality. (#13100)
+
+# 10.27.0
+- [changed] Update internal socket implementation to use `NSURLSessionWebSocket` where
+  available. (#12883)
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.17.0
 - [feature] The `FirebaseDatabase` module now contains Firebase Database's
   Swift-only APIs that were previously only available via the
@@ -84,7 +103,7 @@
   high precision to be stored correctly in our persistence layer. (#4108)
 
 # 6.1.1
-- [fixed] Fixed an iOS 13 crash that occured in our WebSocket error handling. (#3950)
+- [fixed] Fixed an iOS 13 crash that occurred in our WebSocket error handling. (#3950)
 
 # 6.1.0
 - [fixed] Fix Catalyst Build issue. (#3512)

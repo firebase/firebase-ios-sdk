@@ -104,15 +104,15 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
   }
 
   if (!config) {
-    NSLog(@"Failed to load any configuaration from %@=%@. %@", configEnvVar,
+    NSLog(@"Failed to load any configuration from %@=%@. %@", configEnvVar,
           filePath, error);
     return nil;
   }
 
   SEL testsToRunSelector = NSSelectorFromString(@"testsToRun");
   if (![config respondsToSelector:testsToRunSelector]) {
-    NSLog(@"Invalid configuaration from %@=%@: missing testsToRun",
-          configEnvVar, filePath);
+    NSLog(@"Invalid configuration from %@=%@: missing testsToRun", configEnvVar,
+          filePath);
     return nil;
   }
 
@@ -139,7 +139,7 @@ NSSet<NSString*>* _Nullable LoadXCTestConfigurationTestsToRun() {
  * These members are then joined with a ":" as googletest requires.
  *
  * @see
- * https://github.com/google/googletest/blob/master/googletest/docs/AdvancedGuide.md
+ * https://github.com/google/googletest/blob/main/docs/advanced.md
  */
 NSString* CreateTestFiltersFromTestsToRun(NSSet<NSString*>* testsToRun) {
   NSMutableString* result = [[NSMutableString alloc] init];
@@ -231,19 +231,15 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
 
   const testing::TestResult* result = testInfo->result();
   if (result->Passed()) {
-    // Let XCode know that the test ran and succeeded.
+    // Let Xcode know that the test ran and succeeded.
     XCTAssertTrue(true);
     return;
   } else if (result->Skipped()) {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130400 || \
-    __TV_OS_VERSION_MAX_ALLOWED >= 130400 ||     \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101504
-    // Let XCode know that the test was skipped.
+    // Let Xcode know that the test was skipped.
     XCTSkip();
-#endif
   }
 
-  // Test failed :-(. Record the failure such that XCode will navigate directly
+  // Test failed :-(. Record the failure such that Xcode will navigate directly
   // to the file:line.
   int parts = result->total_part_count();
   for (int i = 0; i < parts; i++) {
@@ -251,9 +247,6 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     const char* path = part.file_name() ? part.file_name() : "";
     int line = part.line_number() > 0 ? part.line_number() : 0;
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000 || \
-    __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    // Xcode 12
     auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
                                                           lineNumber:line];
     auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
@@ -264,15 +257,6 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
                                  associatedError:nil
                                      attachments:@[]];
     [self recordIssue:issue];
-
-#else
-    // Xcode 11 and prior. recordFailureWithDescription:inFile:atLine:expected:
-    // is deprecated in Xcode 12.
-    [self recordFailureWithDescription:@(part.message())
-                                inFile:@(path)
-                                atLine:line
-                              expected:true];
-#endif
   }
 }
 
@@ -333,11 +317,11 @@ XCTestSuite* CreateAllTestsTestSuite() {
   [allTestsSuite
       addTest:[XCTestSuite testSuiteForTestCaseClass:[GoogleTests class]]];
 
-  const testing::UnitTest* master = testing::UnitTest::GetInstance();
+  const testing::UnitTest* main = testing::UnitTest::GetInstance();
 
-  int testCases = master->total_test_case_count();
+  int testCases = main->total_test_case_count();
   for (int i = 0; i < testCases; i++) {
-    const testing::TestCase* testCase = master->GetTestCase(i);
+    const testing::TestCase* testCase = main->GetTestCase(i);
     NSString* testCaseName = ClassNameForTestCase(testCase);
     Class testClass = objc_getClass([testCaseName UTF8String]);
     [allTestsSuite addTest:[XCTestSuite testSuiteForTestCaseClass:testClass]];
@@ -351,11 +335,11 @@ XCTestSuite* CreateAllTestsTestSuite() {
  * current test invocation.
  */
 void CreateGoogleTestTests() {
-  NSString* masterTestCaseName = NSStringFromClass([GoogleTests class]);
+  NSString* mainTestCaseName = NSStringFromClass([GoogleTests class]);
 
   // Initialize GoogleTest but don't run the tests yet.
   int argc = 1;
-  const char* argv[] = {[masterTestCaseName UTF8String]};
+  const char* argv[] = {[mainTestCaseName UTF8String]};
   testing::InitGoogleTest(&argc, const_cast<char**>(argv));
 
   // Convert XCTest's testToRun set to the equivalent --gtest_filter flag.
@@ -363,7 +347,7 @@ void CreateGoogleTestTests() {
   // Note that we only set forceAllTests to true if the user specifically
   // focused on GoogleTests. This prevents XCTest double-counting test cases
   // (and failures) when a user asks for all tests.
-  NSSet<NSString*>* allTests = [NSSet setWithObject:masterTestCaseName];
+  NSSet<NSString*>* allTests = [NSSet setWithObject:mainTestCaseName];
   NSSet<NSString*>* testsToRun = LoadXCTestConfigurationTestsToRun();
   if (testsToRun) {
     if ([allTests isEqual:testsToRun]) {
@@ -379,13 +363,13 @@ void CreateGoogleTestTests() {
   }
 
   // Create XCTestCases and populate the testInfosByKey map
-  const testing::UnitTest* master = testing::UnitTest::GetInstance();
+  const testing::UnitTest* main = testing::UnitTest::GetInstance();
   NSMutableDictionary<NSString*, NSValue*>* infoMap =
-      [NSMutableDictionary dictionaryWithCapacity:master->total_test_count()];
+      [NSMutableDictionary dictionaryWithCapacity:main->total_test_count()];
 
-  int testCases = master->total_test_case_count();
+  int testCases = main->total_test_case_count();
   for (int i = 0; i < testCases; i++) {
-    const testing::TestCase* testCase = master->GetTestCase(i);
+    const testing::TestCase* testCase = main->GetTestCase(i);
     CreateXCTestCaseClass(testCase, infoMap);
   }
   testInfosByKey = infoMap;
@@ -425,8 +409,8 @@ void RunGoogleTestTests() {
 - (void)testGoogleTestsActuallyRun {
   // This whole mechanism is sufficiently tricky that we should verify that the
   // build actually plumbed this together correctly.
-  const testing::UnitTest* master = testing::UnitTest::GetInstance();
-  XCTAssertGreaterThan(master->total_test_case_count(), 0);
+  const testing::UnitTest* main = testing::UnitTest::GetInstance();
+  XCTAssertGreaterThan(main->total_test_case_count(), 0);
 }
 
 @end

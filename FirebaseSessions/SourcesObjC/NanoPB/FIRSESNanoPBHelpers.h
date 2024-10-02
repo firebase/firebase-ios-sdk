@@ -91,6 +91,9 @@ pb_size_t FIRSESGetAppleApplicationInfoTag(void);
 /// private method in GULAppEnvironmentUtil.
 NSString* _Nullable FIRSESGetSysctlEntry(const char* sysctlKey);
 
+/// C function to bridge from Swift to do nanopb bytes transfer.
+NSData* FIRSESTransportBytes(const void* _Nonnull proto);
+
 NS_ASSUME_NONNULL_END
 
 #endif /* FIRSESNanoPBHelpers_h */

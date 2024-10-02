@@ -1,3 +1,50 @@
+# 11.3.0
+- [Fixed] Restore Firebase 10 behavior by querying with the
+  `kSecAttrSynchronizable` key when auth state is set to be shared across
+  devices. (#13584)
+- [Fixed] Prevent a bad memory access crash by using non-ObjC, native Swift
+  types in the SDK's networking layer, and moving synchronous work off of
+  the shared Swift concurrency queue. (#13650)
+- [Fixed] Restore Firebase 10 behavior by forwarding errors from interrupted
+  reCAPTCHA or OIDC login flows. (#13645)
+
+# 11.2.0
+- [Fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
+  betas. (#13480)
+- [Fixed] Fixed Phone Auth via Sandbox APNS tokens that broke in 11.0.0. (#13479)
+- [Fixed] Fixed crash when fetching sign in methods due to unexpected nil.
+  Previously, fetching sign in methods could return both a `nil` array of sign
+  in methods and a `nil` error. In such cases, an empty array is instead
+  returned with the `nil` error. (#13550)
+- [Fixed] Fixed user session persistence in multi tenant projects. Introduced in 11.0.0. (#13565)
+- [Fixed] Fixed encoding crash that occurs when using TOTP multi-factor
+  authentication. Note that this fix will not be in the 11.2.0 zip and Carthage
+  distributions, but will be included from 11.3.0 onwards. (#13591)
+
+# 11.1.0
+- [fixed] Fixed `Swift.error` conformance for `AuthErrorCode`. (#13430)
+- [added] Added custom provider support to `AuthProviderID`. Note that this change will be breaking
+  to any code that implemented an exhaustive `switch` on `AuthProviderID` in 11.0.0 - the `switch`
+  will need expansion. (#13429)
+- [fixed] Fix crash introduced in 11.0.0 in phone authentication flow from
+  implicitly unwrapping `nil` error after a token timeout. (#13470)
+- [fixed] Objective-C only: `[OAuthProvider getCredentialWithUIDelegate]` was not calling its
+  completion handler in the main thread. Regressed in 11.0.0. The fix is only for CocoaPods and
+  Swift Package Manager. The zip and Carthage fix will roll out in 11.2.0.
+  (https://github.com/firebase/FirebaseUI-iOS/issues/1199)
+
+# 11.0.0
+- [fixed] Fixed auth domain matching code to prioritize matching `firebaseapp.com` over `web.app`
+  even if the server returns the `web.app` domain listed first. (#7992)
+- [added] Introduced the Swift enum `AuthProviderID` for the Auth Provider IDs. (#9236)
+- [deprecated] Swift APIs using `String`-typed `productID`s have been deprecated in favor
+  of newly added API that leverages the `AuthProviderID` enum.
+- [fixed] Breaking API: The `email` property in `ActionCodeInfo` is now non-optional.
+
+# 10.21.0
+- [fixed] Fixed multifactor resolver to use the correct Auth instance instead of
+  always the default. (#12265)
+
 # 10.19.0
 - [changed] Deprecate `updateEmail(to email: String)` and `fetchSignInMethods(forEmail email: String)`. (#12081)
 
@@ -373,7 +420,7 @@
 # 3.0.3
 - [added] Adds documentation for all possible errors returned by each method.
 - [fixed] Improves error handling and messages for a variety of error conditions.
-- [fixed] Whether or not an user is considered anonymous is now consistent with other
+- [fixed] Whether or not a user is considered anonymous is now consistent with other
   platforms.
 - [changed] A saved signed in user is now siloed between different Firebase projects
   within the same app.

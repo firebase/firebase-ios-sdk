@@ -33,7 +33,7 @@
 private protocol CodableDocumentReference: Codable {}
 
 /**
- * DocumentReference's codable implmentation will just throw for most
+ * DocumentReference's codable implementation will just throw for most
  * encoder/decoder however. It is only meant to be encoded by Firestore.Encoder/Firestore.Decoder.
  */
 extension CodableDocumentReference {
@@ -50,4 +50,4 @@ extension CodableDocumentReference {
   }
 }
 
-extension DocumentReference: CodableDocumentReference {}
+extension FirebaseFirestore.DocumentReference: FirebaseFirestore.CodableDocumentReference {}

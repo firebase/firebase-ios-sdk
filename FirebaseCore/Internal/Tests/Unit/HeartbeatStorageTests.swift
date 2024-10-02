@@ -14,6 +14,7 @@
 
 @testable import FirebaseCoreInternal
 import XCTest
+
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
 
@@ -282,7 +283,7 @@ private class StorageFake: Storage {
   var onWrite: ((Data?) throws -> Void)?
 
   func read() throws -> Data {
-    if let onRead = onRead {
+    if let onRead {
       return try onRead()
     } else if let data = fakeFile {
       return data
@@ -292,7 +293,7 @@ private class StorageFake: Storage {
   }
 
   func write(_ data: Data?) throws {
-    if let onWrite = onWrite {
+    if let onWrite {
       return try onWrite(data)
     } else {
       fakeFile = data

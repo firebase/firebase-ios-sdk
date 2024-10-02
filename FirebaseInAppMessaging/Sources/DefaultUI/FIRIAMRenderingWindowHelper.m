@@ -28,15 +28,11 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowForModal = [[self class] iOS13PlusWindow];
     } else {
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForModal = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     }
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     UIWindowForModal.windowLevel = UIWindowLevelNormal;
   });
   return UIWindowForModal;
@@ -47,23 +43,18 @@
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, tvOS 13.0, *)) {
       UIWindowForBanner = [[self class] iOS13PlusBannerWindow];
     } else {
-#endif  // defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
       UIWindowForBanner =
           [[FIRIAMBannerViewUIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     }
-#endif
     UIWindowForBanner.windowLevel = UIWindowLevelNormal;
   });
 
   return UIWindowForBanner;
 }
 
-#if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 + (UIWindow *)iOS13PlusWindow API_AVAILABLE(ios(13.0)) {
   UIWindowScene *foregroundedScene = [[UIApplication sharedApplication] fir_foregroundWindowScene];
   if (foregroundedScene.delegate) {
@@ -82,7 +73,6 @@
   }
 }
 
-#endif
 @end
 
 #endif  // TARGET_OS_IOS

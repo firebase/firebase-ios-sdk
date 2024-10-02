@@ -8,8 +8,8 @@ evolution, so you should also consult with the iCore team as you are ramping up.
 
 ## Swift
 
-While much of Firebase has been implemented in Objective C, any new products or major
-implementations should be implemented in Swift. If Objective C API support is required it should
+While much of Firebase has been implemented in Objective-C, any new products or major
+implementations should be implemented in Swift. If Objective-C API support is required it should
 be implemented via the Swift `@objc` attribute. Consult with iCore and product management about
 the requirement itself.
 
@@ -17,7 +17,7 @@ Apple and others provide many great guides for Swift programming. Googlers, see 
 [go/swift-sdks-2022](http://go/swift-sdks-2022).
 
 Existing Firebase Swift implementations can be helpful. However, note that they are mostly
-Objective C ports and do not take advantage of Swift features like structs, default arguments, and
+Objective-C ports and do not take advantage of Swift features like structs, default arguments, and
 async/await as much as new implementations should.
 
 ### Swift APIs
@@ -66,7 +66,7 @@ non-Google open source project should be nested under a `third_party` directory.
 * `FirebaseFoo/Tests/Sample` - Optional
 * `FirebaseFoo/Tests/{Other}` - Optional
 
-## Continous Integration
+## Continuous Integration
 
 Set up a GitHub Action workflow for the pod. A good example template is
 [storage.yml](.github/workflows/storage.yml).

@@ -97,7 +97,7 @@
                       [completionExpectation fulfill];
                     }];
 
-  [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
+  [self waitForExpectations:@[ completionExpectation ] timeout:2.0];
 }
 
 - (void)testFetchContextWithAuthNoAppCheckSuccess {

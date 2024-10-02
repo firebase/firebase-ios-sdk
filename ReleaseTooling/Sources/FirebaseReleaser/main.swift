@@ -38,6 +38,11 @@ struct FirebaseReleaser: ParsableCommand {
           help: "Initialize the release branch")
   var initBranch: Bool
 
+  /// Set this option when starting a release.
+  @Option(default: "main",
+          help: "The base branch to use. Defaults to `main`.")
+  var baseBranch: String
+
   /// Set this option to output the commands to generate the ordered `pod trunk push` commands.
   @Option(default: false,
           help: "Publish the podspecs to the CocoaPodsTrunk")
@@ -66,6 +71,11 @@ struct FirebaseReleaser: ParsableCommand {
     if logOnly {
       Shell.setLogOnly()
     }
+
+    Shell.executeCommand("git checkout \(baseBranch)", workingDir: gitRoot)
+    Shell.executeCommand("git pull origin \(baseBranch)", workingDir: gitRoot)
+    Shell.executeCommand("git fetch origin --tags --force", workingDir: gitRoot)
+
     if initBranch {
       let branch = InitializeRelease.setupRepo(gitRoot: gitRoot)
       let version = FirebaseManifest.shared.version
@@ -77,7 +87,19 @@ struct FirebaseReleaser: ParsableCommand {
       Tags.createTags(gitRoot: gitRoot)
       Push.pushPodsToStaging(gitRoot: gitRoot)
     } else if updateTagsOnly {
+      let tag = "CocoaPods-\(FirebaseManifest.shared.version)"
+      let podsNeedingStaging = Shell.executeCommandFromScript(
+        "git diff --name-only \(tag) -- *.podspec",
+        outputToConsole: false,
+        workingDir: gitRoot
+      )
       Tags.updateTags(gitRoot: gitRoot)
+      if case let .success(pods) = podsNeedingStaging, !pods.isEmpty {
+        Shell.executeCommand(
+          "echo -e \"\\033[33m⚠ Warning – the following pods need re-staging:\n \(pods)\\033[33m\"",
+          outputToConsole: false
+        )
+      }
     } else if pushOnly {
       Push.pushPodsToStaging(gitRoot: gitRoot)
     } else if publish {

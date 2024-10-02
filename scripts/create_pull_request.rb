@@ -58,7 +58,7 @@ def generate_pr_for_target_changes(repo_root:, target_path:)
   end
   system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\ngit add #{TARGET_PATH}\ngit commit -m \"#{COMMIT_COMMENT}\"\ngit push -u origin #{BASE_BRANCH}")
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
-  client.create_pull_request("firebase/firebase-ios-sdk", "master", BASE_BRANCH, PR_TITLE, PR_BODY)
+  client.create_pull_request("firebase/firebase-ios-sdk", "main", BASE_BRANCH, PR_TITLE, PR_BODY)
 end
 
 

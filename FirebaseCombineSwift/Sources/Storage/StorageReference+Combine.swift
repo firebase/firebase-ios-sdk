@@ -276,7 +276,7 @@
     func delete() -> Future<Bool, Error> {
       Future<Bool, Error> { promise in
         self.delete { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(true))

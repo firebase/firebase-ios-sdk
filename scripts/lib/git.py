@@ -42,7 +42,7 @@ def find_changed_or_files(all, rev_or_files, patterns):
     return find_files(patterns)
 
   if not rev_or_files:
-    return find_changed('origin/master', patterns)
+    return find_changed('origin/main', patterns)
 
   if len(rev_or_files) == 1 and is_revision(rev_or_files[0]):
     return find_changed(rev_or_files[0], patterns)

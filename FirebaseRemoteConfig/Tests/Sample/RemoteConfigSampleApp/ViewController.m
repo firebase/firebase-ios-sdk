@@ -21,6 +21,7 @@
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import "../../../Sources/Private/FIRRemoteConfig_Private.h"
 #import "FRCLog.h"
+@import FirebaseRemoteConfigInterop;
 
 static NSString *const FIRPerfNamespace = @"fireperf";
 static NSString *const FIRDefaultFIRAppName = @"__FIRAPP_DEFAULT";
@@ -49,7 +50,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 @property(strong, nonatomic) IBOutlet UISwitch *developerModeEnabled;
 /// Current selected namespace.
 @property(nonatomic, copy) NSString *currentNamespace;
-/// Curret selected FIRApp instance name.
+/// Current selected FIRApp instance name.
 @property(nonatomic, copy) NSString *FIRAppName;
 /// Selected namespace picker control view.
 @property(nonatomic, strong) IBOutlet UIPickerView *namespacePicker;
@@ -81,7 +82,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
 
   // TODO(mandard): Add support for deleting and adding namespaces in the app.
   self.namespacePickerData =
-      [[NSArray alloc] initWithObjects:FIRNamespaceGoogleMobilePlatform, FIRPerfNamespace, nil];
+      [[NSArray alloc] initWithObjects:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform,
+                                       FIRPerfNamespace, nil];
   self.appPickerData =
       [[NSArray alloc] initWithObjects:FIRDefaultFIRAppName, FIRSecondFIRAppName, nil];
   self.RCInstances = [[NSMutableDictionary alloc] init];
@@ -91,7 +93,8 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       if (!self.RCInstances[namespaceString]) {
         self.RCInstances[namespaceString] = [[NSMutableDictionary alloc] init];
       }
-      if ([namespaceString isEqualToString:FIRNamespaceGoogleMobilePlatform] &&
+      if ([namespaceString
+              isEqualToString:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform] &&
           [appString isEqualToString:FIRDefaultFIRAppName]) {
         self.RCInstances[namespaceString][appString] = [FIRRemoteConfig remoteConfig];
       } else {
@@ -120,7 +123,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
   [alert addAction:defaultAction];
 
   // Add realtime listener for firebase namespace
-  [self.RCInstances[FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
+  [self.RCInstances[FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
       addOnConfigUpdateListener:^(FIRRemoteConfigUpdate *_Nullable update,
                                   NSError *_Nullable error) {
         if (error != nil) {

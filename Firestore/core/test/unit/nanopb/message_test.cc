@@ -25,7 +25,6 @@
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
-#include "grpcpp/impl/codegen/grpc_library.h"
 #include "grpcpp/support/byte_buffer.h"
 #include "gtest/gtest.h"
 
@@ -60,12 +59,6 @@ class MessageTest : public testing::Test {
   grpc::ByteBuffer BadProto() const {
     return {};
   }
-
- private:
-  // Note: gRPC slice will crash upon destruction if gRPC library hasn't been
-  // initialized, which is normally done by inheriting from this class (which
-  // does initialization in its constructor).
-  grpc::GrpcLibraryCodegen grpc_initializer_;
 };
 
 #if !__clang_analyzer__

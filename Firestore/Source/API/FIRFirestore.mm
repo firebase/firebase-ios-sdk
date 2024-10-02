@@ -567,12 +567,14 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Force Link Unreferenced Symbols
 
 extern void FSTIncludeFSTFirestoreComponent(void);
+extern void FSTIncludeFIRSnapshotListenOptions(void);
 
-/// This method forces the linker to include all the Analytics categories without requiring app
+/// This method forces the linker to include all Firestore symbols without requiring app
 /// developers to include the '-ObjC' linker flag in their projects. DO NOT CALL THIS METHOD.
 + (void)notCalled {
   NSAssert(NO, @"+notCalled should never be called");
   FSTIncludeFSTFirestoreComponent();
+  FSTIncludeFIRSnapshotListenOptions();
 }
 
 @end

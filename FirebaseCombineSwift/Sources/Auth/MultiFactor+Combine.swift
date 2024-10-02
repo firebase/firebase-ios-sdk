@@ -34,9 +34,9 @@
     func getSession() -> Future<MultiFactorSession, Error> {
       Future<MultiFactorSession, Error> { promise in
         self.getSessionWithCompletion { session, error in
-          if let session = session {
+          if let session {
             promise(.success(session))
-          } else if let error = error {
+          } else if let error {
             promise(.failure(error))
           }
         }
@@ -59,7 +59,7 @@
                 displayName: String?) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.enroll(with: assertion, displayName: displayName) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -81,7 +81,7 @@
     func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.unenroll(with: factorInfo) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))
@@ -101,7 +101,7 @@
     func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {
       Future<Void, Error> { promise in
         self.unenroll(withFactorUID: factorUID) { error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else {
             promise(.success(()))

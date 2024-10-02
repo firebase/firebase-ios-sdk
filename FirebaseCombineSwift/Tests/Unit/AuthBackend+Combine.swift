@@ -22,9 +22,9 @@ extension FIRAuthBackend {
     -> Future<FIRSignInWithGameCenterResponse, Error> {
     Future { promise in
       self.signIn(withGameCenter: request) { response, error in
-        if let response = response {
+        if let response {
           promise(.success(response))
-        } else if let error = error {
+        } else if let error {
           promise(.failure(error))
         }
       }

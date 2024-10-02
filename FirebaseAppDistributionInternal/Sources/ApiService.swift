@@ -334,7 +334,7 @@ struct FeedbackReport: Codable {
         feedbackName
       )
       guard var urlComponents = URLComponents(string: urlString) else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        // TODO(tundeagboola) We should throw exceptions here instead of piping errors
         Logger.logError("Unable to build URL for uploadArtifact request")
         return
       }
@@ -343,7 +343,7 @@ struct FeedbackReport: Codable {
         value: Strings.uploadArtifactScreenshotType
       )]
       guard let url = urlComponents.url else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        // TODO(tundeagboola) We should throw exceptions here instead of piping errors
         Logger.logError("Unable to build URL for uploadArtifact request")
         return
       }
@@ -537,7 +537,7 @@ struct FeedbackReport: Codable {
     do {
       return try JSONDecoder().decode(T.self, from: data)
     } catch let thrownError {
-      handleApiParserErorr(thrownError, &error)
+      handleApiParserError(thrownError, &error)
       return nil
     }
   }
@@ -558,12 +558,12 @@ struct FeedbackReport: Codable {
         options: JSONSerialization.ReadingOptions(rawValue: 0)
       ) as? T
     } catch let thrownError {
-      handleApiParserErorr(thrownError, &error)
+      handleApiParserError(thrownError, &error)
       return nil
     }
   }
 
-  static func handleApiParserErorr(_ thrownError: Error, _ error: inout Error?) {
+  static func handleApiParserError(_ thrownError: Error, _ error: inout Error?) {
     let description: String = (thrownError as NSError)
       .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
     error = thrownError

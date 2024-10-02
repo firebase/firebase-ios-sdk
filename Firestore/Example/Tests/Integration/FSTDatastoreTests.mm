@@ -16,11 +16,12 @@
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
-#import <FirebaseFirestore/FIRTimestamp.h>
 #import <XCTest/XCTest.h>
 
 #include <memory>
 #include <vector>
+
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"

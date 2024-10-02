@@ -111,7 +111,7 @@ static NSString *const kRCNUserDefaultsKeyNameRealtimeRetryCount = @"realtimeRet
   }
 }
 
-- (NSString *)lastTemplateVersion {
+- (NSString *)lastFetchedTemplateVersion {
   NSDictionary *userDefaults = [self instanceUserDefaults];
   if ([userDefaults objectForKey:RCNFetchResponseKeyTemplateVersion]) {
     return [userDefaults objectForKey:RCNFetchResponseKeyTemplateVersion];
@@ -120,9 +120,24 @@ static NSString *const kRCNUserDefaultsKeyNameRealtimeRetryCount = @"realtimeRet
   return @"0";
 }
 
-- (void)setLastTemplateVersion:(NSString *)templateVersion {
+- (void)setLastFetchedTemplateVersion:(NSString *)templateVersion {
   if (templateVersion) {
     [self setInstanceUserDefaultsValue:templateVersion forKey:RCNFetchResponseKeyTemplateVersion];
+  }
+}
+
+- (NSString *)lastActiveTemplateVersion {
+  NSDictionary *userDefaults = [self instanceUserDefaults];
+  if ([userDefaults objectForKey:RCNActiveKeyTemplateVersion]) {
+    return [userDefaults objectForKey:RCNActiveKeyTemplateVersion];
+  }
+
+  return @"0";
+}
+
+- (void)setLastActiveTemplateVersion:(NSString *)templateVersion {
+  if (templateVersion) {
+    [self setInstanceUserDefaultsValue:templateVersion forKey:RCNActiveKeyTemplateVersion];
   }
 }
 

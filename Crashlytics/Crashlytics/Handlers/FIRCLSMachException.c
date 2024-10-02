@@ -93,7 +93,7 @@ static exception_mask_t FIRCLSMachExceptionMask(void) {
   // is a confirmed kernel bug.  Lacking access to EXC_CRASH means we must use signal handlers to
   // cover all types of crashes.
   // EXC_GUARD is relatively new, and isn't available on all OS versions. You have to be careful,
-  // because you cannot successfully register hanlders if there are any unrecognized masks. We've
+  // because you cannot successfully register handlers if there are any unrecognized masks. We've
   // dropped support for old OS versions that didn't have EXC_GUARD (iOS 5 and below, macOS 10.6 and
   // below) so we always add it now
 
@@ -108,11 +108,13 @@ static bool FIRCLSMachExceptionThreadStart(FIRCLSMachExceptionReadContext* conte
 
   if (pthread_attr_init(&attr) != 0) {
     FIRCLSSDKLog("pthread_attr_init %s\n", strerror(errno));
+    pthread_attr_destroy(&attr);
     return false;
   }
 
   if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
     FIRCLSSDKLog("pthread_attr_setdetachstate %s\n", strerror(errno));
+    pthread_attr_destroy(&attr);
     return false;
   }
 
@@ -121,11 +123,13 @@ static bool FIRCLSMachExceptionThreadStart(FIRCLSMachExceptionReadContext* conte
   if (pthread_attr_setstack(&attr, _firclsContext.readonly->machStack,
                             CLS_MACH_EXCEPTION_HANDLER_STACK_SIZE) != 0) {
     FIRCLSSDKLog("pthread_attr_setstack %s\n", strerror(errno));
+    pthread_attr_destroy(&attr);
     return false;
   }
 
   if (pthread_create(&context->thread, &attr, FIRCLSMachExceptionServer, context) != 0) {
     FIRCLSSDKLog("pthread_create %s\n", strerror(errno));
+    pthread_attr_destroy(&attr);
     return false;
   }
 
@@ -192,7 +196,7 @@ static bool FIRCLSMachExceptionReadMessage(FIRCLSMachExceptionReadContext* conte
   r = mach_msg(&message->head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof(MachExceptionMessage),
                context->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
   if (r != MACH_MSG_SUCCESS) {
-    FIRCLSSDKLog("Error receving mach_msg (%d)\n", r);
+    FIRCLSSDKLog("Error receiving mach_msg (%d)\n", r);
     return false;
   }
 

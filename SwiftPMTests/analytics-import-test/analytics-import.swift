@@ -15,7 +15,6 @@
 import FirebaseAnalytics
 import XCTest
 #if canImport(SwiftUI)
-  import FirebaseAnalyticsSwift
   import SwiftUI
 #endif
 

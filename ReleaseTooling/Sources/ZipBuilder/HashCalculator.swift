@@ -55,7 +55,7 @@ extension HashCalculator {
 
   /// Calculates the SHA256 hash of the data given.
   static func sha256(_ data: Data) -> String {
-    var digest = [UInt8].init(repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+    var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
     #if swift(>=5)
       _ = data.withUnsafeBytes {
         CC_SHA256($0.baseAddress, UInt32(data.count), &digest)

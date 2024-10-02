@@ -1,3 +1,14 @@
+# 10.27.0
+- [fixed] [CocoaPods] missing symbol error for FIRGetLoggerLevel. (#12899)
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
+# 10.19.1
+- [fixed] Fix bug in apps using both AppCheck and ARCore where AppCheck
+  unnecessarily tries to create tokens for the ARCore SDK. This results in
+  noisy logs containing harmless attestation errors.
+
 # 10.18.0
 - [changed] Extracted core `FirebaseAppCheck` functionality into a new
   [`AppCheckCore`](https://github.com/google/app-check) dependency. (#12067)
@@ -33,7 +44,7 @@
 
 # 8.5.0
 - [changed] App Check SDK available for all supported platforms/OS versions, but App Attest and
-DeviceCheck providers availability changed to match underlying platfrom API availability. (#8388)
+DeviceCheck providers availability changed to match underlying platform API availability. (#8388)
 
 # 8.4.0
 - [fixed] Fixed build issues introduced in Xcode 13 beta 3. (#8401)

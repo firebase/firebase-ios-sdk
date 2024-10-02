@@ -23,8 +23,7 @@ static NSString *const kFIRHeartbeatLoggerPayloadHeaderKey = @"X-firebase-client
 
 - (GACAppCheckAPIRequestHook)requestHook {
   return ^(NSMutableURLRequest *request) {
-    NSString *heartbeatsValue =
-        FIRHeaderValueFromHeartbeatsPayload([self flushHeartbeatsIntoPayload]);
+    NSString *heartbeatsValue = [self headerValue];
     if (heartbeatsValue) {
       [request setValue:heartbeatsValue forHTTPHeaderField:kFIRHeartbeatLoggerPayloadHeaderKey];
     }
@@ -32,3 +31,7 @@ static NSString *const kFIRHeartbeatLoggerPayloadHeaderKey = @"X-firebase-client
 }
 
 @end
+
+/// Stub used to force the linker to include the categories in this file.
+void FIRInclude_FIRHeartbeatLogger_AppCheck_Category(void) {
+}

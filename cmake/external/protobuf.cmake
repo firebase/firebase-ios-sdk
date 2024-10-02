@@ -18,9 +18,8 @@ if(TARGET protobuf)
   return()
 endif()
 
-# Based on https://github.com/grpc/grpc/blob/v1.27.0/bazel/grpc_deps.bzl
-# v3.11.4, master@{2020-01-15}
-set(commit 29cd005ce1fe1a8fabf11e325cb13006a6646d59)
+# Based on https://github.com/grpc/grpc/blob/v1.62.0/bazel/grpc_deps.bzl
+set(commit 7f94235e552599141950d7a4a3eaf93bc87d1b22)
 
 ExternalProject_Add(
   protobuf
@@ -28,7 +27,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME protobuf-${commit}.tar.gz
   URL https://github.com/protocolbuffers/protobuf/archive/${commit}.tar.gz
-  URL_HASH SHA256=51398b0b97b353c1c226d0ade0bae80c80380e691cba7c1a108918986784a1c7
+  URL_HASH SHA256=70f480fe9cb0c6829dbf6be3c388103313aacb65de667b86d981bbc9eaedb905
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/protobuf

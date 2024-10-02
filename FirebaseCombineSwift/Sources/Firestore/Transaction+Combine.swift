@@ -64,7 +64,7 @@
             return nil
           }
         }) { value, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
           } else if let value = value as? T {
             promise(.success(value))

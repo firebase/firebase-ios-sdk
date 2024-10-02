@@ -23,6 +23,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+@import FirebaseRemoteConfigInterop;
 
 static NSString *const RCNFakeSenderID = @"855865492447";
 static NSString *const RCNFakeToken = @"ctToAh17Exk:"
@@ -48,6 +49,7 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
   RCNConfigExperiment *_experiment;
   RCNConfigFetch *_configFetch;
   dispatch_queue_t _queue;
+  NSString *_namespaceGoogleMobilePlatform;
 }
 @end
 
@@ -66,9 +68,10 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
                                                          experiment:_experiment
                                                               queue:_queue];
   _configFetch = OCMPartialMock(fetcher);
+  _namespaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
   // Fake a response with a default namespace and a custom namespace.
   NSDictionary *namespaceToConfig = @{
-    FIRNamespaceGoogleMobilePlatform : @{@"key1" : @"value1", @"key2" : @"value2"},
+    _namespaceGoogleMobilePlatform : @{@"key1" : @"value1", @"key2" : @"value2"},
     FIRNamespaceGooglePlayPlatform : @{@"playerID" : @"36", @"gameLevel" : @"87"},
   };
   _response =
@@ -149,19 +152,19 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
         XCTAssertNotNil(result);
 
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGoogleMobilePlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"key1"
                           value:@"value1"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGoogleMobilePlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"key2"
                           value:@"value2"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGooglePlayPlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"playerID"
                           value:@"36"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGooglePlayPlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"gameLevel"
                           value:@"87"];
         XCTAssertEqual(self->_settings.expirationInSeconds, 43200,
@@ -200,11 +203,11 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
           NSDictionary *result = self->_configContent.fetchedConfig;
           XCTAssertNotNil(result);
           [self checkConfigResult:result
-                    withNamespace:FIRNamespaceGoogleMobilePlatform
+                    withNamespace:_namespaceGoogleMobilePlatform
                               key:@"key1"
                             value:@"value1"];
           [self checkConfigResult:result
-                    withNamespace:FIRNamespaceGoogleMobilePlatform
+                    withNamespace:_namespaceGoogleMobilePlatform
                               key:@"key2"
                             value:@"value2"];
 
@@ -246,19 +249,19 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
         XCTAssertNotNil(result);
 
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGoogleMobilePlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"key1"
                           value:@"value1"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGoogleMobilePlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"key2"
                           value:@"value2"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGooglePlayPlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"playerID"
                           value:@"36"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGooglePlayPlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"gameLevel"
                           value:@"87"];
 
@@ -340,19 +343,19 @@ static NSString *const RCNFakeSecretToken = @"6377571288467228941";
         NSDictionary *result = self->_configContent.fetchedConfig;
         XCTAssertNotNil(result);
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGoogleMobilePlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"key1"
                           value:@"value1"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGoogleMobilePlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"key2"
                           value:@"value2"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGooglePlayPlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"playerID"
                           value:@"36"];
         [self checkConfigResult:result
-                  withNamespace:FIRNamespaceGooglePlayPlatform
+                  withNamespace:_namespaceGoogleMobilePlatform
                             key:@"gameLevel"
                           value:@"87"];
         XCTAssertEqual(

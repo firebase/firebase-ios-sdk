@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestoreInternal'
-  s.version          = '10.19.0'
+  s.version          = '11.4.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -16,13 +16,13 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '11.0'
-  s.osx.deployment_target = '10.13'
-  s.tvos.deployment_target = '12.0'
+  s.ios.deployment_target = '13.0'
+  s.osx.deployment_target = '10.15'
+  s.tvos.deployment_target = '13.0'
 
-  s.swift_version = '5.3'
+  s.swift_version = '5.9'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   # Header files that constitute the interface to this module. Only Objective-C
@@ -50,7 +50,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
-    'FirebaseAuth/Interop/*.h',
+    'FirebaseAuth/Interop/**/*.h',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal
@@ -87,10 +87,14 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
-  s.dependency 'FirebaseCore', '~> 10.0'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'Firestore/Source/Resources/PrivacyInfo.xcprivacy'
+  }
 
-  abseil_version = '~> 1.20220623.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
+  s.dependency 'FirebaseCore', '~> 11.0'
+
+  abseil_version = '~> 1.20240116.1'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/container/flat_hash_map', abseil_version
@@ -100,9 +104,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-C++', '~> 1.49.1'
+  s.dependency 'gRPC-Core', '~> 1.65.0'
+  s.dependency 'gRPC-C++', '~> 1.65.0'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'nanopb', '~> 3.30910.0'
 
   s.ios.frameworks = 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'

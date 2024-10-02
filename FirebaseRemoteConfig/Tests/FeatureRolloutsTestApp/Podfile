@@ -1,0 +1,52 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+def shared_pods
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseInstallations', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseRemoteConfigInterop', :path => '../../../'
+  pod 'FirebasePerformance', :path => '../../../'
+end
+
+target 'FeatureRolloutsTestApp_iOS' do
+  platform :ios, '13.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+end
+
+target 'FeatureRolloutsTestApp_Crashlytics_iOS' do
+  platform :ios, '13.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebaseCrashlytics', :path => '../../../'
+end
+
+target 'FeatureRolloutsTestApp_RemoteConfig_iOS' do
+  platform :ios, '13.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebaseRemoteConfig', :path => '../../../'
+end
+
+target 'FeatureRolloutsTestApp_CrashlyticsRemoteConfig_iOS' do
+  platform :ios, '13.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebaseCrashlytics', :path => '../../../'
+  pod 'FirebaseRemoteConfig', :path => '../../../'
+end
+

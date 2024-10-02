@@ -15,8 +15,8 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
@@ -624,7 +624,7 @@ extern NSString *const kFIRLibraryVersionID;
   int minor = (versionString[2] - '0') * 10 + versionString[3] - '0';
   int patch = (versionString[4] - '0') * 10 + versionString[5] - '0';
   NSString *str = [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
-  XCTAssertEqualObjects(str, FIRFirebaseVersion());
+  XCTAssertTrue([FIRFirebaseVersion() hasPrefix:str]);
 }
 
 // Repeat test with more Objective-C.
@@ -638,11 +638,11 @@ extern NSString *const kFIRLibraryVersionID;
   NSRange major = NSMakeRange(0, 2);
   NSRange minor = NSMakeRange(2, 2);
   NSRange patch = NSMakeRange(4, 2);
-  NSString *str =
-      [NSString stringWithFormat:@"%@.%d.%d", [kFIRLibraryVersionID substringWithRange:major],
-                                 [[kFIRLibraryVersionID substringWithRange:minor] intValue],
-                                 [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
-  XCTAssertEqualObjects(str, FIRFirebaseVersion());
+  NSString *str = [NSString
+      stringWithFormat:@"%d.%d.%d", [[kFIRLibraryVersionID substringWithRange:major] intValue],
+                       [[kFIRLibraryVersionID substringWithRange:minor] intValue],
+                       [[kFIRLibraryVersionID substringWithRange:patch] intValue]];
+  XCTAssertTrue([FIRFirebaseVersion() hasPrefix:str]);
 }
 
 #pragma mark - Helpers

@@ -287,7 +287,7 @@ bool FIRCLSUnwindFirstExecutableAddress(vm_address_t start,
                                         vm_address_t end,
                                         vm_address_t* foundAddress) {
   // This function walks up the data on the stack, looking for the first value that is an address on
-  // an exectuable page.  This is a heurestic, and can hit false positives.
+  // an executable page.  This is a heurestic, and can hit false positives.
 
   *foundAddress = 0;  // write in a 0
 
@@ -304,7 +304,7 @@ bool FIRCLSUnwindFirstExecutableAddress(vm_address_t start,
       }
 
       FIRCLSSDKLogDebug("Checking for executable %p\n", (void*)address);
-      // when we find an exectuable address, we're finished
+      // when we find an executable address, we're finished
       if (FIRCLSUnwindIsAddressExecutable(address)) {
         *foundAddress = address;
         return true;

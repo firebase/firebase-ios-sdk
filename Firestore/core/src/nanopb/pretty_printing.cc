@@ -46,7 +46,7 @@ std::string ToString(float value) {
   // TODO(varconst): raise the precision.
   // The Objective-C protobuf library would use higher precision. E.g., it would
   // output 1.79769313486232e+308 in case where this implementation would only
-  // output 1.79769e+308 (tested in XCode 11, iOS simulator).
+  // output 1.79769e+308 (tested in Xcode 11, iOS simulator).
   std::ostringstream stream;
   stream << value;
   return stream.str();

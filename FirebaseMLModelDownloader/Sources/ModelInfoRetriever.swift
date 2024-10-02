@@ -500,9 +500,9 @@ extension ModelInfoRetriever {
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
     // Get model hash if local model info is available on device.
-    if let modelInfo = localModelInfo {
+    if let localModelInfo {
       request.setValue(
-        modelInfo.modelHash,
+        localModelInfo.modelHash,
         forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader
       )
     }
@@ -511,7 +511,7 @@ extension ModelInfoRetriever {
 
   /// Parse error message from server response.
   private func getErrorFromResponse(_ data: Data?) -> String? {
-    if let data = data,
+    if let data,
        let responseJSON = try? JSONSerialization
        .jsonObject(with: data, options: []) as? [String: Any],
        let error = responseJSON["error"] as? [String: Any],
@@ -523,18 +523,10 @@ extension ModelInfoRetriever {
 
   /// Parse date from string - used to get download URL expiry time.
   private static func getDateFromString(_ strDate: String) -> Date? {
-    if #available(iOS 11, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
-      let dateFormatter = ISO8601DateFormatter()
-      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-      dateFormatter.formatOptions = [.withFractionalSeconds]
-      return dateFormatter.date(from: strDate)
-    } else {
-      let dateFormatter = DateFormatter()
-      dateFormatter.locale = Locale(identifier: "en-US_POSIX")
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-      return dateFormatter.date(from: strDate)
-    }
+    let dateFormatter = ISO8601DateFormatter()
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    dateFormatter.formatOptions = [.withFractionalSeconds]
+    return dateFormatter.date(from: strDate)
   }
 
   /// Return model info created from server response.

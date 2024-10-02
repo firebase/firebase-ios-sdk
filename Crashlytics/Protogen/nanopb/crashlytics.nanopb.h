@@ -61,6 +61,7 @@ typedef struct _google_crashlytics_Report {
     google_crashlytics_FilesPayload apple_payload;
     pb_bytes_array_t *firebase_installation_id;
     pb_bytes_array_t *app_quality_session_id;
+    pb_bytes_array_t *firebase_authentication_token;
 /* @@protoc_insertion_point(struct:google_crashlytics_Report) */
 } google_crashlytics_Report;
 
@@ -84,12 +85,13 @@ typedef struct _google_crashlytics_Report {
 #define google_crashlytics_Report_installation_uuid_tag 5
 #define google_crashlytics_Report_firebase_installation_id_tag 16
 #define google_crashlytics_Report_app_quality_session_id_tag 17
+#define google_crashlytics_Report_firebase_authentication_token 19
 #define google_crashlytics_Report_build_version_tag 6
 #define google_crashlytics_Report_display_version_tag 7
 #define google_crashlytics_Report_apple_payload_tag 10
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t google_crashlytics_Report_fields[10];
+extern const pb_field_t google_crashlytics_Report_fields[11];
 extern const pb_field_t google_crashlytics_FilesPayload_fields[2];
 extern const pb_field_t google_crashlytics_FilesPayload_File_fields[3];
 

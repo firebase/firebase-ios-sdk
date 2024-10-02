@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
@@ -34,9 +34,9 @@ jobs:
           echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.7
+          python-version: '3.10'
 
       - name: Install Prerequisites
         run:  ~/api_diff_report/prerequisite.sh
@@ -82,7 +82,7 @@ jobs:
             --commit $GITHUB_SHA \
             --run_id ${{github.run_id}}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: api_info_and_report

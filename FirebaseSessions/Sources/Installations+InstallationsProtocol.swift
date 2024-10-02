@@ -18,17 +18,62 @@ import Foundation
 @_implementationOnly import FirebaseInstallations
 
 protocol InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void)
+  var installationsWaitTimeInSecond: Int { get }
+
+  /// Override Installation function for testing
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
+
+  /// Override Installation function for testing
+  func installationID(completion: @escaping (String?, Error?) -> Void)
+
+  /// Return a tuple: (installationID, authenticationToken) for success result
+  func installationID(completion: @escaping (Result<(String, String), Error>) -> Void)
 }
 
-extension Installations: InstallationsProtocol {
-  func installationID(completion: @escaping (Result<String, Error>) -> Void) {
+extension InstallationsProtocol {
+  var installationsWaitTimeInSecond: Int {
+    return 10
+  }
+
+  func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
+    var authTokenComplete = ""
+    var intallationComplete: String?
+    var errorComplete: Error?
+
+    let workingGroup = DispatchGroup()
+
+    workingGroup.enter()
+    authToken { (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
+      authTokenComplete = authTokenResult?.authToken ?? ""
+      workingGroup.leave()
+    }
+
+    workingGroup.enter()
     installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
-        completion(.success(installationID))
+      if let installationID {
+        intallationComplete = installationID
       } else if let error = error {
-        completion(.failure(error))
+        errorComplete = error
+      }
+      workingGroup.leave()
+    }
+
+    // adding timeout for 10 seconds
+    let result = workingGroup
+      .wait(timeout: .now() + DispatchTimeInterval.seconds(installationsWaitTimeInSecond))
+
+    switch result {
+    case .timedOut:
+      completion(.failure(FirebaseSessionsError.SessionInstallationsTimeOutError))
+      return
+    default:
+      if let intallationComplete {
+        completion(.success((intallationComplete, authTokenComplete)))
+      } else if let errorComplete {
+        completion(.failure(errorComplete))
       }
     }
   }
 }
+
+extension Installations: InstallationsProtocol {}

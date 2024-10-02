@@ -243,7 +243,11 @@ struct ZipBuilder {
                                                                          podInfo: podInfo)
             carthageGoogleUtilitiesFrameworks += cdFrameworks
           }
-          if resourceContents != nil {
+          let fileManager = FileManager.default
+          if let resourceContents,
+             let contents = try? fileManager.contentsOfDirectory(at: resourceContents,
+                                                                 includingPropertiesForKeys: nil),
+             !contents.isEmpty {
             resources[podName] = resourceContents
           }
         } else if podsBuilt[podName] == nil {
@@ -273,7 +277,8 @@ struct ZipBuilder {
     for groupedFramework in groupedFrameworks {
       let name = groupedFramework.key
       let xcframework = FrameworkBuilder.makeXCFramework(withName: name,
-                                                         frameworks: groupedFramework.value,
+                                                         frameworks: postProcessFrameworks(groupedFramework
+                                                           .value),
                                                          xcframeworksDir: xcframeworksDir,
                                                          resourceContents: resources[name])
       xcframeworks[name] = [xcframework]
@@ -295,11 +300,58 @@ struct ZipBuilder {
 
     let carthageGoogleUtilitiesXcframework = FrameworkBuilder.makeXCFramework(
       withName: "GoogleUtilities",
-      frameworks: carthageGoogleUtilitiesFrameworks,
+      frameworks: postProcessFrameworks(carthageGoogleUtilitiesFrameworks),
       xcframeworksDir: xcframeworksCarthageDir,
       resourceContents: nil
     )
     return (podsBuilt, xcframeworks, carthageGoogleUtilitiesXcframework)
+  }
+
+  func postProcessFrameworks(_ frameworks: [URL]) -> [URL] {
+    for framework in frameworks {
+      // CocoaPods creates a `_CodeSignature` directory. Delete it.
+      // Note that the build only produces a `_CodeSignature` directory for
+      // macOS and macCatalyst (`Versions/A/`), but we try to delete it for
+      // other platforms just in case it were to appear.
+      for path in ["", "Versions/A/"] {
+        let codeSignatureDir = framework
+          .appendingPathComponent(path)
+          .appendingPathComponent("_CodeSignature")
+          .resolvingSymlinksInPath()
+        try? FileManager.default.removeItem(at: codeSignatureDir)
+      }
+
+      // Delete `gRPCCertificates-Cpp.bundle` since it is not needed (#9184).
+      // Depending on the platform, it may be at the root of the framework or
+      // in a symlinked `Resources` directory (for macOS, macCatalyst). Attempt
+      // to delete at either patch for each framework.
+      for path in ["", "Resources"] {
+        let grpcCertsBundle = framework
+          .appendingPathComponent(path)
+          .appendingPathComponent("gRPCCertificates-Cpp.bundle")
+          .resolvingSymlinksInPath()
+        try? FileManager.default.removeItem(at: grpcCertsBundle)
+      }
+
+      // The macOS slice's `PrivateHeaders` directory may have a
+      // `PrivateHeaders` file in it that symbolically links to nowhere. Delete
+      // it here to avoid putting it in the zip or crashing the Carthage hash
+      // generation. Because this will throw an error for cases where the file
+      // does not exist, the error is ignored.
+      let privateHeadersDir = framework.appendingPathComponent("PrivateHeaders")
+      if !FileManager.default.directoryExists(at: privateHeadersDir.resolvingSymlinksInPath()) {
+        try? FileManager.default.removeItem(at: privateHeadersDir)
+      }
+
+      // The `Headers` and `PrivateHeaders` directories may contain a symlink
+      // of the same name. Delete it here to avoid putting it in the zip or
+      // crashing the Carthage hash generation.
+      for path in ["Headers", "PrivateHeaders"] {
+        let headersDir = framework.appendingPathComponent(path).resolvingSymlinksInPath()
+        try? FileManager.default.removeItem(at: headersDir.appendingPathComponent(path))
+      }
+    }
+    return frameworks
   }
 
   /// Try to build and package the contents of the Zip file. This will throw an error as soon as it
@@ -498,14 +550,32 @@ struct ZipBuilder {
                 guard fileManager.isDirectory(at: frameworkPath),
                       frameworkPath.lastPathComponent.hasSuffix("framework") else { continue }
                 let resourcesDir = frameworkPath.appendingPathComponent("Resources")
-                try fileManager.copyItem(at: xcResourceDir, to: resourcesDir)
+                  .resolvingSymlinksInPath()
+                // On macOS platforms, this directory will already be there, so
+                // ignore error that it already exists.
+                try? fileManager.createDirectory(
+                  at: resourcesDir,
+                  withIntermediateDirectories: true
+                )
+
+                let xcResourceDirContents = try fileManager.contentsOfDirectory(
+                  at: xcResourceDir,
+                  includingPropertiesForKeys: nil
+                )
+
+                for file in xcResourceDirContents {
+                  try fileManager.copyItem(
+                    at: file,
+                    to: resourcesDir.appendingPathComponent(file.lastPathComponent)
+                  )
+                }
               }
             }
             try fileManager.removeItem(at: xcResourceDir)
           }
         }
       } catch {
-        fatalError("Could not setup Resources for \(pod) for \(packageKind) \(error)")
+        fatalError("Could not setup Resources for \(pod.key) for \(packageKind) \(error)")
       }
 
       // Special case for Crashlytics:
@@ -668,11 +738,21 @@ struct ZipBuilder {
     result += "\n" // Necessary for Resource message to print properly in markdown.
 
     // Check if there is a Resources directory, and if so, add the disclaimer to the dependency
-    // string.
+    // string. At this point, resources will be at the root of XCFrameworks.
     do {
       let fileManager = FileManager.default
-      let resourceDirs = try fileManager.recursivelySearch(for: .directories(name: "Resources"),
-                                                           in: dir)
+      let resourceDirs = try fileManager.contentsOfDirectory(
+        at: dir,
+        includingPropertiesForKeys: [.isDirectoryKey]
+      ).flatMap {
+        try fileManager.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.isDirectoryKey]
+        )
+      }.filter {
+        $0.lastPathComponent == "Resources"
+      }
+
       if !resourceDirs.isEmpty {
         result += Constants.resourcesRequiredText
         result += "\n" // Separate from next pod in listing for text version.

@@ -236,7 +236,7 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
         }
       });
 
-  // Sending this notifcation would cause a crash if it was processed in the
+  // Sending this notification would cause a crash if it was processed in the
   // AppCheck notification handlder since AppCheck expects the userInfo object
   // to an NSDictionary.
   id userInfo = @"this_should_be_a_dictionary";

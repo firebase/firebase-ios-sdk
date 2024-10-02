@@ -15,7 +15,9 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+
+#import <GoogleUtilities/GULUserDefaults.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -41,7 +43,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h"
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
-// A enum indicating 3 different possiblities of a setting about auto data collection.
+// A enum indicating 3 different possibilities of a setting about auto data collection.
 typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
   // This indicates that the config is not explicitly set.
   FIRIAMAutoDataCollectionSettingNone = 0,
@@ -94,7 +96,7 @@ static NSString *const _userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetti
 }
 
 - (FIRIAMAutoDataCollectionSetting)FIAMProgrammaticAutoDataCollectionSetting {
-  id settingEntry = [[NSUserDefaults standardUserDefaults]
+  id settingEntry = [[GULUserDefaults standardUserDefaults]
       objectForKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
 
   if (![settingEntry isKindOfClass:[NSNumber class]]) {
@@ -188,7 +190,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 
 - (void)resume {
   // persist the setting
-  [[NSUserDefaults standardUserDefaults]
+  [[GULUserDefaults standardUserDefaults]
       setObject:@(YES)
          forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
 
@@ -209,7 +211,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 
 - (void)pause {
   // persist the setting
-  [[NSUserDefaults standardUserDefaults]
+  [[GULUserDefaults standardUserDefaults]
       setObject:@(NO)
          forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
 
@@ -262,7 +264,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.responseParser = [[FIRIAMFetchResponseParser alloc] initWithTimeFetcher:timeFetcher];
 
   self.bookKeeper = [[FIRIAMBookKeeperViaUserDefaults alloc]
-      initWithUserDefaults:[NSUserDefaults standardUserDefaults]];
+      initWithUserDefaults:[GULUserDefaults standardUserDefaults]];
 
   self.messageCache = [[FIRIAMMessageClientCache alloc] initWithBookkeeper:self.bookKeeper
                                                        usingResponseParser:self.responseParser];
@@ -324,7 +326,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
                    analytics:[FIRInAppMessaging inAppMessaging].analytics];
 
   FIRIAMSDKModeManager *sdkModeManager =
-      [[FIRIAMSDKModeManager alloc] initWithUserDefaults:NSUserDefaults.standardUserDefaults
+      [[FIRIAMSDKModeManager alloc] initWithUserDefaults:GULUserDefaults.standardUserDefaults
                                      testingModeListener:self];
 
   FIRIAMActionURLFollower *actionFollower = [FIRIAMActionURLFollower actionURLFollower];
@@ -444,4 +446,4 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 }
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

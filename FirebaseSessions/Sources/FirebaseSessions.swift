@@ -18,7 +18,14 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
-@_implementationOnly import Promises
+
+#if swift(>=6.0)
+  internal import Promises
+#elseif swift(>=5.10)
+  import Promises
+#else
+  @_implementationOnly import Promises
+#endif
 
 private enum GoogleDataTransportConfig {
   static let sessionsLogSource = "1974"
@@ -118,12 +125,16 @@ private enum GoogleDataTransportConfig {
             .logDebug(
               "Data Collection is disabled for all subscribers. Skipping this Session Event"
             )
+        case .SessionInstallationsTimeOutError:
+          Logger.logError(
+            "Error getting Firebase Installation ID due to timeout. Skipping this Session Event"
+          )
         }
       }
     }
   }
 
-  // Initializes the SDK and begines the process of listening for lifecycle events and logging
+  // Initializes the SDK and begins the process of listening for lifecycle events and logging
   // events
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
@@ -138,8 +149,8 @@ private enum GoogleDataTransportConfig {
 
     super.init()
 
-    SessionsDependencies.dependencies.forEach { subscriberName in
-      self.subscriberPromises[subscriberName] = Promise<Void>.pending()
+    for subscriberName in SessionsDependencies.dependencies {
+      subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
     Logger
@@ -222,10 +233,10 @@ private enum GoogleDataTransportConfig {
   }
 
   func addSubscriberFields(event: SessionStartEvent) {
-    subscribers.forEach { subscriber in
+    for subscriber in subscribers {
       event.set(subscriber: subscriber.sessionsSubscriberName,
                 isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo: self.appInfo)
+                appInfo: appInfo)
     }
   }
 
@@ -261,8 +272,7 @@ private enum GoogleDataTransportConfig {
 
   static func componentsToRegister() -> [Component] {
     return [Component(SessionsProvider.self,
-                      instantiationTiming: .alwaysEager,
-                      dependencies: []) { container, isCacheable in
+                      instantiationTiming: .alwaysEager) { container, isCacheable in
         // Sessions SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
         isCacheable.pointee = true

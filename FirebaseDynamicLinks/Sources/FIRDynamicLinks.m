@@ -110,9 +110,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  // Product requirement is enforced by CocoaPod. Not technical requirement for analytics.
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Don't return an instance when it's not the default app.
@@ -138,7 +135,6 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   FIRComponent *dynamicLinksProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRDynamicLinksInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep ]
                             creationBlock:creationBlock];
 
   return @[ dynamicLinksProvider ];
@@ -170,30 +166,15 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                             userInfo:errorDict];
   }
   if (error) {
-    NSString *message = nil;
-    if (options.usingOptionsFromDefaultPlist) {
-      // Configured using plist file
-      message = [NSString
-          stringWithFormat:
-              @"Firebase Dynamic Links has stopped your project "
-              @"because there are missing or incorrect values provided in %@.%@ that may "
-              @"prevent your app from behaving as expected:\n\n"
-              @"Error: %@\n\n"
-              @"Please fix these issues to ensure that Firebase is correctly configured in "
-              @"your project.",
-              kServiceInfoFileName, kServiceInfoFileType, error.localizedFailureReason];
-    } else {
-      // Configured manually
-      message = [NSString
-          stringWithFormat:
-              @"Firebase Dynamic Links has stopped your project "
-              @"because there are incorrect values provided in Firebase's configuration "
-              @"options that may prevent your app from behaving as expected:\n\n"
-              @"Error: %@\n\n"
-              @"Please fix these issues to ensure that Firebase is correctly configured in "
-              @"your project.",
-              error.localizedFailureReason];
-    }
+    NSString *message =
+        [NSString stringWithFormat:
+                      @"Firebase Dynamic Links has stopped your project "
+                      @"because there are incorrect values provided in Firebase's configuration "
+                      @"options that may prevent your app from behaving as expected:\n\n"
+                      @"Error: %@\n\n"
+                      @"Please fix these issues to ensure that Firebase is correctly configured in "
+                      @"your project.",
+                      error.localizedFailureReason];
     [NSException raise:kFirebaseDurableDeepLinkErrorDomain format:@"%@", message];
   }
   [self checkForCustomDomainEntriesInInfoPlist];
@@ -698,7 +679,7 @@ static NSString *kSelfDiagnoseOutputFooter =
   NSDictionary *plistMap = (NSDictionary *)plistData;
 
   // analyze entitlements and print diagnostic information
-  // we can't detect erorrs, information p[rinted here may hint developer or will help support
+  // we can't detect errors, information p[rinted here may hint developer or will help support
   // to identify the issue
   NSMutableString *outputString = [[NSMutableString alloc] init];
 

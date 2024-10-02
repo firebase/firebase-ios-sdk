@@ -18,11 +18,11 @@ import GTMSessionFetcherCore
 import SharedTestUtilities
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageAuthorizerTests: StorageTestHelpers {
   var appCheckTokenSuccess: FIRAppCheckTokenResultFake!
   var appCheckTokenError: FIRAppCheckTokenResultFake!
   var fetcher: GTMSessionFetcher!
-  var fetcherService: GTMSessionFetcherService!
   var auth: FIRAuthInteropFake!
   var appCheck: FIRAppCheckFake!
 
@@ -42,70 +42,57 @@ class StorageAuthorizerTests: StorageTestHelpers {
     let fetchRequest = URLRequest(url: StorageTestHelpers().objectURL())
     fetcher = GTMSessionFetcher(request: fetchRequest)
 
-    fetcherService = GTMSessionFetcherService()
     auth = FIRAuthInteropFake(token: StorageTestAuthToken, userID: nil, error: nil)
     appCheck = FIRAppCheckFake()
     fetcher?.authorizer = StorageTokenAuthorizer(googleAppID: "dummyAppID",
-                                                 fetcherService: fetcherService!,
+                                                 callbackQueue: DispatchQueue.main,
                                                  authProvider: auth, appCheck: appCheck)
   }
 
   override func tearDown() {
     fetcher = nil
-    fetcherService = nil
     auth = nil
     appCheck = nil
     appCheckTokenSuccess = nil
     super.tearDown()
   }
 
-  func testSuccessfulAuth() {
-    let expectation = self.expectation(description: #function)
+  func testSuccessfulAuth() async throws {
     setFetcherTestBlock(with: 200) { fetcher in
       self.checkAuthorizer(fetcher: fetcher, trueFalse: true)
     }
-    fetcher?.beginFetch { data, error in
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertEqual(headers!["Authorization"], "Firebase \(self.StorageTestAuthToken)")
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertEqual(headers!["Authorization"], "Firebase \(StorageTestAuthToken)")
   }
 
-  func testUnsuccessfulAuth() {
-    let expectation = self.expectation(description: #function)
+  func testUnsuccessfulAuth() async {
     let authError = NSError(domain: "FIRStorageErrorDomain",
                             code: StorageErrorCode.unauthenticated.rawValue, userInfo: nil)
     let failedAuth = FIRAuthInteropFake(token: nil, userID: nil, error: authError)
     fetcher?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
-      fetcherService: fetcherService!,
       authProvider: failedAuth,
       appCheck: nil
     )
     setFetcherTestBlock(with: 401) { fetcher in
       self.checkAuthorizer(fetcher: fetcher, trueFalse: false)
     }
-    fetcher?.beginFetch { data, error in
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertNil(headers)
-      let nsError = error as? NSError
-      XCTAssertEqual(nsError?.domain, "FIRStorageErrorDomain")
-      XCTAssertEqual(nsError?.code, StorageErrorCode.unauthenticated.rawValue)
-      XCTAssertEqual(nsError?.localizedDescription, "User is not authenticated, please " +
+    do {
+      let _ = try await fetcher?.beginFetch()
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, "FIRStorageErrorDomain")
+      XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
+      XCTAssertEqual(nsError.localizedDescription, "User is not authenticated, please " +
         "authenticate using Firebase Authentication and try again.")
-      expectation.fulfill()
     }
-    waitForExpectation(test: self)
   }
 
-  func testSuccessfulUnauthenticatedAuth() {
-    let expectation = self.expectation(description: #function)
-
+  func testSuccessfulUnauthenticatedAuth() async throws {
     // Simulate Auth not being included at all
     fetcher?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
-      fetcherService: fetcherService!,
       authProvider: nil,
       appCheck: nil
     )
@@ -113,23 +100,17 @@ class StorageAuthorizerTests: StorageTestHelpers {
     setFetcherTestBlock(with: 200) { fetcher in
       self.checkAuthorizer(fetcher: fetcher, trueFalse: false)
     }
-    fetcher?.beginFetch { data, error in
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertNil(headers!["Authorization"])
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertNil(headers!["Authorization"])
   }
 
-  func testSuccessfulAppCheckNoAuth() {
-    let expectation = self.expectation(description: #function)
+  func testSuccessfulAppCheckNoAuth() async throws {
     appCheck?.tokenResult = appCheckTokenSuccess!
 
     // Simulate Auth not being included at all
     fetcher?.authorizer = StorageTokenAuthorizer(
       googleAppID: "dummyAppID",
-      fetcherService: fetcherService!,
       authProvider: nil,
       appCheck: appCheck
     )
@@ -137,52 +118,36 @@ class StorageAuthorizerTests: StorageTestHelpers {
     setFetcherTestBlock(with: 200) { fetcher in
       self.checkAuthorizer(fetcher: fetcher, trueFalse: false)
     }
-    fetcher?.beginFetch { data, error in
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertEqual(headers!["X-Firebase-AppCheck"], self.appCheckTokenSuccess?.token)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertEqual(headers!["X-Firebase-AppCheck"], appCheckTokenSuccess?.token)
   }
 
-  func testSuccessfulAppCheckAndAuth() {
-    let expectation = self.expectation(description: #function)
+  func testSuccessfulAppCheckAndAuth() async throws {
     appCheck?.tokenResult = appCheckTokenSuccess!
 
     setFetcherTestBlock(with: 200) { fetcher in
       self.checkAuthorizer(fetcher: fetcher, trueFalse: true)
     }
-    fetcher?.beginFetch { data, error in
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertEqual(headers!["Authorization"], "Firebase \(self.StorageTestAuthToken)")
-      XCTAssertEqual(headers!["X-Firebase-AppCheck"], self.appCheckTokenSuccess?.token)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertEqual(headers!["Authorization"], "Firebase \(StorageTestAuthToken)")
+    XCTAssertEqual(headers!["X-Firebase-AppCheck"], appCheckTokenSuccess?.token)
   }
 
-  func testAppCheckError() {
-    let expectation = self.expectation(description: #function)
+  func testAppCheckError() async throws {
     appCheck?.tokenResult = appCheckTokenError!
 
     setFetcherTestBlock(with: 200) { fetcher in
       self.checkAuthorizer(fetcher: fetcher, trueFalse: true)
     }
-    fetcher?.beginFetch { data, error in
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertEqual(headers!["Authorization"], "Firebase \(self.StorageTestAuthToken)")
-      XCTAssertEqual(headers!["X-Firebase-AppCheck"], self.appCheckTokenError?.token)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertEqual(headers!["Authorization"], "Firebase \(StorageTestAuthToken)")
+    XCTAssertEqual(headers!["X-Firebase-AppCheck"], appCheckTokenError?.token)
   }
 
-  func testIsAuthorizing() {
-    let expectation = self.expectation(description: #function)
-
+  func testIsAuthorizing() async throws {
     setFetcherTestBlock(with: 200) { fetcher in
       do {
         let authorizer = try XCTUnwrap(fetcher.authorizer)
@@ -191,16 +156,10 @@ class StorageAuthorizerTests: StorageTestHelpers {
         XCTFail("Failed to get authorizer: \(error)")
       }
     }
-    fetcher?.beginFetch { data, error in
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
   }
 
-  func testStopAuthorizingNoop() {
-    let expectation = self.expectation(description: #function)
-
+  func testStopAuthorizingNoop() async throws {
     setFetcherTestBlock(with: 200) { fetcher in
       do {
         let authorizer = try XCTUnwrap(fetcher.authorizer)
@@ -213,18 +172,12 @@ class StorageAuthorizerTests: StorageTestHelpers {
         XCTFail("Failed to get authorizer: \(error)")
       }
     }
-    fetcher?.beginFetch { data, error in
-      XCTAssertNil(error)
-      let headers = self.fetcher!.request?.allHTTPHeaderFields
-      XCTAssertEqual(headers!["Authorization"], "Firebase \(self.StorageTestAuthToken)")
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
+    let headers = fetcher!.request?.allHTTPHeaderFields
+    XCTAssertEqual(headers!["Authorization"], "Firebase \(StorageTestAuthToken)")
   }
 
-  func testEmail() {
-    let expectation = self.expectation(description: #function)
-
+  func testEmail() async throws {
     setFetcherTestBlock(with: 200) { fetcher in
       do {
         let authorizer = try XCTUnwrap(fetcher.authorizer)
@@ -233,11 +186,7 @@ class StorageAuthorizerTests: StorageTestHelpers {
         XCTFail("Failed to get authorizer: \(error)")
       }
     }
-    fetcher?.beginFetch { data, error in
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectation(test: self)
+    let _ = try await fetcher?.beginFetch()
   }
 
   // MARK: Helpers

@@ -237,7 +237,7 @@
   XCTAssertNil([trace.counters objectForKey:@"testing"]);
 }
 
-/** Validates that calling get on a metric returns 0 if it hasnt been reviously set. */
+/** Validates that calling get on a metric returns 0 if it hasn't been reviously set. */
 - (void)testGetMetricWhenSetHasntBeenCalledReturnsZero {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   int64_t metricValue = [trace valueForIntMetric:@"testing"];

@@ -14,14 +14,14 @@
 
 import Foundation
 
-/// The error domain for codes in the `FunctionsErrorCode` enum.
+/// The error domain for codes in the ``FunctionsErrorCode`` enum.
 public let FunctionsErrorDomain: String = "com.firebase.functions"
 
 /// The key for finding error details in the `NSError` userInfo.
 public let FunctionsErrorDetailsKey: String = "details"
 
 /**
- * The set of error status codes that can be returned from a Callable HTTPS tigger. These are the
+ * The set of error status codes that can be returned from a Callable HTTPS trigger. These are the
  * canonical error codes for Google APIs, as documented here:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto#L26
  */
@@ -101,159 +101,154 @@ public let FunctionsErrorDetailsKey: String = "details"
   case unauthenticated = 16
 }
 
-/**
- * Takes an HTTP status code and returns the corresponding `FIRFunctionsErrorCode` error code.
- * This is the standard HTTP status code -> error mapping defined in:
- * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
- * - Parameter status An HTTP status code.
- * - Returns: The corresponding error code, or `FIRFunctionsErrorCodeUnknown` if none.
- */
-func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorCode {
-  switch status {
-  case 200:
-    return .OK
-  case 400:
-    return .invalidArgument
-  case 401:
-    return .unauthenticated
-  case 403:
-    return .permissionDenied
-  case 404:
-    return .notFound
-  case 409:
-    return .alreadyExists
-  case 429:
-    return .resourceExhausted
-  case 499:
-    return .cancelled
-  case 500:
-    return .internal
-  case 501:
-    return .unimplemented
-  case 503:
-    return .unavailable
-  case 504:
-    return .deadlineExceeded
-  default:
-    return .internal
-  }
-}
-
-extension FunctionsErrorCode {
-  static func errorCode(forName name: String) -> FunctionsErrorCode {
-    switch name {
-    case "OK": return .OK
-    case "CANCELLED": return .cancelled
-    case "UNKNOWN": return .unknown
-    case "INVALID_ARGUMENT": return .invalidArgument
-    case "DEADLINE_EXCEEDED": return .deadlineExceeded
-    case "NOT_FOUND": return .notFound
-    case "ALREADY_EXISTS": return .alreadyExists
-    case "PERMISSION_DENIED": return .permissionDenied
-    case "RESOURCE_EXHAUSTED": return .resourceExhausted
-    case "FAILED_PRECONDITION": return .failedPrecondition
-    case "ABORTED": return .aborted
-    case "OUT_OF_RANGE": return .outOfRange
-    case "UNIMPLEMENTED": return .unimplemented
-    case "INTERNAL": return .internal
-    case "UNAVAILABLE": return .unavailable
-    case "DATA_LOSS": return .dataLoss
-    case "UNAUTHENTICATED": return .unauthenticated
-    default: return .internal
+private extension FunctionsErrorCode {
+  /// Takes an HTTP status code and returns the corresponding `FIRFunctionsErrorCode` error code.
+  ///
+  /// + This is the standard HTTP status code -> error mapping defined in:
+  /// https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+  ///
+  /// - Parameter httpStatusCode: An HTTP status code.
+  /// - Returns: A `FunctionsErrorCode`. Falls back to `internal` for unknown status codes.
+  init(httpStatusCode: Int) {
+    self = switch httpStatusCode {
+    case 200: .OK
+    case 400: .invalidArgument
+    case 401: .unauthenticated
+    case 403: .permissionDenied
+    case 404: .notFound
+    case 409: .alreadyExists
+    case 429: .resourceExhausted
+    case 499: .cancelled
+    case 500: .internal
+    case 501: .unimplemented
+    case 503: .unavailable
+    case 504: .deadlineExceeded
+    default: .internal
     }
   }
 
-  var descriptionForErrorCode: String {
-    switch self {
-    case .OK:
-      return "OK"
-    case .cancelled:
-      return "CANCELLED"
-    case .unknown:
-      return "UNKNOWN"
-    case .invalidArgument:
-      return "INVALID ARGUMENT"
-    case .deadlineExceeded:
-      return "DEADLINE EXCEEDED"
-    case .notFound:
-      return "NOT FOUND"
-    case .alreadyExists:
-      return "ALREADY EXISTS"
-    case .permissionDenied:
-      return "PERMISSION DENIED"
-    case .resourceExhausted:
-      return "RESOURCE EXHAUSTED"
-    case .failedPrecondition:
-      return "FAILED PRECONDITION"
-    case .aborted:
-      return "ABORTED"
-    case .outOfRange:
-      return "OUT OF RANGE"
-    case .unimplemented:
-      return "UNIMPLEMENTED"
-    case .internal:
-      return "INTERNAL"
-    case .unavailable:
-      return "UNAVAILABLE"
-    case .dataLoss:
-      return "DATA LOSS"
-    case .unauthenticated:
-      return "UNAUTHENTICATED"
+  init(errorName: String) {
+    self = switch errorName {
+    case "OK": .OK
+    case "CANCELLED": .cancelled
+    case "UNKNOWN": .unknown
+    case "INVALID_ARGUMENT": .invalidArgument
+    case "DEADLINE_EXCEEDED": .deadlineExceeded
+    case "NOT_FOUND": .notFound
+    case "ALREADY_EXISTS": .alreadyExists
+    case "PERMISSION_DENIED": .permissionDenied
+    case "RESOURCE_EXHAUSTED": .resourceExhausted
+    case "FAILED_PRECONDITION": .failedPrecondition
+    case "ABORTED": .aborted
+    case "OUT_OF_RANGE": .outOfRange
+    case "UNIMPLEMENTED": .unimplemented
+    case "INTERNAL": .internal
+    case "UNAVAILABLE": .unavailable
+    case "DATA_LOSS": .dataLoss
+    case "UNAUTHENTICATED": .unauthenticated
+    default: .internal
     }
-  }
-
-  func generatedError(userInfo: [String: Any]? = nil) -> NSError {
-    return NSError(domain: FunctionsErrorDomain,
-                   code: rawValue,
-                   userInfo: userInfo ?? [NSLocalizedDescriptionKey: descriptionForErrorCode])
   }
 }
 
-func FunctionsErrorForResponse(status: NSInteger,
-                               body: Data?,
-                               serializer: FUNSerializer) -> NSError? {
-  // Start with reasonable defaults from the status code.
-  var code = FunctionsCodeForHTTPStatus(status)
-  var description = code.descriptionForErrorCode
+/// The object used to report errors that occur during a function’s execution.
+struct FunctionsError: CustomNSError {
+  static let errorDomain = FunctionsErrorDomain
 
-  var details: AnyObject?
+  let code: FunctionsErrorCode
+  let errorUserInfo: [String: Any]
+  var errorCode: FunctionsErrorCode.RawValue { code.rawValue }
 
-  // Then look through the body for explicit details.
-  if let body = body,
-     let json = try? JSONSerialization.jsonObject(with: body) as? NSDictionary,
-     let errorDetails = json["error"] as? NSDictionary {
-    if let status = errorDetails["status"] as? String {
-      code = FunctionsErrorCode.errorCode(forName: status)
+  init(_ code: FunctionsErrorCode, userInfo: [String: Any]? = nil) {
+    self.code = code
+    errorUserInfo = userInfo ?? [NSLocalizedDescriptionKey: Self.errorDescription(from: code)]
+  }
 
-      // If the code in the body is invalid, treat the whole response as malformed.
-      guard code != .internal else {
-        return code.generatedError(userInfo: nil)
+  /// Initializes a `FunctionsError` from the HTTP status code and response body.
+  ///
+  /// - Parameters:
+  ///   - httpStatusCode: The HTTP status code reported during a function’s execution. Only a subset
+  /// of codes are supported.
+  ///   - body: The optional response data which may contain information about the error. The
+  /// following schema is expected:
+  ///     ```
+  ///     {
+  ///         "error": {
+  ///             "status": "PERMISSION_DENIED",
+  ///             "message": "You are not allowed to perform this operation",
+  ///             "details": 123 // Any value supported by `FunctionsSerializer`
+  ///     }
+  ///     ```
+  ///   - serializer: The `FunctionsSerializer` used to decode `details` in the error body.
+  init?(httpStatusCode: Int, body: Data?, serializer: FunctionsSerializer) {
+    // Start with reasonable defaults from the status code.
+    var code = FunctionsErrorCode(httpStatusCode: httpStatusCode)
+    var description = Self.errorDescription(from: code)
+    var details: Any?
+
+    // Then look through the body for explicit details.
+    if let body,
+       let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
+       let errorDetails = json["error"] as? [String: Any] {
+      if let status = errorDetails["status"] as? String {
+        code = FunctionsErrorCode(errorName: status)
+
+        // If the code in the body is invalid, treat the whole response as malformed.
+        guard code != .internal else {
+          self.init(code)
+          return
+        }
+      }
+
+      if let message = errorDetails["message"] as? String {
+        description = message
+      } else {
+        description = Self.errorDescription(from: code)
+      }
+
+      details = errorDetails["details"] as Any?
+      // Update `details` only if decoding succeeds;
+      // otherwise, keep the original object.
+      if let innerDetails = details,
+         let decodedDetails = try? serializer.decode(innerDetails) {
+        details = decodedDetails
       }
     }
 
-    if let message = errorDetails["message"] as? String {
-      description = message
-    } else {
-      description = code.descriptionForErrorCode
+    if code == .OK {
+      // Technically, there's an edge case where a developer could explicitly return an error code
+      // of
+      // OK, and we will treat it as success, but that seems reasonable.
+      return nil
     }
 
-    details = errorDetails["details"] as AnyObject?
-    if let innerDetails = details {
-      // Just ignore the details if there an error decoding them.
-      details = try? serializer.decode(innerDetails)
+    var userInfo = [String: Any]()
+    userInfo[NSLocalizedDescriptionKey] = description
+    if let details {
+      userInfo[FunctionsErrorDetailsKey] = details
+    }
+    self.init(code, userInfo: userInfo)
+  }
+
+  private static func errorDescription(from code: FunctionsErrorCode) -> String {
+    switch code {
+    case .OK: "OK"
+    case .cancelled: "CANCELLED"
+    case .unknown: "UNKNOWN"
+    case .invalidArgument: "INVALID ARGUMENT"
+    case .deadlineExceeded: "DEADLINE EXCEEDED"
+    case .notFound: "NOT FOUND"
+    case .alreadyExists: "ALREADY EXISTS"
+    case .permissionDenied: "PERMISSION DENIED"
+    case .resourceExhausted: "RESOURCE EXHAUSTED"
+    case .failedPrecondition: "FAILED PRECONDITION"
+    case .aborted: "ABORTED"
+    case .outOfRange: "OUT OF RANGE"
+    case .unimplemented: "UNIMPLEMENTED"
+    case .internal: "INTERNAL"
+    case .unavailable: "UNAVAILABLE"
+    case .dataLoss: "DATA LOSS"
+    case .unauthenticated: "UNAUTHENTICATED"
     }
   }
-
-  if code == .OK {
-    // Technically, there's an edge case where a developer could explicitly return an error code of
-    // OK, and we will treat it as success, but that seems reasonable.
-    return nil
-  }
-
-  var userInfo = [String: Any]()
-  userInfo[NSLocalizedDescriptionKey] = description
-  if let details = details {
-    userInfo[FunctionsErrorDetailsKey] = details
-  }
-  return code.generatedError(userInfo: userInfo)
 }

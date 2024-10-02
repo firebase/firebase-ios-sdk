@@ -33,9 +33,9 @@
       -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.resolveSignIn(with: assertion) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }

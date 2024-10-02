@@ -62,8 +62,8 @@ source snapshot or unreleased branch, use Podfile directives like the following:
 
 To access FirebaseFirestore via a branch:
 ```ruby
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'main'
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'main'
 ```
 
 To access FirebaseMessaging via a checked-out version of the firebase-ios-sdk repo:
@@ -86,7 +86,7 @@ For details on using Firebase from a Framework or a library, refer to [firebase_
 To develop Firebase software in this repository, ensure that you have at least
 the following software:
 
-* Xcode 14.1 (or later)
+* Xcode 15.2 (or later)
 
 CocoaPods is still the canonical way to develop, but much of the repo now supports
 development with Swift Package Manager.
@@ -94,7 +94,7 @@ development with Swift Package Manager.
 ### CocoaPods
 
 Install the following:
-* CocoaPods 1.10.0 (or later)
+* CocoaPods 1.12.0 (or later)
 * [CocoaPods generate](https://github.com/square/cocoapods-generate)
 
 For the pod that you want to develop:
@@ -137,7 +137,7 @@ Alternatively, disable signing in each target:
 
 ### Adding a New Firebase Pod
 
-Refer to [AddNewPod](AddNewPod.md) Markdown file for details.
+Refer to [AddNewPod](docs/AddNewPod.md) Markdown file for details.
 
 ### Managing Headers and Imports
 
@@ -146,14 +146,14 @@ For information about managing headers and imports, see [HeadersImports](Headers
 ### Code Formatting
 
 To ensure that the code is formatted consistently, run the script
-[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check.sh)
+[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/check.sh)
 before creating a pull request (PR).
 
 GitHub Actions will verify that any code changes are done in a style-compliant
 way. Install `clang-format` and `mint`:
 
 ```console
-brew install clang-format@17
+brew install clang-format@19
 brew install mint
 ```
 
@@ -199,6 +199,12 @@ To run against a production instance, provide a valid `GoogleServices-Info.plist
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
 
+### Firebase Dynamic Links
+
+Firebase Dynamic Links is **deprecated** and should not be used in new projects. The service will shut down on August 25, 2025.
+
+Please see our [Dynamic Links Deprecation FAQ documentation](https://firebase.google.com/support/dynamic-links-faq) for more guidance.
+
 ### Firebase Performance Monitoring
 
 For specific Firebase Performance Monitoring development, see
@@ -229,15 +235,31 @@ at **Project Settings > Cloud Messaging > [Your Firebase App]**.
 The iOS Simulator cannot register for remote notifications and will not receive push notifications.
 To receive push notifications, follow the steps above and run the app on a physical device.
 
+### Vertex AI for Firebase
+
+See the [Vertex AI for Firebase README](FirebaseVertexAI#development) for
+instructions about building and testing the SDK.
+
 ## Building with Firebase on Apple platforms
 
-Firebase 8.9.0 introduced official beta support for macOS, Catalyst, and tvOS. watchOS continues
-to be community supported. Thanks to community contributions for many of the multi-platform PRs.
+Firebase provides official beta support for macOS, Catalyst, and tvOS. visionOS and watchOS
+are community supported. Thanks to community contributions for many of the multi-platform PRs.
 
 At this time, most of Firebase's products are available across Apple platforms. There are still
-a few gaps, especially on watchOS. For details about the current support matrix, see
+a few gaps, especially on visionOS and watchOS. For details about the current support matrix, see
 [this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
 in Firebase's documentation.
+
+### visionOS
+
+Where supported, visionOS works as expected with the exception of Firestore via Swift Package
+Manager where it is required to use the source distribution.
+
+To enable the Firestore source distribution, quit Xcode and open the desired
+project from the command line with the `FIREBASE_SOURCE_FIRESTORE` environment
+variable: `open --env FIREBASE_SOURCE_FIRESTORE /path/to/project.xcodeproj`.
+To go back to using the binary distribution of Firestore, quit Xcode and open
+Xcode like normal, without the environment variable.
 
 ### watchOS
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and

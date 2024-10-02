@@ -31,5 +31,7 @@
 #define RCNExperimentTableKeyPayload "experiment_payload"
 #define RCNExperimentTableKeyMetadata "experiment_metadata"
 #define RCNExperimentTableKeyActivePayload "experiment_active_payload"
+#define RCNRolloutTableKeyActiveMetadata "active_rollout_metadata"
+#define RCNRolloutTableKeyFetchedMetadata "fetched_rollout_metadata"
 
 #endif

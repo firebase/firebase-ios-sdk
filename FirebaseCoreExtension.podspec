@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '10.19.0'
+    s.version          = '11.4.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC
@@ -20,15 +20,19 @@ Pod::Spec.new do |s|
     }
     s.social_media_url = 'https://twitter.com/Firebase'
 
-    s.swift_version = '5.3'
+    s.swift_version = '5.9'
 
-    s.ios.deployment_target = '10.0'
-    s.osx.deployment_target = '10.13'
-    s.tvos.deployment_target = '12.0'
-    s.watchos.deployment_target = '6.0'
+    s.ios.deployment_target = '12.0'
+    s.osx.deployment_target = '10.15'
+    s.tvos.deployment_target = '13.0'
+    s.watchos.deployment_target = '7.0'
 
     s.source_files = 'FirebaseCore/Extension/*.[hm]'
     s.public_header_files = 'FirebaseCore/Extension/*.h'
 
-    s.dependency 'FirebaseCore', '~> 10.0'
+    s.resource_bundles = {
+      "#{s.module_name}_Privacy" => 'FirebaseCore/Extension/Resources/PrivacyInfo.xcprivacy'
+    }
+
+    s.dependency 'FirebaseCore', '~> 11.0'
   end

@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/string_format.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
@@ -44,8 +45,7 @@ Status Filesystem::ExcludeFromBackups(const Path& dir) {
 }
 
 StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
-#if TARGET_OS_IOS || TARGET_OS_OSX || \
-    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_VISION
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSApplicationSupportDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(app_name);
@@ -61,7 +61,7 @@ StatusOr<Path> Filesystem::AppDataDir(absl::string_view app_name) {
 }
 
 StatusOr<Path> Filesystem::LegacyDocumentsDir(absl::string_view app_name) {
-#if TARGET_OS_IOS || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_VISION
   NSArray<NSString*>* directories = NSSearchPathForDirectoriesInDomains(
       NSDocumentDirectory, NSUserDomainMask, YES);
   return Path::FromNSString(directories[0]).AppendUtf8(app_name);
@@ -88,6 +88,55 @@ Path Filesystem::TempDir() {
   }
 
   return Path::FromUtf8("/tmp");
+}
+
+Status Filesystem::IsDirectory(const Path& path) {
+  NSFileManager* file_manager = NSFileManager.defaultManager;
+  NSString* ns_path_str = path.ToNSString();
+  BOOL is_directory = NO;
+
+  if (![file_manager fileExistsAtPath:ns_path_str isDirectory:&is_directory]) {
+    return Status{Error::kErrorNotFound, path.ToUtf8String()};
+  }
+
+  if (!is_directory) {
+    return Status{Error::kErrorFailedPrecondition,
+                  StringFormat("Path %s exists but is not a directory",
+                               path.ToUtf8String())};
+  }
+
+  return Status::OK();
+}
+
+StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
+  NSFileManager* file_manager = NSFileManager.defaultManager;
+  NSString* ns_path_str = path.ToNSString();
+  NSError* error = nil;
+
+  NSDictionary* attributes = [file_manager attributesOfItemAtPath:ns_path_str
+                                                            error:&error];
+
+  if (attributes == nil) {
+    if ([error.domain isEqualToString:NSCocoaErrorDomain]) {
+      switch (error.code) {
+        case NSFileReadNoSuchFileError:
+        case NSFileNoSuchFileError:
+          return Status{Error::kErrorNotFound, path.ToUtf8String()}.CausedBy(
+              Status::FromNSError(error));
+      }
+    }
+
+    return Status{Error::kErrorInternal,
+                  StringFormat("attributesOfItemAtPath failed for %s",
+                               path.ToUtf8String())}
+        .CausedBy(Status::FromNSError(error));
+  }
+
+  NSNumber* fileSizeNumber = [attributes objectForKey:NSFileSize];
+
+  // Use brace initialization of the in64_t return value so that compilation
+  // will fail if the conversion from long long is narrowing.
+  return {[fileSizeNumber longLongValue]};
 }
 
 }  // namespace util

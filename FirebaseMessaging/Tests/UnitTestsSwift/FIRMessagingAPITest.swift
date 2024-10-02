@@ -94,7 +94,7 @@ func apis() {
   messaging.subscribe(toTopic: topic)
   messaging.unsubscribe(fromTopic: topic)
   messaging.unsubscribe(fromTopic: topic, completion: { error in
-    if let error = error {
+    if let error {
       switch error {
       // Handle errors in the new format.
       case MessagingError.timeout:
@@ -127,25 +127,23 @@ class CustomDelegate: NSObject, MessagingDelegate {
 func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    try await messaging.subscribe(toTopic: topic)
+  try await messaging.subscribe(toTopic: topic)
 
+  try await messaging.unsubscribe(fromTopic: topic)
+
+  try await messaging.token()
+
+  try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
+
+  try await messaging.deleteToken()
+
+  try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
+
+  try await messaging.deleteData()
+
+  // Test new handling of errors
+  do {
     try await messaging.unsubscribe(fromTopic: topic)
-
-    try await messaging.token()
-
-    try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
-
-    try await messaging.deleteToken()
-
-    try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
-
-    try await messaging.deleteData()
-
-    // Test new handling of errors
-    do {
-      try await messaging.unsubscribe(fromTopic: topic)
-    } catch MessagingError.timeout {
-    } catch {}
-  #endif
+  } catch MessagingError.timeout {
+  } catch {}
 }

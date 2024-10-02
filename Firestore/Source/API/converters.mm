@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/Source/API/converters.h"
+#import <FirebaseCore/FIRTimestamp.h>
 
 #include <utility>
 
+#include "Firestore/Source/API/converters.h"
+
 #import "FIRGeoPoint.h"
-#import "FIRTimestamp.h"
 
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/api/firestore.h"
+#import "Firestore/core/src/api/listen_source.h"
 #include "Firestore/core/src/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -59,6 +61,17 @@ FIRTimestamp* MakeFIRTimestamp(const Timestamp& timestamp) {
 FIRDocumentReference* MakeFIRDocumentReference(const model::DocumentKey& key,
                                                std::shared_ptr<Firestore> firestore) {
   return [[FIRDocumentReference alloc] initWithKey:key firestore:std::move(firestore)];
+}
+
+ListenSource MakeListenSource(const FIRListenSource& source) {
+  switch (source) {
+    case FIRListenSourceDefault:
+      return ListenSource::Default;
+    case FIRListenSourceCache:
+      return ListenSource::Cache;
+    default:
+      return ListenSource::Default;
+  }
 }
 
 }  // namespace api

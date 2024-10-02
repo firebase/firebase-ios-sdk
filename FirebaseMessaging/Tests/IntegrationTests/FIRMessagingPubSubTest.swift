@@ -76,4 +76,4 @@
       wait(for: [expectation], timeout: 5)
     }
   }
-#endif // !TARGET_OS_OSX
+#endif // !os(OSX)

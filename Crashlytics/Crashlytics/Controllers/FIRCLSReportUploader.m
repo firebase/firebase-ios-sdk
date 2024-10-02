@@ -31,7 +31,6 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 #import "Crashlytics/Shared/FIRCLSConstants.h"
-#import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSMultipartMimeStreamEncoder.h"
 #import "Crashlytics/Shared/FIRCLSNetworking/FIRCLSURLBuilder.h"
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
@@ -95,8 +94,10 @@
         // urgent mode. Since urgent mode happens when the app is in a crash loop,
         // we can safely assume users aren't rotating their FIID, so this can be skipped.
         if (!urgent) {
-          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
+          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(
+                                   NSString *_Nonnull newFIID, NSString *_Nonnull authToken) {
             self.fiid = [newFIID copy];
+            self.authToken = [authToken copy];
           }];
         } else {
           FIRCLSWarningLog(
@@ -186,7 +187,8 @@
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:path
                                                                googleAppId:self.googleAppID
                                                             installIDModel:self.installIDModel
-                                                                      fiid:self.fiid];
+                                                                      fiid:self.fiid
+                                                                 authToken:self.authToken];
 
   GDTCOREvent *event = [self.googleTransport eventForTransport];
   event.dataObject = adapter;

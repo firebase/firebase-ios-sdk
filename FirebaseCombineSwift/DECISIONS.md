@@ -18,7 +18,7 @@ Instead of implementing [custom  publishers](https://thoughtbot.com/blog/lets-bu
 
 ## Using capture lists
 
-After discussing internally, we came to the conclusion that the outer closure in the following piece of code is non-escaping, hence there is no benefit to weakly capture `self`. As the inner closure does't refer to `self`, the reference does not outlive the current call stack.
+After discussing internally, we came to the conclusion that the outer closure in the following piece of code is non-escaping, hence there is no benefit to weakly capture `self`. As the inner closure doesn't refer to `self`, the reference does not outlive the current call stack.
 
 It is thus safe to not use `[weak self]` in this instance.
 
@@ -28,9 +28,9 @@ extension Auth {
                            password: String) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { /* [weak self]  <-- not required */ promise in
         self?.createUser(withEmail: email, password: password) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }

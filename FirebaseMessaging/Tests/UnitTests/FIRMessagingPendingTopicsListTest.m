@@ -111,7 +111,7 @@
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
   XCTestExpectation *batchSizeReductionExpectation =
-      [self expectationWithDescription:@"Batch size was reduced after topic suscription"];
+      [self expectationWithDescription:@"Batch size was reduced after topic subscription"];
 
   __weak id weakSelf = self;
   self.alwaysReadyDelegate.subscriptionHandler =

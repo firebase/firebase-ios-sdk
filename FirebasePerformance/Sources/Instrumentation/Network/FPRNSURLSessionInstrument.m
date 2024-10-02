@@ -23,6 +23,7 @@
 
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
+#import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
@@ -30,8 +31,6 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
-
-#import <GoogleUtilities/GULObjectSwizzler.h>
 
 // Declared for use in instrumentation functions below.
 @interface FPRNSURLSessionInstrument ()
@@ -482,8 +481,15 @@ void InstrumentUploadTaskWithStreamedRequest(FPRNSURLSessionInstrument *instrume
     if (!strongInstrument) {
       ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentor.instrumentedClass);
     }
-    typedef NSURLSessionUploadTask *(*OriginalImp)(id, SEL, NSURLRequest *);
-    NSURLSessionUploadTask *uploadTask = ((OriginalImp)currentIMP)(session, selector, request);
+    typedef NSURLSessionUploadTask *(*OriginalImp)(id, SEL, NSURLRequest *, NSData *);
+    // To avoid a runtime warning in Xcode 15, the given `URLRequest`
+    // should have a nil `HTTPBody`. To workaround this, the `HTTPBody` data is removed
+    // and requestData is replaced with it, if it bodyData was `nil`.
+    NSMutableURLRequest *requestWithoutHTTPBody = [request mutableCopy];
+    NSData *requestData = requestWithoutHTTPBody.HTTPBody;
+    requestWithoutHTTPBody.HTTPBody = nil;
+    NSURLSessionUploadTask *uploadTask =
+        ((OriginalImp)currentIMP)(session, selector, request, requestData);
     if (uploadTask.originalRequest) {
       FPRNetworkTrace *trace =
           [[FPRNetworkTrace alloc] initWithURLRequest:uploadTask.originalRequest];

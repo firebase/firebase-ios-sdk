@@ -15,6 +15,12 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_UserDefaults
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 /// CacheKey is like a "key" to a "safe". It provides necessary metadata about the current cache to
 /// know if it should be expired.
 struct CacheKey: Codable {
@@ -48,22 +54,22 @@ class SettingsCache: SettingsCacheClient {
 
   /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while
   /// abstracting away async disk IO.
-  private let cache: UserDefaults = .standard
+  private let cache: GULUserDefaults = .standard()
 
   /// Converting to dictionary is O(1) because object conversion is O(1)
   var cacheContent: [String: Any] {
     get {
-      return cache.dictionary(forKey: UserDefaultsKeys.forContent) ?? [:]
+      return (cache.object(forKey: UserDefaultsKeys.forContent) as? [String: Any]) ?? [:]
     }
     set {
-      cache.set(newValue, forKey: UserDefaultsKeys.forContent)
+      cache.setObject(newValue, forKey: UserDefaultsKeys.forContent)
     }
   }
 
   /// Casting to Codable from Data is O(n)
   var cacheKey: CacheKey? {
     get {
-      if let data = cache.data(forKey: UserDefaultsKeys.forCacheKey) {
+      if let data = cache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
         do {
           return try JSONDecoder().decode(CacheKey.self, from: data)
         } catch {
@@ -74,7 +80,7 @@ class SettingsCache: SettingsCacheClient {
     }
     set {
       do {
-        try cache.set(JSONEncoder().encode(newValue), forKey: UserDefaultsKeys.forCacheKey)
+        try cache.setObject(JSONEncoder().encode(newValue), forKey: UserDefaultsKeys.forCacheKey)
       } catch {
         Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
       }
@@ -83,7 +89,7 @@ class SettingsCache: SettingsCacheClient {
 
   /// Removes stored cache
   func removeCache() {
-    cache.set(nil, forKey: UserDefaultsKeys.forContent)
-    cache.set(nil, forKey: UserDefaultsKeys.forCacheKey)
+    cache.setObject(nil, forKey: UserDefaultsKeys.forContent)
+    cache.setObject(nil, forKey: UserDefaultsKeys.forCacheKey)
   }
 }

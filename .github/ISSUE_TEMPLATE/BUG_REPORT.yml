@@ -46,7 +46,7 @@ body:
     attributes:
       label: Xcode Version
       description: What version of Xcode is being used?
-      placeholder: "14.3"
+      placeholder: "15.3"
     validations:
       required: true
   - type: dropdown
@@ -74,6 +74,7 @@ body:
         - Authentication
         - Crashlytics
         - Database
+        - Data Connect
         - DynamicLinks
         - Firestore
         - Functions
@@ -84,6 +85,7 @@ body:
         - Performance
         - Remote Config
         - Storage
+        - VertexAI
         - All
         - Infrastructure
     validations:

@@ -15,6 +15,9 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
+
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRTimestamp.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #include "Firestore/core/src/util/autoid.h"
@@ -60,7 +63,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 // Runs a test with specified documents in the COMPOSITE_INDEX_TEST_COLLECTION.
-- (FIRCollectionReference *)withTestDocs:
+- (FIRCollectionReference *)collectionRefwithTestDocs:
     (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)docs {
   FIRCollectionReference *writer = [self testCollectionRef];
   // Use a different instance to write the documents
@@ -122,6 +125,13 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 - (void)assertOnlineAndOfflineResultsMatch:(FIRQuery *)query
                               expectedDocs:(NSArray<NSString *> *)expectedDocs {
   [self checkOnlineAndOfflineQuery:query matchesResult:[self toHashedIds:expectedDocs]];
+}
+
+// Asserts that the IDs in the query snapshot matches the expected Ids. The expected document
+// IDs are hashed to match the actual document IDs created by the test helper.
+- (void)assertSnapshotResultIdsMatch:(FIRQuerySnapshot *)snapshot
+                         expectedIds:(NSArray<NSString *> *)expectedIds {
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), [self toHashedIds:expectedIds]);
 }
 
 // Adds a filter on test id for a query.
@@ -196,7 +206,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
  */
 
 - (void)testOrQueriesWithCompositeIndexes {
-  FIRCollectionReference *collRef = [self withTestDocs:@{
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
     @"doc2" : @{@"a" : @2, @"b" : @1},
     @"doc3" : @{@"a" : @3, @"b" : @2},
@@ -290,7 +300,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testCanPerformMaxAggregations {
-  FIRCollectionReference *testCollection = [self withTestDocs:@{
+  FIRCollectionReference *testCollection = [self collectionRefwithTestDocs:@{
     @"a" : @{
       @"author" : @"authorA",
       @"title" : @"titleA",
@@ -336,7 +346,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testPerformsAggregationsWhenNaNExistsForSomeFieldValues {
-  FIRCollectionReference *testCollection = [self withTestDocs:@{
+  FIRCollectionReference *testCollection = [self collectionRefwithTestDocs:@{
     @"a" : @{
       @"author" : @"authorA",
       @"title" : @"titleA",
@@ -395,7 +405,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
-  FIRCollectionReference *testCollection = [self withTestDocs:@{
+  FIRCollectionReference *testCollection = [self collectionRefwithTestDocs:@{
     @"a" : @{
       @"author" : @"authorA",
       @"title" : @"titleA",
@@ -461,6 +471,491 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
       [[snapshot valueForAggregateField:[FIRAggregateField
                                             aggregateFieldForAverageOfField:@"pages"]] doubleValue],
       100.0);
+}
+
+// Multiple Inequality
+- (void)testMultipleInequalityOnDifferentFields {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @0},
+    @"doc2" : @{@"key" : @"b", @"sort" : @3, @"v" : @1},
+    @"doc3" : @{@"key" : @"c", @"sort" : @1, @"v" : @3},
+    @"doc4" : @{@"key" : @"d", @"sort" : @2, @"v" : @2}
+  }];
+
+  // Multiple inequality fields
+  FIRQuery *query = [[[collRef queryWhereField:@"key"
+                                  isNotEqualTo:@"a"] queryWhereField:@"sort"
+                                                 isLessThanOrEqualTo:@2] queryWhereField:@"v"
+                                                                           isGreaterThan:@2];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc3" ])];
+
+  // Duplicate inequality fields
+  query = [[[collRef queryWhereField:@"key"
+                        isNotEqualTo:@"a"] queryWhereField:@"sort"
+                                       isLessThanOrEqualTo:@2] queryWhereField:@"sort"
+                                                                 isGreaterThan:@1];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc4" ])];
+
+  // With multiple IN
+  query = [[[[collRef queryWhereField:@"key" isGreaterThanOrEqualTo:@"a"] queryWhereField:@"sort"
+                                                                      isLessThanOrEqualTo:@2]
+      queryWhereField:@"v"
+                   in:@[ @2, @3, @4 ]] queryWhereField:@"sort" in:@[ @2, @3 ]];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc4" ])];
+
+  // With NOT-IN
+  query = [[[collRef queryWhereField:@"key"
+              isGreaterThanOrEqualTo:@"a"] queryWhereField:@"sort"
+                                       isLessThanOrEqualTo:@2] queryWhereField:@"v"
+                                                                         notIn:@[ @2, @4, @5 ]];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc1", @"doc3" ])];
+
+  // With orderby
+  query = [[[collRef queryWhereField:@"key"
+              isGreaterThanOrEqualTo:@"a"] queryWhereField:@"sort"
+                                       isLessThanOrEqualTo:@2] queryOrderedByField:@"v"
+                                                                        descending:YES];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc3", @"doc4", @"doc1" ])];
+
+  // With limit
+  query = [[[[collRef queryWhereField:@"key" isGreaterThanOrEqualTo:@"a"]
+          queryWhereField:@"sort"
+      isLessThanOrEqualTo:@2] queryOrderedByField:@"v" descending:YES] queryLimitedTo:2];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc3", @"doc4" ])];
+
+  // With limitedToLast
+  query = [[[[collRef queryWhereField:@"key" isGreaterThanOrEqualTo:@"a"]
+          queryWhereField:@"sort"
+      isLessThanOrEqualTo:@2] queryOrderedByField:@"v" descending:YES] queryLimitedToLast:2];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc4", @"doc1" ])];
+}
+
+- (void)testMultipleInequalityOnSpecialValues {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @0},
+    @"doc2" : @{@"key" : @"b", @"sort" : @(NAN), @"v" : @1},
+    @"doc3" : @{@"key" : @"c", @"sort" : [NSNull null], @"v" : @3},
+    @"doc4" : @{@"key" : @"d", @"v" : @0},
+    @"doc5" : @{@"key" : @"e", @"sort" : @1},
+    @"doc6" : @{@"key" : @"f", @"sort" : @1, @"v" : @1}
+  }];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key" isNotEqualTo:@"a"] queryWhereField:@"sort"
+                                                                    isLessThanOrEqualTo:@2];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc5", @"doc6" ])];
+
+  query = [[[collRef queryWhereField:@"key"
+                        isNotEqualTo:@"a"] queryWhereField:@"sort"
+                                       isLessThanOrEqualTo:@2] queryWhereField:@"v"
+                                                           isLessThanOrEqualTo:@1];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc6" ])];
+}
+
+- (void)testMultipleInequalityWithArrayMembership {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @[ @0 ]},
+    @"doc2" : @{@"key" : @"b", @"sort" : @1, @"v" : @[ @0, @1, @3 ]},
+    @"doc3" : @{@"key" : @"c", @"sort" : @1, @"v" : @[]},
+    @"doc4" : @{@"key" : @"d", @"sort" : @2, @"v" : @[ @1 ]},
+    @"doc5" : @{@"key" : @"e", @"sort" : @3, @"v" : @[ @2, @4 ]},
+    @"doc6" : @{@"key" : @"f", @"sort" : @4, @"v" : @[ @(NAN) ]},
+    @"doc7" : @{@"key" : @"g", @"sort" : @4, @"v" : @[ [NSNull null] ]}
+
+  }];
+
+  FIRQuery *query = [[[collRef queryWhereField:@"key"
+                                  isNotEqualTo:@"a"] queryWhereField:@"sort"
+                                              isGreaterThanOrEqualTo:@1] queryWhereField:@"v"
+                                                                           arrayContains:@0];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc2" ])];
+
+  query = [[[collRef queryWhereField:@"key"
+                        isNotEqualTo:@"a"] queryWhereField:@"sort"
+                                    isGreaterThanOrEqualTo:@1] queryWhereField:@"v"
+                                                              arrayContainsAny:@[ @0, @1 ]];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc2", @"doc4" ])];
+}
+
+- (NSDictionary<NSString *, id> *)nestedData:(int)number {
+  return @{
+    @"name" : [NSString stringWithFormat:@"room %d", number],
+    @"metadata" : @{@"createdAt" : @(number)},
+    @"field" : [NSString stringWithFormat:@"field %d", number],
+    @"field.dot" : @(number),
+    @"field\\slash" : @(number)
+  };
+}
+
+- (void)testMultipleInequalityWithNestedField {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : [self nestedData:400],
+    @"doc2" : [self nestedData:200],
+    @"doc3" : [self nestedData:100],
+    @"doc4" : [self nestedData:300]
+  }];
+
+  FIRQuery *query = [[[[collRef queryWhereField:@"metadata.createdAt" isLessThanOrEqualTo:@500]
+      queryWhereField:@"metadata.createdAt"
+        isGreaterThan:@100] queryWhereField:@"name"
+                               isNotEqualTo:@"room 200"] queryOrderedByField:@"name" descending:NO];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc4", @"doc1" ])];
+
+  query = [[[[collRef queryWhereField:@"field" isGreaterThanOrEqualTo:@"field 100"]
+      queryWhereFieldPath:[[FIRFieldPath alloc] initWithFields:@[ @"field.dot" ]]
+             isNotEqualTo:@300] queryWhereField:@"field\\slash"
+                                     isLessThan:@400] queryOrderedByField:@"name" descending:YES];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc2", @"doc3" ])];
+}
+
+- (void)testMultipleInequalityWithCompositeFilters {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @5},
+    @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @4},
+    @"doc3" : @{@"key" : @"c", @"sort" : @3, @"v" : @3},
+    @"doc4" : @{@"key" : @"b", @"sort" : @2, @"v" : @2},
+    @"doc5" : @{@"key" : @"b", @"sort" : @2, @"v" : @1},
+    @"doc6" : @{@"key" : @"b", @"sort" : @0, @"v" : @0}
+  }];
+
+  FIRQuery *query = [collRef
+      queryWhereFilter:[FIRFilter orFilterWithFilters:@[
+        [FIRFilter andFilterWithFilters:@[
+          [FIRFilter filterWhereField:@"key" isEqualTo:@"b"], [FIRFilter filterWhereField:@"sort"
+                                                                      isLessThanOrEqualTo:@2]
+        ]],
+        [FIRFilter andFilterWithFilters:@[
+          [FIRFilter filterWhereField:@"key" isNotEqualTo:@"b"], [FIRFilter filterWhereField:@"v"
+                                                                               isGreaterThan:@4]
+        ]]
+      ]]];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Implicitly ordered by: 'key' asc, 'sort' asc, 'v' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc1", @"doc6", @"doc5", @"doc4" ])];
+
+  query = [[[collRef
+      queryWhereFilter:[FIRFilter orFilterWithFilters:@[
+        [FIRFilter andFilterWithFilters:@[
+          [FIRFilter filterWhereField:@"key" isEqualTo:@"b"], [FIRFilter filterWhereField:@"sort"
+                                                                      isLessThanOrEqualTo:@2]
+        ]],
+        [FIRFilter andFilterWithFilters:@[
+          [FIRFilter filterWhereField:@"key" isNotEqualTo:@"b"], [FIRFilter filterWhereField:@"v"
+                                                                               isGreaterThan:@4]
+        ]]
+      ]]] queryOrderedByField:@"sort" descending:YES] queryOrderedByField:@"key"];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Ordered by: 'sort' desc, 'key' asc, 'v' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc5", @"doc4", @"doc1", @"doc6" ])];
+
+  query = [collRef
+      queryWhereFilter:[FIRFilter andFilterWithFilters:@[
+
+        [FIRFilter orFilterWithFilters:@[
+          [FIRFilter andFilterWithFilters:@[
+            [FIRFilter filterWhereField:@"key" isEqualTo:@"b"], [FIRFilter filterWhereField:@"sort"
+                                                                        isLessThanOrEqualTo:@4]
+          ]],
+          [FIRFilter andFilterWithFilters:@[
+            [FIRFilter filterWhereField:@"key" isNotEqualTo:@"b"], [FIRFilter filterWhereField:@"v"
+                                                                        isGreaterThanOrEqualTo:@4]
+          ]]
+        ]],
+        [FIRFilter orFilterWithFilters:@[
+          [FIRFilter andFilterWithFilters:@[
+            [FIRFilter filterWhereField:@"key" isGreaterThan:@"b"],
+            [FIRFilter filterWhereField:@"sort" isGreaterThanOrEqualTo:@1]
+          ]],
+          [FIRFilter andFilterWithFilters:@[
+            [FIRFilter filterWhereField:@"key" isLessThan:@"b"], [FIRFilter filterWhereField:@"v"
+                                                                               isGreaterThan:@0]
+          ]]
+        ]]
+
+      ]]];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Implicitly ordered by: 'key' asc, 'sort' asc, 'v' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc1", @"doc2" ])];
+}
+
+- (void)testMultipleInequalityFieldsWillBeImplicitlyOrderedLexicographically {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @5},
+    @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @4},
+    @"doc3" : @{@"key" : @"b", @"sort" : @3, @"v" : @3},
+    @"doc4" : @{@"key" : @"b", @"sort" : @2, @"v" : @2},
+    @"doc5" : @{@"key" : @"b", @"sort" : @2, @"v" : @1},
+    @"doc6" : @{@"key" : @"b", @"sort" : @0, @"v" : @0}
+  }];
+
+  FIRQuery *query = [[[collRef queryWhereField:@"key" isNotEqualTo:@"a"]
+      queryWhereField:@"sort"
+        isGreaterThan:@1] queryWhereField:@"v" in:@[ @1, @2, @3, @4 ]];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Implicitly ordered by: 'key' asc, 'sort' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc2", @"doc4", @"doc5", @"doc3" ])];
+
+  query = [[[collRef queryWhereField:@"sort"
+                       isGreaterThan:@1] queryWhereField:@"key"
+                                            isNotEqualTo:@"a"] queryWhereField:@"v"
+                                                                            in:@[ @1, @2, @3, @4 ]];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Implicitly ordered by: 'key' asc, 'sort' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc2", @"doc4", @"doc5", @"doc3" ])];
+}
+
+- (void)testMultipleInequalityWithMultipleExplicitOrderBy {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @5, @"v" : @0},
+    @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @0},
+    @"doc3" : @{@"key" : @"b", @"sort" : @3, @"v" : @1},
+    @"doc4" : @{@"key" : @"b", @"sort" : @2, @"v" : @1},
+    @"doc5" : @{@"key" : @"bb", @"sort" : @1, @"v" : @1},
+    @"doc6" : @{@"key" : @"c", @"sort" : @0, @"v" : @2}
+  }];
+
+  FIRQuery *query = [[[collRef queryWhereField:@"key"
+                                 isGreaterThan:@"a"] queryWhereField:@"sort"
+                                              isGreaterThanOrEqualTo:@1] queryOrderedByField:@"v"
+                                                                                  descending:NO];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Ordered by: 'v' asc, 'key' asc, 'sort' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc2", @"doc4", @"doc3", @"doc5" ])];
+
+  query = [[[[collRef queryWhereField:@"key" isGreaterThan:@"a"] queryWhereField:@"sort"
+                                                          isGreaterThanOrEqualTo:@1]
+      queryOrderedByField:@"v"
+               descending:NO] queryOrderedByField:@"sort" descending:NO];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Ordered by: 'v asc, 'sort' asc, 'key' asc,  __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc2", @"doc5", @"doc4", @"doc3" ])];
+
+  query = [[[collRef queryWhereField:@"key"
+                       isGreaterThan:@"a"] queryWhereField:@"sort"
+                                    isGreaterThanOrEqualTo:@1] queryOrderedByField:@"v"
+                                                                        descending:YES];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Implicit order by matches the direction of last explicit order by.
+  // Ordered by: 'v' desc, 'key' desc, 'sort' desc, __name__ desc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc5", @"doc3", @"doc4", @"doc2" ])];
+
+  query = [[[[collRef queryWhereField:@"key" isGreaterThan:@"a"] queryWhereField:@"sort"
+                                                          isGreaterThanOrEqualTo:@1]
+      queryOrderedByField:@"v"
+               descending:YES] queryOrderedByField:@"sort" descending:NO];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Ordered by: 'v desc, 'sort' asc, 'key' asc,  __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot
+                         expectedIds:(@[ @"doc5", @"doc4", @"doc3", @"doc2" ])];
+}
+
+- (void)testMultipleInequalityInAggregateQuery {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @5, @"v" : @0},
+    @"doc2" : @{@"key" : @"aa", @"sort" : @4, @"v" : @0},
+    @"doc3" : @{@"key" : @"b", @"sort" : @3, @"v" : @1},
+    @"doc4" : @{@"key" : @"b", @"sort" : @2, @"v" : @1},
+    @"doc5" : @{@"key" : @"bb", @"sort" : @1, @"v" : @1},
+  }];
+
+  FIRAggregateQuerySnapshot *snapshot =
+      [self readSnapshotForAggregate:[[self compositeIndexQuery:[[[collRef queryWhereField:@"key"
+                                                                             isGreaterThan:@"a"]
+                                                                           queryWhereField:@"sort"
+                                                                    isGreaterThanOrEqualTo:@1]
+                                                                    queryOrderedByField:@"v"
+                                                                             descending:NO]]
+                                         aggregate:@[
+                                           [FIRAggregateField aggregateFieldForCount],
+                                           [FIRAggregateField aggregateFieldForSumOfField:@"sort"],
+                                           [FIRAggregateField aggregateFieldForAverageOfField:@"v"]
+                                         ]]];
+  XCTAssertEqual([snapshot count], [NSNumber numberWithLong:4L]);
+
+  snapshot =
+      [self readSnapshotForAggregate:[[self compositeIndexQuery:[[[collRef queryWhereField:@"key"
+                                                                             isGreaterThan:@"a"]
+                                                                           queryWhereField:@"sort"
+                                                                    isGreaterThanOrEqualTo:@1]
+                                                                    queryWhereField:@"v"
+                                                                       isNotEqualTo:@0]]
+                                         aggregate:@[
+                                           [FIRAggregateField aggregateFieldForCount],
+                                           [FIRAggregateField aggregateFieldForSumOfField:@"sort"],
+                                           [FIRAggregateField aggregateFieldForAverageOfField:@"v"],
+                                         ]]];
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
+                 [NSNumber numberWithLong:3L]);
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"sort"]]
+          longValue],
+      6L);
+  XCTAssertEqual(
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"v"]],
+      [NSNumber numberWithDouble:1.0]);
+}
+
+- (void)testMultipleInequalityFieldsWithDocumentKey {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @5},
+    @"doc2" : @{@"key" : @"aa", @"sort" : @4},
+    @"doc3" : @{@"key" : @"b", @"sort" : @3},
+    @"doc4" : @{@"key" : @"b", @"sort" : @2},
+    @"doc5" : @{@"key" : @"bb", @"sort" : @1}
+  }];
+
+  FIRQuery *query = [[[collRef queryWhereField:@"sort" isGreaterThan:@1]
+      queryWhereField:@"key"
+         isNotEqualTo:@"a"] queryWhereFieldPath:[FIRFieldPath documentID] isLessThan:@"doc5"];
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Document Key in inequality field will implicitly ordered to the last.
+  // Implicitly ordered by: 'key' asc, 'sort' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc2", @"doc4", @"doc3" ])];
+
+  query = [[[collRef queryWhereFieldPath:[FIRFieldPath documentID]
+                              isLessThan:@"doc5"] queryWhereField:@"sort"
+                                                    isGreaterThan:@1] queryWhereField:@"key"
+                                                                         isNotEqualTo:@"a"];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Changing filters order will not effect implicit order.
+  // Implicitly ordered by: 'key' asc, 'sort' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc2", @"doc4", @"doc3" ])];
+
+  query = [[[[collRef queryWhereFieldPath:[FIRFieldPath documentID]
+                               isLessThan:@"doc5"] queryWhereField:@"sort" isGreaterThan:@1]
+      queryWhereField:@"key"
+         isNotEqualTo:@"a"] queryOrderedByField:@"sort" descending:YES];
+  snapshot = [self readDocumentSetForRef:[self compositeIndexQuery:query]];
+  // Ordered by: 'sort' desc,'key' desc,  __name__ desc
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc2", @"doc3", @"doc4" ])];
+}
+
+- (void)testMultipleInequalityReadFromCacheWhenOffline {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"key" : @"a", @"sort" : @1},
+    @"doc2" : @{@"key" : @"aa", @"sort" : @4},
+    @"doc3" : @{@"key" : @"b", @"sort" : @3},
+    @"doc4" : @{@"key" : @"b", @"sort" : @2},
+  }];
+
+  FIRQuery *query = [self compositeIndexQuery:[[collRef queryWhereField:@"key" isNotEqualTo:@"a"]
+                                                      queryWhereField:@"sort"
+                                                  isLessThanOrEqualTo:@3]];
+  // populate the cache.
+  FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqual(snapshot.count, 2L);
+  XCTAssertEqual(snapshot.metadata.isFromCache, NO);
+
+  [self disableNetwork];
+
+  snapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqual(snapshot.count, 2L);
+  XCTAssertEqual(snapshot.metadata.isFromCache, YES);
+  // Implicitly ordered by: 'key' asc, 'sort' asc, __name__ asc
+  [self assertSnapshotResultIdsMatch:snapshot expectedIds:(@[ @"doc4", @"doc3" ])];
+}
+
+- (void)testMultipleInequalityFromCacheAndFromServer {
+  FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"a" : @2, @"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1, @"b" : @1},
+  }];
+
+  // implicit AND: a != 1 && b < 2
+  FIRQuery *query = [[collRef queryWhereField:@"a" isNotEqualTo:@1] queryWhereField:@"b"
+                                                                         isLessThan:@2];
+  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+                              expectedDocs:@[ @"doc2" ]];
+
+  // explicit AND: a != 1 && b < 2
+  query =
+      [collRef queryWhereFilter:[FIRFilter andFilterWithFilters:@[
+                 [FIRFilter filterWhereField:@"a" isNotEqualTo:@1], [FIRFilter filterWhereField:@"b"
+                                                                                     isLessThan:@2]
+               ]]];
+  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+                              expectedDocs:@[ @"doc2" ]];
+
+  // explicit AND: a < 3 && b not-in [2, 3]
+  // Implicitly ordered by: a asc, b asc, __name__ asc
+  query = [collRef
+      queryWhereFilter:[FIRFilter andFilterWithFilters:@[
+        [FIRFilter filterWhereField:@"a" isLessThan:@3], [FIRFilter filterWhereField:@"b"
+                                                                               notIn:@[ @2, @3 ]]
+      ]]];
+  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+                              expectedDocs:@[ @"doc1", @"doc5", @"doc2" ]];
+
+  // a <3 && b != 0, ordered by: b desc, a desc, __name__ desc
+  query = [[[[collRef queryWhereField:@"a" isLessThan:@3] queryWhereField:@"b" isNotEqualTo:@0]
+      queryOrderedByField:@"b"
+               descending:YES] queryLimitedTo:2];
+  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+                              expectedDocs:@[ @"doc4", @"doc2" ]];
+
+  // explicit OR: a>2 || b<1.
+  query = [collRef
+      queryWhereFilter:[FIRFilter orFilterWithFilters:@[
+        [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
+                                                                             isLessThan:@1]
+      ]]];
+  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:query]
+                              expectedDocs:@[ @"doc1", @"doc3" ]];
+}
+
+- (void)testMultipleInequalityRejectsIfDocumentKeyIsNotTheLastOrderByField {
+  FIRCollectionReference *collRef = [self collectionRef];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key" isNotEqualTo:@42]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *results, NSError *error) {
+    XCTAssertNil(results);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
+}
+
+- (void)testMultipleInequalityRejectsIfDocumentKeyAppearsOnlyInEqualityFilter {
+  FIRCollectionReference *collRef = [self collectionRef];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key"
+                                 isNotEqualTo:@42] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                             isEqualTo:@"doc1"];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *results, NSError *error) {
+    XCTAssertNil(results);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
 }
 
 @end

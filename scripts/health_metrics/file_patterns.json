@@ -10,7 +10,7 @@
   },
   {
     "sdk": "analytics",
-    "podspecs": ["FirebaseAnalytics.podspec", "FirebaseAnalyticsSwift.podspec", "GoogleAppMeasurement.podspec"],
+    "podspecs": ["FirebaseAnalytics.podspec", "GoogleAppMeasurement.podspec"],
     "filePatterns": [
       "^FirebaseAnalytics.*",
       "^GoogleAppMeasurement.*"
@@ -58,7 +58,7 @@
   },
   {
     "sdk": "database",
-    "podspecs": ["FirebaseDatabase.podspec", "FirebaseDatabaseSwift.podspec"],
+    "podspecs": ["FirebaseDatabase.podspec"],
     "filePatterns": [
       "^FirebaseDatabase.*",
       "\\.github/workflows/database\\.yml",
@@ -85,7 +85,7 @@
   },
   {
     "sdk": "firestore",
-    "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
+    "podspecs": ["FirebaseFirestore.podspec"],
     "filePatterns": [
       "^Firestore/.*",
       "FirebaseAppCheck/Interop/[^/]+\\.h",
@@ -109,15 +109,8 @@
     ]
   },
   {
-    "sdk": "google-utilities-components",
-    "podspecs": ["GoogleUtilitiesComponents.podspec"],
-    "filePatterns": [
-      "^GoogleUtilitiesComponents.*"
-    ]
-  },
-  {
     "sdk": "inappmessaging",
-    "podspecs": ["FirebaseInAppMessaging.podspec", "FirebaseInAppMessagingSwift.podspec"],
+    "podspecs": ["FirebaseInAppMessaging.podspec"],
     "filePatterns": [
       "^FirebaseInAppMessaging.*",
       "Interop/Analytics/Public/[^/]+\\.h",
@@ -160,7 +153,7 @@
   },
   {
     "sdk": "remoteconfig",
-    "podspecs": ["FirebaseRemoteConfig.podspec", "FirebaseRemoteConfigSwift.podspec"],
+    "podspecs": ["FirebaseRemoteConfig.podspec"],
     "filePatterns": [
       "^FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",

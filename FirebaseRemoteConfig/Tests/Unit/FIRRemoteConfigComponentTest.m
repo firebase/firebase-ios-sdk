@@ -20,6 +20,7 @@
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+@import FirebaseRemoteConfigInterop;
 
 @interface FIRRemoteConfigComponentTest : XCTestCase
 @end
@@ -31,6 +32,7 @@
 
   // Clear out any apps that were called with `configure`.
   [FIRApp resetApps];
+  [FIRRemoteConfigComponent clearAllComponentInstances];
 }
 
 - (void)testRCInstanceCreationAndCaching {
@@ -92,7 +94,8 @@
 }
 
 - (void)testRegistersAsLibrary {
-  XCTAssertEqual([FIRRemoteConfigComponent componentsToRegister].count, 1);
+  // Now component has two register, one is provider and another one is Interop
+  XCTAssertEqual([FIRRemoteConfigComponent componentsToRegister].count, 2);
 
   // Configure a test FIRApp for fetching an instance of the FIRRemoteConfigProvider.
   NSString *appName = [self generatedTestAppName];
@@ -101,12 +104,50 @@
 
   // Attempt to fetch the component and verify it's a valid instance.
   id<FIRRemoteConfigProvider> provider = FIR_COMPONENT(FIRRemoteConfigProvider, app.container);
+  id<FIRRemoteConfigInterop> interop = FIR_COMPONENT(FIRRemoteConfigInterop, app.container);
   XCTAssertNotNil(provider);
+  XCTAssertNotNil(interop);
 
   // Ensure that the instance that comes from the container is cached.
   id<FIRRemoteConfigProvider> sameProvider = FIR_COMPONENT(FIRRemoteConfigProvider, app.container);
+  id<FIRRemoteConfigInterop> sameInterop = FIR_COMPONENT(FIRRemoteConfigInterop, app.container);
   XCTAssertNotNil(sameProvider);
+  XCTAssertNotNil(sameInterop);
   XCTAssertEqual(provider, sameProvider);
+  XCTAssertEqual(interop, sameInterop);
+
+  // Dynamic typing, both prototols are referring to the same component instance
+  id providerID = provider;
+  id interopID = interop;
+  XCTAssertEqualObjects(providerID, interopID);
+}
+
+- (void)testTwoAppsCreateTwoComponents {
+  NSString *appName = [self generatedTestAppName];
+  [FIRApp configureWithName:appName options:[self fakeOptions]];
+  FIRApp *app = [FIRApp appNamed:appName];
+
+  [FIRApp configureWithOptions:[self fakeOptions]];
+  FIRApp *defaultApp = [FIRApp defaultApp];
+  XCTAssertNotNil(defaultApp);
+  XCTAssertNotEqualObjects(app, defaultApp);
+
+  id<FIRRemoteConfigProvider> provider = FIR_COMPONENT(FIRRemoteConfigProvider, app.container);
+  id<FIRRemoteConfigInterop> interop = FIR_COMPONENT(FIRRemoteConfigInterop, app.container);
+  id<FIRRemoteConfigProvider> defaultAppProvider =
+      FIR_COMPONENT(FIRRemoteConfigProvider, defaultApp.container);
+  id<FIRRemoteConfigInterop> defaultAppInterop =
+      FIR_COMPONENT(FIRRemoteConfigInterop, defaultApp.container);
+
+  id providerID = provider;
+  id interopID = interop;
+  id defaultAppProviderID = defaultAppProvider;
+  id defaultAppInteropID = defaultAppInterop;
+
+  XCTAssertEqualObjects(providerID, interopID);
+  XCTAssertEqualObjects(defaultAppProviderID, defaultAppInteropID);
+  // Check two apps get their own component to register
+  XCTAssertNotEqualObjects(interopID, defaultAppInteropID);
 }
 
 - (void)testThrowsWithEmptyGoogleAppID {

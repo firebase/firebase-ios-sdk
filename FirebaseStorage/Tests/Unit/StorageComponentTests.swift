@@ -23,63 +23,30 @@ import SharedTestUtilities
 
 import XCTest
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageComponentTests: StorageTestHelpers {
-  // MARK: Interoperability Tests
-
-  /// Tests that the right number of components are being provided for the container.
+  /// Test that the objc class is available for the component system to update the user agent.
   func testComponentsBeingRegistered() throws {
-    let components = StorageComponent.componentsToRegister()
-    XCTAssert(components.count == 1)
+    XCTAssertNotNil(NSClassFromString("FIRStorage"))
   }
 
-  /// Tests that a Storage instance can be created properly by the StorageComponent.
+  /// Tests that a Storage instance can be created properly.
   func testStorageInstanceCreation() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
-    let component = StorageComponent(app: app)
-    let storage = component.storage(for: "someBucket")
-    XCTAssertNotNil(storage)
-  }
-
-  /// Tests that the component container caches instances of StorageComponent.
-  func testMultipleComponentInstancesCreated() throws {
-    let registrants = NSMutableSet(array: [StorageComponent.self])
-    let container = FirebaseComponentContainer(
-      app: StorageTestHelpers.app,
-      registrants: registrants
-    )
-
-    let provider1 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                            in: container)
-    XCTAssertNotNil(provider1)
-
-    let provider2 = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                            in: container)
-    XCTAssertNotNil(provider2)
-
-    // Ensure they're the same instance.
-    XCTAssert(provider1 === provider2)
-  }
-
-  /// Tests that instances of Storage created are different.
-  func testMultipleStorageInstancesCreated() throws {
-    let app = try XCTUnwrap(StorageComponentTests.app)
-    let registrants = NSMutableSet(array: [StorageComponent.self])
-    let container = FirebaseComponentContainer(app: app, registrants: registrants)
-
-    let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
-                                                           in: container)
-    XCTAssertNotNil(provider)
-
-    let storage1 = provider.storage(for: "randomBucket")
-    let storage2 = provider.storage(for: "randomBucket")
+    let app = try XCTUnwrap(app)
+    let storage1 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
     XCTAssertNotNil(storage1)
+  }
+
+  /// Tests that a Storage instances are reused properly.
+  func testMultipleComponentInstancesCreated() throws {
+    let app = try XCTUnwrap(app)
+    let storage1 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
+    let storage2 = Storage.storage(app: app, url: "gs://foo-bar.appspot.com")
 
     // Ensure they're the same instance.
     XCTAssert(storage1 === storage2)
 
-    let storage3 = provider.storage(for: "differentBucket")
-    XCTAssertNotNil(storage3)
-
+    let storage3 = Storage.storage(app: app, url: "gs://foo-baz.appspot.com")
     XCTAssert(storage1 !== storage3)
   }
 

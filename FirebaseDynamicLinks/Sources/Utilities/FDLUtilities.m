@@ -107,7 +107,7 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
                                     NSString *_Nullable minAppVersion,
                                     NSString *URLScheme,
                                     NSString *_Nullable matchMessage) {
-  // We are unable to use NSURLComponents as NSURLQueryItem is avilable beginning in iOS 8 and
+  // We are unable to use NSURLComponents as NSURLQueryItem is available beginning in iOS 8 and
   // appending our query string with NSURLComponents improperly formats the query by adding
   // a second '?' in the query.
   NSMutableDictionary *queryDictionary = [NSMutableDictionary dictionary];

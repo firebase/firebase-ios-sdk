@@ -18,6 +18,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
@@ -31,6 +32,9 @@
 
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseRemoteConfigInterop;
+
+@protocol FIRRolloutsStateSubscriber;
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
@@ -72,7 +76,7 @@
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
-- (NSData *)createRequestBody;
+- (void)createRequestBodyWithCompletion:(void (^)(NSData *_Nonnull requestBody))completion;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (RCNConfigUpdateCompletion _Nonnull)listener;
@@ -130,6 +134,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSTimeInterval _checkCompletionTimeout;
   NSMutableArray<FIRRemoteConfig *> *_configInstances;
   NSMutableArray<NSDictionary<NSString *, NSString *> *> *_entries;
+  NSArray<NSDictionary *> *_rolloutMetadata;
   NSMutableArray<NSDictionary<NSString *, id> *> *_response;
   NSMutableArray<NSData *> *_responseData;
   NSMutableArray<NSURLResponse *> *_URLResponse;
@@ -145,6 +150,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSString *_fullyQualifiedNamespace;
   RCNConfigSettings *_settings;
   dispatch_queue_t _queue;
+  NSString *_namespaceGoogleMobilePlatform;
 }
 @end
 
@@ -180,6 +186,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _URLResponse = [[NSMutableArray alloc] initWithCapacity:3];
   _configFetch = [[NSMutableArray alloc] initWithCapacity:3];
   _configRealtime = [[NSMutableArray alloc] initWithCapacity:3];
+  _namespaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
 
   // Populate the default, second app, second namespace instances.
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
@@ -204,7 +211,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _namespaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -259,7 +266,17 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                              updateCompletionHandler:nil];
     });
 
-    _response[i] = @{@"state" : @"UPDATE", @"entries" : _entries[i]};
+    _rolloutMetadata = @[ @{
+      RCNFetchResponseKeyRolloutID : @"1",
+      RCNFetchResponseKeyVariantID : @"0",
+      RCNFetchResponseKeyAffectedParameterKeys : @[ _entries[i].allKeys[0] ]
+    } ];
+
+    _response[i] = @{
+      @"state" : @"UPDATE",
+      @"entries" : _entries[i],
+      RCNFetchResponseKeyRolloutMetadata : _rolloutMetadata
+    };
 
     _responseData[i] = [NSJSONSerialization dataWithJSONObject:_response[i] options:0 error:nil];
 
@@ -286,6 +303,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
 - (void)tearDown {
   [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [FIRRemoteConfigComponent clearAllComponentInstances];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [_DBManagerMock stopMocking];
   _DBManagerMock = nil;
@@ -594,7 +612,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _namespaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -707,7 +725,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _namespaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -911,7 +929,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       case RCNTestRCInstanceSecondApp:
         currentAppName = RCNTestsSecondFIRAppName;
         currentOptions = [self secondAppOptions];
-        currentNamespace = FIRNamespaceGoogleMobilePlatform;
+        currentNamespace = _namespaceGoogleMobilePlatform;
         break;
       case RCNTestRCInstanceDefault:
       default:
@@ -1768,8 +1786,14 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testRealtimeStreamRequestBody {
+  XCTestExpectation *requestBodyExpectation = [self expectationWithDescription:@"requestBody"];
+  __block NSData *requestBody;
+  [_configRealtime[0] createRequestBodyWithCompletion:^(NSData *_Nonnull data) {
+    requestBody = data;
+    [requestBodyExpectation fulfill];
+  }];
+  [self waitForExpectations:@[ requestBodyExpectation ] timeout:5.0];
   NSError *error;
-  NSData *requestBody = [_configRealtime[0] createRequestBody];
   NSData *uncompressedRequest = [NSData gul_dataByInflatingGzippedData:requestBody error:&error];
   NSString *strData = [[NSString alloc] initWithData:uncompressedRequest
                                             encoding:NSUTF8StringEncoding];
@@ -1780,6 +1804,34 @@ static NSString *UTCToLocal(NSString *utcTime) {
   XCTAssertTrue([strData containsString:@"appId:'1:123:ios:123abc'"]);
   XCTAssertTrue([strData containsString:@"sdkVersion:"]);
   XCTAssertTrue([strData containsString:@"appInstanceId:'iid'"]);
+}
+
+- (void)testFetchAndActivateRolloutsNotifyInterop {
+  XCTestExpectation *notificationExpectation =
+      [self expectationForNotification:@"FIRRolloutsStateDidChangeNotification"
+                                object:nil
+                               handler:nil];
+
+  XCTAssertEqual(_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
+                 FIRRemoteConfigFetchStatusNoFetchYet);
+
+  FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion =
+      ^void(FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
+        XCTAssertEqual(status, FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote);
+        XCTAssertNil(error);
+
+        XCTAssertEqual(self->_configInstances[RCNTestRCInstanceDefault].lastFetchStatus,
+                       FIRRemoteConfigFetchStatusSuccess);
+        XCTAssertNotNil(self->_configInstances[RCNTestRCInstanceDefault].lastFetchTime);
+        XCTAssertGreaterThan(
+            self->_configInstances[RCNTestRCInstanceDefault].lastFetchTime.timeIntervalSince1970, 0,
+            @"last fetch time interval should be set.");
+        [notificationExpectation fulfill];
+      };
+
+  [_configInstances[RCNTestRCInstanceDefault]
+      fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
+  [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
 }
 
 #pragma mark - Test Helpers

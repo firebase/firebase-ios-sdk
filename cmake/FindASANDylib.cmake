@@ -14,11 +14,11 @@
 
 if(APPLE AND CXX_CLANG)
   # Sanitizers in Clang are supported by a specific runtime and Clang
-  # automatically links against the right runtime. When building staticly
+  # automatically links against the right runtime. When building statically
   # linked binaries, the resulting binary will contain the runtime. Dynamically
   # linked binaries will link against the dynamic version of the library.
   #
-  # xctest bundles are necessarily dynamicly linked, but linked in such a way
+  # xctest bundles are necessarily dynamically linked, but linked in such a way
   # that the sanitizer runtime is assumed to be on the @rpath. This finds the
   # clang runtimes so that they can be supplied as needed.
   get_filename_component(compiler_bin_dir ${CMAKE_CXX_COMPILER} DIRECTORY)

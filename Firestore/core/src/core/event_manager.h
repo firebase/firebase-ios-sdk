@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -35,7 +36,6 @@ namespace firestore {
 namespace core {
 
 class QueryEventSource;
-class QueryListener;
 
 /**
  * EventManager is responsible for mapping queries to query event listeners.
@@ -97,10 +97,33 @@ class EventManager : public SyncEngineCallback {
       snapshot_ = snapshot;
     }
 
+    bool has_remote_listeners() {
+      for (const auto& listener : listeners) {
+        if (listener->listens_to_remote_store()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
    private:
     // Other members are public in this struct, ensure that any reads are
     // copies by requiring reads to go through a const getter.
     absl::optional<ViewSnapshot> snapshot_;
+  };
+
+  enum ListenerSetupAction {
+    InitializeLocalListenAndRequireWatchConnection = 0,
+    InitializeLocalListenOnly = 1,
+    RequireWatchConnectionOnly = 2,
+    NoSetupActionRequired = 3
+  };
+
+  enum ListenerRemovalAction {
+    TerminateLocalListenAndRequireWatchDisconnection = 0,
+    TerminateLocalListenOnly = 1,
+    RequireWatchDisconnectionOnly = 2,
+    NoRemovalActionRequired = 3
   };
 
   QueryEventSource* query_event_source_ = nullptr;

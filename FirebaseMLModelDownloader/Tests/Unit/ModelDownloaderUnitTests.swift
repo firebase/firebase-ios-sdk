@@ -22,6 +22,11 @@
   @testable import FirebaseInstallations
   @testable import FirebaseMLModelDownloader
   import XCTest
+  #if SWIFT_PACKAGE
+    @_implementationOnly import GoogleUtilities_UserDefaults
+  #else
+    @_implementationOnly import GoogleUtilities
+  #endif // SWIFT_PACKAGE
 
   /// Mock options to configure default Firebase app.
   private enum MockOptions {
@@ -34,7 +39,7 @@
   // TODO: Create separate files for each class tested.
   final class ModelDownloaderUnitTests: XCTestCase {
     let fakeModelName = "fakeModelName"
-    let fakemodelPath = "fakemodelPath"
+    let fakeModelPath = "fakeModelPath"
     let fakeModelHash = "fakeModelHash"
     let fakeDownloadURL = URL(string: "www.fake-download-url.com")!
     let fakeFileURL = URL(string: "www.fake-model-file.com")!
@@ -264,7 +269,7 @@
       let fakeModel = CustomModel(
         name: fakeModelName,
         size: 10,
-        path: fakemodelPath,
+        path: fakeModelPath,
         hash: fakeModelHash
       )
       var modelOptions = ModelOptions()
@@ -272,7 +277,7 @@
 
       guard let binaryData = try? modelOptions.serializedData(),
             let jsonData = try? modelOptions.jsonUTF8Data(),
-            let binaryEvent = try? ModelOptions(serializedData: binaryData),
+            let binaryEvent = try? ModelOptions(serializedBytes: binaryData),
             let jsonEvent = try? ModelOptions(jsonUTF8Data: jsonData) else {
         XCTFail("Encoding error.")
         return
@@ -293,8 +298,8 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case let .modelInfo(remoteModelInfo):
             XCTAssertEqual(remoteModelInfo.name, self.fakeModelName)
             XCTAssertEqual(remoteModelInfo.downloadURL, self.fakeDownloadURL)
@@ -321,8 +326,8 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
           case .notModified: break
           }
@@ -341,8 +346,8 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
           case .notModified: XCTFail("Expected failure since local model info was not set.")
           }
@@ -370,8 +375,8 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
           case .notModified: XCTFail("Expected failure since model hash does not match.")
           }
@@ -399,8 +404,8 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
           case .notModified: XCTFail("Expected failure since model name is invalid.")
           }
@@ -424,10 +429,10 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
-          case .notModified: XCTFail("Expected failure since model name is not availabl.")
+          case .notModified: XCTFail("Expected failure since model name is not available.")
           }
         case let .failure(error):
           XCTAssertEqual(error, .notFound)
@@ -449,8 +454,8 @@
       modelInfoRetriever.downloadModelInfo { result in
         completionExpectation.fulfill()
         switch result {
-        case let .success(fakemodelInfoResult):
-          switch fakemodelInfoResult {
+        case let .success(fakeModelInfoResult):
+          switch fakeModelInfoResult {
           case .modelInfo: XCTFail("Unexpected new model info from server.")
           case .notModified: XCTFail("Expected failure since resource exhausted.")
           }
@@ -1325,19 +1330,18 @@
     }
   }
 
-  extension UserDefaults {
-    /// Returns a new cleared instance of user defaults.
-    static func createUnitTestInstance(testName: String) -> UserDefaults {
+  extension GULUserDefaults {
+    /// Returns a new instance of user defaults.
+    static func createUnitTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      let defaults = UserDefaults(suiteName: suiteName)!
-      defaults.removePersistentDomain(forName: suiteName)
+      let defaults = GULUserDefaults(suiteName: suiteName)
       return defaults
     }
 
     /// Returns the existing user defaults instance.
-    static func getUnitTestInstance(testName: String) -> UserDefaults {
+    static func getUnitTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      return UserDefaults(suiteName: suiteName)!
+      return GULUserDefaults(suiteName: suiteName)
     }
   }
 

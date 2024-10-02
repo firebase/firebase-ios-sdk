@@ -15,6 +15,12 @@
 import Foundation
 
 #if COCOAPODS
+  @_implementationOnly import GoogleUtilities
+#else
+  @_implementationOnly import GoogleUtilities_Environment
+#endif // COCOAPODS
+
+#if COCOAPODS
   import GTMSessionFetcher
 #else
   import GTMSessionFetcherCore
@@ -22,13 +28,17 @@ import Foundation
 
 /**
  * `StorageUploadTask` implements resumable uploads to a file in Firebase Storage.
+ *
  * Uploads can be returned on completion with a completion callback, and can be monitored
  * by attaching observers, or controlled by calling `pause()`, `resume()`,
  * or `cancel()`.
+ *
  * Uploads can be initialized from `Data` in memory, or a URL to a file on disk.
+ *
  * Uploads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if unspecified.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageUploadTask) open class StorageUploadTask: StorageObservableTask,
   StorageTaskManagement {
   /**
@@ -44,95 +54,99 @@ import Foundation
       }
 
       self.state = .queueing
-      var request = self.baseRequest
-      request.httpMethod = "POST"
-      request.timeoutInterval = self.reference.storage.maxUploadRetryTime
 
       let dataRepresentation = self.uploadMetadata.dictionaryRepresentation()
       let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
 
-      request.httpBody = bodyData
-      request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-      if let count = bodyData?.count {
-        request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
-      }
+      Task {
+        let fetcherService = await StorageFetcherService.shared.service(reference.storage)
+        var request = self.baseRequest
+        request.httpMethod = "POST"
+        request.timeoutInterval = self.reference.storage.maxUploadRetryTime
+        request.httpBody = bodyData
+        request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
+        if let count = bodyData?.count {
+          request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
+        }
 
-      var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
-      if components?.host == "www.googleapis.com",
-         let path = components?.path {
-        components?.percentEncodedPath = "/upload\(path)"
-      }
-      guard let path = self.GCSEscapedString(self.uploadMetadata.path) else {
-        fatalError("Internal error enqueueing a Storage task")
-      }
-      components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
+        var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+        if components?.host == "www.googleapis.com",
+           let path = components?.path {
+          components?.percentEncodedPath = "/upload\(path)"
+        }
+        guard let path = self.GCSEscapedString(self.uploadMetadata.path) else {
+          fatalError("Internal error enqueueing a Storage task")
+        }
+        components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
 
-      request.url = components?.url
+        request.url = components?.url
 
-      guard let contentType = self.uploadMetadata.contentType else {
-        fatalError("Internal error enqueueing a Storage task")
-      }
-      let uploadFetcher = GTMSessionUploadFetcher(
-        request: request,
-        uploadMIMEType: contentType,
-        chunkSize: self.reference.storage.uploadChunkSizeBytes,
-        fetcherService: self.fetcherService
-      )
-      if let data = self.uploadData {
-        uploadFetcher.uploadData = data
-        uploadFetcher.comment = "Data UploadTask"
-      } else if let fileURL = self.fileURL {
-        uploadFetcher.uploadFileURL = fileURL
-        uploadFetcher.comment = "File UploadTask"
-      }
-      uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
+        guard let contentType = self.uploadMetadata.contentType else {
+          fatalError("Internal error enqueueing a Storage task")
+        }
 
-      uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
-                                                       totalBytesExpectedToSend: Int64) in
-          guard let self = self else { return }
-          self.state = .progress
-          self.progress.completedUnitCount = totalBytesSent
-          self.progress.totalUnitCount = totalBytesExpectedToSend
-          self.metadata = self.uploadMetadata
+        let uploadFetcher = GTMSessionUploadFetcher(
+          request: request,
+          uploadMIMEType: contentType,
+          chunkSize: self.reference.storage.uploadChunkSizeBytes,
+          fetcherService: fetcherService
+        )
+        if let uploadData {
+          uploadFetcher.uploadData = uploadData
+          uploadFetcher.comment = "Data UploadTask"
+        } else if let fileURL {
+          uploadFetcher.uploadFileURL = fileURL
+          uploadFetcher.comment = "File UploadTask"
+
+          if GULAppEnvironmentUtil.isAppExtension() {
+            uploadFetcher.useBackgroundSession = false
+          }
+        }
+        uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
+
+        uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
+                                                         totalBytesExpectedToSend: Int64) in
+            guard let self = self else { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesSent
+            self.progress.totalUnitCount = totalBytesExpectedToSend
+            self.metadata = self.uploadMetadata
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
+        }
+        self.uploadFetcher = uploadFetcher
+
+        // Process fetches
+        self.state = .running
+        do {
+          let data = try await self.uploadFetcher?.beginFetch()
+          // Fire last progress updates
           self.fire(for: .progress, snapshot: self.snapshot)
-          self.state = .running
-      }
-      self.uploadFetcher = uploadFetcher
 
-      // Process fetches
-      self.state = .running
+          // Upload completed successfully, fire completion callbacks
+          self.state = .success
 
-      self.fetcherCompletion = { [self] (data: Data?, error: NSError?) in
-        // Fire last progress updates
-        self.fire(for: .progress, snapshot: self.snapshot)
+          guard let data = data else {
+            fatalError("Internal Error: uploadFetcher returned with nil data and no error")
+          }
 
-        // Handle potential issues with upload
-        if let error = error {
+          if let responseDictionary = try? JSONSerialization
+            .jsonObject(with: data) as? [String: AnyHashable] {
+            let metadata = StorageMetadata(dictionary: responseDictionary)
+            metadata.fileType = .file
+            self.metadata = metadata
+          } else {
+            self.error = StorageErrorCode.error(withInvalidRequest: data)
+          }
+          self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
+        } catch {
+          self.fire(for: .progress, snapshot: self.snapshot)
           self.state = .failed
-          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
+          self.error = StorageErrorCode.error(withServerError: error as NSError,
+                                              ref: self.reference)
           self.metadata = self.uploadMetadata
           self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
-          return
         }
-        // Upload completed successfully, fire completion callbacks
-        self.state = .success
-
-        guard let data = data else {
-          fatalError("Internal Error: fetcherCompletion returned with nil data and nil error")
-        }
-
-        if let responseDictionary = try? JSONSerialization
-          .jsonObject(with: data) as? [String: AnyHashable] {
-          let metadata = StorageMetadata(dictionary: responseDictionary)
-          metadata.fileType = .file
-          self.metadata = metadata
-        } else {
-          self.error = StorageErrorCode.error(withInvalidRequest: data)
-        }
-        self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
-      }
-      self.uploadFetcher?.beginFetch { [weak self] (data: Data?, error: Error?) in
-        self?.fetcherCompletion?(data, error as NSError?)
       }
     }
   }
@@ -188,7 +202,6 @@ import Foundation
   }
 
   private var uploadFetcher: GTMSessionUploadFetcher?
-  private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
@@ -197,14 +210,13 @@ import Foundation
   // MARK: - Internal Implementations
 
   init(reference: StorageReference,
-       service: GTMSessionFetcherService,
        queue: DispatchQueue,
        file: URL? = nil,
        data: Data? = nil,
        metadata: StorageMetadata) {
     uploadMetadata = metadata
     uploadData = data
-    super.init(reference: reference, service: service, queue: queue, file: file)
+    super.init(reference: reference, queue: queue, file: file)
 
     if uploadMetadata.contentType == nil {
       uploadMetadata.contentType = StorageUtils.MIMETypeForExtension(file?.pathExtension)
@@ -224,20 +236,15 @@ import Foundation
        isFile == true {
       return nil
     }
-    let userInfo = [NSLocalizedDescriptionKey:
-      "File at URL: \(fileURL?.absoluteString ?? "") is not reachable."
-      + " Ensure file URL is not a directory, symbolic link, or invalid url."]
-    return NSError(
-      domain: StorageErrorDomain,
-      code: StorageErrorCode.unknown.rawValue,
-      userInfo: userInfo
-    )
+    return StorageError.unknown(message: "File at URL: \(fileURL?.absoluteString ?? "") is " +
+      "not reachable. Ensure file URL is not " +
+      "a directory, symbolic link, or invalid url.",
+      serverError: [:]) as NSError
   }
 
   func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
     fire(for: status, snapshot: snapshot)
     removeAllObservers()
-    fetcherCompletion = nil
   }
 
   private func GCSEscapedString(_ input: String?) -> String? {

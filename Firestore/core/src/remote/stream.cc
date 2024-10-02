@@ -380,7 +380,7 @@ void Stream::Write(grpc::ByteBuffer&& message) {
 
 std::string Stream::GetDebugDescription() const {
   EnsureOnQueue();
-  return StringFormat("%s (%s)", GetDebugName(), this);
+  return StringFormat("%s (%x)", GetDebugName(), this);
 }
 
 }  // namespace remote

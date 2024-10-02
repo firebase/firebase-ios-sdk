@@ -72,11 +72,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     DeviceCheckProvider(app: firebaseApp)?.getToken { token, error in
-      if let token = token {
+      if let token {
         print("DeviceCheck token: \(token.token), expiration date: \(token.expirationDate)")
       }
 
-      if let error = error {
+      if let error {
         print("DeviceCheck error: \((error as NSError).userInfo)")
       }
     }
@@ -91,11 +91,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       print("Debug token: \(debugProvider.currentDebugToken())")
 
       debugProvider.getToken { token, error in
-        if let token = token {
+        if let token {
           print("Debug FAC token: \(token.token), expiration date: \(token.expirationDate)")
         }
 
-        if let error = error {
+        if let error {
           print("Debug error: \(error)")
         }
       }
@@ -106,11 +106,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func requestLimitedUseToken() {
     AppCheck.appCheck().limitedUseToken { result, error in
-      if let result = result {
+      if let result {
         print("FAC limited-use token: \(result.token), expiration date: \(result.expirationDate)")
       }
 
-      if let error = error {
+      if let error {
         print("Error: \(String(describing: error))")
       }
     }
@@ -128,11 +128,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     appAttestProvider.getToken { token, error in
-      if let token = token {
+      if let token {
         print("App Attest FAC token: \(token.token), expiration date: \(token.expirationDate)")
       }
 
-      if let error = error {
+      if let error {
         print("App Attest error: \(error)")
       }
     }

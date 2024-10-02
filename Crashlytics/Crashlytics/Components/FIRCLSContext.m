@@ -35,7 +35,7 @@
 
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the
-// first allocation is gauranteed to be page-aligned.
+// first allocation is guaranteed to be page-aligned.
 //
 // CLS_SIGNAL_HANDLER_STACK_SIZE and CLS_MACH_EXCEPTION_HANDLER_STACK_SIZE are platform dependant,
 // defined as 0 for tv/watch.

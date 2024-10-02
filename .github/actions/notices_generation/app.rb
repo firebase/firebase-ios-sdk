@@ -38,7 +38,7 @@ SEARCH_LOCAL_POD_VERSION=false
 begin
   OptionParser.new do |opts|
     opts.banner = "Usage: app.rb [options]"
-    opts.on('-p', '--pods PODS', 'Pods seperated by space or comma.') { |v| @options[:pods] = v.split(/[ ,]/) }
+    opts.on('-p', '--pods PODS', 'Pods separated by space or comma.') { |v| @options[:pods] = v.split(/[ ,]/) }
     opts.on('-s', '--sources SOURCES', 'Sources of Pods') { |v| @options[:sources] = v.split(/[ ,]/) }
     opts.on('-m', '--min_ios_version MIN_IOS_VERSION', 'Minimum iOS version') { |v| @options[:min_ios_version] = v }
     opts.on('-n', '--notices_path OUTPUT_PATH', 'The output path of NOTICES') { |v| @options[:output_path] = v }

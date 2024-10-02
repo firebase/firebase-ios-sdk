@@ -17,14 +17,11 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 // This file contains declarations that should go into FirebaseCore when
-// Firebase InAppMessaging is merged into master. Keep them separate now to help
+// Firebase InAppMessaging is merged into main. Keep them separate now to help
 // with build from development folder and avoid merge conflicts.
 
 // this should eventually be in FIRLogger.h
 extern FIRLoggerService kFIRLoggerInAppMessaging;
-
-// this should eventually be in FIRError.h
-extern NSString *const kFirebaseInAppMessagingErrorDomain;
 
 // InAppMessaging doesn't provide any functionality to other components,
 // so it provides a private, empty protocol that it conforms to and use it for registration.

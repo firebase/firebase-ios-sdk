@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseSharedSwift'
-  s.version                 = '10.19.0'
+  s.version                 = '11.4.0'
   s.summary                 = 'Shared Swift Extensions for Firebase'
 
   s.description      = <<-DESC
@@ -18,19 +18,19 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version           = '5.3'
+  s.swift_version           = '5.9'
 
-  ios_deployment_target = '11.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '13.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '13.0'
+  watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version       = '>= 1.4.0'
+  s.cocoapods_version       = '>= 1.12.0'
   s.prefix_header_file      = false
 
   s.source_files = [

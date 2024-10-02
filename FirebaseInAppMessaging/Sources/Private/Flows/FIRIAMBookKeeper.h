@@ -17,6 +17,9 @@
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class GULUserDefaults;
+
 @interface FIRIAMImpressionRecord : NSObject
 @property(nonatomic, readonly, copy) NSString *messageID;
 @property(nonatomic, readonly) long impressionTimeInSeconds;
@@ -64,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRIAMBookKeeperViaUserDefaults : NSObject <FIRIAMBookKeeper>
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithUserDefaults:(GULUserDefaults *)userDefaults NS_DESIGNATED_INITIALIZER;
 
 // for testing, don't use them for production purpose
 - (void)cleanupImpressions;

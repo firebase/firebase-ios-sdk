@@ -22,7 +22,7 @@
 
 /// This internal class contains a set of variables that are unique among all the config instances.
 /// It also handles all metadata and internal metadata. This class is not thread safe and does not
-/// inherently allow for synchronized accesss. Callers are responsible for synchronization
+/// inherently allow for synchronized access. Callers are responsible for synchronization
 /// (currently using serial dispatch queues).
 @interface RCNConfigSettings : NSObject
 
@@ -79,8 +79,10 @@
 @property(nonatomic, readwrite, assign) NSString *lastETag;
 /// The timestamp of the last eTag update.
 @property(nonatomic, readwrite, assign) NSTimeInterval lastETagUpdateTime;
-// Last fetched template version.
-@property(nonatomic, readwrite, assign) NSString *lastTemplateVersion;
+/// Last fetched template version.
+@property(nonatomic, readwrite, assign) NSString *lastFetchedTemplateVersion;
+/// Last active template version.
+@property(nonatomic, readwrite, assign) NSString *lastActiveTemplateVersion;
 
 #pragma mark Throttling properties
 
@@ -133,6 +135,9 @@
 /// Increases the throttling time for Realtime. Should only be called if the Realtime error
 /// indicates a server issue.
 - (void)updateRealtimeExponentialBackoffTime;
+
+/// Update last active template version from last fetched template version.
+- (void)updateLastActiveTemplateVersion;
 
 /// Returns the difference between the Realtime backoff end time and the current time in a
 /// NSTimeInterval format.

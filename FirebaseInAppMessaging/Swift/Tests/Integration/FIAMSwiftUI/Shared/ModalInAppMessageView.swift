@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import FirebaseInAppMessaging
-import FirebaseInAppMessagingSwift
 import SwiftUI
 
 struct ModalInAppMessageView: View {

@@ -323,7 +323,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get doc and ensure it cannot be retreived
+  // attempt to get doc and ensure it cannot be retrieved
   XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceServer
                   completion:^(FIRDocumentSnapshot *, NSError *error) {
@@ -349,7 +349,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get docs and ensure they cannot be retreived
+  // attempt to get docs and ensure they cannot be retrieved
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithSource:FIRFirestoreSourceServer
                    completion:^(FIRQuerySnapshot *, NSError *error) {
@@ -403,7 +403,7 @@
   XCTAssertTrue(result.metadata.hasPendingWrites);
   XCTAssertEqualObjects(result.data, newData);
 
-  // attempt to get doc (from the server) and ensure it cannot be retreived
+  // attempt to get doc (from the server) and ensure it cannot be retrieved
   XCTestExpectation *failedGetDocCompletion = [self expectationWithDescription:@"failedGetDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceServer
                   completion:^(FIRDocumentSnapshot *, NSError *error) {
@@ -477,7 +477,7 @@
         @[ @(FIRDocumentChangeTypeAdded), @"doc4", @{@"key4" : @"value4"} ]
       ]));
 
-  // attempt to get docs (from the server) and ensure they cannot be retreived
+  // attempt to get docs (from the server) and ensure they cannot be retrieved
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithSource:FIRFirestoreSourceServer
                    completion:^(FIRQuerySnapshot *, NSError *error) {
@@ -688,7 +688,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get collection and ensure that it cannot be retreived
+  // attempt to get collection and ensure that it cannot be retrieved
   XCTestExpectation *failedGetDocsCompletion = [self expectationWithDescription:@"failedGetDocs"];
   [col getDocumentsWithSource:FIRFirestoreSourceServer
                    completion:^(FIRQuerySnapshot *, NSError *error) {

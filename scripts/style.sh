@@ -22,7 +22,7 @@
 # Pass a specific file or directory name to format just files found there
 #
 # Commonly
-# ./scripts/style.sh master
+# ./scripts/style.sh main
 
 # Set the environment variable FIR_CLANG_FORMAT_PATH to use a specific version
 # of clang-format, regardless of its order in the shell PATH.
@@ -56,7 +56,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  17)
+  19)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -65,7 +65,7 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 17."
+    echo "Please upgrade to clang-format version 19."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1
@@ -93,28 +93,10 @@ function join() {
 
 clang_options=(-style=file)
 
-# Rules to disable in swiftformat:
-swift_disable=(
-  # sortedImports is broken, sorting into the middle of the copyright notice.
-  sortedImports
-
-  # Too many of our swift files have simplistic examples. While technically
-  # it's correct to remove the unused argument labels, it makes our examples
-  # look wrong.
-  unusedArguments
-
-  # We prefer trailing braces.
-  wrapMultilineStatementBraces
-)
-
-swift_options=(
-  # Mimic Objective-C style.
-  --indent 2
-  --maxwidth 100
-  --wrapparameters afterfirst
-
-  --disable $(join , "${swift_disable[@]}")
-)
+# Swift formatting options for the repo should be configured in
+# https://github.com/firebase/firebase-ios-sdk/blob/main/.swiftformat.
+# These may be overriden with additional `.swiftformat` files in subdirectories.
+swift_options=()
 
 if [[ $# -gt 0 && "$1" == "test-only" ]]; then
   test_only=true

@@ -289,7 +289,7 @@
   XCTAssertEqualObjects([map getPredecessorKey:@7], @4, @"@4");
   XCTAssertEqualObjects([map getPredecessorKey:@9], @7, @"@7");
   XCTAssertEqualObjects([map getPredecessorKey:@50], @9, @"@9");
-  XCTAssertThrows([map getPredecessorKey:@777], @"Expect exception about nonexistant key");
+  XCTAssertThrows([map getPredecessorKey:@777], @"Expect exception about nonexistent key");
 }
 
 - (void)testEnumerator {

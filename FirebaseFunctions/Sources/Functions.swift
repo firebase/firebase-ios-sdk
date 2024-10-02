@@ -38,9 +38,7 @@ enum FunctionsConstants {
   static let defaultRegion = "us-central1"
 }
 
-/**
- * `Functions` is the client for Cloud Functions for a Firebase project.
- */
+/// `Functions` is the client for Cloud Functions for a Firebase project.
 @objc(FIRFunctions) open class Functions: NSObject {
   // MARK: - Private Variables
 
@@ -49,9 +47,16 @@ enum FunctionsConstants {
   /// The projectID to use for all function references.
   private let projectID: String
   /// A serializer to encode/decode data and return values.
-  private let serializer = FUNSerializer()
+  private let serializer = FunctionsSerializer()
   /// A factory for getting the metadata to include with function calls.
   private let contextProvider: FunctionsContextProvider
+
+  /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
+  /// containing all instances of Functions associated with the given app.
+  private static var instances: [String: [Functions]] = [:]
+
+  /// Lock to manage access to the instances array to avoid race conditions.
+  private static var instancesLock: os_unfair_lock = .init()
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
@@ -61,15 +66,12 @@ enum FunctionsConstants {
 
   // MARK: - Public APIs
 
-  /**
-   * The current emulator origin, or `nil` if it is not set.
-   */
+  /// The current emulator origin, or `nil` if it is not set.
   open private(set) var emulatorOrigin: String?
 
-  /**
-   * Creates a Cloud Functions client using the default or returns a pre-existing instance if it already exists.
-   * - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
-   */
+  /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
+  /// already exists.
+  /// - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
   @objc(functions) open class func functions() -> Functions {
     return functions(
       app: FirebaseApp.app(),
@@ -78,57 +80,51 @@ enum FunctionsConstants {
     )
   }
 
-  /**
-   * Creates a Cloud Functions client with the given app, or returns a pre-existing
-   * instance if one already exists.
-   * - Parameter app The app for the Firebase project.
-   * - Returns: A shared Functions instance initialized with the specified `FirebaseApp`.
-   */
+  /// Creates a Cloud Functions client with the given app, or returns a pre-existing
+  /// instance if one already exists.
+  /// - Parameter app: The app for the Firebase project.
+  /// - Returns: A shared Functions instance initialized with the specified `FirebaseApp`.
   @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
   }
 
-  /**
-   * Creates a Cloud Functions client with the default app and given region.
-   * - Parameter region The region for the HTTP trigger, such as `us-central1`.
-   * - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a custom region.
-   */
+  /// Creates a Cloud Functions client with the default app and given region.
+  ///  - Parameter region: The region for the HTTP trigger, such as `us-central1`.
+  ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
+  /// custom region.
   @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
     return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
   }
 
-  /**
-   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-   * instance if one already exists.
-   * - Parameter customDomain A custom domain for the HTTP trigger, such as "https://mydomain.com".
-   * - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a custom HTTP trigger domain.
-   */
+  ///  Creates a Cloud Functions client with the given custom domain or returns a pre-existing
+  ///  instance if one already exists.
+  ///  - Parameter customDomain: A custom domain for the HTTP trigger, such as
+  /// "https://mydomain.com".
+  ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
+  /// custom HTTP trigger domain.
   @objc(functionsForCustomDomain:) open class func functions(customDomain: String) -> Functions {
     return functions(app: FirebaseApp.app(),
                      region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
 
-  /**
-   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-   * instance if one already exists.
-   * - Parameters:
-   *   - app: The app for the Firebase project.
-   *   - region: The region for the HTTP trigger, such as `us-central1`.
-   * - Returns: An instance of `Functions` with a custom app and region.
-   */
+  ///  Creates a Cloud Functions client with the given app and region, or returns a pre-existing
+  ///  instance if one already exists.
+  ///  - Parameters:
+  ///    - app: The app for the Firebase project.
+  ///    - region: The region for the HTTP trigger, such as `us-central1`.
+  ///  - Returns: An instance of `Functions` with a custom app and region.
   @objc(functionsForApp:region:) open class func functions(app: FirebaseApp,
                                                            region: String) -> Functions {
     return functions(app: app, region: region, customDomain: nil)
   }
 
-  /**
-   * Creates a Cloud Functions client with the given app and region, or returns a pre-existing
-   * instance if one already exists.
-   * - Parameters:
-   *   - app The app for the Firebase project.
-   *   - customDomain A custom domain for the HTTP trigger, such as `https://mydomain.com`.
-   * - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
-   */
+  /// Creates a Cloud Functions client with the given app and custom domain, or returns a
+  /// pre-existing
+  /// instance if one already exists.
+  ///  - Parameters:
+  ///    - app: The app for the Firebase project.
+  ///    - customDomain: A custom domain for the HTTP trigger, such as `https://mydomain.com`.
+  ///  - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
   @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
                                                                  customDomain: String)
     -> Functions {
@@ -305,13 +301,33 @@ enum FunctionsConstants {
   /// compatibility.
   private class func functions(app: FirebaseApp?, region: String,
                                customDomain: String?) -> Functions {
-    precondition(app != nil,
-                 "`FirebaseApp.configure()` needs to be called before using Functions.")
-    let provider = app!.container.instance(for: FunctionsProvider.self) as? FunctionsProvider
-    return provider!.functions(for: app!,
-                               region: region,
-                               customDomain: customDomain,
-                               type: self)
+    guard let app else {
+      fatalError("`FirebaseApp.configure()` needs to be called before using Functions.")
+    }
+    os_unfair_lock_lock(&instancesLock)
+
+    // Unlock before the function returns.
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    if let associatedInstances = instances[app.name] {
+      for instance in associatedInstances {
+        // Domains may be nil, so handle with care.
+        var equalDomains = false
+        if let instanceCustomDomain = instance.customDomain {
+          equalDomains = instanceCustomDomain == customDomain
+        } else {
+          equalDomains = customDomain == nil
+        }
+        // Check if it's a match.
+        if instance.region == region, equalDomains {
+          return instance
+        }
+      }
+    }
+    let newInstance = Functions(app: app, region: region, customDomain: customDomain)
+    let existingInstances = instances[app.name, default: []]
+    instances[app.name] = existingInstances + [newInstance]
+    return newInstance
   }
 
   @objc init(projectID: String,
@@ -346,7 +362,6 @@ enum FunctionsConstants {
       fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
     }
     self.init(projectID: projectID,
-
               region: region,
               customDomain: customDomain,
               auth: auth,
@@ -358,12 +373,12 @@ enum FunctionsConstants {
     assert(!name.isEmpty, "Name cannot be empty")
 
     // Check if we're using the emulator
-    if let emulatorOrigin = emulatorOrigin {
+    if let emulatorOrigin {
       return "\(emulatorOrigin)/\(projectID)/\(region)/\(name)"
     }
 
     // Check the custom domain.
-    if let customDomain = customDomain {
+    if let customDomain {
       return "\(customDomain)/\(name)"
     }
 
@@ -379,7 +394,7 @@ enum FunctionsConstants {
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else {
         let url = self.urlWithName(name)
@@ -402,7 +417,7 @@ enum FunctionsConstants {
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
-      if let error = error {
+      if let error {
         completion(.failure(error))
       } else {
         self.callFunction(url: url,
@@ -425,18 +440,11 @@ enum FunctionsConstants {
                              cachePolicy: .useProtocolCachePolicy,
                              timeoutInterval: timeout)
     let fetcher = fetcherService.fetcher(with: request)
-    let body = NSMutableDictionary()
-
-    // Encode the data in the body.
-    var localData = data
-    if data == nil {
-      localData = NSNull()
-    }
-    // Force unwrap to match the old invalid argument thrown.
-    let encoded = try! serializer.encode(localData!)
-    body["data"] = encoded
 
     do {
+      let data = data ?? NSNull()
+      let encoded = try serializer.encode(data)
+      let body = ["data": encoded]
       let payload = try JSONSerialization.data(withJSONObject: body)
       fetcher.bodyData = payload
     } catch {
@@ -477,79 +485,72 @@ enum FunctionsConstants {
       fetcher.allowedInsecureSchemes = ["http"]
     }
 
-    fetcher.beginFetch { data, error in
-      // If there was an HTTP error, convert it to our own error domain.
-      var localError: Error?
-      if let error = error as NSError? {
-        if error.domain == kGTMSessionFetcherStatusDomain {
-          localError = FunctionsErrorForResponse(
-            status: error.code,
-            body: data,
-            serializer: self.serializer
-          )
-        } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
-          localError = FunctionsErrorCode.deadlineExceeded.generatedError(userInfo: nil)
-        }
-        // If there was an error, report it to the user and stop.
-        if let localError = localError {
-          completion(.failure(localError))
-        } else {
-          completion(.failure(error))
-        }
-        return
-      } else {
-        // If there wasn't an HTTP error, see if there was an error in the body.
-        if let bodyError = FunctionsErrorForResponse(
-          status: 200,
-          body: data,
-          serializer: self.serializer
-        ) {
-          completion(.failure(bodyError))
-          return
-        }
-      }
-
-      // Porting: this check is new since we didn't previously check if `data` was nil.
-      guard let data = data else {
-        completion(.failure(FunctionsErrorCode.internal.generatedError(userInfo: nil)))
-        return
-      }
-
-      let responseJSONObject: Any
+    fetcher.beginFetch { [self] data, error in
+      let result: Result<HTTPSCallableResult, any Error>
       do {
-        responseJSONObject = try JSONSerialization.jsonObject(with: data)
+        let data = try responseData(data: data, error: error)
+        let json = try responseDataJSON(from: data)
+        // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
+        let payload = try serializer.decode(json)
+        // TODO: Remove `as Any` once `decode(_:)` is refactored
+        result = .success(HTTPSCallableResult(data: payload as Any))
       } catch {
-        completion(.failure(error))
-        return
+        result = .failure(error)
       }
 
-      guard let responseJSON = responseJSONObject as? NSDictionary else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-        completion(.failure(FunctionsErrorCode.internal.generatedError(userInfo: userInfo)))
-        return
+      DispatchQueue.main.async {
+        completion(result)
       }
-
-      // TODO(klimt): Allow "result" instead of "data" for now, for backwards compatibility.
-      let dataJSON = responseJSON["data"] ?? responseJSON["result"]
-      guard let dataJSON = dataJSON as AnyObject? else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
-        completion(.failure(FunctionsErrorCode.internal.generatedError(userInfo: userInfo)))
-        return
-      }
-
-      let resultData: Any?
-      do {
-        resultData = try self.serializer.decode(dataJSON)
-      } catch {
-        completion(.failure(error))
-        return
-      }
-
-      // TODO: Force unwrap... gross
-      let result = HTTPSCallableResult(data: resultData!)
-      // TODO: This copied comment appears to be incorrect - it's impossible to have a nil callable result
-      // If there's no result field, this will return nil, which is fine.
-      completion(.success(result))
     }
+  }
+
+  private func responseData(data: Data?, error: (any Error)?) throws -> Data {
+    // Case 1: `error` is not `nil` -> always throws
+    if let error = error as NSError? {
+      let localError: (any Error)?
+      if error.domain == kGTMSessionFetcherStatusDomain {
+        localError = FunctionsError(
+          httpStatusCode: error.code,
+          body: data,
+          serializer: serializer
+        )
+      } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
+        localError = FunctionsError(.deadlineExceeded)
+      } else {
+        localError = nil
+      }
+
+      throw localError ?? error
+    }
+
+    // Case 2: `data` is `nil` -> always throws
+    guard let data else {
+      throw FunctionsError(.internal)
+    }
+
+    // Case 3: `data` is not `nil` but might specify a custom error -> throws conditionally
+    if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
+      throw bodyError
+    }
+
+    // Case 4: `error` is `nil`; `data` is not `nil`; `data` doesn’t specify an error -> OK
+    return data
+  }
+
+  private func responseDataJSON(from data: Data) throws -> Any {
+    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+
+    guard let responseJSON = responseJSONObject as? NSDictionary else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
+
+    // `result` is checked for backwards compatibility:
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
+
+    return dataJSON
   }
 }

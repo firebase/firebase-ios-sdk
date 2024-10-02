@@ -22,9 +22,9 @@ function usage() {
 USAGE: scripts/check.sh [--allow-dirty] [--commit] [<revision>]
 
 Runs auto-formatting scripts, source-tree checks, and linters on any files that
-have changed since origin/master.
+have changed since origin/main.
 
-By default, any changes are left as uncommited changes in the working tree. You
+By default, any changes are left as uncommitted changes in the working tree. You
 can review them with git diff. Pass --commit to automatically commit any changes.
 
 Pass an alternate revision to use as the basis for checking changes.
@@ -50,18 +50,18 @@ OPTIONS:
     Run all checks without making any changes to local files.
 
   <revision>
-    Specifies a starting revision other than the default of origin/master.
+    Specifies a starting revision other than the default of origin/main.
 
 
 EXAMPLES:
 
   check.sh
     Runs automated checks and formatters on all changed files since
-    origin/master. Check for changes with git diff.
+    origin/main. Check for changes with git diff.
 
   check.sh --commit
     Runs automated checks and formatters on all changed files since
-    origin/master and commits the results.
+    origin/main and commits the results.
 
   check.sh --amend HEAD
     Runs automated checks and formatters on all changed files since the last
@@ -84,7 +84,7 @@ cd "${top_dir}"
 ALLOW_DIRTY=false
 COMMIT_METHOD="none"
 CHECK_DIFF=true
-START_REVISION="origin/master"
+START_REVISION="origin/main"
 TEST_ONLY=false
 VERBOSE=false
 
@@ -94,19 +94,19 @@ if [[ ! -t 1 ]]; then
 fi
 
 # When travis clones a repo for building, it uses a shallow clone. After the
-# first commit on a non-master branch, TRAVIS_COMMIT_RANGE is not set, master
+# first commit on a non-main branch, TRAVIS_COMMIT_RANGE is not set, main
 # is not available and we need to compute the START_REVISION from the common
-# ancestor of $TRAVIS_COMMIT and origin/master.
+# ancestor of $TRAVIS_COMMIT and origin/main.
 if [[ -n "${TRAVIS_COMMIT_RANGE:-}" ]] ; then
   CHECK_DIFF=true
   START_REVISION="$TRAVIS_COMMIT_RANGE"
 elif [[ -n "${TRAVIS_COMMIT:-}" ]] ; then
-  if ! git rev-parse origin/master >& /dev/null; then
-    git remote set-branches --add origin master
+  if ! git rev-parse origin/main >& /dev/null; then
+    git remote set-branches --add origin main
     git fetch origin
   fi
   CHECK_DIFF=true
-  START_REVISION=$(git merge-base origin/master "${TRAVIS_COMMIT}")
+  START_REVISION=$(git merge-base origin/main "${TRAVIS_COMMIT}")
 fi
 
 while [[ $# -gt 0 ]]; do
@@ -174,7 +174,7 @@ if ! git diff-index --quiet HEAD --; then
   fi
 fi
 
-# Show Travis-related environment variables, to help with debuging failures.
+# Show Travis-related environment variables, to help with debugging failures.
 if [[ "${VERBOSE}" == true ]]; then
   env | egrep '^TRAVIS_(BRANCH|COMMIT|PULL|REPO)' | sort || true
 fi
@@ -183,29 +183,29 @@ if [[ "${START_REVISION}" == *..* ]]; then
   RANGE_START="${START_REVISION/..*/}"
   RANGE_END="${START_REVISION/*../}"
 
-  # Figure out if we have access to master. If not add it to the repo.
-  if ! git rev-parse origin/master >& /dev/null; then
-    git remote set-branches --add origin master
+  # Figure out if we have access to main. If not add it to the repo.
+  if ! git rev-parse origin/main >& /dev/null; then
+    git remote set-branches --add origin main
     git fetch origin
   fi
 
   # Try to come up with a more accurate representation of the merge, so that
-  # checks will operate on just the differences the PR would merge into master.
+  # checks will operate on just the differences the PR would merge into main.
   # The start of the revision range that Travis supplies can sometimes be a
   # seemingly random value.
-  NEW_RANGE_START=$(git merge-base origin/master "${RANGE_END}" || echo "")
+  NEW_RANGE_START=$(git merge-base origin/main "${RANGE_END}" || echo "")
   if [[ -n "$NEW_RANGE_START" ]]; then
     START_REVISION="${NEW_RANGE_START}..${RANGE_END}"
     START_SHA="${START_REVISION}"
   else
     # In the shallow clone that Travis has created there's no merge base
-    # between the PR and master. In this case just fall back on checking
+    # between the PR and main. In this case just fall back on checking
     # everything.
     echo "Unable to detect base commit for change detection."
     echo "Falling back on just checking everything."
     CHECK_DIFF=false
-    START_REVISION="origin/master"
-    START_SHA="origin/master"
+    START_REVISION="origin/main"
+    START_SHA="origin/main"
   fi
 
 else

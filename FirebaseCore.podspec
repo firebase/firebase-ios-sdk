@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '10.19.0'
+  s.version          = '11.4.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -18,17 +18,17 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.13'
-  tvos_deployment_target = '12.0'
-  watchos_deployment_target = '6.0'
+  ios_deployment_target = '12.0'
+  osx_deployment_target = '10.15'
+  tvos_deployment_target = '13.0'
+  watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
   s.watchos.deployment_target = watchos_deployment_target
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.source_files = [
@@ -36,7 +36,11 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     'FirebaseCore/Extension/*.h'
   ]
 
-  s.swift_version = '5.3'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseCore/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
+
+  s.swift_version = '5.9'
 
   s.public_header_files = 'FirebaseCore/Sources/Public/FirebaseCore/*.h'
 
@@ -47,9 +51,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.watchos.framework = 'WatchKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
-  s.dependency 'GoogleUtilities/Environment', '~> 7.12'
-  s.dependency 'GoogleUtilities/Logger', '~> 7.12'
-  s.dependency 'FirebaseCoreInternal', '~> 10.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'GoogleUtilities/Logger', '~> 8.0'
+  s.dependency 'FirebaseCoreInternal', '~> 11.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

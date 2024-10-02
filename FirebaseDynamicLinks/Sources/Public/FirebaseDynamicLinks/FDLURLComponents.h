@@ -36,7 +36,7 @@ typedef NS_ENUM(NSInteger, FIRShortDynamicLinkPathLength) {
  * @abstract The definition of the completion block used by URL shortener.
  * @param shortURL Shortened URL.
  * @param warnings Warnings that describe usability or function limitations of the generated
- *     short link. Usually presence of warnings means parameteres format error, parametres value
+ *     short link. Usually presence of warnings means parameters format error, parameters value
  *     error or missing parameter.
  * @param error Error if URL can't be shortened.
  */

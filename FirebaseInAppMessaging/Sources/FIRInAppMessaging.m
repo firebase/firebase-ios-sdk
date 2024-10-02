@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessaging.h"
 
@@ -49,43 +49,38 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:YES];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time fiam is called.
     *isCacheable = YES;
+
+    // Only configure for the default FIRApp.
+    if (!container.app.isDefaultApp) {
+      FIRLogError(kFIRLoggerInAppMessaging, @"I-IAM170000",
+                  @"In-App Messaging must be used with the default Firebase app.");
+      return nil;
+    }
+
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
+
+    if (_autoBootstrapOnFIRAppInit) {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170002",
+                  @"Auto bootstrap Firebase in-app messaging SDK");
+      [FIRInAppMessaging bootstrapIAMFromFIRApp:container.app];
+    } else {
+      FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170003",
+                  @"No auto bootstrap Firebase in-app messaging SDK");
+    }
+
     return [[FIRInAppMessaging alloc] initWithAnalytics:analytics installations:installations];
   };
   FIRComponent *fiamProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRInAppMessagingInstanceProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ analyticsDep ]
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
                             creationBlock:creationBlock];
 
   return @[ fiamProvider ];
-}
-
-+ (void)configureWithApp:(FIRApp *)app {
-  if (!app.isDefaultApp) {
-    // Only configure for the default FIRApp.
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170000",
-                @"Firebase InAppMessaging only works with the default app.");
-    return;
-  }
-
-  FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170001",
-              @"Got notification for kFIRAppReadyToConfigureSDKNotification");
-  if (_autoBootstrapOnFIRAppInit) {
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170002",
-                @"Auto bootstrap Firebase in-app messaging SDK");
-    [self bootstrapIAMFromFIRApp:app];
-  } else {
-    FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM170003",
-                @"No auto bootstrap Firebase in-app messaging SDK");
-  }
 }
 
 - (instancetype)initWithAnalytics:(id<FIRAnalyticsInterop>)analytics
@@ -143,6 +138,24 @@ static BOOL _autoBootstrapOnFIRAppInit = YES;
       checkAndDisplayNextContextualMessageForAnalyticsEvent:eventName];
 }
 
+#pragma mark - Force Category Linking
+
+extern void FIRInclude_FIRInAppMessaging_Bootstrap_Category(void);
+extern void FIRInclude_UIApplication_FIRForegroundWindowScene_Category(void);
+extern void FIRInclude_NSString_InterlaceStrings_Category(void);
+extern void FIRInclude_UIColor_HexString_Category(void);
+
+/// Does nothing when called, and not meant to be called.
+///
+/// This method forces the linker to include categories even if
+/// users do not include the '-ObjC' linker flag in their project.
++ (void)noop {
+  FIRInclude_FIRInAppMessaging_Bootstrap_Category();
+  FIRInclude_UIApplication_FIRForegroundWindowScene_Category();
+  FIRInclude_NSString_InterlaceStrings_Category();
+  FIRInclude_UIColor_HexString_Category();
+}
+
 @end
 
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppCheckValidator : NSObject
 
+// `FIRAppCheckValidator` doesn’t provide any instance methods.
+- (instancetype)init NS_UNAVAILABLE;
+
 /** The method validates if all parameters required to send App Check token exchange requests are
  * present in the `FIROptions` instance.
  *  @param options The `FIROptions` to validate.

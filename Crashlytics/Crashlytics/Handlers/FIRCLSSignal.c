@@ -86,7 +86,7 @@ static void FIRCLSSignalInstallHandlers(FIRCLSSignalReadContext *roContext) {
     action.sa_sigaction = FIRCLSSignalHandler;
     // SA_RESETHAND seems like it would be great, but it doesn't appear to
     // work correctly.  After taking a signal, causing another identical signal in
-    // the handler will *not* cause the default handler to be invokved (which should
+    // the handler will *not* cause the default handler to be involved (which should
     // terminate the process).  I've found some evidence that others have seen this
     // behavior on MAC OS X.
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
@@ -109,6 +109,8 @@ static void FIRCLSSignalInstallHandlers(FIRCLSSignalReadContext *roContext) {
 
 void FIRCLSSignalCheckHandlers(void) {
   if (_firclsContext.readonly->debuggerAttached) {
+    // Adding this log to remind user deattachs from the debugger. Besides FIRCLSSignal, this logic is on FIRCLSMachException and FIRCLSException as well. Only log once since the check is same.
+    FIRCLSSDKLog("[Crashlytics] App is attached to a debugger, to see the crash reports please detach from the debugger, https://firebase.google.com/docs/crashlytics/get-started?platform=ios#force-test-crash");
     return;
   }
 

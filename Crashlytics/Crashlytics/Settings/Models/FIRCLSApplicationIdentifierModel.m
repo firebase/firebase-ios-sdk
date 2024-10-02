@@ -129,7 +129,7 @@
   }
 
   // TODO: the instance identifier calculation needs to match Beta's expectation. So, we have to
-  // continue generating a less-correct value for now. One day, we should encorporate a hash of the
+  // continue generating a less-correct value for now. One day, we should incorporate a hash of the
   // Info.plist and icon data.
 
   _buildInstanceID = FIRCLSHashNSData([string dataUsingEncoding:NSUTF8StringEncoding]);

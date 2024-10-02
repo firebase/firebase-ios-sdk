@@ -3,7 +3,7 @@ name: cocoapods-integration
 on:
   pull_request:
     paths:
-    - 'CocoapodsIntegrationTest/**'
+    - 'IntegrationTesting/CocoapodsIntegrationTest/**'
     - '.github/workflows/cocoapods-integration.yml'
     - 'Gemfile*'
   schedule:
@@ -19,9 +19,9 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macos-12
+    runs-on: macos-14
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
@@ -29,6 +29,6 @@ jobs:
       run: brew install coreutils
     - name: Build and test
       run: |
-        scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile
+        scripts/third_party/travis/retry.sh ./IntegrationTesting/CocoapodsIntegrationTest/scripts/build_with_environment.sh \
+          --gemfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
+          --podfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile

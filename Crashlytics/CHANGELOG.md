@@ -1,3 +1,34 @@
+# Unreleased
+- [fixed] Updated `upload-symbols` to version 3.18 with support for upload mutiple DWARF contents in a dSYM bundle(#13543).
+
+# 10.28.1
+- [changed] Reverted "Add SIGTERM support (#12881)" (#13117)
+
+# 10.28.0
+- [fixed] Created a new queue for rollouts persistence writes and made sure rollouts logging queue is not nil while dispatching (#12913).
+
+# 10.27.0
+- [added] Added support for catching the SIGTERM signal (#12881).
+- [fixed] Fixed a hang when persisting Remote Config Rollouts to disk (#12913).
+
+# 10.25.0
+- [changed] Removed usages of user defaults API from internal Firebase Sessions
+  dependency to eliminate required reason impact.
+
+# 10.24.0
+- [fixed] Fix `'FirebaseCrashlytics/FirebaseCrashlytics-Swift.h' file not found`
+  errors (#12611).
+- [changed] Remove usages of `mach_absolute_time` to reduce required reason impact.
+
+# 10.23.0
+- [added] Updated upload-symbols to 13.7 with VisionPro build phase support. (#12306)
+- [changed] Added support for Crashlytics to report metadata about Remote Config keys and values.
+
+# 10.22.0
+- [fixed] Force validation or rotation of FIDs for FirebaseSessions.
+- [changed] Removed calls to statfs in the Crashlytics SDK to comply with Apple Privacy Manifests. This change removes support for collecting Disk Space Free in Crashlytics reports.
+- [fixed] Fixed FirebaseSessions crash on startup that occurs in release mode in Xcode 15.3 and other build configurations. (#11403)
+
 # 10.16.0
 - [fixed] Fixed a memory leak regression when generating session events (#11725).
 
@@ -50,7 +81,7 @@
 # 8.2.0
 - [changed] Incorporated code quality changes around integer overflow, potential race conditions, and reinstalling signal handlers.
 - [fixed] Fixed an issue where iOS-only apps running on iPads would report iOS as their OS Name.
-- [fixed] Fixed depcrecation warning for projects with minimum deployment version iOS 13 and up.
+- [fixed] Fixed deprecation warning for projects with minimum deployment version iOS 13 and up.
 
 # 8.0.0
 - [changed] Added a warning to upload-symbols when it detects a dSYM with hidden symbols.
@@ -164,7 +195,7 @@
 
 This Firebase Crashlytics version includes the initial beta release of the Firebase Crashlytics SDK:
 
- - [feature] The SDK is now open-sourced. Take a look in our [GitHub repository](https://github.com/firebase/firebase-ios-sdk/tree/master/Crashlytics).
+ - [feature] The SDK is now open-sourced. Take a look in our [GitHub repository](https://github.com/firebase/firebase-ios-sdk/tree/main/Crashlytics).
  - [feature] Added support for Catalyst (note that Crashlytics still supports tvOS and macOS).
  - [feature] Added new APIs that are more consistent with other Firebase SDKs and more intuitive to use. The new APIs also give your users more control over how you collect their data.
  - [removed] Removed the Fabric API Key. Now, Crashlytics uses the GoogleService-Info.plist file to associate your app with your project. If you linked your app from Fabric and want to upgrade to the new SDK, remove the Fabric API key from your `run` and `upload-symbols` scripts. We also recommend removing the Fabric section from your app's Info.plist (when you upgrade, Crashlytics uses the new configuration you set up in Firebase).

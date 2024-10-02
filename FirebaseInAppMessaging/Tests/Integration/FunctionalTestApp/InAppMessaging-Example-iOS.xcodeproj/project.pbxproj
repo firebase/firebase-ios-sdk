@@ -19,7 +19,7 @@
 		AD6A6CB11F56093700A6DFA1 /* FIRIAMBookKeeperViaUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AD6A6CAE1F5606CD00A6DFA1 /* FIRIAMBookKeeperViaUserDefaultsTests.m */; };
 		AD764A341FE4856400378AE0 /* AutoDisplayFlowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD764A2E1FE4856300378AE0 /* AutoDisplayFlowViewController.m */; };
 		AD764A361FE4856400378AE0 /* LogDumpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD764A301FE4856300378AE0 /* LogDumpViewController.m */; };
-		AD764A371FE4856400378AE0 /* AutoDisplayMesagesTableVC.m in Sources */ = {isa = PBXBuildFile; fileRef = AD764A331FE4856300378AE0 /* AutoDisplayMesagesTableVC.m */; };
+		AD764A371FE4856400378AE0 /* AutoDisplayMessagesTableVC.m in Sources */ = {isa = PBXBuildFile; fileRef = AD764A331FE4856300378AE0 /* AutoDisplayMessagesTableVC.m */; };
 		AD811A321F13F88800BF632A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AD811A311F13F88800BF632A /* main.m */; };
 		AD811A351F13F88800BF632A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AD811A341F13F88800BF632A /* AppDelegate.m */; };
 		AD81223D1F14100700BF632A /* FIRIAMMessageContentDataWithImageURLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AD8122391F140FFC00BF632A /* FIRIAMMessageContentDataWithImageURLTests.m */; };
@@ -67,12 +67,12 @@
 		AD40FB071F38CCB700AB8C14 /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SnapshotHelper.swift; path = ../App/InAppMessaging_Example_iOS_Swift/SnapshotHelper.swift; sourceTree = "<group>"; };
 		AD5D25CA1FA91C9900F1B0EB /* FIRIAMActivityLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FIRIAMActivityLoggerTests.m; path = Tests/FIRIAMActivityLoggerTests.m; sourceTree = "<group>"; };
 		AD6A6CAE1F5606CD00A6DFA1 /* FIRIAMBookKeeperViaUserDefaultsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRIAMBookKeeperViaUserDefaultsTests.m; path = Tests/FIRIAMBookKeeperViaUserDefaultsTests.m; sourceTree = "<group>"; };
-		AD764A2C1FE4856300378AE0 /* AutoDisplayMesagesTableVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoDisplayMesagesTableVC.h; path = "App/InAppMessaging-Example-iOS/AutoDisplayMesagesTableVC.h"; sourceTree = "<group>"; };
+		AD764A2C1FE4856300378AE0 /* AutoDisplayMessagesTableVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoDisplayMessagesTableVC.h; path = "App/InAppMessaging-Example-iOS/AutoDisplayMessagesTableVC.h"; sourceTree = "<group>"; };
 		AD764A2D1FE4856300378AE0 /* AutoDisplayFlowViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AutoDisplayFlowViewController.h; path = "App/InAppMessaging-Example-iOS/AutoDisplayFlowViewController.h"; sourceTree = "<group>"; };
 		AD764A2E1FE4856300378AE0 /* AutoDisplayFlowViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoDisplayFlowViewController.m; path = "App/InAppMessaging-Example-iOS/AutoDisplayFlowViewController.m"; sourceTree = "<group>"; };
 		AD764A301FE4856300378AE0 /* LogDumpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LogDumpViewController.m; path = "App/InAppMessaging-Example-iOS/LogDumpViewController.m"; sourceTree = "<group>"; };
 		AD764A311FE4856300378AE0 /* LogDumpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LogDumpViewController.h; path = "App/InAppMessaging-Example-iOS/LogDumpViewController.h"; sourceTree = "<group>"; };
-		AD764A331FE4856300378AE0 /* AutoDisplayMesagesTableVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoDisplayMesagesTableVC.m; path = "App/InAppMessaging-Example-iOS/AutoDisplayMesagesTableVC.m"; sourceTree = "<group>"; };
+		AD764A331FE4856300378AE0 /* AutoDisplayMessagesTableVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AutoDisplayMessagesTableVC.m; path = "App/InAppMessaging-Example-iOS/AutoDisplayMessagesTableVC.m"; sourceTree = "<group>"; };
 		AD811A2D1F13F88800BF632A /* InAppMessaging_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InAppMessaging_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD811A311F13F88800BF632A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "App/InAppMessaging-Example-iOS/main.m"; sourceTree = "<group>"; };
 		AD811A331F13F88800BF632A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = "App/InAppMessaging-Example-iOS/AppDelegate.h"; sourceTree = "<group>"; };
@@ -210,8 +210,8 @@
 				257270CC238C813900238991 /* GoogleService-Info.plist */,
 				AD764A2D1FE4856300378AE0 /* AutoDisplayFlowViewController.h */,
 				AD764A2E1FE4856300378AE0 /* AutoDisplayFlowViewController.m */,
-				AD764A2C1FE4856300378AE0 /* AutoDisplayMesagesTableVC.h */,
-				AD764A331FE4856300378AE0 /* AutoDisplayMesagesTableVC.m */,
+				AD764A2C1FE4856300378AE0 /* AutoDisplayMessagesTableVC.h */,
+				AD764A331FE4856300378AE0 /* AutoDisplayMessagesTableVC.m */,
 				AD764A311FE4856300378AE0 /* LogDumpViewController.h */,
 				AD764A301FE4856300378AE0 /* LogDumpViewController.m */,
 				AD81221B1F14064800BF632A /* LaunchScreen.storyboard */,
@@ -477,7 +477,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD764A341FE4856400378AE0 /* AutoDisplayFlowViewController.m in Sources */,
-				AD764A371FE4856400378AE0 /* AutoDisplayMesagesTableVC.m in Sources */,
+				AD764A371FE4856400378AE0 /* AutoDisplayMessagesTableVC.m in Sources */,
 				AD811A351F13F88800BF632A /* AppDelegate.m in Sources */,
 				AD764A361FE4856400378AE0 /* LogDumpViewController.m in Sources */,
 				AD811A321F13F88800BF632A /* main.m in Sources */,

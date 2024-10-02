@@ -42,8 +42,6 @@ static void FIRCLSMachOHeaderValues(FIRCLSMachOSliceRef slice,
 static bool FIRCLSMachOSliceIsValid(FIRCLSMachOSliceRef slice);
 
 bool FIRCLSMachOFileInitWithPath(FIRCLSMachOFileRef file, const char* path) {
-  struct stat statBuffer;
-
   if (!file || !path) {
     return false;
   }
@@ -58,16 +56,23 @@ bool FIRCLSMachOFileInitWithPath(FIRCLSMachOFileRef file, const char* path) {
     return false;
   }
 
-  if (fstat(file->fd, &statBuffer) == -1) {
+  NSError* attributesError;
+  NSString* objCPath = [NSString stringWithCString:path encoding:NSUTF8StringEncoding];
+  NSDictionary* fileAttributes =
+      [[NSFileManager defaultManager] attributesOfItemAtPath:objCPath error:&attributesError];
+  if (attributesError != nil) {
     close(file->fd);
     return false;
   }
+  NSNumber* fileSizeNumber = [fileAttributes objectForKey:NSFileSize];
+  long long currentFileSize = [fileSizeNumber longLongValue];
+  NSFileAttributeType fileType = [fileAttributes objectForKey:NSFileType];
 
   // We need some minimum size for this to even be a possible mach-o file.  I believe
   // its probably quite a bit bigger than this, but this at least covers something.
   // We also need it to be a regular file.
-  file->mappedSize = (size_t)statBuffer.st_size;
-  if (statBuffer.st_size < 16 || !(statBuffer.st_mode & S_IFREG)) {
+  file->mappedSize = (size_t)currentFileSize;
+  if (currentFileSize < 16 || ![fileType isEqualToString:NSFileTypeRegular]) {
     close(file->fd);
     return false;
   }

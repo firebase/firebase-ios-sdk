@@ -24,6 +24,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+@import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigContent (Testing)
 - (BOOL)checkAndWaitForInitialDatabaseLoad;
@@ -44,7 +45,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(justSmallDelay * NSEC_PER_SEC)),
                  dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                    self.isLoadMainCompleted = YES;
-                   handler(YES, nil, nil, nil);
+                   handler(YES, nil, nil, nil, nil);
                  });
 }
 - (void)loadPersonalizationWithCompletionHandler:(RCNDBLoadCompletion)handler {
@@ -53,7 +54,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(justOtherSmallDelay * NSEC_PER_SEC)),
                  dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                    self.isLoadPersonalizationCompleted = YES;
-                   handler(YES, nil, nil, nil);
+                   handler(YES, nil, nil, nil, nil);
                  });
 }
 @end
@@ -62,6 +63,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSTimeInterval _expectationTimeout;
   RCNConfigContent *_configContent;
   NSString *namespaceApp1, *namespaceApp2;
+  NSString *_namespaceGoogleMobilePlatform;
 }
 @end
 
@@ -70,11 +72,12 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 - (void)setUp {
   [super setUp];
   _expectationTimeout = 1.0;
+  _namespaceGoogleMobilePlatform = FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform;
 
   namespaceApp1 = [NSString
-      stringWithFormat:@"%@:%@", FIRNamespaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
+      stringWithFormat:@"%@:%@", _namespaceGoogleMobilePlatform, RCNTestsDefaultFIRAppName];
   namespaceApp2 = [NSString
-      stringWithFormat:@"%@:%@", FIRNamespaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
+      stringWithFormat:@"%@:%@", _namespaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
 
   _configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
 
@@ -129,14 +132,14 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSDictionary *entries = @{@"key1" : @"value1", @"key2" : @"value2"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:FIRNamespaceGoogleMobilePlatform];
+                                     forNamespace:_namespaceGoogleMobilePlatform];
 
   NSDictionary *fetchedConfig = _configContent.fetchedConfig;
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key1"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key1"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"] stringValue],
                         @"value1");
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
 }
 
@@ -147,20 +150,20 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSDictionary *entries = @{@"key1" : @"value1"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:FIRNamespaceGoogleMobilePlatform];
+                                     forNamespace:_namespaceGoogleMobilePlatform];
   configToSet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"UPDATE", @"state", nil];
   entries = @{@"key2" : @"value2", @"key3" : @"value3"};
   [configToSet setValue:entries forKey:@"entries"];
   [_configContent updateConfigContentWithResponse:configToSet
-                                     forNamespace:FIRNamespaceGoogleMobilePlatform];
+                                     forNamespace:_namespaceGoogleMobilePlatform];
 
   NSDictionary *fetchedConfig = _configContent.fetchedConfig;
-  XCTAssertNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key1"]);
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key2"] stringValue],
+  XCTAssertNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
-  XCTAssertNotNil(fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key3"]);
-  XCTAssertEqualObjects([fetchedConfig[FIRNamespaceGoogleMobilePlatform][@"key3"] stringValue],
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key3"]);
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key3"] stringValue],
                         @"value3");
 }
 
@@ -323,7 +326,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   // Check that no one of first three calls of `-checkAndWaitForInitialDatabaseLoad` do not produce
   // timeout error <end>.
-  // This make us sure that there no threads "stucked" on `-checkAndWaitForInitialDatabaseLoad`.
+  // This make us sure that there no threads "stuck" on `-checkAndWaitForInitialDatabaseLoad`.
   [self waitForExpectationsWithTimeout:0.5 * kDatabaseLoadTimeoutSecs handler:nil];
 }
 
@@ -332,7 +335,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   // populate fetched config
   NSMutableDictionary *fetchResponse =
-      [self createFetchResponseWithConfigEntries:@{@"key1" : @"value1"} p13nMetadata:nil];
+      [self createFetchResponseWithConfigEntries:@{@"key1" : @"value1"}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   // active config is the same as fetched config
@@ -365,7 +370,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   // fetch response has new param
   NSMutableDictionary *fetchResponse =
       [self createFetchResponseWithConfigEntries:@{@"key1" : @"value1", newParam : @"value2"}
-                                    p13nMetadata:nil];
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
@@ -391,7 +397,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   // fetch response contains updated value
   NSMutableDictionary *fetchResponse =
-      [self createFetchResponseWithConfigEntries:@{existingParam : updatedValue} p13nMetadata:nil];
+      [self createFetchResponseWithConfigEntries:@{existingParam : updatedValue}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
@@ -417,7 +425,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   // fetch response does not contain existing param
   NSMutableDictionary *fetchResponse =
-      [self createFetchResponseWithConfigEntries:@{newParam : value1} p13nMetadata:nil];
+      [self createFetchResponseWithConfigEntries:@{newParam : value1}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
@@ -437,7 +447,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   // popuate fetched config
   NSMutableDictionary *fetchResponse =
       [self createFetchResponseWithConfigEntries:@{existingParam : value1}
-                                    p13nMetadata:@{existingParam : oldMetadata}];
+                                    p13nMetadata:@{existingParam : oldMetadata}
+                                 rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   // populate active config with the same content
@@ -461,6 +472,148 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
 }
 
+- (void)testConfigUpdate_rolloutMetadataUpdated_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *key1 = @"key1";
+  NSString *key2 = @"kety2";
+  NSString *value = @"value";
+  NSString *rolloutId1 = @"1";
+  NSString *rolloutId2 = @"2";
+  NSString *variantId1 = @"A";
+  NSString *variantId2 = @"B";
+  NSArray *rolloutMetadata = @[ @{
+    RCNFetchResponseKeyRolloutID : rolloutId1,
+    RCNFetchResponseKeyVariantID : variantId1,
+    RCNFetchResponseKeyAffectedParameterKeys : @[ key1 ]
+  } ];
+  // Update rolltou metadata
+  NSArray *updatedRolloutMetadata = @[
+    @{
+      RCNFetchResponseKeyRolloutID : rolloutId1,
+      RCNFetchResponseKeyVariantID : variantId2,
+      RCNFetchResponseKeyAffectedParameterKeys : @[ key1 ]
+    },
+    @{
+      RCNFetchResponseKeyRolloutID : rolloutId2,
+      RCNFetchResponseKeyVariantID : variantId1,
+      RCNFetchResponseKeyAffectedParameterKeys : @[ key2 ]
+    },
+  ];
+  // Populate fetched config
+  NSMutableDictionary *fetchResponse = [self createFetchResponseWithConfigEntries:@{key1 : value}
+                                                                     p13nMetadata:nil
+                                                                  rolloutMetadata:rolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+  // populate active config with the same content
+  [_configContent activateRolloutMetadata:nil];
+  XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
+  FIRRemoteConfigValue *rcValue =
+      [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+
+  NSDictionary *namespaceToConfig = @{namespace : @{key1 : rcValue}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+  // New fetch response has updated rollout metadata
+  [fetchResponse setValue:updatedRolloutMetadata forKey:RCNFetchResponseKeyRolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedKeys].count == 2);
+  XCTAssertTrue([[update updatedKeys] containsObject:key1]);
+  XCTAssertTrue([[update updatedKeys] containsObject:key2]);
+}
+
+- (void)testConfigUpdate_rolloutMetadataDeleted_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *key1 = @"key1";
+  NSString *key2 = @"key2";
+  NSString *value = @"value";
+  NSString *rolloutId1 = @"1";
+  NSString *variantId1 = @"A";
+  NSArray *rolloutMetadata = @[ @{
+    RCNFetchResponseKeyRolloutID : rolloutId1,
+    RCNFetchResponseKeyVariantID : variantId1,
+    RCNFetchResponseKeyAffectedParameterKeys : @[ key1, key2 ]
+  } ];
+  // Remove key2 from rollout metadata
+  NSArray *updatedRolloutMetadata = @[ @{
+    RCNFetchResponseKeyRolloutID : rolloutId1,
+    RCNFetchResponseKeyVariantID : variantId1,
+    RCNFetchResponseKeyAffectedParameterKeys : @[ key1 ]
+  } ];
+  // Populate fetched config
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:@{key1 : value, key2 : value}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:rolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+  // populate active config with the same content
+  [_configContent activateRolloutMetadata:nil];
+  XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
+  FIRRemoteConfigValue *rcValue =
+      [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+
+  NSDictionary *namespaceToConfig = @{namespace : @{key1 : rcValue, key2 : rcValue}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+  // New fetch response has updated rollout metadata
+  [fetchResponse setValue:updatedRolloutMetadata forKey:RCNFetchResponseKeyRolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:key2]);
+}
+
+- (void)testConfigUpdate_rolloutMetadataDeletedAll_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *key = @"key";
+  NSString *value = @"value";
+  NSString *rolloutId1 = @"1";
+  NSString *variantId1 = @"A";
+  NSArray *rolloutMetadata = @[ @{
+    RCNFetchResponseKeyRolloutID : rolloutId1,
+    RCNFetchResponseKeyVariantID : variantId1,
+    RCNFetchResponseKeyAffectedParameterKeys : @[ key ]
+  } ];
+  // Populate fetched config
+  NSMutableDictionary *fetchResponse = [self createFetchResponseWithConfigEntries:@{key : value}
+                                                                     p13nMetadata:nil
+                                                                  rolloutMetadata:rolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+  // populate active config with the same content
+  [_configContent activateRolloutMetadata:nil];
+  XCTAssertEqualObjects(rolloutMetadata, _configContent.activeRolloutMetadata);
+  FIRRemoteConfigValue *rcValue =
+      [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+
+  NSDictionary *namespaceToConfig = @{namespace : @{key : rcValue}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  // New fetch response has updated rollout metadata
+  NSMutableDictionary *updateFetchResponse =
+      [self createFetchResponseWithConfigEntries:@{key : value}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
+  [_configContent updateConfigContentWithResponse:updateFetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  [_configContent activateRolloutMetadata:nil];
+
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:key]);
+  XCTAssertTrue(_configContent.activeRolloutMetadata.count == 0);
+}
+
 - (void)testConfigUpdate_valueSourceChanged_returnsKey {
   NSString *namespace = @"test_namespace";
   NSString *existingParam = @"key1";
@@ -477,7 +630,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
   // fetch response contains same key->value
   NSMutableDictionary *fetchResponse =
-      [self createFetchResponseWithConfigEntries:@{existingParam : value1} p13nMetadata:nil];
+      [self createFetchResponseWithConfigEntries:@{existingParam : value1}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
@@ -489,14 +644,18 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 #pragma mark - Test Helpers
 
 - (NSMutableDictionary *)createFetchResponseWithConfigEntries:(NSDictionary *)config
-                                                 p13nMetadata:(NSDictionary *)metadata {
+                                                 p13nMetadata:(NSDictionary *)p13nMetadata
+                                              rolloutMetadata:(NSArray *)rolloutMetadata {
   NSMutableDictionary *fetchResponse = [[NSMutableDictionary alloc]
       initWithObjectsAndKeys:RCNFetchResponseKeyStateUpdate, RCNFetchResponseKeyState, nil];
   if (config) {
     [fetchResponse setValue:config forKey:RCNFetchResponseKeyEntries];
   }
-  if (metadata) {
-    [fetchResponse setValue:metadata forKey:RCNFetchResponseKeyPersonalizationMetadata];
+  if (p13nMetadata) {
+    [fetchResponse setValue:p13nMetadata forKey:RCNFetchResponseKeyPersonalizationMetadata];
+  }
+  if (rolloutMetadata) {
+    [fetchResponse setValue:rolloutMetadata forKey:RCNFetchResponseKeyRolloutMetadata];
   }
   return fetchResponse;
 }

@@ -20,6 +20,7 @@ import XCTest
 import FirebaseCore
 import FirebaseStorage
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class StorageAPITests: XCTestCase {
   func StorageAPIs() {
     let app = FirebaseApp.app()
@@ -158,6 +159,9 @@ final class StorageAPITests: XCTestCase {
     case .downloadSizeExceeded: return code
     case .cancelled: return code
     case .invalidArgument: return code
+    case .bucketMismatch: return code
+    case .internalError: return code
+    case .pathError: return code
     @unknown default:
       fatalError()
     }
@@ -187,7 +191,7 @@ final class StorageAPITests: XCTestCase {
 
   func StorageObservableTaskApis(ref: StorageReference) throws {
     let task = ref.write(toFile: URL(string: "url")!)
-    _ = task.observe(.pause) { snaphot in
+    _ = task.observe(.pause) { snapshot in
     }
     task.removeObserver(withHandle: "handle")
     task.removeAllObservers()

@@ -42,6 +42,8 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
         session_index: \(proto.session_data.session_index)
         event_timestamp_us: \(proto.session_data.event_timestamp_us)
         firebase_installation_id: \(proto.session_data.firebase_installation_id.description)
+        firebase_authentication_token:
+            \(proto.session_data.firebase_authentication_token.description)
         data_collection_status
           crashlytics: \(proto.session_data.data_collection_status.crashlytics)
           performance: \(proto.session_data.data_collection_status.performance)

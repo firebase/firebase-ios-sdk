@@ -13,9 +13,14 @@
 // limitations under the License.
 
 import Foundation
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_UserDefaults
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 /// Protocol to save or delete model info in user defaults.
 protocol DownloaderUserDefaultsWriteable {
-  func writeToDefaults(_ defaults: UserDefaults, appName: String)
-  func removeFromDefaults(_ defaults: UserDefaults, appName: String)
+  func writeToDefaults(_ defaults: GULUserDefaults, appName: String)
+  func removeFromDefaults(_ defaults: GULUserDefaults, appName: String)
 }

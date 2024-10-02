@@ -41,6 +41,7 @@
 #include "Firestore/core/src/bundle/bundle_reader.h"
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 #include "Firestore/core/src/core/field_filter.h"
+#import "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/persistence.h"
 #include "Firestore/core/src/local/target_data.h"
@@ -79,10 +80,12 @@ namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
 using firebase::firestore::google_firestore_v1_ArrayValue;
 using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::api::ListenSource;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
 using firebase::firestore::core::DocumentViewChange;
+using firebase::firestore::core::ListenOptions;
 using firebase::firestore::core::Query;
 using firebase::firestore::credentials::User;
 using firebase::firestore::local::Persistence;
@@ -385,11 +388,25 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return DocumentViewChange{std::move(doc), type};
 }
 
+- (ListenOptions)parseOptions:(NSDictionary *)optionsSpec {
+  ListenOptions options = ListenOptions::FromIncludeMetadataChanges(true);
+
+  if (optionsSpec != nil) {
+    ListenSource source =
+        [optionsSpec[@"source"] isEqual:@"cache"] ? ListenSource::Cache : ListenSource::Default;
+    // include_metadata_changes are default to true in spec tests
+    options = ListenOptions::FromOptions(true, source);
+  }
+
+  return options;
+}
+
 #pragma mark - Methods for doing the steps of the spec test.
 
 - (void)doListen:(NSDictionary *)listenSpec {
   Query query = [self parseQuery:listenSpec[@"query"]];
-  TargetId actualID = [self.driver addUserListenerWithQuery:std::move(query)];
+  ListenOptions options = [self parseOptions:listenSpec[@"options"]];
+  TargetId actualID = [self.driver addUserListenerWithQuery:std::move(query) options:options];
 
   TargetId expectedID = [listenSpec[@"targetId"] intValue];
   XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");

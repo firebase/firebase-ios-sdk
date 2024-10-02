@@ -201,9 +201,11 @@ class StorageResultTests: StorageIntegrationCommon {
         XCTFail("Unexpected success from unauthorized putData")
       case let .failure(error as StorageError):
         switch error {
-        case let .unauthorized(bucket, object):
+        case let .unauthorized(bucket, object, serverError):
           XCTAssertEqual(bucket, "ios-opensource-samples.appspot.com")
           XCTAssertEqual(object, file)
+          XCTAssertNotNil(serverError)
+          XCTAssertEqual(serverError["ResponseErrorCode"] as? Int, 403)
           expectation.fulfill()
         default:
           XCTFail("Failed with unexpected error: \(error)")
@@ -535,9 +537,9 @@ class StorageResultTests: StorageIntegrationCommon {
 
   func testSimpleGetFile() throws {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/helloworld")
+    let ref = storage.reference(withPath: "ios/public/helloworld" + #function)
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
     ref.putData(data) { result in
@@ -577,16 +579,15 @@ class StorageResultTests: StorageIntegrationCommon {
 
   func testCancelErrorCode() throws {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/helloworld")
+    let ref = storage.reference(withPath: "ios/public/helloworld" + #function)
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
     ref.putData(data) { result in
       switch result {
       case .success:
         let task = ref.write(toFile: fileURL)
-        task.cancel()
 
         task.observe(StorageTaskStatus.success) { snapshot in
           XCTFail("Error processing success snapshot")
@@ -603,6 +604,7 @@ class StorageResultTests: StorageIntegrationCommon {
           }
           expectation.fulfill()
         }
+        task.cancel()
       case let .failure(error):
         XCTFail("Unexpected error \(error) from putData")
         expectation.fulfill()
@@ -847,7 +849,7 @@ class StorageResultTests: StorageIntegrationCommon {
     let kFIRStorageIntegrationTestTimeout = 100.0
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { error in
-                          if let error = error {
+                          if let error {
                             print(error)
                           }
                         })

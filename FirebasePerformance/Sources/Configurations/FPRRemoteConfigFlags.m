@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h"
+#import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 

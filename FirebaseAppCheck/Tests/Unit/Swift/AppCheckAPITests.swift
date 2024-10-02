@@ -63,18 +63,16 @@ final class AppCheckAPITests {
     }
 
     // Get token (async/await)
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        Task {
-          do {
-            try await AppCheck.appCheck().token(forcingRefresh: false)
-          } catch {
-            // ...
-          }
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+      Task {
+        do {
+          try await AppCheck.appCheck().token(forcingRefresh: false)
+        } catch {
+          // ...
         }
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
 
     // Set `AppCheckProviderFactory`
     AppCheck.setAppCheckProviderFactory(DummyAppCheckProviderFactory())
@@ -97,18 +95,16 @@ final class AppCheckAPITests {
       }
 
       // Get token (async/await)
-      #if compiler(>=5.5.2) && canImport(_Concurrency)
-        if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-          // async/await is a Swift 5.5+ feature available on iOS 15+
-          Task {
-            do {
-              _ = try await debugProvider.getToken()
-            } catch {
-              // ...
-            }
+      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+        // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+        Task {
+          do {
+            _ = try await debugProvider.getToken()
+          } catch {
+            // ...
           }
         }
-      #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+      }
 
       _ = debugProvider.localDebugToken()
       _ = debugProvider.currentDebugToken()
@@ -123,7 +119,7 @@ final class AppCheckAPITests {
     // MARK: - AppCheckErrors
 
     AppCheck.appCheck().token(forcingRefresh: false) { _, error in
-      if let error = error {
+      if let error {
         switch error {
         case AppCheckErrorCode.unknown:
           break
@@ -170,20 +166,18 @@ final class AppCheckAPITests {
             }
           }
           // Get token (async/await)
-          #if compiler(>=5.5.2) && canImport(_Concurrency)
-            if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-              // async/await is a Swift 5.5+ feature available on iOS 15+
-              Task {
-                do {
-                  _ = try await deviceCheckProvider.getToken()
-                } catch AppCheckErrorCode.unsupported {
-                  // ...
-                } catch {
-                  // ...
-                }
+          if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+            // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
+            Task {
+              do {
+                _ = try await deviceCheckProvider.getToken()
+              } catch AppCheckErrorCode.unsupported {
+                // ...
+              } catch {
+                // ...
               }
             }
-          #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+          }
         }
       }
     #endif // !os(watchOS)

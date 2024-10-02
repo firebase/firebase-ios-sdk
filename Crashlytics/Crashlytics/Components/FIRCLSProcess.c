@@ -16,7 +16,6 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSThreadState.h"
 #include "Crashlytics/Crashlytics/Unwind/FIRCLSUnwind.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
@@ -174,7 +173,7 @@ static bool FIRCLSProcessGetThreadState(FIRCLSProcess *process,
     return true;
   }
 
-  // Here's a wild trick: emulate what thread_get_state would do. It apppears that
+  // Here's a wild trick: emulate what thread_get_state would do. It appears that
   // we cannot reliably unwind out of thread_get_state. So, instead of trying, setup
   // a thread context that resembles what the real thing would look like
   if (FIRCLSProcessIsCurrentThread(process, thread)) {
@@ -559,7 +558,7 @@ void FIRCLSProcessRecordDispatchQueueNames(FIRCLSProcess *process, FIRCLSFile *f
   FIRCLSFileWriteSectionEnd(file);
 }
 
-#pragma mark - Othe Process Info
+#pragma mark - Other Process Info
 bool FIRCLSProcessGetMemoryUsage(uint64_t *active,
                                  uint64_t *inactive,
                                  uint64_t *wired,
@@ -783,7 +782,7 @@ static void FIRCLSProcessRecordCrashInfo(FIRCLSFile *file) {
     FIRCLSSDKLogDebug("Found crash info with version %d\n", info.version);
 
     // Currently support versions 0 through 5.
-    // 4 was in use for a long time, but it appears that with iOS 9 / swift 2.0, the verison has
+    // 4 was in use for a long time, but it appears that with iOS 9 / swift 2.0, the version has
     // been bumped.
     if (info.version > 5) {
       continue;

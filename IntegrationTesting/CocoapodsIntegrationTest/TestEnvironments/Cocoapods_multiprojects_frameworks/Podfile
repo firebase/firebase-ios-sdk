@@ -1,0 +1,37 @@
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+# Uncomment the next line to define a global platform for your project
+platform :ios, '13.0'
+
+target 'CocoapodsIntegrationTest' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+  pod 'FirebaseABTesting', :path => '../../'
+  pod 'FirebaseAppDistribution', :path => '../../'
+  pod 'FirebaseAppCheckInterop', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreExtension', :path => '../../'
+  pod 'FirebaseCoreInternal', :path => '../../'
+  pod 'FirebaseCrashlytics', :path => '../../'
+  pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
+  pod 'FirebaseDatabase', :path => '../../'
+  pod 'FirebaseDynamicLinks', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../../'
+  pod 'FirebaseFunctions', :path => '../../'
+  pod 'FirebaseInAppMessaging', :path => '../../'
+  pod 'FirebaseInstallations', :path => '../../'
+  pod 'FirebaseMessaging', :path => '../../'
+  pod 'FirebaseMessagingInterop', :path => '../../'
+  pod 'FirebaseRemoteConfigInterop', :path => '../../'
+  pod 'FirebasePerformance', :path => '../../'
+  pod 'FirebaseStorage', :path => '../../'
+end
+
+# Using the new speed-enhancing features available with CocoaPods 1.7+
+# [sudo] gem install cocoapods --pre
+install! 'cocoapods',
+          :generate_multiple_pod_projects => true,
+          :incremental_installation => true

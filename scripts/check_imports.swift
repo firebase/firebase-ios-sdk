@@ -18,7 +18,7 @@
 // Utility script for verifying `import` and `include` syntax. This ensures a
 // consistent style as well as functionality across multiple package managers.
 
-// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/master/HeadersImports.md.
+// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/main/HeadersImports.md.
 
 import Foundation
 
@@ -27,14 +27,18 @@ import Foundation
 let skipDirPatterns = ["/Sample/", "/Pods/",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
+                       "FirebaseAuth/",
+                       // TODO: Turn Combine back on without Auth includes.
+                       "FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h",
                        "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "IntegrationTesting/CocoapodsIntegrationTest/",
+                       "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM tests test module imports.
-    "ClientApp", // The ClientApp tests module imports.
+    "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
   ] +
 
@@ -43,7 +47,6 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
     "FirebaseDatabase/Sources/third_party/Wrap-leveldb", // Pending SwiftPM for leveldb.
     "Example",
     "Firestore",
-    "GoogleUtilitiesComponents",
     "FirebasePerformance/ProtoSupport/",
   ]
 

@@ -16,7 +16,6 @@
 
 import FirebaseCore
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigSwift
 import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {

@@ -88,6 +88,10 @@ TEST(StringFormatTest, Mixed) {
             StringFormat("%s%%%s%%%s%%%s", "World", true, 42, 1.5));
 }
 
+TEST(StringFormatTest, Hex) {
+  EXPECT_EQ("test=42", StringFormat("test=%x", "B"));
+}
+
 TEST(StringFormatTest, Literal) {
   EXPECT_EQ("Hello %", StringFormat("Hello %%"));
   EXPECT_EQ("% World", StringFormat("%% World"));

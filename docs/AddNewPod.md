@@ -4,7 +4,7 @@
 
 **This document is deprecated in favor of [docs/AddNewProduct.md](AddNewProduct.md)**.
 
-This doc continues to provide additional context about legacy Objective C implementations.
+This doc continues to provide additional context about legacy Objective-C implementations.
 
 The Firebase build is driven by the contents of a podspec. It is helpful to
 use an existing podspec as a template when starting a new pod.
@@ -52,7 +52,7 @@ explicit import by other Firebase pods)
 
 See [Headers and Imports](HeadersImports.md) for details on managing headers and imports.
 
-## Continous Integration
+## Continuous Integration
 
 Set up a GitHub Action workflow for the pod. A good example template is
 [storage.yml](.github/workflows/storage.yml).

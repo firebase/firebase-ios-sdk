@@ -41,6 +41,7 @@ NSString *const FIRCLSReportInternalIncrementalKVFile = @"internal_incremental_k
 NSString *const FIRCLSReportInternalCompactedKVFile = @"internal_compacted_kv.clsrecord";
 NSString *const FIRCLSReportUserIncrementalKVFile = @"user_incremental_kv.clsrecord";
 NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
+NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 
 @interface FIRCLSInternalReport () {
   NSString *_identifier;

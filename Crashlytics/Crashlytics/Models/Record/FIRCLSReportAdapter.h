@@ -35,5 +35,6 @@
 - (instancetype)initWithPath:(NSString *)folderPath
                  googleAppId:(NSString *)googleAppID
               installIDModel:(FIRCLSInstallIdentifierModel *)installIDModel
-                        fiid:(NSString *)fiid;
+                        fiid:(NSString *)fiid
+                   authToken:(NSString *)authToken;
 @end

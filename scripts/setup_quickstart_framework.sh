@@ -43,8 +43,8 @@ if [ ! -f "Firebase/module.modulemap" ]; then
 fi
 for file in "$@"
 do
-  if [ ! -f "Firebase/$(basename ${file})" ]; then
-    cp -R ${file} Firebase/
+  if [ ! -d "Firebase/$(basename ${file})" ]; then
+    rsync -a ${file} Firebase/
   fi
 done
 

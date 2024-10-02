@@ -134,7 +134,7 @@ model::DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionGroupQuery(
 LocalWriteResult LocalDocumentsView::GetNextDocuments(
     const std::string& collection_group,
     const IndexOffset& offset,
-    int count) const {
+    size_t count) const {
   auto docs = remote_document_cache_->GetAll(collection_group, offset, count);
   auto overlays = count - docs.size() > 0
                       ? document_overlay_cache_->GetOverlays(

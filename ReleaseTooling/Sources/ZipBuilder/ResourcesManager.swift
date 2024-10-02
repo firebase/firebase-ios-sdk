@@ -184,7 +184,7 @@ extension ResourcesManager {
   }
 
   /// Searches for and attempts to remove all empty "Resources" directories in a given directory.
-  /// This is a recrusive search.
+  /// This is a recursive search.
   ///
   /// - Parameter dir: The directory to recursively search for Resources directories in.
   static func removeEmptyResourcesDirectories(in dir: URL) {
@@ -212,7 +212,7 @@ extension ResourcesManager {
           try fileManager.removeItem(at: resourceDir)
         } catch {
           print("WARNING: Failed to remove empty Resources directory while cleaning up folder " +
-            "heirarchy: \(error)")
+            "hierarchy: \(error)")
         }
       }
     }

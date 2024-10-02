@@ -1,3 +1,10 @@
+# 10.28.0
+- Fix Crash from InstrumentUploadTaskWithStreamedRequest (#12983).
+- Replace SystemConfiguration with a more recent network monitoring API by Apple (#13079).
+
+# 10.25.0
+- [changed] Removed usages of user defaults API to eliminate required reason impact.
+
 # 10.18.0
 - [fixed] Fix a Xcode 15.1 build warning (#12027).
 
@@ -89,7 +96,7 @@
 
 # 7.0.0
 - Fix issue related to crashes on specific kind of network requests #6713.
-- Fixed issue related to race condition on Firebase Remote Config initializaton #6287.
+- Fixed issue related to race condition on Firebase Remote Config initialization #6287.
 - Update Firebase dependencies to be latest and greatest.
 
 # 3.3.1

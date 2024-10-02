@@ -1,3 +1,22 @@
+# 11.0.0
+- [fixed] Completed Messaging's transition to NSSecureCoding (#12343).
+
+# 10.29.0
+- [fixed] Renamed "initWithFileName" internal method that was causing submission issues for some
+  users. (#13134).
+- [fixed] Fixed the APS Environment key on visionOS. (#13173)
+
+# 10.27.0
+- [fixed] Fixed bug preventing Messaging from working with a custom sqlite3
+  dependency (#12900).
+
+# 10.23.0
+- [fixed] [CocoaPods] Fix "no rule" warning when running `pod install`. (#12511)
+
+# 10.20.0
+- [fixed] Fix 10.19.0 regression where the FCM registration token was nil at first app start
+  after update from 10.19.0 or earlier. (#12245)
+
 # 10.19.0
 - [changed] Adopt NSSecureCoding for internal classes. (#12075)
 

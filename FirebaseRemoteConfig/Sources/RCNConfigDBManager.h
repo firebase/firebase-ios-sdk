@@ -53,10 +53,12 @@ typedef void (^RCNDBCompletion)(BOOL success, NSDictionary *result);
 /// @param fetchedConfig  Return fetchedConfig loaded from DB
 /// @param activeConfig  Return activeConfig loaded from DB
 /// @param defaultConfig  Return defaultConfig loaded from DB
+/// @param rolloutMetadata  Return fetched and active RolloutMetadata loaded from DB
 typedef void (^RCNDBLoadCompletion)(BOOL success,
                                     NSDictionary *fetchedConfig,
                                     NSDictionary *activeConfig,
-                                    NSDictionary *defaultConfig);
+                                    NSDictionary *defaultConfig,
+                                    NSDictionary *rolloutMetadata);
 
 /// Returns the current version of the Remote Config database.
 + (NSString *)remoteConfigPathForDatabase;
@@ -78,7 +80,6 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Load Personalization from table.
 /// @param handler    The callback when reading from DB is complete.
 - (void)loadPersonalizationWithCompletionHandler:(RCNDBLoadCompletion)handler;
-
 /// Insert a record in metadata table.
 /// @param columnNameToValue The column name and its value to be inserted in metadata table.
 /// @param handler           The callback.
@@ -93,7 +94,7 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// @param values Values to be inserted.
 - (void)insertInternalMetadataTableWithValues:(NSArray *)values
                             completionHandler:(RCNDBCompletion)handler;
-/// Insert exepriment data in experiment table.
+/// Insert experiment data in experiment table.
 /// @param key        The key of experiment data belongs to, which are defined in
 ///                   RCNConfigDefines.h.
 /// @param value      The value that experiment.
@@ -109,6 +110,15 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 
 /// Insert or update the data in Personalization config.
 - (BOOL)insertOrUpdatePersonalizationConfig:(NSDictionary *)metadata fromSource:(RCNDBSource)source;
+
+/// Insert rollout metadata in rollout table.
+/// @param key        Key indicating whether rollout metadata is fetched or active and defined in
+/// RCNConfigDefines.h.
+/// @param metadataList      The metadata info for each rollout entry .
+/// @param handler    The callback.
+- (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
+                                    value:(NSArray<NSDictionary *> *)metadataList
+                        completionHandler:(RCNDBCompletion)handler;
 
 /// Clear the record of given namespace and package name
 /// before updating the table.

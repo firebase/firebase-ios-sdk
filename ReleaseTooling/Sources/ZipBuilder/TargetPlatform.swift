@@ -30,6 +30,10 @@ enum TargetPlatform: CaseIterable {
   case tvOSDevice
   /// Binaries to target tvOS simulators.
   case tvOSSimulator
+  /// Binaries to target tvOS.
+  case watchOSDevice
+  /// Binaries to target tvOS simulators.
+  case watchOSSimulator
 
   /// Valid architectures to be built for the platform.
   var archs: [Architecture] {
@@ -43,6 +47,8 @@ enum TargetPlatform: CaseIterable {
     case .macOS: return [.x86_64, .arm64]
     case .tvOSDevice: return [.arm64]
     case .tvOSSimulator: return [.x86_64, .arm64]
+    case .watchOSDevice: return [.arm64_32, .arm64]
+    case .watchOSSimulator: return [.x86_64, .arm64]
     }
   }
 
@@ -55,6 +61,8 @@ enum TargetPlatform: CaseIterable {
     case .macOS: return "macosx"
     case .tvOSDevice: return "appletvos"
     case .tvOSSimulator: return "appletvsimulator"
+    case .watchOSDevice: return "watchos"
+    case .watchOSSimulator: return "watchsimulator"
     }
   }
 
@@ -75,6 +83,8 @@ enum TargetPlatform: CaseIterable {
     case .macOS: return "Release"
     case .tvOSDevice: return "Release-appletvos"
     case .tvOSSimulator: return "Release-appletvsimulator"
+    case .watchOSDevice: return "Release-watchos"
+    case .watchOSSimulator: return "Release-watchsimulator"
     }
   }
 }
@@ -82,6 +92,7 @@ enum TargetPlatform: CaseIterable {
 /// Different architectures to build frameworks for.
 enum Architecture: String, CaseIterable {
   case arm64
+  case arm64_32
   case armv7
   case i386
   case x86_64

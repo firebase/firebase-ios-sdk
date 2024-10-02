@@ -86,7 +86,7 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 
 /**
  * Generates a new UUID and saves it in persistent storage.
- * Does not sychronize the user defaults (to allow optimized
+ * Does not synchronize the user defaults (to allow optimized
  * batching of user default synchronizing)
  */
 - (NSString *)generateInstallationUUID {
@@ -98,33 +98,45 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 
 #pragma mark Privacy Shield
 
-- (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid))block {
+- (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid, NSString *authToken))block {
   BOOL __block didRotate = false;
+  NSString __block *authTokenComplete = @"";
+  NSString __block *currentIIDComplete = @"";
 
-  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  // Installations Completions run async, so wait a reasonable amount of time for it to finish.
+  dispatch_group_t workingGroup = dispatch_group_create();
 
-  // This runs Completion async, so wait a reasonable amount of time for it to finish.
+  dispatch_group_enter(workingGroup);
+  [self.installations
+      authTokenWithCompletion:^(FIRInstallationsAuthTokenResult *_Nullable tokenResult,
+                                NSError *_Nullable error) {
+        authTokenComplete = tokenResult.authToken;
+        dispatch_group_leave(workingGroup);
+      }];
+
+  dispatch_group_enter(workingGroup);
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
-        // Provide the IID to the callback. For this case we don't care
-        // if the FIID is null because it's the best we can do - we just want
-        // to send up the same FIID that is sent by other SDKs (eg. the Sessions SDK).
-        block(currentIID);
-
+        currentIIDComplete = currentIID;
         didRotate = [self rotateCrashlyticsInstallUUIDWithIID:currentIID error:error];
 
         if (didRotate) {
           FIRCLSInfoLog(@"Rotated Crashlytics Install UUID because Firebase Install ID changed");
         }
-        dispatch_semaphore_signal(semaphore);
+        dispatch_group_leave(workingGroup);
       }];
 
-  intptr_t result = dispatch_semaphore_wait(
-      semaphore, dispatch_time(DISPATCH_TIME_NOW, FIRCLSInstallationsWaitTime));
+  intptr_t result = dispatch_group_wait(
+      workingGroup, dispatch_time(DISPATCH_TIME_NOW, FIRCLSInstallationsWaitTime));
+
   if (result != 0) {
     FIRCLSErrorLog(@"Crashlytics timed out while checking for Firebase Installation ID");
   }
 
+  // Provide the IID to the callback. For this case we don't care
+  // if the FIID is null because it's the best we can do - we just want
+  // to send up the same FIID that is sent by other SDKs (eg. the Sessions SDK).
+  block(currentIIDComplete, authTokenComplete);
   return didRotate;
 }
 

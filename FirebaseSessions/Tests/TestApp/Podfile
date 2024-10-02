@@ -1,16 +1,22 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
+source 'https://github.com/firebase/SpecsDev.git'
+source 'https://github.com/firebase/SpecsStaging.git'
+source 'https://cdn.cocoapods.org/'
+
+
 def shared_pods
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseCoreExtension', :path => '../../../'
   pod 'FirebaseSessions', :path => '../../../'
+  pod 'FirebaseRemoteConfigInterop', :path => '../../../'
 end
 
 target 'AppQualityDevApp_iOS' do
-  platform :ios, '11.0'
+  platform :ios, '13.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
@@ -19,7 +25,7 @@ target 'AppQualityDevApp_iOS' do
 end
 
 target 'AppQualityDevApp_Crashlytics_iOS' do
-  platform :ios, '11.0'
+  platform :ios, '13.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
@@ -29,7 +35,7 @@ target 'AppQualityDevApp_Crashlytics_iOS' do
 end
 
 target 'AppQualityDevApp_Performance_iOS' do
-  platform :ios, '11.0'
+  platform :ios, '13.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
@@ -39,7 +45,7 @@ target 'AppQualityDevApp_Performance_iOS' do
 end
 
 target 'AppQualityDevApp_CrashlyticsPerformance_iOS' do
-  platform :ios, '11.0'
+  platform :ios, '13.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
@@ -50,7 +56,7 @@ target 'AppQualityDevApp_CrashlyticsPerformance_iOS' do
 end
 
 target 'AppQualityDevApp_macOS' do
-  platform :macos, '10.13'
+  platform :macos, '10.15'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!

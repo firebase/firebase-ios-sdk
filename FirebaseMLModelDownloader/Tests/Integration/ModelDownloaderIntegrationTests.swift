@@ -22,20 +22,26 @@
   @testable import FirebaseInstallations
   @testable import FirebaseMLModelDownloader
   import XCTest
+  #if SWIFT_PACKAGE
+    @_implementationOnly import GoogleUtilities_UserDefaults
+  #else
+    @_implementationOnly import GoogleUtilities
+  #endif // SWIFT_PACKAGE
 
-  extension UserDefaults {
-    /// Returns a new cleared instance of user defaults.
-    static func createTestInstance(testName: String) -> UserDefaults {
+  extension GULUserDefaults {
+    /// Returns an instance of user defaults.
+    static func createTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      let defaults = UserDefaults(suiteName: suiteName)!
-      defaults.removePersistentDomain(forName: suiteName)
-      return defaults
+      // Clear the suite (`UserDefaults` and `GULUserDefaults` map to the same
+      // storage space and `GULUserDefaults` doesn't offer API to do this.)
+      UserDefaults(suiteName: suiteName)!.removePersistentDomain(forName: suiteName)
+      return GULUserDefaults(suiteName: suiteName)
     }
 
     /// Returns the existing user defaults instance.
-    static func getTestInstance(testName: String) -> UserDefaults {
+    static func getTestInstance(testName: String) -> GULUserDefaults {
       let suiteName = "com.google.firebase.ml.test.\(testName)"
-      return UserDefaults(suiteName: suiteName)!
+      return GULUserDefaults(suiteName: suiteName)
     }
   }
 
@@ -154,8 +160,18 @@
       wait(for: [modelInfoRetrieveExpectation], timeout: 5)
     }
 
+    /// Disabled since this test has been flaky in CI.
+    /// From https://github.com/firebase/firebase-ios-sdk/actions/runs/9944896811/job/27471928997
+    /// ModelDownloaderIntegrationTests.swift:190: XCTAssertGreaterThanOrEqual failed: ("-3106.0")
+    /// is less than ("0.0")
+    /// ModelDownloaderIntegrationTests.swift:190: XCTAssertGreaterThanOrEqual failed: ("-4902.0")
+    /// is less than ("0.0")
+    /// ModelDownloaderIntegrationTests.swift:204: error:
+    ///  failed - Error: internalError(description: "Model download failed with HTTP error code:
+    /// 500")
+    ///
     /// Test to download model file - makes an actual network call.
-    func testModelDownload() throws {
+    func SKIPtestModelDownload() throws {
       guard let testApp = FirebaseApp.app() else {
         XCTFail("Default app was not configured.")
         return

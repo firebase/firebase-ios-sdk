@@ -92,17 +92,17 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
   NSMutableDictionary *keychainQuery = [self keychainQueryForService:service account:account];
   NSMutableArray<NSData *> *results;
   keychainQuery[(__bridge id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
-#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
+#if TARGET_OS_OSX || TARGET_OS_WATCH
+  keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
+  NSData *passwordInfos =
+      CFBridgingRelease([[FIRMessagingKeychain sharedInstance] itemWithQuery:keychainQuery]);
+#else   // TARGET_OS_OSX || TARGET_OS_WATCH
   keychainQuery[(__bridge id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
   keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitAll;
   // FIRMessagingKeychain should only take a query and return a result, will handle the query here.
   NSArray *passwordInfos =
       CFBridgingRelease([[FIRMessagingKeychain sharedInstance] itemWithQuery:keychainQuery]);
-#elif TARGET_OS_OSX || TARGET_OS_WATCH
-  keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
-  NSData *passwordInfos =
-      CFBridgingRelease([[FIRMessagingKeychain sharedInstance] itemWithQuery:keychainQuery]);
-#endif
+#endif  // TARGET_OS_OSX || TARGET_OS_WATCH
 
   if (!passwordInfos) {
     // Nothing was found, simply return from this sync block.
@@ -119,7 +119,9 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
     return @[];
   }
   results = [[NSMutableArray alloc] init];
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_OSX || TARGET_OS_WATCH
+  [results addObject:passwordInfos];
+#else   // TARGET_OS_OSX || TARGET_OS_WATCH
   NSInteger numPasswords = passwordInfos.count;
   for (NSUInteger i = 0; i < numPasswords; i++) {
     NSDictionary *passwordInfo = [passwordInfos objectAtIndex:i];
@@ -127,9 +129,7 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
       [results addObject:passwordInfo[(__bridge id)kSecValueData]];
     }
   }
-#elif TARGET_OS_OSX || TARGET_OS_WATCH
-  [results addObject:passwordInfos];
-#endif
+#endif  // TARGET_OS_OSX || TARGET_OS_WATCH
   // We query the keychain because it didn't exist in cache, now query is done, update the result in
   // the cache.
   if ([service isEqualToString:kFIRMessagingKeychainWildcardIdentifier] ||

@@ -243,7 +243,7 @@ bool FIRCLSCompactUnwindLookupSecondLevelCompressed(FIRCLSCompactUnwindContext* 
 
   uint32_t entry = entryArray[index];
 
-  // Computing the fuction start address is easy
+  // Computing the function start address is easy
   result->functionStart = UNWIND_INFO_COMPRESSED_ENTRY_FUNC_OFFSET(entry) +
                           FIRCLSCompactUnwindGetIndexFunctionOffset(context);
 

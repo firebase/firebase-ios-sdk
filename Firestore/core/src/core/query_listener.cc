@@ -112,7 +112,7 @@ void QueryListener::OnError(Status error) {
 }
 
 /**
- * Returns whether a snaphsot was raised.
+ * Returns whether a snapshot was raised.
  */
 bool QueryListener::OnOnlineStateChanged(OnlineState online_state) {
   online_state_ = online_state;
@@ -133,6 +133,11 @@ bool QueryListener::ShouldRaiseInitialEvent(const ViewSnapshot& snapshot,
 
   // Always raise the first event when we're synced
   if (!snapshot.from_cache()) {
+    return true;
+  }
+
+  // Always raise first event if listening to cache
+  if (!listens_to_remote_store()) {
     return true;
   }
 

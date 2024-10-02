@@ -95,9 +95,11 @@ end
 
 if is_platform(:ios)
   target 'Firestore_Example_iOS' do
-    platform :ios, '11.0'
+    platform :ios, '13.0'
 
     configure_local_pods()
+
+    pod 'abseil', '~> 1.20240116.1'
 
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
@@ -118,7 +120,6 @@ if is_platform(:ios)
     target 'Firestore_IntegrationTests_iOS' do
       inherit! :search_paths
 
-      pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
@@ -128,7 +129,7 @@ if is_platform(:ios)
 
     target 'Firestore_FuzzTests_iOS' do
       inherit! :search_paths
-      platform :ios, '11.0'
+      platform :ios, '13.0'
 
       pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
     end
@@ -137,9 +138,11 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.13'
+    platform :osx, '10.15'
 
     configure_local_pods()
+
+    pod 'abseil', '~> 1.20240116.1'
 
     target 'Firestore_Tests_macOS' do
       inherit! :search_paths
@@ -154,7 +157,6 @@ if is_platform(:osx)
     target 'Firestore_IntegrationTests_macOS' do
       inherit! :search_paths
 
-      pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
@@ -166,9 +168,11 @@ end
 
 if is_platform(:tvos)
   target 'Firestore_Example_tvOS' do
-    platform :tvos, '12.0'
+    platform :tvos, '13.0'
 
     configure_local_pods()
+
+    pod 'abseil', '~> 1.20240116.1'
 
     target 'Firestore_Tests_tvOS' do
       inherit! :search_paths
@@ -183,7 +187,6 @@ if is_platform(:tvos)
     target 'Firestore_IntegrationTests_tvOS' do
       inherit! :search_paths
 
-      pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'

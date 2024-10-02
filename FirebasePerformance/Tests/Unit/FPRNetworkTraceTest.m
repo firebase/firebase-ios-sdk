@@ -191,7 +191,7 @@
   FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:sampleURLRequest];
   XCTAssertNotNil(trace);
 
-  // Expected lenght of the URL should be the domainLength, number of times path was appended which
+  // Expected length of the URL should be the domainLength, number of times path was appended which
   // does not make the length go beyond the max limit.
   NSInteger expectedLength = domainString.length + (numberOfAppends - 1) * appendString.length;
   XCTAssertEqual(trace.trimmedURLString.length, expectedLength);
@@ -237,7 +237,7 @@
   NSDictionary<NSString *, NSNumber *> *states = [trace checkpointStates];
   XCTAssertEqual(states.count, 1);
 
-  // Validate if the first checkpoint occured before the second checkpoint time.
+  // Validate if the first checkpoint occurred before the second checkpoint time.
   XCTAssertLessThan(firstCheckpointTime, secondCheckpointTime);
   // Validate if the time has not changed even after rec checkpointing.
   XCTAssertEqual(firstInitiatedTime, secondInitiatedTime);

@@ -15,6 +15,7 @@
  */
 
 #import "FIRInAppMessaging.h"
+#import "FIRInAppMessagingErrors.h"
 #import "FIRInAppMessagingRendering.h"
 
 #if __has_include(<FirebaseInAppMessagingDisplay/FirebaseInAppMessagingDisplay.h>)

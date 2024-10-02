@@ -18,6 +18,7 @@
 
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
+#import "FIRSnapshotListenOptions.h"
 
 @class FIRAggregateQuery;
 @class FIRAggregateField;
@@ -40,6 +41,7 @@ typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
  * A `Query` refers to a query which you can read or listen to. You can also construct
  * refined `Query` objects by adding filters and ordering.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(Query)
 @interface FIRQuery : NSObject
 /** :nodoc: */
@@ -103,6 +105,21 @@ NS_SWIFT_NAME(Query)
                                          listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                                             NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
+
+/**
+ * Attaches a listener for `QuerySnapshot` events.
+ * @param options Sets snapshot listener options, including whether metadata-only changes should
+ *     trigger snapshot events, the source to listen to, the executor to use to call the
+ *     listener, or the activity to scope the listener to.
+ * @param listener The listener to attach.
+ *
+ * @return A `ListenerRegistration` that can be used to remove this listener.
+ */
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                          listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                             NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 
 #pragma mark - Filtering Data
 /**
@@ -556,22 +573,23 @@ NS_SWIFT_NAME(Query)
 #pragma mark - Aggregation
 
 /**
- * A query that counts the documents in the result set of this query, without actually downloading
+ * A query that counts the documents in the result set of this query without actually downloading
  * the documents.
  *
- * Using this `AggregateQuery` to count the documents is efficient because only the final count,
- * not the documents' data, is downloaded. This allows for counting document collections that would
- * otherwise be too large to download (e.g. containing thousands of documents).
+ * Using this `AggregateQuery` to count the documents is efficient because only the final count, not
+ * the documents' data, is downloaded. The `AggregateQuery` can count the documents in cases where
+ * the result set is prohibitively large to download entirely (thousands of documents).
  */
 @property(nonatomic, readonly) FIRAggregateQuery *count;
 
 /**
  * Creates and returns a new `AggregateQuery` that aggregates the documents in the result set
- * of this query, without actually downloading the documents.
+ * of this query without actually downloading the documents.
  *
  * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation
- * values, not the documents' data, is downloaded. This allows for aggregating document collections
- * that would otherwise be too large to download (e.g. containing thousands of documents).
+ * values, not the documents' data, is downloaded. The returned `AggregateQuery` can perform
+ * aggregations of the documents in cases where the result set is prohibitively large to download
+ * entirely (thousands of documents).
  *
  * @param aggregateFields Specifies the aggregate operations to perform on the result set of this
  * query.

@@ -16,6 +16,9 @@
 
 @interface FIRMockInstallations : FIRInstallations
 
+@property(nonatomic) BOOL authTokenFinished;
+@property(nonatomic) BOOL installationIDFinished;
+
 - (instancetype)initWithFID:(NSString *)installationID;
 - (instancetype)initWithError:(NSError *)error;
 

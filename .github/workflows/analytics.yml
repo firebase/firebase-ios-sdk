@@ -23,16 +23,16 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-        os: [macos-12, macos-13]
+        os: [macos-14, macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          - os: macos-14
+            xcode: Xcode_15.3
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -42,8 +42,6 @@ jobs:
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurement.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
     - name: FirebaseAnalytics
       run: scripts/third_party/travis/retry.sh pod spec lint FirebaseAnalytics.podspec --platforms=${{ matrix.target }} --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/
-    - name: FirebaseAnalyticsSwift
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAnalyticsSwift.podspec --allow-warnings --platforms=${{ matrix.target }}
     # The following steps are only run on `ios` due to product availability.
     - name: GoogleAppMeasurementOnDeviceConversion
       run: scripts/third_party/travis/retry.sh pod spec lint GoogleAppMeasurementOnDeviceConversion.podspec --platforms=ios --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/

@@ -20,22 +20,15 @@ private enum Constants {
   static let dateType = "type.googleapis.com/google.protobuf.Timestamp"
 }
 
-enum SerializerError: Error {
-  // TODO: Add parameters class name and value
-  case unsupportedType // (className: String, value: AnyObject)
-  case unknownNumberType(charValue: String, number: NSNumber)
-  case invalidValueForType(value: String, requestedType: String)
+extension FunctionsSerializer {
+  enum Error: Swift.Error {
+    case unsupportedType(typeName: String)
+    case unknownNumberType(charValue: String, number: NSNumber)
+    case invalidValueForType(value: String, requestedType: String)
+  }
 }
 
-class FUNSerializer: NSObject {
-  private let dateFormatter: DateFormatter
-
-  override init() {
-    dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    dateFormatter.timeZone = TimeZone(identifier: "UTC")
-  }
-
+final class FunctionsSerializer {
   // MARK: - Internal APIs
 
   func encode(_ object: Any) throws -> AnyObject {
@@ -47,27 +40,21 @@ class FUNSerializer: NSObject {
       return object as AnyObject
     } else if object is NSDictionary {
       let dict = object as! NSDictionary
-      let encoded: NSMutableDictionary = .init()
-      dict.enumerateKeysAndObjects { key, obj, _ in
-        // TODO(wilsonryan): Not exact translation
-        let anyObj = obj as AnyObject
-        let stringKey = key as! String
-        let value = try! encode(anyObj)
-        encoded[stringKey] = value
+      let encoded = NSMutableDictionary()
+      try dict.forEach { key, value in
+        encoded[key] = try encode(value)
       }
       return encoded
     } else if object is NSArray {
       let array = object as! NSArray
       let encoded = NSMutableArray()
-      for item in array {
-        let anyItem = item as AnyObject
-        let encodedItem = try encode(anyItem)
-        encoded.add(encodedItem)
+      try array.forEach { element in
+        try encoded.add(encode(element))
       }
       return encoded
 
     } else {
-      throw SerializerError.unsupportedType
+      throw Error.unsupportedType(typeName: typeName(of: object))
     }
   }
 
@@ -76,7 +63,7 @@ class FUNSerializer: NSObject {
     if let dict = object as? NSDictionary {
       if let requestedType = dict["@type"] as? String {
         guard let value = dict["value"] as? String else {
-          // Seems like we should throw here - but this maintains compatiblity.
+          // Seems like we should throw here - but this maintains compatibility.
           return dict
         }
         let result = try decodeWrappedType(requestedType, value)
@@ -86,40 +73,28 @@ class FUNSerializer: NSObject {
       }
 
       let decoded = NSMutableDictionary()
-      var decodeError: Error?
-      dict.enumerateKeysAndObjects { key, obj, stopPointer in
-        do {
-          let decodedItem = try self.decode(obj)
-          decoded[key] = decodedItem
-        } catch {
-          decodeError = error
-          stopPointer.pointee = true
-          return
-        }
-      }
-
-      // Throw the internal error that popped up, if it did.
-      if let decodeError = decodeError {
-        throw decodeError
+      try dict.forEach { key, value in
+        decoded[key] = try decode(value)
       }
       return decoded
     } else if let array = object as? NSArray {
-      let result = NSMutableArray(capacity: array.count)
-      for obj in array {
-        // TODO: Is this data loss? The API is a bit weird.
-        if let decoded = try decode(obj) {
-          result.add(decoded)
-        }
+      let decoded = NSMutableArray(capacity: array.count)
+      try array.forEach { element in
+        try decoded.add(decode(element) as Any)
       }
-      return result
+      return decoded
     } else if object is NSNumber || object is NSString || object is NSNull {
       return object as AnyObject
     }
 
-    throw SerializerError.unsupportedType
+    throw Error.unsupportedType(typeName: typeName(of: object))
   }
 
   // MARK: - Private Helpers
+
+  private func typeName(of value: Any) -> String {
+    String(describing: type(of: value))
+  }
 
   private func encodeNumber(_ number: NSNumber) throws -> AnyObject {
     // Recover the underlying type of the number, using the method described here:
@@ -133,6 +108,7 @@ class FUNSerializer: NSObject {
     case CChar("q".utf8.first!):
       // "long long" might be larger than JS supports, so make it a string.
       return ["@type": Constants.longType, "value": "\(number)"] as AnyObject
+
     case CChar("Q".utf8.first!):
       // "unsigned long long" might be larger than JS supports, so make it a string.
       return ["@type": Constants.unsignedLongType,
@@ -162,7 +138,7 @@ class FUNSerializer: NSObject {
 
     default:
       // All documented codes should be handled above, so this shouldn"t happen.
-      throw SerializerError.unknownNumberType(charValue: String(cType[0]), number: number)
+      throw Error.unknownNumberType(charValue: String(cType[0]), number: number)
     }
   }
 
@@ -171,16 +147,17 @@ class FUNSerializer: NSObject {
     case Constants.longType:
       let formatter = NumberFormatter()
       guard let n = formatter.number(from: value) else {
-        throw SerializerError.invalidValueForType(value: value, requestedType: type)
+        throw Error.invalidValueForType(value: value, requestedType: type)
       }
       return n
+
     case Constants.unsignedLongType:
       // NSNumber formatter doesn't handle unsigned long long, so we have to parse it.
       let str = (value as NSString).utf8String
       var endPtr: UnsafeMutablePointer<CChar>?
       let returnValue = UInt64(strtoul(str, &endPtr, 10))
       guard String(returnValue) == value else {
-        throw SerializerError.invalidValueForType(value: value, requestedType: type)
+        throw Error.invalidValueForType(value: value, requestedType: type)
       }
       return NSNumber(value: returnValue)
 

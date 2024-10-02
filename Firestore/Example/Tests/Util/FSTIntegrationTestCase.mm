@@ -34,7 +34,8 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
@@ -567,6 +568,22 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
                                             completion:[self completionForExpectation:expectation]];
   [self awaitExpectation:expectation];
   return doc;
+}
+
+- (void)runTransaction:(FIRFirestore *)db
+                 block:(id _Nullable (^)(FIRTransaction *, NSError **error))block
+            completion:
+                (nullable void (^)(id _Nullable result, NSError *_Nullable error))completion {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"runTransaction"];
+  [db runTransactionWithOptions:nil
+                          block:block
+                     completion:^(id _Nullable result, NSError *_Nullable error) {
+                       if (completion) {
+                         completion(result, error);
+                       }
+                       [expectation fulfill];
+                     }];
+  [self awaitExpectation:expectation];
 }
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {

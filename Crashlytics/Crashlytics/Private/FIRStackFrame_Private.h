@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  * non-ObjC, non-C++, and non-Swift exceptions. All information included here will be displayed in
  *the Crashlytics UI, and can influence crash grouping. Be particularly careful with the use of the
  *address properties. If set, Crashlytics will attempt symbolication and could overwrite other
- *properities in the process.
+ *properties in the process.
  **/
 @interface FIRStackFrame (Private)
 

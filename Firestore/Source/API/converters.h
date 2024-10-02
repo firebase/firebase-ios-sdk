@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#import "FIRSnapshotListenOptions.h"
+#import "Firestore/core/src/api/listen_source.h"
 
 @class FIRGeoPoint;
 @class FIRTimestamp;
@@ -61,6 +63,8 @@ FIRTimestamp* MakeFIRTimestamp(const Timestamp& timestamp);
 
 FIRDocumentReference* MakeFIRDocumentReference(const model::DocumentKey& document_key,
                                                std::shared_ptr<Firestore> firestore);
+
+ListenSource MakeListenSource(const FIRListenSource& source);
 
 }  // namespace api
 }  // namespace firestore

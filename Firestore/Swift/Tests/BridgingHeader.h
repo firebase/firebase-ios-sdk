@@ -18,6 +18,7 @@
 #define FIRESTORE_SWIFT_TESTS_BRIDGINGHEADER_H_
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTExceptionCatcher.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 

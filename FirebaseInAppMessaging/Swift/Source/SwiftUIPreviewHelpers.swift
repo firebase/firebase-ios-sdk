@@ -96,7 +96,7 @@ public enum InAppMessagingPreviewHelpers {
     }
 
     var actionButton: InAppMessagingActionButton?
-    if let buttonText = buttonText,
+    if let buttonText,
        let buttonTextColor = buttonTextColor,
        let buttonBackgroundColor = buttonBackgroundColor {
       actionButton = InAppMessagingActionButton(buttonText: buttonText,

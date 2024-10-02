@@ -31,7 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract A class that checks for pending Dynamic Links and parses URLs.
  *     This class is available on iOS only.
  */
-
+DEPRECATED_MSG_ATTRIBUTE(
+    "Firebase Dynamic Links is deprecated and the service will shut down on August 25, 2025.")
 NS_EXTENSION_UNAVAILABLE_IOS("Firebase Dynamic Links is not supported for iOS extensions.")
 API_UNAVAILABLE(macos, tvos, watchos)
 NS_SWIFT_NAME(DynamicLinks)
