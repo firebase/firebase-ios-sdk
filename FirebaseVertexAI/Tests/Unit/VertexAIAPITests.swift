@@ -33,7 +33,10 @@ final class VertexAIAPITests: XCTestCase {
                                   stopSequences: ["..."],
                                   responseMIMEType: "text/plain")
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
-    let systemInstruction = ModelContent(role: "system", parts: [.text("Talk like a pirate.")])
+    let systemInstruction = ModelContent(
+      role: "system",
+      parts: TextPart(textValue: "Talk like a pirate.")
+    )
 
     // Instantiate Vertex AI SDK - Default App
     let vertexAI = VertexAI.vertexAI()
@@ -72,11 +75,15 @@ final class VertexAIAPITests: XCTestCase {
 
     // Full Typed Usage
     let pngData = Data() // ....
-    let contents = [ModelContent(role: "user",
-                                 parts: [
-                                   .text("Is it a cat?"),
-                                   .png(pngData),
-                                 ])]
+    let contents = [ModelContent(
+      role: "user",
+      parts: [
+        TextPart(textValue: "Is it a cat?"),
+        InlineDataPart(
+          inlineData: InlineData(mimeType: "image/png", data: pngData)
+        ),
+      ]
+    )]
 
     do {
       let response = try await genAI.generateContent(contents)
@@ -93,13 +100,12 @@ final class VertexAIAPITests: XCTestCase {
     let _ = try await genAI.generateContent(str, "abc", "def")
     let _ = try await genAI.generateContent(
       str,
-      ModelContent.Part.fileData(mimetype: "image/jpeg", uri: "gs://test-bucket/image.jpg")
+      FileDataPart(fileData: FileData(mimeType: "image/jpeg", uri: "gs://test-bucket/image.jpg"))
     )
     #if canImport(UIKit)
       _ = try await genAI.generateContent(UIImage())
       _ = try await genAI.generateContent([UIImage()])
-      _ = try await genAI
-        .generateContent([str, UIImage(), ModelContent.Part.text(str)])
+      _ = try await genAI.generateContent([str, UIImage(), TextPart(textValue: str)])
       _ = try await genAI.generateContent(str, UIImage(), "def", UIImage())
       _ = try await genAI.generateContent([str, UIImage(), "def", UIImage()])
       _ = try await genAI.generateContent([ModelContent("def", UIImage()),
@@ -112,8 +118,8 @@ final class VertexAIAPITests: XCTestCase {
     #endif
 
     // PartsRepresentable combinations.
-    let _ = ModelContent(parts: [.text(str)])
-    let _ = ModelContent(role: "model", parts: [.text(str)])
+    let _ = ModelContent(parts: [TextPart(textValue: str)])
+    let _ = ModelContent(role: "model", parts: [TextPart(textValue: str)])
     let _ = ModelContent(parts: "Constant String")
     let _ = ModelContent(parts: str)
     let _ = ModelContent(parts: [str])
@@ -121,10 +127,12 @@ final class VertexAIAPITests: XCTestCase {
     // convert value of type 'String' to expected element type
     // 'Array<ModelContent.Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
     // work.
-    let _ = ModelContent(parts: [str, ModelContent.Part.inlineData(
-      mimetype: "foo",
-      Data()
-    )] as [any PartsRepresentable])
+    let _ = ModelContent(
+      parts: [str, InlineDataPart(inlineData: InlineData(
+        mimeType: "foo",
+        data: Data()
+      ))] as [any PartsRepresentable]
+    )
     #if canImport(UIKit)
       _ = ModelContent(role: "user", parts: UIImage())
       _ = ModelContent(role: "user", parts: [UIImage()])
@@ -135,8 +143,8 @@ final class VertexAIAPITests: XCTestCase {
       // Alternatively, you can explicitly declare the type in a variable and pass it in.
       let representable2: [any PartsRepresentable] = [str, UIImage()]
       _ = ModelContent(parts: representable2)
-      _ = ModelContent(parts: [str, UIImage(),
-                               ModelContent.Part.text(str)] as [any PartsRepresentable])
+      _ =
+        ModelContent(parts: [str, UIImage(), TextPart(textValue: str)] as [any PartsRepresentable])
     #elseif canImport(AppKit)
       _ = ModelContent(role: "user", parts: NSImage())
       _ = ModelContent(role: "user", parts: [NSImage()])
@@ -148,8 +156,7 @@ final class VertexAIAPITests: XCTestCase {
       let representable2: [any PartsRepresentable] = [str, NSImage()]
       _ = ModelContent(parts: representable2)
       _ =
-        ModelContent(parts: [str, NSImage(),
-                             ModelContent.Part.text(str)] as [any PartsRepresentable])
+        ModelContent(parts: [str, NSImage(), TextPart(textValue: str)] as [any PartsRepresentable])
     #endif
 
     // countTokens API

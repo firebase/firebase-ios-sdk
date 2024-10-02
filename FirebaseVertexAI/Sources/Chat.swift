@@ -146,20 +146,20 @@ public class Chat {
   }
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [ModelContent.Part] = []
+    var parts: [any ModelContent.Part] = []
     var combinedText = ""
     for aggregate in chunks {
       // Loop through all the parts, aggregating the text and adding the images.
       for part in aggregate.parts {
         switch part {
-        case let .text(str):
-          combinedText += str
+        case let textPart as TextPart:
+          combinedText += textPart.textValue
 
-        case .inlineData, .fileData, .functionCall, .functionResponse, .error:
+        default:
           // Don't combine it, just add to the content. If there's any text pending, add that as
           // a part.
           if !combinedText.isEmpty {
-            parts.append(.text(combinedText))
+            parts.append(TextPart(textValue: combinedText))
             combinedText = ""
           }
 
@@ -169,7 +169,7 @@ public class Chat {
     }
 
     if !combinedText.isEmpty {
-      parts.append(.text(combinedText))
+      parts.append(TextPart(textValue: combinedText))
     }
 
     return ModelContent(role: "model", parts: parts)

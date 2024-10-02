@@ -61,7 +61,7 @@ final class PartsRepresentableTests: XCTestCase {
       let image = CIImage.empty()
       let modelContent = image.partsValue
       let part = try XCTUnwrap(modelContent.first)
-      guard case .error = part else {
+      guard part is ErrorPart else {
         XCTFail("Expected ErrorPart.")
         return
       }
@@ -73,7 +73,7 @@ final class PartsRepresentableTests: XCTestCase {
       let image = UIImage()
       let modelContent = image.partsValue
       let part = try XCTUnwrap(modelContent.first)
-      guard case .error = part else {
+      guard part is ErrorPart else {
         XCTFail("Expected ErrorPart.")
         return
       }
@@ -100,7 +100,7 @@ final class PartsRepresentableTests: XCTestCase {
       let image = NSImage()
       let modelContent = image.partsValue
       let part = try XCTUnwrap(modelContent.first)
-      guard case .error = part else {
+      guard part is ErrorPart else {
         XCTFail("Expected ErrorPart.")
         return
       }

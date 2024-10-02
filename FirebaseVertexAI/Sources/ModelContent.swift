@@ -14,14 +14,110 @@
 
 import Foundation
 
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension ModelContent.Part {
+  var text: String? {
+    switch self {
+    case let textPart as TextPart:
+      return textPart.textValue
+    default:
+      return nil
+    }
+  }
+
+  var partsValue: [any ModelContent.Part] {
+    return [self]
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct TextPart: ModelContent.Part {
+  public let textValue: String
+
+  public init(textValue: String) {
+    self.textValue = textValue
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct InlineData: Codable, Equatable, Sendable {
+  public let mimeType: String
+  public let data: Data
+
+  public init(mimeType: String, data: Data) {
+    self.mimeType = mimeType
+    self.data = data
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct InlineDataPart: ModelContent.Part {
+  public let inlineData: InlineData
+
+  public init(inlineData: InlineData) {
+    self.inlineData = inlineData
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FileData: Codable, Equatable, Sendable {
+  enum CodingKeys: String, CodingKey {
+    case mimeType = "mime_type"
+    case uri = "file_uri"
+  }
+
+  public let mimeType: String
+  public let uri: String
+
+  public init(mimeType: String, uri: String) {
+    self.mimeType = mimeType
+    self.uri = uri
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FileDataPart: ModelContent.Part {
+  public let fileData: FileData
+
+  public init(fileData: FileData) {
+    self.fileData = fileData
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FunctionCallPart: ModelContent.Part {
+  public let functionCall: FunctionCall
+
+  public init(functionCall: FunctionCall) {
+    self.functionCall = functionCall
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FunctionResponsePart: ModelContent.Part {
+  public let functionResponse: FunctionResponse
+
+  public init(functionResponse: FunctionResponse) {
+    self.functionResponse = functionResponse
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct ErrorPart: Error, ModelContent.Part, Equatable {}
+
 /// A type describing data in media formats interpretable by an AI model. Each generative AI
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Equatable, Sendable {
+  public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
+    /// Returns the text contents of this ``Part``, if it contains text.
+    var text: String? { get }
+  }
+
   /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
   /// of ``Part``, different data types may not mix.
-  public enum Part: Equatable, Sendable {
+  enum InternalPart: Equatable, Sendable {
     /// Text value.
     case text(String)
 
@@ -49,9 +145,6 @@ public struct ModelContent: Equatable, Sendable {
     /// A response to a function call.
     case functionResponse(FunctionResponse)
 
-    /// Creating a part failed and produced an error.
-    case error(ErrorPart)
-
     // MARK: Convenience Initializers
 
     /// Convenience function for populating a Part with JPEG data.
@@ -63,14 +156,6 @@ public struct ModelContent: Equatable, Sendable {
     public static func png(_ data: Data) -> Self {
       return .inlineData(mimetype: "image/png", data)
     }
-
-    /// Returns the text contents of this ``Part``, if it contains text.
-    public var text: String? {
-      switch self {
-      case let .text(contents): return contents
-      default: return nil
-      }
-    }
   }
 
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
@@ -78,19 +163,78 @@ public struct ModelContent: Equatable, Sendable {
   public let role: String?
 
   /// The data parts comprising this ``ModelContent`` value.
-  public let parts: [Part]
+  public var parts: [any Part] {
+    var convertedParts = [any ModelContent.Part]()
+    for part in internalParts {
+      switch part {
+      case let .text(text):
+        convertedParts.append(TextPart(textValue: text))
+      case let .inlineData(mimetype, data):
+        convertedParts
+          .append(InlineDataPart(inlineData: InlineData(mimeType: mimetype, data: data)))
+      case let .fileData(mimetype, uri):
+        convertedParts.append(FileDataPart(fileData: FileData(mimeType: mimetype, uri: uri)))
+      case let .functionCall(functionCall):
+        convertedParts.append(FunctionCallPart(functionCall: functionCall))
+      case let .functionResponse(functionResponse):
+        convertedParts.append(FunctionResponsePart(functionResponse: functionResponse))
+      }
+    }
+    return convertedParts
+  }
+
+  // TODO: Refactor this
+  let internalParts: [InternalPart]
 
   /// Creates a new value from any data or `Array` of data interpretable as a
   /// ``Part``. See ``PartsRepresentable`` for types that can be interpreted as `Part`s.
   public init(role: String? = "user", parts: some PartsRepresentable) {
     self.role = role
-    self.parts = parts.partsValue
+    var convertedParts = [InternalPart]()
+    for part in parts.partsValue {
+      switch part {
+      case let textPart as TextPart:
+        convertedParts.append(.text(textPart.textValue))
+      case let inlineDataPart as InlineDataPart:
+        let inlineData = inlineDataPart.inlineData
+        convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
+      case let fileDataPart as FileDataPart:
+        let fileData = fileDataPart.fileData
+        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.uri))
+      case let functionCallPart as FunctionCallPart:
+        convertedParts.append(.functionCall(functionCallPart.functionCall))
+      case let functionResponsePart as FunctionResponsePart:
+        convertedParts.append(.functionResponse(functionResponsePart.functionResponse))
+      default:
+        fatalError()
+      }
+    }
+    internalParts = convertedParts
   }
 
   /// Creates a new value from a list of ``Part``s.
-  public init(role: String? = "user", parts: [Part]) {
+  public init(role: String? = "user", parts: [any Part]) {
     self.role = role
-    self.parts = parts
+    var convertedParts = [InternalPart]()
+    for part in parts {
+      switch part {
+      case let textPart as TextPart:
+        convertedParts.append(.text(textPart.textValue))
+      case let inlineDataPart as InlineDataPart:
+        let inlineData = inlineDataPart.inlineData
+        convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
+      case let fileDataPart as FileDataPart:
+        let fileData = fileDataPart.fileData
+        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.uri))
+      case let functionCallPart as FunctionCallPart:
+        convertedParts.append(.functionCall(functionCallPart.functionCall))
+      case let functionResponsePart as FunctionResponsePart:
+        convertedParts.append(.functionResponse(functionResponsePart.functionResponse))
+      default:
+        fatalError()
+      }
+    }
+    internalParts = convertedParts
   }
 
   /// Creates a new value from any data interpretable as a ``Part``.
@@ -111,10 +255,15 @@ public struct ModelContent: Equatable, Sendable {
 // MARK: Codable Conformances
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent: Codable {}
+extension ModelContent: Codable {
+  enum CodingKeys: String, CodingKey {
+    case role
+    case internalParts = "parts"
+  }
+}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent.Part: Codable {
+extension ModelContent.InternalPart: Codable {
   enum CodingKeys: String, CodingKey {
     case text
     case inlineData
@@ -126,11 +275,6 @@ extension ModelContent.Part: Codable {
   enum InlineDataKeys: String, CodingKey {
     case mimeType = "mime_type"
     case bytes = "data"
-  }
-
-  enum FileDataKeys: String, CodingKey {
-    case mimeType = "mime_type"
-    case uri = "file_uri"
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -146,18 +290,17 @@ extension ModelContent.Part: Codable {
       try inlineDataContainer.encode(mimetype, forKey: .mimeType)
       try inlineDataContainer.encode(bytes, forKey: .bytes)
     case let .fileData(mimetype: mimetype, url):
-      var fileDataContainer = container.nestedContainer(
-        keyedBy: FileDataKeys.self,
-        forKey: .fileData
-      )
-      try fileDataContainer.encode(mimetype, forKey: .mimeType)
-      try fileDataContainer.encode(url, forKey: .uri)
+//      var fileDataContainer = container.nestedContainer(
+//        keyedBy: FileDataKeys.self,
+//        forKey: .fileData
+//      )
+      try container.encode(FileData(mimeType: mimetype, uri: url), forKey: .fileData)
+//      try fileDataContainer.encode(mimetype, forKey: .mimeType)
+//      try fileDataContainer.encode(url, forKey: .uri)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
       try container.encode(functionResponse, forKey: .functionResponse)
-    case .error:
-      fatalError("ErrorPart")
     }
   }
 
@@ -186,5 +329,3 @@ extension ModelContent.Part: Codable {
     }
   }
 }
-
-public struct ErrorPart: Error, Equatable {}
