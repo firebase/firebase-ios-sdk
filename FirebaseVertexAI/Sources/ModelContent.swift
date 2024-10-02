@@ -49,6 +49,9 @@ public struct ModelContent: Equatable, Sendable {
     /// A response to a function call.
     case functionResponse(FunctionResponse)
 
+    /// Creating a part failed and produced an error.
+    case error(ErrorPart)
+
     // MARK: Convenience Initializers
 
     /// Convenience function for populating a Part with JPEG data.
@@ -78,14 +81,7 @@ public struct ModelContent: Equatable, Sendable {
   public let parts: [Part]
 
   /// Creates a new value from any data or `Array` of data interpretable as a
-  /// ``Part``. See ``ThrowingPartsRepresentable`` for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", parts: some ThrowingPartsRepresentable) throws {
-    self.role = role
-    try self.parts = parts.tryPartsValue()
-  }
-
-  /// Creates a new value from any data or `Array` of data interpretable as a
-  /// ``Part``. See ``ThrowingPartsRepresentable`` for types that can be interpreted as `Part`s.
+  /// ``Part``. See ``PartsRepresentable`` for types that can be interpreted as `Part`s.
   public init(role: String? = "user", parts: some PartsRepresentable) {
     self.role = role
     self.parts = parts.partsValue
@@ -97,17 +93,15 @@ public struct ModelContent: Equatable, Sendable {
     self.parts = parts
   }
 
-  /// Creates a new value from any data interpretable as a ``Part``. See
-  /// ``ThrowingPartsRepresentable``
-  /// for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", _ parts: any ThrowingPartsRepresentable...) throws {
-    let content = try parts.flatMap { try $0.tryPartsValue() }
+  /// Creates a new value from any data interpretable as a ``Part``.
+  /// See ``PartsRepresentable`` for types that can be interpreted as `Part`s.
+  public init(role: String? = "user", _ parts: any PartsRepresentable...) {
+    let content = parts.flatMap { $0.partsValue }
     self.init(role: role, parts: content)
   }
 
-  /// Creates a new value from any data interpretable as a ``Part``. See
-  /// ``ThrowingPartsRepresentable``
-  /// for types that can be interpreted as `Part`s.
+  /// Creates a new value from any data interpretable as a ``Part``.
+  /// See ``PartsRepresentable``for types that can be interpreted as `Part`s.
   public init(role: String? = "user", _ parts: [PartsRepresentable]) {
     let content = parts.flatMap { $0.partsValue }
     self.init(role: role, parts: content)
@@ -162,6 +156,8 @@ extension ModelContent.Part: Codable {
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
       try container.encode(functionResponse, forKey: .functionResponse)
+    case .error:
+      fatalError("ErrorPart")
     }
   }
 
@@ -190,3 +186,5 @@ extension ModelContent.Part: Codable {
     }
   }
 }
+
+public struct ErrorPart: Error, Equatable {}

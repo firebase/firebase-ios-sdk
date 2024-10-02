@@ -36,29 +36,31 @@ enum ImageConversionError: Error {
 }
 
 #if canImport(UIKit)
-  /// Enables images to be representable as ``ThrowingPartsRepresentable``.
+  /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension UIImage: ThrowingPartsRepresentable {
-    public func tryPartsValue() throws -> [ModelContent.Part] {
+  extension UIImage: PartsRepresentable {
+    public var partsValue: [ModelContent.Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
-        throw ImageConversionError.couldNotConvertToJPEG
+        return [ModelContent.Part.error(ErrorPart())]
       }
       return [ModelContent.Part.inlineData(mimetype: "image/jpeg", data)]
     }
   }
 
 #elseif canImport(AppKit)
-  /// Enables images to be representable as ``ThrowingPartsRepresentable``.
+  /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension NSImage: ThrowingPartsRepresentable {
-    public func tryPartsValue() throws -> [ModelContent.Part] {
+  extension NSImage: PartsRepresentable {
+    public var partsValue: [ModelContent.Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-        throw ImageConversionError.invalidUnderlyingImage
+        // throw ImageConversionError.invalidUnderlyingImage
+        return [ModelContent.Part.error(ErrorPart())]
       }
       let bmp = NSBitmapImageRep(cgImage: cgImage)
       guard let data = bmp.representation(using: .jpeg, properties: [.compressionFactor: 0.8])
       else {
-        throw ImageConversionError.couldNotConvertToJPEG
+        // throw ImageConversionError.couldNotConvertToJPEG
+        return [ModelContent.Part.error(ErrorPart())]
       }
       return [ModelContent.Part.inlineData(mimetype: "image/jpeg", data)]
     }
@@ -68,13 +70,13 @@ enum ImageConversionError: Error {
 #if !os(watchOS) // This code does not build on watchOS.
   /// Enables `CGImages` to be representable as model content.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
-  extension CGImage: ThrowingPartsRepresentable {
-    public func tryPartsValue() throws -> [ModelContent.Part] {
+  extension CGImage: PartsRepresentable {
+    public var partsValue: [ModelContent.Part] {
       let output = NSMutableData()
       guard let imageDestination = CGImageDestinationCreateWithData(
         output, UTType.jpeg.identifier as CFString, 1, nil
       ) else {
-        throw ImageConversionError.couldNotAllocateDestination
+        return [ModelContent.Part.error(ErrorPart())]
       }
       CGImageDestinationAddImage(imageDestination, self, nil)
       CGImageDestinationSetProperties(imageDestination, [
@@ -83,7 +85,8 @@ enum ImageConversionError: Error {
       if CGImageDestinationFinalize(imageDestination) {
         return [.inlineData(mimetype: "image/jpeg", output as Data)]
       }
-      throw ImageConversionError.couldNotConvertToJPEG
+      // throw ImageConversionError.couldNotConvertToJPEG
+      return [ModelContent.Part.error(ErrorPart())]
     }
   }
 #endif // !os(watchOS)
@@ -91,8 +94,8 @@ enum ImageConversionError: Error {
 #if canImport(CoreImage)
   /// Enables `CIImages` to be representable as model content.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
-  extension CIImage: ThrowingPartsRepresentable {
-    public func tryPartsValue() throws -> [ModelContent.Part] {
+  extension CIImage: PartsRepresentable {
+    public var partsValue: [ModelContent.Part] {
       let context = CIContext()
       let jpegData = (colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB))
         .flatMap {
@@ -104,7 +107,8 @@ enum ImageConversionError: Error {
       if let jpegData = jpegData {
         return [.inlineData(mimetype: "image/jpeg", jpegData)]
       }
-      throw ImageConversionError.couldNotConvertToJPEG
+      // throw ImageConversionError.couldNotConvertToJPEG
+      return [ModelContent.Part.error(ErrorPart())]
     }
   }
 #endif // canImport(CoreImage)
