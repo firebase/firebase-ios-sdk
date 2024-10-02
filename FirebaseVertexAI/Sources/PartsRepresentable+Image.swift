@@ -39,11 +39,11 @@ enum ImageConversionError: Error {
   /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension UIImage: PartsRepresentable {
-    public var partsValue: [ModelContent.Part] {
+    public var partsValue: [any ModelContent.Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
-        return [ModelContent.Part.error(ErrorPart())]
+        return [ErrorPart()]
       }
-      return [ModelContent.Part.inlineData(mimetype: "image/jpeg", data)]
+      return [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: data))]
     }
   }
 
@@ -51,18 +51,18 @@ enum ImageConversionError: Error {
   /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension NSImage: PartsRepresentable {
-    public var partsValue: [ModelContent.Part] {
+    public var partsValue: [any ModelContent.Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
         // throw ImageConversionError.invalidUnderlyingImage
-        return [ModelContent.Part.error(ErrorPart())]
+        return [ErrorPart()]
       }
       let bmp = NSBitmapImageRep(cgImage: cgImage)
       guard let data = bmp.representation(using: .jpeg, properties: [.compressionFactor: 0.8])
       else {
         // throw ImageConversionError.couldNotConvertToJPEG
-        return [ModelContent.Part.error(ErrorPart())]
+        return [ErrorPart()]
       }
-      return [ModelContent.Part.inlineData(mimetype: "image/jpeg", data)]
+      return [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: data))]
     }
   }
 #endif
@@ -71,22 +71,25 @@ enum ImageConversionError: Error {
   /// Enables `CGImages` to be representable as model content.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CGImage: PartsRepresentable {
-    public var partsValue: [ModelContent.Part] {
+    public var partsValue: [any ModelContent.Part] {
       let output = NSMutableData()
       guard let imageDestination = CGImageDestinationCreateWithData(
         output, UTType.jpeg.identifier as CFString, 1, nil
       ) else {
-        return [ModelContent.Part.error(ErrorPart())]
+        return [ErrorPart()]
       }
       CGImageDestinationAddImage(imageDestination, self, nil)
       CGImageDestinationSetProperties(imageDestination, [
         kCGImageDestinationLossyCompressionQuality: imageCompressionQuality,
       ] as CFDictionary)
       if CGImageDestinationFinalize(imageDestination) {
-        return [.inlineData(mimetype: "image/jpeg", output as Data)]
+        return [InlineDataPart(inlineData: InlineData(
+          mimeType: "image/jpeg",
+          data: output as Data
+        ))]
       }
       // throw ImageConversionError.couldNotConvertToJPEG
-      return [ModelContent.Part.error(ErrorPart())]
+      return [ErrorPart()]
     }
   }
 #endif // !os(watchOS)
@@ -95,7 +98,7 @@ enum ImageConversionError: Error {
   /// Enables `CIImages` to be representable as model content.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CIImage: PartsRepresentable {
-    public var partsValue: [ModelContent.Part] {
+    public var partsValue: [any ModelContent.Part] {
       let context = CIContext()
       let jpegData = (colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB))
         .flatMap {
@@ -105,10 +108,10 @@ enum ImageConversionError: Error {
           context.jpegRepresentation(of: self, colorSpace: $0, options: [:])
         }
       if let jpegData = jpegData {
-        return [.inlineData(mimetype: "image/jpeg", jpegData)]
+        return [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: jpegData))]
       }
       // throw ImageConversionError.couldNotConvertToJPEG
-      return [ModelContent.Part.error(ErrorPart())]
+      return [ErrorPart()]
     }
   }
 #endif // canImport(CoreImage)

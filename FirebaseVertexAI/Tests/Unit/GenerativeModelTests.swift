@@ -211,10 +211,11 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCallPart = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
+    let functionCall = functionCallPart.functionCall
     XCTAssertEqual(functionCall.name, "current_time")
     XCTAssertTrue(functionCall.args.isEmpty)
     XCTAssertEqual(response.functionCalls, [functionCall])
@@ -233,10 +234,11 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCallPart = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
+    let functionCall = functionCallPart.functionCall
     XCTAssertEqual(functionCall.name, "current_time")
     XCTAssertTrue(functionCall.args.isEmpty)
     XCTAssertEqual(response.functionCalls, [functionCall])
@@ -255,10 +257,11 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCallPart = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
+    let functionCall = functionCallPart.functionCall
     XCTAssertEqual(functionCall.name, "sum")
     XCTAssertEqual(functionCall.args.count, 2)
     let argX = try XCTUnwrap(functionCall.args["x"])
@@ -1240,10 +1243,10 @@ final class GenerativeModelTests: XCTestCase {
       withExtension: "json"
     )
 
-    let response = try await model.countTokens(ModelContent.Part.inlineData(
-      mimetype: "image/jpeg",
-      Data()
-    ))
+    let response = try await model.countTokens(InlineDataPart(inlineData: InlineData(
+      mimeType: "image/jpeg",
+      data: Data()
+    )))
 
     XCTAssertEqual(response.totalTokens, 258)
     XCTAssertNil(response.totalBillableCharacters)

@@ -18,24 +18,19 @@ import Foundation
 /// where the serialization process cannot fail with an error.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol PartsRepresentable {
-  var partsValue: [ModelContent.Part] { get }
-}
-
-/// Enables a ``ModelContent.Part`` to be passed in as ``PartsRepresentable``.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent.Part: PartsRepresentable {
-  public var partsValue: [ModelContent.Part] {
-    return [self]
-  }
+  var partsValue: [any ModelContent.Part] { get }
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension [PartsRepresentable] {
   // TODO: Rename and refactor this.
   func throwIfError() throws {
-    for part in self.partsValue {
-      if case let .error(error) = part {
-        throw error
+    for part in partsValue {
+      switch part {
+      case let errorPart as ErrorPart:
+        throw errorPart
+      default:
+        break
       }
     }
   }
@@ -45,7 +40,7 @@ extension [PartsRepresentable] {
 /// ``PartsRepresentable``.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension [PartsRepresentable]: PartsRepresentable {
-  public var partsValue: [ModelContent.Part] {
+  public var partsValue: [any ModelContent.Part] {
     return flatMap { $0.partsValue }
   }
 }
@@ -53,7 +48,7 @@ extension [PartsRepresentable]: PartsRepresentable {
 /// Enables a `String` to be passed in as ``PartsRepresentable``.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: PartsRepresentable {
-  public var partsValue: [ModelContent.Part] {
-    return [.text(self)]
+  public var partsValue: [any ModelContent.Part] {
+    return [TextPart(textValue: self)]
   }
 }

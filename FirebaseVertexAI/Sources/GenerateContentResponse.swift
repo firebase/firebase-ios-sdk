@@ -49,10 +49,12 @@ public struct GenerateContentResponse: Sendable {
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
-      guard case let .text(text) = part else {
+      switch part {
+      case let textPart as TextPart:
+        return textPart.textValue
+      default:
         return nil
       }
-      return text
     }
     guard textValues.count > 0 else {
       VertexLog.error(
@@ -70,10 +72,12 @@ public struct GenerateContentResponse: Sendable {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      guard case let .functionCall(functionCall) = part else {
+      switch part {
+      case let functionCallPart as FunctionCallPart:
+        return functionCallPart.functionCall
+      default:
         return nil
       }
-      return functionCall
     }
   }
 

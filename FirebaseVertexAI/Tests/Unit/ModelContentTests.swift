@@ -46,12 +46,9 @@ final class ModelContentTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let part = try decoder.decode(ModelContent.Part.self, from: jsonData)
+    let part = try decoder.decode(FunctionResponsePart.self, from: jsonData)
 
-    guard case let .functionResponse(functionResponse) = part else {
-      XCTFail("Decoded Part was not a FunctionResponse.")
-      return
-    }
+    let functionResponse = part.functionResponse
     XCTAssertEqual(functionResponse.name, functionName)
     XCTAssertEqual(functionResponse.response, [resultParameter: .string(resultValue)])
   }
@@ -61,7 +58,7 @@ final class ModelContentTests: XCTestCase {
   func testEncodeFileDataPart() throws {
     let mimeType = "image/jpeg"
     let fileURI = "gs://test-bucket/image.jpg"
-    let fileDataPart = ModelContent.Part.fileData(mimetype: mimeType, uri: fileURI)
+    let fileDataPart = FileDataPart(fileData: FileData(mimeType: mimeType, uri: fileURI))
 
     let jsonData = try encoder.encode(fileDataPart)
 
