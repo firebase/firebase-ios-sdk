@@ -29,6 +29,18 @@ extension ModelContent.Part: PartsRepresentable {
   }
 }
 
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension [PartsRepresentable] {
+  // TODO: Rename and refactor this.
+  func throwIfError() throws {
+    for part in self.partsValue {
+      if case let .error(error) = part {
+        throw error
+      }
+    }
+  }
+}
+
 /// Enable an `Array` of ``PartsRepresentable`` values to be passed in as a single
 /// ``PartsRepresentable``.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
