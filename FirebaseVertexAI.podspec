@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseVertexAI'
-  s.version          = '11.4.0-beta'
-  s.summary          = 'Vertex AI in Firebase - Public Preview'
+  s.version          = '11.4.0'
+  s.summary          = 'Vertex AI in Firebase SDK'
 
   s.description      = <<-DESC
-[Public Preview] Build AI-powered apps and features with the Gemini API using
-the Vertex AI in Firebase SDK.
+Build AI-powered apps and features with the Gemini API using the Vertex AI in
+Firebase SDK.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -20,7 +20,7 @@ the Vertex AI in Firebase SDK.
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '11.0'
+  osx_deployment_target = '12.0'
   tvos_deployment_target = '15.0'
   watchos_deployment_target = '8.0'
 
@@ -44,8 +44,8 @@ the Vertex AI in Firebase SDK.
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 11.2'
-  s.dependency 'FirebaseAuthInterop', '~> 11.2'
+  s.dependency 'FirebaseAppCheckInterop', '~> 11.4'
+  s.dependency 'FirebaseAuthInterop', '~> 11.4'
   s.dependency 'FirebaseCore', '~> 11.4'
   s.dependency 'FirebaseCoreExtension', '~> 11.4'
 
