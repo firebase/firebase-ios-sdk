@@ -27,10 +27,10 @@ git checkout main
 # The chunk below is to determine the latest version by searching
 # Get the latest released tag Cocoapods-X.Y.Z for release and prerelease
 # testing, beta version will be excluded.
-# Note: If a long running release branch's tags are keeping the next tagged
-# release on main from being tested, add `--merged main` to the below git tag
-# command. Doing so will exclude tags that don't exist on main.
-test_version=$(git tag -l --sort=-version:refname 'CocoaPods-*[0-9]' | head -n 1)
+# Note: If the nightly tag was not updated, check that the next release's tag
+# is on the main branch.
+test_version=$(git tag -l --sort=-version:refname --merged main 'CocoaPods-*[0-9]' | head -n 1)
+
 if [ -z "$test_version" ]; then
   echo "Latest tag could not be found. Exiting." >&2
   exit 1
