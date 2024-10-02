@@ -31,8 +31,8 @@
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
+#import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
