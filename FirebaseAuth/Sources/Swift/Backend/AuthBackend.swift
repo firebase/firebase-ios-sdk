@@ -76,21 +76,16 @@ class AuthBackend {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
   }
 
-  private static var gBackendImplementation: AuthBackendImplementation?
+  private static var gBackendImplementation = AuthBackendRPCImplementation()
 
   class func setDefaultBackendImplementationWithRPCIssuer(issuer: AuthBackendRPCIssuer?) {
-    let defaultImplementation = AuthBackendRPCImplementation()
     if let issuer = issuer {
-      defaultImplementation.rpcIssuer = issuer
+      gBackendImplementation.rpcIssuer = issuer
     }
-    gBackendImplementation = defaultImplementation
   }
 
   class func implementation() -> AuthBackendImplementation {
-    if gBackendImplementation == nil {
-      gBackendImplementation = AuthBackendRPCImplementation()
-    }
-    return gBackendImplementation!
+    return gBackendImplementation
   }
 
   class func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
