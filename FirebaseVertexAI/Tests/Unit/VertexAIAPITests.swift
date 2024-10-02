@@ -136,7 +136,7 @@ final class VertexAIAPITests: XCTestCase {
       let representable2: [any PartsRepresentable] = [str, UIImage()]
       _ = ModelContent(parts: representable2)
       _ = ModelContent(parts: [str, UIImage(),
-                                   ModelContent.Part.text(str)] as [any PartsRepresentable])
+                               ModelContent.Part.text(str)] as [any PartsRepresentable])
     #elseif canImport(AppKit)
       _ = ModelContent(role: "user", parts: NSImage())
       _ = ModelContent(role: "user", parts: [NSImage()])
@@ -149,7 +149,7 @@ final class VertexAIAPITests: XCTestCase {
       _ = ModelContent(parts: representable2)
       _ =
         ModelContent(parts: [str, NSImage(),
-                                 ModelContent.Part.text(str)] as [any PartsRepresentable])
+                             ModelContent.Part.text(str)] as [any PartsRepresentable])
     #endif
 
     // countTokens API

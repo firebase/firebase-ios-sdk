@@ -112,6 +112,7 @@ public final class GenerativeModel {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func generateContent(_ parts: any PartsRepresentable...)
     async throws -> GenerateContentResponse {
+    try parts.throwIfError()
     return try await generateContent([ModelContent(parts: parts)])
   }
 
@@ -171,6 +172,7 @@ public final class GenerativeModel {
   @available(macOS 12.0, *)
   public func generateContentStream(_ parts: any PartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    try parts.throwIfError()
     return try generateContentStream([ModelContent(parts: parts)])
   }
 
@@ -190,14 +192,6 @@ public final class GenerativeModel {
         throw GenerateContentError.promptImageContentError(underlying: contentError)
       }
       throw GenerateContentError.internalError(underlying: underlying)
-    }
-
-    for evaluatedContent in evaluatedContents {
-      for part in evaluatedContent.parts {
-        if case let .error(error) = part {
-          throw error
-        }
-      }
     }
 
     let generateContentRequest = GenerateContentRequest(model: modelResourceName,
@@ -262,6 +256,7 @@ public final class GenerativeModel {
   /// - Throws: A ``CountTokensError`` if the tokenization request failed.
   public func countTokens(_ parts: any PartsRepresentable...) async throws
     -> CountTokensResponse {
+    try parts.throwIfError()
     return try await countTokens([ModelContent(parts: parts)])
   }
 
