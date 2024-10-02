@@ -35,7 +35,7 @@ public class Chat {
   /// - Parameter parts: The new content to send as a single chat message.
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
-  public func sendMessage(_ parts: any ThrowingPartsRepresentable...) async throws
+  public func sendMessage(_ parts: any PartsRepresentable...) async throws
     -> GenerateContentResponse {
     return try await sendMessage([ModelContent(parts: parts)])
   }
@@ -85,7 +85,7 @@ public class Chat {
   /// - Parameter parts: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
   @available(macOS 12.0, *)
-  public func sendMessageStream(_ parts: any ThrowingPartsRepresentable...) throws
+  public func sendMessageStream(_ parts: any PartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try sendMessageStream([ModelContent(parts: parts)])
   }
@@ -155,7 +155,7 @@ public class Chat {
         case let .text(str):
           combinedText += str
 
-        case .inlineData, .fileData, .functionCall, .functionResponse:
+        case .inlineData, .fileData, .functionCall, .functionResponse, .error:
           // Don't combine it, just add to the content. If there's any text pending, add that as
           // a part.
           if !combinedText.isEmpty {
