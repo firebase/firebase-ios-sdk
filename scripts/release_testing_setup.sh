@@ -30,7 +30,6 @@ git checkout main
 # Note: If the nightly tag was not updated, check that the next release's tag
 # is on the main branch.
 test_version=$(git tag -l --sort=-version:refname --merged main 'CocoaPods-*[0-9]' | head -n 1)
-
 if [ -z "$test_version" ]; then
   echo "Latest tag could not be found. Exiting." >&2
   exit 1
