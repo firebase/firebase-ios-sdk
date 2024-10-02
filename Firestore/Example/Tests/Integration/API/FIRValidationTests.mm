@@ -20,7 +20,7 @@
 #include <limits>
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"

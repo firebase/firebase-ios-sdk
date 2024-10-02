@@ -46,8 +46,8 @@ the Vertex AI in Firebase SDK.
 
   s.dependency 'FirebaseAppCheckInterop', '~> 11.2'
   s.dependency 'FirebaseAuthInterop', '~> 11.2'
-  s.dependency 'FirebaseCore', '~> 11.2'
-  s.dependency 'FirebaseCoreExtension', '~> 11.2'
+  s.dependency 'FirebaseCore', '~> 11.4'
+  s.dependency 'FirebaseCoreExtension', '~> 11.4'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'

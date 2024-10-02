@@ -1,3 +1,6 @@
+# Firebase 11.4.0
+- [fixed] Fixed issue building documentation with some Firebase products. (#13756)
+
 # Firebase 11.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
