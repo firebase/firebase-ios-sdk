@@ -143,10 +143,15 @@ if [[ "$xcode_major" -lt 15 ]]; then
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 14'
   )
-else
+elif [[ "$xcode_major" -lt 16 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 15'
+  )
+else
+  ios_flags=(
+    -sdk 'iphonesimulator'
+    -destination 'platform=iOS Simulator,name=iPhone 16'
   )
 fi
 
