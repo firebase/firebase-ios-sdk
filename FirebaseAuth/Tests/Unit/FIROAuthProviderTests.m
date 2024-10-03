@@ -22,11 +22,6 @@
 @import FirebaseAuth;
 @import FirebaseCore;
 
-/** @var kExpectationTimeout
-    @brief The maximum time waiting for expectations to fulfill.
- */
-static const NSTimeInterval kExpectationTimeout = 1;
-
 /** @var kFakeAuthorizedDomain
     @brief A fake authorized domain for the app.
  */
