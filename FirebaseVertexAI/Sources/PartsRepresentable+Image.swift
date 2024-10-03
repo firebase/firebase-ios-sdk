@@ -39,7 +39,7 @@ enum ImageConversionError: Error {
   /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension UIImage: PartsRepresentable {
-    public var partsValue: [any ModelContent.Part] {
+    public var partsValue: [any Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
         return [ErrorPart()]
       }
@@ -51,7 +51,7 @@ enum ImageConversionError: Error {
   /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension NSImage: PartsRepresentable {
-    public var partsValue: [any ModelContent.Part] {
+    public var partsValue: [any Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
         // throw ImageConversionError.invalidUnderlyingImage
         return [ErrorPart()]
@@ -71,7 +71,7 @@ enum ImageConversionError: Error {
   /// Enables `CGImages` to be representable as model content.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CGImage: PartsRepresentable {
-    public var partsValue: [any ModelContent.Part] {
+    public var partsValue: [any Part] {
       let output = NSMutableData()
       guard let imageDestination = CGImageDestinationCreateWithData(
         output, UTType.jpeg.identifier as CFString, 1, nil
@@ -98,7 +98,7 @@ enum ImageConversionError: Error {
   /// Enables `CIImages` to be representable as model content.
   @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CIImage: PartsRepresentable {
-    public var partsValue: [any ModelContent.Part] {
+    public var partsValue: [any Part] {
       let context = CIContext()
       let jpegData = (colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB))
         .flatMap {

@@ -146,7 +146,7 @@ public class Chat {
   }
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [any ModelContent.Part] = []
+    var parts: [any Part] = []
     var combinedText = ""
     for aggregate in chunks {
       // Loop through all the parts, aggregating the text and adding the images.

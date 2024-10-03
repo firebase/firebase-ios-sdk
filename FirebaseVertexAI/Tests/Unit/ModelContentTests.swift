@@ -28,7 +28,7 @@ final class ModelContentTests: XCTestCase {
     )
   }
 
-  // MARK: - ModelContent.Part Decoding
+  // MARK: - Part Decoding
 
   func testDecodeFunctionResponsePart() throws {
     let functionName = "test-function-name"
@@ -53,7 +53,7 @@ final class ModelContentTests: XCTestCase {
     XCTAssertEqual(functionResponse.response, [resultParameter: .string(resultValue)])
   }
 
-  // MARK: - ModelContent.Part Encoding
+  // MARK: - Part Encoding
 
   func testEncodeFileDataPart() throws {
     let mimeType = "image/jpeg"

@@ -15,17 +15,11 @@
 import Foundation
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension ModelContent.Part {
-  var text: String? {
-    switch self {
-    case let textPart as TextPart:
-      return textPart.textValue
-    default:
-      return nil
-    }
-  }
+public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {}
 
-  var partsValue: [any ModelContent.Part] {
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension Part {
+  var partsValue: [any Part] {
     return [self]
   }
 }
@@ -48,7 +42,7 @@ extension [ModelContent] {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct TextPart: ModelContent.Part {
+public struct TextPart: Part {
   public let textValue: String
 
   public init(textValue: String) {
@@ -68,7 +62,7 @@ public struct InlineData: Codable, Equatable, Sendable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct InlineDataPart: ModelContent.Part {
+public struct InlineDataPart: Part {
   public let inlineData: InlineData
 
   public init(inlineData: InlineData) {
@@ -93,7 +87,7 @@ public struct FileData: Codable, Equatable, Sendable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FileDataPart: ModelContent.Part {
+public struct FileDataPart: Part {
   public let fileData: FileData
 
   public init(fileData: FileData) {
@@ -102,7 +96,7 @@ public struct FileDataPart: ModelContent.Part {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionCallPart: ModelContent.Part {
+public struct FunctionCallPart: Part {
   public let functionCall: FunctionCall
 
   public init(functionCall: FunctionCall) {
@@ -111,7 +105,7 @@ public struct FunctionCallPart: ModelContent.Part {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionResponsePart: ModelContent.Part {
+public struct FunctionResponsePart: Part {
   public let functionResponse: FunctionResponse
 
   public init(functionResponse: FunctionResponse) {
@@ -120,18 +114,13 @@ public struct FunctionResponsePart: ModelContent.Part {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ErrorPart: Error, ModelContent.Part, Equatable {}
+struct ErrorPart: Error, Part, Equatable {}
 
 /// A type describing data in media formats interpretable by an AI model. Each generative AI
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Equatable, Sendable {
-  public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
-    /// Returns the text contents of this ``Part``, if it contains text.
-    var text: String? { get }
-  }
-
   /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
   /// of ``Part``, different data types may not mix.
   enum InternalPart: Equatable, Sendable {
@@ -181,7 +170,7 @@ public struct ModelContent: Equatable, Sendable {
 
   /// The data parts comprising this ``ModelContent`` value.
   public var parts: [any Part] {
-    var convertedParts = [any ModelContent.Part]()
+    var convertedParts = [any Part]()
     for part in internalParts {
       switch part {
       case let .text(text):
@@ -341,7 +330,7 @@ extension ModelContent.InternalPart: Codable {
       let unexpectedKeys = values.allKeys.map { $0.stringValue }
       throw DecodingError.dataCorrupted(DecodingError.Context(
         codingPath: values.codingPath,
-        debugDescription: "Unexpected ModelContent.Part type(s): \(unexpectedKeys)"
+        debugDescription: "Unexpected Part type(s): \(unexpectedKeys)"
       ))
     }
   }

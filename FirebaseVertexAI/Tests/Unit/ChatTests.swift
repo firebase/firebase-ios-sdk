@@ -77,11 +77,12 @@ final class ChatTests: XCTestCase {
     }
 
     XCTAssertEqual(chat.history.count, 2)
-    XCTAssertEqual(chat.history[0].parts[0].text, input)
+    let part = try XCTUnwrap(chat.history[0].parts[0])
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.textValue, input)
 
     let finalText = "1 2 3 4 5 6 7 8"
     let assembledExpectation = ModelContent(role: "model", parts: finalText)
-    XCTAssertEqual(chat.history[0].parts[0].text, input)
     XCTAssertEqual(chat.history[1], assembledExpectation)
   }
 }

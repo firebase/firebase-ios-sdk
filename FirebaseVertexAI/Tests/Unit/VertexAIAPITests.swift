@@ -125,7 +125,7 @@ final class VertexAIAPITests: XCTestCase {
     let _ = ModelContent(parts: [str])
     // Note: without `as [any PartsRepresentable]` this will fail to compile with "Cannot
     // convert value of type 'String' to expected element type
-    // 'Array<ModelContent.Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
+    // 'Array<Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
     // work.
     let _ = ModelContent(
       parts: [str, InlineDataPart(inlineData: InlineData(
