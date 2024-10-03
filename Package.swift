@@ -884,7 +884,6 @@ let package = Package(
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
@@ -896,7 +895,6 @@ let package = Package(
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
         .define("FIRPerformance_LIB_VERSION", to: firebaseVersion),
-        .define("FPR_UNSWIZZLE_AVAILABLE", to: "1"),
       ],
       linkerSettings: [
         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
@@ -924,6 +922,7 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
+        .define("FPR_UNSWIZZLE_AVAILABLE", to: "1"),
       ]
     ),
 
