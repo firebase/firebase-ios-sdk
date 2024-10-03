@@ -127,7 +127,7 @@ class FunctionCallingViewModel: ObservableObject {
     let functionResponses = try await processFunctionCalls()
     let response: GenerateContentResponse
     if functionResponses.isEmpty {
-      response = try await chat.sendMessage(text)
+      response = try await chat.sendMessage { text }
     } else {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)

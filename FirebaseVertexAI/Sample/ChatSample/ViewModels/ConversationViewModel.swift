@@ -113,7 +113,7 @@ class ConversationViewModel: ObservableObject {
 
       do {
         var response: GenerateContentResponse?
-        response = try await chat.sendMessage(text)
+        response = try await chat.sendMessage { text }
 
         if let responseText = response?.text {
           // replace pending message with backend response
