@@ -60,9 +60,7 @@ class PhotoReasoningViewModel: ObservableObject {
       errorMessage = nil
       outputText = ""
 
-      let prompt = "Look at the image(s), and then answer the following question: \(userInput)"
-
-      var images = [any PartsRepresentable]()
+      var images = [UIImage]()
       for item in selectedItems {
         if let data = try? await item.loadTransferable(type: Data.self) {
           guard let image = UIImage(data: data) else {
@@ -84,7 +82,10 @@ class PhotoReasoningViewModel: ObservableObject {
         }
       }
 
-      let outputContentStream = try model.generateContentStream(prompt, images)
+      let outputContentStream = try model.generateContentStream {
+        "Look at the image(s), and then answer the following question: \(userInput)"
+        images
+      }
 
       // stream response
       for try await outputContent in outputContentStream {

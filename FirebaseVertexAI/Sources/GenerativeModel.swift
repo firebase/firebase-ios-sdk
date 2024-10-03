@@ -115,6 +115,11 @@ public final class GenerativeModel {
     return try await generateContent([ModelContent(parts: parts)])
   }
 
+  public func generateContent(@PartsBuilder _ parts: () -> [any ModelContent.Part]) async throws
+    -> GenerateContentResponse {
+    return try await generateContent([ModelContent(parts: parts)])
+  }
+
   /// Generates new content from input content given to the model as a prompt.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt.
@@ -168,6 +173,12 @@ public final class GenerativeModel {
   ///     error if an error occurred.
   @available(macOS 12.0, *)
   public func generateContentStream(_ parts: any PartsRepresentable...) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    return try generateContentStream([ModelContent(parts: parts)])
+  }
+
+  @available(macOS 12.0, *)
+  public func generateContentStream(@PartsBuilder _ parts: () -> [any ModelContent.Part]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try generateContentStream([ModelContent(parts: parts)])
   }
@@ -242,6 +253,11 @@ public final class GenerativeModel {
   /// ``CountTokensResponse/totalTokens``.
   /// - Throws: A ``CountTokensError`` if the tokenization request failed.
   public func countTokens(_ parts: any PartsRepresentable...) async throws
+    -> CountTokensResponse {
+    return try await countTokens([ModelContent(parts: parts)])
+  }
+
+  public func countTokens(@PartsBuilder _ parts: () -> [any ModelContent.Part]) async throws
     -> CountTokensResponse {
     return try await countTokens([ModelContent(parts: parts)])
   }

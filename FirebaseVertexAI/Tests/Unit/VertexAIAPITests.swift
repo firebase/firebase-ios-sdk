@@ -145,6 +145,41 @@ final class VertexAIAPITests: XCTestCase {
       _ = ModelContent(parts: representable2)
       _ =
         ModelContent(parts: [str, UIImage(), TextPart(textValue: str)] as [any PartsRepresentable])
+
+      _ = ModelContent(role: "user") {
+        TextPart(textValue: "Hello, world!")
+        "Hello, again!"
+        ["Hi", "Bye"]
+        [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: Data()))]
+        UIImage()
+        [UIImage(systemName: "sunrise")!, UIImage(systemName: "sunset")!]
+      }
+
+      let prompt = "What do these images mean?"
+      let weatherImages = [UIImage(systemName: "cloud.rain")!, UIImage(systemName: "cloud.snow")!]
+      _ = ModelContent(role: "user") {
+        prompt
+        weatherImages
+      }
+
+      _ = ModelContent {
+        "What do these images mean?"
+        UIImage(systemName: "cloud.rain")!
+        UIImage(systemName: "cloud.snow")!
+      }
+
+      _ = ModelContent {
+        TextPart(textValue: "What do these images mean?")
+        InlineDataPart(inlineData: InlineData(
+          mimeType: "image/jpeg",
+          data: UIImage(systemName: "cloud.rain")!.jpegData(compressionQuality: 0.8)!
+        ))
+        InlineDataPart(inlineData: InlineData(
+          mimeType: "image/jpeg",
+          data: UIImage(systemName: "cloud.rain")!.jpegData(compressionQuality: 0.8)!
+        ))
+      }
+
     #elseif canImport(AppKit)
       _ = ModelContent(role: "user", parts: NSImage())
       _ = ModelContent(role: "user", parts: [NSImage()])

@@ -13,6 +13,27 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(UIKit)
+  import UIKit
+#endif // canImport(UIKit)
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@resultBuilder
+public struct PartsBuilder {
+  public static func buildBlock(_ parts: [any ModelContent.Part]...) -> [any ModelContent.Part] {
+    return parts.flatMap { $0 }
+  }
+
+  public static func buildExpression(_ parts: PartsRepresentable) -> [any ModelContent.Part] {
+    parts.partsValue
+  }
+
+  #if canImport(UIKit)
+    public static func buildExpression(_ images: [UIImage]) -> [any ModelContent.Part] {
+      return images.flatMap { $0.partsValue }
+    }
+  #endif // canImport(UIKit)
+}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelContent.Part {
@@ -252,6 +273,10 @@ public struct ModelContent: Equatable, Sendable {
       }
     }
     internalParts = convertedParts
+  }
+
+  public init(role: String? = "user", @PartsBuilder parts: () -> [any Part]) {
+    self.init(role: role, parts: parts())
   }
 
   /// Creates a new value from any data interpretable as a ``Part``.
