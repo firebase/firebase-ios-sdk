@@ -336,10 +336,13 @@ import Foundation
       }
     }
 
-    // Run the actual getCredential off the main thread. but the public API must return on the
-    // main thread.
-    private func getCredentialInternal(with uiDelegate: AuthUIDelegate?) async throws
-      -> AuthCredential {
+    /// Used to obtain an auth credential via a mobile web flow.
+    /// This method is available on iOS only.
+    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    @objc(getCredentialWithUIDelegate:completion:)
+    @MainActor
+    open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
         getCredentialWith(uiDelegate) { credential, error in
           if let credential = credential {
@@ -349,16 +352,6 @@ import Foundation
           }
         }
       }
-    }
-
-    /// Used to obtain an auth credential via a mobile web flow.
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    @objc(getCredentialWithUIDelegate:completion:)
-    @MainActor
-    open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
-      return try await getCredentialInternal(with: uiDelegate)
     }
   #endif
 
