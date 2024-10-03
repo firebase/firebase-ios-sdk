@@ -32,7 +32,7 @@
 
 @implementation FPRConfigurationsTest
 
-- (GULUserDefaults * _Nonnull)makeEmptyUserDefaults {
+- (GULUserDefaults *_Nonnull)makeEmptyUserDefaults {
   return [[GULUserDefaults alloc] init];
 }
 
