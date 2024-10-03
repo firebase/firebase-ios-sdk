@@ -40,6 +40,11 @@ public class Chat {
     return try await sendMessage([ModelContent(parts: parts)])
   }
 
+  public func sendMessage(@PartsBuilder _ parts: () -> [any ModelContent.Part]) async throws
+    -> GenerateContentResponse {
+    return try await sendMessage(parts)
+  }
+
   /// Sends a message using the existing history of this chat as context. If successful, the message
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
   /// - Parameter content: The new content to send as a single chat message.
@@ -88,6 +93,11 @@ public class Chat {
   public func sendMessageStream(_ parts: any PartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try sendMessageStream([ModelContent(parts: parts)])
+  }
+
+  @available(macOS 12.0, *)
+  public func sendMessageStream(@PartsBuilder _ parts: () -> [any ModelContent.Part]) throws {
+    return try sendMessageStream(parts)
   }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
