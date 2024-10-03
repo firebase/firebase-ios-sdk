@@ -21,21 +21,6 @@ public protocol PartsRepresentable {
   var partsValue: [any ModelContent.Part] { get }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension [PartsRepresentable] {
-  // TODO: Rename and refactor this.
-  func throwIfError() throws {
-    for part in partsValue {
-      switch part {
-      case let errorPart as ErrorPart:
-        throw errorPart
-      default:
-        break
-      }
-    }
-  }
-}
-
 /// Enable an `Array` of ``PartsRepresentable`` values to be passed in as a single
 /// ``PartsRepresentable``.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
