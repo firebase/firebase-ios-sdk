@@ -177,7 +177,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                                * Note that there is a chance that the app crashes before we can
                                * call pushRecords: on the logStorage below which means we lost
                                * these log records permanently. This is a trade-off between handling
-                               * duplicate records on server side vs taking the risk of lossing
+                               * duplicate records on server side vs taking the risk of losing
                                * data. This implementation picks the latter.
                                */
                               FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM260007",

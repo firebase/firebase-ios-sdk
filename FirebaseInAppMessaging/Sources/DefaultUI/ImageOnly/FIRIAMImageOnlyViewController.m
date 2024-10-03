@@ -117,7 +117,7 @@
 
   // Calculate the size of the image view under the constraints:
   // 1 Retain the image ratio
-  // 2 Have at least 30 point of margines around four sides of the image view
+  // 2 Have at least 30 point of margins around four sides of the image view
 
   CGFloat minimalMargine = 30;  // 30 points
   CGFloat maxImageViewWidth = self.view.window.frame.size.width - minimalMargine * 2;
