@@ -1020,8 +1020,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 #pragma mark - Force Category Linking
-
+#if SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
 extern void FIRInclude_FIRMessaging_ExtensionHelper_Category(void);
+#endif  // SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
 extern void FIRInclude_NSDictionary_FIRMessaging_Category(void);
 extern void FIRInclude_NSError_FIRMessaging_Category(void);
 
@@ -1030,7 +1031,9 @@ extern void FIRInclude_NSError_FIRMessaging_Category(void);
 /// This method forces the linker to include categories even if
 /// users do not include the '-ObjC' linker flag in their project.
 + (void)noop {
+#if SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
   FIRInclude_FIRMessaging_ExtensionHelper_Category();
+#endif  // SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
   FIRInclude_NSDictionary_FIRMessaging_Category();
   FIRInclude_NSError_FIRMessaging_Category();
 }
