@@ -462,10 +462,12 @@ static NSInteger const gMaxRetries = 7;
                                                   integerValue] >= targetVersion) {
                                         // only notify listeners if there is a change
                                         if ([update updatedKeys].count > 0) {
-                                          for (RCNConfigUpdateCompletion listener in strongSelf
-                                                   ->_listeners) {
-                                            listener(update, nil);
-                                          }
+                                          dispatch_async(strongSelf->_realtimeLockQueue, ^{
+                                            for (RCNConfigUpdateCompletion listener in strongSelf
+                                                     ->_listeners) {
+                                              listener(update, nil);
+                                            }
+                                          });
                                         }
                                       } else {
                                         FIRLogDebug(
