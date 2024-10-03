@@ -72,7 +72,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    let partText = try XCTUnwrap(part as? TextPart).textValue
+    let partText = try XCTUnwrap(part as? TextPart).text
     XCTAssertTrue(partText.hasPrefix("1. **Use Freshly Ground Coffee**:"))
     XCTAssertEqual(response.text, partText)
     XCTAssertEqual(response.functionCalls, [])
@@ -95,8 +95,8 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let textPart = try XCTUnwrap(part as? TextPart)
-    XCTAssertEqual(textPart.textValue, "Mountain View, California")
-    XCTAssertEqual(response.text, textPart.textValue)
+    XCTAssertEqual(textPart.text, "Mountain View, California")
+    XCTAssertEqual(response.text, textPart.text)
     XCTAssertEqual(response.functionCalls, [])
   }
 
@@ -152,8 +152,8 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let textPart = try XCTUnwrap(part as? TextPart)
-    XCTAssertTrue(textPart.textValue.hasPrefix("Google"))
-    XCTAssertEqual(response.text, textPart.textValue)
+    XCTAssertTrue(textPart.text.hasPrefix("Google"))
+    XCTAssertEqual(response.text, textPart.text)
     let promptFeedback = try XCTUnwrap(response.promptFeedback)
     XCTAssertNil(promptFeedback.blockReason)
     XCTAssertEqual(promptFeedback.safetyRatings.sorted(), safetyRatingsNegligible)

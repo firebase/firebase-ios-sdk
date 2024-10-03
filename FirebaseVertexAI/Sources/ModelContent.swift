@@ -43,10 +43,10 @@ extension [ModelContent] {
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct TextPart: Part {
-  public let textValue: String
+  public let text: String
 
-  public init(textValue: String) {
-    self.textValue = textValue
+  public init(_ text: String) {
+    self.text = text
   }
 }
 
@@ -174,7 +174,7 @@ public struct ModelContent: Equatable, Sendable {
     for part in internalParts {
       switch part {
       case let .text(text):
-        convertedParts.append(TextPart(textValue: text))
+        convertedParts.append(TextPart(text))
       case let .inlineData(mimetype, data):
         convertedParts
           .append(InlineDataPart(inlineData: InlineData(mimeType: mimetype, data: data)))
@@ -200,7 +200,7 @@ public struct ModelContent: Equatable, Sendable {
     for part in parts.partsValue {
       switch part {
       case let textPart as TextPart:
-        convertedParts.append(.text(textPart.textValue))
+        convertedParts.append(.text(textPart.text))
       case let inlineDataPart as InlineDataPart:
         let inlineData = inlineDataPart.inlineData
         convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
@@ -225,7 +225,7 @@ public struct ModelContent: Equatable, Sendable {
     for part in parts {
       switch part {
       case let textPart as TextPart:
-        convertedParts.append(.text(textPart.textValue))
+        convertedParts.append(.text(textPart.text))
       case let inlineDataPart as InlineDataPart:
         let inlineData = inlineDataPart.inlineData
         convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))

@@ -34,6 +34,6 @@ extension [PartsRepresentable]: PartsRepresentable {
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: PartsRepresentable {
   public var partsValue: [any Part] {
-    return [TextPart(textValue: self)]
+    return [TextPart(self)]
   }
 }

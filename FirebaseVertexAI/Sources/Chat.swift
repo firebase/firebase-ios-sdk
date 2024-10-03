@@ -134,13 +134,13 @@ public class Chat {
       for part in aggregate.parts {
         switch part {
         case let textPart as TextPart:
-          combinedText += textPart.textValue
+          combinedText += textPart.text
 
         default:
           // Don't combine it, just add to the content. If there's any text pending, add that as
           // a part.
           if !combinedText.isEmpty {
-            parts.append(TextPart(textValue: combinedText))
+            parts.append(TextPart(combinedText))
             combinedText = ""
           }
 
@@ -150,7 +150,7 @@ public class Chat {
     }
 
     if !combinedText.isEmpty {
-      parts.append(TextPart(textValue: combinedText))
+      parts.append(TextPart(combinedText))
     }
 
     return ModelContent(role: "model", parts: parts)

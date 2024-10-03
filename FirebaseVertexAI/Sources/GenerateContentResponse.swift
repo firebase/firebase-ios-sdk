@@ -51,7 +51,7 @@ public struct GenerateContentResponse: Sendable {
     let textValues: [String] = candidate.content.parts.compactMap { part in
       switch part {
       case let textPart as TextPart:
-        return textPart.textValue
+        return textPart.text
       default:
         return nil
       }

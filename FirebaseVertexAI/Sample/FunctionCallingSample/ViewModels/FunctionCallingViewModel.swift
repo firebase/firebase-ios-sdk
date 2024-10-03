@@ -146,7 +146,7 @@ class FunctionCallingViewModel: ObservableObject {
       switch part {
       case let textPart as TextPart:
         // replace pending message with backend response
-        messages[messages.count - 1].message += textPart.textValue
+        messages[messages.count - 1].message += textPart.text
         messages[messages.count - 1].pending = false
       case let functionCallPart as FunctionCallPart:
         let functionCall = functionCallPart.functionCall

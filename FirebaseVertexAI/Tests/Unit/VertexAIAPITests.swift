@@ -35,7 +35,7 @@ final class VertexAIAPITests: XCTestCase {
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
     let systemInstruction = ModelContent(
       role: "system",
-      parts: TextPart(textValue: "Talk like a pirate.")
+      parts: TextPart("Talk like a pirate.")
     )
 
     // Instantiate Vertex AI SDK - Default App
@@ -78,7 +78,7 @@ final class VertexAIAPITests: XCTestCase {
     let contents = [ModelContent(
       role: "user",
       parts: [
-        TextPart(textValue: "Is it a cat?"),
+        TextPart("Is it a cat?"),
         InlineDataPart(
           inlineData: InlineData(mimeType: "image/png", data: pngData)
         ),
@@ -105,7 +105,7 @@ final class VertexAIAPITests: XCTestCase {
     #if canImport(UIKit)
       _ = try await genAI.generateContent(UIImage())
       _ = try await genAI.generateContent([UIImage()])
-      _ = try await genAI.generateContent([str, UIImage(), TextPart(textValue: str)])
+      _ = try await genAI.generateContent([str, UIImage(), TextPart(str)])
       _ = try await genAI.generateContent(str, UIImage(), "def", UIImage())
       _ = try await genAI.generateContent([str, UIImage(), "def", UIImage()])
       _ = try await genAI.generateContent([ModelContent("def", UIImage()),
@@ -118,8 +118,8 @@ final class VertexAIAPITests: XCTestCase {
     #endif
 
     // PartsRepresentable combinations.
-    let _ = ModelContent(parts: [TextPart(textValue: str)])
-    let _ = ModelContent(role: "model", parts: [TextPart(textValue: str)])
+    let _ = ModelContent(parts: [TextPart(str)])
+    let _ = ModelContent(role: "model", parts: [TextPart(str)])
     let _ = ModelContent(parts: "Constant String")
     let _ = ModelContent(parts: str)
     let _ = ModelContent(parts: [str])
@@ -144,7 +144,7 @@ final class VertexAIAPITests: XCTestCase {
       let representable2: [any PartsRepresentable] = [str, UIImage()]
       _ = ModelContent(parts: representable2)
       _ =
-        ModelContent(parts: [str, UIImage(), TextPart(textValue: str)] as [any PartsRepresentable])
+        ModelContent(parts: [str, UIImage(), TextPart(str)] as [any PartsRepresentable])
     #elseif canImport(AppKit)
       _ = ModelContent(role: "user", parts: NSImage())
       _ = ModelContent(role: "user", parts: [NSImage()])
