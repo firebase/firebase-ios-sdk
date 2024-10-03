@@ -14,6 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import <GoogleUtilities/GULUserDefaults.h>
+
 #import "FirebasePerformance/Sources/AppActivity/FPRAppActivityTracker.h"
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
@@ -99,7 +101,7 @@
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
   configurations.remoteConfigFlags = configFlags;
 
-  NSUserDefaults *userDefaults = [[NSUserDefaults alloc] init];
+  GULUserDefaults *userDefaults = [[GULUserDefaults alloc] init];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
