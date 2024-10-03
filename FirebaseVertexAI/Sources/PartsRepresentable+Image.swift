@@ -41,7 +41,7 @@ enum ImageConversionError: Error {
   extension UIImage: PartsRepresentable {
     public var partsValue: [any Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
-        return [ErrorPart()]
+        return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
       }
       return [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: data))]
     }
@@ -53,14 +53,12 @@ enum ImageConversionError: Error {
   extension NSImage: PartsRepresentable {
     public var partsValue: [any Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-        // throw ImageConversionError.invalidUnderlyingImage
-        return [ErrorPart()]
+        return [ErrorPart(ImageConversionError.invalidUnderlyingImage)]
       }
       let bmp = NSBitmapImageRep(cgImage: cgImage)
       guard let data = bmp.representation(using: .jpeg, properties: [.compressionFactor: 0.8])
       else {
-        // throw ImageConversionError.couldNotConvertToJPEG
-        return [ErrorPart()]
+        return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
       }
       return [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: data))]
     }
@@ -76,7 +74,7 @@ enum ImageConversionError: Error {
       guard let imageDestination = CGImageDestinationCreateWithData(
         output, UTType.jpeg.identifier as CFString, 1, nil
       ) else {
-        return [ErrorPart()]
+        return [ErrorPart(ImageConversionError.couldNotAllocateDestination)]
       }
       CGImageDestinationAddImage(imageDestination, self, nil)
       CGImageDestinationSetProperties(imageDestination, [
@@ -88,8 +86,7 @@ enum ImageConversionError: Error {
           data: output as Data
         ))]
       }
-      // throw ImageConversionError.couldNotConvertToJPEG
-      return [ErrorPart()]
+      return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
     }
   }
 #endif // !os(watchOS)
@@ -110,8 +107,7 @@ enum ImageConversionError: Error {
       if let jpegData = jpegData {
         return [InlineDataPart(inlineData: InlineData(mimeType: "image/jpeg", data: jpegData))]
       }
-      // throw ImageConversionError.couldNotConvertToJPEG
-      return [ErrorPart()]
+      return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
     }
   }
 #endif // canImport(CoreImage)

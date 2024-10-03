@@ -156,7 +156,7 @@ final class VertexAIAPITests: XCTestCase {
       let representable2: [any PartsRepresentable] = [str, NSImage()]
       _ = ModelContent(parts: representable2)
       _ =
-        ModelContent(parts: [str, NSImage(), TextPart(textValue: str)] as [any PartsRepresentable])
+        ModelContent(parts: [str, NSImage(), TextPart(str)] as [any PartsRepresentable])
     #endif
 
     // countTokens API

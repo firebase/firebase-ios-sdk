@@ -90,4 +90,28 @@ public struct FunctionResponsePart: Part {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ErrorPart: Error, Part, Equatable {}
+struct ErrorPart: Part, Error {
+  let error: Error
+
+  init(_ error: Error) {
+    self.error = error
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ErrorPart: Equatable {
+  static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
+    fatalError("Comparing ErrorParts for equality is not supported.")
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ErrorPart: Codable {
+  init(from decoder: any Decoder) throws {
+    fatalError("Decoding an ErrorPart is not supported.")
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    fatalError("Encoding an ErrorPart is not supported.")
+  }
+}

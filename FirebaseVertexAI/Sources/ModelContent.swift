@@ -22,7 +22,7 @@ extension [ModelContent] {
       for part in content.parts {
         switch part {
         case let errorPart as ErrorPart:
-          throw errorPart
+          throw errorPart.error
         default:
           break
         }

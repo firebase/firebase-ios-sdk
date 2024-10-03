@@ -61,8 +61,13 @@ final class PartsRepresentableTests: XCTestCase {
       let image = CIImage.empty()
       let modelContent = image.partsValue
       let part = try XCTUnwrap(modelContent.first)
-      guard part is ErrorPart else {
-        XCTFail("Expected ErrorPart.")
+      let errorPart = try XCTUnwrap(part as? ErrorPart, "Expected ErrorPart.")
+      let imageError = try XCTUnwrap(
+        errorPart.error as? ImageConversionError,
+        "Got unexpected error type: \(errorPart.error)"
+      )
+      guard case .couldNotConvertToJPEG = imageError else {
+        XCTFail("Expected JPEG conversion error, got \(imageError) instead.")
         return
       }
     }
@@ -73,8 +78,13 @@ final class PartsRepresentableTests: XCTestCase {
       let image = UIImage()
       let modelContent = image.partsValue
       let part = try XCTUnwrap(modelContent.first)
-      guard part is ErrorPart else {
-        XCTFail("Expected ErrorPart.")
+      let errorPart = try XCTUnwrap(part as? ErrorPart, "Expected ErrorPart.")
+      let imageError = try XCTUnwrap(
+        errorPart.error as? ImageConversionError,
+        "Got unexpected error type: \(errorPart.error)"
+      )
+      guard case .couldNotConvertToJPEG = imageError else {
+        XCTFail("Expected JPEG conversion error, got \(imageError) instead.")
         return
       }
     }
@@ -100,8 +110,13 @@ final class PartsRepresentableTests: XCTestCase {
       let image = NSImage()
       let modelContent = image.partsValue
       let part = try XCTUnwrap(modelContent.first)
-      guard part is ErrorPart else {
-        XCTFail("Expected ErrorPart.")
+      let errorPart = try XCTUnwrap(part as? ErrorPart, "Expected ErrorPart.")
+      let imageError = try XCTUnwrap(
+        errorPart.error as? ImageConversionError,
+        "Got unexpected error type: \(errorPart.error)"
+      )
+      guard case .invalidUnderlyingImage = imageError else {
+        XCTFail("Expected invalid underyling image conversion error, got \(imageError) instead.")
         return
       }
     }
