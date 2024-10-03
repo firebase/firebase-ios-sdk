@@ -52,6 +52,8 @@ static BOOL originalViewDidDisappearInvoked = NO;
   originalViewDidDisappearInvoked = NO;
 }
 
+#if !SWIFT_PACKAGE
+
 /** Tests that the viewControllerDidAppear: of the FPRScreenTraceTracker sharedInstance is invoked
  *  when a UIViewController's viewDidAppear: is invoked.
  */
@@ -74,6 +76,8 @@ static BOOL originalViewDidDisappearInvoked = NO;
 
   [[testViewController view] removeFromSuperview];
 }
+
+#endif  // SWIFT_PACKAGE
 
 /** Tests that the viewControllerDidAppear: of the FPRScreenTraceTracker sharedInstance is invoked
  *  when a UIViewController's viewDidAppear: is invoked.
@@ -170,4 +174,3 @@ static BOOL originalViewDidDisappearInvoked = NO;
 }
 
 @end
-
