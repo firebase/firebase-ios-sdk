@@ -49,10 +49,6 @@
   [performance setDataCollectionEnabled:NO];
 }
 
-- (GULUserDefaults * _Nonnull)makeEmptyUserDefaults {
-  return [[GULUserDefaults alloc] init];
-}
-
 /* Verify if the instance creation works. */
 - (void)testInstanceCreation {
   XCTAssertNotNil([[FPRGaugeManager alloc] initWithGauges:FPRGaugeNone]);
@@ -97,7 +93,7 @@
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
   configurations.remoteConfigFlags = configFlags;
 
-  GULUserDefaults *_Nonnull userDefaults = [self makeEmptyUserDefaults];
+  GULUserDefaults *_Nonnull userDefaults = [[GULUserDefaults alloc] init];
   configFlags.userDefaults = userDefaults;
 
   NSString *configKey = [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, @"fpr_enabled"];
