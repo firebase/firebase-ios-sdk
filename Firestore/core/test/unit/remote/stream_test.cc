@@ -108,22 +108,26 @@ class TestStream : public Stream {
     observed_states_.push_back("NotifyStreamOpen");
   }
 
-  util::Status NotifyFirstStreamResponse(const grpc::ByteBuffer& message) override {
+  util::Status NotifyFirstStreamResponse(
+      const grpc::ByteBuffer& message) override {
     std::string str = ByteBufferToString(message);
     if (str.empty()) {
       observed_states_.push_back("NotifyFirstStreamResponse");
     } else {
-      observed_states_.push_back(StringFormat("NotifyFirstStreamResponse(%s)", str));
+      observed_states_.push_back(
+          StringFormat("NotifyFirstStreamResponse(%s)", str));
     }
     return ResolveStreamResponse();
   }
 
-  util::Status NotifyNextStreamResponse(const grpc::ByteBuffer& message) override {
+  util::Status NotifyNextStreamResponse(
+      const grpc::ByteBuffer& message) override {
     std::string str = ByteBufferToString(message);
     if (str.empty()) {
       observed_states_.push_back("NotifyNextStreamResponse");
     } else {
-      observed_states_.push_back(StringFormat("NotifyNextStreamResponse(%s)", str));
+      observed_states_.push_back(
+          StringFormat("NotifyNextStreamResponse(%s)", str));
     }
     return ResolveStreamResponse();
   }
