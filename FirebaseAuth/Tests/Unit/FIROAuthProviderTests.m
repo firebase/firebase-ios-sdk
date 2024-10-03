@@ -168,7 +168,7 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
  */
 - (void)testGetCredentialWithUIDelegateWithClientIDOnMainThread {
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-
+  // Trigger CI
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
                                   GCMSenderID:@"00000000000000000-00000000000-000000000"];
