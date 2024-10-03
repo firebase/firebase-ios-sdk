@@ -183,7 +183,7 @@ class FirebaseAppTests: XCTestCase {
     waitForExpectations(timeout: 1)
   }
 
-  func testGetUnitializedDefaultApp() {
+  func testGetUninitializedDefaultApp() {
     let app = FirebaseApp.app()
     XCTAssertNil(app)
   }
