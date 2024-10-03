@@ -94,6 +94,7 @@ bool Stream::IsStarted() const {
 
 void Stream::Start() {
   EnsureOnQueue();
+  response_count_ = 0;
 
   if (state_ == State::Error) {
     BackoffAndTryRestarting();
@@ -258,7 +259,10 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
                   grpc_stream_->GetResponseHeaders()));
   }
 
-  Status read_status = NotifyStreamResponse(message);
+  Status read_status = (++response_count_ == 1)
+                           ? NotifyFirstStreamResponse(message)
+                           : NotifyNextStreamResponse(message);
+
   if (!read_status.ok()) {
     grpc_stream_->FinishImmediately();
     // Don't expect gRPC to produce status -- since the error happened on the

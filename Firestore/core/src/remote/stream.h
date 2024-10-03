@@ -226,7 +226,9 @@ class Stream : public GrpcStreamObserver,
       const std::string& app_check_token) = 0;
   virtual void TearDown(GrpcStream* stream) = 0;
   virtual void NotifyStreamOpen() = 0;
-  virtual util::Status NotifyStreamResponse(
+  virtual util::Status NotifyFirstStreamResponse(
+      const grpc::ByteBuffer& message) = 0;
+  virtual util::Status NotifyNextStreamResponse(
       const grpc::ByteBuffer& message) = 0;
   virtual void NotifyStreamClose(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
@@ -260,6 +262,7 @@ class Stream : public GrpcStreamObserver,
   // Used to prevent auth if the stream happens to be restarted before token is
   // received.
   int close_count_ = 0;
+  int response_count_ = 0;
 };
 
 }  // namespace remote
