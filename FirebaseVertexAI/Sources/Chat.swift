@@ -42,7 +42,7 @@ public class Chat {
 
   public func sendMessage(@PartsBuilder _ parts: () -> [any ModelContent.Part]) async throws
     -> GenerateContentResponse {
-    return try await sendMessage(parts)
+    return try await sendMessage([ModelContent(parts: parts)])
   }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
@@ -50,19 +50,10 @@ public class Chat {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
-  public func sendMessage(_ content: @autoclosure () throws -> [ModelContent]) async throws
+  public func sendMessage(_ content: [ModelContent]) async throws
     -> GenerateContentResponse {
     // Ensure that the new content has the role set.
-    let newContent: [ModelContent]
-    do {
-      newContent = try content().map(populateContentRole(_:))
-    } catch let underlying {
-      if let contentError = underlying as? ImageConversionError {
-        throw GenerateContentError.promptImageContentError(underlying: contentError)
-      } else {
-        throw GenerateContentError.internalError(underlying: underlying)
-      }
-    }
+    let newContent = content.map(populateContentRole(_:))
 
     // Send the history alongside the new message as context.
     let request = history + newContent
@@ -96,8 +87,9 @@ public class Chat {
   }
 
   @available(macOS 12.0, *)
-  public func sendMessageStream(@PartsBuilder _ parts: () -> [any ModelContent.Part]) throws {
-    return try sendMessageStream(parts)
+  public func sendMessageStream(@PartsBuilder _ parts: () -> [any ModelContent.Part]) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    return try sendMessageStream([ModelContent(parts: parts)])
   }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
