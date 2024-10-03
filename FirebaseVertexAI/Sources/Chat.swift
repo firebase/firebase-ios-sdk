@@ -45,19 +45,10 @@ public class Chat {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
-  public func sendMessage(_ content: @autoclosure () throws -> [ModelContent]) async throws
+  public func sendMessage(_ content: [ModelContent]) async throws
     -> GenerateContentResponse {
     // Ensure that the new content has the role set.
-    let newContent: [ModelContent]
-    do {
-      newContent = try content().map(populateContentRole(_:))
-    } catch let underlying {
-      if let contentError = underlying as? ImageConversionError {
-        throw GenerateContentError.promptImageContentError(underlying: contentError)
-      } else {
-        throw GenerateContentError.internalError(underlying: underlying)
-      }
-    }
+    let newContent = content.map(populateContentRole(_:))
 
     // Send the history alongside the new message as context.
     let request = history + newContent
@@ -95,24 +86,14 @@ public class Chat {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
   @available(macOS 12.0, *)
-  public func sendMessageStream(_ content: @autoclosure () throws -> [ModelContent]) throws
+  public func sendMessageStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
-    let resolvedContent: [ModelContent]
-    do {
-      resolvedContent = try content()
-    } catch let underlying {
-      if let contentError = underlying as? ImageConversionError {
-        throw GenerateContentError.promptImageContentError(underlying: contentError)
-      }
-      throw GenerateContentError.internalError(underlying: underlying)
-    }
-
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []
 
         // Ensure that the new content has the role set.
-        let newContent: [ModelContent] = resolvedContent.map(populateContentRole(_:))
+        let newContent: [ModelContent] = content.map(populateContentRole(_:))
 
         // Send the history alongside the new message as context.
         let request = history + newContent
