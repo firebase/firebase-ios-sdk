@@ -21,6 +21,14 @@ public protocol PartsRepresentable {
   var partsValue: [any Part] { get }
 }
 
+/// Enables a ``Part`` to be used as a ``PartsRepresentable``.
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension Part {
+  var partsValue: [any Part] {
+    return [self]
+  }
+}
+
 /// Enable an `Array` of ``PartsRepresentable`` values to be passed in as a single
 /// ``PartsRepresentable``.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)

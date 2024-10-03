@@ -15,16 +15,6 @@
 import Foundation
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension Part {
-  var partsValue: [any Part] {
-    return [self]
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension [ModelContent] {
   // TODO: Rename and refactor this.
   func throwIfError() throws {
@@ -40,81 +30,6 @@ extension [ModelContent] {
     }
   }
 }
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct TextPart: Part {
-  public let text: String
-
-  public init(_ text: String) {
-    self.text = text
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct InlineData: Codable, Equatable, Sendable {
-  public let mimeType: String
-  public let data: Data
-
-  public init(mimeType: String, data: Data) {
-    self.mimeType = mimeType
-    self.data = data
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct InlineDataPart: Part {
-  public let inlineData: InlineData
-
-  public init(inlineData: InlineData) {
-    self.inlineData = inlineData
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FileData: Codable, Equatable, Sendable {
-  enum CodingKeys: String, CodingKey {
-    case mimeType = "mime_type"
-    case uri = "file_uri"
-  }
-
-  public let mimeType: String
-  public let uri: String
-
-  public init(mimeType: String, uri: String) {
-    self.mimeType = mimeType
-    self.uri = uri
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FileDataPart: Part {
-  public let fileData: FileData
-
-  public init(fileData: FileData) {
-    self.fileData = fileData
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionCallPart: Part {
-  public let functionCall: FunctionCall
-
-  public init(functionCall: FunctionCall) {
-    self.functionCall = functionCall
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionResponsePart: Part {
-  public let functionResponse: FunctionResponse
-
-  public init(functionResponse: FunctionResponse) {
-    self.functionResponse = functionResponse
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ErrorPart: Error, Part, Equatable {}
 
 /// A type describing data in media formats interpretable by an AI model. Each generative AI
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
