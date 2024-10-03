@@ -208,6 +208,86 @@
       )
     }
 
+    /// @fn testVerifyPhoneNumberWithRceAudit
+    /// @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise in
+    /// audit mode
+    func testVerifyPhoneNumberWithRceAuditSuccess() async throws {
+      initApp(#function)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      let mockVerifier = FakeAuthRecaptchaVerifier(captchaResponse: kCaptchaResponse)
+      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
+      rpcIssuer.rceMode = "AUDIT"
+      let requestExpectation = expectation(description: "verifyRequester")
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+        XCTAssertEqual(request.captchaResponse, self.kCaptchaResponse)
+        XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
+        XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
+        requestExpectation.fulfill()
+        do {
+          try self.rpcIssuer?
+            .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+      do {
+        let result = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
+          toPhoneNumber: kTestPhoneNumber,
+          retryOnInvalidAppCredential: false,
+          uiDelegate: nil,
+          recaptchaVerifier: mockVerifier
+        )
+        XCTAssertEqual(result, kTestVerificationID)
+      } catch {
+        XCTFail("Unexpected error")
+      }
+      await fulfillment(of: [requestExpectation], timeout: 5.0)
+    }
+
+    /// @fn testVerifyPhoneNumberWithRceAuditInvalidRecaptcha
+    /// @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise in
+    /// audit mode
+    func testVerifyPhoneNumberWithRceAuditInvalidRecaptcha() async throws {
+      initApp(#function)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      let mockVerifier = FakeAuthRecaptchaVerifier()
+      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
+      rpcIssuer.rceMode = "AUDIT"
+      let requestExpectation = expectation(description: "verifyRequester")
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+        XCTAssertEqual(request.captchaResponse, "NO_RECAPTCHA")
+        XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
+        XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
+        requestExpectation.fulfill()
+        do {
+          try self.rpcIssuer?
+            .respond(
+              serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
+              error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError
+            )
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+      do {
+        _ = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
+          toPhoneNumber: kTestPhoneNumber,
+          retryOnInvalidAppCredential: false,
+          uiDelegate: nil,
+          recaptchaVerifier: mockVerifier
+        )
+      } catch {
+        let underlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError
+        let rootError = underlyingError?.userInfo[NSUnderlyingErrorKey] as? NSError
+        XCTAssertEqual(rootError?.code, AuthErrorCode.invalidRecaptchaToken.code.rawValue)
+      }
+      await fulfillment(of: [requestExpectation], timeout: 5.0)
+    }
+
     /** @fn testVerifyPhoneNumberInTestMode
      @brief Tests a successful invocation of @c verifyPhoneNumber:completion: when app verification
      is disabled.
