@@ -39,12 +39,7 @@ open class HTTPSCallable: NSObject {
   // The functions client to use for making calls.
   private let functions: Functions
 
-  private enum EndpointType {
-    case name(String)
-    case url(URL)
-  }
-
-  private let endpoint: EndpointType
+  private let url: URL
 
   private let options: HTTPSCallableOptions?
 
@@ -53,16 +48,10 @@ open class HTTPSCallable: NSObject {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
   @objc open var timeoutInterval: TimeInterval = 70
 
-  init(functions: Functions, name: String, options: HTTPSCallableOptions? = nil) {
-    self.functions = functions
-    self.options = options
-    endpoint = .name(name)
-  }
-
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
+    self.url = url
     self.options = options
-    endpoint = .url(url)
   }
 
   /// Executes this Callable HTTPS trigger asynchronously.
@@ -98,20 +87,13 @@ open class HTTPSCallable: NSObject {
       }
     }
 
-    switch endpoint {
-    case let .name(name):
-      functions.callFunction(name: name,
-                             withObject: data,
-                             options: options,
-                             timeout: timeoutInterval,
-                             completion: callback)
-    case let .url(url):
-      functions.callFunction(url: url,
-                             withObject: data,
-                             options: options,
-                             timeout: timeoutInterval,
-                             completion: callback)
-    }
+    functions.callFunction(
+      at: url,
+      withObject: data,
+      options: options,
+      timeout: timeoutInterval,
+      completion: callback
+    )
   }
 
   /// Executes this Callable HTTPS trigger asynchronously. This API should only be used from
