@@ -907,8 +907,6 @@ let package = Package(
         "FirebasePerformanceTarget",
         "SharedTestUtilities",
         "GCDWebServer",
-        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULSwizzlerTestHelpers", package: "GoogleUtilities"),
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebasePerformance/Tests/Unit",
@@ -922,7 +920,6 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
-        .define("FPR_UNSWIZZLE_AVAILABLE", to: "1"),
       ]
     ),
 
