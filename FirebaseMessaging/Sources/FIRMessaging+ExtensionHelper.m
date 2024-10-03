@@ -30,8 +30,10 @@
   return extensionHelper;
 }
 
+#if SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
 /// Stub used to force the linker to include the categories in this file.
 void FIRInclude_FIRMessaging_ExtensionHelper_Category(void) {
 }
+#endif  // SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
 
 @end
