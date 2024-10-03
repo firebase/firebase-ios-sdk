@@ -17,7 +17,7 @@
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 
 #import <GoogleUtilities/GULSwizzler.h>
-#ifdef UNSWIZZLE_AVAILABLE
+#ifdef FPR_UNSWIZZLE_AVAILABLE
 #import <GoogleUtilities/GULSwizzler+Unswizzle.h>
 #endif
 
@@ -76,7 +76,7 @@
 
 - (void)unswizzle {
   _swizzled = NO;
-#ifdef UNSWIZZLE_AVAILABLE
+#ifdef FPR_UNSWIZZLE_AVAILABLE
   [GULSwizzler unswizzleClass:_class selector:_selector isClassSelector:_isClassSelector];
 #else
   NSAssert(NO, @"Unswizzling is disabled.");

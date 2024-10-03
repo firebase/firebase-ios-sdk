@@ -14,8 +14,6 @@
 
 #pragma mark - Unswizzle based tests
 
-#if !SWIFT_PACKAGE
-
 #import "FirebasePerformance/Sources/Instrumentation/UIKit/FPRUIViewControllerInstrument.h"
 
 #import <XCTest/XCTest.h>
@@ -173,4 +171,3 @@ static BOOL originalViewDidDisappearInvoked = NO;
 
 @end
 
-#endif  // SWIFT_PACKAGE
