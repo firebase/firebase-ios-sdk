@@ -69,7 +69,7 @@
       [validationError.localizedFailureReason containsString:@"invalid `registrationStatus`"]);
 
   FIRInstallationsItem *registeredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
-                                                                      firebaseAppName:@""];
+                                                                     firebaseAppName:@""];
   registeredItem.registrationStatus = FIRInstallationStatusRegistered;
 
   XCTAssertFalse([registeredItem isValid:&validationError]);
