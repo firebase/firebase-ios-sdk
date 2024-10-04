@@ -133,11 +133,16 @@ extern void FIRLogDebug(NSString *category, NSString *messageCode, NSString *mes
 
 /**
  * This function is similar to the one above, except it takes a `va_list` instead of the listed
- * variables. The following functions accept the following parameters in order: (required) service
- * name of type FirebaseLoggerService. (required) message code starting from "I-" which means iOS,
- * followed by a capitalized three-character service identifier and a six digit integer message ID
- * that is unique within the service. An example of the message code is @"I-COR000001". See
- * go/firebase-log-proposal for details. (required) message string which can be a format string.
+ * variables.
+ *
+ * The following functions accept the following parameters in order: (required) service
+ * name of type FirebaseLoggerService.
+ *
+ * (required) message code starting from "I-" which means iOS,
+ *    followed by a capitalized three-character service identifier and a six digit integer message
+ *    ID that is unique within the service. An example of the message code is @"I-COR000001".
+ *    See go/firebase-log-proposal for details.
+ * (required) message string which can be a format string.
  * (optional) A va_list
  */
 extern void FIRLogBasicError(NSString *category,
