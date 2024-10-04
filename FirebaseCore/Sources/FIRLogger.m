@@ -87,6 +87,7 @@ __attribute__((no_sanitize("thread"))) void FIRSetAnalyticsDebugMode(BOOL analyt
 }
 
 FIRLoggerLevel FIRGetLoggerLevel(void) {
+  FIRLoggerInitialize();
   return (FIRLoggerLevel)GULGetLoggerLevel();
 }
 

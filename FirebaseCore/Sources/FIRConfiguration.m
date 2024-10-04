@@ -17,6 +17,11 @@
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 
 extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
+extern FIRLoggerLevel FIRGetLoggerLevel(void);
+
+@interface FIRConfiguration ()
+@property(nonatomic, readonly) dispatch_queue_t queue;
+@end
 
 @implementation FIRConfiguration
 
@@ -32,6 +37,7 @@ extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 - (instancetype)init {
   self = [super init];
   if (self) {
+    _queue = dispatch_queue_create("com.firebase.FIRConfiguration", DISPATCH_QUEUE_SERIAL);
     _analyticsConfiguration = [FIRAnalyticsConfiguration sharedInstance];
   }
   return self;
@@ -40,7 +46,17 @@ extern void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 - (void)setLoggerLevel:(FIRLoggerLevel)loggerLevel {
   NSAssert(loggerLevel <= FIRLoggerLevelMax && loggerLevel >= FIRLoggerLevelMin,
            @"Invalid logger level, %ld", (long)loggerLevel);
-  FIRSetLoggerLevel(loggerLevel);
+  dispatch_sync(self.queue, ^{
+    FIRSetLoggerLevel(loggerLevel);
+  });
+}
+
+- (FIRLoggerLevel)loggerLevel {
+  __block FIRLoggerLevel level;
+  dispatch_sync(self.queue, ^{
+    level = FIRGetLoggerLevel();
+  });
+  return level;
 }
 
 @end
