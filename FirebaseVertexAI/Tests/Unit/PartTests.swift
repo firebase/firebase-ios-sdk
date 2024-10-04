@@ -150,7 +150,7 @@ final class PartTests: XCTestCase {
   }
 
   private static func blueSquareImage() throws -> String {
-    let imageURL = Bundle.module.url(forResource: "blue", withExtension: "png")!
+    let imageURL = bundle().url(forResource: "blue", withExtension: "png")!
     let imageData = try Data(contentsOf: imageURL)
     return imageData.base64EncodedString()
   }
