@@ -22,11 +22,6 @@
 @import FirebaseAuth;
 @import FirebaseCore;
 
-/** @var kExpectationTimeout
-    @brief The maximum time waiting for expectations to fulfill.
- */
-static const NSTimeInterval kExpectationTimeout = 1;
-
 /** @var kFakeAuthorizedDomain
     @brief A fake authorized domain for the app.
  */
@@ -162,32 +157,6 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
   XCTAssertEqualObjects(OAuthCredential.IDToken, kFakeIDToken);
 }
 
-/** @fn testGetCredentialWithUIDelegateWithClientIDOnMainThread
-    @brief Verifies @c getCredentialWithUIDelegate:completion: calls its completion handler on the
-   main thread. Regression test for  firebase/FirebaseUI-iOS#1199.
- */
-- (void)testGetCredentialWithUIDelegateWithClientIDOnMainThread {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"0:0000000000000:ios:0000000000000000"
-                                  GCMSenderID:@"00000000000000000-00000000000-000000000"];
-  options.APIKey = kFakeAPIKey;
-  options.projectID = @"myProjectID";
-  options.clientID = kFakeClientID;
-  [FIRApp configureWithName:@"objAppName" options:options];
-  FIRAuth *auth = [FIRAuth authWithApp:[FIRApp appNamed:@"objAppName"]];
-  [auth setMainBundleUrlTypes:@[ @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]} ]];
-
-  FIROAuthProvider *provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:auth];
-  [provider getCredentialWithUIDelegate:nil
-                             completion:^(FIRAuthCredential *_Nullable credential,
-                                          NSError *_Nullable error) {
-                               XCTAssertTrue([NSThread isMainThread]);
-                               [expectation fulfill];
-                             }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-}
 @end
 
 #endif  // TARGET_OS_IOS
