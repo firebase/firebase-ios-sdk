@@ -106,8 +106,8 @@ final class VertexAIAPITests: XCTestCase {
       _ = try await genAI.generateContent([str, UIImage(), TextPart(str)])
       _ = try await genAI.generateContent(str, UIImage(), "def", UIImage())
       _ = try await genAI.generateContent([str, UIImage(), "def", UIImage()])
-    _ = try await genAI.generateContent([ModelContent(parts: "def", UIImage()),
-                                         ModelContent(parts: "def", UIImage())])
+      _ = try await genAI.generateContent([ModelContent(parts: "def", UIImage()),
+                                           ModelContent(parts: "def", UIImage())])
     #elseif canImport(AppKit)
       _ = try await genAI.generateContent(NSImage())
       _ = try await genAI.generateContent([NSImage()])

@@ -106,7 +106,6 @@ public struct ModelContent: Equatable, Sendable {
   // TODO: Refactor this
   let internalParts: [InternalPart]
 
-
   /// Creates a new value from a list of ``Part``s.
   public init(role: String? = "user", parts: [any Part]) {
     self.role = role
