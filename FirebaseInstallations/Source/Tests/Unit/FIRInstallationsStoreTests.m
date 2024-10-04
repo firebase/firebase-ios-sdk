@@ -128,7 +128,7 @@
   OCMVerifyAll(self.mockSecureStorage);
 }
 
-- (void)testSaveInstallationWhenKeychainSucceds {
+- (void)testSaveInstallationWhenKeychainSucceeds {
   FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
   // Reset user defaults key.
