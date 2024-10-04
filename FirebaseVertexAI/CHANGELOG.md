@@ -31,6 +31,9 @@
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
+- [changed] The response from `GenerativeModel.countTokens(...)` now includes
+  `systemInstruction`, `tools` and `generationConfig` in the `totalTokens` and
+  `totalBillableCharacters` counts, where applicable. (#13813)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
