@@ -95,6 +95,26 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
   GULSetLoggerLevel((GULLoggerLevel)loggerLevel);
 }
 
+void FIRSetLoggerLevelNotice(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelNotice);
+}
+
+void FIRSetLoggerLevelWarning(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelWarning);
+}
+
+void FIRSetLoggerLevelError(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelError);
+}
+
+void FIRSetLoggerLevelDebug(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelDebug);
+}
+
 #ifdef DEBUG
 void FIRResetLogger(void) {
   extern void GULResetLogger(void);
@@ -122,6 +142,22 @@ __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel lo
     return YES;
   }
   return GULIsLoggableLevel((GULLoggerLevel)loggerLevel);
+}
+
+BOOL FIRIsLoggableLevelNotice(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelNotice, NO);
+}
+
+BOOL FIRIsLoggableLevelWarning(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelWarning, NO);
+}
+
+BOOL FIRIsLoggableLevelError(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelError, NO);
+}
+
+BOOL FIRIsLoggableLevelDebug(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
 }
 
 void FIRLogBasic(FIRLoggerLevel level,

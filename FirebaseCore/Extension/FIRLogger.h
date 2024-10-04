@@ -64,12 +64,22 @@ FIRLoggerLevel FIRGetLoggerLevel(void);
  */
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 
+void FIRSetLoggerLevelNotice(void);
+void FIRSetLoggerLevelWarning(void);
+void FIRSetLoggerLevelError(void);
+void FIRSetLoggerLevelDebug(void);
+
 /**
  * Checks if the specified logger level is loggable given the current settings.
  * (required) log level (one of the FirebaseLoggerLevel enum values).
  * (required) whether or not this function is called from the Analytics component.
  */
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
+
+BOOL FIRIsLoggableLevelNotice(void);
+BOOL FIRIsLoggableLevelWarning(void);
+BOOL FIRIsLoggableLevelError(void);
+BOOL FIRIsLoggableLevelDebug(void);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will

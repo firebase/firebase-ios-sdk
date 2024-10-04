@@ -14,7 +14,6 @@
 
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
 FIRLoggerService kFIRLoggerAppDistribution = @"[FirebaseAppDistribution]";
 
@@ -23,31 +22,27 @@ NSString *const AppDistributionMessageCode = @"I-FAD000000";
 void FIRFADDebugLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogDebug(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
 
 void FIRFADInfoLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelInfo, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogInfo(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
 
 void FIRFADWarningLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelWarning, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogWarning(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
 
 void FIRFADErrorLog(NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelError, kFIRLoggerAppDistribution, AppDistributionMessageCode, message,
-              args_ptr);
+  FIRLogError(kFIRLoggerAppDistribution, AppDistributionMessageCode, message, args_ptr);
   va_end(args_ptr);
 }
