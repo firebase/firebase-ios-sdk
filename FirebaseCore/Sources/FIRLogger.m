@@ -171,6 +171,17 @@ void FIRLogBasic(FIRLoggerLevel level,
                 messageCode, message, args_ptr);
 }
 
+#define FIR_LOGGING_FUNCTION_BASIC(level)                                                       \
+  void FIRLogBasic##level(NSString *category, NSString *messageCode, NSString *message, va_list args_ptr) { \
+    FIRLogBasic(FIRLoggerLevel##level, category, messageCode, message, args_ptr);         \
+  }
+
+FIR_LOGGING_FUNCTION_BASIC(Error)
+FIR_LOGGING_FUNCTION_BASIC(Warning)
+FIR_LOGGING_FUNCTION_BASIC(Notice)
+FIR_LOGGING_FUNCTION_BASIC(Info)
+FIR_LOGGING_FUNCTION_BASIC(Debug)
+
 /**
  * Generates the logging functions using macros.
  *

@@ -43,13 +43,13 @@ void LogMessageV(LogLevel level, NSString* format, ...) {
 
   switch (level) {
     case kLogLevelDebug:
-      FIRLogDebug(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      FIRLogBasicDebug(kFIRLoggerFirestore, @"I-FST000001", format, list);
     case kLogLevelNotice:
-      FIRLogNotice(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      FIRLogBasicNotice(kFIRLoggerFirestore, @"I-FST000001", format, list);
     case kLogLevelWarning:
-      FIRLogWarning(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      FIRLogBasicWarning(kFIRLoggerFirestore, @"I-FST000001", format, list);
     case kLogLevelError:
-      FIRLogError(kFIRLoggerFirestore, @"I-FST000001", format, list);
+      FIRLogBasicError(kFIRLoggerFirestore, @"I-FST000001", format, list);
   }
   va_end(list);
 }
