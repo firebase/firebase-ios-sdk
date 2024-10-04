@@ -148,7 +148,7 @@ NSString *const kFIRIAMFetchIsDoneNotification = @"FIRIAMFetchIsDoneNotification
     if (sdkMode == FIRIAMSDKModeNewlyInstalled || sdkMode == FIRIAMSDKModeTesting) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700007",
                   @"OK to fetch due to current SDK mode being %@",
-                  FIRIAMDescriptonStringForSDKMode(sdkMode));
+                  FIRIAMDescriptionStringForSDKMode(sdkMode));
       fetchIsAllowedNow = YES;
     } else {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM700008",
