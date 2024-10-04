@@ -21,6 +21,18 @@ public struct FunctionCall: Equatable, Sendable {
 
   /// The function parameters and values.
   public let args: JSONObject
+
+  /// Constructs a new function call.
+  ///
+  /// > Note: A `FunctionCall` is typically received from the model, rather than created manually.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the function to call.
+  ///   - args: The function parameters and values.
+  public init(name: String, args: JSONObject) {
+    self.name = name
+    self.args = args
+  }
 }
 
 /// Structured representation of a function declaration.
