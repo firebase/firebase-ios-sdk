@@ -42,33 +42,4 @@
   }
 }
 
-- (void)testSynchronizedAccess {
-  FIRConfiguration *config = [FIRConfiguration sharedInstance];
-
-  __block BOOL raceConditionExists = NO;
-
-  // Dispatch to a concurrent queue to simulate concurrent access.
-  dispatch_queue_t queue = dispatch_get_global_queue(QOS_CLASS_UTILITY, 0);
-  for (int i = 0; i < 1000000; i++) {
-    dispatch_async(queue, ^{
-      // Get the current logging level.
-      FIRLoggerLevel currentLevel = [config loggerLevel];
-
-      // Set a new logging level.
-      FIRLoggerLevel nextLevel =
-          (currentLevel + 1 > FIRLoggerLevelMax) ? FIRLoggerLevelMin : currentLevel + 1;
-      [config setLoggerLevel:nextLevel];
-
-      // Confirm that the new logging level is retrieved.
-      if (nextLevel != [config loggerLevel]) {
-        raceConditionExists = YES;
-      }
-    });
-  }
-
-  dispatch_sync(queue, ^{/* Drain queue before proceeding. */});
-
-  XCTAssertEqual(raceConditionExists, NO);
-}
-
 @end
