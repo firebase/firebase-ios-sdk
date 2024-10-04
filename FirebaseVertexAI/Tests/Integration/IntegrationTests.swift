@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import FirebaseCore
-import FirebaseVertexAI
 import XCTest
+
+@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class IntegrationTests: XCTestCase {
@@ -74,12 +75,60 @@ final class IntegrationTests: XCTestCase {
 
   // MARK: - Count Tokens
 
-  func testCountTokens() async throws {
+  func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
 
     let response = try await model.countTokens(prompt)
 
     XCTAssertEqual(response.totalTokens, 14)
     XCTAssertEqual(response.totalBillableCharacters, 51)
+  }
+
+  func testCountTokens_image_inlineData() async throws {
+    guard let image = UIImage(systemName: "cloud") else {
+      XCTFail("Image not found.")
+      return
+    }
+
+    let response = try await model.countTokens(image)
+
+    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_image_fileData() async throws {
+    let fileData = ModelContent(parts: [.fileData(
+      mimetype: "image/jpeg",
+      uri: "gs://ios-opensource-samples.appspot.com/ios/public/blank.jpg"
+    )])
+
+    let response = try await model.countTokens([fileData])
+
+    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_functionCalling() async throws {
+    let sumDeclaration = FunctionDeclaration(
+      name: "sum",
+      description: "Adds two integers.",
+      parameters: ["x": .integer(), "y": .integer()]
+    )
+    model = vertex.generativeModel(
+      modelName: "gemini-1.5-flash",
+      tools: [Tool(functionDeclarations: [sumDeclaration])]
+    )
+    let prompt = "What is 10 + 32?"
+    let sumCall = FunctionCall(name: "sum", args: ["x": .number(10), "y": .number(32)])
+    let sumResponse = FunctionResponse(name: "sum", response: ["result": .number(42)])
+
+    let response = try await model.countTokens([
+      ModelContent(role: "user", parts: [.text(prompt)]),
+      ModelContent(role: "model", parts: [.functionCall(sumCall)]),
+      ModelContent(role: "function", parts: [.functionResponse(sumResponse)]),
+    ])
+
+    XCTAssertEqual(response.totalTokens, 24)
+    XCTAssertEqual(response.totalBillableCharacters, 71)
   }
 }
