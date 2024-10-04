@@ -91,8 +91,7 @@ public struct ModelContent: Equatable, Sendable {
       case let .text(text):
         convertedParts.append(TextPart(text))
       case let .inlineData(mimetype, data):
-        convertedParts
-          .append(InlineDataPart(inlineData: InlineData(mimeType: mimetype, data: data)))
+        convertedParts.append(InlineDataPart(data: data, mimeType: mimetype))
       case let .fileData(mimetype, uri):
         convertedParts.append(FileDataPart(fileData: FileData(mimeType: mimetype, uri: uri)))
       case let .functionCall(functionCall):

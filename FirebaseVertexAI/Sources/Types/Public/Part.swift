@@ -27,21 +27,17 @@ public struct TextPart: Part {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct InlineData: Codable, Equatable, Sendable {
-  public let mimeType: String
-  public let data: Data
-
-  public init(mimeType: String, data: Data) {
-    self.mimeType = mimeType
-    self.data = data
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
-  public let inlineData: InlineData
+  let inlineData: InlineData
 
-  public init(inlineData: InlineData) {
+  public var data: Data { inlineData.data }
+  public var mimeType: String { inlineData.mimeType }
+
+  public init(data: Data, mimeType: String) {
+    self.init(InlineData(data: data, mimeType: mimeType))
+  }
+
+  init(_ inlineData: InlineData) {
     self.inlineData = inlineData
   }
 }
@@ -86,32 +82,5 @@ public struct FunctionResponsePart: Part {
 
   public init(functionResponse: FunctionResponse) {
     self.functionResponse = functionResponse
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ErrorPart: Part, Error {
-  let error: Error
-
-  init(_ error: Error) {
-    self.error = error
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ErrorPart: Equatable {
-  static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
-    fatalError("Comparing ErrorParts for equality is not supported.")
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ErrorPart: Codable {
-  init(from decoder: any Decoder) throws {
-    fatalError("Decoding an ErrorPart is not supported.")
-  }
-
-  func encode(to encoder: any Encoder) throws {
-    fatalError("Encoding an ErrorPart is not supported.")
   }
 }

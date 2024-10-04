@@ -1286,10 +1286,7 @@ final class GenerativeModelTests: XCTestCase {
       withExtension: "json"
     )
 
-    let response = try await model.countTokens(InlineDataPart(inlineData: InlineData(
-      mimeType: "image/jpeg",
-      data: Data()
-    )))
+    let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
 
     XCTAssertEqual(response.totalTokens, 258)
     XCTAssertNil(response.totalBillableCharacters)

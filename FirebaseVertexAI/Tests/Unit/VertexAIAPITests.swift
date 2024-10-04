@@ -79,9 +79,7 @@ final class VertexAIAPITests: XCTestCase {
       role: "user",
       parts: [
         TextPart("Is it a cat?"),
-        InlineDataPart(
-          inlineData: InlineData(mimeType: "image/png", data: pngData)
-        ),
+        InlineDataPart(data: pngData, mimeType: "image/png"),
       ]
     )]
 
@@ -128,10 +126,7 @@ final class VertexAIAPITests: XCTestCase {
     // 'Array<Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
     // work.
     let _ = ModelContent(
-      parts: [str, InlineDataPart(inlineData: InlineData(
-        mimeType: "foo",
-        data: Data()
-      ))] as [any PartsRepresentable]
+      parts: [str, InlineDataPart(data: Data(), mimeType: "foo")] as [any PartsRepresentable]
     )
     #if canImport(UIKit)
       _ = ModelContent(role: "user", parts: UIImage())

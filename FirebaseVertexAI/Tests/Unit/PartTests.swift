@@ -18,7 +18,7 @@ import XCTest
 @testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class ModelContentTests: XCTestCase {
+final class PartTests: XCTestCase {
   let decoder = JSONDecoder()
   let encoder = JSONEncoder()
 
@@ -29,6 +29,26 @@ final class ModelContentTests: XCTestCase {
   }
 
   // MARK: - Part Decoding
+
+  func testDecodeInlineDataPart() throws {
+    let imageBase64 = try blueSquareImage()
+    let mimeType = "image/png"
+
+    let json = """
+    {
+      "inlineData": {
+        "data": "\(imageBase64)",
+        "mimeType": "\(mimeType)"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InlineDataPart.self, from: jsonData)
+
+    XCTAssertEqual(part.data, Data(base64Encoded: imageBase64))
+    XCTAssertEqual(part.mimeType, mimeType)
+  }
 
   func testDecodeFunctionResponsePart() throws {
     let functionName = "test-function-name"
@@ -55,6 +75,25 @@ final class ModelContentTests: XCTestCase {
 
   // MARK: - Part Encoding
 
+  func testEncodeInlineDataPart() throws {
+    let mimeType = "image/png"
+    let imageBase64 = try blueSquareImage()
+    let imageBase64Data = Data(base64Encoded: imageBase64)
+    let inlineDataPart = InlineDataPart(data: imageBase64Data!, mimeType: mimeType)
+
+    let jsonData = try encoder.encode(inlineDataPart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "inlineData" : {
+        "data" : "\(imageBase64)",
+        "mimeType" : "\(mimeType)"
+      }
+    }
+    """)
+  }
+
   func testEncodeFileDataPart() throws {
     let mimeType = "image/jpeg"
     let fileURI = "gs://test-bucket/image.jpg"
@@ -72,4 +111,12 @@ final class ModelContentTests: XCTestCase {
     }
     """)
   }
+}
+
+// MARK: - Helpers
+
+func blueSquareImage() throws -> String {
+  let imageURL = Bundle.module.url(forResource: "blue", withExtension: "png")!
+  let imageData = try Data(contentsOf: imageURL)
+  return imageData.base64EncodedString()
 }
