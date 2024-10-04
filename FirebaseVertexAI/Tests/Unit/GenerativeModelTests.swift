@@ -1234,6 +1234,48 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.totalBillableCharacters, 16)
   }
 
+  func testCountTokens_succeeds_allOptions() async throws {
+    MockURLProtocol.requestHandler = try httpRequestHandler(
+      forResource: "unary-success-total-tokens",
+      withExtension: "json"
+    )
+    let generationConfig = GenerationConfig(
+      temperature: 0.5,
+      topP: 0.9,
+      topK: 3,
+      candidateCount: 1,
+      maxOutputTokens: 1024,
+      stopSequences: ["test-stop"],
+      responseMIMEType: "text/plain"
+    )
+    let sumFunction = FunctionDeclaration(
+      name: "sum",
+      description: "Add two integers.",
+      parameters: ["x": .integer(), "y": .integer()]
+    )
+    let systemInstruction = ModelContent(
+      role: "system",
+      parts: "You are a calculator. Use the provided tools."
+    )
+    model = GenerativeModel(
+      name: testModelResourceName,
+      projectID: "my-project-id",
+      apiKey: "API_KEY",
+      generationConfig: generationConfig,
+      tools: [Tool(functionDeclarations: [sumFunction])],
+      systemInstruction: systemInstruction,
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      auth: nil,
+      urlSession: urlSession
+    )
+
+    let response = try await model.countTokens("Why is the sky blue?")
+
+    XCTAssertEqual(response.totalTokens, 6)
+    XCTAssertEqual(response.totalBillableCharacters, 16)
+  }
+
   func testCountTokens_succeeds_noBillableCharacters() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-no-billable-characters",
