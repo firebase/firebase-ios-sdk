@@ -26,6 +26,17 @@ struct InlineData: Codable, Equatable, Sendable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct FileData: Codable, Equatable, Sendable {
+  let fileURI: String
+  let mimeType: String
+
+  init(fileURI: String, mimeType: String) {
+    self.fileURI = fileURI
+    self.mimeType = mimeType
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ErrorPart: Part, Error {
   let error: Error
 

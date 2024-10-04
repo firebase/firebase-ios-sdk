@@ -30,15 +30,28 @@ final class PartTests: XCTestCase {
 
   // MARK: - Part Decoding
 
-  func testDecodeInlineDataPart() throws {
-    let imageBase64 = try blueSquareImage()
-    let mimeType = "image/png"
-
+  func testDecodeTextPart() throws {
+    let expectedText = "Hello, world!"
     let json = """
     {
-      "inlineData": {
-        "data": "\(imageBase64)",
-        "mimeType": "\(mimeType)"
+      "text" : "\(expectedText)"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(TextPart.self, from: jsonData)
+
+    XCTAssertEqual(part.text, expectedText)
+  }
+
+  func testDecodeInlineDataPart() throws {
+    let imageBase64 = try PartTests.blueSquareImage()
+    let mimeType = "image/png"
+    let json = """
+    {
+      "inlineData" : {
+        "data" : "\(imageBase64)",
+        "mimeType" : "\(mimeType)"
       }
     }
     """
@@ -75,9 +88,23 @@ final class PartTests: XCTestCase {
 
   // MARK: - Part Encoding
 
+  func testEncodeTextPart() throws {
+    let expectedText = "Hello, world!"
+    let textPart = TextPart(expectedText)
+
+    let jsonData = try encoder.encode(textPart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "text" : "\(expectedText)"
+    }
+    """)
+  }
+
   func testEncodeInlineDataPart() throws {
     let mimeType = "image/png"
-    let imageBase64 = try blueSquareImage()
+    let imageBase64 = try PartTests.blueSquareImage()
     let imageBase64Data = Data(base64Encoded: imageBase64)
     let inlineDataPart = InlineDataPart(data: imageBase64Data!, mimeType: mimeType)
 
@@ -97,7 +124,7 @@ final class PartTests: XCTestCase {
   func testEncodeFileDataPart() throws {
     let mimeType = "image/jpeg"
     let fileURI = "gs://test-bucket/image.jpg"
-    let fileDataPart = FileDataPart(fileData: FileData(mimeType: mimeType, uri: fileURI))
+    let fileDataPart = FileDataPart(uri: fileURI, mimeType: mimeType)
 
     let jsonData = try encoder.encode(fileDataPart)
 
@@ -105,18 +132,26 @@ final class PartTests: XCTestCase {
     XCTAssertEqual(json, """
     {
       "fileData" : {
-        "file_uri" : "\(fileURI)",
-        "mime_type" : "\(mimeType)"
+        "fileURI" : "\(fileURI)",
+        "mimeType" : "\(mimeType)"
       }
     }
     """)
   }
-}
 
-// MARK: - Helpers
+  // MARK: - Helpers
 
-func blueSquareImage() throws -> String {
-  let imageURL = Bundle.module.url(forResource: "blue", withExtension: "png")!
-  let imageData = try Data(contentsOf: imageURL)
-  return imageData.base64EncodedString()
+  private static func bundle() -> Bundle {
+    #if SWIFT_PACKAGE
+      return Bundle.module
+    #else // SWIFT_PACKAGE
+      return Bundle(for: Self.self)
+    #endif // SWIFT_PACKAGE
+  }
+
+  private static func blueSquareImage() throws -> String {
+    let imageURL = Bundle.module.url(forResource: "blue", withExtension: "png")!
+    let imageData = try Data(contentsOf: imageURL)
+    return imageData.base64EncodedString()
+  }
 }

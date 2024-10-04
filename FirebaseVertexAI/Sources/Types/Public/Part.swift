@@ -43,41 +43,34 @@ public struct InlineDataPart: Part {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FileData: Codable, Equatable, Sendable {
-  enum CodingKeys: String, CodingKey {
-    case mimeType = "mime_type"
-    case uri = "file_uri"
-  }
-
-  public let mimeType: String
-  public let uri: String
-
-  public init(mimeType: String, uri: String) {
-    self.mimeType = mimeType
-    self.uri = uri
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FileDataPart: Part {
-  public let fileData: FileData
+  let fileData: FileData
 
-  public init(fileData: FileData) {
+  public var uri: String { fileData.fileURI }
+  public var mimeType: String { fileData.mimeType }
+
+  public init(uri: String, mimeType: String) {
+    self.init(FileData(fileURI: uri, mimeType: mimeType))
+  }
+
+  init(_ fileData: FileData) {
     self.fileData = fileData
   }
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallPart: Part {
+  // TODO: Consider making FunctionCall internal and exposing params on FunctionCallPart instead.
   public let functionCall: FunctionCall
 
-  public init(functionCall: FunctionCall) {
+  public init(_ functionCall: FunctionCall) {
     self.functionCall = functionCall
   }
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
+  // TODO: Consider making FunctionResponsePart internal and exposing params here instead.
   public let functionResponse: FunctionResponse
 
   public init(functionResponse: FunctionResponse) {

@@ -93,9 +93,9 @@ public struct ModelContent: Equatable, Sendable {
       case let .inlineData(mimetype, data):
         convertedParts.append(InlineDataPart(data: data, mimeType: mimetype))
       case let .fileData(mimetype, uri):
-        convertedParts.append(FileDataPart(fileData: FileData(mimeType: mimetype, uri: uri)))
+        convertedParts.append(FileDataPart(uri: uri, mimeType: mimetype))
       case let .functionCall(functionCall):
-        convertedParts.append(FunctionCallPart(functionCall: functionCall))
+        convertedParts.append(FunctionCallPart(functionCall))
       case let .functionResponse(functionResponse):
         convertedParts.append(FunctionResponsePart(functionResponse: functionResponse))
       }
@@ -120,7 +120,7 @@ public struct ModelContent: Equatable, Sendable {
         convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
       case let fileDataPart as FileDataPart:
         let fileData = fileDataPart.fileData
-        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.uri))
+        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.fileURI))
       case let functionCallPart as FunctionCallPart:
         convertedParts.append(.functionCall(functionCallPart.functionCall))
       case let functionResponsePart as FunctionResponsePart:
@@ -145,7 +145,7 @@ public struct ModelContent: Equatable, Sendable {
         convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
       case let fileDataPart as FileDataPart:
         let fileData = fileDataPart.fileData
-        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.uri))
+        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.fileURI))
       case let functionCallPart as FunctionCallPart:
         convertedParts.append(.functionCall(functionCallPart.functionCall))
       case let functionResponsePart as FunctionResponsePart:
@@ -192,31 +192,15 @@ extension ModelContent.InternalPart: Codable {
     case functionResponse
   }
 
-  enum InlineDataKeys: String, CodingKey {
-    case mimeType = "mime_type"
-    case bytes = "data"
-  }
-
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
-    case let .text(a0):
-      try container.encode(a0, forKey: .text)
+    case let .text(text):
+      try container.encode(text, forKey: .text)
     case let .inlineData(mimetype, bytes):
-      var inlineDataContainer = container.nestedContainer(
-        keyedBy: InlineDataKeys.self,
-        forKey: .inlineData
-      )
-      try inlineDataContainer.encode(mimetype, forKey: .mimeType)
-      try inlineDataContainer.encode(bytes, forKey: .bytes)
+      try container.encode(InlineData(data: bytes, mimeType: mimetype), forKey: .inlineData)
     case let .fileData(mimetype: mimetype, url):
-//      var fileDataContainer = container.nestedContainer(
-//        keyedBy: FileDataKeys.self,
-//        forKey: .fileData
-//      )
-      try container.encode(FileData(mimeType: mimetype, uri: url), forKey: .fileData)
-//      try fileDataContainer.encode(mimetype, forKey: .mimeType)
-//      try fileDataContainer.encode(url, forKey: .uri)
+      try container.encode(FileData(fileURI: url, mimeType: mimetype), forKey: .fileData)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
@@ -229,13 +213,11 @@ extension ModelContent.InternalPart: Codable {
     if values.contains(.text) {
       self = try .text(values.decode(String.self, forKey: .text))
     } else if values.contains(.inlineData) {
-      let dataContainer = try values.nestedContainer(
-        keyedBy: InlineDataKeys.self,
-        forKey: .inlineData
-      )
-      let mimetype = try dataContainer.decode(String.self, forKey: .mimeType)
-      let bytes = try dataContainer.decode(Data.self, forKey: .bytes)
-      self = .inlineData(mimetype: mimetype, bytes)
+      let inlineData = try values.decode(InlineData.self, forKey: .inlineData)
+      self = .inlineData(mimetype: inlineData.mimeType, inlineData.data)
+    } else if values.contains(.fileData) {
+      let fileData = try values.decode(FileData.self, forKey: .fileData)
+      self = .fileData(mimetype: fileData.mimeType, uri: fileData.fileURI)
     } else if values.contains(.functionCall) {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
     } else if values.contains(.functionResponse) {
