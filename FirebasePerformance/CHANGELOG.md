@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix a crash related to thread sanitization on FPRNetworkTrace class (#13581).
+
 # 10.28.0
 - Fix Crash from InstrumentUploadTaskWithStreamedRequest (#12983).
 - Replace SystemConfiguration with a more recent network monitoring API by Apple (#13079).
