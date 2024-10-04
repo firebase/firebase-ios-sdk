@@ -64,12 +64,22 @@ FIRLoggerLevel FIRGetLoggerLevel(void);
  */
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 
+void FIRSetLoggerLevelNotice(void);
+void FIRSetLoggerLevelWarning(void);
+void FIRSetLoggerLevelError(void);
+void FIRSetLoggerLevelDebug(void);
+
 /**
  * Checks if the specified logger level is loggable given the current settings.
  * (required) log level (one of the FirebaseLoggerLevel enum values).
  * (required) whether or not this function is called from the Analytics component.
  */
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
+
+BOOL FIRIsLoggableLevelNotice(void);
+BOOL FIRIsLoggableLevelWarning(void);
+BOOL FIRIsLoggableLevelError(void);
+BOOL FIRIsLoggableLevelDebug(void);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
@@ -120,6 +130,41 @@ extern void FIRLogInfo(NSString *category, NSString *messageCode, NSString *mess
     NS_FORMAT_FUNCTION(3, 4);
 extern void FIRLogDebug(NSString *category, NSString *messageCode, NSString *message, ...)
     NS_FORMAT_FUNCTION(3, 4);
+
+/**
+ * This function is similar to the one above, except it takes a `va_list` instead of the listed
+ * variables.
+ *
+ * The following functions accept the following parameters in order: (required) service
+ * name of type FirebaseLoggerService.
+ *
+ * (required) message code starting from "I-" which means iOS,
+ *    followed by a capitalized three-character service identifier and a six digit integer message
+ *    ID that is unique within the service. An example of the message code is @"I-COR000001".
+ *    See go/firebase-log-proposal for details.
+ * (required) message string which can be a format string.
+ * (optional) A va_list
+ */
+extern void FIRLogBasicError(NSString *category,
+                             NSString *messageCode,
+                             NSString *message,
+                             va_list args_ptr);
+extern void FIRLogBasicWarning(NSString *category,
+                               NSString *messageCode,
+                               NSString *message,
+                               va_list args_ptr);
+extern void FIRLogBasicNotice(NSString *category,
+                              NSString *messageCode,
+                              NSString *message,
+                              va_list args_ptr);
+extern void FIRLogBasicInfo(NSString *category,
+                            NSString *messageCode,
+                            NSString *message,
+                            va_list args_ptr);
+extern void FIRLogBasicDebug(NSString *category,
+                             NSString *messageCode,
+                             NSString *message,
+                             va_list args_ptr);
 
 #ifdef __cplusplus
 }  // extern "C"
