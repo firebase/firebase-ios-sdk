@@ -272,6 +272,9 @@ public final class GenerativeModel {
     let countTokensRequest = try CountTokensRequest(
       model: modelResourceName,
       contents: content(),
+      systemInstruction: systemInstruction,
+      tools: tools,
+      generationConfig: generationConfig,
       options: requestOptions
     )
     return try await generativeAIService.loadRequest(request: countTokensRequest)

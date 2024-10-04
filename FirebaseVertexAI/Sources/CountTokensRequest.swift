@@ -17,7 +17,12 @@ import Foundation
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
   let model: String
+
   let contents: [ModelContent]
+  let systemInstruction: ModelContent?
+  let tools: [Tool]?
+  let generationConfig: GenerationConfig?
+
   let options: RequestOptions
 }
 
@@ -49,6 +54,9 @@ public struct CountTokensResponse {
 extension CountTokensRequest: Encodable {
   enum CodingKeys: CodingKey {
     case contents
+    case systemInstruction
+    case tools
+    case generationConfig
   }
 }
 

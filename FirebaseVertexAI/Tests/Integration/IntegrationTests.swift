@@ -19,7 +19,16 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class IntegrationTests: XCTestCase {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+  let generationConfig = GenerationConfig(
+    temperature: 0.0,
+    topP: 0.0,
+    topK: 1,
+    responseMIMEType: "text/plain"
+  )
+  let systemInstruction = ModelContent(
+    role: "system",
+    parts: "You are a friendly and helpful assistant."
+  )
 
   var vertex: VertexAI!
   var model: GenerativeModel!
@@ -40,7 +49,9 @@ final class IntegrationTests: XCTestCase {
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
       modelName: "gemini-1.5-flash",
-      generationConfig: generationConfig
+      generationConfig: generationConfig,
+      tools: [],
+      systemInstruction: systemInstruction
     )
   }
 
@@ -68,7 +79,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(prompt)
 
-    XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.totalBillableCharacters, 16)
+    XCTAssertEqual(response.totalTokens, 14)
+    XCTAssertEqual(response.totalBillableCharacters, 51)
   }
 }
