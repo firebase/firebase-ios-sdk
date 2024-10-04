@@ -155,7 +155,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 }
 
 - (BOOL)shouldRunSDKFlowsOnStartup {
-  // This can be controlled at 3 different levels in decsending priority. If a higher-priority
+  // This can be controlled at 3 different levels in descending priority. If a higher-priority
   // setting exists, the lower level settings are ignored.
   //   1. Setting made by the app by setting FIAM SDK's automaticDataCollectionEnabled flag.
   //   2. FIAM specific data collection setting in plist file.
