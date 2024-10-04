@@ -325,7 +325,7 @@
 
   FIRIAMDisplayCheckOnAnalyticEventsFlow *mockAnalyticsEventFlow =
       OCMClassMock(FIRIAMDisplayCheckOnAnalyticEventsFlow.class);
-  self.clientCache.analycisEventDislayCheckFlow = mockAnalyticsEventFlow;
+  self.clientCache.analyticsEventDisplayCheckFlow = mockAnalyticsEventFlow;
 
   // m2 and m4 are messages rendered on 'test_event' Firebase Analytics event
   // so we expect the analytics event listening flow to be started
@@ -339,7 +339,7 @@
 
   FIRIAMDisplayCheckOnAnalyticEventsFlow *mockAnalyticsEventFlow =
       OCMClassMock(FIRIAMDisplayCheckOnAnalyticEventsFlow.class);
-  self.clientCache.analycisEventDislayCheckFlow = mockAnalyticsEventFlow;
+  self.clientCache.analyticsEventDisplayCheckFlow = mockAnalyticsEventFlow;
 
   // m1 and m3 are messages rendered on app foreground triggers
   OCMExpect([mockAnalyticsEventFlow stop]);
@@ -352,7 +352,7 @@
 
   FIRIAMDisplayCheckOnAnalyticEventsFlow *mockAnalyticsEventFlow =
       OCMClassMock(FIRIAMDisplayCheckOnAnalyticEventsFlow.class);
-  self.clientCache.analycisEventDislayCheckFlow = mockAnalyticsEventFlow;
+  self.clientCache.analyticsEventDisplayCheckFlow = mockAnalyticsEventFlow;
 
   // start is triggered on the setMessageData: call
   OCMExpect([mockAnalyticsEventFlow start]);

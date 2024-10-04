@@ -108,15 +108,15 @@
     }
   }
 
-  if (self.analycisEventDislayCheckFlow) {
+  if (self.analyticsEventDisplayCheckFlow) {
     if ([self.firebaseAnalyticEventsToWatch count] > 0) {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM160010",
                   @"There are analytics event trigger based messages, enable listening");
-      [self.analycisEventDislayCheckFlow start];
+      [self.analyticsEventDisplayCheckFlow start];
     } else {
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM160011",
                   @"No analytics event trigger based messages, disable listening");
-      [self.analycisEventDislayCheckFlow stop];
+      [self.analyticsEventDisplayCheckFlow stop];
     }
   }
 }
