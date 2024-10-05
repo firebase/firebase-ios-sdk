@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(atomic, nullable, readwrite) FPRSessionDetails *sessionDetails;
 
 /**
- * Creates an instance of FPRSesssionManager with the notification center provided. All the
+ * Creates an instance of FPRSessionManager with the notification center provided. All the
  * notifications from the session manager will sent using this notification center.
  *
  * @param gaugeManager Gauge manager used by the session manager to work with gauges.
