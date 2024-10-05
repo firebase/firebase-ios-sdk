@@ -152,7 +152,7 @@ static NSInteger const gMaxRetries = 7;
   return realtimeRemoteConfigQueue;
 }
 
-- (void)propogateErrors:(NSError *)error {
+- (void)propagateErrors:(NSError *)error {
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
@@ -402,7 +402,7 @@ static NSInteger const gMaxRetries = 7;
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014", @"Cannot establish connection. Error: %@",
                   error);
-      [self propogateErrors:error];
+      [self propagateErrors:error];
     }
   });
 }
@@ -455,7 +455,7 @@ static NSInteger const gMaxRetries = 7;
                                                   @"Failed to retrieve config due to fetch error. "
                                                   @"Error: %@",
                                                   error);
-                                      return [self propogateErrors:error];
+                                      return [self propagateErrors:error];
                                     }
                                     if (status == FIRRemoteConfigFetchStatusSuccess) {
                                       if ([strongSelf->_configFetch.templateVersionNumber
@@ -507,7 +507,7 @@ static NSInteger const gMaxRetries = 7;
                                        }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
                   @"Ran out of fetch attempts, cannot find target config version.");
-      [self propogateErrors:error];
+      [self propagateErrors:error];
       return;
     }
 
@@ -536,7 +536,7 @@ static NSInteger const gMaxRetries = 7;
                    NSLocalizedDescriptionKey :
                        @"The server is temporarily unavailable. Try again in a few minutes."
                  }];
-      [self propogateErrors:error];
+      [self propagateErrors:error];
     } else {
       NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
       if (updateTemplateVersion > clientTemplateVersion) {
@@ -548,7 +548,7 @@ static NSInteger const gMaxRetries = 7;
         [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                             code:FIRRemoteConfigUpdateErrorMessageInvalid
                         userInfo:@{NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate."}];
-    [self propogateErrors:error];
+    [self propagateErrors:error];
   }
 }
 
@@ -567,7 +567,7 @@ static NSInteger const gMaxRetries = 7;
                                          code:FIRRemoteConfigUpdateErrorStreamError
                                      userInfo:@{NSLocalizedDescriptionKey : strData}];
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. %@", error);
-    [self propogateErrors:error];
+    [self propagateErrors:error];
     return;
   }
 
