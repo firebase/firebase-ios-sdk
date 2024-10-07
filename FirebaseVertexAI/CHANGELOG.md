@@ -28,6 +28,12 @@
 - [changed] **Breaking Change**: The `CountTokensError` enum has been removed;
   errors occurring in `GenerativeModel.countTokens(...)` are now thrown directly
   instead of being wrapped in a `CountTokensError.internalError`. (#13736)
+- [changed] **Breaking Change**: The enum `ModelContent.Part` has been replaced
+  with a protocol named `Part` to avoid future breaking changes with new part
+  types. The new types `TextPart` and `FunctionCallPart` may be received when
+  generating content the types `TextPart`; additionally the types
+  `InlineDataPart`, `FileDataPart` and `FunctionResponsePart` may be provided
+  as input. (#13767)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)

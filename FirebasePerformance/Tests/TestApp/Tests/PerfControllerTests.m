@@ -27,14 +27,14 @@ const NSUInteger kCounterTaps = 10;
 const NSUInteger kRequestsCount = 5;
 static NSString *const kTraceName = @"Trace 1";
 
-@interface PerfContollerTests : XCTestCase
+@interface PerfControllerTests : XCTestCase
 
 - (void)tapStageButtonNTimes:(NSUInteger)tapsCount;
 - (void)tapCountButtonsNTimes:(NSUInteger)tapsCount;
 
 @end
 
-@implementation PerfContollerTests {
+@implementation PerfControllerTests {
   XCUIApplication *_application;
 }
 

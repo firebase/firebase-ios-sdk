@@ -14,11 +14,16 @@
 
 import Foundation
 
+/// A discrete piece of data in a media format interpretable by an AI model.
+///
+/// Within a single value of ``Part``, different data types may not mix.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {}
 
+/// A text part containing a string value.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct TextPart: Part {
+  /// Text value.
   public let text: String
 
   public init(_ text: String) {
@@ -26,6 +31,9 @@ public struct TextPart: Part {
   }
 }
 
+/// Data with a specified media type.
+///
+/// > Note: Not all media types may be supported by the AI model.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
   let inlineData: InlineData
@@ -42,6 +50,7 @@ public struct InlineDataPart: Part {
   }
 }
 
+/// File data stored in Cloud Storage for Firebase, referenced by URI.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FileDataPart: Part {
   let fileData: FileData
@@ -49,6 +58,15 @@ public struct FileDataPart: Part {
   public var uri: String { fileData.fileURI }
   public var mimeType: String { fileData.mimeType }
 
+  /// Constructs a new file data part.
+  ///
+  /// - Parameters:
+  ///   - uri: The `"gs://"`-prefixed URI of the file in Cloud Storage for Firebase, for example,
+  ///     `"gs://bucket-name/path/image.jpg"`.
+  ///   - mimeType: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
+  ///     or `"video/mp4"`; see [media requirements
+  ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
+  ///     for supported values.
   public init(uri: String, mimeType: String) {
     self.init(FileData(fileURI: uri, mimeType: mimeType))
   }
@@ -58,22 +76,59 @@ public struct FileDataPart: Part {
   }
 }
 
+/// A predicted function call returned from the model.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallPart: Part {
-  // TODO: Consider making FunctionCall internal and exposing params on FunctionCallPart instead.
-  public let functionCall: FunctionCall
+  let functionCall: FunctionCall
 
-  public init(_ functionCall: FunctionCall) {
+  /// The name of the function to call.
+  public var name: String { functionCall.name }
+
+  /// The function parameters and values.
+  public var args: JSONObject { functionCall.args }
+
+  /// Constructs a new function call part.
+  ///
+  /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
+  /// manually.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the function to call.
+  ///   - args: The function parameters and values.
+  public init(name: String, args: JSONObject) {
+    self.init(FunctionCall(name: name, args: args))
+  }
+
+  init(_ functionCall: FunctionCall) {
     self.functionCall = functionCall
   }
 }
 
+/// Result output from a ``FunctionCall``.
+///
+/// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
+/// containing any output from the function is used as context to the model. This should contain the
+/// result of a ``FunctionCall`` made based on model prediction.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
-  // TODO: Consider making FunctionResponsePart internal and exposing params here instead.
-  public let functionResponse: FunctionResponse
+  let functionResponse: FunctionResponse
 
-  public init(functionResponse: FunctionResponse) {
+  /// The name of the function that was called.
+  public var name: String { functionResponse.name }
+
+  /// The function's response or return value.
+  public var response: JSONObject { functionResponse.response }
+
+  /// Constructs a new `FunctionResponse`.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the function that was called.
+  ///   - response: The function's response.
+  public init(name: String, response: JSONObject) {
+    self.init(FunctionResponse(name: name, response: response))
+  }
+
+  init(_ functionResponse: FunctionResponse) {
     self.functionResponse = functionResponse
   }
 }

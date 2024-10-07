@@ -40,7 +40,7 @@
 		F6EB95801ED78E4000178999 /* PerfTraceView+Accessibility.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB955E1ED78E4000178999 /* PerfTraceView+Accessibility.m */; };
 		F6EB95811ED78E4000178999 /* PerfTraceView.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95601ED78E4000178999 /* PerfTraceView.m */; };
 		F6EB95861ED89C8800178999 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6EB95851ED89C8800178999 /* XCTest.framework */; };
-		F6EB95871ED89C9C00178999 /* PerfContollerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95831ED79F2600178999 /* PerfContollerTests.m */; };
+		F6EB95871ED89C9C00178999 /* PerfControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F6EB95831ED79F2600178999 /* PerfControllerTests.m */; };
 		F6EB95971ED89EC800178999 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB95961ED89EC800178999 /* Info.plist */; };
 		F6EB95981ED89EDD00178999 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F6EB95961ED89EC800178999 /* Info.plist */; };
 /* End PBXBuildFile section */
@@ -119,7 +119,7 @@
 		F6EB955E1ED78E4000178999 /* PerfTraceView+Accessibility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PerfTraceView+Accessibility.m"; sourceTree = "<group>"; };
 		F6EB955F1ED78E4000178999 /* PerfTraceView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerfTraceView.h; sourceTree = "<group>"; };
 		F6EB95601ED78E4000178999 /* PerfTraceView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfTraceView.m; sourceTree = "<group>"; };
-		F6EB95831ED79F2600178999 /* PerfContollerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfContollerTests.m; sourceTree = "<group>"; };
+		F6EB95831ED79F2600178999 /* PerfControllerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PerfControllerTests.m; sourceTree = "<group>"; };
 		F6EB95851ED89C8800178999 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		F6EB95961ED89EC800178999 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FB70C6B0B736E663A795A8A4 /* libPods-PerfTestRigApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PerfTestRigApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -358,7 +358,7 @@
 			isa = PBXGroup;
 			children = (
 				F6EB95961ED89EC800178999 /* Info.plist */,
-				F6EB95831ED79F2600178999 /* PerfContollerTests.m */,
+				F6EB95831ED79F2600178999 /* PerfControllerTests.m */,
 			);
 			path = Tests;
 			sourceTree = SOURCE_ROOT;
@@ -600,7 +600,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6EB95871ED89C9C00178999 /* PerfContollerTests.m in Sources */,
+				F6EB95871ED89C9C00178999 /* PerfControllerTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

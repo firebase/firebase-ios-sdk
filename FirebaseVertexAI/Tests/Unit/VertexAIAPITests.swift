@@ -121,11 +121,7 @@ final class VertexAIAPITests: XCTestCase {
     let _ = ModelContent(parts: "Constant String")
     let _ = ModelContent(parts: str)
     let _ = ModelContent(parts: [str])
-    let _ = ModelContent(
-      parts: [str, InlineDataPart(inlineData: InlineData(
-        mimeType: "foo",
-        data: Data()
-      ))]
+    let _ = ModelContent(parts: [str, InlineDataPart(data: Data(), mimeType: "foo")]
     )
     #if canImport(UIKit)
       _ = ModelContent(role: "user", parts: UIImage())
@@ -144,8 +140,7 @@ final class VertexAIAPITests: XCTestCase {
       // below with "Cannot convert value of type `[Any]` to expected type `[any Part]`.
       let representable2: [any PartsRepresentable] = [str, NSImage()]
       _ = ModelContent(parts: representable2)
-      _ =
-        ModelContent(parts: [str, NSImage(), TextPart(str)])
+      _ = ModelContent(parts: [str, NSImage(), TextPart(str)])
     #endif
 
     // countTokens API
@@ -179,7 +174,7 @@ final class VertexAIAPITests: XCTestCase {
 
     // Computed Properties
     let _: String? = response.text
-    let _: [FunctionCall] = response.functionCalls
+    let _: [FunctionCallPart] = response.functionCalls
   }
 
   // Result builder alternative

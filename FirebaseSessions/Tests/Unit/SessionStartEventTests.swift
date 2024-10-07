@@ -216,7 +216,7 @@ class SessionStartEventTests: XCTestCase {
     }
   }
 
-  func test_newtworkInfo_onlyPresentWhenPerformanceInstalled() {
+  func test_networkInfo_onlyPresentWhenPerformanceInstalled() {
     let mockNetworkInfo = MockNetworkInfo()
     mockNetworkInfo.networkType = .mobile
     // Mobile Subtypes are always empty on non-iOS platforms, and
