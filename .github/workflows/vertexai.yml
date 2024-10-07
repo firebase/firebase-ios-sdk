@@ -138,8 +138,6 @@ jobs:
   sample:
     strategy:
       matrix:
-        # Test build with debug and release configs (whether or not DEBUG is set and optimization level)
-        build: [build]
         include:
           - os: macos-13
             xcode: Xcode_15.2
