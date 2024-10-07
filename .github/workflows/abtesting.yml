@@ -108,6 +108,9 @@ jobs:
           - os: macos-15
             xcode: Xcode_16
             target: catalyst
+          - os: macos-15
+            xcode: Xcode_16
+            target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

@@ -21,9 +21,12 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+          - os: macos-13
+            xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.4
+          - os: macos-15
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -35,7 +38,7 @@ jobs:
     - name: Build and test
       run: |
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAppDistribution.podspec \
-         --platforms=${{ matrix.target }}
+         --platforms=ios
 
   spm-package-resolved:
     env:
@@ -66,8 +69,12 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+          - os: macos-13
+            xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.4
+          - os: macos-15
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
