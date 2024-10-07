@@ -227,9 +227,9 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     Task {
       let signals: [String: CustomSignal] = [
         "signal_1": .integer(5),
-        "signal_2": .string("true"),
+        "signal_2": .string("enable_feature"),
         "signal_3": 5,
-        "signal_4": "true",
+        "signal_4": "enable_feature",
       ]
       try await config.setCustomSignals(signals)
     }
