@@ -230,6 +230,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
         "signal_2": .string("enable_feature"),
         "signal_3": 5,
         "signal_4": "enable_feature",
+        "signal_5": "enable_feature_\("secret")",
       ]
       try await config.setCustomSignals(signals)
     }

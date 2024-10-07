@@ -54,7 +54,7 @@ public struct CustomSignalValue {
   }
 }
 
-extension CustomSignalValue: ExpressibleByStringLiteral {
+extension CustomSignalValue: ExpressibleByStringInterpolation {
   public init(stringLiteral value: String) {
     self = .string(value)
   }
