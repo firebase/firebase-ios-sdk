@@ -152,7 +152,7 @@ class FunctionCallingViewModel: ObservableObject {
         messages.insert(functionCallPart.chatMessage(), at: messages.count - 1)
         functionCalls.append(functionCallPart)
       default:
-        fatalError("Unsupported response content.")
+        fatalError("Unsupported response part: \(part)")
       }
     }
   }
