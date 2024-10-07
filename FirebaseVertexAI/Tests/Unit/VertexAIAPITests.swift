@@ -121,8 +121,7 @@ final class VertexAIAPITests: XCTestCase {
     let _ = ModelContent(parts: "Constant String")
     let _ = ModelContent(parts: str)
     let _ = ModelContent(parts: [str])
-    let _ = ModelContent(parts: [str, InlineDataPart(data: Data(), mimeType: "foo")]
-    )
+    let _ = ModelContent(parts: [str, InlineDataPart(data: Data(), mimeType: "foo")])
     #if canImport(UIKit)
       _ = ModelContent(role: "user", parts: UIImage())
       _ = ModelContent(role: "user", parts: [UIImage()])
