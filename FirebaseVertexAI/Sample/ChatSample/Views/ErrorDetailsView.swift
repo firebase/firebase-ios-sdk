@@ -176,7 +176,7 @@ struct ErrorDetailsView: View {
     ])
   )
 
-  ErrorDetailsView(error: error)
+  return ErrorDetailsView(error: error)
 }
 
 #Preview("Prompt Blocked") {
@@ -198,5 +198,5 @@ struct ErrorDetailsView: View {
     ])
   )
 
-  ErrorDetailsView(error: error)
+  return ErrorDetailsView(error: error)
 }
