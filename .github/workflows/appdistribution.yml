@@ -69,6 +69,7 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
+        include:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
