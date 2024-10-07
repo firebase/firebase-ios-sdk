@@ -14,27 +14,6 @@
 
 import Foundation
 
-/// A predicted function call returned from the model.
-public struct FunctionCall: Equatable, Sendable {
-  /// The name of the function to call.
-  public let name: String
-
-  /// The function parameters and values.
-  public let args: JSONObject
-
-  /// Constructs a new function call.
-  ///
-  /// > Note: A `FunctionCall` is typically received from the model, rather than created manually.
-  ///
-  /// - Parameters:
-  ///   - name: The name of the function to call.
-  ///   - args: The function parameters and values.
-  public init(name: String, args: JSONObject) {
-    self.name = name
-    self.args = args
-  }
-}
-
 /// Structured representation of a function declaration.
 ///
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
@@ -136,49 +115,7 @@ public struct ToolConfig {
   }
 }
 
-/// Result output from a ``FunctionCall``.
-///
-/// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
-/// containing any output from the function is used as context to the model. This should contain the
-/// result of a ``FunctionCall`` made based on model prediction.
-public struct FunctionResponse: Equatable, Sendable {
-  /// The name of the function that was called.
-  let name: String
-
-  /// The function's response.
-  let response: JSONObject
-
-  /// Constructs a new `FunctionResponse`.
-  ///
-  /// - Parameters:
-  ///   - name: The name of the function that was called.
-  ///   - response: The function's response.
-  public init(name: String, response: JSONObject) {
-    self.name = name
-    self.response = response
-  }
-}
-
 // MARK: - Codable Conformance
-
-extension FunctionCall: Decodable {
-  enum CodingKeys: CodingKey {
-    case name
-    case args
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    name = try container.decode(String.self, forKey: .name)
-    if let args = try container.decodeIfPresent(JSONObject.self, forKey: .args) {
-      self.args = args
-    } else {
-      args = JSONObject()
-    }
-  }
-}
-
-extension FunctionCall: Encodable {}
 
 extension FunctionDeclaration: Encodable {
   enum CodingKeys: String, CodingKey {
@@ -202,5 +139,3 @@ extension FunctionCallingConfig: Encodable {}
 extension FunctionCallingConfig.Mode: Encodable {}
 
 extension ToolConfig: Encodable {}
-
-extension FunctionResponse: Codable {}

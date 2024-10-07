@@ -36,47 +36,12 @@ extension [ModelContent] {
 /// may comprise multiple heterogeneous ``ModelContent/Part``s.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Equatable, Sendable {
-  /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
-  /// of ``Part``, different data types may not mix.
   enum InternalPart: Equatable, Sendable {
-    /// Text value.
     case text(String)
-
-    /// Data with a specified media type. Not all media types may be supported by the AI model.
     case inlineData(mimetype: String, Data)
-
-    /// File data stored in Cloud Storage for Firebase, referenced by URI.
-    ///
-    /// > Note: Supported media types depends on the model; see [media requirements
-    /// > ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
-    /// > for details.
-    ///
-    /// - Parameters:
-    ///   - mimetype: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
-    ///     or `"video/mp4"`; see [media requirements
-    ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
-    ///     for supported values.
-    ///   - uri: The `"gs://"`-prefixed URI of the file in Cloud Storage for Firebase, for example,
-    ///     `"gs://bucket-name/path/image.jpg"`.
     case fileData(mimetype: String, uri: String)
-
-    /// A predicted function call returned from the model.
     case functionCall(FunctionCall)
-
-    /// A response to a function call.
     case functionResponse(FunctionResponse)
-
-    // MARK: Convenience Initializers
-
-    /// Convenience function for populating a Part with JPEG data.
-    public static func jpeg(_ data: Data) -> Self {
-      return .inlineData(mimetype: "image/jpeg", data)
-    }
-
-    /// Convenience function for populating a Part with PNG data.
-    public static func png(_ data: Data) -> Self {
-      return .inlineData(mimetype: "image/png", data)
-    }
   }
 
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
@@ -97,7 +62,7 @@ public struct ModelContent: Equatable, Sendable {
       case let .functionCall(functionCall):
         convertedParts.append(FunctionCallPart(functionCall))
       case let .functionResponse(functionResponse):
-        convertedParts.append(FunctionResponsePart(functionResponse: functionResponse))
+        convertedParts.append(FunctionResponsePart(functionResponse))
       }
     }
     return convertedParts

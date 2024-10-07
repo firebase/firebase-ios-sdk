@@ -212,11 +212,10 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard let functionCallPart = part as? FunctionCallPart else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
-    let functionCall = functionCallPart.functionCall
     XCTAssertEqual(functionCall.name, "current_time")
     XCTAssertTrue(functionCall.args.isEmpty)
     XCTAssertEqual(response.functionCalls, [functionCall])
@@ -235,11 +234,10 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard let functionCallPart = part as? FunctionCallPart else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
-    let functionCall = functionCallPart.functionCall
     XCTAssertEqual(functionCall.name, "current_time")
     XCTAssertTrue(functionCall.args.isEmpty)
     XCTAssertEqual(response.functionCalls, [functionCall])
@@ -258,11 +256,10 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard let functionCallPart = part as? FunctionCallPart else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
-    let functionCall = functionCallPart.functionCall
     XCTAssertEqual(functionCall.name, "sum")
     XCTAssertEqual(functionCall.args.count, 2)
     let argX = try XCTUnwrap(functionCall.args["x"])

@@ -185,7 +185,7 @@ final class VertexAIAPITests: XCTestCase {
 
     // Computed Properties
     let _: String? = response.text
-    let _: [FunctionCall] = response.functionCalls
+    let _: [FunctionCallPart] = response.functionCalls
   }
 
   // Result builder alternative

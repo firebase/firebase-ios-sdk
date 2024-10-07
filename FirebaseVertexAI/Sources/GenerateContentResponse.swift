@@ -67,14 +67,14 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
-  public var functionCalls: [FunctionCall] {
+  public var functionCalls: [FunctionCallPart] {
     guard let candidate = candidates.first else {
       return []
     }
     return candidate.content.parts.compactMap { part in
       switch part {
       case let functionCallPart as FunctionCallPart:
-        return functionCallPart.functionCall
+        return functionCallPart
       default:
         return nil
       }

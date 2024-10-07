@@ -118,13 +118,13 @@ final class IntegrationTests: XCTestCase {
       tools: [Tool(functionDeclarations: [sumDeclaration])]
     )
     let prompt = "What is 10 + 32?"
-    let sumCall = FunctionCall(name: "sum", args: ["x": .number(10), "y": .number(32)])
-    let sumResponse = FunctionResponse(name: "sum", response: ["result": .number(42)])
+    let sumCall = FunctionCallPart(name: "sum", args: ["x": .number(10), "y": .number(32)])
+    let sumResponse = FunctionResponsePart(name: "sum", response: ["result": .number(42)])
 
     let response = try await model.countTokens([
       ModelContent(role: "user", parts: prompt),
-      ModelContent(role: "model", parts: FunctionCallPart(sumCall)),
-      ModelContent(role: "function", parts: FunctionResponsePart(functionResponse: sumResponse)),
+      ModelContent(role: "model", parts: sumCall),
+      ModelContent(role: "function", parts: sumResponse),
     ])
 
     XCTAssertEqual(response.totalTokens, 24)

@@ -16,10 +16,10 @@ import Foundation
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct InlineData: Codable, Equatable, Sendable {
-  public let mimeType: String
-  public let data: Data
+  let mimeType: String
+  let data: Data
 
-  public init(data: Data, mimeType: String) {
+  init(data: Data, mimeType: String) {
     self.data = data
     self.mimeType = mimeType
   }
@@ -37,6 +37,28 @@ struct FileData: Codable, Equatable, Sendable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct FunctionCall: Equatable, Sendable {
+  let name: String
+  let args: JSONObject
+
+  init(name: String, args: JSONObject) {
+    self.name = name
+    self.args = args
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct FunctionResponse: Codable, Equatable, Sendable {
+  let name: String
+  let response: JSONObject
+
+  init(name: String, response: JSONObject) {
+    self.name = name
+    self.response = response
+  }
+}
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ErrorPart: Part, Error {
   let error: Error
 
@@ -45,10 +67,18 @@ struct ErrorPart: Part, Error {
   }
 }
 
+// MARK: - Codable Conformances
+
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ErrorPart: Equatable {
-  static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
-    fatalError("Comparing ErrorParts for equality is not supported.")
+extension FunctionCall: Codable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    name = try container.decode(String.self, forKey: .name)
+    if let args = try container.decodeIfPresent(JSONObject.self, forKey: .args) {
+      self.args = args
+    } else {
+      args = JSONObject()
+    }
   }
 }
 
@@ -60,5 +90,14 @@ extension ErrorPart: Codable {
 
   func encode(to encoder: any Encoder) throws {
     fatalError("Encoding an ErrorPart is not supported.")
+  }
+}
+
+// MARK: - Equatable Conformances
+
+@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ErrorPart: Equatable {
+  static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
+    fatalError("Comparing ErrorParts for equality is not supported.")
   }
 }

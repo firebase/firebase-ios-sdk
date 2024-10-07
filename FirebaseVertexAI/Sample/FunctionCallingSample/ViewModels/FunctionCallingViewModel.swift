@@ -30,7 +30,7 @@ class FunctionCallingViewModel: ObservableObject {
   }
 
   /// Function calls pending processing
-  private var functionCalls = [FunctionCall]()
+  private var functionCalls = [FunctionCallPart]()
 
   private var model: GenerativeModel
   private var chat: Chat
@@ -149,22 +149,21 @@ class FunctionCallingViewModel: ObservableObject {
         messages[messages.count - 1].message += textPart.text
         messages[messages.count - 1].pending = false
       case let functionCallPart as FunctionCallPart:
-        let functionCall = functionCallPart.functionCall
-        messages.insert(functionCall.chatMessage(), at: messages.count - 1)
-        functionCalls.append(functionCall)
+        messages.insert(functionCallPart.chatMessage(), at: messages.count - 1)
+        functionCalls.append(functionCallPart)
       default:
         fatalError("Unsupported response content.")
       }
     }
   }
 
-  func processFunctionCalls() async throws -> [FunctionResponse] {
-    var functionResponses = [FunctionResponse]()
+  func processFunctionCalls() async throws -> [FunctionResponsePart] {
+    var functionResponses = [FunctionResponsePart]()
     for functionCall in functionCalls {
       switch functionCall.name {
       case "get_exchange_rate":
         let exchangeRates = getExchangeRate(args: functionCall.args)
-        functionResponses.append(FunctionResponse(
+        functionResponses.append(FunctionResponsePart(
           name: "get_exchange_rate",
           response: exchangeRates
         ))
@@ -209,7 +208,7 @@ class FunctionCallingViewModel: ObservableObject {
   }
 }
 
-private extension FunctionCall {
+private extension FunctionCallPart {
   func chatMessage() -> ChatMessage {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -229,7 +228,7 @@ private extension FunctionCall {
   }
 }
 
-private extension FunctionResponse {
+private extension FunctionResponsePart {
   func chatMessage() -> ChatMessage {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -249,12 +248,8 @@ private extension FunctionResponse {
   }
 }
 
-private extension [FunctionResponse] {
+private extension [FunctionResponsePart] {
   func modelContent() -> [ModelContent] {
-    return self.map { ModelContent(
-      role: "function",
-      parts: [FunctionResponsePart(functionResponse: $0)]
-    )
-    }
+    return self.map { ModelContent(role: "function", parts: [$0]) }
   }
 }
