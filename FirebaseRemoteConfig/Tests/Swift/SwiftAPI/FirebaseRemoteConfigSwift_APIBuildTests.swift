@@ -225,7 +225,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     let _: Void = try config.setDefaults(from: MyEncodableValue())
 
     Task {
-      let signals: [String: CustomSignal] = [
+      let signals: [String: CustomSignalValue] = [
         "signal_1": .integer(5),
         "signal_2": .string("enable_feature"),
         "signal_3": 5,

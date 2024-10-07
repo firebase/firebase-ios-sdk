@@ -18,7 +18,7 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 // TODO: Document.
-public struct CustomSignal {
+public struct CustomSignalValue {
   private enum Kind {
     case string(String)
     case integer(Int)
@@ -54,13 +54,13 @@ public struct CustomSignal {
   }
 }
 
-extension CustomSignal: ExpressibleByStringLiteral {
+extension CustomSignalValue: ExpressibleByStringLiteral {
   public init(stringLiteral value: String) {
     self = .string(value)
   }
 }
 
-extension CustomSignal: ExpressibleByIntegerLiteral {
+extension CustomSignalValue: ExpressibleByIntegerLiteral {
   public init(integerLiteral value: Int) {
     self = .integer(value)
   }
@@ -70,7 +70,7 @@ public extension RemoteConfig {
   /// Sets custom signals for this Remote Config instance.
   /// - Parameter customSignals: A dictionary mapping string keys to custom
   /// signals to be set for the app instance.
-  func setCustomSignals(_ customSignals: [String: CustomSignal]) async throws {
+  func setCustomSignals(_ customSignals: [String: CustomSignalValue]) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       let customSignals = customSignals.mapValues { $0.toNSObject() }
       self.__setCustomSignals(customSignals) { error in
