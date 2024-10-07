@@ -49,10 +49,12 @@ public struct GenerateContentResponse: Sendable {
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
-      guard case let .text(text) = part else {
+      switch part {
+      case let textPart as TextPart:
+        return textPart.text
+      default:
         return nil
       }
-      return text
     }
     guard textValues.count > 0 else {
       VertexLog.error(
@@ -65,15 +67,17 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
-  public var functionCalls: [FunctionCall] {
+  public var functionCalls: [FunctionCallPart] {
     guard let candidate = candidates.first else {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      guard case let .functionCall(functionCall) = part else {
+      switch part {
+      case let functionCallPart as FunctionCallPart:
+        return functionCallPart
+      default:
         return nil
       }
-      return functionCall
     }
   }
 

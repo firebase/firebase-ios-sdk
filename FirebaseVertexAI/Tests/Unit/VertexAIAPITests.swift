@@ -33,7 +33,10 @@ final class VertexAIAPITests: XCTestCase {
                                   stopSequences: ["..."],
                                   responseMIMEType: "text/plain")
     let filters = [SafetySetting(harmCategory: .dangerousContent, threshold: .blockOnlyHigh)]
-    let systemInstruction = ModelContent(role: "system", parts: [.text("Talk like a pirate.")])
+    let systemInstruction = ModelContent(
+      role: "system",
+      parts: TextPart("Talk like a pirate.")
+    )
 
     // Instantiate Vertex AI SDK - Default App
     let vertexAI = VertexAI.vertexAI()
@@ -72,11 +75,13 @@ final class VertexAIAPITests: XCTestCase {
 
     // Full Typed Usage
     let pngData = Data() // ....
-    let contents = [ModelContent(role: "user",
-                                 parts: [
-                                   .text("Is it a cat?"),
-                                   .png(pngData),
-                                 ])]
+    let contents = [ModelContent(
+      role: "user",
+      parts: [
+        TextPart("Is it a cat?"),
+        InlineDataPart(data: pngData, mimeType: "image/png"),
+      ]
+    )]
 
     do {
       let response = try await genAI.generateContent(contents)
@@ -93,13 +98,12 @@ final class VertexAIAPITests: XCTestCase {
     let _ = try await genAI.generateContent(str, "abc", "def")
     let _ = try await genAI.generateContent(
       str,
-      ModelContent.Part.fileData(mimetype: "image/jpeg", uri: "gs://test-bucket/image.jpg")
+      FileDataPart(uri: "gs://test-bucket/image.jpg", mimeType: "image/jpeg")
     )
     #if canImport(UIKit)
       _ = try await genAI.generateContent(UIImage())
       _ = try await genAI.generateContent([UIImage()])
-      _ = try await genAI
-        .generateContent([str, UIImage(), ModelContent.Part.text(str)])
+      _ = try await genAI.generateContent([str, UIImage(), TextPart(str)])
       _ = try await genAI.generateContent(str, UIImage(), "def", UIImage())
       _ = try await genAI.generateContent([str, UIImage(), "def", UIImage()])
       _ = try await genAI.generateContent([ModelContent("def", UIImage()),
@@ -111,51 +115,43 @@ final class VertexAIAPITests: XCTestCase {
       _ = try await genAI.generateContent([str, NSImage(), "def", NSImage()])
     #endif
 
-    // ThrowingPartsRepresentable combinations.
-    let _ = ModelContent(parts: [.text(str)])
-    let _ = ModelContent(role: "model", parts: [.text(str)])
+    // PartsRepresentable combinations.
+    let _ = ModelContent(parts: [TextPart(str)])
+    let _ = ModelContent(role: "model", parts: [TextPart(str)])
     let _ = ModelContent(parts: "Constant String")
     let _ = ModelContent(parts: str)
-    // Note: This requires the `try` for some reason. Casting to explicit [PartsRepresentable] also
-    // doesn't work.
-    let _ = try ModelContent(parts: [str])
-    // Note: without `as [any ThrowingPartsRepresentable]` this will fail to compile with "Cannot
+    let _ = ModelContent(parts: [str])
+    // Note: without `as [any PartsRepresentable]` this will fail to compile with "Cannot
     // convert value of type 'String' to expected element type
-    // 'Array<ModelContent.Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
+    // 'Array<Part>.ArrayLiteralElement'. Not sure if there's a way we can get it to
     // work.
-    let _ = try ModelContent(parts: [str, ModelContent.Part.inlineData(
-      mimetype: "foo",
-      Data()
-    )] as [any ThrowingPartsRepresentable])
+    let _ = ModelContent(
+      parts: [str, InlineDataPart(data: Data(), mimeType: "foo")] as [any PartsRepresentable]
+    )
     #if canImport(UIKit)
-      _ = try ModelContent(role: "user", parts: UIImage())
-      _ = try ModelContent(role: "user", parts: [UIImage()])
-      // Note: without `as [any ThrowingPartsRepresentable]` this will fail to compile with "Cannot
-      // convert
-      // value of type `[Any]` to expected type `[any ThrowingPartsRepresentable]`. Not sure if
-      // there's a
+      _ = ModelContent(role: "user", parts: UIImage())
+      _ = ModelContent(role: "user", parts: [UIImage()])
+      // Note: without `as [any PartsRepresentable]` this will fail to compile with "Cannot convert
+      // value of type `[Any]` to expected type `[any PartsRepresentable]`. Not sure if there's a
       // way we can get it to work.
-      _ = try ModelContent(parts: [str, UIImage()] as [any ThrowingPartsRepresentable])
+      _ = ModelContent(parts: [str, UIImage()] as [any PartsRepresentable])
       // Alternatively, you can explicitly declare the type in a variable and pass it in.
-      let representable2: [any ThrowingPartsRepresentable] = [str, UIImage()]
-      _ = try ModelContent(parts: representable2)
-      _ = try ModelContent(parts: [str, UIImage(),
-                                   ModelContent.Part.text(str)] as [any ThrowingPartsRepresentable])
-    #elseif canImport(AppKit)
-      _ = try ModelContent(role: "user", parts: NSImage())
-      _ = try ModelContent(role: "user", parts: [NSImage()])
-      // Note: without `as [any ThrowingPartsRepresentable]` this will fail to compile with "Cannot
-      // convert
-      // value of type `[Any]` to expected type `[any ThrowingPartsRepresentable]`. Not sure if
-      // there's a
-      // way we can get it to work.
-      _ = try ModelContent(parts: [str, NSImage()] as [any ThrowingPartsRepresentable])
-      // Alternatively, you can explicitly declare the type in a variable and pass it in.
-      let representable2: [any ThrowingPartsRepresentable] = [str, NSImage()]
-      _ = try ModelContent(parts: representable2)
+      let representable2: [any PartsRepresentable] = [str, UIImage()]
+      _ = ModelContent(parts: representable2)
       _ =
-        try ModelContent(parts: [str, NSImage(),
-                                 ModelContent.Part.text(str)] as [any ThrowingPartsRepresentable])
+        ModelContent(parts: [str, UIImage(), TextPart(str)] as [any PartsRepresentable])
+    #elseif canImport(AppKit)
+      _ = ModelContent(role: "user", parts: NSImage())
+      _ = ModelContent(role: "user", parts: [NSImage()])
+      // Note: without `as [any PartsRepresentable]` this will fail to compile with "Cannot convert
+      // value of type `[Any]` to expected type `[any PartsRepresentable]`. Not sure if there's a
+      // way we can get it to work.
+      _ = ModelContent(parts: [str, NSImage()] as [any PartsRepresentable])
+      // Alternatively, you can explicitly declare the type in a variable and pass it in.
+      let representable2: [any PartsRepresentable] = [str, NSImage()]
+      _ = ModelContent(parts: representable2)
+      _ =
+        ModelContent(parts: [str, NSImage(), TextPart(str)] as [any PartsRepresentable])
     #endif
 
     // countTokens API
@@ -189,7 +185,7 @@ final class VertexAIAPITests: XCTestCase {
 
     // Computed Properties
     let _: String? = response.text
-    let _: [FunctionCall] = response.functionCalls
+    let _: [FunctionCallPart] = response.functionCalls
   }
 
   // Result builder alternative

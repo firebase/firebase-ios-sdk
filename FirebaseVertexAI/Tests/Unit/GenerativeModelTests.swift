@@ -72,7 +72,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    let partText = try XCTUnwrap(part.text)
+    let partText = try XCTUnwrap(part as? TextPart).text
     XCTAssertTrue(partText.hasPrefix("1. **Use Freshly Ground Coffee**:"))
     XCTAssertEqual(response.text, partText)
     XCTAssertEqual(response.functionCalls, [])
@@ -94,8 +94,9 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    XCTAssertEqual(part.text, "Mountain View, California")
-    XCTAssertEqual(response.text, part.text)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.text, "Mountain View, California")
+    XCTAssertEqual(response.text, textPart.text)
     XCTAssertEqual(response.functionCalls, [])
   }
 
@@ -150,9 +151,9 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    let partText = try XCTUnwrap(part.text)
-    XCTAssertTrue(partText.hasPrefix("Google"))
-    XCTAssertEqual(response.text, part.text)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertTrue(textPart.text.hasPrefix("Google"))
+    XCTAssertEqual(response.text, textPart.text)
     let promptFeedback = try XCTUnwrap(response.promptFeedback)
     XCTAssertNil(promptFeedback.blockReason)
     XCTAssertEqual(promptFeedback.safetyRatings.sorted(), safetyRatingsNegligible)
@@ -211,7 +212,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
@@ -233,7 +234,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
@@ -255,7 +256,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
@@ -1282,10 +1283,7 @@ final class GenerativeModelTests: XCTestCase {
       withExtension: "json"
     )
 
-    let response = try await model.countTokens(ModelContent.Part.inlineData(
-      mimetype: "image/jpeg",
-      Data()
-    ))
+    let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
 
     XCTAssertEqual(response.totalTokens, 258)
     XCTAssertNil(response.totalBillableCharacters)

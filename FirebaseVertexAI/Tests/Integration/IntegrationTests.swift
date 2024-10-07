@@ -96,12 +96,12 @@ final class IntegrationTests: XCTestCase {
   }
 
   func testCountTokens_image_fileData() async throws {
-    let fileData = ModelContent(parts: [.fileData(
-      mimetype: "image/jpeg",
-      uri: "gs://ios-opensource-samples.appspot.com/ios/public/blank.jpg"
-    )])
+    let fileData = FileDataPart(
+      uri: "gs://ios-opensource-samples.appspot.com/ios/public/blank.jpg",
+      mimeType: "image/jpeg"
+    )
 
-    let response = try await model.countTokens([fileData])
+    let response = try await model.countTokens(fileData)
 
     XCTAssertEqual(response.totalTokens, 266)
     XCTAssertEqual(response.totalBillableCharacters, 35)
@@ -118,13 +118,13 @@ final class IntegrationTests: XCTestCase {
       tools: [Tool(functionDeclarations: [sumDeclaration])]
     )
     let prompt = "What is 10 + 32?"
-    let sumCall = FunctionCall(name: "sum", args: ["x": .number(10), "y": .number(32)])
-    let sumResponse = FunctionResponse(name: "sum", response: ["result": .number(42)])
+    let sumCall = FunctionCallPart(name: "sum", args: ["x": .number(10), "y": .number(32)])
+    let sumResponse = FunctionResponsePart(name: "sum", response: ["result": .number(42)])
 
     let response = try await model.countTokens([
-      ModelContent(role: "user", parts: [.text(prompt)]),
-      ModelContent(role: "model", parts: [.functionCall(sumCall)]),
-      ModelContent(role: "function", parts: [.functionResponse(sumResponse)]),
+      ModelContent(role: "user", parts: prompt),
+      ModelContent(role: "model", parts: sumCall),
+      ModelContent(role: "function", parts: sumResponse),
     ])
 
     XCTAssertEqual(response.totalTokens, 24)

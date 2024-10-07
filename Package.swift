@@ -1313,6 +1313,7 @@ let package = Package(
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),
+        .process("Resources"),
       ],
       cSettings: [
         .headerSearchPath("../../../"),

@@ -35,7 +35,7 @@ public class Chat {
   /// - Parameter parts: The new content to send as a single chat message.
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
-  public func sendMessage(_ parts: any ThrowingPartsRepresentable...) async throws
+  public func sendMessage(_ parts: any PartsRepresentable...) async throws
     -> GenerateContentResponse {
     return try await sendMessage([ModelContent(parts: parts)])
   }
@@ -45,19 +45,10 @@ public class Chat {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
-  public func sendMessage(_ content: @autoclosure () throws -> [ModelContent]) async throws
+  public func sendMessage(_ content: [ModelContent]) async throws
     -> GenerateContentResponse {
     // Ensure that the new content has the role set.
-    let newContent: [ModelContent]
-    do {
-      newContent = try content().map(populateContentRole(_:))
-    } catch let underlying {
-      if let contentError = underlying as? ImageConversionError {
-        throw GenerateContentError.promptImageContentError(underlying: contentError)
-      } else {
-        throw GenerateContentError.internalError(underlying: underlying)
-      }
-    }
+    let newContent = content.map(populateContentRole(_:))
 
     // Send the history alongside the new message as context.
     let request = history + newContent
@@ -85,7 +76,7 @@ public class Chat {
   /// - Parameter parts: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
   @available(macOS 12.0, *)
-  public func sendMessageStream(_ parts: any ThrowingPartsRepresentable...) throws
+  public func sendMessageStream(_ parts: any PartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try sendMessageStream([ModelContent(parts: parts)])
   }
@@ -95,24 +86,14 @@ public class Chat {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
   @available(macOS 12.0, *)
-  public func sendMessageStream(_ content: @autoclosure () throws -> [ModelContent]) throws
+  public func sendMessageStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
-    let resolvedContent: [ModelContent]
-    do {
-      resolvedContent = try content()
-    } catch let underlying {
-      if let contentError = underlying as? ImageConversionError {
-        throw GenerateContentError.promptImageContentError(underlying: contentError)
-      }
-      throw GenerateContentError.internalError(underlying: underlying)
-    }
-
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []
 
         // Ensure that the new content has the role set.
-        let newContent: [ModelContent] = resolvedContent.map(populateContentRole(_:))
+        let newContent: [ModelContent] = content.map(populateContentRole(_:))
 
         // Send the history alongside the new message as context.
         let request = history + newContent
@@ -146,20 +127,20 @@ public class Chat {
   }
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [ModelContent.Part] = []
+    var parts: [any Part] = []
     var combinedText = ""
     for aggregate in chunks {
       // Loop through all the parts, aggregating the text and adding the images.
       for part in aggregate.parts {
         switch part {
-        case let .text(str):
-          combinedText += str
+        case let textPart as TextPart:
+          combinedText += textPart.text
 
-        case .inlineData, .fileData, .functionCall, .functionResponse:
+        default:
           // Don't combine it, just add to the content. If there's any text pending, add that as
           // a part.
           if !combinedText.isEmpty {
-            parts.append(.text(combinedText))
+            parts.append(TextPart(combinedText))
             combinedText = ""
           }
 
@@ -169,7 +150,7 @@ public class Chat {
     }
 
     if !combinedText.isEmpty {
-      parts.append(.text(combinedText))
+      parts.append(TextPart(combinedText))
     }
 
     return ModelContent(role: "model", parts: parts)
