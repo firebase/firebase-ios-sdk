@@ -37,7 +37,7 @@ struct ErrorView: View {
   NavigationView {
     let errorPromptBlocked = GenerateContentError.promptBlocked(
       response: GenerateContentResponse(candidates: [
-        CandidateResponse(content: ModelContent(role: "model", [
+        CandidateResponse(content: ModelContent(role: "model", parts: [
           """
             A _hypothetical_ model response.
             Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.

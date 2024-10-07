@@ -34,6 +34,8 @@
   generating content the types `TextPart`; additionally the types
   `InlineDataPart`, `FileDataPart` and `FunctionResponsePart` may be provided
   as input. (#13767)
+- [changed] **Breaking Change**: All initializers for `ModelContent` now require
+  the label `parts: `. (#13832)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)

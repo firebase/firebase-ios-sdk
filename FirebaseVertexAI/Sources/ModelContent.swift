@@ -71,32 +71,6 @@ public struct ModelContent: Equatable, Sendable {
   // TODO: Refactor this
   let internalParts: [InternalPart]
 
-  /// Creates a new value from any data or `Array` of data interpretable as a
-  /// ``Part``. See ``PartsRepresentable`` for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", parts: some PartsRepresentable) {
-    self.role = role
-    var convertedParts = [InternalPart]()
-    for part in parts.partsValue {
-      switch part {
-      case let textPart as TextPart:
-        convertedParts.append(.text(textPart.text))
-      case let inlineDataPart as InlineDataPart:
-        let inlineData = inlineDataPart.inlineData
-        convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
-      case let fileDataPart as FileDataPart:
-        let fileData = fileDataPart.fileData
-        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.fileURI))
-      case let functionCallPart as FunctionCallPart:
-        convertedParts.append(.functionCall(functionCallPart.functionCall))
-      case let functionResponsePart as FunctionResponsePart:
-        convertedParts.append(.functionResponse(functionResponsePart.functionResponse))
-      default:
-        fatalError()
-      }
-    }
-    internalParts = convertedParts
-  }
-
   /// Creates a new value from a list of ``Part``s.
   public init(role: String? = "user", parts: [any Part]) {
     self.role = role
@@ -124,14 +98,7 @@ public struct ModelContent: Equatable, Sendable {
 
   /// Creates a new value from any data interpretable as a ``Part``.
   /// See ``PartsRepresentable`` for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", _ parts: any PartsRepresentable...) {
-    let content = parts.flatMap { $0.partsValue }
-    self.init(role: role, parts: content)
-  }
-
-  /// Creates a new value from any data interpretable as a ``Part``.
-  /// See ``PartsRepresentable``for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", _ parts: [PartsRepresentable]) {
+  public init(role: String? = "user", parts: any PartsRepresentable...) {
     let content = parts.flatMap { $0.partsValue }
     self.init(role: role, parts: content)
   }
