@@ -237,6 +237,11 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   }
 }
 
+- (void)setCustomSignals:(nullable NSDictionary<NSString *, NSObject *> *)customSignals
+          WithCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler {
+  // TODO: Implement.
+}
+
 #pragma mark - fetch
 
 - (void)fetchWithCompletionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {

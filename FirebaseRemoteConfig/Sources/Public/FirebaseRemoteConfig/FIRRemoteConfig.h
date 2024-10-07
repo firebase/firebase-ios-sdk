@@ -357,4 +357,8 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
+- (void)setCustomSignals:(nullable NSDictionary<NSString *, NSObject *> *)customSignals
+          WithCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler
+    NS_REFINED_FOR_SWIFT;
+
 @end
