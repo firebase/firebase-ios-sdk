@@ -163,7 +163,7 @@ else
   )
     watchos_flags=(
     -sdk 'watchsimulator'
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm) '
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
   )
 fi
 
