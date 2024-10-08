@@ -36,9 +36,10 @@
   as input. (#13767)
 - [changed] **Breaking Change**: All initializers for `ModelContent` now require
   the label `parts: `. (#13832)
-- [changed] **Breaking Change**: `HarmCategory` is now a struct instead of an
-  enum type and the `unknown` case has been removed; in a `switch` statement,
-  use the `default:` case to cover unknown or unhandled categories. (#13728)
+- [changed] **Breaking Change**: `HarmCategory` and `HarmProbability` are now
+  structs instead of enums types and the `unknown` cases have been removed; in a
+  `switch` statement, use the `default:` case to cover unknown or unhandled
+  categories or probabilities. (#13728, #13854)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
