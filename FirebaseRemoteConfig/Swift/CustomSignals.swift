@@ -70,9 +70,9 @@ public extension RemoteConfig {
   /// Sets custom signals for this Remote Config instance.
   /// - Parameter customSignals: A dictionary mapping string keys to custom
   /// signals to be set for the app instance.
-  func setCustomSignals(_ customSignals: [String: CustomSignalValue]) async throws {
+  func setCustomSignals(_ customSignals: [String: CustomSignalValue?]) async throws {
     return try await withCheckedThrowingContinuation { continuation in
-      let customSignals = customSignals.mapValues { $0.toNSObject() }
+      let customSignals = customSignals.mapValues { $0?.toNSObject() ?? NSNull() }
       self.__setCustomSignals(customSignals) { error in
         if let error {
           continuation.resume(throwing: error)

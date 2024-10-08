@@ -225,12 +225,13 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     let _: Void = try config.setDefaults(from: MyEncodableValue())
 
     Task {
-      let signals: [String: CustomSignalValue] = [
+      let signals: [String: CustomSignalValue?] = [
         "signal_1": .integer(5),
         "signal_2": .string("enable_feature"),
         "signal_3": 5,
         "signal_4": "enable_feature",
         "signal_5": "enable_feature_\("secret")",
+        "signal_6": nil, // Used to delete the custom signal for a given key.
       ]
       try await config.setCustomSignals(signals)
     }
