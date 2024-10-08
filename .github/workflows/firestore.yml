@@ -405,7 +405,7 @@ jobs:
           - os: macos-13
             platforms: 'ios'
         include:
-          - os: macos-14
+          - os: macos-15
             xcode: Xcode_16
           - os: macos-13
             xcode: Xcode_15.2
@@ -477,9 +477,6 @@ jobs:
           - os: macos-15
             xcode: Xcode_16
             target: macOS
-          - os: macos-15
-            xcode: Xcode_16
-            target: watchOS
           - os: macos-15
             xcode: Xcode_16
             target: catalyst

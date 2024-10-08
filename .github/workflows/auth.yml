@@ -58,7 +58,7 @@ jobs:
       matrix:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
         target: [ios, tvos, macos --skip-tests --allow-warnings, watchos]
-        os: [macos-14]
+        os: [macos-15]
         xcode: [Xcode_16]
     runs-on: ${{ matrix.os }}
     steps:
@@ -161,7 +161,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
