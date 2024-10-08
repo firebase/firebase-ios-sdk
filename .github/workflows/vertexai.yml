@@ -16,16 +16,7 @@ concurrency:
 
 jobs:
   spm-package-resolved:
-    strategy:
-      matrix:
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.4
-          - os: macos-15
-            xcode: Xcode_16
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-14
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     env:
@@ -39,7 +30,7 @@ jobs:
       - name: Generate cache key
         id: generate_cache_key
         run: |
-          cache_key="${{ matrix.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
           echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
       - uses: actions/cache/save@v4
         id: cache
