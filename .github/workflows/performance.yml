@@ -147,9 +147,19 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        target: [iOS, tvOS]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
