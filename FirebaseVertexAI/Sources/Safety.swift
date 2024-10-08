@@ -126,7 +126,7 @@ public struct HarmCategory: Sendable, Equatable, Hashable {
     return self.init(rawValue: Kind.dangerousContent.rawValue)
   }
 
-  /// Content related to civic integrity.
+  /// Content that may be used to harm civic integrity.
   public static var civicIntegrity: HarmCategory {
     return self.init(rawValue: Kind.civicIntegrity.rawValue)
   }
