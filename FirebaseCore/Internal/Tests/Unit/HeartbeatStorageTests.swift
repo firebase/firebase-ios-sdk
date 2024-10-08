@@ -208,6 +208,46 @@ class HeartbeatStorageTests: XCTestCase {
     wait(for: [expectation], timeout: 0.5)
   }
 
+  func testGetAndSetAsync_ReturnsOldValueAndSetsNewValue() throws {
+    // Given
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
+
+    var dummyHeartbeatsBundle = HeartbeatsBundle(capacity: 1)
+    dummyHeartbeatsBundle.append(Heartbeat(agent: "dummy_agent", date: Date()))
+
+    // When
+    let expectation1 = expectation(description: #function + "_1")
+    heartbeatStorage.getAndSetAsync { heartbeatsBundle in
+      // Assert that heartbeat storage is empty.
+      XCTAssertNil(heartbeatsBundle)
+      // Write new value.
+      return dummyHeartbeatsBundle
+    } completion: { result in
+      switch result {
+      case .success: break
+      case let .failure(error): XCTFail("Error: \(error)")
+      }
+      expectation1.fulfill()
+    }
+
+    // Then
+    let expectation2 = expectation(description: #function + "_2")
+    XCTAssertNoThrow(
+      try heartbeatStorage.getAndSet { heartbeatsBundle in
+        // Assert old value is read.
+        XCTAssertEqual(
+          heartbeatsBundle?.makeHeartbeatsPayload(),
+          dummyHeartbeatsBundle.makeHeartbeatsPayload()
+        )
+        // Write some new value.
+        expectation2.fulfill()
+        return heartbeatsBundle
+      }
+    )
+
+    wait(for: [expectation1, expectation2], timeout: 0.5, enforceOrder: true)
+  }
+
   func testGetAndSet_WhenLoadFails_PassesNilToBlockAndReturnsNil() throws {
     // Given
     let expectation = expectation(description: #function)
@@ -232,6 +272,41 @@ class HeartbeatStorageTests: XCTestCase {
     wait(for: [expectation], timeout: 0.5)
   }
 
+  func testGetAndSetAsync_WhenLoadFails_PassesNilToBlockAndReturnsNil() throws {
+    // Given
+    let readExpectation = expectation(description: #function + "_1")
+    let transformExpectation = expectation(description: #function + "_2")
+    let completionExpectation = expectation(description: #function + "_3")
+
+    let storageFake = StorageFake()
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: storageFake)
+
+    // When
+    storageFake.onRead = {
+      readExpectation.fulfill()
+      return try XCTUnwrap("BAD_DATA".data(using: .utf8))
+    }
+
+    // Then
+    heartbeatStorage.getAndSetAsync { heartbeatsBundle in
+      XCTAssertNil(heartbeatsBundle)
+      transformExpectation.fulfill()
+      return heartbeatsBundle
+    } completion: { result in
+      switch result {
+      case .success: break
+      case let .failure(error): XCTFail("Error: \(error)")
+      }
+      completionExpectation.fulfill()
+    }
+
+    wait(
+      for: [readExpectation, transformExpectation, completionExpectation],
+      timeout: 0.5,
+      enforceOrder: true
+    )
+  }
+
   func testGetAndSet_WhenSaveFails_ThrowsError() throws {
     // Given
     let expectation = expectation(description: #function)
@@ -250,7 +325,42 @@ class HeartbeatStorageTests: XCTestCase {
     wait(for: [expectation], timeout: 0.5)
   }
 
-  func testOperationsAreSynrononizedSerially() throws {
+  func testGetAndSetAsync_WhenSaveFails_ThrowsError() throws {
+    // Given
+    let transformExpectation = expectation(description: #function + "_1")
+    let writeExpectation = expectation(description: #function + "_2")
+    let completionExpectation = expectation(description: #function + "_3")
+
+    let storageFake = StorageFake()
+    let heartbeatStorage = HeartbeatStorage(id: #function, storage: storageFake)
+
+    // When
+    storageFake.onWrite = { _ in
+      writeExpectation.fulfill()
+      throw StorageError.writeError
+    }
+
+    // Then
+    heartbeatStorage.getAndSetAsync { heartbeatsBundle in
+      transformExpectation.fulfill()
+      XCTAssertNil(heartbeatsBundle)
+      return heartbeatsBundle
+    } completion: { result in
+      switch result {
+      case .success: XCTFail("Error: unexpected success")
+      case .failure: break
+      }
+      completionExpectation.fulfill()
+    }
+
+    wait(
+      for: [transformExpectation, writeExpectation, completionExpectation],
+      timeout: 0.5,
+      enforceOrder: true
+    )
+  }
+
+  func testOperationsAreSyncrononizedSerially() throws {
     // Given
     let heartbeatStorage = HeartbeatStorage(id: #function, storage: StorageFake())
 
@@ -263,10 +373,24 @@ class HeartbeatStorageTests: XCTestCase {
         return heartbeatsBundle
       }
 
-      if /* randomChoice */ .random() {
+      switch Int.random(in: 1 ... 3) {
+      case 1:
         heartbeatStorage.readAndWriteAsync(using: transform)
-      } else {
+      case 2:
         XCTAssertNoThrow(try heartbeatStorage.getAndSet(using: transform))
+      case 3:
+        let getAndSet = self.expectation(description: "GetAndSetAsync_\(i)")
+        heartbeatStorage.getAndSetAsync(using: transform) { result in
+          switch result {
+          case .success: break
+          case let .failure(error):
+            XCTFail("Unexpected: Error occurred in getAndSet_\(i), \(error)")
+          }
+          getAndSet.fulfill()
+        }
+        wait(for: [getAndSet], timeout: 1.0)
+      default:
+        XCTFail("Unexpected: Random number is out of range.")
       }
 
       return expectation

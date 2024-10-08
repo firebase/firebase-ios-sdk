@@ -58,6 +58,39 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
+  func testLogAndFlushAsync() async throws {
+    // Given
+    let controller = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { self.date }
+    )
+
+    assertHeartbeatControllerFlushesEmptyPayload(controller)
+
+    // When
+    controller.log("dummy_agent")
+    let heartbeatPayload = await controller.flushAsync()
+
+    // Then
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatPayload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+
+    assertHeartbeatControllerFlushesEmptyPayload(controller)
+  }
+
   func testLogAtEndOfTimePeriodAndAcceptAtStartOfNextOne() throws {
     // Given
     var testDate = date
@@ -403,5 +436,16 @@ private class HeartbeatStorageFake: HeartbeatStorageProtocol {
     let oldHeartbeatsBundle = heartbeatsBundle
     heartbeatsBundle = transform(heartbeatsBundle)
     return oldHeartbeatsBundle
+  }
+
+  func getAndSetAsync(using transform: @escaping (FirebaseCoreInternal.HeartbeatsBundle?)
+    -> FirebaseCoreInternal.HeartbeatsBundle?,
+    completion: @escaping (Result<
+      FirebaseCoreInternal.HeartbeatsBundle?,
+      any Error
+    >) -> Void) {
+    let oldHeartbeatsBundle = heartbeatsBundle
+    heartbeatsBundle = transform(heartbeatsBundle)
+    completion(.success(oldHeartbeatsBundle))
   }
 }
