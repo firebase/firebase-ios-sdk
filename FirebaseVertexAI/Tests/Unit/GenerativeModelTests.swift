@@ -162,7 +162,10 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_success_unknownEnum_safetyRatings() async throws {
     let expectedSafetyRatings = [
       SafetyRating(category: .harassment, probability: .medium),
-      SafetyRating(category: .dangerousContent, probability: .unknown),
+      SafetyRating(
+        category: .dangerousContent,
+        probability: SafetyRating.HarmProbability(rawValue: "FAKE_NEW_HARM_PROBABILITY")
+      ),
       SafetyRating(category: HarmCategory(rawValue: "FAKE_NEW_HARM_CATEGORY"), probability: .high),
     ]
     MockURLProtocol
@@ -974,7 +977,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let unknownSafetyRating = SafetyRating(
       category: HarmCategory(rawValue: "HARM_CATEGORY_DANGEROUS_CONTENT_NEW_ENUM"),
-      probability: .unknown
+      probability: SafetyRating.HarmProbability(rawValue: "FAKE_NEW_HARM_PROBABILITY")
     )
 
     var foundUnknownSafetyRating = false

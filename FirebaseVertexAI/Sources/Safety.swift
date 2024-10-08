@@ -38,24 +38,66 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     self.probability = probability
   }
 
-  /// The probability that a given model output falls under a harmful content category. This does
-  /// not indicate the severity of harm for a piece of content.
-  public enum HarmProbability: String, Sendable {
-    /// Unknown. A new server value that isn't recognized by the SDK.
-    case unknown = "UNKNOWN"
+  /// The probability that a given model output falls under a harmful content category.
+  ///
+  /// > Note: This does not indicate the severity of harm for a piece of content.
+  public struct HarmProbability: Sendable, Equatable, Hashable {
+    enum Kind: String {
+      case negligible = "NEGLIGIBLE"
+      case low = "LOW"
+      case medium = "MEDIUM"
+      case high = "HIGH"
+    }
 
-    /// The probability is zero or close to zero. For benign content, the probability across all
-    /// categories will be this value.
-    case negligible = "NEGLIGIBLE"
+    /// The probability is zero or close to zero.
+    ///
+    /// For benign content, the probability across all categories will be this value.
+    public static var negligible: HarmProbability {
+      return self.init(kind: .negligible)
+    }
 
     /// The probability is small but non-zero.
-    case low = "LOW"
+    public static var low: HarmProbability {
+      return self.init(kind: .low)
+    }
 
     /// The probability is moderate.
-    case medium = "MEDIUM"
+    public static var medium: HarmProbability {
+      return self.init(kind: .medium)
+    }
 
-    /// The probability is high. The content described is very likely harmful.
-    case high = "HIGH"
+    /// The probability is high.
+    ///
+    /// The content described is very likely harmful.
+    public static var high: HarmProbability {
+      return self.init(kind: .high)
+    }
+
+    /// Returns the raw string representation of the `HarmProbability` value.
+    ///
+    /// > Note: This value directly corresponds to the values in the [REST
+    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#SafetyRating).
+    public let rawValue: String
+
+    init(kind: Kind) {
+      rawValue = kind.rawValue
+    }
+
+    init(rawValue: String) {
+      if Kind(rawValue: rawValue) == nil {
+        VertexLog.error(
+          code: .generateContentResponseUnrecognizedHarmProbability,
+          """
+          Unrecognized HarmProbability with value "\(rawValue)":
+          - Check for updates to the SDK as support for "\(rawValue)" may have been added; see \
+          release notes at https://firebase.google.com/support/release-notes/ios
+          - Search for "\(rawValue)" in the Firebase Apple SDK Issue Tracker at \
+          https://github.com/firebase/firebase-ios-sdk/issues and file a Bug Report if none found
+          """
+        )
+      }
+      self.rawValue = rawValue
+    }
   }
 }
 
@@ -163,17 +205,8 @@ public struct HarmCategory: Sendable, Equatable, Hashable {
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating.HarmProbability: Decodable {
   public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedProbability = SafetyRating.HarmProbability(rawValue: value) else {
-      VertexLog.error(
-        code: .generateContentResponseUnrecognizedHarmProbability,
-        "Unrecognized HarmProbability with value \"\(value)\"."
-      )
-      self = .unknown
-      return
-    }
-
-    self = decodedProbability
+    let rawValue = try decoder.singleValueContainer().decode(String.self)
+    self = SafetyRating.HarmProbability(rawValue: rawValue)
   }
 }
 
