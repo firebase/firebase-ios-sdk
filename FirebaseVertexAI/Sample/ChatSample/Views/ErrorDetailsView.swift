@@ -23,7 +23,13 @@ extension HarmCategory: CustomStringConvertible {
     case .harassment: "Harassment"
     case .hateSpeech: "Hate speech"
     case .sexuallyExplicit: "Sexually explicit"
-    case .unknown: "Unknown"
+    case .civicIntegrity: "Civic integrity"
+    default:
+      if isUnknown() {
+        "Unknown HarmCategory: \(rawValue)"
+      } else {
+        "Unhandled HarmCategory: \(rawValue)"
+      }
     }
   }
 }

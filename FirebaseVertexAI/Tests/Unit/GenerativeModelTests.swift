@@ -163,7 +163,7 @@ final class GenerativeModelTests: XCTestCase {
     let expectedSafetyRatings = [
       SafetyRating(category: .harassment, probability: .medium),
       SafetyRating(category: .dangerousContent, probability: .unknown),
-      SafetyRating(category: .unknown, probability: .high),
+      SafetyRating(category: HarmCategory(rawValue: "FAKE_NEW_HARM_CATEGORY"), probability: .high),
     ]
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
@@ -978,7 +978,7 @@ final class GenerativeModelTests: XCTestCase {
     for try await content in stream {
       XCTAssertNotNil(content.text)
       if let ratings = content.candidates.first?.safetyRatings,
-         ratings.contains(where: { $0.category == .unknown }) {
+         ratings.contains(where: { $0.category.isUnknown() }) {
         hadUnknown = true
       }
     }
