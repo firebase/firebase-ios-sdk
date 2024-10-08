@@ -297,29 +297,6 @@ public class Schema {
   }
 }
 
-/// A data type.
-///
-/// Contains the set of OpenAPI [data types](https://spec.openapis.org/oas/v3.0.3#data-types).
-enum DataType: String {
-  /// A `String` type.
-  case string = "STRING"
-
-  /// A floating-point number type.
-  case number = "NUMBER"
-
-  /// An integer type.
-  case integer = "INTEGER"
-
-  /// A boolean type.
-  case boolean = "BOOLEAN"
-
-  /// An array type.
-  case array = "ARRAY"
-
-  /// An object type.
-  case object = "OBJECT"
-}
-
 // MARK: - Codable Conformance
 
 extension Schema: Encodable {
@@ -334,8 +311,6 @@ extension Schema: Encodable {
     case requiredProperties = "required"
   }
 }
-
-extension DataType: Encodable {}
 
 // MARK: - RawRepresentable Conformance
 
