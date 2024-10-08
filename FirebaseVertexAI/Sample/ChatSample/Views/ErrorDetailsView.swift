@@ -24,7 +24,9 @@ private extension HarmCategory {
     case .harassment: "Harassment"
     case .hateSpeech: "Hate speech"
     case .sexuallyExplicit: "Sexually explicit"
-    case .unknown: "Unknown"
+    case .civicIntegrity: "Civic integrity"
+    default:
+      "Unknown HarmCategory: \(rawValue)"
     }
   }
 }

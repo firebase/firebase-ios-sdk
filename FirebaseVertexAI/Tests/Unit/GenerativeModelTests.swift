@@ -163,7 +163,7 @@ final class GenerativeModelTests: XCTestCase {
     let expectedSafetyRatings = [
       SafetyRating(category: .harassment, probability: .medium),
       SafetyRating(category: .dangerousContent, probability: .unknown),
-      SafetyRating(category: .unknown, probability: .high),
+      SafetyRating(category: HarmCategory(rawValue: "FAKE_NEW_HARM_CATEGORY"), probability: .high),
     ]
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
@@ -972,18 +972,22 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-success-unknown-safety-enum",
         withExtension: "txt"
       )
+    let unknownSafetyRating = SafetyRating(
+      category: HarmCategory(rawValue: "HARM_CATEGORY_DANGEROUS_CONTENT_NEW_ENUM"),
+      probability: .unknown
+    )
 
-    var hadUnknown = false
+    var foundUnknownSafetyRating = false
     let stream = try model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       if let ratings = content.candidates.first?.safetyRatings,
-         ratings.contains(where: { $0.category == .unknown }) {
-        hadUnknown = true
+         ratings.contains(where: { $0 == unknownSafetyRating }) {
+        foundUnknownSafetyRating = true
       }
     }
 
-    XCTAssertTrue(hadUnknown)
+    XCTAssertTrue(foundUnknownSafetyRating)
   }
 
   func testGenerateContentStream_successWithCitations() async throws {
