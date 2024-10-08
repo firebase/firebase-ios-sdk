@@ -68,13 +68,23 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 - (void)log;
 
 #ifndef FIREBASE_BUILD_CMAKE
-/// Flushes heartbeats from storage into a structured payload of heartbeats.
+/// Synchronously flushes heartbeats from storage into a structured payload of heartbeats.
 ///
 /// This API is for clients using platform logging V2.
 ///
 /// @note This API is thread-safe.
 /// @return A payload of heartbeats.
 - (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload;
+
+/// Asynchronously flushes heartbeats from storage into a structured payload of heartbeats.
+///
+/// This API is for clients using platform logging V2.
+///
+/// @note This API is thread-safe.
+/// @param completionHandler A completion handler to process the flushed payload of heartbeats.
+- (void)flushHeartbeatsIntoPayloadWithCompletionHandler:
+    (void (^)(FIRHeartbeatsPayload *))completionHandler
+    API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0));
 #endif  // FIREBASE_BUILD_CMAKE
 
 /// Gets today's corresponding heartbeat code.

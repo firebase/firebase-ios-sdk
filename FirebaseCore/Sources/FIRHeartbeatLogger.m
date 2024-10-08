@@ -78,6 +78,13 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
   FIRHeartbeatsPayload *payload = [_heartbeatController flush];
   return payload;
 }
+
+- (void)flushHeartbeatsIntoPayloadWithCompletionHandler:
+    (void (^)(FIRHeartbeatsPayload *))completionHandler {
+  [_heartbeatController flushAsyncWithCompletionHandler:^(FIRHeartbeatsPayload *payload) {
+    completionHandler(payload);
+  }];
+}
 #endif  // FIREBASE_BUILD_CMAKE
 
 - (FIRDailyHeartbeatCode)heartbeatCodeForToday {
