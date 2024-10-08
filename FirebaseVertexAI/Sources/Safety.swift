@@ -108,39 +108,27 @@ public struct HarmCategory: Sendable, Equatable, Hashable {
 
   /// Harassment content.
   public static var harassment: HarmCategory {
-    return self.init(rawValue: Kind.harassment.rawValue)
+    return self.init(kind: .harassment)
   }
 
   /// Negative or harmful comments targeting identity and/or protected attributes.
   public static var hateSpeech: HarmCategory {
-    return self.init(rawValue: Kind.hateSpeech.rawValue)
+    return self.init(kind: .hateSpeech)
   }
 
   /// Contains references to sexual acts or other lewd content.
   public static var sexuallyExplicit: HarmCategory {
-    return self.init(rawValue: Kind.sexuallyExplicit.rawValue)
+    return self.init(kind: .sexuallyExplicit)
   }
 
   /// Promotes or enables access to harmful goods, services, or activities.
   public static var dangerousContent: HarmCategory {
-    return self.init(rawValue: Kind.dangerousContent.rawValue)
+    return self.init(kind: .dangerousContent)
   }
 
   /// Content that may be used to harm civic integrity.
   public static var civicIntegrity: HarmCategory {
-    return self.init(rawValue: Kind.civicIntegrity.rawValue)
-  }
-
-  /// Returns true if the HarmCategory's `rawValue` is unknown to the SDK.
-  ///
-  /// > Important: If an unknown value is encountered, check for updates to the SDK as support for
-  /// > the new value may have been added; see
-  /// > [Release Notes](https://firebase.google.com/support/release-notes/ios). Alternatively,
-  /// > search for the `rawValue` in the Firebase Apple SDK
-  /// > [Issue Tracker](https://github.com/firebase/firebase-ios-sdk/issues) and file a
-  /// > [Bug Report](https://github.com/firebase/firebase-ios-sdk/issues/new/choose) if none found.
-  public func isUnknown() -> Bool {
-    return Kind(rawValue: rawValue) == nil
+    return self.init(kind: .civicIntegrity)
   }
 
   /// Returns the raw string representation of the `HarmCategory` value.
@@ -149,7 +137,23 @@ public struct HarmCategory: Sendable, Equatable, Hashable {
   /// > [REST API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/HarmCategory).
   public let rawValue: String
 
+  init(kind: Kind) {
+    rawValue = kind.rawValue
+  }
+
   init(rawValue: String) {
+    if Kind(rawValue: rawValue) == nil {
+      VertexLog.error(
+        code: .generateContentResponseUnrecognizedHarmCategory,
+        """
+        Unrecognized HarmCategory with value "\(rawValue)":
+        - Check for updates to the SDK as support for "\(rawValue)" may have been added; see \
+        release notes at https://firebase.google.com/support/release-notes/ios
+        - Search for "\(rawValue)" in the Firebase Apple SDK Issue Tracker at \
+        https://github.com/firebase/firebase-ios-sdk/issues and file a Bug Report if none found
+        """
+      )
+    }
     self.rawValue = rawValue
   }
 }
@@ -179,15 +183,8 @@ extension SafetyRating: Decodable {}
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension HarmCategory: Codable {
   public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    let decodedCategory = HarmCategory(rawValue: value)
-    if decodedCategory.isUnknown() {
-      VertexLog.error(
-        code: .generateContentResponseUnrecognizedHarmCategory,
-        "Unrecognized HarmCategory with value \"\(value)\"."
-      )
-    }
-    self = decodedCategory
+    let rawValue = try decoder.singleValueContainer().decode(String.self)
+    self = HarmCategory(rawValue: rawValue)
   }
 }
 

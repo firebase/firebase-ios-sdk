@@ -25,11 +25,7 @@ extension HarmCategory: CustomStringConvertible {
     case .sexuallyExplicit: "Sexually explicit"
     case .civicIntegrity: "Civic integrity"
     default:
-      if isUnknown() {
-        "Unknown HarmCategory: \(rawValue)"
-      } else {
-        "Unhandled HarmCategory: \(rawValue)"
-      }
+      "Unknown HarmCategory: \(rawValue)"
     }
   }
 }
