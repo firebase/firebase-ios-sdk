@@ -144,7 +144,7 @@ public class Schema {
   /// if `nullable` is set to `true`), or an `enum` with strings as raw values.
   ///
   /// **Example:**
-  /// The values `["north", "south", "east", "west"]` for an enumation of directions.
+  /// The values `["north", "south", "east", "west"]` for an enumeration of directions.
   /// ```
   /// enum Direction: String, Decodable {
   ///   case north, south, east, west
