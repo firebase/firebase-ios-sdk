@@ -16,8 +16,9 @@ import FirebaseVertexAI
 import MarkdownUI
 import SwiftUI
 
-extension HarmCategory: CustomStringConvertible {
-  public var description: String {
+private extension HarmCategory {
+  /// Returns a description of the `HarmCategory` suitable for displaying in the UI.
+  var displayValue: String {
     switch self {
     case .dangerousContent: "Dangerous content"
     case .harassment: "Harassment"
@@ -28,8 +29,9 @@ extension HarmCategory: CustomStringConvertible {
   }
 }
 
-extension SafetyRating.HarmProbability: CustomStringConvertible {
-  public var description: String {
+private extension SafetyRating.HarmProbability {
+  /// Returns a description of the `HarmProbability` suitable for displaying in the UI.
+  var displayValue: String {
     switch self {
     case .high: "High"
     case .low: "Low"
@@ -73,10 +75,9 @@ private struct SafetyRatingsSection: View {
     Section("Safety ratings") {
       List(ratings, id: \.self) { rating in
         HStack {
-          Text("\(String(describing: rating.category))")
-            .font(.subheadline)
+          Text(rating.category.displayValue).font(.subheadline)
           Spacer()
-          Text("\(String(describing: rating.probability))")
+          Text(rating.probability.displayValue)
         }
       }
     }
