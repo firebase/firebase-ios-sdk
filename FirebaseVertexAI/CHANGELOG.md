@@ -11,9 +11,9 @@
   renamed to `inlineData`; no functionality changes. (#13700)
 - [changed] **Breaking Change**: The property `citationSources` of
   `CitationMetadata` has been renamed to `citations`. (#13702)
-- [changed] **Breaking Change**: The constructor for `Schema` is now deprecated;
+- [changed] **Breaking Change**: The constructor for `Schema` is now internal;
   use the new static methods `Schema.string(...)`, `Schema.object(...)`, etc.,
-  instead. (#13616)
+  instead. (#13852)
 - [changed] **Breaking Change**: The constructor for `FunctionDeclaration` now
   accepts an array of *optional* parameters instead of a list of *required*
   parameters; if a parameter is not listed as optional it is assumed to be
