@@ -27,7 +27,7 @@ jobs:
         target: [ios, tvos, macos, watchos --skip-tests]
         os: [macos-14]
         flags: [
-          '--use-modular-headers',
+          '--use-modular-headers --skip-tests',
           ''
         ]
         xcode: [Xcode_15.2, Xcode_16]
