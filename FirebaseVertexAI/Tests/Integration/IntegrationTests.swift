@@ -34,7 +34,7 @@ final class IntegrationTests: XCTestCase {
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
-    SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove)
+    SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
 
   var vertex: VertexAI!

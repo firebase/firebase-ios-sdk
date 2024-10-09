@@ -110,6 +110,6 @@ extension EncodableProtoEnum {
   // protocol 'Encodable'.
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.singleValueContainer()
-    try container.encode(self.rawValue)
+    try container.encode(rawValue)
   }
 }
