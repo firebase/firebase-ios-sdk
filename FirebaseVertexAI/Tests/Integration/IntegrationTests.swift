@@ -29,6 +29,13 @@ final class IntegrationTests: XCTestCase {
     role: "system",
     parts: "You are a friendly and helpful assistant."
   )
+  let safetySettings = [
+    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove)
+  ]
 
   var vertex: VertexAI!
   var model: GenerativeModel!
@@ -50,6 +57,7 @@ final class IntegrationTests: XCTestCase {
     model = vertex.generativeModel(
       modelName: "gemini-1.5-flash",
       generationConfig: generationConfig,
+      safetySettings: safetySettings,
       tools: [],
       systemInstruction: systemInstruction
     )
