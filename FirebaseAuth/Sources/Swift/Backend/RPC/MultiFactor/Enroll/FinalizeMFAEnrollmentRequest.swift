@@ -64,11 +64,11 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     }
     if let displayName = displayName {
       body["displayName"] = displayName
-      if let phoneVerificationInfo {
-        body["phoneVerificationInfo"] = phoneVerificationInfo.dictionary
-      } else if let totpVerificationInfo {
-        body["totpVerificationInfo"] = totpVerificationInfo.dictionary
-      }
+    }
+    if let phoneVerificationInfo {
+      body["phoneVerificationInfo"] = phoneVerificationInfo.dictionary
+    } else if let totpVerificationInfo {
+      body["totpVerificationInfo"] = totpVerificationInfo.dictionary
     }
 
     if let tenantID = tenantID {
