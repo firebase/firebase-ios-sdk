@@ -608,12 +608,13 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-failure-unknown-enum-finish-reason",
         withExtension: "json"
       )
+    let unknownFinishReason = FinishReason(rawValue: "FAKE_NEW_FINISH_REASON")
 
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw")
     } catch let GenerateContentError.responseStoppedEarly(reason, response) {
-      XCTAssertEqual(reason, .unknown)
+      XCTAssertEqual(reason, unknownFinishReason)
       XCTAssertEqual(response.text, "Some text")
     } catch {
       XCTFail("Should throw a responseStoppedEarly")
@@ -921,6 +922,7 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-failure-unknown-finish-enum",
         withExtension: "txt"
       )
+    let unknownFinishReason = FinishReason(rawValue: "FAKE_ENUM")
 
     let stream = try model.generateContentStream("Hi")
     do {
@@ -928,7 +930,7 @@ final class GenerativeModelTests: XCTestCase {
         XCTAssertNotNil(content.text)
       }
     } catch let GenerateContentError.responseStoppedEarly(reason, _) {
-      XCTAssertEqual(reason, .unknown)
+      XCTAssertEqual(reason, unknownFinishReason)
       return
     }
 

@@ -145,26 +145,71 @@ public struct Citation: Sendable {
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public enum FinishReason: String, Sendable {
-  /// The finish reason is unknown.
-  case unknown = "FINISH_REASON_UNKNOWN"
+public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
+  enum Kind: String {
+    case stop = "STOP"
+    case maxTokens = "MAX_TOKENS"
+    case safety = "SAFETY"
+    case recitation = "RECITATION"
+    case other = "OTHER"
+    case blocklist = "BLOCKLIST"
+    case prohibitedContent = "PROHIBITED_CONTENT"
+    case spii = "SPII"
+    case malformedFunctionCall = "MALFORMED_FUNCTION_CALL"
+  }
 
   /// Natural stop point of the model or provided stop sequence.
-  case stop = "STOP"
+  public static var stop: FinishReason {
+    return self.init(kind: .stop)
+  }
 
   /// The maximum number of tokens as specified in the request was reached.
-  case maxTokens = "MAX_TOKENS"
+  public static var maxTokens: FinishReason {
+    return self.init(kind: .maxTokens)
+  }
 
   /// The token generation was stopped because the response was flagged for safety reasons.
-  /// NOTE: When streaming, the Candidate.content will be empty if content filters blocked the
-  /// output.
-  case safety = "SAFETY"
+  ///
+  /// > NOTE: When streaming, the ``CandidateResponse/content`` will be empty if content filters
+  /// > blocked the output.
+  public static var safety: FinishReason {
+    return self.init(kind: .safety)
+  }
 
   /// The token generation was stopped because the response was flagged for unauthorized citations.
-  case recitation = "RECITATION"
+  public static var recitation: FinishReason {
+    return self.init(kind: .recitation)
+  }
 
   /// All other reasons that stopped token generation.
-  case other = "OTHER"
+  public static var other: FinishReason {
+    return self.init(kind: .other)
+  }
+
+  /// Token generation was stopped because the response contained forbidden terms.
+  public static var blocklist: FinishReason {
+    return self.init(kind: .blocklist)
+  }
+
+  /// Token generation was stopped because the response contained potentially prohibited content.
+  public static var prohibitedContent: FinishReason {
+    return self.init(kind: .prohibitedContent)
+  }
+
+  /// Token generation was stopped because of Sensitive Personally Identifiable Information (SPII).
+  public static var spii: FinishReason {
+    return self.init(kind: .spii)
+  }
+
+  /// Returns the raw string representation of the `FinishReason` value.
+  ///
+  /// > Note: This value directly corresponds to the values in the [REST
+  /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#FinishReason).
+  public let rawValue: String
+
+  var unrecognizedValueMessageCode: VertexLog.MessageCode {
+    .generateContentResponseUnrecognizedFinishReason
+  }
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
@@ -330,23 +375,6 @@ extension Citation: Decodable {
     } else {
       license = nil
     }
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FinishReason: Decodable {
-  public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedFinishReason = FinishReason(rawValue: value) else {
-      VertexLog.error(
-        code: .generateContentResponseUnrecognizedFinishReason,
-        "Unrecognized FinishReason with value \"\(value)\"."
-      )
-      self = .unknown
-      return
-    }
-
-    self = decodedFinishReason
   }
 }
 
