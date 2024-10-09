@@ -90,18 +90,41 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetySetting {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
-  public enum HarmBlockThreshold: String, Sendable {
-    // Content with `.negligible` will be allowed.
-    case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
+  public struct HarmBlockThreshold: EncodableProtoEnum, Sendable {
+    enum Kind: String {
+      case blockLowAndAbove = "BLOCK_LOW_AND_ABOVE"
+      case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
+      case blockOnlyHigh = "BLOCK_ONLY_HIGH"
+      case blockNone = "BLOCK_NONE"
+      case off = "OFF"
+    }
+
+    /// Content with `.negligible` will be allowed.
+    public static var blockLowAndAbove: HarmBlockThreshold {
+      return self.init(kind: .blockLowAndAbove)
+    }
 
     /// Content with `.negligible` and `.low` will be allowed.
-    case blockMediumAndAbove = "BLOCK_MEDIUM_AND_ABOVE"
+    public static var blockMediumAndAbove: HarmBlockThreshold {
+      return self.init(kind: .blockMediumAndAbove)
+    }
 
     /// Content with `.negligible`, `.low`, and `.medium` will be allowed.
-    case blockOnlyHigh = "BLOCK_ONLY_HIGH"
+    public static var blockOnlyHigh: HarmBlockThreshold {
+      return self.init(kind: .blockOnlyHigh)
+    }
 
     /// All content will be allowed.
-    case blockNone = "BLOCK_NONE"
+    public static var blockNone: HarmBlockThreshold {
+      return self.init(kind: .blockNone)
+    }
+
+    /// Turn off the safety filter.
+    public static var off: HarmBlockThreshold {
+      return self.init(kind: .off)
+    }
+
+    let rawValue: String
   }
 
   enum CodingKeys: String, CodingKey {

@@ -84,6 +84,18 @@ final class IntegrationTests: XCTestCase {
 
   func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
+    model = vertex.generativeModel(
+      modelName: "gemini-1.5-pro",
+      generationConfig: generationConfig,
+      safetySettings: [
+        SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
+        SafetySetting(harmCategory: .hateSpeech, threshold: .blockMediumAndAbove),
+        SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockOnlyHigh),
+        SafetySetting(harmCategory: .dangerousContent, threshold: .blockNone),
+        SafetySetting(harmCategory: .civicIntegrity, threshold: .off),
+      ],
+      systemInstruction: systemInstruction
+    )
 
     let response = try await model.countTokens(prompt)
 
