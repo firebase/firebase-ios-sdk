@@ -16,7 +16,7 @@
 ///
 /// Protobuf enums are represented as strings in JSON. A default `Decodable` implementation is
 /// provided when conforming to this type.
-protocol DecodableProtoEnum: Decodable, Sendable, Equatable, Hashable {
+protocol DecodableProtoEnum: Decodable {
   /// The type representing the valid values for the protobuf enum.
   ///
   /// > Important: This type must conform to `RawRepresentable` with the `RawValue == String`.

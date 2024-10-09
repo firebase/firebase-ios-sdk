@@ -41,7 +41,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The probability that a given model output falls under a harmful content category.
   ///
   /// > Note: This does not indicate the severity of harm for a piece of content.
-  public struct HarmProbability: DecodableProtoEnum {
+  public struct HarmProbability: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case negligible = "NEGLIGIBLE"
       case low = "LOW"
@@ -123,7 +123,7 @@ public struct SafetySetting {
 }
 
 /// Categories describing the potential harm a piece of content may pose.
-public struct HarmCategory: CodableProtoEnum {
+public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case harassment = "HARM_CATEGORY_HARASSMENT"
     case hateSpeech = "HARM_CATEGORY_HATE_SPEECH"
