@@ -41,7 +41,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The probability that a given model output falls under a harmful content category.
   ///
   /// > Note: This does not indicate the severity of harm for a piece of content.
-  public struct HarmProbability: Sendable, Equatable, Hashable {
+  public struct HarmProbability: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case negligible = "NEGLIGIBLE"
       case low = "LOW"
@@ -79,24 +79,8 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#SafetyRating).
     public let rawValue: String
 
-    init(kind: Kind) {
-      rawValue = kind.rawValue
-    }
-
-    init(rawValue: String) {
-      if Kind(rawValue: rawValue) == nil {
-        VertexLog.error(
-          code: .generateContentResponseUnrecognizedHarmProbability,
-          """
-          Unrecognized HarmProbability with value "\(rawValue)":
-          - Check for updates to the SDK as support for "\(rawValue)" may have been added; see \
-          release notes at https://firebase.google.com/support/release-notes/ios
-          - Search for "\(rawValue)" in the Firebase Apple SDK Issue Tracker at \
-          https://github.com/firebase/firebase-ios-sdk/issues and file a Bug Report if none found
-          """
-        )
-      }
-      self.rawValue = rawValue
+    var unrecognizedValueMessageCode: VertexLog.MessageCode {
+      .generateContentResponseUnrecognizedHarmProbability
     }
   }
 }
@@ -139,7 +123,7 @@ public struct SafetySetting {
 }
 
 /// Categories describing the potential harm a piece of content may pose.
-public struct HarmCategory: Sendable, Equatable, Hashable {
+public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case harassment = "HARM_CATEGORY_HARASSMENT"
     case hateSpeech = "HARM_CATEGORY_HATE_SPEECH"
@@ -179,47 +163,15 @@ public struct HarmCategory: Sendable, Equatable, Hashable {
   /// > [REST API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/HarmCategory).
   public let rawValue: String
 
-  init(kind: Kind) {
-    rawValue = kind.rawValue
-  }
-
-  init(rawValue: String) {
-    if Kind(rawValue: rawValue) == nil {
-      VertexLog.error(
-        code: .generateContentResponseUnrecognizedHarmCategory,
-        """
-        Unrecognized HarmCategory with value "\(rawValue)":
-        - Check for updates to the SDK as support for "\(rawValue)" may have been added; see \
-        release notes at https://firebase.google.com/support/release-notes/ios
-        - Search for "\(rawValue)" in the Firebase Apple SDK Issue Tracker at \
-        https://github.com/firebase/firebase-ios-sdk/issues and file a Bug Report if none found
-        """
-      )
-    }
-    self.rawValue = rawValue
+  var unrecognizedValueMessageCode: VertexLog.MessageCode {
+    .generateContentResponseUnrecognizedHarmCategory
   }
 }
 
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetyRating.HarmProbability: Decodable {
-  public init(from decoder: Decoder) throws {
-    let rawValue = try decoder.singleValueContainer().decode(String.self)
-    self = SafetyRating.HarmProbability(rawValue: rawValue)
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Decodable {}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension HarmCategory: Codable {
-  public init(from decoder: Decoder) throws {
-    let rawValue = try decoder.singleValueContainer().decode(String.self)
-    self = HarmCategory(rawValue: rawValue)
-  }
-}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting.HarmBlockThreshold: Encodable {}
