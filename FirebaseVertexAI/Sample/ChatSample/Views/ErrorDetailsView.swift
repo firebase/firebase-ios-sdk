@@ -25,8 +25,7 @@ private extension HarmCategory {
     case .hateSpeech: "Hate speech"
     case .sexuallyExplicit: "Sexually explicit"
     case .civicIntegrity: "Civic integrity"
-    default:
-      "Unknown HarmCategory: \(rawValue)"
+    default: "Unknown HarmCategory: \(rawValue)"
     }
   }
 }
@@ -39,7 +38,7 @@ private extension SafetyRating.HarmProbability {
     case .low: "Low"
     case .medium: "Medium"
     case .negligible: "Negligible"
-    case .unknown: "Unknown"
+    default: "Unknown HarmProbability: \(rawValue)"
     }
   }
 }
