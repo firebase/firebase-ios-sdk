@@ -977,7 +977,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let unknownSafetyRating = SafetyRating(
       category: HarmCategory(rawValue: "HARM_CATEGORY_DANGEROUS_CONTENT_NEW_ENUM"),
-      probability: SafetyRating.HarmProbability(rawValue: "FAKE_NEW_HARM_PROBABILITY")
+      probability: SafetyRating.HarmProbability(rawValue: "NEGLIGIBLE_UNKNOWN_ENUM")
     )
 
     var foundUnknownSafetyRating = false
