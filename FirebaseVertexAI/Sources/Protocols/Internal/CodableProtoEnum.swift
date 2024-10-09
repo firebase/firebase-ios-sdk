@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A type that can be decoded from a Protocol Buffer raw enum value.
-///
-/// Protobuf enums are represented as strings in JSON. A default `Decodable` implementation is
-/// provided when conforming to this type.
-protocol DecodableProtoEnum: Decodable {
+/// A type that represents a Protocol Buffer raw enum value.
+protocol ProtoEnum {
   /// The type representing the valid values for the protobuf enum.
   ///
   /// > Important: This type must conform to `RawRepresentable` with the `RawValue == String`.
@@ -32,8 +29,8 @@ protocol DecodableProtoEnum: Decodable {
   /// ```
   associatedtype Kind: RawRepresentable<String>
 
-  /// Returns the ``VertexLog/MessageCode`` associated with unrecognized (unknown) enum values.
-  var unrecognizedValueMessageCode: VertexLog.MessageCode { get }
+  /// Returns the raw string value of the enum.
+  var rawValue: String { get }
 
   /// Create a new instance of the specified type from a raw enum value.
   init(rawValue: String)
@@ -42,14 +39,48 @@ protocol DecodableProtoEnum: Decodable {
   ///
   /// > Important: A default implementation is provided.
   init(kind: Kind)
+}
+
+/// A type that can be decoded from a Protocol Buffer raw enum value.
+///
+/// Protobuf enums are represented as strings in JSON. A default `Decodable` implementation is
+/// provided when conforming to this type.
+protocol DecodableProtoEnum: ProtoEnum, Decodable {
+  /// Returns the ``VertexLog/MessageCode`` associated with unrecognized (unknown) enum values.
+  var unrecognizedValueMessageCode: VertexLog.MessageCode { get }
 
   /// Creates a new instance by decoding from the given decoder.
   ///
   /// > Important: A default implementation is provided.
-  init(from decoder: Decoder) throws
+  init(from decoder: any Decoder) throws
 }
 
-/// Default `Decodable` implementation for types conforming to `DecodableProtoEnum`.
+/// A type that can be encoded as a Protocol Buffer enum value.
+///
+/// Protobuf enums are represented as strings in JSON. A default `Encodable` implementation is
+/// provided when conforming to this type.
+protocol EncodableProtoEnum: ProtoEnum, Encodable {
+  /// Encodes this value into the given encoder.
+  ///
+  /// > Important: A default implementation is provided.
+  func encode(to encoder: any Encoder) throws
+}
+
+/// A type that can be decoded and encoded from a Protocol Buffer raw enum value.
+///
+/// See ``ProtoEnum``, ``DecodableProtoEnum`` and ``EncodableProtoEnum`` for more details.
+protocol CodableProtoEnum: DecodableProtoEnum, EncodableProtoEnum {}
+
+// MARK: - Default Implementations
+
+// Default implementation of `init(kind: Kind)` for types conforming to `ProtoEnum`.
+extension ProtoEnum {
+  init(kind: Kind) {
+    self = Self(rawValue: kind.rawValue)
+  }
+}
+
+// Default `Decodable` implementation for types conforming to `DecodableProtoEnum`.
 extension DecodableProtoEnum {
   // Note: Initializer 'init(from:)' must be declared public because it matches a requirement in
   // public protocol 'Decodable'.
@@ -73,14 +104,12 @@ extension DecodableProtoEnum {
   }
 }
 
-/// Default implementation of `init(kind: Kind)` for types conforming to `DecodableProtoEnum`.
-extension DecodableProtoEnum {
-  init(kind: Kind) {
-    self = Self(rawValue: kind.rawValue)
+// Default `Encodable` implementation for types conforming to `EncodableProtoEnum`.
+extension EncodableProtoEnum {
+  // Note: Method 'encode(to:)' must be declared public because it matches a requirement in public
+  // protocol 'Encodable'.
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(rawValue)
   }
 }
-
-/// A type that can be decoded and encoded from a Protocol Buffer raw enum value.
-///
-/// See ``DecodableProtoEnum`` for more details.
-protocol CodableProtoEnum: DecodableProtoEnum, Encodable {}
