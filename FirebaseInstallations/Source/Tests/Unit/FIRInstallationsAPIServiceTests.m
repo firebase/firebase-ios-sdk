@@ -69,6 +69,11 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   return FIRHeaderValueFromHeartbeatsPayload([self flushHeartbeatsIntoPayload]);
 }
 
+- (void)asyncHeaderValueWithCompletionHandler:
+    (nonnull void (^)(NSString *_Nullable))completionHandler {
+  [self doesNotRecognizeSelector:_cmd];
+}
+
 @end
 
 #pragma mark - FIRInstallationsAPIService + Internal
