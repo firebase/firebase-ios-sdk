@@ -92,7 +92,7 @@ final class IntegrationTests: XCTestCase {
         SafetySetting(harmCategory: .hateSpeech, threshold: .blockMediumAndAbove),
         SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockOnlyHigh),
         SafetySetting(harmCategory: .dangerousContent, threshold: .blockNone),
-        SafetySetting(harmCategory: .civicIntegrity, threshold: .off)
+        SafetySetting(harmCategory: .civicIntegrity, threshold: .off),
       ],
       systemInstruction: systemInstruction
     )
