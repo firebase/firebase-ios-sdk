@@ -46,6 +46,12 @@
 - [changed] The response from `GenerativeModel.countTokens(...)` now includes
   `systemInstruction`, `tools` and `generationConfig` in the `totalTokens` and
   `totalBillableCharacters` counts, where applicable. (#13813)
+- [added] Added a new `HarmCategory` `.civicIntegrity` for filtering content
+  that may be used to harm civic integrity. (#13728)
+- [added] Added a new `HarmBlockThreshold` `.off`, which turns off the safety
+  filter. (#13863)
+- [added] Added new `FinishReason` values `.blocklist`, `.prohibitedContent`,
+  `.spii` and `.malformedFunctionCall` that may be reported. (#13860)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
