@@ -221,15 +221,43 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct PromptFeedback: Sendable {
   /// A type describing possible reasons to block a prompt.
-  public enum BlockReason: String, Sendable {
-    /// The block reason is unknown.
-    case unknown = "UNKNOWN"
+  public struct BlockReason: DecodableProtoEnum, Hashable, Sendable {
+    enum Kind: String {
+      case safety = "SAFETY"
+      case other = "OTHER"
+      case blocklist = "BLOCKLIST"
+      case prohibitedContent = "PROHIBITED_CONTENT"
+    }
 
     /// The prompt was blocked because it was deemed unsafe.
-    case safety = "SAFETY"
+    public static var safety: BlockReason {
+      return self.init(kind: .safety)
+    }
 
     /// All other block reasons.
-    case other = "OTHER"
+    public static var other: BlockReason {
+      return self.init(kind: .other)
+    }
+
+    /// The prompt was blocked because it contained terms from the terminology blocklist.
+    public static var blocklist: BlockReason {
+      return self.init(kind: .blocklist)
+    }
+
+    /// The prompt was blocked due to prohibited content.
+    public static var prohibitedContent: BlockReason {
+      return self.init(kind: .prohibitedContent)
+    }
+
+    /// Returns the raw string representation of the `BlockReason` value.
+    ///
+    /// > Note: This value directly corresponds to the values in the [REST
+    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#BlockedReason).
+    public let rawValue: String
+
+    var unrecognizedValueMessageCode: VertexLog.MessageCode {
+      .generateContentResponseUnrecognizedBlockReason
+    }
   }
 
   /// The reason a prompt was blocked, if it was blocked.
@@ -380,23 +408,6 @@ extension Citation: Decodable {
     } else {
       license = nil
     }
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension PromptFeedback.BlockReason: Decodable {
-  public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedBlockReason = PromptFeedback.BlockReason(rawValue: value) else {
-      VertexLog.error(
-        code: .generateContentResponseUnrecognizedBlockReason,
-        "Unrecognized BlockReason with value \"\(value)\"."
-      )
-      self = .unknown
-      return
-    }
-
-    self = decodedBlockReason
   }
 }
 

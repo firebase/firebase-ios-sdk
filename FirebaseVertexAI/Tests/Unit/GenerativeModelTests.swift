@@ -627,13 +627,14 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-failure-unknown-enum-prompt-blocked",
         withExtension: "json"
       )
+    let unknownBlockReason = PromptFeedback.BlockReason(rawValue: "FAKE_NEW_BLOCK_REASON")
 
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw")
     } catch let GenerateContentError.promptBlocked(response) {
       let promptFeedback = try XCTUnwrap(response.promptFeedback)
-      XCTAssertEqual(promptFeedback.blockReason, .unknown)
+      XCTAssertEqual(promptFeedback.blockReason, unknownBlockReason)
     } catch {
       XCTFail("Should throw a promptBlocked")
     }
