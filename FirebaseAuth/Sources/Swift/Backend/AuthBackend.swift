@@ -99,7 +99,7 @@ class AuthBackend {
                      contentType: String,
                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
     // Kick off tasks for the async header values.
-    async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue!()
+    async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue()
     async let appCheckTokenHeaderValue = requestConfiguration.appCheck?
       .getToken(forcingRefresh: true)
 

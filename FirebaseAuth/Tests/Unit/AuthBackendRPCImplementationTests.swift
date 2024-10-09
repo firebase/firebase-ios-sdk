@@ -535,10 +535,6 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
   #if COCOAPODS || SWIFT_PACKAGE
     private class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol {
       func asyncHeaderValue() async -> String? {
-        headerValue()
-      }
-
-      func headerValue() -> String? {
         let payload = flushHeartbeatsIntoPayload()
         guard !payload.isEmpty else {
           return nil

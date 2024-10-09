@@ -39,13 +39,13 @@ typedef NS_ENUM(NSInteger, FIRDailyHeartbeatCode) {
 - (FIRDailyHeartbeatCode)heartbeatCodeForToday;
 
 #ifndef FIREBASE_BUILD_CMAKE
-/// Return the header value for the heartbeat logger.
-- (NSString *_Nullable)headerValue;
-
-@optional
 /// Returns the header value for the heartbeat logger via the given completion handler..
 - (void)asyncHeaderValueWithCompletionHandler:(void (^)(NSString *_Nullable))completionHandler
     API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0));
+
+/// Return the header value for the heartbeat logger.
+- (NSString *_Nullable)
+    headerValue NS_SWIFT_UNAVAILABLE("Use `asyncHeaderValue() async -> String?` instead.");
 #endif  // FIREBASE_BUILD_CMAKE
 
 @end
