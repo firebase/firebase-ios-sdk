@@ -24,6 +24,27 @@ struct LoginViewSwiftUI: View {
   var body: some View {
     Group {
       VStack {
+        Group {
+          HStack {
+            VStack {
+              Text("Email/Password Auth")
+                .font(.title)
+                .bold()
+            }
+            Spacer()
+          }
+          HStack {
+            Text(
+              "Login or create an account using the Email/Password auth " +
+                "provider.\n\nEnsure that the Email/Password provider is " +
+                "enabled on the Firebase console for the given project."
+            )
+            .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+          }
+        }
+        .padding(.vertical)
+
         Spacer()
         TextField("Email", text: $email)
           .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
