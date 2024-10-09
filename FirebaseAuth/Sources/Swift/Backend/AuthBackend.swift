@@ -122,7 +122,7 @@ class AuthBackend {
     }
     // Wait for the async header values.
     await request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
-    await appCheckTokenHeaderValue.map { tokenResult in
+    if let tokenResult = await appCheckTokenHeaderValue {
       if let error = tokenResult.error {
         AuthLog.logWarning(code: "I-AUT000018",
                            message: "Error getting App Check token; using placeholder " +
