@@ -124,6 +124,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                    sessions:(id<FIRSessionsProvider>)sessions
                remoteConfig:(id<FIRRemoteConfigInterop>)remoteConfig {
   self = [super init];
+  [FIRCLSUserDefaults standardUserDefaults];
 
   if (self) {
     bool expectedCalled = NO;

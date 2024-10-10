@@ -133,6 +133,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 #pragma mark - fetch object
 
 - (id)objectForKey:(NSString *)key {
+  NSLog(@"%f ms!!!!!!!objectForKey\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
   __block id result;
 
   dispatch_sync(self.serialDictionaryQueue, ^{
@@ -174,6 +175,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 #pragma mark - set object
 
 - (void)setObject:(id)object forKey:(NSString *)key {
+  NSLog(@"%f ms!!!!!!!set object\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
   dispatch_sync(self.serialDictionaryQueue, ^{
     [self->_dataDictionary setValue:object forKey:key];
   });
@@ -194,12 +196,14 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 #pragma mark - removing objects
 
 - (void)removeObjectForKey:(NSString *)key {
+  NSLog(@"%f ms!!!!!!!remove obj\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
   dispatch_sync(self.serialDictionaryQueue, ^{
     [self->_dataDictionary removeObjectForKey:key];
   });
 }
 
 - (void)removeAllObjects {
+  NSLog(@"%f ms!!!!!!!remove all obj\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
   dispatch_sync(self.serialDictionaryQueue, ^{
     [self->_dataDictionary removeAllObjects];
   });
@@ -233,7 +237,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
   }
 
   NSDictionary *state = [self dictionaryRepresentation];
-  dispatch_sync(self.synchronizationQueue, ^{
+  dispatch_async(self.synchronizationQueue, ^{
 #if CLS_TARGET_CAN_WRITE_TO_DISK
     BOOL isDirectory = NO;
     BOOL pathExists = [[NSFileManager defaultManager] fileExistsAtPath:[self->_directoryURL path]
@@ -278,7 +282,9 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 
 - (NSDictionary *)loadDefaults {
   __block NSDictionary *state = nil;
-  dispatch_sync(self.synchronizationQueue, ^{
+  NSLog(@"%f ms!!!!!!!load defaults\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
+  dispatch_async(self.synchronizationQueue, ^{
+    NSLog(@"%f ms!!!!!!!starting load defaults\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
 #if CLS_TARGET_CAN_WRITE_TO_DISK
     BOOL isDirectory = NO;
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:[self->_fileURL path]
@@ -302,6 +308,7 @@ NSString *const FIRCLSUserDefaultsPathComponent = @"CLSUserDefaults";
 #else
         state = [[NSUserDefaults standardUserDefaults] dictionaryForKey:FIRCLSNSUserDefaultsDataDictionaryKey];
 #endif
+    NSLog(@"%f ms!!!!!!!complete load defaults\n", [[NSDate date] timeIntervalSince1970] * 1000.0);
   });
   return state;
 }
