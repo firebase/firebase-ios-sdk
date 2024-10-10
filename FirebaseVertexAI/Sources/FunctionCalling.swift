@@ -84,22 +84,16 @@ public struct FunctionCallingConfig {
     /// The default behavior for function calling.
     ///
     /// The model calls functions to answer queries at its discretion.
-    public static var auto: Mode {
-      return self.init(kind: .auto)
-    }
+    public static let auto = Mode(kind: .auto)
 
     /// The model always predicts a provided function call to answer every query.
-    public static var any: Mode {
-      return self.init(kind: .any)
-    }
+    public static let any = Mode(kind: .any)
 
     /// The model will never predict a function call to answer a query.
     ///
     /// > Note: This can also be achieved by not passing any ``FunctionDeclaration`` tools
     /// > when instantiating the model.
-    public static var none: Mode {
-      return self.init(kind: .none)
-    }
+    public static let none = Mode(kind: .none)
 
     let rawValue: String
   }

@@ -52,26 +52,18 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     /// The probability is zero or close to zero.
     ///
     /// For benign content, the probability across all categories will be this value.
-    public static var negligible: HarmProbability {
-      return self.init(kind: .negligible)
-    }
+    public static let negligible = HarmProbability(kind: .negligible)
 
     /// The probability is small but non-zero.
-    public static var low: HarmProbability {
-      return self.init(kind: .low)
-    }
+    public static let low = HarmProbability(kind: .low)
 
     /// The probability is moderate.
-    public static var medium: HarmProbability {
-      return self.init(kind: .medium)
-    }
+    public static let medium = HarmProbability(kind: .medium)
 
     /// The probability is high.
     ///
     /// The content described is very likely harmful.
-    public static var high: HarmProbability {
-      return self.init(kind: .high)
-    }
+    public static let high = HarmProbability(kind: .high)
 
     /// Returns the raw string representation of the `HarmProbability` value.
     ///
@@ -79,9 +71,8 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#SafetyRating).
     public let rawValue: String
 
-    var unrecognizedValueMessageCode: VertexLog.MessageCode {
-      .generateContentResponseUnrecognizedHarmProbability
-    }
+    static let unrecognizedValueMessageCode =
+      VertexLog.MessageCode.generateContentResponseUnrecognizedHarmProbability
   }
 }
 
@@ -100,29 +91,19 @@ public struct SafetySetting {
     }
 
     /// Content with `.negligible` will be allowed.
-    public static var blockLowAndAbove: HarmBlockThreshold {
-      return self.init(kind: .blockLowAndAbove)
-    }
+    public static let blockLowAndAbove = HarmBlockThreshold(kind: .blockLowAndAbove)
 
     /// Content with `.negligible` and `.low` will be allowed.
-    public static var blockMediumAndAbove: HarmBlockThreshold {
-      return self.init(kind: .blockMediumAndAbove)
-    }
+    public static let blockMediumAndAbove = HarmBlockThreshold(kind: .blockMediumAndAbove)
 
     /// Content with `.negligible`, `.low`, and `.medium` will be allowed.
-    public static var blockOnlyHigh: HarmBlockThreshold {
-      return self.init(kind: .blockOnlyHigh)
-    }
+    public static let blockOnlyHigh = HarmBlockThreshold(kind: .blockOnlyHigh)
 
     /// All content will be allowed.
-    public static var blockNone: HarmBlockThreshold {
-      return self.init(kind: .blockNone)
-    }
+    public static let blockNone = HarmBlockThreshold(kind: .blockNone)
 
     /// Turn off the safety filter.
-    public static var off: HarmBlockThreshold {
-      return self.init(kind: .off)
-    }
+    public static let off = HarmBlockThreshold(kind: .off)
 
     let rawValue: String
   }
@@ -156,29 +137,19 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   }
 
   /// Harassment content.
-  public static var harassment: HarmCategory {
-    return self.init(kind: .harassment)
-  }
+  public static let harassment = HarmCategory(kind: .harassment)
 
   /// Negative or harmful comments targeting identity and/or protected attributes.
-  public static var hateSpeech: HarmCategory {
-    return self.init(kind: .hateSpeech)
-  }
+  public static let hateSpeech = HarmCategory(kind: .hateSpeech)
 
   /// Contains references to sexual acts or other lewd content.
-  public static var sexuallyExplicit: HarmCategory {
-    return self.init(kind: .sexuallyExplicit)
-  }
+  public static let sexuallyExplicit = HarmCategory(kind: .sexuallyExplicit)
 
   /// Promotes or enables access to harmful goods, services, or activities.
-  public static var dangerousContent: HarmCategory {
-    return self.init(kind: .dangerousContent)
-  }
+  public static let dangerousContent = HarmCategory(kind: .dangerousContent)
 
   /// Content that may be used to harm civic integrity.
-  public static var civicIntegrity: HarmCategory {
-    return self.init(kind: .civicIntegrity)
-  }
+  public static let civicIntegrity = HarmCategory(kind: .civicIntegrity)
 
   /// Returns the raw string representation of the `HarmCategory` value.
   ///
@@ -186,9 +157,8 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   /// > [REST API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/HarmCategory).
   public let rawValue: String
 
-  var unrecognizedValueMessageCode: VertexLog.MessageCode {
-    .generateContentResponseUnrecognizedHarmCategory
-  }
+  static let unrecognizedValueMessageCode =
+    VertexLog.MessageCode.generateContentResponseUnrecognizedHarmCategory
 }
 
 // MARK: - Codable Conformances
