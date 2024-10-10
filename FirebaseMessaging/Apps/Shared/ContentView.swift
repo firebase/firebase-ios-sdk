@@ -24,106 +24,110 @@ struct ContentView: View {
   @EnvironmentObject var settings: UserSettings
   @State private var log: String = ""
 
-  var body: some View {
-    NavigationView {
-      // Outer stack containing the list and the buttons.
-      VStack {
-        List {
-          VStack(alignment: .leading) {
-            Text("InstallationsID")
-              .font(.subheadline)
-              .fontWeight(.semibold)
-
-            Text(identity.installationsID ?? "None").foregroundColor(.green)
-          }
-
-          VStack(alignment: .leading) {
-            Text("Token")
-              .font(.subheadline)
-              .fontWeight(.semibold)
-            Text(identity.token ?? "None")
-              .foregroundColor(.green)
-              // Increase the layout priority to allow more than one line to be shown. Without this,
-              // the
-              // simulator renders a single truncated line even though the Preview renders it
-              // appropriately. Potentially a bug in the simulator?
-              .layoutPriority(1)
-              .lineLimit(7)
-          }
-          NavigationLink(destination: SettingsView()) {
-            Text("Settings")
-              .fontWeight(.semibold)
-          }
-          NavigationLink(destination: TopicView()) {
-            Text("Topic")
-              .fontWeight(.semibold)
-          }
-
-          // MARK: Action buttons
-
-          VStack(alignment: .leading) {
-            Text("getToken")
-              .fontWeight(.semibold)
-            HStack {
-              Button(action: getIDAndToken) {
-                HStack {
-                  Image(systemName: "arrow.clockwise.circle.fill")
-                  Text("FID & Token")
-                    .fontWeight(.semibold)
+    var body: some View {
+        NavigationView {
+            // Outer stack containing the list and the buttons.
+            VStack {
+                List {
+                    VStack(alignment: .leading) {
+                        Text("InstallationsID")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        
+                        Text(identity.installationsID ?? "None").foregroundColor(.green)
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text("Token")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        Text(identity.token ?? "None")
+                            .foregroundColor(.green)
+                        // Increase the layout priority to allow more than one line to be shown. Without this,
+                        // the
+                        // simulator renders a single truncated line even though the Preview renders it
+                        // appropriately. Potentially a bug in the simulator?
+                            .layoutPriority(1)
+                            .lineLimit(7)
+                    }
+                    NavigationLink(destination: SettingsView()) {
+                        Text("Settings")
+                            .fontWeight(.semibold)
+                    }
+                    NavigationLink(destination: TopicView()) {
+                        Text("Topic")
+                            .fontWeight(.semibold)
+                    }
+                    NavigationLink(destination: LiveActivityView()) {
+                        Text("Live Activity")
+                            .fontWeight(.semibold)
+                    }
+                    
+                    // MARK: Action buttons
+                    
+                    VStack(alignment: .leading) {
+                        Text("getToken")
+                            .fontWeight(.semibold)
+                        HStack {
+                            Button(action: getIDAndToken) {
+                                HStack {
+                                    Image(systemName: "arrow.clockwise.circle.fill")
+                                    Text("FID & Token")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            Button(action: getFCMToken) {
+                                HStack {
+                                    Image(systemName: "arrow.clockwise.circle.fill").font(.body)
+                                    Text("getToken")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                        }
+                    }.font(.system(size: 14))
+                    
+                    VStack(alignment: .leading) {
+                        Text("deleteToken")
+                            .fontWeight(.semibold)
+                        HStack {
+                            Button(action: deleteFCMToken) {
+                                HStack {
+                                    Image(systemName: "trash.fill")
+                                    Text("deleteToken")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                        }
+                    }.font(.system(size: 14))
+                    
+                    VStack(alignment: .leading) {
+                        Text("delete")
+                            .fontWeight(.semibold)
+                        HStack {
+                            Button(action: deleteFCM) {
+                                HStack {
+                                    Image(systemName: "trash.fill")
+                                    Text("FM.delete")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            Button(action: deleteFID) {
+                                HStack {
+                                    Image(systemName: "trash.fill")
+                                    Text("FIS.delete")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                        }
+                    }.font(.system(size: 14))
+                    Text("\(log)")
+                        .lineLimit(10)
+                        .multilineTextAlignment(.leading)
                 }
-              }
-              Button(action: getFCMToken) {
-                HStack {
-                  Image(systemName: "arrow.clockwise.circle.fill").font(.body)
-                  Text("getToken")
-                    .fontWeight(.semibold)
-                }
-              }
-            }
-          }.font(.system(size: 14))
-
-          VStack(alignment: .leading) {
-            Text("deleteToken")
-              .fontWeight(.semibold)
-            HStack {
-              Button(action: deleteFCMToken) {
-                HStack {
-                  Image(systemName: "trash.fill")
-                  Text("deleteToken")
-                    .fontWeight(.semibold)
-                }
-              }
-            }
-          }.font(.system(size: 14))
-
-          VStack(alignment: .leading) {
-            Text("delete")
-              .fontWeight(.semibold)
-            HStack {
-              Button(action: deleteFCM) {
-                HStack {
-                  Image(systemName: "trash.fill")
-                  Text("FM.delete")
-                    .fontWeight(.semibold)
-                }
-              }
-              Button(action: deleteFID) {
-                HStack {
-                  Image(systemName: "trash.fill")
-                  Text("FIS.delete")
-                    .fontWeight(.semibold)
-                }
-              }
-            }
-          }.font(.system(size: 14))
-          Text("\(log)")
-            .lineLimit(10)
-            .multilineTextAlignment(.leading)
+                .navigationBarTitle("Firebase Messaging")
+            }.buttonStyle(IdentityButtonStyle())
         }
-        .navigationBarTitle("Firebase Messaging")
-      }.buttonStyle(IdentityButtonStyle())
     }
-  }
 
   func getIDAndToken() {
     Messaging.messaging().token { token, error in
