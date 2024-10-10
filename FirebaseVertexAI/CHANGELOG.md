@@ -46,10 +46,10 @@
   unknown or unhandled values. (#13728, #13854, #13860)
 - [changed] **Breaking Change**: The `Tool` initializer is now internal; use the
   new type method `functionDeclarations(_:)` to create a `Tool` for function
-  calling. (#TODO)
+  calling. (#13873)
 - [changed] **Breaking Change**: The `FunctionCallingConfig` initializer and
   `Mode` enum are now internal; use one of the new type methods `auto()`,
-  `any(allowedFunctionNames:)`, or `none()` to create a config. (#TODO)
+  `any(allowedFunctionNames:)`, or `none()` to create a config. (#13873)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
