@@ -25,7 +25,7 @@ public struct FunctionDeclaration {
   /// A brief description of the function.
   let description: String
 
-  /// Describes the parameters to this function; must be of type `"OBJECT"`.
+  /// Describes the parameters to this function; must be of type `DataType.object`.
   let parameters: Schema?
 
   /// Constructs a new `FunctionDeclaration`.
