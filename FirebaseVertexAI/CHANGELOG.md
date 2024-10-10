@@ -1,4 +1,8 @@
 # 11.4.0
+- [changed] **Breaking Change**: The SDK is now Generally Available (GA); both
+  new and existing users must perform the
+  [Build with Gemini](https://console.firebase.google.com/project/_/genai/)
+  onboarding flow in the Firebase Console to use the updated API. (#13725)
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
   removed. (#13686)

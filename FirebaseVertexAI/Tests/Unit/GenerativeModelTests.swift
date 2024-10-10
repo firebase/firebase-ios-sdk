@@ -457,30 +457,6 @@ final class GenerativeModelTests: XCTestCase {
     }
   }
 
-  // TODO(andrewheard): Remove this test case after the Vertex AI in Firebase API launch.
-  func testGenerateContent_failure_firebaseMLAPINotEnabled() async throws {
-    let expectedStatusCode = 403
-    MockURLProtocol
-      .requestHandler = try httpRequestHandler(
-        forResource: "unary-failure-firebaseml-api-not-enabled",
-        withExtension: "json",
-        statusCode: expectedStatusCode
-      )
-
-    do {
-      _ = try await model.generateContent(testPrompt)
-      XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.internalError(error as RPCError) {
-      XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
-      XCTAssertEqual(error.status, .permissionDenied)
-      XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
-      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
-      return
-    } catch {
-      XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
-    }
-  }
-
   func testGenerateContent_failure_firebaseVertexAIAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
@@ -799,32 +775,6 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
-      return
-    }
-
-    XCTFail("Should have caught an error.")
-  }
-
-  // TODO(andrewheard): Remove this test case after the Vertex AI in Firebase API launch.
-  func testGenerateContentStream_failure_firebaseMLAPINotEnabled() async throws {
-    let expectedStatusCode = 403
-    MockURLProtocol
-      .requestHandler = try httpRequestHandler(
-        forResource: "unary-failure-firebaseml-api-not-enabled",
-        withExtension: "json",
-        statusCode: expectedStatusCode
-      )
-
-    do {
-      let stream = try model.generateContentStream(testPrompt)
-      for try await _ in stream {
-        XCTFail("No content is there, this shouldn't happen.")
-      }
-    } catch let GenerateContentError.internalError(error as RPCError) {
-      XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
-      XCTAssertEqual(error.status, .permissionDenied)
-      XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
-      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
       return
     }
 
