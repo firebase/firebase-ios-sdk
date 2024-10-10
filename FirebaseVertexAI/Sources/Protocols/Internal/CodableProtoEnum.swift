@@ -47,7 +47,7 @@ protocol ProtoEnum {
 /// provided when conforming to this type.
 protocol DecodableProtoEnum: ProtoEnum, Decodable {
   /// Returns the ``VertexLog/MessageCode`` associated with unrecognized (unknown) enum values.
-  var unrecognizedValueMessageCode: VertexLog.MessageCode { get }
+  static var unrecognizedValueMessageCode: VertexLog.MessageCode { get }
 
   /// Creates a new instance by decoding from the given decoder.
   ///
@@ -91,7 +91,7 @@ extension DecodableProtoEnum {
 
     if Kind(rawValue: rawValue) == nil {
       VertexLog.error(
-        code: unrecognizedValueMessageCode,
+        code: Self.unrecognizedValueMessageCode,
         """
         Unrecognized \(Self.self) with value "\(rawValue)":
         - Check for updates to the SDK as support for "\(rawValue)" may have been added; see \
