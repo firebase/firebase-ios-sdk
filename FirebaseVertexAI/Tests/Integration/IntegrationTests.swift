@@ -59,7 +59,7 @@ final class IntegrationTests: XCTestCase {
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [],
-      toolConfig: .init(functionCallingConfig: .init(mode: FunctionCallingConfig.Mode.none)),
+      toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: systemInstruction
     )
   }
@@ -95,7 +95,7 @@ final class IntegrationTests: XCTestCase {
         SafetySetting(harmCategory: .dangerousContent, threshold: .blockNone),
         SafetySetting(harmCategory: .civicIntegrity, threshold: .off),
       ],
-      toolConfig: .init(functionCallingConfig: .init(mode: .auto)),
+      toolConfig: .init(functionCallingConfig: .auto()),
       systemInstruction: systemInstruction
     )
 
@@ -137,8 +137,8 @@ final class IntegrationTests: XCTestCase {
     )
     model = vertex.generativeModel(
       modelName: "gemini-1.5-flash",
-      tools: [Tool(functionDeclarations: [sumDeclaration])],
-      toolConfig: .init(functionCallingConfig: .init(mode: .any, allowedFunctionNames: ["sum"]))
+      tools: [.functionDeclarations([sumDeclaration])],
+      toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
     )
     let prompt = "What is 10 + 32?"
     let sumCall = FunctionCallPart(name: "sum", args: ["x": .number(10), "y": .number(32)])
