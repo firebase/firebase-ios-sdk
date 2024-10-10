@@ -40,7 +40,7 @@ class FunctionCallingViewModel: ObservableObject {
   init() {
     model = VertexAI.vertexAI().generativeModel(
       modelName: "gemini-1.5-flash",
-      tools: [Tool(functionDeclarations: [
+      tools: [.functionDeclarations([
         FunctionDeclaration(
           name: "get_exchange_rate",
           description: "Get the exchange rate for currencies between countries",
