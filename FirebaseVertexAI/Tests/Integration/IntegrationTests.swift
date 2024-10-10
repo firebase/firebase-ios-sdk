@@ -153,4 +153,25 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(response.totalTokens, 24)
     XCTAssertEqual(response.totalBillableCharacters, 71)
   }
+
+  func testCountTokens_jsonSchema() async throws {
+    model = vertex.generativeModel(
+      modelName: "gemini-1.5-flash",
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: Schema.object(properties: [
+          "startDate": .string(format: .custom("date")),
+          "yearsSince": .integer(format: .custom("int16")),
+          "hoursSince": .integer(format: .int32),
+          "minutesSince": .integer(format: .int64)
+        ])
+      )
+    )
+    let prompt = "It is 2050-01-01, how many years, hours and minutes since 2000-01-01?"
+
+    let response = try await model.countTokens(prompt)
+
+    XCTAssertEqual(response.totalTokens, 34)
+    XCTAssertEqual(response.totalBillableCharacters, 59)
+  }
 }
