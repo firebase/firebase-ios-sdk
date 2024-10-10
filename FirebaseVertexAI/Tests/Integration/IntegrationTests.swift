@@ -163,7 +163,7 @@ final class IntegrationTests: XCTestCase {
           "startDate": .string(format: .custom("date")),
           "yearsSince": .integer(format: .custom("int16")),
           "hoursSince": .integer(format: .int32),
-          "minutesSince": .integer(format: .int64)
+          "minutesSince": .integer(format: .int64),
         ])
       )
     )
