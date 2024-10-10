@@ -73,33 +73,53 @@ public struct Tool {
 
 /// Configuration for specifying function calling behavior.
 public struct FunctionCallingConfig {
-  /// Defines the execution behavior for function calling by defining the
-  /// execution mode.
-  public enum Mode: String {
-    /// The default behavior for function calling. The model calls functions to answer queries at
-    /// its discretion.
-    case auto = "AUTO"
+  /// Defines the execution behavior for function calling by defining the execution mode.
+  public struct Mode: EncodableProtoEnum {
+    enum Kind: String {
+      case auto = "AUTO"
+      case any = "ANY"
+      case none = "NONE"
+    }
+
+    /// The default behavior for function calling.
+    ///
+    /// The model calls functions to answer queries at its discretion.
+    public static var auto: Mode {
+      return self.init(kind: .auto)
+    }
 
     /// The model always predicts a provided function call to answer every query.
-    case any = "ANY"
+    public static var any: Mode {
+      return self.init(kind: .any)
+    }
 
-    /// The model will never predict a function call to answer a query. This can also be achieved by
-    /// not passing any tools to the model.
-    case none = "NONE"
+    /// The model will never predict a function call to answer a query.
+    ///
+    /// > Note: This can also be achieved by not passing any ``FunctionDeclaration`` tools
+    /// > when instantiating the model.
+    public static var none: Mode {
+      return self.init(kind: .none)
+    }
+
+    let rawValue: String
   }
 
-  /// Specifies the mode in which function calling should execute. If
-  /// unspecified, the default value will be set to AUTO.
+  /// Specifies the mode in which function calling should execute.
   let mode: Mode?
 
-  /// A set of function names that, when provided, limits the functions the model
-  /// will call.
-  ///
-  /// This should only be set when the Mode is ANY. Function names
-  /// should match [FunctionDeclaration.name]. With mode set to ANY, model will
-  /// predict a function call from the set of function names provided.
+  /// A set of function names that, when provided, limits the functions the model will call.
   let allowedFunctionNames: [String]?
 
+  /// Creates a new `FunctionCallingConfig`.
+  ///
+  /// - Parameters:
+  ///   - mode: Specifies the mode in which function calling should execute; if unspecified, the
+  ///   default behavior will be ``Mode/auto``.
+  ///   - allowedFunctionNames: A set of function names that, when provided, limits the functions
+  ///   the model will call.
+  ///   Note: This should only be set when the ``Mode`` is ``Mode/any``. Function names should match
+  ///   `[FunctionDeclaration.name]`. With mode set to ``Mode/any``, the model will predict a
+  ///   function call from the set of function names provided.
   public init(mode: FunctionCallingConfig.Mode? = nil, allowedFunctionNames: [String]? = nil) {
     self.mode = mode
     self.allowedFunctionNames = allowedFunctionNames
