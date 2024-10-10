@@ -21,8 +21,11 @@ import Foundation
 public class Schema {
   /// Modifiers describing the expected format of a string `Schema`.
   public struct StringFormat: EncodableProtoEnum {
+    // This enum is currently only used to conform `StringFormat` to `ProtoEnum`, which requires
+    // `associatedtype Kind: RawRepresentable<String>`.
     enum Kind: String {
-      case custom // TODO: Remove when we have at least one specific string format.
+      // Providing a case resolves the error "An enum with no cases cannot declare a raw type".
+      case unused // TODO: Remove `unused` case when we have at least one specific string format.
     }
 
     /// A custom string format.
