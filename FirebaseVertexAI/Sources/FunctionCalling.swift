@@ -25,7 +25,7 @@ public struct FunctionDeclaration {
   /// A brief description of the function.
   let description: String
 
-  /// Describes the parameters to this function; must be of type ``DataType/object``.
+  /// Describes the parameters to this function; must be of type `DataType.object`.
   let parameters: Schema?
 
   /// Constructs a new `FunctionDeclaration`.
@@ -47,55 +47,49 @@ public struct FunctionDeclaration {
   }
 }
 
-/// Helper tools that the model may use to generate response.
+/// A helper tool that the model may use when generating responses.
 ///
-/// A `Tool` is a piece of code that enables the system to interact with external systems to
-/// perform an action, or set of actions, outside of knowledge and scope of the model.
+/// A `Tool` is a piece of code that enables the system to interact with external systems to perform
+/// an action, or set of actions, outside of knowledge and scope of the model.
 public struct Tool {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
 
-  /// Constructs a new `Tool`.
+  init(functionDeclarations: [FunctionDeclaration]?) {
+    self.functionDeclarations = functionDeclarations
+  }
+
+  /// Creates a tool that allows the model to perform function calling.
+  ///
+  /// Function calling can be used to provide data to the model that was not known at the time it
+  /// was trained (for example, the current date or weather conditions) or to allow it to interact
+  /// with external systems (for example, making an API request or querying/updating a database).
+  /// For more details and use cases, see [Introduction to function
+  /// calling](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling).
   ///
   /// - Parameters:
   ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
   ///   used for function calling.
   ///   The model or system does not execute the function. Instead the defined function may be
-  ///   returned as a ``FunctionCall`` in ``ModelContent/Part/functionCall(_:)`` with arguments to
-  ///   the client side for execution. The model may decide to call a subset of these functions by
-  ///   populating ``FunctionCall`` in the response. The next conversation turn may contain a
-  ///   ``FunctionResponse`` in ``ModelContent/Part/functionResponse(_:)`` with the
-  ///   ``ModelContent/role`` "function", providing generation context for the next model turn.
-  public init(functionDeclarations: [FunctionDeclaration]?) {
-    self.functionDeclarations = functionDeclarations
+  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
+  ///   model may decide to call none, some or all of the declared functions; this behavior may be
+  ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
+  ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
+  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
+  ///   `"function"`; this response contains the result of executing the function on the client,
+  ///   providing generation context for the model's next turn.
+  public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
+    return self.init(functionDeclarations: functionDeclarations)
   }
 }
 
 /// Configuration for specifying function calling behavior.
 public struct FunctionCallingConfig {
   /// Defines the execution behavior for function calling by defining the execution mode.
-  public struct Mode: EncodableProtoEnum {
-    enum Kind: String {
-      case auto = "AUTO"
-      case any = "ANY"
-      case none = "NONE"
-    }
-
-    /// The default behavior for function calling.
-    ///
-    /// The model calls functions to answer queries at its discretion.
-    public static let auto = Mode(kind: .auto)
-
-    /// The model always predicts a provided function call to answer every query.
-    public static let any = Mode(kind: .any)
-
-    /// The model will never predict a function call to answer a query.
-    ///
-    /// > Note: This can also be achieved by not passing any ``FunctionDeclaration`` tools
-    /// > when instantiating the model.
-    public static let none = Mode(kind: .none)
-
-    let rawValue: String
+  enum Mode: String {
+    case auto = "AUTO"
+    case any = "ANY"
+    case none = "NONE"
   }
 
   /// Specifies the mode in which function calling should execute.
@@ -104,19 +98,33 @@ public struct FunctionCallingConfig {
   /// A set of function names that, when provided, limits the functions the model will call.
   let allowedFunctionNames: [String]?
 
-  /// Creates a new `FunctionCallingConfig`.
-  ///
-  /// - Parameters:
-  ///   - mode: Specifies the mode in which function calling should execute; if unspecified, the
-  ///   default behavior will be ``Mode/auto``.
-  ///   - allowedFunctionNames: A set of function names that, when provided, limits the functions
-  ///   the model will call.
-  ///   Note: This should only be set when the ``Mode`` is ``Mode/any``. Function names should match
-  ///   `[FunctionDeclaration.name]`. With mode set to ``Mode/any``, the model will predict a
-  ///   function call from the set of function names provided.
-  public init(mode: FunctionCallingConfig.Mode? = nil, allowedFunctionNames: [String]? = nil) {
+  init(mode: FunctionCallingConfig.Mode? = nil, allowedFunctionNames: [String]? = nil) {
     self.mode = mode
     self.allowedFunctionNames = allowedFunctionNames
+  }
+
+  /// Creates a function calling config where the model calls functions at its discretion.
+  ///
+  /// > Note: This is the default behavior.
+  public static func auto() -> FunctionCallingConfig {
+    return FunctionCallingConfig(mode: .auto)
+  }
+
+  /// Creates a function calling config where the model will always call a provided function.
+  ///
+  ///  - Parameters:
+  ///    - allowedFunctionNames: A set of function names that, when provided, limits the functions
+  ///    that the model will call.
+  public static func any(allowedFunctionNames: [String]? = nil) -> FunctionCallingConfig {
+    return FunctionCallingConfig(mode: .any, allowedFunctionNames: allowedFunctionNames)
+  }
+
+  /// Creates a function calling config where the model will never call a function.
+  ///
+  /// > Note: This can also be achieved by not passing any ``FunctionDeclaration`` tools when
+  /// > instantiating the model.
+  public static func none() -> FunctionCallingConfig {
+    return FunctionCallingConfig(mode: FunctionCallingConfig.Mode.none)
   }
 }
 

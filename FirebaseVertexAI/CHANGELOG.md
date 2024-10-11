@@ -15,10 +15,10 @@
   renamed to `inlineData`; no functionality changes. (#13700)
 - [changed] **Breaking Change**: The property `citationSources` of
   `CitationMetadata` has been renamed to `citations`. (#13702)
-- [changed] **Breaking Change**: The constructor for `Schema` is now internal;
-  use the new static methods `Schema.string(...)`, `Schema.object(...)`, etc.,
+- [changed] **Breaking Change**: The initializer for `Schema` is now internal;
+  use the new type methods `Schema.string(...)`, `Schema.object(...)`, etc.,
   instead. (#13852)
-- [changed] **Breaking Change**: The constructor for `FunctionDeclaration` now
+- [changed] **Breaking Change**: The initializer for `FunctionDeclaration` now
   accepts an array of *optional* parameters instead of a list of *required*
   parameters; if a parameter is not listed as optional it is assumed to be
   required. (#13616)
@@ -44,6 +44,12 @@
   `FinishReason` are now structs instead of enums types and the `unknown` cases
   have been removed; in a `switch` statement, use the `default:` case to cover
   unknown or unhandled values. (#13728, #13854, #13860)
+- [changed] **Breaking Change**: The `Tool` initializer is now internal; use the
+  new type method `functionDeclarations(_:)` to create a `Tool` for function
+  calling. (#13873)
+- [changed] **Breaking Change**: The `FunctionCallingConfig` initializer and
+  `Mode` enum are now internal; use one of the new type methods `auto()`,
+  `any(allowedFunctionNames:)`, or `none()` to create a config. (#13873)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
