@@ -1,6 +1,7 @@
 # 11.4.0
 - [Fixed] Restore Firebase 10 behavior by ignoring `nil` display names used
   during multi factor enrollment. (#13856)
+- [Fixed] Fix crash when enrolling account with TOTP MFA. (#13880)
 
 # 11.3.0
 - [Fixed] Restore Firebase 10 behavior by querying with the
