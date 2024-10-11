@@ -31,11 +31,28 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// > Important: This does not indicate the severity of harm for a piece of content.
   public let probability: HarmProbability
 
+  public let probabilityScore: Float
+
+  public let severity: HarmSeverity
+
+  public let severityScore: Float
+
+  public let blocked: Bool
+
   /// Initializes a new `SafetyRating` instance with the given category and probability.
   /// Use this initializer for SwiftUI previews or tests.
-  public init(category: HarmCategory, probability: HarmProbability) {
+  public init(category: HarmCategory,
+              probability: HarmProbability,
+              probabilityScore: Float,
+              severity: HarmSeverity,
+              severityScore: Float,
+              blocked: Bool) {
     self.category = category
     self.probability = probability
+    self.probabilityScore = probabilityScore
+    self.severity = severity
+    self.severityScore = severityScore
+    self.blocked = blocked
   }
 
   /// The probability that a given model output falls under a harmful content category.
@@ -73,6 +90,32 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 
     static let unrecognizedValueMessageCode =
       VertexLog.MessageCode.generateContentResponseUnrecognizedHarmProbability
+  }
+
+  public struct HarmSeverity: DecodableProtoEnum, Hashable, Sendable {
+    enum Kind: String {
+      case negligible = "HARM_SEVERITY_NEGLIGIBLE"
+      case low = "HARM_SEVERITY_LOW"
+      case medium = "HARM_SEVERITY_MEDIUM"
+      case high = "HARM_SEVERITY_HIGH"
+    }
+
+    public static let negligible = HarmSeverity(kind: .negligible)
+
+    public static let low = HarmSeverity(kind: .low)
+
+    public static let medium = HarmSeverity(kind: .medium)
+
+    public static let high = HarmSeverity(kind: .high)
+
+    /// Returns the raw string representation of the `HarmSeverity` value.
+    ///
+    /// > Note: This value directly corresponds to the values in the [REST
+    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#HarmSeverity).
+    public let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      VertexLog.MessageCode.generateContentResponseUnrecognizedHarmSeverity
   }
 }
 
@@ -164,7 +207,31 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetyRating: Decodable {}
+extension SafetyRating: Decodable {
+  enum CodingKeys: CodingKey {
+    case category
+    case probability
+    case probabilityScore
+    case severity
+    case severityScore
+    case blocked
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    category = try container.decode(HarmCategory.self, forKey: .category)
+    probability = try container.decode(HarmProbability.self, forKey: .probability)
+
+    // The following 3 fields are only omitted in our test data.
+    probabilityScore = try container.decodeIfPresent(Float.self, forKey: .probabilityScore) ?? 0.0
+    severity = try container.decodeIfPresent(HarmSeverity.self, forKey: .severity) ??
+      HarmSeverity(rawValue: "HARM_SEVERITY_UNSPECIFIED")
+    severityScore = try container.decodeIfPresent(Float.self, forKey: .severityScore) ?? 0.0
+
+    // The blocked field is only included when true.
+    blocked = try container.decodeIfPresent(Bool.self, forKey: .blocked) ?? false
+  }
+}
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting.HarmBlockThreshold: Encodable {}

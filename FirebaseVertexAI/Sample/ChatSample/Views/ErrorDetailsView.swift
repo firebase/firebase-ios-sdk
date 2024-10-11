@@ -168,10 +168,38 @@ struct ErrorDetailsView: View {
         Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
         """),
       safetyRatings: [
-        SafetyRating(category: .dangerousContent, probability: .high),
-        SafetyRating(category: .harassment, probability: .low),
-        SafetyRating(category: .hateSpeech, probability: .low),
-        SafetyRating(category: .sexuallyExplicit, probability: .low),
+        SafetyRating(
+          category: .dangerousContent,
+          probability: .medium,
+          probabilityScore: 0.8,
+          severity: .medium,
+          severityScore: 0.9,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .harassment,
+          probability: .low,
+          probabilityScore: 0.5,
+          severity: .low,
+          severityScore: 0.6,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .hateSpeech,
+          probability: .low,
+          probabilityScore: 0.3,
+          severity: .medium,
+          severityScore: 0.2,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .sexuallyExplicit,
+          probability: .low,
+          probabilityScore: 0.2,
+          severity: .negligible,
+          severityScore: 0.5,
+          blocked: false
+        ),
       ],
       finishReason: FinishReason.maxTokens,
       citationMetadata: nil),
@@ -190,10 +218,38 @@ struct ErrorDetailsView: View {
         Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
         """),
       safetyRatings: [
-        SafetyRating(category: .dangerousContent, probability: .high),
-        SafetyRating(category: .harassment, probability: .low),
-        SafetyRating(category: .hateSpeech, probability: .low),
-        SafetyRating(category: .sexuallyExplicit, probability: .low),
+        SafetyRating(
+          category: .dangerousContent,
+          probability: .low,
+          probabilityScore: 0.8,
+          severity: .medium,
+          severityScore: 0.9,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .harassment,
+          probability: .low,
+          probabilityScore: 0.5,
+          severity: .low,
+          severityScore: 0.6,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .hateSpeech,
+          probability: .low,
+          probabilityScore: 0.3,
+          severity: .medium,
+          severityScore: 0.2,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .sexuallyExplicit,
+          probability: .low,
+          probabilityScore: 0.2,
+          severity: .negligible,
+          severityScore: 0.5,
+          blocked: false
+        ),
       ],
       finishReason: FinishReason.other,
       citationMetadata: nil),

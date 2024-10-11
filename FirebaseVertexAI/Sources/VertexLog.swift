@@ -49,6 +49,7 @@ enum VertexLog {
     case generateContentResponseUnrecognizedBlockThreshold = 3004
     case generateContentResponseUnrecognizedHarmProbability = 3005
     case generateContentResponseUnrecognizedHarmCategory = 3006
+    case generateContentResponseUnrecognizedHarmSeverity = 3007
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
