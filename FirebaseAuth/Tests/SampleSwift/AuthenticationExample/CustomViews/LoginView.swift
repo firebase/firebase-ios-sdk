@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO(ncooke3): Change name of this file.
-
 import SwiftUI
 
 import FirebaseAuth
 
-struct LoginViewSwiftUI: View {
+struct LoginView: View {
   @Environment(\.dismiss) private var dismiss
   @State private var multiFactorResolver: MultiFactorResolver? = nil
   @State private var onetimePasscode = ""
@@ -158,7 +156,7 @@ private struct SymbolTextField: TextFieldStyle {
       configuration
         .padding([.vertical, .trailing])
     }
-    .background(Color.color(uiColor: .secondarySystemBackground))
+    .background(Color(uiColor: .secondarySystemBackground))
     .cornerRadius(14)
     .textInputAutocapitalization(.never)
   }
@@ -188,5 +186,5 @@ private struct LoginViewButton: View {
 }
 
 #Preview {
-  LoginViewSwiftUI()
+  LoginView()
 }
