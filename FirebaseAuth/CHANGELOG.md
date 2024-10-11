@@ -1,4 +1,4 @@
-# Unreleased
+# 11.4.0
 - [Fixed] Restore Firebase 10 behavior by ignoring `nil` display names used
   during multi factor enrollment. (#13856)
 

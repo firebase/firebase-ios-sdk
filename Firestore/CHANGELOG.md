@@ -1,4 +1,4 @@
-# Unreleased
+# 11.4.0
 - [changed] Prepare Firestore cache to support session token.
 
 # 11.3.0
