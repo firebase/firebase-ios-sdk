@@ -19,8 +19,14 @@ import SwiftUI
 import FirebaseAuth
 
 struct LoginViewSwiftUI: View {
+  @Environment(\.dismiss) private var dismiss
+  @State private var multiFactorResolver: MultiFactorResolver? = nil
+  @State private var onetimePasscode = ""
+  @State private var showingAlert = false
+
   @State private var email: String = ""
   @State private var password: String = ""
+
   var body: some View {
     Group {
       VStack {
@@ -62,15 +68,56 @@ struct LoginViewSwiftUI: View {
                 _ = try await AppManager.shared
                   .auth()
                   .signIn(withEmail: email, password: password)
-              } catch let error as AuthErrorCode
-                where error.code == .secondFactorRequired {
-                // TODO(ncooke3): Implement.
+//              } catch let error as AuthErrorCode
+//                where error.code == .secondFactorRequired {
+//                // error as? AuthErrorCode == nil because AuthErrorUtils returns generic Errors
+//                // https://firebase.google.com/docs/auth/ios/totp-mfa#sign_in_users_with_a_second_factor
+//                // TODO(ncooke3): Fix?
+              } catch let error as NSError
+                where error.code == AuthErrorCode.secondFactorRequired.rawValue {
+                let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
+                guard
+                  let resolver = error.userInfo[mfaKey] as? MultiFactorResolver,
+                  let multiFactorInfo = resolver.hints.first
+                else { return }
+                if multiFactorInfo.factorID == TOTPMultiFactorID {
+                  // Show the alert to enter the TOTP verification code.
+                  multiFactorResolver = resolver
+                  showingAlert = true
+                } else {
+                  // TODO(ncooke3): Implement handling of other MFA provider (phone).
+                }
               } catch {
-                // TODO(ncooke3): Implement error display.
                 print(error.localizedDescription)
               }
             }
           }
+          .alert("Enter one time passcode.", isPresented: $showingAlert) {
+            TextField("Verification Code", text: $onetimePasscode)
+              .textInputAutocapitalization(.never)
+            Button("Cancel", role: .cancel) {}
+            Button("Submit") {
+              Task {
+                guard onetimePasscode.count > 0 else { return }
+                let multiFactorInfo = multiFactorResolver!.hints[0]
+                let assertion = TOTPMultiFactorGenerator.assertionForSignIn(
+                  withEnrollmentID: multiFactorInfo.uid,
+                  // TODO(ncooke3): Probably should avoid network request if empty passcode.
+                  oneTimePassword: self.onetimePasscode
+                )
+                do {
+                  _ = try await multiFactorResolver!.resolveSignIn(with: assertion)
+                  // MFA login was successful.
+                  dismiss()
+                } catch {
+                  // Wrong or expired OTP. Re-prompt the user.
+                  // TODO(ncooke3): Show error to user.
+                  print(error)
+                }
+              }
+            }
+          }
+
           LoginViewButton(
             text: "Create Account",
             accentColor: .orange,
@@ -82,7 +129,8 @@ struct LoginViewSwiftUI: View {
                   withEmail: email,
                   password: password
                 )
-                // TODO(ncooke3): Transition... `self.delegate?.loginDidOccur()`
+                // Sign-in was successful.
+                dismiss()
               } catch {
                 // TODO(ncooke3): Implement error display.
                 print(error.localizedDescription)
@@ -112,6 +160,7 @@ private struct SymbolTextField: TextFieldStyle {
     }
     .background(Color.color(uiColor: .secondarySystemBackground))
     .cornerRadius(14)
+    .textInputAutocapitalization(.never)
   }
 }
 
