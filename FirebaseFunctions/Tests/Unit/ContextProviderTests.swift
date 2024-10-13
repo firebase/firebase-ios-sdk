@@ -107,6 +107,25 @@ class ContextProviderTests: XCTestCase {
     waitForExpectations(timeout: 0.1)
   }
 
+  func testContextWithAppCheckWithoutOptionalMethods() {
+    let appCheck = AppCheckFakeWithoutOptionalMethods(tokenResult: appCheckTokenSuccess)
+    let provider = FunctionsContextProvider(auth: nil, messaging: nil, appCheck: appCheck)
+    let expectation =
+      expectation(description: "Verify non-implemented method for limited-use tokens")
+    provider.getContext(options: .init(requireLimitedUseAppCheckTokens: true)) { context, error in
+      XCTAssertNotNil(context)
+      XCTAssertNil(error)
+      XCTAssertNil(context.authToken)
+      XCTAssertNil(context.fcmToken)
+      XCTAssertNil(context.appCheckToken)
+      // If the method for limited-use tokens is not implemented, the value should be `nil`:
+      XCTAssertNil(context.limitedUseAppCheckToken)
+      expectation.fulfill()
+    }
+    // Importantly, `getContext(options:_:)` must still finish in a timely manner:
+    waitForExpectations(timeout: 0.1)
+  }
+
   func testAllContextsAvailableSuccess() {
     appCheckFake.tokenResult = appCheckTokenSuccess
     let auth = FIRAuthInteropFake(token: "token", userID: "userID", error: nil)
@@ -148,4 +167,22 @@ class ContextProviderTests: XCTestCase {
     }
     waitForExpectations(timeout: 0.1)
   }
+}
+
+// MARK: - Utilities
+
+private class AppCheckFakeWithoutOptionalMethods: NSObject, AppCheckInterop {
+  let tokenResult: FIRAppCheckTokenResultInterop
+
+  init(tokenResult: FIRAppCheckTokenResultInterop) {
+    self.tokenResult = tokenResult
+  }
+
+  func getToken(forcingRefresh: Bool, completion handler: @escaping AppCheckTokenHandlerInterop) {
+    handler(tokenResult)
+  }
+
+  func tokenDidChangeNotificationName() -> String { "AppCheckFakeTokenDidChangeNotification" }
+  func notificationTokenKey() -> String { "AppCheckFakeTokenNotificationKey" }
+  func notificationAppNameKey() -> String { "AppCheckFakeAppNameNotificationKey" }
 }
