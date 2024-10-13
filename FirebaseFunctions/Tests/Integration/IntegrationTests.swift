@@ -118,7 +118,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testDataAsync() async throws {
     let data = DataTestRequest(
       bool: true,
@@ -173,7 +173,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testScalarAsync() async throws {
     let byName = functions.httpsCallable(
       "scalarTest",
@@ -192,7 +192,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testScalarAsyncAlternateSignature() async throws {
     let byName: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
     let byURL: Callable<Int16, Int> = functions.httpsCallable(emulatorURL("scalarTest"))
@@ -240,7 +240,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testTokenAsync() async throws {
     // Recreate functions with a token.
     let functions = Functions(
@@ -296,7 +296,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testFCMTokenAsync() async throws {
     let byName = functions.httpsCallable(
       "FCMTokenTest",
@@ -341,7 +341,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testNullAsync() async throws {
     let byName = functions.httpsCallable(
       "nullTest",
@@ -390,7 +390,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testMissingResultAsync() async {
     let byName = functions.httpsCallable(
       "missingResultTest",
@@ -444,7 +444,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testUnhandledErrorAsync() async {
     let byName = functions.httpsCallable(
       "unhandledErrorTest",
@@ -497,7 +497,7 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 5)
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testUnknownErrorAsync() async {
     let byName = functions.httpsCallable(
       "unknownErrorTest",
@@ -552,7 +552,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testExplicitErrorAsync() async {
     let byName = functions.httpsCallable(
       "explicitErrorTest",
@@ -607,7 +607,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testHttpErrorAsync() async {
     let byName = functions.httpsCallable(
       "httpErrorTest",
@@ -660,7 +660,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testThrowErrorAsync() async {
     let byName = functions.httpsCallable(
       "throwTest",
@@ -715,7 +715,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testTimeoutAsync() async {
     var byName = functions.httpsCallable(
       "timeoutTest",
@@ -777,7 +777,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testCallAsFunctionAsync() async throws {
     let data = DataTestRequest(
       bool: true,
@@ -840,7 +840,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, *)
   func testInferredTyesAsync() async throws {
     let data = DataTestRequest(
       bool: true,
