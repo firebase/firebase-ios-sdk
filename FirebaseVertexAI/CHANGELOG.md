@@ -70,6 +70,8 @@
   `.spii` and `.malformedFunctionCall` that may be reported. (#13860)
 - [added] Added new `BlockReason` values `.blocklist` and `.prohibitedContent`
   that may be reported when a prompt is blocked. (#13861)
+- [added] Added the `PromptFeedback` property `blockReasonMessage` that *may* be
+  provided alongside the `blockReason`. (#13891)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
