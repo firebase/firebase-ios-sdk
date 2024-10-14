@@ -66,11 +66,17 @@ struct FunctionsContextProvider {
       dispatchGroup.enter()
 
       if options?.requireLimitedUseAppCheckTokens == true {
-        appCheck.getLimitedUseToken? { tokenResult in
-          // Send only valid token to functions.
-          if tokenResult.error == nil {
-            limitedUseAppCheckToken = tokenResult.token
+        // `getLimitedUseToken(completion:)` is an optional protocol method.
+        // If it’s not implemented, we still need to leave the dispatch group.
+        if let limitedUseTokenClosure = appCheck.getLimitedUseToken {
+          limitedUseTokenClosure { tokenResult in
+            // Send only valid token to functions.
+            if tokenResult.error == nil {
+              limitedUseAppCheckToken = tokenResult.token
+            }
+            dispatchGroup.leave()
           }
+        } else {
           dispatchGroup.leave()
         }
       } else {
