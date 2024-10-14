@@ -885,8 +885,11 @@ final class GenerativeModelTests: XCTestCase {
       for try await _ in stream {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
-    } catch let GenerateContentError.responseStoppedEarly(reason, _) {
+    } catch let GenerateContentError.responseStoppedEarly(reason, response) {
       XCTAssertEqual(reason, .safety)
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.finishReason, reason)
+      XCTAssertTrue(candidate.safetyRatings.contains { $0.blocked })
       return
     }
 

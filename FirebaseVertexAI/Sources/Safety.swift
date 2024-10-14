@@ -26,17 +26,34 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 
   /// The model-generated probability that the content falls under the specified harm ``category``.
   ///
-  /// See ``HarmProbability`` for a list of possible values.
+  /// See ``HarmProbability`` for a list of possible values. This is a discretized representation
+  /// of the ``probabilityScore``.
   ///
   /// > Important: This does not indicate the severity of harm for a piece of content.
   public let probability: HarmProbability
 
+  /// The confidence score that the response is associated with the corresponding harm ``category``.
+  ///
+  /// The probability safety score is a confidence score between 0.0 and 1.0, rounded to one decimal
+  /// place; it is discretized into a ``HarmProbability`` in ``probability``. See [probability
+  /// scores](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-filters#comparison_of_probability_scores_and_severity_scores)
+  /// in the Google Cloud documentation for more details.
   public let probabilityScore: Float
 
+  /// The severity reflects the magnitude of how harmful a model response might be.
+  ///
+  /// See ``HarmSeverity`` for a list of possible values. This is a discretized representation of
+  /// the ``severityScore``.
   public let severity: HarmSeverity
 
+  /// The severity score is the magnitude of how harmful a model response might be.
+  ///
+  /// The severity score ranges from 0.0 to 1.0, rounded to one decimal place; it is discretized
+  /// into a ``HarmSeverity`` in ``severity``. See [severity scores](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-filters#comparison_of_probability_scores_and_severity_scores)
+  /// in the Google Cloud documentation for more details.
   public let severityScore: Float
 
+  /// If true, the response was blocked.
   public let blocked: Bool
 
   /// Initializes a new `SafetyRating` instance with the given category and probability.
@@ -92,6 +109,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
       VertexLog.MessageCode.generateContentResponseUnrecognizedHarmProbability
   }
 
+  /// The magnitude of how harmful a model response might be for the respective ``HarmCategory``.
   public struct HarmSeverity: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case negligible = "HARM_SEVERITY_NEGLIGIBLE"
@@ -100,12 +118,16 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
       case high = "HARM_SEVERITY_HIGH"
     }
 
+    /// Negligible level of harm severity.
     public static let negligible = HarmSeverity(kind: .negligible)
 
+    /// Low level of harm severity.
     public static let low = HarmSeverity(kind: .low)
 
+    /// Medium level of harm severity.
     public static let medium = HarmSeverity(kind: .medium)
 
+    /// High level of harm severity.
     public static let high = HarmSeverity(kind: .high)
 
     /// Returns the raw string representation of the `HarmSeverity` value.
