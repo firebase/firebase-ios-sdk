@@ -62,13 +62,6 @@ struct LoginView: View {
             backgroundColor: .orange,
             action: login
           )
-          .alert("Enter one time passcode.", isPresented: $showingAlert) {
-            TextField("Verification Code", text: $onetimePasscode)
-              .textInputAutocapitalization(.never)
-            Button("Cancel", role: .cancel) {}
-            Button("Submit", action: submitOnetimePasscode)
-          }
-
           LoginViewButton(
             text: "Create Account",
             accentColor: .orange,
@@ -81,6 +74,12 @@ struct LoginView: View {
       Spacer()
     }
     .padding()
+    .alert("Enter one time passcode.", isPresented: $showingAlert) {
+      TextField("Verification Code", text: $onetimePasscode)
+        .textInputAutocapitalization(.never)
+      Button("Cancel", role: .cancel) {}
+      Button("Submit", action: submitOnetimePasscode)
+    }
   }
 
   private func login() {
