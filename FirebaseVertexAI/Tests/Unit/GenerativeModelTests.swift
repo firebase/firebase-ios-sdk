@@ -619,6 +619,29 @@ final class GenerativeModelTests: XCTestCase {
       XCTFail("Should throw")
     } catch let GenerateContentError.promptBlocked(response) {
       XCTAssertNil(response.text)
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, PromptFeedback.BlockReason.safety)
+      XCTAssertNil(promptFeedback.blockReasonMessage)
+    } catch {
+      XCTFail("Should throw a promptBlocked")
+    }
+  }
+
+  func testGenerateContent_failure_promptBlockedSafetyWithMessage() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-failure-prompt-blocked-safety-with-message",
+        withExtension: "json"
+      )
+
+    do {
+      _ = try await model.generateContent(testPrompt)
+      XCTFail("Should throw")
+    } catch let GenerateContentError.promptBlocked(response) {
+      XCTAssertNil(response.text)
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, PromptFeedback.BlockReason.safety)
+      XCTAssertEqual(promptFeedback.blockReasonMessage, "Reasons")
     } catch {
       XCTFail("Should throw a promptBlocked")
     }
@@ -909,7 +932,31 @@ final class GenerativeModelTests: XCTestCase {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
     } catch let GenerateContentError.promptBlocked(response) {
-      XCTAssertEqual(response.promptFeedback?.blockReason, .safety)
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, .safety)
+      XCTAssertNil(promptFeedback.blockReasonMessage)
+      return
+    }
+
+    XCTFail("Should have caught an error.")
+  }
+
+  func testGenerateContentStream_failurePromptBlockedSafetyWithMessage() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "streaming-failure-prompt-blocked-safety-with-message",
+        withExtension: "txt"
+      )
+
+    do {
+      let stream = try model.generateContentStream("Hi")
+      for try await _ in stream {
+        XCTFail("Content shouldn't be shown, this shouldn't happen.")
+      }
+    } catch let GenerateContentError.promptBlocked(response) {
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, .safety)
+      XCTAssertEqual(promptFeedback.blockReasonMessage, "Reasons")
       return
     }
 
