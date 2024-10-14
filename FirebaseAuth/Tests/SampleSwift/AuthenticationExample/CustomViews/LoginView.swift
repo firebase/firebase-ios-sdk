@@ -91,22 +91,9 @@ struct LoginView: View {
           LoginViewButton(
             text: "Create Account",
             accentColor: .orange,
-            backgroundColor: .primary
-          ) {
-            Task {
-              do {
-                _ = try await AppManager.shared.auth().createUser(
-                  withEmail: email,
-                  password: password
-                )
-                // Sign-in was successful.
-                dismiss()
-              } catch {
-                // TODO(ncooke3): Implement error display.
-                print(error.localizedDescription)
-              }
-            }
-          }
+            backgroundColor: .primary,
+            action: createUser
+          )
         }
         .disabled(email.isEmpty || password.isEmpty)
       }
@@ -142,6 +129,22 @@ struct LoginView: View {
           // TODO(ncooke3): Implement handling of other MFA provider (phone).
         }
       } catch {
+        print(error.localizedDescription)
+      }
+    }
+  }
+
+  private func createUser() {
+    Task {
+      do {
+        _ = try await AppManager.shared.auth().createUser(
+          withEmail: email,
+          password: password
+        )
+        // Sign-in was successful.
+        dismiss()
+      } catch {
+        // TODO(ncooke3): Implement error display.
         print(error.localizedDescription)
       }
     }
