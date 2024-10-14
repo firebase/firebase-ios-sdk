@@ -59,37 +59,9 @@ struct LoginView: View {
           LoginViewButton(
             text: "Login",
             accentColor: .white,
-            backgroundColor: .orange
-          ) {
-            Task {
-              do {
-                _ = try await AppManager.shared
-                  .auth()
-                  .signIn(withEmail: email, password: password)
-//              } catch let error as AuthErrorCode
-//                where error.code == .secondFactorRequired {
-//                // error as? AuthErrorCode == nil because AuthErrorUtils returns generic Errors
-//                // https://firebase.google.com/docs/auth/ios/totp-mfa#sign_in_users_with_a_second_factor
-//                // TODO(ncooke3): Fix?
-              } catch let error as NSError
-                where error.code == AuthErrorCode.secondFactorRequired.rawValue {
-                let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
-                guard
-                  let resolver = error.userInfo[mfaKey] as? MultiFactorResolver,
-                  let multiFactorInfo = resolver.hints.first
-                else { return }
-                if multiFactorInfo.factorID == TOTPMultiFactorID {
-                  // Show the alert to enter the TOTP verification code.
-                  multiFactorResolver = resolver
-                  showingAlert = true
-                } else {
-                  // TODO(ncooke3): Implement handling of other MFA provider (phone).
-                }
-              } catch {
-                print(error.localizedDescription)
-              }
-            }
-          }
+            backgroundColor: .orange,
+            action: login
+          )
           .alert("Enter one time passcode.", isPresented: $showingAlert) {
             TextField("Verification Code", text: $onetimePasscode)
               .textInputAutocapitalization(.never)
@@ -141,6 +113,38 @@ struct LoginView: View {
       Spacer()
     }
     .padding()
+  }
+
+  private func login() {
+    Task {
+      do {
+        _ = try await AppManager.shared
+          .auth()
+          .signIn(withEmail: email, password: password)
+        //              } catch let error as AuthErrorCode
+        //                where error.code == .secondFactorRequired {
+        //                // error as? AuthErrorCode == nil because AuthErrorUtils returns generic
+        //                /Errors
+        //                // https://firebase.google.com/docs/auth/ios/totp-mfa#sign_in_users_with_a_second_factor
+        //                // TODO(ncooke3): Fix?
+      } catch let error as NSError
+        where error.code == AuthErrorCode.secondFactorRequired.rawValue {
+        let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
+        guard
+          let resolver = error.userInfo[mfaKey] as? MultiFactorResolver,
+          let multiFactorInfo = resolver.hints.first
+        else { return }
+        if multiFactorInfo.factorID == TOTPMultiFactorID {
+          // Show the alert to enter the TOTP verification code.
+          multiFactorResolver = resolver
+          showingAlert = true
+        } else {
+          // TODO(ncooke3): Implement handling of other MFA provider (phone).
+        }
+      } catch {
+        print(error.localizedDescription)
+      }
+    }
   }
 }
 
