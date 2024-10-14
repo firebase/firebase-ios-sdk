@@ -235,12 +235,17 @@ public struct PromptFeedback: Sendable {
   /// The reason a prompt was blocked, if it was blocked.
   public let blockReason: BlockReason?
 
+  /// A human-readable description of the ``blockReason``.
+  public let blockReasonMessage: String?
+
   /// The safety ratings of the prompt.
   public let safetyRatings: [SafetyRating]
 
   /// Initializer for SwiftUI previews or tests.
-  public init(blockReason: BlockReason?, safetyRatings: [SafetyRating]) {
+  public init(blockReason: BlockReason?, blockReasonMessage: String? = nil,
+              safetyRatings: [SafetyRating]) {
     self.blockReason = blockReason
+    self.blockReasonMessage = blockReasonMessage
     self.safetyRatings = safetyRatings
   }
 }
@@ -387,6 +392,7 @@ extension Citation: Decodable {
 extension PromptFeedback: Decodable {
   enum CodingKeys: CodingKey {
     case blockReason
+    case blockReasonMessage
     case safetyRatings
   }
 
@@ -396,6 +402,7 @@ extension PromptFeedback: Decodable {
       PromptFeedback.BlockReason.self,
       forKey: .blockReason
     )
+    blockReasonMessage = try container.decodeIfPresent(String.self, forKey: .blockReasonMessage)
     if let safetyRatings = try container.decodeIfPresent(
       [SafetyRating].self,
       forKey: .safetyRatings
