@@ -63,6 +63,9 @@
   (#13875)
 - [added] Added a new `HarmBlockThreshold` `.off`, which turns off the safety
   filter. (#13863)
+- [added] Added an optional `HarmBlockMethod` parameter `method` in
+  `SafetySetting` that configures whether responses are blocked based on the
+  `probability` and/or `severity` of content being in a `HarmCategory`. (#13876)
 - [added] Added new `FinishReason` values `.blocklist`, `.prohibitedContent`,
   `.spii` and `.malformedFunctionCall` that may be reported. (#13860)
 - [added] Added new `BlockReason` values `.blocklist` and `.prohibitedContent`

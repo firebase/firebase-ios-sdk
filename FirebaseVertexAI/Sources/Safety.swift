@@ -173,9 +173,26 @@ public struct SafetySetting {
     let rawValue: String
   }
 
+  /// The method of computing whether the ``SafetySetting/HarmBlockThreshold`` has been exceeded.
+  public struct HarmBlockMethod: EncodableProtoEnum, Sendable {
+    enum Kind: String {
+      case severity = "SEVERITY"
+      case probability = "PROBABILITY"
+    }
+
+    /// Use both probability and severity scores.
+    public static let severity = HarmBlockMethod(kind: .severity)
+
+    /// Use only the probability score.
+    public static let probability = HarmBlockMethod(kind: .probability)
+
+    let rawValue: String
+  }
+
   enum CodingKeys: String, CodingKey {
     case harmCategory = "category"
     case threshold
+    case method
   }
 
   /// The category this safety setting should be applied to.
@@ -184,10 +201,25 @@ public struct SafetySetting {
   /// The threshold describing what content should be blocked.
   public let threshold: HarmBlockThreshold
 
+  /// The method of computing whether the ``threshold`` has been exceeded.
+  public let method: HarmBlockMethod?
+
   /// Initializes a new safety setting with the given category and threshold.
-  public init(harmCategory: HarmCategory, threshold: HarmBlockThreshold) {
+  ///
+  /// - Parameters:
+  ///   - harmCategory: The category this safety setting should be applied to.
+  ///   - threshold: The threshold describing what content should be blocked.
+  ///   - method: The method of computing whether the threshold has been exceeded; if not specified,
+  ///     the default method is ``HarmBlockMethod/severity`` for most models. See [harm block
+  ///     methods](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-filters#how_to_configure_safety_filters)
+  ///     in the Google Cloud documentation for more details.
+  ///     > Note: For models older than `gemini-1.5-flash` and `gemini-1.5-pro`, the default method
+  ///     > is ``HarmBlockMethod/probability``.
+  public init(harmCategory: HarmCategory, threshold: HarmBlockThreshold,
+              method: HarmBlockMethod? = nil) {
     self.harmCategory = harmCategory
     self.threshold = threshold
+    self.method = method
   }
 }
 

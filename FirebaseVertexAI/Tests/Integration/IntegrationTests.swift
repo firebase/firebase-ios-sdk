@@ -30,8 +30,8 @@ final class IntegrationTests: XCTestCase {
     parts: "You are a friendly and helpful assistant."
   )
   let safetySettings = [
-    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
-    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .probability),
+    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove, method: .severity),
     SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
@@ -89,11 +89,11 @@ final class IntegrationTests: XCTestCase {
       modelName: "gemini-1.5-pro",
       generationConfig: generationConfig,
       safetySettings: [
-        SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
+        SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .severity),
         SafetySetting(harmCategory: .hateSpeech, threshold: .blockMediumAndAbove),
         SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockOnlyHigh),
         SafetySetting(harmCategory: .dangerousContent, threshold: .blockNone),
-        SafetySetting(harmCategory: .civicIntegrity, threshold: .off),
+        SafetySetting(harmCategory: .civicIntegrity, threshold: .off, method: .probability),
       ],
       toolConfig: .init(functionCallingConfig: .auto()),
       systemInstruction: systemInstruction
