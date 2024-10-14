@@ -66,26 +66,7 @@ struct LoginView: View {
             TextField("Verification Code", text: $onetimePasscode)
               .textInputAutocapitalization(.never)
             Button("Cancel", role: .cancel) {}
-            Button("Submit") {
-              Task {
-                guard onetimePasscode.count > 0 else { return }
-                let multiFactorInfo = multiFactorResolver!.hints[0]
-                let assertion = TOTPMultiFactorGenerator.assertionForSignIn(
-                  withEnrollmentID: multiFactorInfo.uid,
-                  // TODO(ncooke3): Probably should avoid network request if empty passcode.
-                  oneTimePassword: self.onetimePasscode
-                )
-                do {
-                  _ = try await multiFactorResolver!.resolveSignIn(with: assertion)
-                  // MFA login was successful.
-                  dismiss()
-                } catch {
-                  // Wrong or expired OTP. Re-prompt the user.
-                  // TODO(ncooke3): Show error to user.
-                  print(error)
-                }
-              }
-            }
+            Button("Submit", action: submitOnetimePasscode)
           }
 
           LoginViewButton(
@@ -146,6 +127,27 @@ struct LoginView: View {
       } catch {
         // TODO(ncooke3): Implement error display.
         print(error.localizedDescription)
+      }
+    }
+  }
+
+  private func submitOnetimePasscode() {
+    Task {
+      guard onetimePasscode.count > 0 else { return }
+      let multiFactorInfo = multiFactorResolver!.hints[0]
+      let assertion = TOTPMultiFactorGenerator.assertionForSignIn(
+        withEnrollmentID: multiFactorInfo.uid,
+        // TODO(ncooke3): Probably should avoid network request if empty passcode.
+        oneTimePassword: self.onetimePasscode
+      )
+      do {
+        _ = try await multiFactorResolver!.resolveSignIn(with: assertion)
+        // MFA login was successful.
+        dismiss()
+      } catch {
+        // Wrong or expired OTP. Re-prompt the user.
+        // TODO(ncooke3): Show error to user.
+        print(error)
       }
     }
   }
