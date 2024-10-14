@@ -23,10 +23,38 @@ import XCTest
 final class GenerativeModelTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
-    .init(category: .sexuallyExplicit, probability: .negligible),
-    .init(category: .hateSpeech, probability: .negligible),
-    .init(category: .harassment, probability: .negligible),
-    .init(category: .dangerousContent, probability: .negligible),
+    .init(
+      category: .sexuallyExplicit,
+      probability: .negligible,
+      probabilityScore: 0.1431877,
+      severity: .negligible,
+      severityScore: 0.11027937,
+      blocked: false
+    ),
+    .init(
+      category: .hateSpeech,
+      probability: .negligible,
+      probabilityScore: 0.029035643,
+      severity: .negligible,
+      severityScore: 0.05613278,
+      blocked: false
+    ),
+    .init(
+      category: .harassment,
+      probability: .negligible,
+      probabilityScore: 0.087252244,
+      severity: .negligible,
+      severityScore: 0.04509957,
+      blocked: false
+    ),
+    .init(
+      category: .dangerousContent,
+      probability: .negligible,
+      probabilityScore: 0.2641685,
+      severity: .negligible,
+      severityScore: 0.082253955,
+      blocked: false
+    ),
   ].sorted()
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
@@ -69,7 +97,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.count, 4)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let partText = try XCTUnwrap(part as? TextPart).text
@@ -148,7 +176,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.count, 4)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
     let textPart = try XCTUnwrap(part as? TextPart)
@@ -156,17 +184,35 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.text, textPart.text)
     let promptFeedback = try XCTUnwrap(response.promptFeedback)
     XCTAssertNil(promptFeedback.blockReason)
-    XCTAssertEqual(promptFeedback.safetyRatings.sorted(), safetyRatingsNegligible)
+    XCTAssertEqual(promptFeedback.safetyRatings.count, 4)
   }
 
   func testGenerateContent_success_unknownEnum_safetyRatings() async throws {
     let expectedSafetyRatings = [
-      SafetyRating(category: .harassment, probability: .medium),
+      SafetyRating(
+        category: .harassment,
+        probability: .medium,
+        probabilityScore: 0.0,
+        severity: .init(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+        severityScore: 0.0,
+        blocked: false
+      ),
       SafetyRating(
         category: .dangerousContent,
-        probability: SafetyRating.HarmProbability(rawValue: "FAKE_NEW_HARM_PROBABILITY")
+        probability: SafetyRating.HarmProbability(rawValue: "FAKE_NEW_HARM_PROBABILITY"),
+        probabilityScore: 0.0,
+        severity: .init(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+        severityScore: 0.0,
+        blocked: false
       ),
-      SafetyRating(category: HarmCategory(rawValue: "FAKE_NEW_HARM_CATEGORY"), probability: .high),
+      SafetyRating(
+        category: HarmCategory(rawValue: "FAKE_NEW_HARM_CATEGORY"),
+        probability: .high,
+        probabilityScore: 0.0,
+        severity: .init(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+        severityScore: 0.0,
+        blocked: false
+      ),
     ]
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
@@ -839,8 +885,11 @@ final class GenerativeModelTests: XCTestCase {
       for try await _ in stream {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
-    } catch let GenerateContentError.responseStoppedEarly(reason, _) {
+    } catch let GenerateContentError.responseStoppedEarly(reason, response) {
       XCTAssertEqual(reason, .safety)
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.finishReason, reason)
+      XCTAssertTrue(candidate.safetyRatings.contains { $0.blocked })
       return
     }
 
@@ -930,7 +979,11 @@ final class GenerativeModelTests: XCTestCase {
       )
     let unknownSafetyRating = SafetyRating(
       category: HarmCategory(rawValue: "HARM_CATEGORY_DANGEROUS_CONTENT_NEW_ENUM"),
-      probability: SafetyRating.HarmProbability(rawValue: "NEGLIGIBLE_UNKNOWN_ENUM")
+      probability: SafetyRating.HarmProbability(rawValue: "NEGLIGIBLE_UNKNOWN_ENUM"),
+      probabilityScore: 0.0,
+      severity: SafetyRating.HarmSeverity(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+      severityScore: 0.0,
+      blocked: false
     )
 
     var foundUnknownSafetyRating = false

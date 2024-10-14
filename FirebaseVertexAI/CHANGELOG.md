@@ -58,6 +58,9 @@
   `totalBillableCharacters` counts, where applicable. (#13813)
 - [added] Added a new `HarmCategory` `.civicIntegrity` for filtering content
   that may be used to harm civic integrity. (#13728)
+- [added] Added `probabilityScore`, `severity` and `severityScore` in
+  `SafetyRating` to provide more fine-grained detail on blocked responses.
+  (#13875)
 - [added] Added a new `HarmBlockThreshold` `.off`, which turns off the safety
   filter. (#13863)
 - [added] Added new `FinishReason` values `.blocklist`, `.prohibitedContent`,
