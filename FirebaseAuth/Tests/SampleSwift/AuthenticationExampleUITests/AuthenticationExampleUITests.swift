@@ -241,9 +241,17 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.swipeDown(velocity: .fast)
 
-    // Assert that there is no error message (success case)
+    // Assert that there is no error message (success case) the link is assumed to have been sent successfully if no error appears
     XCTAssertFalse(errorExists, "Expected no error message, but one appeared.")
-    // At this point, the link is assumed to have been sent successfully since no error appeared
+
+    // Go back and check that there is no user that is signed in
+    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    XCTAssertEqual(
+      app.cells.count,
+      0,
+      "The user shouldn't be signed in and the user view should have no cells."
+    )
   }
 
   // MARK: - Private Helpers
