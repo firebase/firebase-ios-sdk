@@ -76,6 +76,8 @@
   provided alongside the `blockReason`. (#13891)
 - [added] Added an optional `publicationDate` property that *may* be provided in
   `Citation`. (#13893)
+- [added] Added `presencePenalty` and `frequencyPenalty` parameters to
+  `GenerationConfig`. (#13899)
 
 # 11.3.0
 - [added] Added `Decodable` conformance for `FunctionResponse`. (#13606)
