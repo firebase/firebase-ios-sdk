@@ -44,17 +44,40 @@ struct ProtoDate {
   var dateComponents: DateComponents {
     DateComponents(
       calendar: Calendar.current,
-      timeZone: TimeZone.current,
       year: year,
       month: month,
       day: day
     )
   }
 
+  func asDate() throws -> Date {
+    guard year != nil else {
+      throw DateConversionError(message: "Missing a year: \(self)")
+    }
+    guard month != nil else {
+      throw DateConversionError(message: "Missing a month: \(self)")
+    }
+    guard day != nil else {
+      throw DateConversionError(message: "Missing a day: \(self)")
+    }
+    guard let date = dateComponents.date else {
+      throw DateConversionError(message: "Date conversion failed: \(self)")
+    }
+    return date
+  }
+
   init(year: Int?, month: Int?, day: Int?) {
     self.year = year
     self.month = month
     self.day = day
+  }
+
+  struct DateConversionError: Error {
+    let localizedDescription: String
+
+    init(message: String) {
+      localizedDescription = message
+    }
   }
 }
 

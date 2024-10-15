@@ -372,30 +372,40 @@ extension Citation: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
     endIndex = try container.decode(Int.self, forKey: .endIndex)
+
     if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
       self.uri = uri
     } else {
       uri = nil
     }
+
     if let title = try container.decodeIfPresent(String.self, forKey: .title), !title.isEmpty {
       self.title = title
     } else {
       title = nil
     }
+
     if let license = try container.decodeIfPresent(String.self, forKey: .license),
        !license.isEmpty {
       self.license = license
     } else {
       license = nil
     }
+
     if let publicationProtoDate = try container.decodeIfPresent(
       ProtoDate.self,
       forKey: .publicationDate
     ) {
-      if let publicationDate = publicationProtoDate.dateComponents.date {
-        self.publicationDate = publicationDate
-      } else {
-        publicationDate = nil
+      do {
+        publicationDate = try publicationProtoDate.asDate()
+      } catch let error as ProtoDate.DateConversionError {
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: [CodingKeys.publicationDate],
+            debugDescription: "Invalid citation publicationDate.",
+            underlyingError: error
+          )
+        )
       }
     } else {
       publicationDate = nil

@@ -19,6 +19,8 @@ import XCTest
 final class ProtoDateTests: XCTestCase {
   let decoder = JSONDecoder()
 
+  // MARK: - Date Components Tests
+
   // A full date, with non-zero year, month, and day values.
   func testProtoDate_fullDate_dateComponents() {
     let year = 2024
@@ -64,7 +66,7 @@ final class ProtoDateTests: XCTestCase {
   // A year and month value, with a zero day, such as a credit card expiration date
   func testProtoDate_yearMonth_dateComponents() {
     let year = 2024
-    let month = 08
+    let month = 8
     let protoDate = ProtoDate(year: year, month: month, day: nil)
 
     let dateComponents = protoDate.dateComponents
@@ -75,18 +77,78 @@ final class ProtoDateTests: XCTestCase {
     XCTAssertEqual(protoDate.day, nil)
   }
 
-  func testProtoDate_asDate() throws {
+  // MARK: - Date Conversion Tests
+
+  func testProtoDate_fullDate_asDate() throws {
     let protoDate = ProtoDate(year: 2024, month: 12, day: 31)
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd"
     let expectedDate = try XCTUnwrap(dateFormatter.date(from: "2024-12-31"))
 
-    let date = try XCTUnwrap(protoDate.dateComponents.date)
+    let date = try XCTUnwrap(protoDate.asDate())
 
     XCTAssertEqual(date, expectedDate)
   }
 
-  func testDecodeProtoDate() throws {
+  func testProtoDate_monthDay_asDate_throws() {
+    let protoDate = ProtoDate(year: nil, month: 7, day: 1)
+
+    do {
+      _ = try protoDate.asDate()
+    } catch let error as ProtoDate.DateConversionError {
+      XCTAssertTrue(error.localizedDescription.contains("Missing a year"))
+      return
+    } catch {
+      XCTFail("Expected \(ProtoDate.DateConversionError.self), got \(error).")
+    }
+    XCTFail("Expected an error but none thrown.")
+  }
+
+  func testProtoDate_yearOnly_asDate_throws() {
+    let protoDate = ProtoDate(year: 2024, month: nil, day: nil)
+
+    do {
+      _ = try protoDate.asDate()
+    } catch let error as ProtoDate.DateConversionError {
+      XCTAssertTrue(error.localizedDescription.contains("Missing a month"))
+      return
+    } catch {
+      XCTFail("Expected \(ProtoDate.DateConversionError.self), got \(error).")
+    }
+    XCTFail("Expected an error but none thrown.")
+  }
+
+  func testProtoDate_yearMonth_asDate_throws() {
+    let protoDate = ProtoDate(year: 2024, month: 8, day: nil)
+
+    do {
+      _ = try protoDate.asDate()
+    } catch let error as ProtoDate.DateConversionError {
+      XCTAssertTrue(error.localizedDescription.contains("Missing a day"))
+      return
+    } catch {
+      XCTFail("Expected \(ProtoDate.DateConversionError.self), got \(error).")
+    }
+    XCTFail("Expected an error but none thrown.")
+  }
+
+  func testProtoDate_empty_asDate_throws() {
+    let protoDate = ProtoDate(year: nil, month: nil, day: nil)
+
+    do {
+      _ = try protoDate.asDate()
+    } catch let error as ProtoDate.DateConversionError {
+      XCTAssertTrue(error.localizedDescription.contains("Missing a year"))
+      return
+    } catch {
+      XCTFail("Expected \(ProtoDate.DateConversionError.self), got \(error).")
+    }
+    XCTFail("Expected an error but none thrown.")
+  }
+
+  // MARK: - Decoding Tests
+
+  func testDecodeProtoDate_fullDate() throws {
     let json = """
     {
       "year" : 2024,
@@ -103,7 +165,123 @@ final class ProtoDateTests: XCTestCase {
     XCTAssertEqual(protoDate.day, 31)
   }
 
+  func testDecodeProtoDate_monthDay() throws {
+    let json = """
+    {
+      "year": 0,
+      "month" : 12,
+      "day" : 31
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let protoDate = try decoder.decode(ProtoDate.self, from: jsonData)
+
+    XCTAssertNil(protoDate.year)
+    XCTAssertEqual(protoDate.month, 12)
+    XCTAssertEqual(protoDate.day, 31)
+  }
+
+  func testDecodeProtoDate_monthDay_defaultsOmitted() throws {
+    let json = """
+    {
+      "month" : 12,
+      "day" : 31
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let protoDate = try decoder.decode(ProtoDate.self, from: jsonData)
+
+    XCTAssertNil(protoDate.year)
+    XCTAssertEqual(protoDate.month, 12)
+    XCTAssertEqual(protoDate.day, 31)
+  }
+
+  func testDecodeProtoDate_yearOnly() throws {
+    let json = """
+    {
+      "year": 2024,
+      "month" : 0,
+      "day" : 0
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let protoDate = try decoder.decode(ProtoDate.self, from: jsonData)
+
+    XCTAssertEqual(protoDate.year, 2024)
+    XCTAssertNil(protoDate.month)
+    XCTAssertNil(protoDate.day)
+  }
+
+  func testDecodeProtoDate_yearOnly_defaultsOmitted() throws {
+    let json = """
+    {
+      "year": 2024
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let protoDate = try decoder.decode(ProtoDate.self, from: jsonData)
+
+    XCTAssertEqual(protoDate.year, 2024)
+    XCTAssertNil(protoDate.month)
+    XCTAssertNil(protoDate.day)
+  }
+
+  func testDecodeProtoDate_yearMonth() throws {
+    let json = """
+    {
+      "year": 2024,
+      "month" : 12,
+      "day": 0
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let protoDate = try decoder.decode(ProtoDate.self, from: jsonData)
+
+    XCTAssertEqual(protoDate.year, 2024)
+    XCTAssertEqual(protoDate.month, 12)
+    XCTAssertNil(protoDate.day)
+  }
+
+  func testDecodeProtoDate_yearMonth_defaultsOmitted() throws {
+    let json = """
+    {
+      "year": 2024,
+      "month" : 12
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let protoDate = try decoder.decode(ProtoDate.self, from: jsonData)
+
+    XCTAssertEqual(protoDate.year, 2024)
+    XCTAssertEqual(protoDate.month, 12)
+    XCTAssertNil(protoDate.day)
+  }
+
   func testDecodeProtoDate_emptyDate_throws() throws {
+    let json = """
+    {
+      "year": 0,
+      "month" : 0,
+      "day": 0
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    do {
+      _ = try decoder.decode(ProtoDate.self, from: jsonData)
+    } catch DecodingError.dataCorrupted {
+      return
+    }
+    XCTFail("Expected a DecodingError.")
+  }
+
+  func testDecodeProtoDate_emptyDate_defaultsOmitted_throws() throws {
     let json = "{}"
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
