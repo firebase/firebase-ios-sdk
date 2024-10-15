@@ -142,6 +142,7 @@ public struct Citation: Sendable {
   /// The license the cited source work is distributed under, if specified.
   public let license: String?
 
+  /// The publication date of the cited source, if available.
   public let publicationDate: Date?
 }
 

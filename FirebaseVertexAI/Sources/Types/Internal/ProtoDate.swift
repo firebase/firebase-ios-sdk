@@ -42,15 +42,22 @@ struct ProtoDate {
   /// year and month where the day isn't significant.
   let day: Int?
 
+  /// Returns the a `DateComponents` representation of the `ProtoDate`.
+  ///
+  /// > Note: This uses the Gregorian `Calendar` to match the `google.type.Date` definition.
   var dateComponents: DateComponents {
     DateComponents(
-      calendar: Calendar.current,
+      calendar: Calendar(identifier: .gregorian),
       year: year,
       month: month,
       day: day
     )
   }
 
+  /// Returns a `Date` representation of the `ProtoDate`.
+  ///
+  /// - Throws: An error of type `DateConversionError` if the `ProtoDate` cannot be represented as
+  ///   a `Date`.
   func asDate() throws -> Date {
     guard year != nil else {
       throw DateConversionError(message: "Missing a year: \(self)")
@@ -65,12 +72,6 @@ struct ProtoDate {
       throw DateConversionError(message: "Invalid date: \(self)")
     }
     return date
-  }
-
-  init(year: Int?, month: Int?, day: Int?) {
-    self.year = year
-    self.month = month
-    self.day = day
   }
 
   struct DateConversionError: Error {
