@@ -25,7 +25,7 @@ struct RingBuffer<Element>: Sequence {
   enum Error: LocalizedError {
     case outOfBoundsPush(pushIndex: Array<Element?>.Index, endIndex: Array<Element?>.Index)
 
-    var errorDescription: String {
+    var errorDescription: String? {
       switch self {
       case let .outOfBoundsPush(pushIndex, endIndex):
         return "Out-of-bounds push at index \(pushIndex) to ring buffer with" +
