@@ -58,6 +58,12 @@ public struct GenerationConfig {
   /// (unbounded).
   public let maxOutputTokens: Int?
 
+  /// Positive penalties.
+  public let presencePenalty: Float?
+
+  /// Frequency penalties.
+  public let frequencyPenalty: Float?
+
   /// A set of up to 5 `String`s that will stop output generation. If
   /// specified, the API will stop at the first appearance of a stop sequence.
   /// The stop sequence will not be included as part of the response.
@@ -88,11 +94,14 @@ public struct GenerationConfig {
   /// - Parameter topK: See ``topK``
   /// - Parameter candidateCount: See ``candidateCount``
   /// - Parameter maxOutputTokens: See ``maxOutputTokens``
+  /// - Parameter presencePenalty: See ``presencePenalty``
+  /// - Parameter frequencyPenalty: See ``frequencyPenalty``
   /// - Parameter stopSequences: See ``stopSequences``
   /// - Parameter responseMIMEType: See ``responseMIMEType``
   /// - Parameter responseSchema: See ``responseSchema``
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
@@ -102,6 +111,8 @@ public struct GenerationConfig {
     self.topK = topK
     self.candidateCount = candidateCount
     self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
