@@ -141,6 +141,8 @@ public struct Citation: Sendable {
 
   /// The license the cited source work is distributed under, if specified.
   public let license: String?
+
+  public let publicationDate: Date?
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
@@ -363,6 +365,7 @@ extension Citation: Decodable {
     case uri
     case title
     case license
+    case publicationDate
   }
 
   public init(from decoder: any Decoder) throws {
@@ -384,6 +387,18 @@ extension Citation: Decodable {
       self.license = license
     } else {
       license = nil
+    }
+    if let publicationProtoDate = try container.decodeIfPresent(
+      ProtoDate.self,
+      forKey: .publicationDate
+    ) {
+      if let publicationDate = publicationProtoDate.dateComponents.date {
+        self.publicationDate = publicationDate
+      } else {
+        publicationDate = nil
+      }
+    } else {
+      publicationDate = nil
     }
   }
 }
