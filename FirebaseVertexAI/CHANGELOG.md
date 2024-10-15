@@ -50,6 +50,8 @@
 - [changed] **Breaking Change**: The `FunctionCallingConfig` initializer and
   `Mode` enum are now internal; use one of the new type methods `auto()`,
   `any(allowedFunctionNames:)`, or `none()` to create a config. (#13873)
+- [changed] **Breaking Change**: The `CandidateResponse` type is now named
+  `Candidate`. (#13897)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)

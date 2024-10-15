@@ -162,7 +162,7 @@ final class VertexAIAPITests: XCTestCase {
   func generateContentResponseAPI() {
     let response = GenerateContentResponse(candidates: [])
 
-    let _: [CandidateResponse] = response.candidates
+    let _: [Candidate] = response.candidates
     let _: PromptFeedback? = response.promptFeedback
 
     // Usage Metadata
