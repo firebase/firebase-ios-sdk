@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B8F672CF2C805B5300DFDFD4 /* PhoneAuthTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F672CE2C805B5200DFDFD4 /* PhoneAuthTest.swift */; };
 		8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8848764F29D3149200780FA6 /* GoogleService-Info.plist */; };
 		DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B636E2BEC2DC300607B82 /* FirebaseAuth */; };
 		DE8B63722BEC2FB900607B82 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DE8B63712BEC2FB900607B82 /* GoogleSignIn */; };
@@ -87,6 +88,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B8F672CE2C805B5200DFDFD4 /* PhoneAuthTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneAuthTest.swift; sourceTree = "<group>"; };
 		8848764F29D3149200780FA6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = SwiftApplication.plist; sourceTree = "<group>"; };
 		DE8FD4682A7D660A00B6831A /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 		EAE4CBDA24855E3E00245E92 /* SwiftApiTests */ = {
 			isa = PBXGroup;
 			children = (
+				B8F672CE2C805B5200DFDFD4 /* PhoneAuthTest.swift */,
 				DE8FD4912A7D9D9E00B6831A /* PhoneMultiFactorTests.swift */,
 				DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */,
 				DE8FD46E2A7D660B00B6831A /* AnonymousTests.swift */,
@@ -584,6 +587,7 @@
 				DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */,
 				DE8FD4942A7D9E2700B6831A /* PhoneMultiFactorTests.swift in Sources */,
 				DE8FD4742A7D660B00B6831A /* TestsBase.swift in Sources */,
+				B8F672CF2C805B5300DFDFD4 /* PhoneAuthTest.swift in Sources */,
 				DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

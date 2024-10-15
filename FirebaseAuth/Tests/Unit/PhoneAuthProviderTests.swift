@@ -665,7 +665,7 @@
     }
 
     /** @fn testVerifyClient
-        @brief Tests verifying client before sending verification code.
+     @brief Tests verifying client before sending verification code.
      */
     private func internalTestVerify(errorString: String? = nil,
                                     errorURLString: String? = nil,
