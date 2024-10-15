@@ -132,6 +132,21 @@ final class ProtoDateTests: XCTestCase {
     XCTFail("Expected an error but none thrown.")
   }
 
+  func testProtoDate_invalidDate_asDate_throws() {
+    // Reminder: Only 30 days in November
+    let protoDate = ProtoDate(year: 2024, month: 11, day: 31)
+
+    do {
+      _ = try protoDate.asDate()
+    } catch let error as ProtoDate.DateConversionError {
+      XCTAssertTrue(error.localizedDescription.contains("Invalid date"))
+      return
+    } catch {
+      XCTFail("Expected \(ProtoDate.DateConversionError.self), got \(error).")
+    }
+    XCTFail("Expected an error but none thrown.")
+  }
+
   func testProtoDate_empty_asDate_throws() {
     let protoDate = ProtoDate(year: nil, month: nil, day: nil)
 
@@ -275,7 +290,12 @@ final class ProtoDateTests: XCTestCase {
 
     do {
       _ = try decoder.decode(ProtoDate.self, from: jsonData)
-    } catch DecodingError.dataCorrupted {
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(
+        context.codingPath as? [ProtoDate.CodingKeys],
+        [ProtoDate.CodingKeys.year, ProtoDate.CodingKeys.month, ProtoDate.CodingKeys.day]
+      )
+      XCTAssertTrue(context.debugDescription.contains("Invalid date"))
       return
     }
     XCTFail("Expected a DecodingError.")
@@ -287,7 +307,72 @@ final class ProtoDateTests: XCTestCase {
 
     do {
       _ = try decoder.decode(ProtoDate.self, from: jsonData)
-    } catch DecodingError.dataCorrupted {
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(
+        context.codingPath as? [ProtoDate.CodingKeys],
+        [ProtoDate.CodingKeys.year, ProtoDate.CodingKeys.month, ProtoDate.CodingKeys.day]
+      )
+      XCTAssertTrue(context.debugDescription.contains("Invalid date"))
+      return
+    }
+    XCTFail("Expected a DecodingError.")
+  }
+
+  func testDecodeProtoDate_invalidYear_throws() throws {
+    let json = """
+    {
+      "year" : -2024,
+      "month" : 12,
+      "day" : 31
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    do {
+      _ = try decoder.decode(ProtoDate.self, from: jsonData)
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(context.codingPath as? [ProtoDate.CodingKeys], [ProtoDate.CodingKeys.year])
+      XCTAssertTrue(context.debugDescription.contains("Invalid year"))
+      return
+    }
+    XCTFail("Expected a DecodingError.")
+  }
+
+  func testDecodeProtoDate_invalidMonth_throws() throws {
+    let json = """
+    {
+      "year" : 2024,
+      "month" : 13,
+      "day" : 31
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    do {
+      _ = try decoder.decode(ProtoDate.self, from: jsonData)
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(context.codingPath as? [ProtoDate.CodingKeys], [ProtoDate.CodingKeys.month])
+      XCTAssertTrue(context.debugDescription.contains("Invalid month"))
+      return
+    }
+    XCTFail("Expected a DecodingError.")
+  }
+
+  func testDecodeProtoDate_invalidDay_throws() throws {
+    let json = """
+    {
+      "year" : 2024,
+      "month" : 12,
+      "day" : 32
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    do {
+      _ = try decoder.decode(ProtoDate.self, from: jsonData)
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(context.codingPath as? [ProtoDate.CodingKeys], [ProtoDate.CodingKeys.day])
+      XCTAssertTrue(context.debugDescription.contains("Invalid day"))
       return
     }
     XCTFail("Expected a DecodingError.")

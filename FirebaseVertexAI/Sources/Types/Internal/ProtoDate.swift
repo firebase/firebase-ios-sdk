@@ -23,7 +23,8 @@ import Foundation
 /// - A year on its own, with zero month and day values
 /// - A year and month value, with a zero day, such as a credit card expiration date
 ///
-/// This represents a `google.type.Date`.
+/// This represents a
+/// [`google.type.Date`](https://cloud.google.com/vertex-ai/docs/reference/rest/Shared.Types/Date).
 struct ProtoDate {
   /// Year of the date.
   ///
@@ -60,8 +61,8 @@ struct ProtoDate {
     guard day != nil else {
       throw DateConversionError(message: "Missing a day: \(self)")
     }
-    guard let date = dateComponents.date else {
-      throw DateConversionError(message: "Date conversion failed: \(self)")
+    guard dateComponents.isValidDate, let date = dateComponents.date else {
+      throw DateConversionError(message: "Invalid date: \(self)")
     }
     return date
   }
@@ -93,7 +94,7 @@ extension ProtoDate: Decodable {
   init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     if let year = try container.decodeIfPresent(Int.self, forKey: .year), year != 0 {
-      guard year > 0 else {
+      guard year >= 1 && year <= 9999 else {
         throw DecodingError.dataCorrupted(
           .init(codingPath: [CodingKeys.year], debugDescription: "Invalid year: \(year)")
         )
@@ -104,7 +105,7 @@ extension ProtoDate: Decodable {
     }
 
     if let month = try container.decodeIfPresent(Int.self, forKey: .month), month != 0 {
-      guard month > 0 else {
+      guard month >= 1 && month <= 12 else {
         throw DecodingError.dataCorrupted(
           .init(codingPath: [CodingKeys.month], debugDescription: "Invalid month: \(month)")
         )
@@ -115,7 +116,7 @@ extension ProtoDate: Decodable {
     }
 
     if let day = try container.decodeIfPresent(Int.self, forKey: .day), day != 0 {
-      guard day > 0 else {
+      guard day >= 1 && day <= 31 else {
         throw DecodingError.dataCorrupted(
           .init(codingPath: [CodingKeys.day], debugDescription: "Invalid day: \(day)")
         )
