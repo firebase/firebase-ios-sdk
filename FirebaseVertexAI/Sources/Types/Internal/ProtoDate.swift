@@ -53,34 +53,6 @@ struct ProtoDate {
       day: day
     )
   }
-
-  /// Returns a `Date` representation of the `ProtoDate`.
-  ///
-  /// - Throws: An error of type `DateConversionError` if the `ProtoDate` cannot be represented as
-  ///   a `Date`.
-  func asDate() throws -> Date {
-    guard year != nil else {
-      throw DateConversionError(message: "Missing a year: \(self)")
-    }
-    guard month != nil else {
-      throw DateConversionError(message: "Missing a month: \(self)")
-    }
-    guard day != nil else {
-      throw DateConversionError(message: "Missing a day: \(self)")
-    }
-    guard dateComponents.isValidDate, let date = dateComponents.date else {
-      throw DateConversionError(message: "Invalid date: \(self)")
-    }
-    return date
-  }
-
-  struct DateConversionError: Error {
-    let localizedDescription: String
-
-    init(message: String) {
-      localizedDescription = message
-    }
-  }
 }
 
 // MARK: - Codable Conformance
@@ -95,14 +67,12 @@ extension ProtoDate: Decodable {
   init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     if let year = try container.decodeIfPresent(Int.self, forKey: .year), year != 0 {
-      guard year >= 1 && year <= 9999 else {
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: [CodingKeys.year],
-            debugDescription: """
-            Invalid year: \(year); must be from 1 to 9999, or 0 for a date without a specified year.
-            """
-          )
+      if year < 0 || year > 9999 {
+        VertexLog.warning(
+          code: .decodedInvalidProtoDateYear,
+          """
+          Invalid year: \(year); must be from 1 to 9999, or 0 for a date without a specified year.
+          """
         )
       }
       self.year = year
@@ -111,15 +81,13 @@ extension ProtoDate: Decodable {
     }
 
     if let month = try container.decodeIfPresent(Int.self, forKey: .month), month != 0 {
-      guard month >= 1 && month <= 12 else {
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: [CodingKeys.month],
-            debugDescription: """
-            Invalid month: \(month); must be from 1 to 12, or 0 for a year date without a \
-            specified month and day.
-            """
-          )
+      if month < 0 || month > 12 {
+        VertexLog.warning(
+          code: .decodedInvalidProtoDateMonth,
+          """
+          Invalid month: \(month); must be from 1 to 12, or 0 for a year date without a specified \
+          month and day.
+          """
         )
       }
       self.month = month
@@ -128,14 +96,10 @@ extension ProtoDate: Decodable {
     }
 
     if let day = try container.decodeIfPresent(Int.self, forKey: .day), day != 0 {
-      guard day >= 1 && day <= 31 else {
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: [CodingKeys.day],
-            debugDescription: """
-            Invalid day: \(day); must be from 1 to 31, or 0 for a date without a specified day.
-            """
-          )
+      if day < 0 || day > 31 {
+        VertexLog.warning(
+          code: .decodedInvalidProtoDateDay,
+          "Invalid day: \(day); must be from 1 to 31, or 0 for a date without a specified day."
         )
       }
       self.day = day

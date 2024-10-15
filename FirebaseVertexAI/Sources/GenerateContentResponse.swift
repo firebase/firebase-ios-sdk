@@ -143,7 +143,9 @@ public struct Citation: Sendable {
   public let license: String?
 
   /// The publication date of the cited source, if available.
-  public let publicationDate: Date?
+  ///
+  /// > Tip: `DateComponents` can be converted to a `Date` using the `date` computed property.
+  public let publicationDate: DateComponents?
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
@@ -397,15 +399,11 @@ extension Citation: Decodable {
       ProtoDate.self,
       forKey: .publicationDate
     ) {
-      do {
-        publicationDate = try publicationProtoDate.asDate()
-      } catch let error as ProtoDate.DateConversionError {
-        throw DecodingError.dataCorrupted(
-          DecodingError.Context(
-            codingPath: [CodingKeys.publicationDate],
-            debugDescription: "Invalid citation publicationDate.",
-            underlyingError: error
-          )
+      publicationDate = publicationProtoDate.dateComponents
+      if let publicationDate, !publicationDate.isValidDate {
+        VertexLog.warning(
+          code: .decodedInvalidCitationPublicationDate,
+          "Decoded an invalid citation publication date: \(publicationDate)"
         )
       }
     } else {

@@ -58,11 +58,6 @@ final class GenerativeModelTests: XCTestCase {
   ].sorted()
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let dateFormatter = {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"
-    return dateFormatter
-  }()
 
   var urlSession: URLSession!
   var model: GenerativeModel!
@@ -139,7 +134,12 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-success-citations",
         withExtension: "json"
       )
-    let expectedPublicationDate = try XCTUnwrap(dateFormatter.date(from: "2019-05-10"))
+    let expectedPublicationDate = DateComponents(
+      calendar: Calendar(identifier: .gregorian),
+      year: 2019,
+      month: 5,
+      day: 10
+    )
 
     let response = try await model.generateContent(testPrompt)
 
@@ -1061,7 +1061,12 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-success-citations",
         withExtension: "txt"
       )
-    let expectedPublicationDate = try XCTUnwrap(dateFormatter.date(from: "2014-03-30"))
+    let expectedPublicationDate = DateComponents(
+      calendar: Calendar(identifier: .gregorian),
+      year: 2014,
+      month: 3,
+      day: 30
+    )
 
     let stream = try model.generateContentStream("Hi")
     var citations = [Citation]()
