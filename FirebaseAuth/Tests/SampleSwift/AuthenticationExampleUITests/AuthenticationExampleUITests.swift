@@ -241,8 +241,9 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.swipeDown(velocity: .fast)
 
-    // Assert that there is no error message (success case) the link is assumed to have been sent successfully if no error appears
-    XCTAssertFalse(errorExists, "Expected no error message, but one appeared.")
+    // Assert that there is no error message (success case)
+    // The email sign in link is sent successfully if no error message appears
+    XCTAssertFalse(errorExists, "Error")
 
     // Go back and check that there is no user that is signed in
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
