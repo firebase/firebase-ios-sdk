@@ -30,7 +30,7 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// A list of candidate response content, ordered from best to worst.
-  public let candidates: [CandidateResponse]
+  public let candidates: [Candidate]
 
   /// A value containing the safety ratings for the response, or, if the request was blocked, a
   /// reason for blocking the request.
@@ -82,7 +82,7 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// Initializer for SwiftUI previews or tests.
-  public init(candidates: [CandidateResponse], promptFeedback: PromptFeedback? = nil,
+  public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
@@ -93,7 +93,7 @@ public struct GenerateContentResponse: Sendable {
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct CandidateResponse: Sendable {
+public struct Candidate: Sendable {
   /// The response's content.
   public let content: ModelContent
 
@@ -279,7 +279,7 @@ extension GenerateContentResponse: Decodable {
     }
 
     if let candidates = try container.decodeIfPresent(
-      [CandidateResponse].self,
+      [Candidate].self,
       forKey: .candidates
     ) {
       self.candidates = candidates
@@ -309,7 +309,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CandidateResponse: Decodable {
+extension Candidate: Decodable {
   enum CodingKeys: CodingKey {
     case content
     case safetyRatings
