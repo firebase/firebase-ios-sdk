@@ -17,7 +17,7 @@ import Foundation
 /// A type defining potentially harmful media categories and their model-assigned ratings. A value
 /// of this type may be assigned to a category for every model-generated response, not just
 /// responses that exceed a certain threshold.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The category describing the potential harm a piece of content may pose.
   ///
@@ -75,6 +75,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   /// The probability that a given model output falls under a harmful content category.
   ///
   /// > Note: This does not indicate the severity of harm for a piece of content.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmProbability: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case negligible = "NEGLIGIBLE"
@@ -110,6 +111,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   }
 
   /// The magnitude of how harmful a model response might be for the respective ``HarmCategory``.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmSeverity: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case negligible = "HARM_SEVERITY_NEGLIGIBLE"
@@ -143,7 +145,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 
 /// A type used to specify a threshold for harmful content, beyond which the model will return a
 /// fallback response instead of generated content.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetySetting {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.
   public struct HarmBlockThreshold: EncodableProtoEnum, Sendable {
@@ -174,6 +176,7 @@ public struct SafetySetting {
   }
 
   /// The method of computing whether the ``SafetySetting/HarmBlockThreshold`` has been exceeded.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmBlockMethod: EncodableProtoEnum, Sendable {
     enum Kind: String {
       case severity = "SEVERITY"
@@ -224,6 +227,7 @@ public struct SafetySetting {
 }
 
 /// Categories describing the potential harm a piece of content may pose.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case harassment = "HARM_CATEGORY_HARASSMENT"
@@ -260,7 +264,7 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Decodable {
   enum CodingKeys: CodingKey {
     case category
@@ -287,8 +291,8 @@ extension SafetyRating: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting.HarmBlockThreshold: Encodable {}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting: Encodable {}

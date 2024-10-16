@@ -17,11 +17,11 @@ import Foundation
 /// A discrete piece of data in a media format interpretable by an AI model.
 ///
 /// Within a single value of ``Part``, different data types may not mix.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {}
 
 /// A text part containing a string value.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct TextPart: Part {
   /// Text value.
   public let text: String
@@ -34,7 +34,7 @@ public struct TextPart: Part {
 /// Data with a specified media type.
 ///
 /// > Note: Not all media types may be supported by the AI model.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
   let inlineData: InlineData
 
@@ -51,7 +51,7 @@ public struct InlineDataPart: Part {
 }
 
 /// File data stored in Cloud Storage for Firebase, referenced by URI.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FileDataPart: Part {
   let fileData: FileData
 
@@ -77,7 +77,7 @@ public struct FileDataPart: Part {
 }
 
 /// A predicted function call returned from the model.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
 
@@ -109,7 +109,7 @@ public struct FunctionCallPart: Part {
 /// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCallPart`` made based on model prediction.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
 

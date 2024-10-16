@@ -52,6 +52,9 @@
   `any(allowedFunctionNames:)`, or `none()` to create a config. (#13873)
 - [changed] **Breaking Change**: The `CandidateResponse` type is now named
   `Candidate`. (#13897)
+- [changed] **Breaking Change**: The minimum deployment target for the SDK is
+  now macOS 12.0; all other platform minimums remain the same at iOS 15.0,
+  macCatalyst 15.0, tvOS 15.0, and watchOS 8.0. (#13903)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)
