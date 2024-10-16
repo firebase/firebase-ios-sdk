@@ -37,7 +37,7 @@ enum ImageConversionError: Error {
 
 #if canImport(UIKit)
   /// Enables images to be representable as ``PartsRepresentable``.
-  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension UIImage: PartsRepresentable {
     public var partsValue: [any Part] {
       guard let data = jpegData(compressionQuality: imageCompressionQuality) else {
@@ -49,7 +49,7 @@ enum ImageConversionError: Error {
 
 #elseif canImport(AppKit)
   /// Enables images to be representable as ``PartsRepresentable``.
-  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension NSImage: PartsRepresentable {
     public var partsValue: [any Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {

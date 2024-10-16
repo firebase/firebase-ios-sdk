@@ -15,9 +15,10 @@
 import Foundation
 
 /// The model's response to a generate content request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct UsageMetadata: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
@@ -92,7 +93,7 @@ public struct GenerateContentResponse: Sendable {
 
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Candidate: Sendable {
   /// The response's content.
   public let content: ModelContent
@@ -118,14 +119,14 @@ public struct Candidate: Sendable {
 }
 
 /// A collection of source attributions for a piece of content.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CitationMetadata: Sendable {
   /// A list of individual cited sources and the parts of the content to which they apply.
   public let citations: [Citation]
 }
 
 /// A struct describing a source attribution.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Citation: Sendable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
@@ -149,7 +150,7 @@ public struct Citation: Sendable {
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case stop = "STOP"
@@ -204,9 +205,10 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct PromptFeedback: Sendable {
   /// A type describing possible reasons to block a prompt.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct BlockReason: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case safety = "SAFETY"
@@ -257,7 +259,7 @@ public struct PromptFeedback: Sendable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse: Decodable {
   enum CodingKeys: CodingKey {
     case candidates
@@ -291,7 +293,7 @@ extension GenerateContentResponse: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
@@ -308,7 +310,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Candidate: Decodable {
   enum CodingKeys: CodingKey {
     case content
@@ -357,10 +359,10 @@ extension Candidate: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CitationMetadata: Decodable {}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
   enum CodingKeys: CodingKey {
     case startIndex
@@ -412,7 +414,7 @@ extension Citation: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PromptFeedback: Decodable {
   enum CodingKeys: CodingKey {
     case blockReason

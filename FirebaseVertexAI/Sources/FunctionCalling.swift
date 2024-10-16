@@ -18,6 +18,7 @@ import Foundation
 ///
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionDeclaration {
   /// The name of the function.
   let name: String
@@ -53,6 +54,7 @@ public struct FunctionDeclaration {
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
 /// an action, or set of actions, outside of knowledge and scope of the model.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Tool {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
@@ -86,6 +88,7 @@ public struct Tool {
 }
 
 /// Configuration for specifying function calling behavior.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallingConfig {
   /// Defines the execution behavior for function calling by defining the execution mode.
   enum Mode: String {
@@ -131,6 +134,7 @@ public struct FunctionCallingConfig {
 }
 
 /// Tool configuration for any `Tool` specified in the request.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolConfig {
   let functionCallingConfig: FunctionCallingConfig?
 
@@ -141,6 +145,7 @@ public struct ToolConfig {
 
 // MARK: - Codable Conformance
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionDeclaration: Encodable {
   enum CodingKeys: String, CodingKey {
     case name
@@ -156,10 +161,14 @@ extension FunctionDeclaration: Encodable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Tool: Encodable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig: Encodable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig.Mode: Encodable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}

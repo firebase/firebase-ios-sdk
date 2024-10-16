@@ -16,13 +16,13 @@ import Foundation
 
 /// A protocol describing any data that could be serialized to model-interpretable input data,
 /// where the serialization process cannot fail with an error.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol PartsRepresentable {
   var partsValue: [any Part] { get }
 }
 
 /// Enables a ``Part`` to be used as a ``PartsRepresentable``.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension Part {
   var partsValue: [any Part] {
     return [self]
@@ -31,7 +31,7 @@ public extension Part {
 
 /// Enable an `Array` of ``PartsRepresentable`` values to be passed in as a single
 /// ``PartsRepresentable``.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension [PartsRepresentable]: PartsRepresentable {
   public var partsValue: [any Part] {
     return flatMap { $0.partsValue }
@@ -39,7 +39,7 @@ extension [PartsRepresentable]: PartsRepresentable {
 }
 
 /// Enables a `String` to be passed in as ``PartsRepresentable``.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: PartsRepresentable {
   public var partsValue: [any Part] {
     return [TextPart(self)]
