@@ -60,22 +60,30 @@ public struct GenerationConfig {
 
   /// Controls the likelihood of repeating the same words or phrases already generated in the text.
   ///
-  /// Higher values increase the penalty, resulting in more diverse output.
+  /// Higher values increase the penalty of repetition, resulting in more diverse output. The
+  /// maximum value for `presencePenalty`  is up to, but not including, `2.0`; the minimum value is
+  /// `-2.0`.
   ///
-  /// > Important: While both `presencePenalty` and ``frequencyPenalty`` discourage repetition,
+  /// > Note: While both `presencePenalty` and ``frequencyPenalty`` discourage repetition,
   /// > `presencePenalty` applies the same penalty regardless of how many times the word/phrase has
   /// > already appeared, whereas `frequencyPenalty` increases the penalty for *each* repetition of
   /// > a word/phrase.
+  ///
+  /// > Important: Supported by `gemini-1.5-pro-002` and` gemini-1.5-flash-002` only.
   public let presencePenalty: Float?
 
   /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
   ///
-  /// Higher values increase the penalty of repetition, resulting in more diverse output.
+  /// Higher values increase the penalty of repetition, resulting in more diverse output. The
+  /// maximum value for `frequencyPenalty`  is up to, but not including, `2.0`; the minimum value is
+  /// `-2.0`.
   ///
-  /// > Important: While both `frequencyPenalty` and ``presencePenalty`` discourage repetition,
+  /// > Note: While both `frequencyPenalty` and ``presencePenalty`` discourage repetition,
   /// > `frequencyPenalty` increases the penalty for *each* repetition of a word/phrase, whereas
   /// > `presencePenalty` applies the same penalty regardless of how many times the word/phrase has
   /// > already appeared.
+  ///
+  /// > Important: Supported by `gemini-1.5-pro-002` and` gemini-1.5-flash-002` only.
   public let frequencyPenalty: Float?
 
   /// A set of up to 5 `String`s that will stop output generation. If
