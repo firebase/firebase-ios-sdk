@@ -58,10 +58,24 @@ public struct GenerationConfig {
   /// (unbounded).
   public let maxOutputTokens: Int?
 
-  /// Positive penalties.
+  /// Controls the likelihood of repeating the same words or phrases already generated in the text.
+  ///
+  /// Higher values increase the penalty, resulting in more diverse output.
+  ///
+  /// > Important: While both `presencePenalty` and ``frequencyPenalty`` discourage repetition,
+  /// > `presencePenalty` applies the same penalty regardless of how many times the word/phrase has
+  /// > already appeared, whereas `frequencyPenalty` increases the penalty for *each* repetition of
+  /// > a word/phrase.
   public let presencePenalty: Float?
 
-  /// Frequency penalties.
+  /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
+  ///
+  /// Higher values increase the penalty of repetition, resulting in more diverse output.
+  ///
+  /// > Important: While both `frequencyPenalty` and ``presencePenalty`` discourage repetition,
+  /// > `frequencyPenalty` increases the penalty for *each* repetition of a word/phrase, whereas
+  /// > `presencePenalty` applies the same penalty regardless of how many times the word/phrase has
+  /// > already appeared.
   public let frequencyPenalty: Float?
 
   /// A set of up to 5 `String`s that will stop output generation. If
