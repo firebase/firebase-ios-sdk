@@ -22,12 +22,8 @@ struct RingBuffer<Element>: Sequence {
   private var tailIndex: Array<Element?>.Index
 
   /// Error types for `RingBuffer` operations.
-  enum Error: LocalizedError {
+  enum Error: SolidLocalizedError {
     case outOfBoundsPush(pushIndex: Array<Element?>.Index, endIndex: Array<Element?>.Index)
-
-    var errorDescription: String? {
-      return (errorDescription as String)
-    }
 
     var errorDescription: String {
       switch self {
@@ -113,3 +109,16 @@ struct RingBuffer<Element>: Sequence {
 // MARK: - Codable
 
 extension RingBuffer: Codable where Element: Codable {}
+
+
+// MARK: - SolidLocalizedError
+
+protocol SolidLocalizedError: LocalizedError {
+  var errorDescription: String { get }
+}
+
+extension SolidLocalizedError {
+  var errorDescription: String? {
+    (errorDescription as String)
+  }
+}
