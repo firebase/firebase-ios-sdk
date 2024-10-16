@@ -35,6 +35,8 @@ public struct FunctionDeclaration {
   ///   with a maximum length of 63.
   ///   - description: A brief description of the function.
   ///   - parameters: Describes the parameters to this function.
+  ///   - optionalParameters: The names of parameters that may be omitted by the model in function
+  ///   calls; by default, all parameters are considered required.
   public init(name: String, description: String, parameters: [String: Schema],
               optionalParameters: [String] = []) {
     self.name = name

@@ -30,7 +30,7 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// A list of candidate response content, ordered from best to worst.
-  public let candidates: [CandidateResponse]
+  public let candidates: [Candidate]
 
   /// A value containing the safety ratings for the response, or, if the request was blocked, a
   /// reason for blocking the request.
@@ -82,7 +82,7 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// Initializer for SwiftUI previews or tests.
-  public init(candidates: [CandidateResponse], promptFeedback: PromptFeedback? = nil,
+  public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
@@ -93,7 +93,7 @@ public struct GenerateContentResponse: Sendable {
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct CandidateResponse: Sendable {
+public struct Candidate: Sendable {
   /// The response's content.
   public let content: ModelContent
 
@@ -141,6 +141,11 @@ public struct Citation: Sendable {
 
   /// The license the cited source work is distributed under, if specified.
   public let license: String?
+
+  /// The publication date of the cited source, if available.
+  ///
+  /// > Tip: `DateComponents` can be converted to a `Date` using the `date` computed property.
+  public let publicationDate: DateComponents?
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
@@ -274,7 +279,7 @@ extension GenerateContentResponse: Decodable {
     }
 
     if let candidates = try container.decodeIfPresent(
-      [CandidateResponse].self,
+      [Candidate].self,
       forKey: .candidates
     ) {
       self.candidates = candidates
@@ -304,7 +309,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
 }
 
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CandidateResponse: Decodable {
+extension Candidate: Decodable {
   enum CodingKeys: CodingKey {
     case content
     case safetyRatings
@@ -363,27 +368,46 @@ extension Citation: Decodable {
     case uri
     case title
     case license
+    case publicationDate
   }
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
     endIndex = try container.decode(Int.self, forKey: .endIndex)
+
     if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
       self.uri = uri
     } else {
       uri = nil
     }
+
     if let title = try container.decodeIfPresent(String.self, forKey: .title), !title.isEmpty {
       self.title = title
     } else {
       title = nil
     }
+
     if let license = try container.decodeIfPresent(String.self, forKey: .license),
        !license.isEmpty {
       self.license = license
     } else {
       license = nil
+    }
+
+    if let publicationProtoDate = try container.decodeIfPresent(
+      ProtoDate.self,
+      forKey: .publicationDate
+    ) {
+      publicationDate = publicationProtoDate.dateComponents
+      if let publicationDate, !publicationDate.isValidDate {
+        VertexLog.warning(
+          code: .decodedInvalidCitationPublicationDate,
+          "Decoded an invalid citation publication date: \(publicationDate)"
+        )
+      }
+    } else {
+      publicationDate = nil
     }
   }
 }

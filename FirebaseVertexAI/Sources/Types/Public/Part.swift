@@ -104,11 +104,11 @@ public struct FunctionCallPart: Part {
   }
 }
 
-/// Result output from a ``FunctionCall``.
+/// Result output from a function call.
 ///
 /// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
 /// containing any output from the function is used as context to the model. This should contain the
-/// result of a ``FunctionCall`` made based on model prediction.
+/// result of a ``FunctionCallPart`` made based on model prediction.
 @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse

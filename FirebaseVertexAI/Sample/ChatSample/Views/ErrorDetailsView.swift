@@ -162,7 +162,7 @@ struct ErrorDetailsView: View {
   let error = GenerateContentError.responseStoppedEarly(
     reason: .maxTokens,
     response: GenerateContentResponse(candidates: [
-      CandidateResponse(content: ModelContent(role: "model", parts:
+      Candidate(content: ModelContent(role: "model", parts:
         """
         A _hypothetical_ model response.
         Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
@@ -212,7 +212,7 @@ struct ErrorDetailsView: View {
 #Preview("Prompt Blocked") {
   let error = GenerateContentError.promptBlocked(
     response: GenerateContentResponse(candidates: [
-      CandidateResponse(content: ModelContent(role: "model", parts:
+      Candidate(content: ModelContent(role: "model", parts:
         """
         A _hypothetical_ model response.
         Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.

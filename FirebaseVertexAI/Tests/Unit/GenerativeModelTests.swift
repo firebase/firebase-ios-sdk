@@ -134,6 +134,12 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-success-citations",
         withExtension: "json"
       )
+    let expectedPublicationDate = DateComponents(
+      calendar: Calendar(identifier: .gregorian),
+      year: 2019,
+      month: 5,
+      day: 10
+    )
 
     let response = try await model.generateContent(testPrompt)
 
@@ -149,8 +155,10 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(citationSource1.endIndex, 128)
     XCTAssertNil(citationSource1.title)
     XCTAssertNil(citationSource1.license)
+    XCTAssertNil(citationSource1.publicationDate)
     let citationSource2 = try XCTUnwrap(citationMetadata.citations[1])
     XCTAssertEqual(citationSource2.title, "some-citation-2")
+    XCTAssertEqual(citationSource2.publicationDate, expectedPublicationDate)
     XCTAssertEqual(citationSource2.startIndex, 130)
     XCTAssertEqual(citationSource2.endIndex, 265)
     XCTAssertNil(citationSource2.uri)
@@ -161,6 +169,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(citationSource3.endIndex, 431)
     XCTAssertEqual(citationSource3.license, "mit")
     XCTAssertNil(citationSource3.title)
+    XCTAssertNil(citationSource3.publicationDate)
   }
 
   func testGenerateContent_success_quoteReply() async throws {
@@ -1052,6 +1061,12 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-success-citations",
         withExtension: "txt"
       )
+    let expectedPublicationDate = DateComponents(
+      calendar: Calendar(identifier: .gregorian),
+      year: 2014,
+      month: 3,
+      day: 30
+    )
 
     let stream = try model.generateContentStream("Hi")
     var citations = [Citation]()
@@ -1072,18 +1087,19 @@ final class GenerativeModelTests: XCTestCase {
       .contains {
         $0.startIndex == 0 && $0.endIndex == 128
           && $0.uri == "https://www.example.com/some-citation-1" && $0.title == nil
-          && $0.license == nil
+          && $0.license == nil && $0.publicationDate == nil
       })
     XCTAssertTrue(citations
       .contains {
         $0.startIndex == 130 && $0.endIndex == 265 && $0.uri == nil
           && $0.title == "some-citation-2" && $0.license == nil
+          && $0.publicationDate == expectedPublicationDate
       })
     XCTAssertTrue(citations
       .contains {
         $0.startIndex == 272 && $0.endIndex == 431
           && $0.uri == "https://www.example.com/some-citation-3" && $0.title == nil
-          && $0.license == "mit"
+          && $0.license == "mit" && $0.publicationDate == nil
       })
     XCTAssertFalse(citations.contains { $0.uri?.isEmpty ?? false })
     XCTAssertFalse(citations.contains { $0.title?.isEmpty ?? false })

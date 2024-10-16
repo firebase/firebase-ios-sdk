@@ -38,7 +38,7 @@ struct ErrorView: View {
     let errorPromptBlocked = GenerateContentError.promptBlocked(
       response: GenerateContentResponse(
         candidates: [
-          CandidateResponse(
+          Candidate(
             content: ModelContent(role: "model", parts: [
               """
                 A _hypothetical_ model response.
