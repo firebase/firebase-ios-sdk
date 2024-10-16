@@ -96,8 +96,8 @@ final class FunctionCallingSnippets: XCTestCase {
       // TODO(developer): Handle other potential function calls, if any.
     }
 
-    // Send the response(s) from the function back to the model so that the model can use it to
-    // generate its final response.
+    // Send the response(s) from the function back to the model so that the model can use it
+    // to generate its final response.
     let finalResponse = try await chat.sendMessage(
       [ModelContent(role: "function", parts: functionResponses)]
     )
