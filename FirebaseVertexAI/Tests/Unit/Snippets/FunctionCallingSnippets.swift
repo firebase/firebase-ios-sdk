@@ -56,7 +56,8 @@ final class FunctionCallingSnippets: XCTestCase {
           USA are supported.
           """
         ),
-        "date": .string(description: """
+        "date": .string(
+          description: """
           The date for which to get the weather. Date must be in the format: YYYY-MM-DD.
           """
         ),
