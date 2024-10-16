@@ -110,7 +110,6 @@ struct RingBuffer<Element>: Sequence {
 
 extension RingBuffer: Codable where Element: Codable {}
 
-
 // MARK: - SolidLocalizedError
 
 protocol SolidLocalizedError: LocalizedError {
@@ -119,6 +118,6 @@ protocol SolidLocalizedError: LocalizedError {
 
 extension SolidLocalizedError {
   var errorDescription: String? {
-    (errorDescription as String)
+    errorDescription as String
   }
 }
