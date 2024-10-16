@@ -67,7 +67,7 @@ enum ImageConversionError: Error {
 
 #if !os(watchOS) // This code does not build on watchOS.
   /// Enables `CGImages` to be representable as model content.
-  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CGImage: PartsRepresentable {
     public var partsValue: [any Part] {
       let output = NSMutableData()
@@ -90,7 +90,7 @@ enum ImageConversionError: Error {
 
 #if canImport(CoreImage)
   /// Enables `CIImages` to be representable as model content.
-  @available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   extension CIImage: PartsRepresentable {
     public var partsValue: [any Part] {
       let context = CIContext()
