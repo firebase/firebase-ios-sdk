@@ -84,8 +84,8 @@ final class StructuredOutputSnippets: XCTestCase {
 
     let prompt = """
     The film aims to educate and inform viewers about real-life subjects, events, or people.
-    It offers a factual record of a particular topic by combining interviews, historical footage, 
-    and narration. The primary purpose of a film is to present information and provide insights 
+    It offers a factual record of a particular topic by combining interviews, historical footage,
+    and narration. The primary purpose of a film is to present information and provide insights
     into various aspects of reality.
     """
 
