@@ -23,7 +23,7 @@ final class FunctionCallingSnippets: XCTestCase {
   }
 
   override func tearDown() async throws {
-    if let app = FirebaseApp.app() {
+    if FirebaseApp.isDefaultAppConfigured(), let app = FirebaseApp.app() {
       await app.delete()
     }
   }

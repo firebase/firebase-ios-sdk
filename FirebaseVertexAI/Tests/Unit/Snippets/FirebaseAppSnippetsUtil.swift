@@ -17,27 +17,19 @@ import Foundation
 import XCTest
 
 extension FirebaseApp {
-  static let projectIDEnvVar = "PROJECT_ID"
-  static let appIDEnvVar = "APP_ID"
-  static let apiKeyEnvVar = "API_KEY"
-
+  // These snippets are not invoked in CI but may be run manually by placing a
+  // GoogleService-Info.plist in the the FirebaseVertexAI/Tests/Unit/Resources folder.
   static func configureForSnippets() throws {
-    let environment = ProcessInfo.processInfo.environment
-    guard let projectID = environment[projectIDEnvVar] else {
-      throw XCTSkip("No Firebase Project ID specified in environment variable \(projectIDEnvVar).")
-    }
-    guard let appID = environment[appIDEnvVar] else {
-      throw XCTSkip("No Google App ID specified in environment variable \(appIDEnvVar).")
-    }
-    guard let apiKey = environment[apiKeyEnvVar] else {
-      throw XCTSkip("No API key specified in environment variable \(apiKeyEnvVar).")
+    guard let plistPath = Bundle.module.path(
+      forResource: "GoogleService-Info",
+      ofType: "plist"
+    ) else {
+      throw XCTSkip("No GoogleService-Info.plist found in FirebaseVertexAI/Tests/Unit/Resources.")
     }
 
-    let options = FirebaseOptions(googleAppID: appID, gcmSenderID: "")
-    options.projectID = projectID
-    options.apiKey = apiKey
-
+    let options = try XCTUnwrap(FirebaseOptions(contentsOfFile: plistPath))
     FirebaseApp.configure(options: options)
+
     guard FirebaseApp.isDefaultAppConfigured() else {
       XCTFail("Default Firebase app not configured.")
       return
