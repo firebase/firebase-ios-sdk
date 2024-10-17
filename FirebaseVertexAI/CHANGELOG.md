@@ -11,7 +11,7 @@
   Manager and CocoaPods. Stay tuned for the next release for the Zip and
   Carthage distributions.
   <br /><br />
-  - If you're new to this library, visit the 
+  - If you're new to this library, visit the
     [getting started guide](http://firebase.google.com/docs/vertex-ai/get-started?platform=ios).
   - If you used the preview version of the library, visit the
     [migration guide](https://firebase.google.com/docs/vertex-ai/migrate-to-ga?platform=ios)
