@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Updated `upload-symbols` to version 3.18 with support for upload mutiple DWARF contents in a dSYM bundle(#13543).
+- [fixed] Updated `upload-symbols` to version 3.18 with support for upload multiple DWARF contents in a dSYM bundle(#13543).
 
 # 10.28.1
 - [changed] Reverted "Add SIGTERM support (#12881)" (#13117)
