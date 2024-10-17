@@ -1,4 +1,4 @@
-# Unreleased
+# 11.4.0
 - [fixed] Fix a crash related to thread sanitization on FPRNetworkTrace class (#13581).
 
 # 10.28.0

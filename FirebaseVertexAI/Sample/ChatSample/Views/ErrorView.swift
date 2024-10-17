@@ -36,22 +36,54 @@ struct ErrorView: View {
 #Preview {
   NavigationView {
     let errorPromptBlocked = GenerateContentError.promptBlocked(
-      response: GenerateContentResponse(candidates: [
-        CandidateResponse(content: ModelContent(role: "model", [
-          """
-            A _hypothetical_ model response.
-            Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
-          """,
-        ]),
-        safetyRatings: [
-          SafetyRating(category: .dangerousContent, probability: .high),
-          SafetyRating(category: .harassment, probability: .low),
-          SafetyRating(category: .hateSpeech, probability: .low),
-          SafetyRating(category: .sexuallyExplicit, probability: .low),
-        ],
-        finishReason: FinishReason.other,
-        citationMetadata: nil),
-      ])
+      response: GenerateContentResponse(
+        candidates: [
+          Candidate(
+            content: ModelContent(role: "model", parts: [
+              """
+                A _hypothetical_ model response.
+                Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
+              """,
+            ]),
+            safetyRatings: [
+              SafetyRating(
+                category: .dangerousContent,
+                probability: .high,
+                probabilityScore: 0.8,
+                severity: .medium,
+                severityScore: 0.9,
+                blocked: true
+              ),
+              SafetyRating(
+                category: .harassment,
+                probability: .low,
+                probabilityScore: 0.5,
+                severity: .low,
+                severityScore: 0.6,
+                blocked: false
+              ),
+              SafetyRating(
+                category: .hateSpeech,
+                probability: .low,
+                probabilityScore: 0.3,
+                severity: .medium,
+                severityScore: 0.2,
+                blocked: false
+              ),
+              SafetyRating(
+                category: .sexuallyExplicit,
+                probability: .low,
+                probabilityScore: 0.2,
+                severity: .negligible,
+                severityScore: 0.5,
+                blocked: false
+              ),
+            ],
+            finishReason: FinishReason.other,
+            citationMetadata: nil
+          ),
+        ]
+      )
     )
     List {
       MessageView(message: ChatMessage.samples[0])

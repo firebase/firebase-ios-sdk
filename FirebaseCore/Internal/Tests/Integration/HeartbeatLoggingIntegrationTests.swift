@@ -52,6 +52,31 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
+  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
+  func testLogAndFlushAsync() async throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function)
+    let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
+    // When
+    heartbeatController.log("dummy_agent")
+    let payload = await heartbeatController.flushAsync()
+    // Then
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      payload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["\(expectedDate)"]
+          }
+        ]
+      }
+      """
+    )
+  }
+
   /// This test may flake if it is executed during the transition from one day to the next.
   func testDoNotLogMoreThanOnceInACalendarDay() throws {
     // Given

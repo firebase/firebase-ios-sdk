@@ -95,7 +95,7 @@ clang_options=(-style=file)
 
 # Swift formatting options for the repo should be configured in
 # https://github.com/firebase/firebase-ios-sdk/blob/main/.swiftformat.
-# These may be overriden with additional `.swiftformat` files in subdirectories.
+# These may be overridden with additional `.swiftformat` files in subdirectories.
 swift_options=()
 
 if [[ $# -gt 0 && "$1" == "test-only" ]]; then

@@ -107,9 +107,31 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        target: [iOS spm, tvOS spmbuildonly, macOS spmbuildonly, catalyst spmbuildonly, watchOS spmbuildonly]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS spm
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS spm
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16
+            target: macOS spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16
+            target: watchOS spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16
+            target: catalyst spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16
+            target: visionOS spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

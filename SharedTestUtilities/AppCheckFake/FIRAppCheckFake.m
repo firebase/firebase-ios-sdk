@@ -45,15 +45,15 @@
 }
 
 - (nonnull NSString *)notificationAppNameKey {
-  return @"FakeAppCheckTokenDidChangeNotification";
+  return @"AppCheckFakeAppNameNotificationKey";
 }
 
 - (nonnull NSString *)notificationTokenKey {
-  return @"FakeTokenNotificationKey";
+  return @"AppCheckFakeTokenNotificationKey";
 }
 
 - (nonnull NSString *)tokenDidChangeNotificationName {
-  return @"FakeAppCheckTokenDidChangeNotification";
+  return @"AppCheckFakeTokenDidChangeNotification";
 }
 
 @end

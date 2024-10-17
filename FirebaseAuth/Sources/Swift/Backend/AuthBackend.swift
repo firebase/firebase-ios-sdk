@@ -98,6 +98,11 @@ class AuthBackend {
   class func request(withURL url: URL,
                      contentType: String,
                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
+    // Kick off tasks for the async header values.
+    async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue()
+    async let appCheckTokenHeaderValue = requestConfiguration.appCheck?
+      .getToken(forcingRefresh: true)
+
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
@@ -106,13 +111,6 @@ class AuthBackend {
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-      // The below call synchronously dispatches to a queue. To avoid blocking
-      // the shared concurrency queue, `async let` will spawn the process on
-      // a separate thread.
-      async let heartbeatsHeaderValue = heartbeatLogger.headerValue()
-      await request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
-    }
     request.httpMethod = requestConfiguration.httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
@@ -122,8 +120,9 @@ class AuthBackend {
        languageCode.count > 0 {
       request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
     }
-    if let appCheck = requestConfiguration.appCheck {
-      let tokenResult = await appCheck.getToken(forcingRefresh: false)
+    // Wait for the async header values.
+    await request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
+    if let tokenResult = await appCheckTokenHeaderValue {
       if let error = tokenResult.error {
         AuthLog.logWarning(code: "I-AUT000018",
                            message: "Error getting App Check token; using placeholder " +
