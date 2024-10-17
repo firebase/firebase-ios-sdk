@@ -41,10 +41,10 @@
 /// Device data version of checkin information.
 @property(nonatomic, copy) NSString *deviceDataVersion;
 /// InstallationsID.
-/// @note The property is atomic because it is access across multiple threads.
+/// @note The property is atomic because it is accessed across multiple threads.
 @property(atomic, copy) NSString *configInstallationsIdentifier;
 /// Installations token.
-/// @note The property is atomic because it is access across multiple threads.
+/// @note The property is atomic because it is accessed across multiple threads.
 @property(atomic, copy) NSString *configInstallationsToken;
 
 /// A list of successful fetch timestamps in milliseconds.
