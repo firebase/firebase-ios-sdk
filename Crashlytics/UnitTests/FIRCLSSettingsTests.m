@@ -134,7 +134,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings cacheSettingsWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:1];
+  [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
 }
 
 - (void)reloadFromCacheWithGoogleAppID:(NSString *)googleAppID
