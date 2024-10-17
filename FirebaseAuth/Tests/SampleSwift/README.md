@@ -191,7 +191,7 @@ As we mentioned above, we will need to configure dynamic links for this auth flo
     - Configure the following steps as you please and then hit **Create**!
 
   - Dynamic links use your app's bundle identifier as a url scheme by default. In Xcode, [add a custom URL scheme for your **bundle identifier**](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
-  - Last todo! Navigate to `sendSignInLink()` in `PasswordlessViewController.swift. Within the method, there is a `stringURL` constant. Paste in the long deeplink you created from the steps above for the `authroizedDomain` property above the method. It should look something like:
+  - Last todo! Navigate to `sendSignInLink()` in `PasswordlessViewController.swift. Within the method, there is a `stringURL` constant. Paste in the long deeplink you created from the steps above for the `authorizedDomain` property above the method. It should look something like:
 ```swift
     let stringURL = "https://\(authorizedDomain)/login"
 ```
