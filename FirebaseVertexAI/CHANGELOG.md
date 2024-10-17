@@ -55,6 +55,9 @@
 - [changed] **Breaking Change**: The minimum deployment target for the SDK is
   now macOS 12.0; all other platform minimums remain the same at iOS 15.0,
   macCatalyst 15.0, tvOS 15.0, and watchOS 8.0. (#13903)
+- [changed] **Breaking Change**: All of the public properties of
+  `GenerationConfig` are now `internal`; they all remain configurable in the
+  initializer. (#13904)
 - [changed] The default request timeout is now 180 seconds instead of the
   platform-default value of 60 seconds for a `URLRequest`; this timeout may
   still be customized in `RequestOptions`. (#13722)

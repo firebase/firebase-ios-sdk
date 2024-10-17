@@ -172,8 +172,8 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
 
   /// The token generation was stopped because the response was flagged for safety reasons.
   ///
-  /// > NOTE: When streaming, the ``CandidateResponse/content`` will be empty if content filters
-  /// > blocked the output.
+  /// > NOTE: When streaming, the ``Candidate/content`` will be empty if content filters blocked the
+  /// > output.
   public static let safety = FinishReason(kind: .safety)
 
   /// The token generation was stopped because the response was flagged for unauthorized citations.
