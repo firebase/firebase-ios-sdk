@@ -32,11 +32,7 @@ final class ChatTests: XCTestCase {
   }
 
   func testMergingText() async throws {
-    #if SWIFT_PACKAGE
-      let bundle = Bundle.module
-    #else // SWIFT_PACKAGE
-      let bundle = Bundle(for: Self.self)
-    #endif // SWIFT_PACKAGE
+    let bundle = BundleTestUtil.bundle()
     let fileURL = try XCTUnwrap(bundle.url(
       forResource: "streaming-success-basic-reply-parts",
       withExtension: "txt"

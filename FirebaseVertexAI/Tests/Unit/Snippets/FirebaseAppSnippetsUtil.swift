@@ -26,7 +26,7 @@ extension FirebaseApp {
   /// > Note: This is typically called in a snippet test's set up; overriding
   /// > `setUpWithError() throws` works well since it supports throwing errors.
   static func configureDefaultAppForSnippets() throws {
-    guard let plistPath = Bundle.module.path(
+    guard let plistPath = BundleTestUtil.bundle().path(
       forResource: "GoogleService-Info",
       ofType: "plist"
     ) else {
