@@ -1,4 +1,21 @@
 # 11.4.0
+- [feature] Vertex AI in Firebase is now Generally Available (GA) and can be
+  used in production apps.
+  <br /><br />
+  Use the Vertex AI in Firebase library to call the Vertex AI Gemini API
+  directly from your app. This client library is built specifically for use with
+  Swift apps, offering security options against unauthorized clients as well as
+  integrations with other Firebase services.
+  <br /><br />
+  Note: Vertex AI in Firebase is currently only available in Swift Package
+  Manager and CocoaPods. Stay tuned for the next release for the Zip and
+  Carthage distributions.
+  <br /><br />
+  - If you're new to this library, visit the
+    [getting started guide](http://firebase.google.com/docs/vertex-ai/get-started?platform=ios).
+  - If you used the preview version of the library, visit the
+    [migration guide](https://firebase.google.com/docs/vertex-ai/migrate-to-ga?platform=ios)
+    to learn about some important updates.
 - [changed] **Breaking Change**: The SDK is now Generally Available (GA); both
   new and existing users must perform the
   [Build with Gemini](https://console.firebase.google.com/project/_/genai/)
