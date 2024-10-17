@@ -1446,11 +1446,7 @@ final class GenerativeModelTests: XCTestCase {
     #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
     #endif // os(watchOS)
-    #if SWIFT_PACKAGE
-      let bundle = Bundle.module
-    #else // SWIFT_PACKAGE
-      let bundle = Bundle(for: Self.self)
-    #endif // SWIFT_PACKAGE
+    let bundle = BundleTestUtil.bundle()
     let fileURL = try XCTUnwrap(bundle.url(forResource: name, withExtension: ext))
     return { request in
       let requestURL = try XCTUnwrap(request.url)

@@ -17,30 +17,41 @@ import Foundation
 import XCTest
 
 extension FirebaseApp {
-  static let projectIDEnvVar = "PROJECT_ID"
-  static let appIDEnvVar = "APP_ID"
-  static let apiKeyEnvVar = "API_KEY"
-
-  static func configureForSnippets() throws {
-    let environment = ProcessInfo.processInfo.environment
-    guard let projectID = environment[projectIDEnvVar] else {
-      throw XCTSkip("No Firebase Project ID specified in environment variable \(projectIDEnvVar).")
+  /// Configures the default `FirebaseApp` for use in snippets tests.
+  ///
+  /// Uses a `GoogleService-Info.plist` file from the
+  /// [`Resources`](https://github.com/firebase/firebase-ios-sdk/tree/main/FirebaseVertexAI/Tests/Unit/Resources)
+  /// directory.
+  ///
+  /// > Note: This is typically called in a snippet test's set up; overriding
+  /// > `setUpWithError() throws` works well since it supports throwing errors.
+  static func configureDefaultAppForSnippets() throws {
+    guard let plistPath = BundleTestUtil.bundle().path(
+      forResource: "GoogleService-Info",
+      ofType: "plist"
+    ) else {
+      throw XCTSkip("No GoogleService-Info.plist found in FirebaseVertexAI/Tests/Unit/Resources.")
     }
-    guard let appID = environment[appIDEnvVar] else {
-      throw XCTSkip("No Google App ID specified in environment variable \(appIDEnvVar).")
-    }
-    guard let apiKey = environment[apiKeyEnvVar] else {
-      throw XCTSkip("No API key specified in environment variable \(apiKeyEnvVar).")
-    }
 
-    let options = FirebaseOptions(googleAppID: appID, gcmSenderID: "")
-    options.projectID = projectID
-    options.apiKey = apiKey
-
+    let options = try XCTUnwrap(FirebaseOptions(contentsOfFile: plistPath))
     FirebaseApp.configure(options: options)
+
     guard FirebaseApp.isDefaultAppConfigured() else {
       XCTFail("Default Firebase app not configured.")
       return
+    }
+  }
+
+  /// Deletes the default `FirebaseApp` if configured.
+  ///
+  /// > Note: This is typically called in a snippet test's tear down; overriding
+  /// > `tearDown() async throws` works well since deletion is asynchronous.
+  static func deleteDefaultAppForSnippets() async {
+    // Checking if `isDefaultAppConfigured()` before calling `FirebaseApp.app()` suppresses a log
+    // message that "The default Firebase app has not yet been configured." during `tearDown` when
+    // the tests are skipped. This reduces extraneous noise in the test logs.
+    if FirebaseApp.isDefaultAppConfigured(), let app = FirebaseApp.app() {
+      await app.delete()
     }
   }
 }
