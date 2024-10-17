@@ -189,13 +189,13 @@ using firebase::firestore::util::TimerId;
 
   NSDictionary<NSString *, id> *initialData =
       @{@"desc" : @"Description", @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
-  NSDictionary<NSString *, id> *udpateData = @{@"desc" : @"NewDescription"};
+  NSDictionary<NSString *, id> *updateData = @{@"desc" : @"NewDescription"};
 
   [self writeDocumentRef:doc data:initialData];
-  [self writeDocumentRef:doc data:udpateData];
+  [self writeDocumentRef:doc data:updateData];
 
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(document.data, udpateData);
+  XCTAssertEqualObjects(document.data, updateData);
 }
 
 - (void)testCanMergeDataWithAnExistingDocumentUsingSet {
