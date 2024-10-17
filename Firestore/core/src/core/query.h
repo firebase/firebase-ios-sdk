@@ -31,7 +31,6 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
-#include "Firestore/core/src/util/thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {
@@ -281,34 +280,25 @@ class Query {
   // sort at the end.
   std::vector<OrderBy> explicit_order_bys_;
 
+  // The memoized list of sort orders.
+  mutable std::vector<OrderBy> memoized_normalized_order_bys_;
+
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
 
   absl::optional<Bound> start_at_;
   absl::optional<Bound> end_at_;
 
-  Target ToTarget(const std::vector<OrderBy>& order_bys) const;
-
-  // For properties below, use a `std::shared_ptr<ThreadSafeMemoizer>` rather
-  // than using `ThreadSafeMemoizer` directly so that this class is copyable
-  // (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-  // member variable, which is not copyable).
-
-  // The memoized list of sort orders.
-  mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<OrderBy>>>
-      memoized_normalized_order_bys_{
-          std::make_shared<util::ThreadSafeMemoizer<std::vector<OrderBy>>>()};
-
   // The corresponding Target of this Query instance.
-  mutable std::shared_ptr<util::ThreadSafeMemoizer<Target>> memoized_target_{
-      std::make_shared<util::ThreadSafeMemoizer<Target>>()};
+  mutable std::shared_ptr<const Target> memoized_target;
 
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  mutable std::shared_ptr<util::ThreadSafeMemoizer<Target>>
-      memoized_aggregate_target_{
-          std::make_shared<util::ThreadSafeMemoizer<Target>>()};
+  mutable std::shared_ptr<const Target> memoized_aggregate_target;
+
+  const std::shared_ptr<const Target> ToTarget(
+      const std::vector<OrderBy>& order_bys) const&;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);
