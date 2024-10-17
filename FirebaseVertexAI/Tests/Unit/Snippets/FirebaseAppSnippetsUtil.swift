@@ -17,9 +17,15 @@ import Foundation
 import XCTest
 
 extension FirebaseApp {
-  // These snippets are not invoked in CI but may be run manually by placing a
-  // GoogleService-Info.plist in the the FirebaseVertexAI/Tests/Unit/Resources folder.
-  static func configureForSnippets() throws {
+  /// Configures the default `FirebaseApp` for use in snippets tests.
+  ///
+  /// Uses a `GoogleService-Info.plist` file from the
+  /// [`Resources`](https://github.com/firebase/firebase-ios-sdk/tree/main/FirebaseVertexAI/Tests/Unit/Resources)
+  /// directory.
+  ///
+  /// > Note: This is typically called in a snippet test's set up; overriding
+  /// > `setUpWithError() throws` works well since it supports throwing errors.
+  static func configureDefaultAppForSnippets() throws {
     guard let plistPath = Bundle.module.path(
       forResource: "GoogleService-Info",
       ofType: "plist"
@@ -33,6 +39,19 @@ extension FirebaseApp {
     guard FirebaseApp.isDefaultAppConfigured() else {
       XCTFail("Default Firebase app not configured.")
       return
+    }
+  }
+
+  /// Deletes the default `FirebaseApp` if configured.
+  ///
+  /// > Note: This is typically called in a snippet test's tear down; overriding
+  /// > `tearDown() async throws` works well since deletion is asynchronous.
+  static func deleteDefaultAppForSnippets() async {
+    // Checking if `isDefaultAppConfigured()` before calling `FirebaseApp.app()` suppresses a log
+    // message that "The default Firebase app has not yet been configured." during `tearDown` when
+    // the tests are skipped. This reduces extraneous noise in the test logs.
+    if FirebaseApp.isDefaultAppConfigured(), let app = FirebaseApp.app() {
+      await app.delete()
     }
   }
 }

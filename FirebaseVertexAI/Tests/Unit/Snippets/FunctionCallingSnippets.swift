@@ -16,16 +16,17 @@ import FirebaseCore
 import FirebaseVertexAI
 import XCTest
 
+// These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
+// for instructions on running them manually.
+
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class FunctionCallingSnippets: XCTestCase {
   override func setUpWithError() throws {
-    try FirebaseApp.configureForSnippets()
+    try FirebaseApp.configureDefaultAppForSnippets()
   }
 
   override func tearDown() async throws {
-    if FirebaseApp.isDefaultAppConfigured(), let app = FirebaseApp.app() {
-      await app.delete()
-    }
+    await FirebaseApp.deleteDefaultAppForSnippets()
   }
 
   func testFunctionCalling() async throws {
