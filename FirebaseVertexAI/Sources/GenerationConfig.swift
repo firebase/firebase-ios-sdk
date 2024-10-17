@@ -137,8 +137,7 @@ public struct GenerationConfig {
   ///     - `application/json`: Schema for JSON response.
   ///
   ///     Refer to the
-  ///     [Control generated
-  /// output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  ///     [Control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
   ///     guide for more details.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
