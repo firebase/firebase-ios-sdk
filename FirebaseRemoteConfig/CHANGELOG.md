@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Mark two internal properties as `atomic` to prevent concurrency
+  related crash. (#13898)
+
 # 11.0.0
 - [fixed] RemoteConfigValue stringValue is now `nonnull`. This may break some builds. (#10870)
 - [removed] **Breaking change**: The deprecated `FirebaseRemoteConfigSwift`
