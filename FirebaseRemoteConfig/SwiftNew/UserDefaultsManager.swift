@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
 import Foundation
+
+import FirebaseCore
 
 /// A class that manages user defaults for Firebase Remote Config.
 @objc(RCNUserDefaultsManager)

@@ -24,7 +24,9 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
+
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
 @import FirebaseRemoteConfigInterop;
 
 #ifdef RCN_STAGING_SERVER
@@ -134,8 +136,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                         completionHandler:
                             (_Nullable FIRRemoteConfigFetchCompletion)completionHandler {
   // Note: We expect the googleAppID to always be available.
-  BOOL hasDeviceContextChanged =
-      FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
+  BOOL hasDeviceContextChanged = [Device remoteConfigHasDeviceContextChanged:_settings.deviceContext
+                                                           projectIdentifier:_options.googleAppID];
 
   __weak RCNConfigFetch *weakSelf = self;
   dispatch_async(_lockQueue, ^{
@@ -201,8 +203,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
                                   completionHandler:(RCNConfigFetchCompletion)completionHandler {
   // Note: We expect the googleAppID to always be available.
-  BOOL hasDeviceContextChanged =
-      FIRRemoteConfigHasDeviceContextChanged(_settings.deviceContext, _options.googleAppID);
+  BOOL hasDeviceContextChanged = [Device remoteConfigHasDeviceContextChanged:_settings.deviceContext
+                                                           projectIdentifier:_options.googleAppID];
 
   __weak RCNConfigFetch *weakSelf = self;
   dispatch_async(_lockQueue, ^{

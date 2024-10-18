@@ -21,7 +21,6 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -293,7 +292,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   if (fetchSuccess) {
     [self updateLastFetchTimeInterval:[[NSDate date] timeIntervalSince1970]];
     // Note: We expect the googleAppID to always be available.
-    _deviceContext = FIRRemoteConfigDeviceContextWithProjectIdentifier(_googleAppID);
+    _deviceContext = [[Device remoteConfigDeviceContextWith:_googleAppID] mutableCopy];
     _lastFetchedTemplateVersion = templateVersion;
     [_userDefaultsManager setLastFetchedTemplateVersion:templateVersion];
   }
@@ -398,23 +397,25 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                                                                 _configInstallationsToken]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_id:'%@'", _googleAppID]];
 
-  ret = [ret stringByAppendingString:[NSString stringWithFormat:@", country_code:'%@'",
-                                                                FIRRemoteConfigDeviceCountry()]];
+  ret =
+      [ret stringByAppendingString:[NSString stringWithFormat:@", country_code:'%@'",
+                                                              [Device remoteConfigDeviceCountry]]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", language_code:'%@'",
-                                                                FIRRemoteConfigDeviceLocale()]];
+                                                                [Device remoteConfigDeviceLocale]]];
   ret = [ret
       stringByAppendingString:[NSString stringWithFormat:@", platform_version:'%@'",
                                                          [GULAppEnvironmentUtil systemVersion]]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", time_zone:'%@'",
-                                                                FIRRemoteConfigTimezone()]];
+                                                                [Device remoteConfigTimezone]]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", package_name:'%@'",
                                                                 _bundleIdentifier]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_version:'%@'",
-                                                                FIRRemoteConfigAppVersion()]];
-  ret = [ret stringByAppendingString:[NSString stringWithFormat:@", app_build:'%@'",
-                                                                FIRRemoteConfigAppBuildVersion()]];
+                                                                [Device remoteConfigAppVersion]]];
+  ret = [ret
+      stringByAppendingString:[NSString stringWithFormat:@", app_build:'%@'",
+                                                         [Device remoteConfigAppBuildVersion]]];
   ret = [ret stringByAppendingString:[NSString stringWithFormat:@", sdk_version:'%@'",
-                                                                FIRRemoteConfigPodVersion()]];
+                                                                [Device remoteConfigPodVersion]]];
 
   if (userProperties && userProperties.count > 0) {
     NSError *error;
