@@ -16,13 +16,9 @@ import Foundation
 
 @objc(FIRRemoteConfigUpdate)
 public class RemoteConfigUpdate: NSObject {
-  private let _updatedKeys: Set<String>
+  @objc public let updatedKeys: Set<String>
 
   @objc public init(updatedKeys: Set<String>) {
-    _updatedKeys = updatedKeys
-  }
-
-  @objc public var updatedKeys: Set<String> {
-    return _updatedKeys
+    self.updatedKeys = updatedKeys
   }
 }
