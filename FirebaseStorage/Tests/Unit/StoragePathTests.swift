@@ -175,7 +175,7 @@ class StoragePathTests: XCTestCase {
     XCTAssertEqual(parent?.stringValue(), "gs://bucket/path")
   }
 
-  func testParentChildPathOnlySlashs() {
+  func testParentChildPathOnlySlashes() {
     let path = StoragePath(with: "bucket", object: "/////")
     let parent = path.parent()
     XCTAssertNil(parent)
