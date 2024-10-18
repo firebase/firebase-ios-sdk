@@ -273,7 +273,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       setCurrentRealtimeThrottlingRetryIntervalSeconds:_realtimeExponentialBackoffRetryInterval];
 }
 
-- (void)setRealtimeRetryCount:(int)realtimeRetryCount {
+- (void)setRealtimeRetryCount:(NSInteger)realtimeRetryCount {
   _realtimeRetryCount = realtimeRetryCount;
   [_userDefaultsManager setRealtimeRetryCount:_realtimeRetryCount];
 }
