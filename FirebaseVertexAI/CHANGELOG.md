@@ -1,6 +1,6 @@
 # 11.4.0
 - [feature] Vertex AI in Firebase is now Generally Available (GA) and can be
-  used in production apps.
+  used in production apps. (#13725)
   <br /><br />
   Use the Vertex AI in Firebase library to call the Vertex AI Gemini API
   directly from your app. This client library is built specifically for use with
@@ -16,10 +16,6 @@
   - If you used the preview version of the library, visit the
     [migration guide](https://firebase.google.com/docs/vertex-ai/migrate-to-ga?platform=ios)
     to learn about some important updates.
-- [changed] **Breaking Change**: The SDK is now Generally Available (GA); both
-  new and existing users must perform the
-  [Build with Gemini](https://console.firebase.google.com/project/_/genai/)
-  onboarding flow in the Firebase Console to use the updated API. (#13725)
 - [changed] **Breaking Change**: The `HarmCategory` enum is no longer nested
   inside the `SafetySetting` struct and the `unspecified` case has been
   removed. (#13686)
@@ -28,8 +24,6 @@
 - [changed] **Breaking Change**: The `unspecified` case has been removed from
   the `FinishReason`, `BlockReason` and `HarmProbability` enums; this scenario
   is now handled by the existing `unknown` case. (#13699)
-- [changed] **Breaking Change**: The `data` case in the `Part` enum has been
-  renamed to `inlineData`; no functionality changes. (#13700)
 - [changed] **Breaking Change**: The property `citationSources` of
   `CitationMetadata` has been renamed to `citations`. (#13702)
 - [changed] **Breaking Change**: The initializer for `Schema` is now internal;
@@ -52,9 +46,8 @@
 - [changed] **Breaking Change**: The enum `ModelContent.Part` has been replaced
   with a protocol named `Part` to avoid future breaking changes with new part
   types. The new types `TextPart` and `FunctionCallPart` may be received when
-  generating content the types `TextPart`; additionally the types
-  `InlineDataPart`, `FileDataPart` and `FunctionResponsePart` may be provided
-  as input. (#13767)
+  generating content; additionally the types `InlineDataPart`, `FileDataPart`
+  and `FunctionResponsePart` may be provided as input. (#13767)
 - [changed] **Breaking Change**: All initializers for `ModelContent` now require
   the label `parts: `. (#13832)
 - [changed] **Breaking Change**: `HarmCategory`, `HarmProbability`, and
