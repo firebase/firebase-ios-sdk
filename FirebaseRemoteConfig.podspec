@@ -41,6 +41,7 @@ app update.
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
     'FirebaseRemoteConfig/Swift/**/*.swift',
+    'FirebaseRemoteConfig/SwiftNew/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.resource_bundles = {
