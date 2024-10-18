@@ -15,14 +15,14 @@
 import Foundation
 
 @objc(FIRRemoteConfigUpdate)
-class RemoteConfigUpdate: NSObject {
+public class RemoteConfigUpdate: NSObject {
   private let _updatedKeys: Set<String>
 
-  @objc init(updatedKeys: Set<String>) {
+  @objc public init(updatedKeys: Set<String>) {
     _updatedKeys = updatedKeys
   }
 
-  @objc var updatedKeys: Set<String> {
+  @objc public var updatedKeys: Set<String> {
     return _updatedKeys
   }
 }
