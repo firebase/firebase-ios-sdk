@@ -16,11 +16,12 @@
 
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
-#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
