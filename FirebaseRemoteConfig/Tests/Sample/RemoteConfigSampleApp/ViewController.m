@@ -21,6 +21,8 @@
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import "../../../Sources/Private/FIRRemoteConfig_Private.h"
 #import "FRCLog.h"
+
+@import FirebaseRemoteConfig;
 @import FirebaseRemoteConfigInterop;
 
 static NSString *const FIRPerfNamespace = @"fireperf";
@@ -137,9 +139,9 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
             if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
               [self presentViewController:alert animated:YES completion:nil];
             }
-            NSString *updatedParams = [update updatedKeys];
+            NSSet<NSString *> *updatedParams = [update updatedKeys];
             [[FRCLog sharedInstance]
-                logToConsole:[NSString stringWithFormat:[updatedParams description]]];
+                logToConsole:[NSString stringWithFormat:@"%@", [updatedParams description]]];
             [self apply];
           }
         }
