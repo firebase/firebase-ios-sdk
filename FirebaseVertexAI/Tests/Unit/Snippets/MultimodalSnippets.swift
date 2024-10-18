@@ -16,6 +16,10 @@ import FirebaseCore
 import FirebaseVertexAI
 import XCTest
 
+#if canImport(UIKit)
+  import UIKit
+#endif // canImport(UIKit)
+
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
 // for instructions on running them manually.
 
@@ -38,59 +42,61 @@ final class MultimodalSnippets: XCTestCase {
     await FirebaseApp.deleteDefaultAppForSnippets()
   }
 
-  func testMultimodalOneImageNonStreaming() async throws {
-    guard let image = UIImage(systemName: "bicycle") else { fatalError() }
+  #if canImport(UIKit)
+    func testMultimodalOneImageNonStreaming() async throws {
+      guard let image = UIImage(systemName: "bicycle") else { fatalError() }
 
-    // Provide a text prompt to include with the image
-    let prompt = "What's in this picture?"
+      // Provide a text prompt to include with the image
+      let prompt = "What's in this picture?"
 
-    // To generate text output, call generateContent and pass in the prompt
-    let response = try await model.generateContent(image, prompt)
-    print(response.text ?? "No text in response.")
-  }
+      // To generate text output, call generateContent and pass in the prompt
+      let response = try await model.generateContent(image, prompt)
+      print(response.text ?? "No text in response.")
+    }
 
-  func testMultimodalOneImageStreaming() async throws {
-    guard let image = UIImage(systemName: "bicycle") else { fatalError() }
+    func testMultimodalOneImageStreaming() async throws {
+      guard let image = UIImage(systemName: "bicycle") else { fatalError() }
 
-    // Provide a text prompt to include with the image
-    let prompt = "What's in this picture?"
+      // Provide a text prompt to include with the image
+      let prompt = "What's in this picture?"
 
-    // To stream generated text output, call generateContentStream and pass in the prompt
-    let contentStream = try model.generateContentStream(image, prompt)
-    for try await chunk in contentStream {
-      if let text = chunk.text {
-        print(text)
+      // To stream generated text output, call generateContentStream and pass in the prompt
+      let contentStream = try model.generateContentStream(image, prompt)
+      for try await chunk in contentStream {
+        if let text = chunk.text {
+          print(text)
+        }
       }
     }
-  }
 
-  func testMultimodalMultiImagesNonStreaming() async throws {
-    guard let image1 = UIImage(systemName: "car") else { fatalError() }
-    guard let image2 = UIImage(systemName: "car.2") else { fatalError() }
+    func testMultimodalMultiImagesNonStreaming() async throws {
+      guard let image1 = UIImage(systemName: "car") else { fatalError() }
+      guard let image2 = UIImage(systemName: "car.2") else { fatalError() }
 
-    // Provide a text prompt to include with the images
-    let prompt = "What's different between these pictures?"
+      // Provide a text prompt to include with the images
+      let prompt = "What's different between these pictures?"
 
-    // To generate text output, call generateContent and pass in the prompt
-    let response = try await model.generateContent(image1, image2, prompt)
-    print(response.text ?? "No text in response.")
-  }
+      // To generate text output, call generateContent and pass in the prompt
+      let response = try await model.generateContent(image1, image2, prompt)
+      print(response.text ?? "No text in response.")
+    }
 
-  func testMultimodalMultiImagesStreaming() async throws {
-    guard let image1 = UIImage(systemName: "car") else { fatalError() }
-    guard let image2 = UIImage(systemName: "car.2") else { fatalError() }
+    func testMultimodalMultiImagesStreaming() async throws {
+      guard let image1 = UIImage(systemName: "car") else { fatalError() }
+      guard let image2 = UIImage(systemName: "car.2") else { fatalError() }
 
-    // Provide a text prompt to include with the images
-    let prompt = "What's different between these pictures?"
+      // Provide a text prompt to include with the images
+      let prompt = "What's different between these pictures?"
 
-    // To stream generated text output, call generateContentStream and pass in the prompt
-    let contentStream = try model.generateContentStream(image1, image2, prompt)
-    for try await chunk in contentStream {
-      if let text = chunk.text {
-        print(text)
+      // To stream generated text output, call generateContentStream and pass in the prompt
+      let contentStream = try model.generateContentStream(image1, image2, prompt)
+      for try await chunk in contentStream {
+        if let text = chunk.text {
+          print(text)
+        }
       }
     }
-  }
+  #endif // canImport(UIKit)
 
   func testMultimodalVideoNonStreaming() async throws {
     // Provide the video as `Data` with the appropriate MIME type
