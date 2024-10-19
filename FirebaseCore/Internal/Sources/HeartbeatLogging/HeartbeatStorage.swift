@@ -56,7 +56,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   ] =
     [:]
 
-  /// Used to synchronize mutations
+  /// Used to synchronize concurrent access to  the `cachedInstances` property.
   private static let instancesLock = NSLock()
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
