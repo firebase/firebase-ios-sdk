@@ -28,8 +28,9 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
+
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.

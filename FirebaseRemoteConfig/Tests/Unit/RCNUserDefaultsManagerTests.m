@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
+@import FirebaseRemoteConfig;
 
 static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 
