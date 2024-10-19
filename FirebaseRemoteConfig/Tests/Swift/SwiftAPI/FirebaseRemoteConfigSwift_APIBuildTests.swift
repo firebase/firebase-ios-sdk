@@ -107,7 +107,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     settings.fetchTimeout = TimeInterval(100)
 
     // TODO(ncooke3): This should probably not be initializable.
-    let update = FirebaseRemoteConfig.RemoteConfigUpdate(updatedKeys: Set<String>())
+    let update = FirebaseRemoteConfig.RemoteConfigUpdate()
     let _: Set<String> = update.updatedKeys
 
     let _ = FirebaseRemoteConfig.RemoteConfig.remoteConfig()

@@ -21,4 +21,8 @@ public class RemoteConfigUpdate: NSObject {
   @objc public init(updatedKeys: Set<String>) {
     self.updatedKeys = updatedKeys
   }
+
+  @objc override public convenience init() {
+    self.init(updatedKeys: Set<String>())
+  }
 }
