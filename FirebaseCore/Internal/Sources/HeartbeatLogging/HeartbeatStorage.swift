@@ -67,10 +67,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   static func getInstance(id: String) -> HeartbeatStorage {
     instancesLock.withLock {
       if let cachedInstance = cachedInstances[id]?.object {
-        print("fred")
         return cachedInstance
       } else {
-        print("bob")
         let newInstance = HeartbeatStorage.makeHeartbeatStorage(id: id)
         cachedInstances[id] = WeakContainer(object: newInstance)
         return newInstance
