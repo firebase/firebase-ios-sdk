@@ -51,7 +51,13 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   // MARK: - Instance Management
 
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
-  private static var cachedInstances: [String: WeakContainer<HeartbeatStorage>] = [:]
+  private nonisolated(unsafe) static var cachedInstances: [
+    String: WeakContainer<HeartbeatStorage>
+  ] =
+    [:]
+
+  /// Used to synchronize mutations
+  private static let instancesLock = NSLock()
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
   /// makes a new instance with the given `id`.
@@ -59,12 +65,16 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// - Parameter id: A string identifier.
   /// - Returns: A `HeartbeatStorage` instance.
   static func getInstance(id: String) -> HeartbeatStorage {
-    if let cachedInstance = cachedInstances[id]?.object {
-      return cachedInstance
-    } else {
-      let newInstance = HeartbeatStorage.makeHeartbeatStorage(id: id)
-      cachedInstances[id] = WeakContainer(object: newInstance)
-      return newInstance
+    instancesLock.withLock {
+      if let cachedInstance = cachedInstances[id]?.object {
+        print("fred")
+        return cachedInstance
+      } else {
+        print("bob")
+        let newInstance = HeartbeatStorage.makeHeartbeatStorage(id: id)
+        cachedInstances[id] = WeakContainer(object: newInstance)
+        return newInstance
+      }
     }
   }
 
@@ -88,7 +98,9 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   deinit {
     // Removes the instance if it was cached.
-    Self.cachedInstances.removeValue(forKey: id)
+    _ = Self.instancesLock.withLock {
+      Self.cachedInstances.removeValue(forKey: id)
+    }
   }
 
   // MARK: - HeartbeatStorageProtocol
