@@ -56,11 +56,7 @@ extension FileManager {
 extension UserDefaultsStorage: StorageFactory {
   static func makeStorage(id: String) -> Storage {
     let suiteName = Constants.heartbeatUserDefaultsSuiteName
-    // It's safe to force unwrap the below defaults instance because the
-    // initializer only returns `nil` when the bundle id or `globalDomain`
-    // is passed in as the `suiteName`.
-    let defaults = UserDefaults(suiteName: suiteName)!
     let key = "heartbeats-\(id)"
-    return UserDefaultsStorage(defaults: defaults, key: key)
+    return UserDefaultsStorage(suiteName: suiteName, key: key)
   }
 }
