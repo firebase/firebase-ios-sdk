@@ -1,3 +1,7 @@
+# Firebase 11.4.1
+- [fixed] CocoaPods only release to revert breaking change in
+  `FirebaseCoreExtension` SDK. (#13942)
+
 # Firebase 11.4.0
 - [fixed] Fixed issue building documentation with some Firebase products. (#13756)
 
