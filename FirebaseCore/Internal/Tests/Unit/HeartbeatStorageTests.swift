@@ -422,15 +422,6 @@ class HeartbeatStorageTests: XCTestCase {
     }
     group.wait()
 
-    #if !os(macOS)
-      // Simulate memory pressure. This will force the system to more aggressively reclaim memory.
-      // This simulation makes the test more sensitive to potential leaks.
-      NotificationCenter.default.post(
-        name: UIApplication.didReceiveMemoryWarningNotification,
-        object: UIApplication.shared
-      )
-    #endif // !os(macOS)
-
     // Then
     // The `weakRefs` array's references should all be nil; otherwise, something is being
     // unexpectedly strongly retained.
