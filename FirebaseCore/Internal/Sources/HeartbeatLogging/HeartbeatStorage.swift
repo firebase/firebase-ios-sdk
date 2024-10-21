@@ -52,11 +52,19 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
 
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
   #if compiler(>=6)
+    // In Swift 6, this property is not concurrency-safe because it is
+    // nonisolated global shared mutable state. Because this target's
+    // deployment version does not support Swift concurrency, it is marked as
+    // `nonisolated(unsafe)` to disable concurrency-safety checks. The
+    // property's access is protected by an external synchronization mechanism
+    // (see `instancesLock` property).
     private nonisolated(unsafe) static var cachedInstances: [
       String: WeakContainer<HeartbeatStorage>
     ] =
       [:]
   #else
+    // TODO(Xcode 16): Delete this block when minimum supported Xcode is
+    // Xcode 16.
     private static var cachedInstances: [
       String: WeakContainer<HeartbeatStorage>
     ] =
