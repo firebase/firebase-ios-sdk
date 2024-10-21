@@ -400,7 +400,7 @@ class HeartbeatStorageTests: XCTestCase {
     wait(for: expectations, timeout: 1.0, enforceOrder: true)
   }
 
-  func testForMemoryLeakInInstanceManagemer() {
+  func testForMemoryLeakInInstanceManager() {
     // Given
     let id = "testID"
     var weakRefs: [WeakContainer<HeartbeatStorage>] = []
