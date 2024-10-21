@@ -15,7 +15,7 @@
 import Foundation
 
 /// A type that can perform atomic operations using block-based transformations.
-protocol HeartbeatStorageProtocol {
+protocol HeartbeatStorageProtocol: Sendable {
   func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?)
   func readAndWriteAsync(using transform: @escaping @Sendable (HeartbeatsBundle?)
     -> HeartbeatsBundle?)
