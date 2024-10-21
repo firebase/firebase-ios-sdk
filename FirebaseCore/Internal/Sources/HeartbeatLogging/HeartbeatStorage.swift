@@ -60,15 +60,13 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
     // (see `instancesLock` property).
     private nonisolated(unsafe) static var cachedInstances: [
       String: WeakContainer<HeartbeatStorage>
-    ] =
-      [:]
+    ] = [:]
   #else
     // TODO(Xcode 16): Delete this block when minimum supported Xcode is
     // Xcode 16.
     private static var cachedInstances: [
       String: WeakContainer<HeartbeatStorage>
-    ] =
-      [:]
+    ] = [:]
   #endif // compiler(>=6)
 
   /// Used to synchronize concurrent access to  the `cachedInstances` property.
