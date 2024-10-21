@@ -482,11 +482,11 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
 - (void)testFDLComponentsCreatesSimplestLinkCorrectly {
   NSString *linkString = @"https://google.com";
-  NSString *endcodedLinkString = @"https%3A%2F%2Fgoogle%2Ecom";
+  NSString *encodedLinkString = @"https%3A%2F%2Fgoogle%2Ecom";
   NSURL *link = [NSURL URLWithString:linkString];
 
   NSString *expectedURLString =
-      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLDomain, endcodedLinkString];
+      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLDomain, encodedLinkString];
   NSURL *expectedURL = [NSURL URLWithString:expectedURLString];
 
   FIRDynamicLinkComponents *components =
@@ -498,11 +498,11 @@ static NSString *const kFDLURLCustomDomain = @"https://foo.com/path";
 
 - (void)testFDLComponentsCustomDomainWithPath {
   NSString *linkString = @"https://google.com";
-  NSString *endcodedLinkString = @"https%3A%2F%2Fgoogle%2Ecom";
+  NSString *encodedLinkString = @"https%3A%2F%2Fgoogle%2Ecom";
   NSURL *link = [NSURL URLWithString:linkString];
 
   NSString *expectedURLString =
-      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLCustomDomain, endcodedLinkString];
+      [NSString stringWithFormat:@"%@/?link=%@", kFDLURLCustomDomain, encodedLinkString];
   NSURL *expectedURL = [NSURL URLWithString:expectedURLString];
 
   FIRDynamicLinkComponents *components =
