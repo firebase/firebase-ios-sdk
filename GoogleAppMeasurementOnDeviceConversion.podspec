@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurementOnDeviceConversion'
-    s.version          = '11.4.0'
+    s.version          = '11.5.0'
     s.summary          = <<-SUMMARY
     On device conversion measurement plugin for Google App Measurement. Not
     intended for direct use.
