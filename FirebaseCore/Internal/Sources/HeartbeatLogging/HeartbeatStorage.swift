@@ -51,10 +51,17 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   // MARK: - Instance Management
 
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
-  private nonisolated(unsafe) static var cachedInstances: [
-    String: WeakContainer<HeartbeatStorage>
-  ] =
-    [:]
+  #if compiler(>=6)
+    private nonisolated(unsafe) static var cachedInstances: [
+      String: WeakContainer<HeartbeatStorage>
+    ] =
+      [:]
+  #else
+    private static var cachedInstances: [
+      String: WeakContainer<HeartbeatStorage>
+    ] =
+      [:]
+  #endif // compiler(>=6)
 
   /// Used to synchronize concurrent access to  the `cachedInstances` property.
   private static let instancesLock = NSLock()
