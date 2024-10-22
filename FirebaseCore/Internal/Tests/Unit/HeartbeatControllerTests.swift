@@ -58,35 +58,41 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
-  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  func testLogAndFlushAsync() async throws {
+  func testLogAndFlushAsync() throws {
     // Given
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
       dateProvider: { self.date }
     )
+    let expectation = expectation(description: #function)
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
 
     // When
     controller.log("dummy_agent")
-    let heartbeatPayload = await controller.flushAsync()
-
-    // Then
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
-      heartbeatPayload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
+    controller.flushAsync { heartbeatPayload in
+      // Then
+      do {
+        try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          heartbeatPayload.headerValue(),
+          """
           {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"]
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["2021-11-01"]
+              }
+            ]
           }
-        ]
+          """
+        )
+        expectation.fulfill()
+      } catch {
+        XCTFail("Unexpected error: \(error)")
       }
-      """
-    )
+    }
+    waitForExpectations(timeout: 1.0)
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }

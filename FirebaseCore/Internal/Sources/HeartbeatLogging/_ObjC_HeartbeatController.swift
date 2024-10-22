@@ -52,15 +52,8 @@ public class _ObjC_HeartbeatController: NSObject {
   public func flushAsync(completionHandler: @escaping (_ObjC_HeartbeatsPayload) -> Void) {
     // TODO: When minimum version moves to iOS 13.0, restore the async version
     // removed in #13952.
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-      Task {
-        let heartbeatsPayload = await heartbeatController.flushAsync()
-        completionHandler(_ObjC_HeartbeatsPayload(heartbeatsPayload))
-      }
-    } else {
-      // It is not expected to reach this state as this API should only be
-      // called on iOS 13.0+.
-      completionHandler(_ObjC_HeartbeatsPayload(HeartbeatsPayload.emptyPayload))
+    heartbeatController.flushAsync { heartbeatsPayload in
+      completionHandler(_ObjC_HeartbeatsPayload(heartbeatsPayload))
     }
   }
 
