@@ -40,7 +40,8 @@ typedef NS_ENUM(NSInteger, FIRDailyHeartbeatCode) {
 
 #ifndef FIREBASE_BUILD_CMAKE
 /// Returns the header value for the heartbeat logger via the given completion handler..
-- (void)asyncHeaderValueWithCompletionHandler:(void (^)(NSString *_Nullable))completionHandler;
+- (void)asyncHeaderValueWithCompletionHandler:(void (^)(NSString *_Nullable))completionHandler
+    API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0));
 
 /// Return the header value for the heartbeat logger.
 - (NSString *_Nullable)headerValue;
@@ -86,7 +87,8 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 /// @note This API is thread-safe.
 /// @param completionHandler A completion handler to process the flushed payload of heartbeats.
 - (void)flushHeartbeatsIntoPayloadWithCompletionHandler:
-    (void (^)(FIRHeartbeatsPayload *))completionHandler;
+    (void (^)(FIRHeartbeatsPayload *))completionHandler
+    API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0));
 #endif  // FIREBASE_BUILD_CMAKE
 
 /// Gets today's corresponding heartbeat code.
