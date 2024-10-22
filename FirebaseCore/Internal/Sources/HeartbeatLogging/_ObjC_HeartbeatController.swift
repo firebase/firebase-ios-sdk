@@ -56,6 +56,8 @@ public class _ObjC_HeartbeatController: NSObject {
         completionHandler(_ObjC_HeartbeatsPayload(heartbeatsPayload))
       }
     } else {
+      // It is not expected to reach this state as this API should only be
+      // called on iOS 13.0+.
       completionHandler(_ObjC_HeartbeatsPayload(HeartbeatsPayload.emptyPayload))
     }
   }
