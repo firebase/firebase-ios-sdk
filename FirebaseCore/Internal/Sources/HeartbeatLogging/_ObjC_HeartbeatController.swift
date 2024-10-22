@@ -49,10 +49,15 @@ public class _ObjC_HeartbeatController: NSObject {
   ///
   /// - Note: This API is thread-safe.
   /// - Returns: A heartbeats payload for the flushed heartbeat(s).
-  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  public func flushAsync() async -> _ObjC_HeartbeatsPayload {
-    let heartbeatsPayload = await heartbeatController.flushAsync()
-    return _ObjC_HeartbeatsPayload(heartbeatsPayload)
+  public func flushAsync(completionHandler: @escaping (_ObjC_HeartbeatsPayload) -> Void) {
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
+      Task {
+        let heartbeatsPayload = await heartbeatController.flushAsync()
+        completionHandler(_ObjC_HeartbeatsPayload(heartbeatsPayload))
+      }
+    } else {
+      completionHandler(_ObjC_HeartbeatsPayload(HeartbeatsPayload.emptyPayload))
+    }
   }
 
   /// Synchronously flushes the heartbeat for today.
