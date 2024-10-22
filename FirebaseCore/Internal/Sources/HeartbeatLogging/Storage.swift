@@ -15,7 +15,7 @@
 import Foundation
 
 /// A type that reads from and writes to an underlying storage container.
-protocol Storage {
+protocol Storage: Sendable {
   /// Reads and returns the data stored by this storage type.
   /// - Returns: The data read from storage.
   /// - Throws: An error if the read failed.
@@ -38,16 +38,12 @@ enum StorageError: Error {
 final class FileStorage: Storage {
   /// A  file system URL to the underlying file resource.
   private let url: URL
-  /// The file manager used to perform file system operations.
-  private let fileManager: FileManager
 
   /// Designated initializer.
   /// - Parameters:
   ///   - url: A file system URL for the underlying file resource.
-  ///   - fileManager: A file manager. Defaults to `default` manager.
-  init(url: URL, fileManager: FileManager = .default) {
+  init(url: URL) {
     self.url = url
-    self.fileManager = fileManager
   }
 
   /// Reads and returns the data from this object's associated file resource.
@@ -90,7 +86,7 @@ final class FileStorage: Storage {
   /// - Parameter url: The URL to create directories in.
   private func createDirectories(in url: URL) throws {
     do {
-      try fileManager.createDirectory(
+      try FileManager.default.createDirectory(
         at: url,
         withIntermediateDirectories: true
       )
@@ -104,17 +100,26 @@ final class FileStorage: Storage {
 
 /// A object that provides API for reading and writing to a user defaults resource.
 final class UserDefaultsStorage: Storage {
-  /// The underlying defaults container.
-  private let defaults: UserDefaults
+  /// The suite name for the underlying defaults container.
+  private let suiteName: String
+
   /// The key mapping to the object's associated resource in `defaults`.
   private let key: String
 
+  /// The underlying defaults container.
+  private var defaults: UserDefaults {
+    // It's safe to force unwrap the below defaults instance because the
+    // initializer only returns `nil` when the bundle id or `globalDomain`
+    // is passed in as the `suiteName`.
+    UserDefaults(suiteName: suiteName)!
+  }
+
   /// Designated initializer.
   /// - Parameters:
-  ///   - defaults: The defaults container.
+  ///   - suiteName: The suite name for the defaults container.
   ///   - key: The key mapping to the value stored in the defaults container.
-  init(defaults: UserDefaults, key: String) {
-    self.defaults = defaults
+  init(suiteName: String, key: String) {
+    self.suiteName = suiteName
     self.key = key
   }
 

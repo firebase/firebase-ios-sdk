@@ -97,22 +97,23 @@ class FileStorageTests: XCTestCase {
 
 class UserDefaultsStorageTests: XCTestCase {
   var defaults: UserDefaults!
-  let suiteName = #file
+  let suiteName = "com.firebase.userdefaults.storageTests"
 
   override func setUpWithError() throws {
-    defaults = try XCTUnwrap(UserDefaultsFake(suiteName: suiteName))
+    // Clear the user default suite before testing.
+    UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName)
   }
 
   func testRead_WhenDefaultDoesNotExist_ThrowsError() throws {
     // Given
-    let defaultsStorage = UserDefaultsStorage(defaults: defaults, key: #function)
+    let defaultsStorage = UserDefaultsStorage(suiteName: suiteName, key: #function)
     // Then
     XCTAssertThrowsError(try defaultsStorage.read())
   }
 
   func testRead_WhenDefaultExists_ReturnsDefault() throws {
     // Given
-    let defaultsStorage = UserDefaultsStorage(defaults: defaults, key: #function)
+    let defaultsStorage = UserDefaultsStorage(suiteName: suiteName, key: #function)
     XCTAssertNoThrow(try defaultsStorage.write(Constants.testData))
     // When
     let storedData = try defaultsStorage.read()
@@ -122,7 +123,7 @@ class UserDefaultsStorageTests: XCTestCase {
 
   func testWriteData_WhenDefaultDoesNotExist_CreatesDefault() throws {
     // Given
-    let defaultsStorage = UserDefaultsStorage(defaults: defaults, key: #function)
+    let defaultsStorage = UserDefaultsStorage(suiteName: suiteName, key: #function)
     XCTAssertThrowsError(try defaultsStorage.read())
     // When
     XCTAssertNoThrow(try defaultsStorage.write(Constants.testData))
@@ -133,7 +134,7 @@ class UserDefaultsStorageTests: XCTestCase {
 
   func testWriteData_WhenDefaultExists_ModifiesDefault() throws {
     // Given
-    let defaultsStorage = UserDefaultsStorage(defaults: defaults, key: #function)
+    let defaultsStorage = UserDefaultsStorage(suiteName: suiteName, key: #function)
     XCTAssertNoThrow(try defaultsStorage.write(Constants.testData))
     // When
     let modifiedData = #function.data(using: .utf8)
@@ -146,7 +147,7 @@ class UserDefaultsStorageTests: XCTestCase {
 
   func testWriteNil_WhenDefaultDoesNotExist_RemovesDefault() throws {
     // Given
-    let defaultsStorage = UserDefaultsStorage(defaults: defaults, key: #function)
+    let defaultsStorage = UserDefaultsStorage(suiteName: suiteName, key: #function)
     XCTAssertThrowsError(try defaultsStorage.read())
     // When
     XCTAssertNoThrow(try defaultsStorage.write(nil))
@@ -156,25 +157,11 @@ class UserDefaultsStorageTests: XCTestCase {
 
   func testWriteNil_WhenDefaultExists_RemovesDefault() throws {
     // Given
-    let defaultsStorage = UserDefaultsStorage(defaults: defaults, key: #function)
+    let defaultsStorage = UserDefaultsStorage(suiteName: suiteName, key: #function)
     XCTAssertNoThrow(try defaultsStorage.write(Constants.testData))
     // When
     XCTAssertNoThrow(try defaultsStorage.write(nil))
     // Then
     XCTAssertThrowsError(try defaultsStorage.read())
-  }
-}
-
-// MARK: - Fakes
-
-private class UserDefaultsFake: UserDefaults {
-  private var defaults = [String: Any]()
-
-  override func object(forKey defaultName: String) -> Any? {
-    defaults[defaultName]
-  }
-
-  override func set(_ value: Any?, forKey defaultName: String) {
-    defaults[defaultName] = value
   }
 }
