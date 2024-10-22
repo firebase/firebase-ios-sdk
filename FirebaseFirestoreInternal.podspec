@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestoreInternal'
-  s.version          = '11.2.0'
+  s.version          = '11.5.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -45,6 +45,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
     'FirebaseCore/Extension/*.h',
+    'FirebaseCore/Sources/FIROptionsInternal.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',

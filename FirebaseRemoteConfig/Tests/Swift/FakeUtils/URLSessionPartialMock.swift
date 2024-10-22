@@ -19,7 +19,7 @@ import Foundation
 #endif
 
 // Create a partial mock by subclassing the URLSessionDataTask.
-class URLSessionDataTaskMock: URLSessionDataTask {
+class URLSessionDataTaskMock: URLSessionDataTask, @unchecked Sendable {
   private let closure: () -> Void
 
   init(closure: @escaping () -> Void) {
@@ -31,7 +31,7 @@ class URLSessionDataTaskMock: URLSessionDataTask {
   }
 }
 
-class URLSessionMock: URLSession {
+class URLSessionMock: URLSession, @unchecked Sendable {
   typealias CompletionHandler = (Data?, URLResponse?, Error?) -> Void
 
   private let fakeConsole: FakeConsole

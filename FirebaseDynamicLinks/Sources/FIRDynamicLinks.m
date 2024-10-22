@@ -166,30 +166,15 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
                             userInfo:errorDict];
   }
   if (error) {
-    NSString *message = nil;
-    if (options.usingOptionsFromDefaultPlist) {
-      // Configured using plist file
-      message = [NSString
-          stringWithFormat:
-              @"Firebase Dynamic Links has stopped your project "
-              @"because there are missing or incorrect values provided in %@.%@ that may "
-              @"prevent your app from behaving as expected:\n\n"
-              @"Error: %@\n\n"
-              @"Please fix these issues to ensure that Firebase is correctly configured in "
-              @"your project.",
-              kServiceInfoFileName, kServiceInfoFileType, error.localizedFailureReason];
-    } else {
-      // Configured manually
-      message = [NSString
-          stringWithFormat:
-              @"Firebase Dynamic Links has stopped your project "
-              @"because there are incorrect values provided in Firebase's configuration "
-              @"options that may prevent your app from behaving as expected:\n\n"
-              @"Error: %@\n\n"
-              @"Please fix these issues to ensure that Firebase is correctly configured in "
-              @"your project.",
-              error.localizedFailureReason];
-    }
+    NSString *message =
+        [NSString stringWithFormat:
+                      @"Firebase Dynamic Links has stopped your project "
+                      @"because there are incorrect values provided in Firebase's configuration "
+                      @"options that may prevent your app from behaving as expected:\n\n"
+                      @"Error: %@\n\n"
+                      @"Please fix these issues to ensure that Firebase is correctly configured in "
+                      @"your project.",
+                      error.localizedFailureReason];
     [NSException raise:kFirebaseDurableDeepLinkErrorDomain format:@"%@", message];
   }
   [self checkForCustomDomainEntriesInInfoPlist];

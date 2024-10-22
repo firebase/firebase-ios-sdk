@@ -74,6 +74,7 @@ body:
         - Authentication
         - Crashlytics
         - Database
+        - Data Connect
         - DynamicLinks
         - Firestore
         - Functions

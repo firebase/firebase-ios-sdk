@@ -114,6 +114,7 @@ import Foundation
             }
           }
         }
+        return
       } else if assertion.factorID != PhoneMultiFactorInfo.PhoneMultiFactorID {
         return
       }

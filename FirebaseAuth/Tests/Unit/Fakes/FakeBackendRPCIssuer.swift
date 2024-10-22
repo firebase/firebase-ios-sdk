@@ -23,7 +23,7 @@ import XCTest
         response, and glue logic.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
+class FakeBackendRPCIssuer: AuthBackendRPCIssuer {
   /** @property requestURL
       @brief The URL which was requested.
    */
@@ -52,7 +52,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   /** @property completeRequest
       @brief The last request to be processed by the backend.
    */
-  var completeRequest: URLRequest?
+  var completeRequest: Task<URLRequest, Never>!
 
   /** @var _handler
       @brief A block we must invoke when @c respondWithError or @c respondWithJSON are called.
@@ -148,11 +148,10 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       requestData = body
       // Use the real implementation so that the complete request can
       // be verified during testing.
-      Task {
-        self.completeRequest = await AuthBackend.request(withURL: requestURL!,
-                                                         contentType: contentType,
-                                                         requestConfiguration: request
-                                                           .requestConfiguration())
+      completeRequest = Task {
+        await AuthBackend.request(withURL: requestURL!,
+                                  contentType: contentType,
+                                  requestConfiguration: request.requestConfiguration())
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }

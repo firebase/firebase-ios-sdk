@@ -117,7 +117,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -173,13 +173,11 @@ jobs:
       SDK:  "Authentication"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-14]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -233,7 +231,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -285,7 +283,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -412,7 +410,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -472,7 +470,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -557,7 +555,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -614,7 +612,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -670,7 +668,7 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

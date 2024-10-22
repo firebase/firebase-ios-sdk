@@ -16,7 +16,7 @@
   import Foundation
 
   /// A data structure for an APNs token.
-  class AuthAPNSToken: NSObject {
+  class AuthAPNSToken {
     let data: Data
     let type: AuthAPNSTokenType
 

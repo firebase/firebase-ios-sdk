@@ -15,19 +15,67 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  spm-package-resolved:
+    runs-on: macos-14
+    outputs:
+      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Swift Package.resolved
+        id: swift_package_resolve
+        run: |
+          swift package resolve
+      - name: Generate cache key
+        id: generate_cache_key
+        run: |
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: .build
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
+
   spm-unit:
     strategy:
       matrix:
-        target: [iOS, macOS, catalyst, tvOS, visionOS, watchOS]
-        os: [macos-14]
         include:
-          - os: macos-14
+          - os: macos-13
             xcode: Xcode_15.2
+            target: iOS
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: macOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: watchOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: catalyst
+          - os: macos-15
+            xcode: Xcode_16
+            target: visionOS
     runs-on: ${{ matrix.os }}
+    needs: spm-package-resolved
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Clone mock responses
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
@@ -51,12 +99,17 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
+    needs: spm-package-resolved
     env:
       TEST_RUNNER_VertexAIRunIntegrationTests: 1
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-integration.plist.gpg \
         FirebaseVertexAI/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
@@ -98,22 +151,25 @@ jobs:
   sample:
     strategy:
       matrix:
-        # Test build with debug and release configs (whether or not DEBUG is set and optimization level)
-        build: [build]
         include:
           - os: macos-13
-            xcode: Xcode_15.0.1
-          - os: macos-14
             xcode: Xcode_15.2
+          - os: macos-14
+            xcode: Xcode_15.4
+          - os: macos-15
+            xcode: Xcode_16
     runs-on: ${{ matrix.os }}
+    needs: spm-package-resolved
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: xcodebuild -list
     - name: Placeholder GoogleService-Info.plist for build testing
       run: cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist FirebaseVertexAI/Sample/
     - uses: nick-fields/retry@v3

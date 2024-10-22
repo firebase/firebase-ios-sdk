@@ -23,10 +23,38 @@ import XCTest
 final class GenerativeModelTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
-    .init(category: .sexuallyExplicit, probability: .negligible),
-    .init(category: .hateSpeech, probability: .negligible),
-    .init(category: .harassment, probability: .negligible),
-    .init(category: .dangerousContent, probability: .negligible),
+    .init(
+      category: .sexuallyExplicit,
+      probability: .negligible,
+      probabilityScore: 0.1431877,
+      severity: .negligible,
+      severityScore: 0.11027937,
+      blocked: false
+    ),
+    .init(
+      category: .hateSpeech,
+      probability: .negligible,
+      probabilityScore: 0.029035643,
+      severity: .negligible,
+      severityScore: 0.05613278,
+      blocked: false
+    ),
+    .init(
+      category: .harassment,
+      probability: .negligible,
+      probabilityScore: 0.087252244,
+      severity: .negligible,
+      severityScore: 0.04509957,
+      blocked: false
+    ),
+    .init(
+      category: .dangerousContent,
+      probability: .negligible,
+      probabilityScore: 0.2641685,
+      severity: .negligible,
+      severityScore: 0.082253955,
+      blocked: false
+    ),
   ].sorted()
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
@@ -69,10 +97,10 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.count, 4)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    let partText = try XCTUnwrap(part.text)
+    let partText = try XCTUnwrap(part as? TextPart).text
     XCTAssertTrue(partText.hasPrefix("1. **Use Freshly Ground Coffee**:"))
     XCTAssertEqual(response.text, partText)
     XCTAssertEqual(response.functionCalls, [])
@@ -94,8 +122,9 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    XCTAssertEqual(part.text, "Mountain View, California")
-    XCTAssertEqual(response.text, part.text)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.text, "Mountain View, California")
+    XCTAssertEqual(response.text, textPart.text)
     XCTAssertEqual(response.functionCalls, [])
   }
 
@@ -105,6 +134,12 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-success-citations",
         withExtension: "json"
       )
+    let expectedPublicationDate = DateComponents(
+      calendar: Calendar(identifier: .gregorian),
+      year: 2019,
+      month: 5,
+      day: 10
+    )
 
     let response = try await model.generateContent(testPrompt)
 
@@ -113,25 +148,28 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(candidate.content.parts.count, 1)
     XCTAssertEqual(response.text, "Some information cited from an external source")
     let citationMetadata = try XCTUnwrap(candidate.citationMetadata)
-    XCTAssertEqual(citationMetadata.citationSources.count, 3)
-    let citationSource1 = try XCTUnwrap(citationMetadata.citationSources[0])
+    XCTAssertEqual(citationMetadata.citations.count, 3)
+    let citationSource1 = try XCTUnwrap(citationMetadata.citations[0])
     XCTAssertEqual(citationSource1.uri, "https://www.example.com/some-citation-1")
     XCTAssertEqual(citationSource1.startIndex, 0)
     XCTAssertEqual(citationSource1.endIndex, 128)
     XCTAssertNil(citationSource1.title)
     XCTAssertNil(citationSource1.license)
-    let citationSource2 = try XCTUnwrap(citationMetadata.citationSources[1])
+    XCTAssertNil(citationSource1.publicationDate)
+    let citationSource2 = try XCTUnwrap(citationMetadata.citations[1])
     XCTAssertEqual(citationSource2.title, "some-citation-2")
+    XCTAssertEqual(citationSource2.publicationDate, expectedPublicationDate)
     XCTAssertEqual(citationSource2.startIndex, 130)
     XCTAssertEqual(citationSource2.endIndex, 265)
     XCTAssertNil(citationSource2.uri)
     XCTAssertNil(citationSource2.license)
-    let citationSource3 = try XCTUnwrap(citationMetadata.citationSources[2])
+    let citationSource3 = try XCTUnwrap(citationMetadata.citations[2])
     XCTAssertEqual(citationSource3.uri, "https://www.example.com/some-citation-3")
     XCTAssertEqual(citationSource3.startIndex, 272)
     XCTAssertEqual(citationSource3.endIndex, 431)
     XCTAssertEqual(citationSource3.license, "mit")
     XCTAssertNil(citationSource3.title)
+    XCTAssertNil(citationSource3.publicationDate)
   }
 
   func testGenerateContent_success_quoteReply() async throws {
@@ -147,22 +185,43 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsNegligible)
+    XCTAssertEqual(candidate.safetyRatings.count, 4)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    let partText = try XCTUnwrap(part.text)
-    XCTAssertTrue(partText.hasPrefix("Google"))
-    XCTAssertEqual(response.text, part.text)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertTrue(textPart.text.hasPrefix("Google"))
+    XCTAssertEqual(response.text, textPart.text)
     let promptFeedback = try XCTUnwrap(response.promptFeedback)
     XCTAssertNil(promptFeedback.blockReason)
-    XCTAssertEqual(promptFeedback.safetyRatings.sorted(), safetyRatingsNegligible)
+    XCTAssertEqual(promptFeedback.safetyRatings.count, 4)
   }
 
   func testGenerateContent_success_unknownEnum_safetyRatings() async throws {
     let expectedSafetyRatings = [
-      SafetyRating(category: .harassment, probability: .medium),
-      SafetyRating(category: .dangerousContent, probability: .unknown),
-      SafetyRating(category: .unknown, probability: .high),
+      SafetyRating(
+        category: .harassment,
+        probability: .medium,
+        probabilityScore: 0.0,
+        severity: .init(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+        severityScore: 0.0,
+        blocked: false
+      ),
+      SafetyRating(
+        category: .dangerousContent,
+        probability: SafetyRating.HarmProbability(rawValue: "FAKE_NEW_HARM_PROBABILITY"),
+        probabilityScore: 0.0,
+        severity: .init(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+        severityScore: 0.0,
+        blocked: false
+      ),
+      SafetyRating(
+        category: HarmCategory(rawValue: "FAKE_NEW_HARM_CATEGORY"),
+        probability: .high,
+        probabilityScore: 0.0,
+        severity: .init(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+        severityScore: 0.0,
+        blocked: false
+      ),
     ]
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
@@ -211,7 +270,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
@@ -233,7 +292,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
@@ -255,7 +314,7 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     XCTAssertEqual(candidate.content.parts.count, 1)
     let part = try XCTUnwrap(candidate.content.parts.first)
-    guard case let .functionCall(functionCall) = part else {
+    guard let functionCall = part as? FunctionCallPart else {
       XCTFail("Part is not a FunctionCall.")
       return
     }
@@ -453,11 +512,11 @@ final class GenerativeModelTests: XCTestCase {
     }
   }
 
-  func testGenerateContent_failure_firebaseMLAPINotEnabled() async throws {
+  func testGenerateContent_failure_firebaseVertexAIAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
-        forResource: "unary-failure-firebaseml-api-not-enabled",
+        forResource: "unary-failure-firebasevertexai-api-not-enabled",
         withExtension: "json",
         statusCode: expectedStatusCode
       )
@@ -468,8 +527,9 @@ final class GenerativeModelTests: XCTestCase {
     } catch let GenerateContentError.internalError(error as RPCError) {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
-      XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
-      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
+      XCTAssertTrue(error.message
+        .starts(with: "Vertex AI in Firebase API has not been used in project"))
+      XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     } catch {
       XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
@@ -568,6 +628,29 @@ final class GenerativeModelTests: XCTestCase {
       XCTFail("Should throw")
     } catch let GenerateContentError.promptBlocked(response) {
       XCTAssertNil(response.text)
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, PromptFeedback.BlockReason.safety)
+      XCTAssertNil(promptFeedback.blockReasonMessage)
+    } catch {
+      XCTFail("Should throw a promptBlocked")
+    }
+  }
+
+  func testGenerateContent_failure_promptBlockedSafetyWithMessage() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-failure-prompt-blocked-safety-with-message",
+        withExtension: "json"
+      )
+
+    do {
+      _ = try await model.generateContent(testPrompt)
+      XCTFail("Should throw")
+    } catch let GenerateContentError.promptBlocked(response) {
+      XCTAssertNil(response.text)
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, PromptFeedback.BlockReason.safety)
+      XCTAssertEqual(promptFeedback.blockReasonMessage, "Reasons")
     } catch {
       XCTFail("Should throw a promptBlocked")
     }
@@ -579,12 +662,13 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-failure-unknown-enum-finish-reason",
         withExtension: "json"
       )
+    let unknownFinishReason = FinishReason(rawValue: "FAKE_NEW_FINISH_REASON")
 
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw")
     } catch let GenerateContentError.responseStoppedEarly(reason, response) {
-      XCTAssertEqual(reason, .unknown)
+      XCTAssertEqual(reason, unknownFinishReason)
       XCTAssertEqual(response.text, "Some text")
     } catch {
       XCTFail("Should throw a responseStoppedEarly")
@@ -597,13 +681,14 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "unary-failure-unknown-enum-prompt-blocked",
         withExtension: "json"
       )
+    let unknownBlockReason = PromptFeedback.BlockReason(rawValue: "FAKE_NEW_BLOCK_REASON")
 
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw")
     } catch let GenerateContentError.promptBlocked(response) {
       let promptFeedback = try XCTUnwrap(response.promptFeedback)
-      XCTAssertEqual(promptFeedback.blockReason, .unknown)
+      XCTAssertEqual(promptFeedback.blockReason, unknownBlockReason)
     } catch {
       XCTFail("Should throw a promptBlocked")
     }
@@ -760,7 +845,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = try await model.generateContentStream("Hi")
+      let stream = try model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
@@ -774,25 +859,26 @@ final class GenerativeModelTests: XCTestCase {
     XCTFail("Should have caught an error.")
   }
 
-  func testGenerateContentStream_failure_firebaseMLAPINotEnabled() async throws {
+  func testGenerateContentStream_failure_vertexAIInFirebaseAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
-        forResource: "unary-failure-firebaseml-api-not-enabled",
+        forResource: "unary-failure-firebasevertexai-api-not-enabled",
         withExtension: "json",
         statusCode: expectedStatusCode
       )
 
     do {
-      let stream = try await model.generateContentStream(testPrompt)
+      let stream = try model.generateContentStream(testPrompt)
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
     } catch let GenerateContentError.internalError(error as RPCError) {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
-      XCTAssertTrue(error.message.starts(with: "Firebase ML API has not been used in project"))
-      XCTAssertTrue(error.isFirebaseMLServiceDisabledError())
+      XCTAssertTrue(error.message
+        .starts(with: "Vertex AI in Firebase API has not been used in project"))
+      XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     }
 
@@ -807,7 +893,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = try await model.generateContentStream("Hi")
+      let stream = try model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
@@ -827,12 +913,15 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = try await model.generateContentStream("Hi")
+      let stream = try model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
-    } catch let GenerateContentError.responseStoppedEarly(reason, _) {
+    } catch let GenerateContentError.responseStoppedEarly(reason, response) {
       XCTAssertEqual(reason, .safety)
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.finishReason, reason)
+      XCTAssertTrue(candidate.safetyRatings.contains { $0.blocked })
       return
     }
 
@@ -847,12 +936,36 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     do {
-      let stream = try await model.generateContentStream("Hi")
+      let stream = try model.generateContentStream("Hi")
       for try await _ in stream {
         XCTFail("Content shouldn't be shown, this shouldn't happen.")
       }
     } catch let GenerateContentError.promptBlocked(response) {
-      XCTAssertEqual(response.promptFeedback?.blockReason, .safety)
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, .safety)
+      XCTAssertNil(promptFeedback.blockReasonMessage)
+      return
+    }
+
+    XCTFail("Should have caught an error.")
+  }
+
+  func testGenerateContentStream_failurePromptBlockedSafetyWithMessage() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "streaming-failure-prompt-blocked-safety-with-message",
+        withExtension: "txt"
+      )
+
+    do {
+      let stream = try model.generateContentStream("Hi")
+      for try await _ in stream {
+        XCTFail("Content shouldn't be shown, this shouldn't happen.")
+      }
+    } catch let GenerateContentError.promptBlocked(response) {
+      let promptFeedback = try XCTUnwrap(response.promptFeedback)
+      XCTAssertEqual(promptFeedback.blockReason, .safety)
+      XCTAssertEqual(promptFeedback.blockReasonMessage, "Reasons")
       return
     }
 
@@ -865,14 +978,15 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-failure-unknown-finish-enum",
         withExtension: "txt"
       )
+    let unknownFinishReason = FinishReason(rawValue: "FAKE_ENUM")
 
-    let stream = try await model.generateContentStream("Hi")
+    let stream = try model.generateContentStream("Hi")
     do {
       for try await content in stream {
         XCTAssertNotNil(content.text)
       }
     } catch let GenerateContentError.responseStoppedEarly(reason, _) {
-      XCTAssertEqual(reason, .unknown)
+      XCTAssertEqual(reason, unknownFinishReason)
       return
     }
 
@@ -887,7 +1001,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     var responses = 0
-    let stream = try await model.generateContentStream("Hi")
+    let stream = try model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       responses += 1
@@ -904,7 +1018,7 @@ final class GenerativeModelTests: XCTestCase {
       )
 
     var responses = 0
-    let stream = try await model.generateContentStream("Hi")
+    let stream = try model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       responses += 1
@@ -919,18 +1033,26 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-success-unknown-safety-enum",
         withExtension: "txt"
       )
+    let unknownSafetyRating = SafetyRating(
+      category: HarmCategory(rawValue: "HARM_CATEGORY_DANGEROUS_CONTENT_NEW_ENUM"),
+      probability: SafetyRating.HarmProbability(rawValue: "NEGLIGIBLE_UNKNOWN_ENUM"),
+      probabilityScore: 0.0,
+      severity: SafetyRating.HarmSeverity(rawValue: "HARM_SEVERITY_UNSPECIFIED"),
+      severityScore: 0.0,
+      blocked: false
+    )
 
-    var hadUnknown = false
-    let stream = try await model.generateContentStream("Hi")
+    var foundUnknownSafetyRating = false
+    let stream = try model.generateContentStream("Hi")
     for try await content in stream {
       XCTAssertNotNil(content.text)
       if let ratings = content.candidates.first?.safetyRatings,
-         ratings.contains(where: { $0.category == .unknown }) {
-        hadUnknown = true
+         ratings.contains(where: { $0 == unknownSafetyRating }) {
+        foundUnknownSafetyRating = true
       }
     }
 
-    XCTAssertTrue(hadUnknown)
+    XCTAssertTrue(foundUnknownSafetyRating)
   }
 
   func testGenerateContentStream_successWithCitations() async throws {
@@ -939,15 +1061,21 @@ final class GenerativeModelTests: XCTestCase {
         forResource: "streaming-success-citations",
         withExtension: "txt"
       )
+    let expectedPublicationDate = DateComponents(
+      calendar: Calendar(identifier: .gregorian),
+      year: 2014,
+      month: 3,
+      day: 30
+    )
 
-    let stream = try await model.generateContentStream("Hi")
+    let stream = try model.generateContentStream("Hi")
     var citations = [Citation]()
     var responses = [GenerateContentResponse]()
     for try await content in stream {
       responses.append(content)
       XCTAssertNotNil(content.text)
       let candidate = try XCTUnwrap(content.candidates.first)
-      if let sources = candidate.citationMetadata?.citationSources {
+      if let sources = candidate.citationMetadata?.citations {
         citations.append(contentsOf: sources)
       }
     }
@@ -959,18 +1087,19 @@ final class GenerativeModelTests: XCTestCase {
       .contains {
         $0.startIndex == 0 && $0.endIndex == 128
           && $0.uri == "https://www.example.com/some-citation-1" && $0.title == nil
-          && $0.license == nil
+          && $0.license == nil && $0.publicationDate == nil
       })
     XCTAssertTrue(citations
       .contains {
         $0.startIndex == 130 && $0.endIndex == 265 && $0.uri == nil
           && $0.title == "some-citation-2" && $0.license == nil
+          && $0.publicationDate == expectedPublicationDate
       })
     XCTAssertTrue(citations
       .contains {
         $0.startIndex == 272 && $0.endIndex == 431
           && $0.uri == "https://www.example.com/some-citation-3" && $0.title == nil
-          && $0.license == "mit"
+          && $0.license == "mit" && $0.publicationDate == nil
       })
     XCTAssertFalse(citations.contains { $0.uri?.isEmpty ?? false })
     XCTAssertFalse(citations.contains { $0.title?.isEmpty ?? false })
@@ -996,7 +1125,7 @@ final class GenerativeModelTests: XCTestCase {
         appCheckToken: appCheckToken
       )
 
-    let stream = try await model.generateContentStream(testPrompt)
+    let stream = try model.generateContentStream(testPrompt)
     for try await _ in stream {}
   }
 
@@ -1018,7 +1147,7 @@ final class GenerativeModelTests: XCTestCase {
         appCheckToken: AppCheckInteropFake.placeholderTokenValue
       )
 
-    let stream = try await model.generateContentStream(testPrompt)
+    let stream = try model.generateContentStream(testPrompt)
     for try await _ in stream {}
   }
 
@@ -1030,7 +1159,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     var responses = [GenerateContentResponse]()
 
-    let stream = try await model.generateContentStream(testPrompt)
+    let stream = try model.generateContentStream(testPrompt)
     for try await response in stream {
       responses.append(response)
     }
@@ -1056,7 +1185,7 @@ final class GenerativeModelTests: XCTestCase {
 
     var responseCount = 0
     do {
-      let stream = try await model.generateContentStream("Hi")
+      let stream = try model.generateContentStream("Hi")
       for try await content in stream {
         XCTAssertNotNil(content.text)
         responseCount += 1
@@ -1076,7 +1205,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_nonHTTPResponse() async throws {
     MockURLProtocol.requestHandler = try nonHTTPRequestHandler()
 
-    let stream = try await model.generateContentStream("Hi")
+    let stream = try model.generateContentStream("Hi")
     do {
       for try await content in stream {
         XCTFail("Unexpected content in stream: \(content)")
@@ -1096,7 +1225,7 @@ final class GenerativeModelTests: XCTestCase {
         withExtension: "txt"
       )
 
-    let stream = try await model.generateContentStream(testPrompt)
+    let stream = try model.generateContentStream(testPrompt)
     do {
       for try await content in stream {
         XCTFail("Unexpected content in stream: \(content)")
@@ -1120,7 +1249,7 @@ final class GenerativeModelTests: XCTestCase {
         withExtension: "txt"
       )
 
-    let stream = try await model.generateContentStream(testPrompt)
+    let stream = try model.generateContentStream(testPrompt)
     do {
       for try await content in stream {
         XCTFail("Unexpected content in stream: \(content)")
@@ -1159,7 +1288,7 @@ final class GenerativeModelTests: XCTestCase {
     )
 
     var responses = 0
-    let stream = try await model.generateContentStream(testPrompt)
+    let stream = try model.generateContentStream(testPrompt)
     for try await content in stream {
       XCTAssertNotNil(content.text)
       responses += 1
@@ -1182,19 +1311,58 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.totalBillableCharacters, 16)
   }
 
+  func testCountTokens_succeeds_allOptions() async throws {
+    MockURLProtocol.requestHandler = try httpRequestHandler(
+      forResource: "unary-success-total-tokens",
+      withExtension: "json"
+    )
+    let generationConfig = GenerationConfig(
+      temperature: 0.5,
+      topP: 0.9,
+      topK: 3,
+      candidateCount: 1,
+      maxOutputTokens: 1024,
+      stopSequences: ["test-stop"],
+      responseMIMEType: "text/plain"
+    )
+    let sumFunction = FunctionDeclaration(
+      name: "sum",
+      description: "Add two integers.",
+      parameters: ["x": .integer(), "y": .integer()]
+    )
+    let systemInstruction = ModelContent(
+      role: "system",
+      parts: "You are a calculator. Use the provided tools."
+    )
+    model = GenerativeModel(
+      name: testModelResourceName,
+      projectID: "my-project-id",
+      apiKey: "API_KEY",
+      generationConfig: generationConfig,
+      tools: [Tool(functionDeclarations: [sumFunction])],
+      systemInstruction: systemInstruction,
+      requestOptions: RequestOptions(),
+      appCheck: nil,
+      auth: nil,
+      urlSession: urlSession
+    )
+
+    let response = try await model.countTokens("Why is the sky blue?")
+
+    XCTAssertEqual(response.totalTokens, 6)
+    XCTAssertEqual(response.totalBillableCharacters, 16)
+  }
+
   func testCountTokens_succeeds_noBillableCharacters() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-no-billable-characters",
       withExtension: "json"
     )
 
-    let response = try await model.countTokens(ModelContent.Part.data(
-      mimetype: "image/jpeg",
-      Data()
-    ))
+    let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
 
     XCTAssertEqual(response.totalTokens, 258)
-    XCTAssertEqual(response.totalBillableCharacters, 0)
+    XCTAssertNil(response.totalBillableCharacters)
   }
 
   func testCountTokens_modelNotFound() async throws {
@@ -1206,7 +1374,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.countTokens("Why is the sky blue?")
       XCTFail("Request should not have succeeded.")
-    } catch let CountTokensError.internalError(rpcError as RPCError) {
+    } catch let rpcError as RPCError {
       XCTAssertEqual(rpcError.httpResponseCode, 404)
       XCTAssertEqual(rpcError.status, .notFound)
       XCTAssert(rpcError.message.hasPrefix("models/test-model-name is not found"))
@@ -1267,7 +1435,7 @@ final class GenerativeModelTests: XCTestCase {
   private func httpRequestHandler(forResource name: String,
                                   withExtension ext: String,
                                   statusCode: Int = 200,
-                                  timeout: TimeInterval = URLRequest.defaultTimeoutInterval(),
+                                  timeout: TimeInterval = RequestOptions().timeout,
                                   appCheckToken: String? = nil,
                                   authToken: String? = nil) throws -> ((URLRequest) throws -> (
     URLResponse,
@@ -1278,11 +1446,7 @@ final class GenerativeModelTests: XCTestCase {
     #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
     #endif // os(watchOS)
-    #if SWIFT_PACKAGE
-      let bundle = Bundle.module
-    #else // SWIFT_PACKAGE
-      let bundle = Bundle(for: Self.self)
-    #endif // SWIFT_PACKAGE
+    let bundle = BundleTestUtil.bundle()
     let fileURL = try XCTUnwrap(bundle.url(forResource: name, withExtension: ext))
     return { request in
       let requestURL = try XCTUnwrap(request.url)
@@ -1313,14 +1477,6 @@ private extension String {
   /// Returns the number of occurrences of `substring` in the `String`.
   func occurrenceCount(of substring: String) -> Int {
     return components(separatedBy: substring).count - 1
-  }
-}
-
-private extension URLRequest {
-  /// Returns the default `timeoutInterval` for a `URLRequest`.
-  static func defaultTimeoutInterval() -> TimeInterval {
-    let placeholderURL = URL(string: "https://example.com")!
-    return URLRequest(url: placeholderURL).timeoutInterval
   }
 }
 
@@ -1375,7 +1531,7 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
 struct AppCheckErrorFake: Error {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension SafetyRating: Comparable {
+extension SafetyRating: Swift.Comparable {
   public static func < (lhs: FirebaseVertexAI.SafetyRating,
                         rhs: FirebaseVertexAI.SafetyRating) -> Bool {
     return lhs.category.rawValue < rhs.category.rawValue

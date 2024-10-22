@@ -19,7 +19,7 @@ import FirebaseCoreExtension
 
 /// Defines configurations to be added to a request to Firebase Auth's backend.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthRequestConfiguration: NSObject {
+class AuthRequestConfiguration {
   /// The Firebase Auth API key used in the request.
   let apiKey: String
 

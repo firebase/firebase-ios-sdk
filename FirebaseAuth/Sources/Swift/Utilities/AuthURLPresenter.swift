@@ -89,6 +89,7 @@
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
       kAuthGlobalWorkQueue.async {
         if controller == self.safariViewController {
+          self.safariViewController = nil
           // TODO: Ensure that the SFSafariViewController is actually removed from the screen
           // before invoking finishPresentation
           self.finishPresentation(withURL: nil,

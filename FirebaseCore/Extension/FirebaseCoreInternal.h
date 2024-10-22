@@ -21,4 +21,3 @@
 #import "FIRHeartbeatLogger.h"
 #import "FIRLibrary.h"
 #import "FIRLogger.h"
-#import "FIROptionsInternal.h"

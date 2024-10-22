@@ -109,13 +109,6 @@
     ]
   },
   {
-    "sdk": "google-utilities-components",
-    "podspecs": ["GoogleUtilitiesComponents.podspec"],
-    "filePatterns": [
-      "^GoogleUtilitiesComponents.*"
-    ]
-  },
-  {
     "sdk": "inappmessaging",
     "podspecs": ["FirebaseInAppMessaging.podspec"],
     "filePatterns": [

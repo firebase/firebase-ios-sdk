@@ -28,16 +28,9 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
-        os: [macos-14, macos-13]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-            tests: --skip-tests
-          - os: macos-13
-            xcode: Xcode_15.2
-            tests:
+        os: [macos-14]
+        xcode: [Xcode_15.2]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -48,7 +41,6 @@ jobs:
       run: scripts/configure_test_keychain.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-#TODO: Restore warnings check after resolution of #11693
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120
@@ -57,22 +49,125 @@ jobs:
         retry_wait_seconds: 120
         command: scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} ${{ matrix.tests }}
 
+  # TODO: Fix warnings on Xcode 16 and move into matrix above.
+  pod-lib-lint-xc16:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    strategy:
+      matrix:
+        podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
+        target: [ios, tvos, macos --skip-tests --allow-warnings, watchos]
+        os: [macos-15]
+        xcode: [Xcode_16]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Configure test keychain
+      run: scripts/configure_test_keychain.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} ${{ matrix.tests }} --allow-warnings
+
+  spm-package-resolved:
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-14
+    outputs:
+      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Swift Package.resolved
+        id: swift_package_resolve
+        run: |
+          swift package resolve
+      - name: Generate cache key
+        id: generate_cache_key
+        run: |
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: .build
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
+
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    needs: [spm-package-resolved]
+    strategy:
+      matrix:
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS spm
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS spm
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS spm
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS spm
+          - os: macos-15
+            xcode: Xcode_16
+            target: macOS spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16
+            target: watchOS spm
+          - os: macos-15
+            xcode: Xcode_16
+            target: catalyst spm
+          - os: macos-15
+            xcode: Xcode_16
+            target: visionOS spm
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }}
+
   integration-tests:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    needs: [spm-package-resolved]
     strategy:
       matrix:
         scheme: [ObjCApiTests, SwiftApiTests, AuthenticationExampleUITests]
-
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+    - uses: actions/cache/restore@v4
       with:
-        cache_key: integration-tests${{ matrix.os }}
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Install Secrets
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
@@ -90,7 +185,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
           FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift "$plist_secret"
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120
@@ -98,42 +193,6 @@ jobs:
         retry_on: error
         retry_wait_seconds: 120
         command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS ${{ matrix.scheme }})
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-13, macos-14]
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            test: spmbuildonly
-          - os: macos-14
-            xcode: Xcode_15.3
-            test: spmbuildonly
-          - os: macos-14
-            xcode: Xcode_15.3
-            target: visionOS
-            test: spm
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - uses: nick-fields/retry@v3
-      with:
-        timeout_minutes: 120
-        max_attempts: 3
-        retry_on: error
-        retry_wait_seconds: 120
-        command: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} ${{ matrix.test }}
 
   catalyst:
     # Don't run on private repo unless it is a PR.
@@ -186,7 +245,7 @@ jobs:
   #   steps:
   #   - uses: actions/checkout@v4
   #   - uses: ruby/setup-ruby@v1
-  #   - uses: actions/setup-python@v4
+  #   - uses: actions/setup-python@v5
   #     with:
   #      python-version: '3.11'
   #   - name: Setup quickstart

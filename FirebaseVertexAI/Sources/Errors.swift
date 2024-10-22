@@ -31,8 +31,8 @@ struct RPCError: Error {
     self.details = details
   }
 
-  func isFirebaseMLServiceDisabledError() -> Bool {
-    return details.contains { $0.isFirebaseMLServiceDisabledErrorDetails() }
+  func isVertexAIInFirebaseServiceDisabledError() -> Bool {
+    return details.contains { $0.isVertexAIInFirebaseServiceDisabledErrorDetails() }
   }
 }
 
@@ -86,17 +86,15 @@ struct ErrorDetails {
     return type == ErrorDetails.errorInfoType
   }
 
-  func isFirebaseMLServiceDisabledErrorDetails() -> Bool {
-    guard isErrorInfo() else {
+  func isServiceDisabledError() -> Bool {
+    return isErrorInfo() && reason == "SERVICE_DISABLED" && domain == "googleapis.com"
+  }
+
+  func isVertexAIInFirebaseServiceDisabledErrorDetails() -> Bool {
+    guard isServiceDisabledError() else {
       return false
     }
-    guard reason == "SERVICE_DISABLED" else {
-      return false
-    }
-    guard domain == "googleapis.com" else {
-      return false
-    }
-    guard let metadata, metadata["service"] == "firebaseml.googleapis.com" else {
+    guard let metadata, metadata["service"] == "firebasevertexai.googleapis.com" else {
       return false
     }
     return true

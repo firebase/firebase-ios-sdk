@@ -191,7 +191,7 @@ API_AVAILABLE(ios(14))
          applicationVersion:@"1"];
 }
 
-- (FIRCLSMockMXDiskWriteExceptionDiagnostic *)createDiskWriteExcptionDiagnostic {
+- (FIRCLSMockMXDiskWriteExceptionDiagnostic *)createDiskWriteExceptionDiagnostic {
   return [[FIRCLSMockMXDiskWriteExceptionDiagnostic alloc]
       initWithCallStackTree:[self createMockCallStackTree]
           totalWritesCaused:[[NSMeasurement alloc] initWithDoubleValue:24.0
@@ -227,7 +227,7 @@ API_AVAILABLE(ios(14))
 
 - (FIRCLSMockMXDiagnosticPayload *)createDiskWriteExceptionDiagnosticPayload {
   NSDictionary *diagnostics =
-      @{@"diskWriteExceptionDiagnostics" : @[ [self createDiskWriteExcptionDiagnostic] ]};
+      @{@"diskWriteExceptionDiagnostics" : @[ [self createDiskWriteExceptionDiagnostic] ]};
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
                                                      timeStampBegin:self.beginTime
                                                        timeStampEnd:self.endTime
@@ -239,7 +239,7 @@ API_AVAILABLE(ios(14))
     @"crashes" : @[ [self createCrashDiagnostic] ],
     @"hangs" : @[ [self createHangDiagnostic] ],
     @"cpuExceptionDiagnostics" : @[ [self createCPUExceptionDiagnostic] ],
-    @"diskWriteExceptionDiagnostics" : @[ [self createDiskWriteExcptionDiagnostic] ]
+    @"diskWriteExceptionDiagnostics" : @[ [self createDiskWriteExceptionDiagnostic] ]
   };
   return [[FIRCLSMockMXDiagnosticPayload alloc] initWithDiagnostics:diagnostics
                                                      timeStampBegin:self.beginTime

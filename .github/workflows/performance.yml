@@ -55,12 +55,8 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos]
-        os: [macos-14, macos-13]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-13
-            xcode: Xcode_15.2
+        os: [macos-14]
+        xcode: [Xcode_15.2, Xcode_16]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -104,7 +100,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     - name: Setup quickstart
@@ -123,23 +119,54 @@ jobs:
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
 
+  spm-package-resolved:
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-14
+    outputs:
+      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Swift Package.resolved
+        id: swift_package_resolve
+        run: |
+          swift package resolve
+      - name: Generate cache key
+        id: generate_cache_key
+        run: |
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: .build
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    needs: [spm-package-resolved]
     strategy:
       matrix:
-        target: [iOS, tvOS]
         include:
-          - os: macos-14
-            xcode: Xcode_15.3
           - os: macos-13
             xcode: Xcode_15.2
+            target: iOS
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+    - uses: actions/cache/restore@v4
       with:
-        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild

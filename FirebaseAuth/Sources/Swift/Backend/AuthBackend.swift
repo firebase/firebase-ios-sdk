@@ -22,7 +22,7 @@ import Foundation
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-protocol AuthBackendRPCIssuer: NSObjectProtocol {
+protocol AuthBackendRPCIssuer {
   /// Asynchronously send a HTTP request.
   /// - Parameter request: The request to be made.
   /// - Parameter body: Request body.
@@ -35,10 +35,10 @@ protocol AuthBackendRPCIssuer: NSObjectProtocol {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
+class AuthBackendRPCIssuerImplementation: AuthBackendRPCIssuer {
   let fetcherService: GTMSessionFetcherService
 
-  override init() {
+  init() {
     fetcherService = GTMSessionFetcherService()
     fetcherService.userAgent = AuthBackend.authUserAgent()
     fetcherService.callbackQueue = kAuthGlobalWorkQueue
@@ -71,26 +71,24 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthBackend: NSObject {
+class AuthBackend {
   static func authUserAgent() -> String {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
   }
 
-  private static var gBackendImplementation: AuthBackendImplementation?
+  private static var realRPCBackend = AuthBackendRPCImplementation()
+  private static var gBackendImplementation = realRPCBackend
 
-  class func setDefaultBackendImplementationWithRPCIssuer(issuer: AuthBackendRPCIssuer?) {
-    let defaultImplementation = AuthBackendRPCImplementation()
-    if let issuer = issuer {
-      defaultImplementation.rpcIssuer = issuer
-    }
-    gBackendImplementation = defaultImplementation
+  class func setTestRPCIssuer(issuer: AuthBackendRPCIssuer) {
+    gBackendImplementation.rpcIssuer = issuer
+  }
+
+  class func resetRPCIssuer() {
+    gBackendImplementation.rpcIssuer = realRPCBackend.rpcIssuer
   }
 
   class func implementation() -> AuthBackendImplementation {
-    if gBackendImplementation == nil {
-      gBackendImplementation = AuthBackendRPCImplementation()
-    }
-    return gBackendImplementation!
+    return gBackendImplementation
   }
 
   class func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
@@ -100,6 +98,11 @@ class AuthBackend: NSObject {
   class func request(withURL url: URL,
                      contentType: String,
                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
+    // Kick off tasks for the async header values.
+    async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue()
+    async let appCheckTokenHeaderValue = requestConfiguration.appCheck?
+      .getToken(forcingRefresh: true)
+
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
@@ -108,9 +111,6 @@ class AuthBackend: NSObject {
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-      request.setValue(heartbeatLogger.headerValue(), forHTTPHeaderField: "X-Firebase-Client")
-    }
     request.httpMethod = requestConfiguration.httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
@@ -120,8 +120,9 @@ class AuthBackend: NSObject {
        languageCode.count > 0 {
       request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
     }
-    if let appCheck = requestConfiguration.appCheck {
-      let tokenResult = await appCheck.getToken(forcingRefresh: false)
+    // Wait for the async header values.
+    await request.setValue(heartbeatsHeaderValue, forHTTPHeaderField: "X-Firebase-Client")
+    if let tokenResult = await appCheckTokenHeaderValue {
       if let error = tokenResult.error {
         AuthLog.logWarning(code: "I-AUT000018",
                            message: "Error getting App Check token; using placeholder " +
@@ -139,11 +140,8 @@ protocol AuthBackendImplementation {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
-  var rpcIssuer: AuthBackendRPCIssuer
-  override init() {
-    rpcIssuer = AuthBackendRPCIssuerImplementation()
-  }
+private class AuthBackendRPCImplementation: AuthBackendImplementation {
+  var rpcIssuer: AuthBackendRPCIssuer = AuthBackendRPCIssuerImplementation()
 
   /// Calls the RPC using HTTP request.
   /// Possible error responses:

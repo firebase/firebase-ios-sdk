@@ -19,7 +19,7 @@ private let kErrorKey = "error"
 
 /// Represents the provider user info part of the response from the getAccountInfo endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
-class GetAccountInfoResponseProviderUserInfo: NSObject {
+class GetAccountInfoResponseProviderUserInfo {
   /// The ID of the identity provider.
   let providerID: String?
 
@@ -57,7 +57,7 @@ class GetAccountInfoResponseProviderUserInfo: NSObject {
 
 /// Represents the firebase user info part of the response from the getAccountInfo endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
-class GetAccountInfoResponseUser: NSObject {
+class GetAccountInfoResponseUser {
   /// The ID of the user.
   let localID: String?
 

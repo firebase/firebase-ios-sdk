@@ -14,60 +14,34 @@
 
 import Foundation
 
-/// A type describing data in media formats interpretable by an AI model. Each generative AI
-/// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
-/// may comprise multiple heterogeneous ``ModelContent/Part``s.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelContent: Equatable, Sendable {
-  /// A discrete piece of data in a media format interpretable by an AI model. Within a single value
-  /// of ``Part``, different data types may not mix.
-  public enum Part: Equatable, Sendable {
-    /// Text value.
-    case text(String)
-
-    /// Data with a specified media type. Not all media types may be supported by the AI model.
-    case data(mimetype: String, Data)
-
-    /// File data stored in Cloud Storage for Firebase, referenced by URI.
-    ///
-    /// > Note: Supported media types depends on the model; see [media requirements
-    /// > ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
-    /// > for details.
-    ///
-    /// - Parameters:
-    ///   - mimetype: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
-    ///     or `"video/mp4"`; see [media requirements
-    ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
-    ///     for supported values.
-    ///   - uri: The `"gs://"`-prefixed URI of the file in Cloud Storage for Firebase, for example,
-    ///     `"gs://bucket-name/path/image.jpg"`.
-    case fileData(mimetype: String, uri: String)
-
-    /// A predicted function call returned from the model.
-    case functionCall(FunctionCall)
-
-    /// A response to a function call.
-    case functionResponse(FunctionResponse)
-
-    // MARK: Convenience Initializers
-
-    /// Convenience function for populating a Part with JPEG data.
-    public static func jpeg(_ data: Data) -> Self {
-      return .data(mimetype: "image/jpeg", data)
-    }
-
-    /// Convenience function for populating a Part with PNG data.
-    public static func png(_ data: Data) -> Self {
-      return .data(mimetype: "image/png", data)
-    }
-
-    /// Returns the text contents of this ``Part``, if it contains text.
-    public var text: String? {
-      switch self {
-      case let .text(contents): return contents
-      default: return nil
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension [ModelContent] {
+  // TODO: Rename and refactor this.
+  func throwIfError() throws {
+    for content in self {
+      for part in content.parts {
+        switch part {
+        case let errorPart as ErrorPart:
+          throw errorPart.error
+        default:
+          break
+        }
       }
     }
+  }
+}
+
+/// A type describing data in media formats interpretable by an AI model. Each generative AI
+/// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
+/// may comprise multiple heterogeneous ``Part``s.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ModelContent: Equatable, Sendable {
+  enum InternalPart: Equatable, Sendable {
+    case text(String)
+    case inlineData(mimetype: String, Data)
+    case fileData(mimetype: String, uri: String)
+    case functionCall(FunctionCall)
+    case functionResponse(FunctionResponse)
   }
 
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
@@ -75,40 +49,56 @@ public struct ModelContent: Equatable, Sendable {
   public let role: String?
 
   /// The data parts comprising this ``ModelContent`` value.
-  public let parts: [Part]
-
-  /// Creates a new value from any data or `Array` of data interpretable as a
-  /// ``Part``. See ``ThrowingPartsRepresentable`` for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", parts: some ThrowingPartsRepresentable) throws {
-    self.role = role
-    try self.parts = parts.tryPartsValue()
+  public var parts: [any Part] {
+    var convertedParts = [any Part]()
+    for part in internalParts {
+      switch part {
+      case let .text(text):
+        convertedParts.append(TextPart(text))
+      case let .inlineData(mimetype, data):
+        convertedParts.append(InlineDataPart(data: data, mimeType: mimetype))
+      case let .fileData(mimetype, uri):
+        convertedParts.append(FileDataPart(uri: uri, mimeType: mimetype))
+      case let .functionCall(functionCall):
+        convertedParts.append(FunctionCallPart(functionCall))
+      case let .functionResponse(functionResponse):
+        convertedParts.append(FunctionResponsePart(functionResponse))
+      }
+    }
+    return convertedParts
   }
 
-  /// Creates a new value from any data or `Array` of data interpretable as a
-  /// ``Part``. See ``ThrowingPartsRepresentable`` for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", parts: some PartsRepresentable) {
-    self.role = role
-    self.parts = parts.partsValue
-  }
+  // TODO: Refactor this
+  let internalParts: [InternalPart]
 
   /// Creates a new value from a list of ``Part``s.
-  public init(role: String? = "user", parts: [Part]) {
+  public init(role: String? = "user", parts: [any Part]) {
     self.role = role
-    self.parts = parts
+    var convertedParts = [InternalPart]()
+    for part in parts {
+      switch part {
+      case let textPart as TextPart:
+        convertedParts.append(.text(textPart.text))
+      case let inlineDataPart as InlineDataPart:
+        let inlineData = inlineDataPart.inlineData
+        convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
+      case let fileDataPart as FileDataPart:
+        let fileData = fileDataPart.fileData
+        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.fileURI))
+      case let functionCallPart as FunctionCallPart:
+        convertedParts.append(.functionCall(functionCallPart.functionCall))
+      case let functionResponsePart as FunctionResponsePart:
+        convertedParts.append(.functionResponse(functionResponsePart.functionResponse))
+      default:
+        fatalError()
+      }
+    }
+    internalParts = convertedParts
   }
 
-  /// Creates a new value from any data interpretable as a ``Part``. See
-  /// ``ThrowingPartsRepresentable``
-  /// for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", _ parts: any ThrowingPartsRepresentable...) throws {
-    let content = try parts.flatMap { try $0.tryPartsValue() }
-    self.init(role: role, parts: content)
-  }
-
-  /// Creates a new value from any data interpretable as a ``Part``. See
-  /// ``ThrowingPartsRepresentable``
-  /// for types that can be interpreted as `Part`s.
-  public init(role: String? = "user", _ parts: [PartsRepresentable]) {
+  /// Creates a new value from any data interpretable as a ``Part``.
+  /// See ``PartsRepresentable`` for types that can be interpreted as `Part`s.
+  public init(role: String? = "user", parts: any PartsRepresentable...) {
     let content = parts.flatMap { $0.partsValue }
     self.init(role: role, parts: content)
   }
@@ -116,11 +106,16 @@ public struct ModelContent: Equatable, Sendable {
 
 // MARK: Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent: Codable {}
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ModelContent: Codable {
+  enum CodingKeys: String, CodingKey {
+    case role
+    case internalParts = "parts"
+  }
+}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent.Part: Codable {
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ModelContent.InternalPart: Codable {
   enum CodingKeys: String, CodingKey {
     case text
     case inlineData
@@ -129,35 +124,15 @@ extension ModelContent.Part: Codable {
     case functionResponse
   }
 
-  enum InlineDataKeys: String, CodingKey {
-    case mimeType = "mime_type"
-    case bytes = "data"
-  }
-
-  enum FileDataKeys: String, CodingKey {
-    case mimeType = "mime_type"
-    case uri = "file_uri"
-  }
-
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
-    case let .text(a0):
-      try container.encode(a0, forKey: .text)
-    case let .data(mimetype, bytes):
-      var inlineDataContainer = container.nestedContainer(
-        keyedBy: InlineDataKeys.self,
-        forKey: .inlineData
-      )
-      try inlineDataContainer.encode(mimetype, forKey: .mimeType)
-      try inlineDataContainer.encode(bytes, forKey: .bytes)
+    case let .text(text):
+      try container.encode(text, forKey: .text)
+    case let .inlineData(mimetype, bytes):
+      try container.encode(InlineData(data: bytes, mimeType: mimetype), forKey: .inlineData)
     case let .fileData(mimetype: mimetype, url):
-      var fileDataContainer = container.nestedContainer(
-        keyedBy: FileDataKeys.self,
-        forKey: .fileData
-      )
-      try fileDataContainer.encode(mimetype, forKey: .mimeType)
-      try fileDataContainer.encode(url, forKey: .uri)
+      try container.encode(FileData(fileURI: url, mimeType: mimetype), forKey: .fileData)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
@@ -170,19 +145,20 @@ extension ModelContent.Part: Codable {
     if values.contains(.text) {
       self = try .text(values.decode(String.self, forKey: .text))
     } else if values.contains(.inlineData) {
-      let dataContainer = try values.nestedContainer(
-        keyedBy: InlineDataKeys.self,
-        forKey: .inlineData
-      )
-      let mimetype = try dataContainer.decode(String.self, forKey: .mimeType)
-      let bytes = try dataContainer.decode(Data.self, forKey: .bytes)
-      self = .data(mimetype: mimetype, bytes)
+      let inlineData = try values.decode(InlineData.self, forKey: .inlineData)
+      self = .inlineData(mimetype: inlineData.mimeType, inlineData.data)
+    } else if values.contains(.fileData) {
+      let fileData = try values.decode(FileData.self, forKey: .fileData)
+      self = .fileData(mimetype: fileData.mimeType, uri: fileData.fileURI)
     } else if values.contains(.functionCall) {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
+    } else if values.contains(.functionResponse) {
+      self = try .functionResponse(values.decode(FunctionResponse.self, forKey: .functionResponse))
     } else {
-      throw DecodingError.dataCorrupted(.init(
-        codingPath: [CodingKeys.text, CodingKeys.inlineData],
-        debugDescription: "No text, inline data or function call was found."
+      let unexpectedKeys = values.allKeys.map { $0.stringValue }
+      throw DecodingError.dataCorrupted(DecodingError.Context(
+        codingPath: values.codingPath,
+        debugDescription: "Unexpected Part type(s): \(unexpectedKeys)"
       ))
     }
   }

@@ -110,7 +110,7 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   NSString *reason = [exception reason] ?: @"";
 
   // It's tempting to try to make use of callStackSymbols here.  But, the output
-  // of that function is not intended to be machine-readible.  We could parse it,
+  // of that function is not intended to be machine-readable.  We could parse it,
   // but that isn't really worthwhile, considering that address-based symbolication
   // needs to work anyways.
 

@@ -15,9 +15,10 @@
 import Foundation
 
 /// The model's response to a generate content request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct UsageMetadata: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
@@ -30,7 +31,7 @@ public struct GenerateContentResponse: Sendable {
   }
 
   /// A list of candidate response content, ordered from best to worst.
-  public let candidates: [CandidateResponse]
+  public let candidates: [Candidate]
 
   /// A value containing the safety ratings for the response, or, if the request was blocked, a
   /// reason for blocking the request.
@@ -42,39 +43,47 @@ public struct GenerateContentResponse: Sendable {
   /// The response's content as text, if it exists.
   public var text: String? {
     guard let candidate = candidates.first else {
-      Logging.default
-        .error("[FirebaseVertexAI] Could not get text from a response that had no candidates.")
+      VertexLog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
-      guard case let .text(text) = part else {
+      switch part {
+      case let textPart as TextPart:
+        return textPart.text
+      default:
         return nil
       }
-      return text
     }
     guard textValues.count > 0 else {
-      Logging.default
-        .error("[FirebaseVertexAI] Could not get a text part from the first candidate.")
+      VertexLog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
+      )
       return nil
     }
     return textValues.joined(separator: " ")
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
-  public var functionCalls: [FunctionCall] {
+  public var functionCalls: [FunctionCallPart] {
     guard let candidate = candidates.first else {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      guard case let .functionCall(functionCall) = part else {
+      switch part {
+      case let functionCallPart as FunctionCallPart:
+        return functionCallPart
+      default:
         return nil
       }
-      return functionCall
     }
   }
 
   /// Initializer for SwiftUI previews or tests.
-  public init(candidates: [CandidateResponse], promptFeedback: PromptFeedback? = nil,
+  public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
@@ -84,8 +93,8 @@ public struct GenerateContentResponse: Sendable {
 
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct CandidateResponse: Sendable {
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct Candidate: Sendable {
   /// The response's content.
   public let content: ModelContent
 
@@ -110,14 +119,14 @@ public struct CandidateResponse: Sendable {
 }
 
 /// A collection of source attributions for a piece of content.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CitationMetadata: Sendable {
   /// A list of individual cited sources and the parts of the content to which they apply.
-  public let citationSources: [Citation]
+  public let citations: [Citation]
 }
 
 /// A struct describing a source attribution.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Citation: Sendable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
@@ -133,67 +142,124 @@ public struct Citation: Sendable {
 
   /// The license the cited source work is distributed under, if specified.
   public let license: String?
+
+  /// The publication date of the cited source, if available.
+  ///
+  /// > Tip: `DateComponents` can be converted to a `Date` using the `date` computed property.
+  public let publicationDate: DateComponents?
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public enum FinishReason: String, Sendable {
-  case unknown = "FINISH_REASON_UNKNOWN"
-
-  case unspecified = "FINISH_REASON_UNSPECIFIED"
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
+  enum Kind: String {
+    case stop = "STOP"
+    case maxTokens = "MAX_TOKENS"
+    case safety = "SAFETY"
+    case recitation = "RECITATION"
+    case other = "OTHER"
+    case blocklist = "BLOCKLIST"
+    case prohibitedContent = "PROHIBITED_CONTENT"
+    case spii = "SPII"
+    case malformedFunctionCall = "MALFORMED_FUNCTION_CALL"
+  }
 
   /// Natural stop point of the model or provided stop sequence.
-  case stop = "STOP"
+  public static let stop = FinishReason(kind: .stop)
 
   /// The maximum number of tokens as specified in the request was reached.
-  case maxTokens = "MAX_TOKENS"
+  public static let maxTokens = FinishReason(kind: .maxTokens)
 
   /// The token generation was stopped because the response was flagged for safety reasons.
-  /// NOTE: When streaming, the Candidate.content will be empty if content filters blocked the
-  /// output.
-  case safety = "SAFETY"
+  ///
+  /// > NOTE: When streaming, the ``Candidate/content`` will be empty if content filters blocked the
+  /// > output.
+  public static let safety = FinishReason(kind: .safety)
 
   /// The token generation was stopped because the response was flagged for unauthorized citations.
-  case recitation = "RECITATION"
+  public static let recitation = FinishReason(kind: .recitation)
 
   /// All other reasons that stopped token generation.
-  case other = "OTHER"
+  public static let other = FinishReason(kind: .other)
+
+  /// Token generation was stopped because the response contained forbidden terms.
+  public static let blocklist = FinishReason(kind: .blocklist)
+
+  /// Token generation was stopped because the response contained potentially prohibited content.
+  public static let prohibitedContent = FinishReason(kind: .prohibitedContent)
+
+  /// Token generation was stopped because of Sensitive Personally Identifiable Information (SPII).
+  public static let spii = FinishReason(kind: .spii)
+
+  /// Token generation was stopped because the function call generated by the model was invalid.
+  public static let malformedFunctionCall = FinishReason(kind: .malformedFunctionCall)
+
+  /// Returns the raw string representation of the `FinishReason` value.
+  ///
+  /// > Note: This value directly corresponds to the values in the [REST
+  /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#FinishReason).
+  public let rawValue: String
+
+  static let unrecognizedValueMessageCode =
+    VertexLog.MessageCode.generateContentResponseUnrecognizedFinishReason
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct PromptFeedback: Sendable {
   /// A type describing possible reasons to block a prompt.
-  public enum BlockReason: String, Sendable {
-    /// The block reason is unknown.
-    case unknown = "UNKNOWN"
-
-    /// The block reason was not specified in the server response.
-    case unspecified = "BLOCK_REASON_UNSPECIFIED"
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct BlockReason: DecodableProtoEnum, Hashable, Sendable {
+    enum Kind: String {
+      case safety = "SAFETY"
+      case other = "OTHER"
+      case blocklist = "BLOCKLIST"
+      case prohibitedContent = "PROHIBITED_CONTENT"
+    }
 
     /// The prompt was blocked because it was deemed unsafe.
-    case safety = "SAFETY"
+    public static let safety = BlockReason(kind: .safety)
 
     /// All other block reasons.
-    case other = "OTHER"
+    public static let other = BlockReason(kind: .other)
+
+    /// The prompt was blocked because it contained terms from the terminology blocklist.
+    public static let blocklist = BlockReason(kind: .blocklist)
+
+    /// The prompt was blocked due to prohibited content.
+    public static let prohibitedContent = BlockReason(kind: .prohibitedContent)
+
+    /// Returns the raw string representation of the `BlockReason` value.
+    ///
+    /// > Note: This value directly corresponds to the values in the [REST
+    /// > API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/GenerateContentResponse#BlockedReason).
+    public let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      VertexLog.MessageCode.generateContentResponseUnrecognizedBlockReason
   }
 
   /// The reason a prompt was blocked, if it was blocked.
   public let blockReason: BlockReason?
 
+  /// A human-readable description of the ``blockReason``.
+  public let blockReasonMessage: String?
+
   /// The safety ratings of the prompt.
   public let safetyRatings: [SafetyRating]
 
   /// Initializer for SwiftUI previews or tests.
-  public init(blockReason: BlockReason?, safetyRatings: [SafetyRating]) {
+  public init(blockReason: BlockReason?, blockReasonMessage: String? = nil,
+              safetyRatings: [SafetyRating]) {
     self.blockReason = blockReason
+    self.blockReasonMessage = blockReasonMessage
     self.safetyRatings = safetyRatings
   }
 }
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse: Decodable {
   enum CodingKeys: CodingKey {
     case candidates
@@ -215,7 +281,7 @@ extension GenerateContentResponse: Decodable {
     }
 
     if let candidates = try container.decodeIfPresent(
-      [CandidateResponse].self,
+      [Candidate].self,
       forKey: .candidates
     ) {
       self.candidates = candidates
@@ -227,7 +293,7 @@ extension GenerateContentResponse: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
@@ -244,8 +310,8 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CandidateResponse: Decodable {
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Candidate: Decodable {
   enum CodingKeys: CodingKey {
     case content
     case safetyRatings
@@ -293,14 +359,10 @@ extension CandidateResponse: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CitationMetadata: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case citationSources = "citations"
-  }
-}
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension CitationMetadata: Decodable {}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
   enum CodingKeys: CodingKey {
     case startIndex
@@ -308,65 +370,55 @@ extension Citation: Decodable {
     case uri
     case title
     case license
+    case publicationDate
   }
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
     endIndex = try container.decode(Int.self, forKey: .endIndex)
+
     if let uri = try container.decodeIfPresent(String.self, forKey: .uri), !uri.isEmpty {
       self.uri = uri
     } else {
       uri = nil
     }
+
     if let title = try container.decodeIfPresent(String.self, forKey: .title), !title.isEmpty {
       self.title = title
     } else {
       title = nil
     }
+
     if let license = try container.decodeIfPresent(String.self, forKey: .license),
        !license.isEmpty {
       self.license = license
     } else {
       license = nil
     }
-  }
-}
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FinishReason: Decodable {
-  public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedFinishReason = FinishReason(rawValue: value) else {
-      Logging.default
-        .error("[FirebaseVertexAI] Unrecognized FinishReason with value \"\(value)\".")
-      self = .unknown
-      return
+    if let publicationProtoDate = try container.decodeIfPresent(
+      ProtoDate.self,
+      forKey: .publicationDate
+    ) {
+      publicationDate = publicationProtoDate.dateComponents
+      if let publicationDate, !publicationDate.isValidDate {
+        VertexLog.warning(
+          code: .decodedInvalidCitationPublicationDate,
+          "Decoded an invalid citation publication date: \(publicationDate)"
+        )
+      }
+    } else {
+      publicationDate = nil
     }
-
-    self = decodedFinishReason
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension PromptFeedback.BlockReason: Decodable {
-  public init(from decoder: Decoder) throws {
-    let value = try decoder.singleValueContainer().decode(String.self)
-    guard let decodedBlockReason = PromptFeedback.BlockReason(rawValue: value) else {
-      Logging.default
-        .error("[FirebaseVertexAI] Unrecognized BlockReason with value \"\(value)\".")
-      self = .unknown
-      return
-    }
-
-    self = decodedBlockReason
-  }
-}
-
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PromptFeedback: Decodable {
   enum CodingKeys: CodingKey {
     case blockReason
+    case blockReasonMessage
     case safetyRatings
   }
 
@@ -376,6 +428,7 @@ extension PromptFeedback: Decodable {
       PromptFeedback.BlockReason.self,
       forKey: .blockReason
     )
+    blockReasonMessage = try container.decodeIfPresent(String.self, forKey: .blockReasonMessage)
     if let safetyRatings = try container.decodeIfPresent(
       [SafetyRating].self,
       forKey: .safetyRatings

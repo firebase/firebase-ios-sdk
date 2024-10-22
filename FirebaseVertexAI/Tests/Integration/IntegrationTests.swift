@@ -19,7 +19,23 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class IntegrationTests: XCTestCase {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+  let generationConfig = GenerationConfig(
+    temperature: 0.0,
+    topP: 0.0,
+    topK: 1,
+    responseMIMEType: "text/plain"
+  )
+  let systemInstruction = ModelContent(
+    role: "system",
+    parts: "You are a friendly and helpful assistant."
+  )
+  let safetySettings = [
+    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .probability),
+    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove, method: .severity),
+    SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
+  ]
 
   var vertex: VertexAI!
   var model: GenerativeModel!
@@ -40,7 +56,11 @@ final class IntegrationTests: XCTestCase {
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
       modelName: "gemini-1.5-flash",
-      generationConfig: generationConfig
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: [],
+      toolConfig: .init(functionCallingConfig: .none()),
+      systemInstruction: systemInstruction
     )
   }
 
@@ -63,12 +83,95 @@ final class IntegrationTests: XCTestCase {
 
   // MARK: - Count Tokens
 
-  func testCountTokens() async throws {
+  func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
+    model = vertex.generativeModel(
+      modelName: "gemini-1.5-pro",
+      generationConfig: generationConfig,
+      safetySettings: [
+        SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .severity),
+        SafetySetting(harmCategory: .hateSpeech, threshold: .blockMediumAndAbove),
+        SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockOnlyHigh),
+        SafetySetting(harmCategory: .dangerousContent, threshold: .blockNone),
+        SafetySetting(harmCategory: .civicIntegrity, threshold: .off, method: .probability),
+      ],
+      toolConfig: .init(functionCallingConfig: .auto()),
+      systemInstruction: systemInstruction
+    )
 
     let response = try await model.countTokens(prompt)
 
-    XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.totalBillableCharacters, 16)
+    XCTAssertEqual(response.totalTokens, 14)
+    XCTAssertEqual(response.totalBillableCharacters, 51)
+  }
+
+  func testCountTokens_image_inlineData() async throws {
+    guard let image = UIImage(systemName: "cloud") else {
+      XCTFail("Image not found.")
+      return
+    }
+
+    let response = try await model.countTokens(image)
+
+    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_image_fileData() async throws {
+    let fileData = FileDataPart(
+      uri: "gs://ios-opensource-samples.appspot.com/ios/public/blank.jpg",
+      mimeType: "image/jpeg"
+    )
+
+    let response = try await model.countTokens(fileData)
+
+    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_functionCalling() async throws {
+    let sumDeclaration = FunctionDeclaration(
+      name: "sum",
+      description: "Adds two integers.",
+      parameters: ["x": .integer(), "y": .integer()]
+    )
+    model = vertex.generativeModel(
+      modelName: "gemini-1.5-flash",
+      tools: [.functionDeclarations([sumDeclaration])],
+      toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
+    )
+    let prompt = "What is 10 + 32?"
+    let sumCall = FunctionCallPart(name: "sum", args: ["x": .number(10), "y": .number(32)])
+    let sumResponse = FunctionResponsePart(name: "sum", response: ["result": .number(42)])
+
+    let response = try await model.countTokens([
+      ModelContent(role: "user", parts: prompt),
+      ModelContent(role: "model", parts: sumCall),
+      ModelContent(role: "function", parts: sumResponse),
+    ])
+
+    XCTAssertEqual(response.totalTokens, 24)
+    XCTAssertEqual(response.totalBillableCharacters, 71)
+  }
+
+  func testCountTokens_jsonSchema() async throws {
+    model = vertex.generativeModel(
+      modelName: "gemini-1.5-flash",
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: Schema.object(properties: [
+          "startDate": .string(format: .custom("date")),
+          "yearsSince": .integer(format: .custom("int16")),
+          "hoursSince": .integer(format: .int32),
+          "minutesSince": .integer(format: .int64),
+        ])
+      )
+    )
+    let prompt = "It is 2050-01-01, how many years, hours and minutes since 2000-01-01?"
+
+    let response = try await model.countTokens(prompt)
+
+    XCTAssertEqual(response.totalTokens, 34)
+    XCTAssertEqual(response.totalBillableCharacters, 59)
   }
 }

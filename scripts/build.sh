@@ -143,10 +143,27 @@ if [[ "$xcode_major" -lt 15 ]]; then
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 14'
   )
-else
+  watchos_flags=(
+    -sdk 'watchsimulator'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
+  )
+elif [[ "$xcode_major" -lt 16 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 15'
+  )
+  watchos_flags=(
+    -sdk 'watchsimulator'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
+  )
+else
+  ios_flags=(
+    -sdk 'iphonesimulator'
+    -destination 'platform=iOS Simulator,name=iPhone 16'
+  )
+    watchos_flags=(
+    -sdk 'watchsimulator'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
   )
 fi
 
@@ -167,10 +184,6 @@ macos_flags=(
 tvos_flags=(
   -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
-)
-watchos_flags=(
-  -sdk 'watchsimulator'
-  -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
 )
 visionos_flags=(
   -sdk 'xrsimulator'

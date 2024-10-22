@@ -68,11 +68,11 @@
   XCTAssertTrue(
       [validationError.localizedFailureReason containsString:@"invalid `registrationStatus`"]);
 
-  FIRInstallationsItem *registerredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
-                                                                      firebaseAppName:@""];
-  registerredItem.registrationStatus = FIRInstallationStatusRegistered;
+  FIRInstallationsItem *registeredItem = [[FIRInstallationsItem alloc] initWithAppID:@""
+                                                                     firebaseAppName:@""];
+  registeredItem.registrationStatus = FIRInstallationStatusRegistered;
 
-  XCTAssertFalse([registerredItem isValid:&validationError]);
+  XCTAssertFalse([registeredItem isValid:&validationError]);
   XCTAssertTrue(
       [validationError.localizedFailureReason containsString:@"`appID` must not be empty"]);
   XCTAssertTrue([validationError.localizedFailureReason

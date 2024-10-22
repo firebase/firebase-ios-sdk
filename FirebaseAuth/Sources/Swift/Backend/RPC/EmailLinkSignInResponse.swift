@@ -15,8 +15,8 @@
 import Foundation
 
 /// Represents the response from the emailLinkSignin endpoint.
-class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
-  override required init() {}
+class EmailLinkSignInResponse: AuthRPCResponse, AuthMFAResponse {
+  required init() {}
 
   /// The ID token in the email link sign-in response.
   private(set) var idToken: String?

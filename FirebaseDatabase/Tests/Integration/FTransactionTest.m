@@ -720,14 +720,14 @@ withBlock:^(FIRDataSnapshot *snapshot) { ready = [[snapshot value] boolValue];
         barTransactionDone = YES;
       }];
 
-  NSDictionary *udpateData = @{
+  NSDictionary *updateData = @{
     @"foo" : @"newValue",
     @"boo" : @"newValue",
     @"doo/foo" : @"newValue",
     @"loo" : @{@"doo" : @{@"boo" : @"newValue"}}
   };
 
-  [self waitForCompletionOf:ref updateChildValues:udpateData];
+  [self waitForCompletionOf:ref updateChildValues:updateData];
   XCTAssertTrue(fooTransactionDone, "Should have gotten cancelled before the update");
   XCTAssertFalse(barTransactionDone, "Should run after the update");
   [ref.repo setHijackHash:NO];

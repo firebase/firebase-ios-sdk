@@ -353,7 +353,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
         }
       }
       let obj = FederatedAuthImplementation()
-      try await _ = obj.credential(with: nil)
+      _ = try await obj.credential(with: nil)
     }
 
     func FIRFederatedAuthProvider_h() {
@@ -365,7 +365,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
       func FIRFedederatedAuthProvider_hAsync() async throws {
         let obj = FederatedAuthImplementation()
-        try await _ = obj.credential(with: nil)
+        _ = try await obj.credential(with: nil)
       }
     }
   #endif
