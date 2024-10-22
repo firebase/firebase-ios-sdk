@@ -74,11 +74,15 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
   return FIRHeaderValueFromHeartbeatsPayload([self flushHeartbeatsIntoPayload]);
 }
 
-- (void)asyncHeaderValueWithCompletionHandler:(void (^)(NSString *_Nullable))completionHandler
-    API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
-  [self flushHeartbeatsIntoPayloadWithCompletionHandler:^(FIRHeartbeatsPayload *payload) {
-    completionHandler(FIRHeaderValueFromHeartbeatsPayload(payload));
-  }];
+- (void)asyncHeaderValueWithCompletionHandler:(void (^)(NSString *_Nullable))completionHandler {
+  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)) {
+    [self flushHeartbeatsIntoPayloadWithCompletionHandler:^(FIRHeartbeatsPayload *payload) {
+      completionHandler(FIRHeaderValueFromHeartbeatsPayload(payload));
+    }];
+  } else {
+    // no-op
+    completionHandler(nil);
+  }
 }
 
 - (FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
@@ -87,11 +91,15 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 }
 
 - (void)flushHeartbeatsIntoPayloadWithCompletionHandler:
-    (void (^)(FIRHeartbeatsPayload *))completionHandler
-    API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
-  [_heartbeatController flushAsyncWithCompletionHandler:^(FIRHeartbeatsPayload *payload) {
-    completionHandler(payload);
-  }];
+    (void (^)(FIRHeartbeatsPayload *))completionHandler {
+  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)) {
+    [_heartbeatController flushAsyncWithCompletionHandler:^(FIRHeartbeatsPayload *payload) {
+      completionHandler(payload);
+    }];
+  } else {
+    // no-op
+    completionHandler(nil);
+  }
 }
 #endif  // FIREBASE_BUILD_CMAKE
 
