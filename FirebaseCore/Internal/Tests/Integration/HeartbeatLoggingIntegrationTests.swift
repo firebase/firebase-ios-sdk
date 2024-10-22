@@ -52,29 +52,36 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-  func testLogAndFlushAsync() async throws {
+  func testLogAndFlushAsync() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
+    let expectation = self.expectation(description: #function)
     // When
     heartbeatController.log("dummy_agent")
-    let payload = await heartbeatController.flushAsync()
-    // Then
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
-      payload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
+    heartbeatController.flushAsync { payload in
+      // Then
+      do {
+        try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          payload.headerValue(),
+          """
           {
-            "agent": "dummy_agent",
-            "dates": ["\(expectedDate)"]
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["\(expectedDate)"]
+              }
+            ]
           }
-        ]
+          """
+        )
+        expectation.fulfill()
+      } catch {
+        XCTFail("Unexpected error: \(error)")
       }
-      """
-    )
+    }
+    waitForExpectations(timeout: 1.0)
   }
 
   /// This test may flake if it is executed during the transition from one day to the next.
