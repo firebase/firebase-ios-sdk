@@ -87,7 +87,8 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 }
 
 - (void)flushHeartbeatsIntoPayloadWithCompletionHandler:
-    (void (^)(FIRHeartbeatsPayload *))completionHandler {
+    (void (^)(FIRHeartbeatsPayload *))completionHandler
+    API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
   [_heartbeatController flushAsyncWithCompletionHandler:^(FIRHeartbeatsPayload *payload) {
     completionHandler(payload);
   }];

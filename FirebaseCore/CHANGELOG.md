@@ -1,3 +1,7 @@
+# Firebase 11.4.2
+- [fixed] CocoaPods only release to fix iOS 12 build failure resulting from
+  incomplete implementation in the FirebaseCoreInternal CocoaPod.
+
 # Firebase 11.4.1
 - [fixed] CocoaPods only release to revert breaking change in
   `FirebaseCoreExtension` SDK. (#13942)
