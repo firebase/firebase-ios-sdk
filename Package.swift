@@ -1174,7 +1174,10 @@ let package = Package(
         "FirebaseStorage",
         .product(name: "nanopb", package: "nanopb"),
       ],
-      path: "SwiftPMTests/swift-test"
+      path: "SwiftPMTests/swift-test",
+      swiftSettings: [
+          .interoperabilityMode(.Cxx), // C++ interoperability setting
+      ]
     ),
     .testTarget(
       name: "analytics-import-test",
@@ -1406,9 +1409,6 @@ func firebaseFirestoreCppTarget() -> Target {
     return .target(
         name: "FirebaseFirestoreCpp",
         path: "Firestore/core/swift",
-        sources: [
-          "src",
-        ],
         publicHeadersPath: "include", // Path to the public headers
         cxxSettings: [
           .headerSearchPath("umbrella"), // Ensure the header search path is correct
