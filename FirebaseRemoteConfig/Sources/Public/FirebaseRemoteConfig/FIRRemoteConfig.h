@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
+@class FIRRemoteConfigUpdate;
 
 /// The Firebase Remote Config service default namespace, to be used if the API method does not
 /// specify a different namespace. Use the default namespace if configuring from the Google Firebase
@@ -168,19 +169,6 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 /// This value is set for outgoing requests as the `timeoutIntervalForRequest` as well as the
 /// `timeoutIntervalForResource` on the `NSURLSession`'s configuration.
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
-@end
-
-#pragma mark - FIRRemoteConfigUpdate
-/// Used by Remote Config real-time config update service, this class represents changes between the
-/// newly fetched config and the current one. An instance of this class is passed to
-/// `FIRRemoteConfigUpdateCompletion` when a new config version has been automatically fetched.
-NS_SWIFT_NAME(RemoteConfigUpdate)
-@interface FIRRemoteConfigUpdate : NSObject
-
-/// Parameter keys whose values have been updated from the currently activated values. Includes
-/// keys that are added, deleted, and whose value, value source, or metadata has changed.
-@property(nonatomic, readonly, nonnull) NSSet<NSString *> *updatedKeys;
-
 @end
 
 #pragma mark - FIRRemoteConfig

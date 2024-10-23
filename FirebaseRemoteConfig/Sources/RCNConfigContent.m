@@ -16,6 +16,8 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
