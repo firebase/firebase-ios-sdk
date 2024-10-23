@@ -399,6 +399,36 @@ class HeartbeatStorageTests: XCTestCase {
     // Then
     wait(for: expectations, timeout: 1.0, enforceOrder: true)
   }
+
+  func testForMemoryLeakInInstanceManager() {
+    // Given
+    let id = "testID"
+    var weakRefs: [WeakContainer<HeartbeatStorage>] = []
+    // Lock is used to synchronize `weakRefs` during concurrent access.
+    let weakRefsLock = NSLock()
+
+    // When
+    // Simulate concurrent access. This will help expose race conditions that could cause a crash.
+    let group = DispatchGroup()
+    for _ in 0 ..< 100 {
+      group.enter()
+      DispatchQueue.global().async {
+        let instance = HeartbeatStorage.getInstance(id: id)
+        weakRefsLock.withLock {
+          weakRefs.append(WeakContainer(object: instance))
+        }
+        group.leave()
+      }
+    }
+    group.wait()
+
+    // Then
+    // The `weakRefs` array's references should all be nil; otherwise, something is being
+    // unexpectedly strongly retained.
+    for weakRef in weakRefs {
+      XCTAssertNil(weakRef.object, "Potential memory leak detected.")
+    }
+  }
 }
 
 private class StorageFake: Storage {
