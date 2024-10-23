@@ -476,7 +476,10 @@ let package = Package(
       dependencies: [
         "FirebaseFirestoreTarget",
       ],
-      path: "FirebaseCombineSwift/Sources/Firestore"
+      path: "FirebaseCombineSwift/Sources/Firestore",
+      swiftSettings: [
+          .interoperabilityMode(.Cxx), // C++ interoperability setting
+      ]
     ),
     .target(
       name: "FirebaseStorageCombineSwift",
@@ -1399,6 +1402,20 @@ func firestoreWrapperTarget() -> Target {
   )
 }
 
+func firebaseFirestoreCppTarget() -> Target {
+    return .target(
+        name: "FirebaseFirestoreCpp",
+        path: "Firestore/core/swift",
+        sources: [
+          "src",
+        ],
+        publicHeadersPath: "include", // Path to the public headers
+        cxxSettings: [
+          .headerSearchPath("umbrella"), // Ensure the header search path is correct
+        ]
+      )
+}
+
 func firestoreTargets() -> [Target] {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return [
@@ -1469,6 +1486,7 @@ func firestoreTargets() -> [Target] {
           .linkedLibrary("c++"),
         ]
       ),
+      firebaseFirestoreCppTarget(),
       .target(
         name: "FirebaseFirestore",
         dependencies: [
@@ -1476,6 +1494,7 @@ func firestoreTargets() -> [Target] {
           "FirebaseCoreExtension",
           "FirebaseFirestoreInternalWrapper",
           "FirebaseSharedSwift",
+          "FirebaseFirestoreCpp",
         ],
         path: "Firestore",
         exclude: [
@@ -1496,7 +1515,10 @@ func firestoreTargets() -> [Target] {
         sources: [
           "Swift/Source/",
         ],
-        resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")]
+        resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
+        swiftSettings: [
+          .interoperabilityMode(.Cxx), // C++ interoperability setting
+        ]
       ),
     ]
   }
@@ -1542,9 +1564,13 @@ func firestoreTargets() -> [Target] {
         "FirebaseCoreExtension",
         "leveldb",
         "FirebaseSharedSwift",
+        "FirebaseFirestoreCpp",
       ],
       path: "Firestore/Swift/Source",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: [
+          .interoperabilityMode(.Cxx), // C++ interoperability setting
+      ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
@@ -1561,5 +1587,6 @@ func firestoreTargets() -> [Target] {
       publicHeadersPath: "."
     ),
     firestoreInternalTarget,
+    firebaseFirestoreCppTarget(),
   ]
 }
