@@ -86,12 +86,12 @@ import GoogleUtilities
     "fi": ["fi", "fi_FI"],
     // Hebrew
     "he": ["he", "iw_IL"],
-    // Hindi
-    "hi": ["hi_IN"],
     // Hungarian
     "hu": ["hu", "hu_HU"],
     // Icelandic
     "is": ["is_IS"],
+    // India
+    "hi_IN": ["hi_IN", "ta_IN", "te_IN", "mr_IN", "bn_IN", "gu_IN", "kn_IN", "pa_Guru_IN"],
     // Indonesian
     "id": ["id", "in_ID", "id_ID"],
     // Irish
