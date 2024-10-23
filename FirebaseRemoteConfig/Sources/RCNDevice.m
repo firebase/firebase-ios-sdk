@@ -60,6 +60,7 @@ NSString *FIRRemoteConfigDeviceCountry(void) {
   return [[[NSLocale currentLocale] objectForKey:NSLocaleCountryCode] lowercaseString];
 }
 
+// TODO(rizafran): To migrate to use ISOLanguageCodes in the future
 NSDictionary<NSString *, NSArray *> *FIRRemoteConfigFirebaseLocaleMap(void) {
   return @{
     // Albanian
@@ -82,8 +83,6 @@ NSDictionary<NSString *, NSArray *> *FIRRemoteConfigFirebaseLocaleMap(void) {
     @"fi" : @[ @"fi", @"fi_FI" ],
     // Hebrew
     @"he" : @[ @"he", @"iw_IL" ],
-    // Hindi
-    @"hi" : @[ @"hi_IN" ],
     // Hungarian
     @"hu" : @[ @"hu", @"hu_HU" ],
     // Icelandic
@@ -153,6 +152,9 @@ NSDictionary<NSString *, NSArray *> *FIRRemoteConfigFirebaseLocaleMap(void) {
     @"de" : @[ @"de", @"de_AT", @"de_DE", @"de_LU", @"de_CH", @"de-DE" ],
     // Greek
     @"el" : @[ @"el", @"el_CY", @"el_GR" ],
+    // India
+    @"hi_IN" :
+        @[ @"hi_IN", @"ta_IN", @"te_IN", @"mr_IN", @"bn_IN", @"gu_IN", @"kn_IN", @"pa_Guru_IN" ],
     // Italian
     @"it" : @[ @"it", @"it_IT", @"it_CH", @"it-IT" ],
     // Japanese
@@ -188,6 +190,7 @@ NSArray<NSString *> *FIRRemoteConfigAppManagerLocales(void) {
   }
   return locales;
 }
+
 NSString *FIRRemoteConfigDeviceLocale(void) {
   NSArray<NSString *> *locales = FIRRemoteConfigAppManagerLocales();
   NSArray<NSString *> *preferredLocalizations =
