@@ -19,10 +19,10 @@
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 
 /// URL params
 static NSString *const kServerURLDomain = @"https://firebaseremoteconfigrealtime.googleapis.com";
@@ -167,7 +167,7 @@ static NSInteger const gMaxRetries = 7;
 // TESTING ONLY
 - (void)triggerListenerForTesting:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate,
                                                     NSError *_Nullable error))listener {
-  listener([[FIRRemoteConfigUpdate alloc] init], nil);
+  listener([[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:[[NSSet alloc] init]], nil);
 }
 
 #pragma mark - Http Helpers
@@ -328,7 +328,7 @@ static NSInteger const gMaxRetries = 7;
                          @"sdkVersion:'%@', appInstanceId:'%@'}",
                          [strongSelf->_options GCMSenderID], namespace,
                          strongSelf->_configFetch.templateVersionNumber,
-                         strongSelf->_options.googleAppID, FIRRemoteConfigPodVersion(),
+                         strongSelf->_options.googleAppID, Device.remoteConfigPodVersion,
                          strongSelf->_settings.configInstallationsIdentifier];
     NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
     NSError *compressionError;
