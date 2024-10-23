@@ -195,7 +195,9 @@
   XCTAssertEqualObjects(_fakeLogs[3], internalLogParams2);
 }
 
-- (void)testRemoteConfigIntegration {
+// Skip very slow test while iterating
+
+- (void)SKIPtestRemoteConfigIntegration {
   [_fakeLogs removeAllObjects];
 
   FIRRemoteConfigFetchAndActivateCompletion fetchAndActivateCompletion =

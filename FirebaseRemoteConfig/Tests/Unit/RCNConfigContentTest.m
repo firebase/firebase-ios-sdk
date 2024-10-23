@@ -24,6 +24,8 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+
+@import FirebaseRemoteConfig;
 @import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigContent (Testing)
