@@ -2,7 +2,7 @@
 // Created by Cheryl Lin on 2024-10-22.
 //
 
-#include "Firestore/core/swift/include/used_by_swift.h"
+#include "../include/used_by_swift.h"
 #include <iostream>
 
 UsedBySwift::UsedBySwift(std::string content) {
