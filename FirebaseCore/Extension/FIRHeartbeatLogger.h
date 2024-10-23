@@ -44,8 +44,7 @@ typedef NS_ENUM(NSInteger, FIRDailyHeartbeatCode) {
     API_AVAILABLE(ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0));
 
 /// Return the header value for the heartbeat logger.
-- (NSString *_Nullable)
-    headerValue NS_SWIFT_UNAVAILABLE("Use `asyncHeaderValue() async -> String?` instead.");
+- (NSString *_Nullable)headerValue;
 #endif  // FIREBASE_BUILD_CMAKE
 
 @end
