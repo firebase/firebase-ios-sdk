@@ -98,7 +98,7 @@
 /// for the Realtime service.
 @property(nonatomic, readonly, assign) NSTimeInterval realtimeExponentialBackoffThrottleEndTime;
 /// Realtime connection attempts.
-@property(nonatomic, readwrite, assign) int realtimeRetryCount;
+@property(nonatomic, readwrite, assign) NSInteger realtimeRetryCount;
 
 #pragma mark Throttling Methods
 
