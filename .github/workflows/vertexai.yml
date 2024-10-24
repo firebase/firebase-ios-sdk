@@ -125,7 +125,7 @@ jobs:
         retry_wait_seconds: 120
         command: scripts/build.sh FirebaseVertexAIIntegration ${{ matrix.target }} spm
 
-  spm-testapp-integration:
+  testapp-integration:
     strategy:
       matrix:
         target: [iOS]
@@ -149,7 +149,7 @@ jobs:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-integration.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-testapp.plist.gpg \
         FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer

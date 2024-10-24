@@ -14,6 +14,7 @@
 
 import FirebaseAuth
 import FirebaseCore
+import FirebaseStorage
 import FirebaseVertexAI
 import XCTest
 
@@ -40,6 +41,8 @@ final class IntegrationTests: XCTestCase {
 
   var vertex: VertexAI!
   var model: GenerativeModel!
+  var storage: Storage!
+  var userID = ""
 
   static let emailEnvVar = "VertexAIIntegrationAuthEmail1"
   static let passwordEnvVar = "VertexAIIntegrationAuthEmailPassword1"
@@ -60,7 +63,8 @@ final class IntegrationTests: XCTestCase {
       "No email address specified in environment variable \(IntegrationTests.passwordEnvVar)."
     )
 
-    try await Auth.auth().signIn(withEmail: email, password: password)
+    let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
+    userID = authResult.user.uid
 
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
@@ -71,6 +75,8 @@ final class IntegrationTests: XCTestCase {
       toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: systemInstruction
     )
+
+    storage = Storage.storage()
   }
 
   // MARK: - Generate Content
@@ -122,11 +128,9 @@ final class IntegrationTests: XCTestCase {
     }
   #endif // canImport(UIKit)
 
-  func testCountTokens_image_fileData() async throws {
-    let fileData = FileDataPart(
-      uri: "gs://ios-opensource-samples.appspot.com/ios/public/blank.jpg",
-      mimeType: "image/jpeg"
-    )
+  func testCountTokens_image_fileData_public() async throws {
+    let storageRef = storage.reference(withPath: "vertexai/public/green.png")
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/png")
 
     let response = try await model.countTokens(fileData)
 
@@ -134,16 +138,41 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(response.totalBillableCharacters, 35)
   }
 
-  func testCountTokens_userAuth_fileData() async throws {
-    let fileData = FileDataPart(
-      uri: "gs://ios-opensource-samples.appspot.com/vertexai/authenticated/user/6FwXhmYnM8VBr655PrQQiWfxqiS2/red.webp",
-      mimeType: "image/jpeg"
-    )
+  func testCountTokens_image_fileData_requiresAuth_signedIn() async throws {
+    let storageRef = storage.reference(withPath: "vertexai/authenticated/all_users/yellow.jpg")
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/jpeg")
 
     let response = try await model.countTokens(fileData)
 
     XCTAssertEqual(response.totalTokens, 266)
     XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_image_fileData_requiresUserAuth_userSignedIn() async throws {
+    let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/red.webp")
+
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
+
+    let response = try await model.countTokens(fileData)
+
+    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
+    let userID = "3MjEzU6JIobWvHdCYHicnDMcPpQ2"
+    let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/pink.webp")
+
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
+
+    do {
+      _ = try await model.countTokens(fileData)
+      XCTFail("Expected to throw an error.")
+    } catch {
+      let errorDescription = String(describing: error)
+      XCTAssertTrue(errorDescription.contains("403"))
+      XCTAssertTrue(errorDescription.contains("The caller does not have permission"))
+    }
   }
 
   func testCountTokens_functionCalling() async throws {
@@ -190,5 +219,11 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 34)
     XCTAssertEqual(response.totalBillableCharacters, 59)
+  }
+}
+
+extension StorageReference {
+  var gsURI: String {
+    return "gs://\(bucket)/\(fullPath)"
   }
 }
