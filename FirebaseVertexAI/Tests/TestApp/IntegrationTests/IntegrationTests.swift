@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAuth
 import FirebaseCore
 import FirebaseVertexAI
 import XCTest
@@ -40,11 +41,26 @@ final class IntegrationTests: XCTestCase {
   var vertex: VertexAI!
   var model: GenerativeModel!
 
+  static let emailEnvVar = "VERTEXAI_INTEGRATION_AUTH_EMAIL_1"
+  static let passwordEnvVar = "VERTEXAI_INTEGRATION_AUTH_EMAIL_1_PW"
+
   override func setUp() async throws {
-    try XCTSkipIf(ProcessInfo.processInfo.environment["VertexAIRunIntegrationTests"] == nil, """
+    let environment = ProcessInfo.processInfo.environment
+    try XCTSkipIf(environment["VertexAIRunIntegrationTests"] == nil, """
     Vertex AI integration tests skipped; to enable them, set the VertexAIRunIntegrationTests \
     environment variable in Xcode or CI jobs.
     """)
+
+    let email = try XCTUnwrap(
+      environment[IntegrationTests.emailEnvVar],
+      "No email address specified in environment variable \(IntegrationTests.emailEnvVar)."
+    )
+    let password = try XCTUnwrap(
+      environment[IntegrationTests.passwordEnvVar],
+      "No email address specified in environment variable \(IntegrationTests.passwordEnvVar)."
+    )
+
+    try await Auth.auth().signIn(withEmail: email, password: password)
 
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
@@ -55,10 +71,6 @@ final class IntegrationTests: XCTestCase {
       toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: systemInstruction
     )
-  }
-
-  func testShouldFail() {
-    XCTFail("This should fail if the tests are being run.")
   }
 
   // MARK: - Generate Content
@@ -113,6 +125,18 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_image_fileData() async throws {
     let fileData = FileDataPart(
       uri: "gs://ios-opensource-samples.appspot.com/ios/public/blank.jpg",
+      mimeType: "image/jpeg"
+    )
+
+    let response = try await model.countTokens(fileData)
+
+    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalBillableCharacters, 35)
+  }
+
+  func testCountTokens_userAuth_fileData() async throws {
+    let fileData = FileDataPart(
+      uri: "gs://ios-opensource-samples.appspot.com/vertexai/authenticated/user/6FwXhmYnM8VBr655PrQQiWfxqiS2/red.webp",
       mimeType: "image/jpeg"
     )
 
