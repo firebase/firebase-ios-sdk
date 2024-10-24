@@ -489,6 +489,7 @@ let package = Package(
       name: "FirebaseCrashlytics",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "FirebaseInstallations",
         "FirebaseSessions",
         "FirebaseRemoteConfigInterop",
@@ -776,6 +777,7 @@ let package = Package(
       name: "FirebaseInstallations",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
         .product(name: "FBLPromises", package: "Promises"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
