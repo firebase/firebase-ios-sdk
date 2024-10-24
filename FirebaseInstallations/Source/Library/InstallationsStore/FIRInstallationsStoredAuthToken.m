@@ -18,6 +18,8 @@
 
 #import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 
+@import FirebaseCoreExtension;
+
 NSString *const kFIRInstallationsStoredAuthTokenStatusKey = @"status";
 NSString *const kFIRInstallationsStoredAuthTokenTokenKey = @"token";
 NSString *const kFIRInstallationsStoredAuthTokenExpirationDateKey = @"expirationDate";

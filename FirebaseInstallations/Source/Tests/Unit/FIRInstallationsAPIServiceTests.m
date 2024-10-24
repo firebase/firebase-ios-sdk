@@ -19,6 +19,7 @@
 #import <OCMock/OCMock.h>
 
 @import FirebaseCoreInternal;
+@import FirebaseCoreExtension;
 
 #import "FBLPromise+Testing.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"
@@ -27,8 +28,6 @@
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 #import "FirebaseInstallations/Source/Library/InstallationsAPI/FIRInstallationsAPIService.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
-
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 

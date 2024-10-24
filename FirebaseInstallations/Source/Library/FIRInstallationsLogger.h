@@ -16,9 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-extern FIRLoggerService kFIRLoggerInstallations;
+extern NSString *kFIRLoggerInstallations;
 
 // FIRInstallationsAPIService.m
 extern NSString *const kFIRInstallationsMessageCodeSendAPIRequest;

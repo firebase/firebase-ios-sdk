@@ -27,8 +27,7 @@
 #import <XCTest/XCTest.h>
 
 @import FirebaseCoreInternal;
-
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreExtension;
 
 #import "FBLPromise+Testing.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallations+Tests.h"

@@ -16,7 +16,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreExtension;
 
 #if CLS_METRICKIT_SUPPORTED
 

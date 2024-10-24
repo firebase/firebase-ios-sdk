@@ -35,7 +35,6 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseInstallations/Source/"
   s.source_files = [
     base_dir + 'Library/**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = [
     base_dir + 'Library/Public/FirebaseInstallations/*.h',
@@ -46,6 +45,7 @@ Pod::Spec.new do |s|
 
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '11.5'
+  s.dependency 'FirebaseCoreExtension', '11.5'
   s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
