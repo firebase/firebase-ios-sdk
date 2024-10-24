@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,162 +12,187 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
+import SwiftUI
 
-/// Login View presented when performing Email & Password Login Flow
-class LoginView: UIView {
-  var emailTextField: UITextField! {
-    didSet {
-      emailTextField.textContentType = .emailAddress
+import FirebaseAuth
+
+struct LoginView: View {
+  @Environment(\.dismiss) private var dismiss
+  @State private var multiFactorResolver: MultiFactorResolver? = nil
+  @State private var onetimePasscode = ""
+  @State private var showingAlert = false
+
+  @State private var email: String = ""
+  @State private var password: String = ""
+
+  var body: some View {
+    Group {
+      VStack {
+        Group {
+          HStack {
+            VStack {
+              Text("Email/Password Auth")
+                .font(.title)
+                .bold()
+            }
+            Spacer()
+          }
+          HStack {
+            Text(
+              "Login or create an account using the Email/Password auth " +
+                "provider.\n\nEnsure that the Email/Password provider is " +
+                "enabled on the Firebase console for the given project."
+            )
+            .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+          }
+        }
+        .padding(.vertical)
+
+        Spacer()
+        TextField("Email", text: $email)
+          .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
+        TextField("Password", text: $password)
+          .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
+        Spacer()
+        Group {
+          LoginViewButton(
+            text: "Login",
+            accentColor: .white,
+            backgroundColor: .orange,
+            action: login
+          )
+          LoginViewButton(
+            text: "Create Account",
+            accentColor: .orange,
+            backgroundColor: .primary,
+            action: createUser
+          )
+        }
+        .disabled(email.isEmpty || password.isEmpty)
+      }
+      Spacer()
+    }
+    .padding()
+    .alert("Enter one time passcode.", isPresented: $showingAlert) {
+      TextField("Verification Code", text: $onetimePasscode)
+        .textInputAutocapitalization(.never)
+      Button("Cancel", role: .cancel) {}
+      Button("Submit", action: submitOnetimePasscode)
     }
   }
 
-  var passwordTextField: UITextField! {
-    didSet {
-      passwordTextField.textContentType = .password
+  private func login() {
+    Task {
+      do {
+        _ = try await AppManager.shared
+          .auth()
+          .signIn(withEmail: email, password: password)
+        //              } catch let error as AuthErrorCode
+        //                where error.code == .secondFactorRequired {
+        //                // error as? AuthErrorCode == nil because AuthErrorUtils returns generic
+        //                /Errors
+        //                // https://firebase.google.com/docs/auth/ios/totp-mfa#sign_in_users_with_a_second_factor
+        //                // TODO(ncooke3): Fix?
+      } catch let error as NSError
+        where error.code == AuthErrorCode.secondFactorRequired.rawValue {
+        let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
+        guard
+          let resolver = error.userInfo[mfaKey] as? MultiFactorResolver,
+          let multiFactorInfo = resolver.hints.first
+        else { return }
+        if multiFactorInfo.factorID == TOTPMultiFactorID {
+          // Show the alert to enter the TOTP verification code.
+          multiFactorResolver = resolver
+          showingAlert = true
+        } else {
+          // TODO(ncooke3): Implement handling of other MFA provider (phone).
+        }
+      } catch {
+        print(error.localizedDescription)
+      }
     }
   }
 
-  var emailTopConstraint: NSLayoutConstraint!
-  var passwordTopConstraint: NSLayoutConstraint!
-
-  lazy var loginButton: UIButton = {
-    let button = UIButton()
-    button.setTitle("Login", for: .normal)
-    button.setTitleColor(.white, for: .normal)
-    button.setTitleColor(.highlightedLabel, for: .highlighted)
-    button.setBackgroundImage(UIColor.systemOrange.image, for: .normal)
-    button.setBackgroundImage(UIColor.systemOrange.highlighted.image, for: .highlighted)
-    button.clipsToBounds = true
-    button.layer.cornerRadius = 14
-    return button
-  }()
-
-  lazy var createAccountButton: UIButton = {
-    let button = UIButton()
-    button.setTitle("Create Account", for: .normal)
-    button.setTitleColor(.secondaryLabel, for: .normal)
-    button.setTitleColor(UIColor.secondaryLabel.highlighted, for: .highlighted)
-    return button
-  }()
-
-  convenience init() {
-    self.init(frame: .zero)
-    setupSubviews()
+  private func createUser() {
+    Task {
+      do {
+        _ = try await AppManager.shared.auth().createUser(
+          withEmail: email,
+          password: password
+        )
+        // Sign-in was successful.
+        dismiss()
+      } catch {
+        // TODO(ncooke3): Implement error display.
+        print(error.localizedDescription)
+      }
+    }
   }
 
-  // MARK: - Subviews Setup
-
-  private func setupSubviews() {
-    backgroundColor = .systemBackground
-    clipsToBounds = true
-
-    setupFirebaseLogoImage()
-    setupEmailTextfield()
-    setupPasswordTextField()
-    setupLoginButton()
-    setupCreateAccountButton()
-  }
-
-  private func setupFirebaseLogoImage() {
-    let firebaseLogo = UIImage(named: "firebaseLogo")
-    let imageView = UIImageView(image: firebaseLogo)
-    imageView.contentMode = .scaleAspectFit
-    addSubview(imageView)
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -55),
-      imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 55),
-      imageView.widthAnchor.constraint(equalToConstant: 325),
-      imageView.heightAnchor.constraint(equalToConstant: 325),
-    ])
-  }
-
-  private func setupEmailTextfield() {
-    emailTextField = textField(placeholder: "Email", symbolName: "person.crop.circle")
-    emailTextField.translatesAutoresizingMaskIntoConstraints = false
-    addSubview(emailTextField)
-    NSLayoutConstraint.activate([
-      emailTextField.leadingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.leadingAnchor,
-        constant: 15
-      ),
-      emailTextField.trailingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.trailingAnchor,
-        constant: -15
-      ),
-      emailTextField.heightAnchor.constraint(equalToConstant: 45),
-    ])
-
-    let constant: CGFloat = UIDevice.current.orientation.isLandscape ? 15 : 50
-    emailTopConstraint = emailTextField.topAnchor.constraint(
-      equalTo: safeAreaLayoutGuide.topAnchor,
-      constant: constant
-    )
-    emailTopConstraint.isActive = true
-  }
-
-  private func setupPasswordTextField() {
-    passwordTextField = textField(placeholder: "Password", symbolName: "lock.fill")
-    passwordTextField.translatesAutoresizingMaskIntoConstraints = false
-    addSubview(passwordTextField)
-    NSLayoutConstraint.activate([
-      passwordTextField.leadingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.leadingAnchor,
-        constant: 15
-      ),
-      passwordTextField.trailingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.trailingAnchor,
-        constant: -15
-      ),
-      passwordTextField.heightAnchor.constraint(equalToConstant: 45),
-    ])
-
-    let constant: CGFloat = UIDevice.current.orientation.isLandscape ? 5 : 20
-    passwordTopConstraint =
-      passwordTextField.topAnchor.constraint(
-        equalTo: emailTextField.bottomAnchor,
-        constant: constant
+  private func submitOnetimePasscode() {
+    Task {
+      guard onetimePasscode.count > 0 else { return }
+      let multiFactorInfo = multiFactorResolver!.hints[0]
+      let assertion = TOTPMultiFactorGenerator.assertionForSignIn(
+        withEnrollmentID: multiFactorInfo.uid,
+        // TODO(ncooke3): Probably should avoid network request if empty passcode.
+        oneTimePassword: self.onetimePasscode
       )
-    passwordTopConstraint.isActive = true
+      do {
+        _ = try await multiFactorResolver!.resolveSignIn(with: assertion)
+        // MFA login was successful.
+        dismiss()
+      } catch {
+        // Wrong or expired OTP. Re-prompt the user.
+        // TODO(ncooke3): Show error to user.
+        print(error)
+      }
+    }
   }
+}
 
-  private func setupLoginButton() {
-    addSubview(loginButton)
-    loginButton.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      loginButton.leadingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.leadingAnchor,
-        constant: 15
-      ),
-      loginButton.trailingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.trailingAnchor,
-        constant: -15
-      ),
-      loginButton.heightAnchor.constraint(equalToConstant: 45),
-      loginButton.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 5),
-    ])
+private struct SymbolTextField: TextFieldStyle {
+  let symbolName: String
+
+  func _body(configuration: TextField<Self._Label>) -> some View {
+    HStack {
+      Image(systemName: symbolName)
+        .foregroundColor(.orange)
+        .imageScale(.large)
+        .padding(.leading)
+      configuration
+        .padding([.vertical, .trailing])
+    }
+    .background(Color(uiColor: .secondarySystemBackground))
+    .cornerRadius(14)
+    .textInputAutocapitalization(.never)
   }
+}
 
-  private func setupCreateAccountButton() {
-    addSubview(createAccountButton)
-    createAccountButton.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      createAccountButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-      createAccountButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 5),
-    ])
+// TODO(ncooke3): Use view modifiers?
+private struct LoginViewButton: View {
+  let text: String
+  let accentColor: Color
+  let backgroundColor: Color
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack {
+        Spacer()
+        Text(text)
+          .bold()
+          .accentColor(accentColor)
+        Spacer()
+      }
+      .padding()
+      .background(backgroundColor)
+      .cornerRadius(14)
+    }
   }
+}
 
-  // MARK: - Private Helpers
-
-  private func textField(placeholder: String, symbolName: String) -> UITextField {
-    let textfield = UITextField()
-    textfield.backgroundColor = .secondarySystemBackground
-    textfield.layer.cornerRadius = 14
-    textfield.placeholder = placeholder
-    textfield.tintColor = .systemOrange
-    let symbol = UIImage(systemName: symbolName)
-    textfield.setImage(symbol)
-    return textfield
-  }
+#Preview {
+  LoginView()
 }
