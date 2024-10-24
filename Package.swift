@@ -478,7 +478,7 @@ let package = Package(
       ],
       path: "FirebaseCombineSwift/Sources/Firestore",
       swiftSettings: [
-          .interoperabilityMode(.Cxx), // C++ interoperability setting
+        .interoperabilityMode(.Cxx), // C++ interoperability setting
       ]
     ),
     .target(
@@ -1176,7 +1176,7 @@ let package = Package(
       ],
       path: "SwiftPMTests/swift-test",
       swiftSettings: [
-          .interoperabilityMode(.Cxx), // C++ interoperability setting
+        .interoperabilityMode(.Cxx), // C++ interoperability setting
       ]
     ),
     .testTarget(
@@ -1406,14 +1406,14 @@ func firestoreWrapperTarget() -> Target {
 }
 
 func firebaseFirestoreCppTarget() -> Target {
-    return .target(
-        name: "FirebaseFirestoreCpp",
-        path: "Firestore/core/swift",
-        publicHeadersPath: "include", // Path to the public headers
-        cxxSettings: [
-          .headerSearchPath("umbrella"), // Ensure the header search path is correct
-        ]
-      )
+  return .target(
+    name: "FirebaseFirestoreCpp",
+    path: "Firestore/core/swift",
+    publicHeadersPath: "include", // Path to the public headers
+    cxxSettings: [
+      .headerSearchPath("umbrella"), // Ensure the header search path is correct
+    ]
+  )
 }
 
 func firestoreTargets() -> [Target] {
@@ -1569,7 +1569,7 @@ func firestoreTargets() -> [Target] {
       path: "Firestore/Swift/Source",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-          .interoperabilityMode(.Cxx), // C++ interoperability setting
+        .interoperabilityMode(.Cxx), // C++ interoperability setting
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),

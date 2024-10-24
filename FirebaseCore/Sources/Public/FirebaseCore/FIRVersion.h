@@ -19,7 +19,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** Returns the current version of Firebase. */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 NS_SWIFT_NAME(FirebaseVersion())
 NSString* FIRFirebaseVersion(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 NS_ASSUME_NONNULL_END
