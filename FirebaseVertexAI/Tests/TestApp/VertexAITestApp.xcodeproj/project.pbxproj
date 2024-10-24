@@ -12,11 +12,11 @@
 		866138602CC943DE00F4B78E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8661385F2CC943DE00F4B78E /* Assets.xcassets */; };
 		866138642CC943DE00F4B78E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 866138632CC943DE00F4B78E /* Preview Assets.xcassets */; };
 		8661386E2CC943DE00F4B78E /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661386D2CC943DE00F4B78E /* IntegrationTests.swift */; };
+		868A7C482CCA931B00E449DD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 868A7C462CCA931B00E449DD /* GoogleService-Info.plist */; };
 		8692F2982CC9477800539E8F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F2972CC9477800539E8F /* FirebaseAppCheck */; };
 		8692F29A2CC9477800539E8F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F2992CC9477800539E8F /* FirebaseAuth */; };
 		8692F29C2CC9477800539E8F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29B2CC9477800539E8F /* FirebaseStorage */; };
 		8692F29E2CC9477800539E8F /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29D2CC9477800539E8F /* FirebaseVertexAI */; };
-		8692F2A02CC948C100539E8F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8692F29F2CC948C100539E8F /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +38,7 @@
 		866138632CC943DE00F4B78E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		866138692CC943DE00F4B78E /* IntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8661386D2CC943DE00F4B78E /* IntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTests.swift; sourceTree = "<group>"; };
-		8692F29F2CC948C100539E8F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		868A7C462CCA931B00E449DD /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				8661385A2CC943DD00F4B78E /* VertexAITestApp */,
+				868A7C472CCA931B00E449DD /* Resources */,
 				8661386C2CC943DE00F4B78E /* IntegrationTests */,
 				866138592CC943DD00F4B78E /* Products */,
 			);
@@ -88,7 +89,6 @@
 				8661385D2CC943DD00F4B78E /* ContentView.swift */,
 				8661385F2CC943DE00F4B78E /* Assets.xcassets */,
 				866138612CC943DE00F4B78E /* VertexAITestApp.entitlements */,
-				8692F29F2CC948C100539E8F /* GoogleService-Info.plist */,
 				866138622CC943DE00F4B78E /* Preview Content */,
 			);
 			path = VertexAITestApp;
@@ -108,6 +108,14 @@
 				8661386D2CC943DE00F4B78E /* IntegrationTests.swift */,
 			);
 			path = IntegrationTests;
+			sourceTree = "<group>";
+		};
+		868A7C472CCA931B00E449DD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				868A7C462CCA931B00E449DD /* GoogleService-Info.plist */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -202,7 +210,7 @@
 			files = (
 				866138642CC943DE00F4B78E /* Preview Assets.xcassets in Resources */,
 				866138602CC943DE00F4B78E /* Assets.xcassets in Resources */,
-				8692F2A02CC948C100539E8F /* GoogleService-Info.plist in Resources */,
+				868A7C482CCA931B00E449DD /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
