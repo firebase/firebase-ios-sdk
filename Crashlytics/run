@@ -46,8 +46,8 @@ for i in "$@"; do
   ARGUMENTS="$ARGUMENTS \"$i\""
 done
 
-VALIDATE_ARGUMENTS="$ARGUMENTS --build-phase --validate"
-UPLOAD_ARGUMENTS="$ARGUMENTS --build-phase"
+VALIDATE_ARGUMENTS="--build-phase --validate $ARGUMENTS"
+UPLOAD_ARGUMENTS="--build-phase $ARGUMENTS "
 
 # Quote the path to handle folders with special characters
 COMMAND_PATH="\"$DIR/upload-symbols\" "
