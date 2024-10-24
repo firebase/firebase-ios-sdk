@@ -57,6 +57,10 @@ final class IntegrationTests: XCTestCase {
     )
   }
 
+  func testShouldFail() {
+    XCTFail("This should fail if the tests are being run.")
+  }
+
   // MARK: - Generate Content
 
   func testGenerateContent() async throws {
