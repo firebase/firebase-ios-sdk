@@ -34,6 +34,7 @@ static NSString *const kRCNUserDefaultsKeyNameRealtimeThrottleEndTime = @"thrott
 static NSString *const kRCNUserDefaultsKeyNameCurrentRealtimeThrottlingRetryInterval =
     @"currentRealtimeThrottlingRetryInterval";
 static NSString *const kRCNUserDefaultsKeyNameRealtimeRetryCount = @"realtimeRetryCount";
+static NSString *const kRCNUserDefaultsKeyCustomSignals = @"customSignals";
 
 @interface RCNUserDefaultsManager () {
   /// User Defaults instance for this bundleID. NSUserDefaults is guaranteed to be thread-safe.
@@ -138,6 +139,21 @@ static NSString *const kRCNUserDefaultsKeyNameRealtimeRetryCount = @"realtimeRet
 - (void)setLastActiveTemplateVersion:(NSString *)templateVersion {
   if (templateVersion) {
     [self setInstanceUserDefaultsValue:templateVersion forKey:RCNActiveKeyTemplateVersion];
+  }
+}
+
+- (NSMutableDictionary<NSString *, NSObject *> *)customSignals {
+  NSDictionary *userDefaults = [self instanceUserDefaults];
+  if ([userDefaults objectForKey:kRCNUserDefaultsKeyCustomSignals]) {
+    return [userDefaults objectForKey:kRCNUserDefaultsKeyCustomSignals];
+  }
+
+  return [[NSMutableDictionary<NSString *, NSObject *> alloc] init];
+}
+
+- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSObject *> *)customSignals {
+  if (customSignals) {
+    [self setInstanceUserDefaultsValue:customSignals forKey:kRCNUserDefaultsKeyCustomSignals];
   }
 }
 

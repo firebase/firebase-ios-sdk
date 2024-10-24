@@ -108,7 +108,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                    @"New config database created. Resetting user defaults.");
       [_userDefaultsManager resetUserDefaults];
     }
-
+    
+    _customSignals = [_userDefaultsManager customSignals];
     _isFetchInProgress = NO;
     _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
     _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];
@@ -444,6 +445,21 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       }
     }
   }
+  
+  if (_customSignals.count > 0) {
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:_customSignals
+                                                       options:0
+                                                         error:&error];
+    if (!error) {
+      ret = [ret
+          stringByAppendingString:[NSString
+                                      stringWithFormat:@", custom_signals:%@",
+                                                       [[NSString alloc]
+                                                           initWithData:jsonData
+                                                               encoding:NSUTF8StringEncoding]]];
+    }
+  }
   ret = [ret stringByAppendingString:@"}"];
   return ret;
 }
@@ -515,6 +531,11 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                              namespace:_FIRNamespace
                                 values:@[ @(lastSetDefaultsTimestamp) ]
                      completionHandler:nil];
+}
+
+- (void)setCustomSignals:(NSMutableDictionary<NSString *,NSObject *> *)customSignals {
+  _customSignals = customSignals;
+  [_userDefaultsManager setCustomSignals:customSignals];
 }
 
 #pragma mark Throttling
