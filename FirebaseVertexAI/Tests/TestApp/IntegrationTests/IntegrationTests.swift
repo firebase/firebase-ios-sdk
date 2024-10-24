@@ -41,8 +41,8 @@ final class IntegrationTests: XCTestCase {
   var vertex: VertexAI!
   var model: GenerativeModel!
 
-  static let emailEnvVar = "VERTEXAI_INTEGRATION_AUTH_EMAIL_1"
-  static let passwordEnvVar = "VERTEXAI_INTEGRATION_AUTH_EMAIL_1_PW"
+  static let emailEnvVar = "VertexAIIntegrationAuthEmail1"
+  static let passwordEnvVar = "VertexAIIntegrationAuthEmailPassword1"
 
   override func setUp() async throws {
     let environment = ProcessInfo.processInfo.environment

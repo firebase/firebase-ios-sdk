@@ -137,6 +137,9 @@ jobs:
     needs: spm-package-resolved
     env:
       TEST_RUNNER_VertexAIRunIntegrationTests: 1
+      TEST_RUNNER_VertexAIIntegrationAuthEmail1: ${{ secrets.VERTEXAI_INTEGRATION_AUTH_EMAIL_1 }}
+      TEST_RUNNER_VertexAIIntegrationAuthEmailPassword1: ${{ secrets.VERTEXAI_INTEGRATION_AUTH_EMAIL_1_PW }}
+      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
