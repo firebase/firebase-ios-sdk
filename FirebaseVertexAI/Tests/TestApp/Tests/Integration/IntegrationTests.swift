@@ -64,18 +64,6 @@ final class IntegrationTests: XCTestCase {
     storage = Storage.storage()
   }
 
-  func testDebugTokenProvided() {
-    if ProcessInfo.processInfo.environment["FIRAAppCheckDebugToken"] == nil {
-      XCTFail("No App Check debug token provided in FIRAAppCheckDebugToken.")
-    }
-  }
-
-  func testDebugTokenNotProvided() {
-    if ProcessInfo.processInfo.environment["FIRAAppCheckDebugToken"] != nil {
-      XCTFail("Token not provided; intentionally failing for testing.")
-    }
-  }
-
   // MARK: - Generate Content
 
   func testGenerateContent() async throws {
