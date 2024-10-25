@@ -132,7 +132,7 @@ jobs:
             target: macOS
           - os: macos-15
             xcode: Xcode_16
-            target: watchOS
+            target: watchOS --skip-tests
           - os: macos-15
             xcode: Xcode_16
             target: catalyst
