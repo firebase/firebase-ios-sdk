@@ -536,7 +536,7 @@ enum FunctionsConstants {
       if error.domain == kGTMSessionFetcherStatusDomain {
         localError = FunctionsError(
           httpStatusCode: error.code,
-          body: data,
+          body: data ?? error.userInfo["data"] as? Data,
           serializer: serializer
         )
       } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
