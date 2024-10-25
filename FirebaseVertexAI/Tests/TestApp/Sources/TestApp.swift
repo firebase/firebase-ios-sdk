@@ -17,7 +17,7 @@ import FirebaseCore
 import SwiftUI
 
 @main
-struct VertexAITestApp: App {
+struct TestApp: App {
   init() {
     AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
     FirebaseApp.configure()

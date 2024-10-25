@@ -42,29 +42,14 @@ final class IntegrationTests: XCTestCase {
   var vertex: VertexAI!
   var model: GenerativeModel!
   var storage: Storage!
-  var userID = ""
-
-  static let emailEnvVar = "VertexAIIntegrationAuthEmail1"
-  static let passwordEnvVar = "VertexAIIntegrationAuthEmailPassword1"
+  var userID1 = ""
 
   override func setUp() async throws {
-    let environment = ProcessInfo.processInfo.environment
-    try XCTSkipIf(environment["VertexAIRunIntegrationTests"] == nil, """
-    Vertex AI integration tests skipped; to enable them, set the VertexAIRunIntegrationTests \
-    environment variable in Xcode or CI jobs.
-    """)
-
-    let email = try XCTUnwrap(
-      environment[IntegrationTests.emailEnvVar],
-      "No email address specified in environment variable \(IntegrationTests.emailEnvVar)."
+    let authResult = try await Auth.auth().signIn(
+      withEmail: Credentials.emailAddress1,
+      password: Credentials.emailPassword1
     )
-    let password = try XCTUnwrap(
-      environment[IntegrationTests.passwordEnvVar],
-      "No email address specified in environment variable \(IntegrationTests.passwordEnvVar)."
-    )
-
-    let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
-    userID = authResult.user.uid
+    userID1 = authResult.user.uid
 
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
@@ -149,7 +134,7 @@ final class IntegrationTests: XCTestCase {
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_userSignedIn() async throws {
-    let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/red.webp")
+    let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID1)/red.webp")
 
     let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
 

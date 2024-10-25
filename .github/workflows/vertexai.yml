@@ -136,12 +136,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
     env:
-      TEST_RUNNER_VertexAIRunIntegrationTests: 1
-      TEST_RUNNER_VertexAIIntegrationAuthEmail1: ${{ secrets.VERTEXAI_INTEGRATION_AUTH_EMAIL_1 }}
-      TEST_RUNNER_VertexAIIntegrationAuthEmailPassword1: ${{ secrets.VERTEXAI_INTEGRATION_AUTH_EMAIL_1_PW }}
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
@@ -149,12 +146,13 @@ jobs:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/vertexai-testapp.plist.gpg \
-        FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info.plist "$plist_secret"
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
+        FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
+    - name: Install Secret Credentials.swift
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-Credentials.swift.gpg \
+        FirebaseVertexAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
     - name: Run IntegrationTests
       run: scripts/build.sh VertexIntegration ${{ matrix.target }}
 
