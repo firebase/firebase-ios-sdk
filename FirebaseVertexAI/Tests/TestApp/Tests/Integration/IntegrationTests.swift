@@ -45,13 +45,6 @@ final class IntegrationTests: XCTestCase {
   var userID1 = ""
 
   override func setUp() async throws {
-    let environment = ProcessInfo.processInfo.environment
-    if environment["FIRAAppCheckDebugToken"] == nil {
-      XCTFail("No App Check debug token provided in FIRAAppCheckDebugToken.")
-    } else {
-      XCTFail("App Check debug token provided; failing to check that tests are running.")
-    }
-
     let authResult = try await Auth.auth().signIn(
       withEmail: Credentials.emailAddress1,
       password: Credentials.emailPassword1
