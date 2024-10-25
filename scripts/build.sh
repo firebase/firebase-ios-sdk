@@ -506,7 +506,7 @@ case "$product-$platform-$method" in
   VertexIntegration-*-*)
     RunXcodebuild \
       -project 'FirebaseVertexAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
-      -scheme "VertexAITestApp" \
+      -scheme "VertexAITestApp-SPM" \
       "${xcb_flags[@]}" \
       build \
       test
