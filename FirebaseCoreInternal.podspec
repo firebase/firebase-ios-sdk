@@ -39,6 +39,8 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.9'
 
+  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'GoogleUtilities/Logger', '~> 8.0'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
 
   s.pod_target_xcconfig = {

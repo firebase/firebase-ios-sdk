@@ -14,10 +14,14 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import "FirebaseCore/InternalObjC//FIRComponentType.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
 #import "FirebaseCore/InternalObjC/FIRComponentContainerInternal.h"
+#import "FirebaseCore/InternalObjC/FIRComponentType.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
+
+@import FirebaseCore;
 
 /// Internally exposed methods and properties for testing.
 @interface FIRComponentContainer (TestInternal)

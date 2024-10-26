@@ -36,7 +36,6 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
@@ -47,6 +46,7 @@ Pod::Spec.new do |s|
   s.dependency 'AppCheckCore', '~> 11.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseCore', '11.5'
+  s.dependency 'FirebaseCoreExtension', '11.5'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
 

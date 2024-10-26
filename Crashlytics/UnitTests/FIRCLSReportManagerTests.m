@@ -16,6 +16,9 @@
 #import <XCTest/XCTest.h>
 
 @import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

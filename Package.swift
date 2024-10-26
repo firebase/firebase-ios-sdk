@@ -204,6 +204,8 @@ let package = Package(
       name: "CoreUnit",
       dependencies: [
         "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternalObjC",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
@@ -943,6 +945,7 @@ let package = Package(
     .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore",
+                     "FirebaseCoreInternalObjC",
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",

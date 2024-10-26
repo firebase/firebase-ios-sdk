@@ -27,9 +27,15 @@
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import <GoogleUtilities/GULNSData+zlib.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 @import FirebaseRemoteConfigInterop;
+
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content

@@ -121,6 +121,8 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
     } else if inSwiftPackage, line.starts(with: "#else") {
       inSwiftPackage = false
       inSwiftPackageElse = true
+    } else if inSwiftPackage, line.starts(with: "#endif") {
+      inSwiftPackage = false
     } else if inSwiftPackageElse, line.starts(with: "#endif") {
       inSwiftPackageElse = false
     } else if inSwiftPackage {

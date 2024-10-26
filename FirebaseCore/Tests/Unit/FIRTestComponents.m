@@ -14,7 +14,11 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
+#import "FirebaseCore/Extension/FIRAppInternal.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainerInternal.h"
 #import "FirebaseCore/InternalObjC/FIRComponentType.h"
+#import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
 #pragma mark - Standard Component
 

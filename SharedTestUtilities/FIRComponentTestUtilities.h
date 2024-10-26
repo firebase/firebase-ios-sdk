@@ -16,9 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-@import FirebaseCoreInternal;
 #if SWIFT_PACKAGE
 @import FirebaseCoreInternalObjC;
+#else
+@import FirebaseCoreInternal;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
