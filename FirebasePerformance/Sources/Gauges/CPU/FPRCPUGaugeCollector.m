@@ -20,6 +20,11 @@
 
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 #import <assert.h>
 #import <mach/mach.h>
 

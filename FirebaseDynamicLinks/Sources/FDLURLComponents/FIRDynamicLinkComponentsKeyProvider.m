@@ -19,7 +19,7 @@
 
 #import "FirebaseDynamicLinks/Sources/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreExtension;
 
 @implementation FIRDynamicLinkComponentsKeyProvider
 

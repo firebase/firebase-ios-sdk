@@ -15,7 +15,11 @@
 import Foundation
 import os.log
 
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCore
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
 
 enum VertexLog {
   /// Log message codes for the Vertex AI SDK

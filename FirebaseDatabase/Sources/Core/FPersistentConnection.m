@@ -15,7 +15,6 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseConfig.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Core/FCompoundHash.h"
@@ -39,6 +38,11 @@
 #endif // !TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @interface FOutstandingQuery : NSObject
 

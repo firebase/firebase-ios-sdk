@@ -20,6 +20,11 @@
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRIAMImageOnlyViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingImageOnlyDisplay *imageOnlyMessage;

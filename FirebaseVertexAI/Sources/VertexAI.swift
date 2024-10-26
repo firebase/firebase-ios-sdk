@@ -17,6 +17,11 @@ import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
 
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
+
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
@@ -129,8 +134,11 @@ public class VertexAI {
 
   init(app: FirebaseApp, location: String) {
     self.app = app
-    appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
-    auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
+    appCheck = ComponentType<AppCheckInterop>.instance(
+      for: AppCheckInterop.self,
+      in: app.container()
+    )
+    auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container())
 
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")

@@ -19,7 +19,8 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreExtension;
 
 @interface FIRAppCheckDebugProviderFactoryTests : XCTestCase
 @end

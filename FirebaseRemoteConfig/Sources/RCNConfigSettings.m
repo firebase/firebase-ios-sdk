@@ -23,7 +23,12 @@
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";

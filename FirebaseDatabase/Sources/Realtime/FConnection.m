@@ -15,8 +15,12 @@
  */
 
 #import "FirebaseDatabase/Sources/Realtime/FConnection.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 typedef enum {
     REALTIME_STATE_CONNECTING = 0,

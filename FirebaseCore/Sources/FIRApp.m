@@ -30,17 +30,19 @@
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
-#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
@@ -90,6 +92,23 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 #ifdef DEBUG
 @property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
 #endif  // DEBUG
+
+/**
+ * A flag indicating if this is the default app (has the default app name).
+ */
+@property(nonatomic, readonly) BOOL isDefaultApp;
+
+/**
+ * The container of interop SDKs for this app.
+ */
+@property(nonatomic) FIRComponentContainer *container;
+
+/**
+ * The heartbeat logger associated with this app.
+ *
+ * Firebase apps have a 1:1 relationship with heartbeat loggers.
+ */
+@property(readonly) FIRHeartbeatLogger *heartbeatLogger;
 
 @end
 
@@ -317,7 +336,10 @@ static FIRApp *sDefaultApp;
     _options = [options copy];
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
-    _container = [[FIRComponentContainer alloc] initWithApp:self];
+    _container = [[FIRComponentContainer alloc] initWithApp:self
+                                               isDefaultApp:_isDefaultApp
+                                             isAppForARCore:[FIRApp isAppForARCore:_name
+                                                                           options:_options]];
     _heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:self.options.googleAppID];
   }
   return self;
@@ -877,6 +899,24 @@ static FIRApp *sDefaultApp;
     // go/firebase-game-sdk-user-agent-register-timing.
     [self.heartbeatLogger log];
   }
+}
+
++ (BOOL)isAppForARCore:(NSString *)name options:(FIROptions *)options {
+  // First, check if the app name matches that of the one used by ARCore.
+  if ([name isEqualToString:@"ARCoreFIRApp"]) {
+    // Second, check if the app's gcmSenderID matches that of ARCore. This
+    // prevents false positives in the unlikely event a 3P Firebase app is
+    // named `ARCoreFIRApp`.
+    const char *p1 = "406756";
+    const char *p2 = "893798";
+    const char gcmSenderIDKey[27] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2], p1[3],
+                                     p2[3],  p1[4],  p2[4],  p1[5],  p2[5],  p1[6], p2[6],
+                                     p1[7],  p2[7],  p1[8],  p2[8],  p1[9],  p2[9], p1[10],
+                                     p2[10], p1[11], p2[11], p1[12], p2[12], '\0'};
+    NSString *gcmSenderID = [NSString stringWithUTF8String:gcmSenderIDKey];
+    return [options.GCMSenderID isEqualToString:gcmSenderID];
+  }
+  return NO;
 }
 
 #if DEBUG

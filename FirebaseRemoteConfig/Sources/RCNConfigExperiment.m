@@ -17,9 +17,14 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
+
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 static NSString *const kExperimentMetadataKeyLastStartTime = @"last_experiment_start_time";
 

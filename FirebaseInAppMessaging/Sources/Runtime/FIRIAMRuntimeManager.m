@@ -19,8 +19,6 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutHttpRequestSender.h"
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"

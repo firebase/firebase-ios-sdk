@@ -14,7 +14,11 @@
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
+@import FirebaseCoreInternal;
 @import FirebaseCoreExtension;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 FIRLoggerService kFIRLoggerCrashlytics = @"[FirebaseCrashlytics]";
 

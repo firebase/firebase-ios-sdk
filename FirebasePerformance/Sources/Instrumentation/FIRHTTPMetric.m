@@ -21,6 +21,11 @@
 #import "FirebasePerformance/Sources/FPRDataUtils.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRHTTPMetric ()
 
 /* A placeholder URLRequest used for SDK metric tracking. */

@@ -17,7 +17,10 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
 
 #if COCOAPODS
   import GTMSessionFetcher

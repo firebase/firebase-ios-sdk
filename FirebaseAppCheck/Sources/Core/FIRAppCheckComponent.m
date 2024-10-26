@@ -21,7 +21,11 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheck+Internal.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

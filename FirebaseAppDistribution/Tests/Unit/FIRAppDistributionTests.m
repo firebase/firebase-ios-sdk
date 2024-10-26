@@ -22,8 +22,10 @@
 #import "FirebaseAppDistribution/Sources/FIRAppDistributionUIService.h"
 #import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+
+@import FirebaseCore;
+@import FirebaseCoreExtension;
 
 @interface FIRAppDistributionTests : XCTestCase
 

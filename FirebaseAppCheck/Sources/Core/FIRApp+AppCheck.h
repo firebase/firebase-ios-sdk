@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
 
 NS_ASSUME_NONNULL_BEGIN
 

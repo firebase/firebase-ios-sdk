@@ -20,7 +20,7 @@
 // TODO - FIRLoggerTest should be split into a separate FIRLoggerTest and GULLoggerTest.
 // No test should include both includes.
 #import <GoogleUtilities/GULLogger.h>
-#import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/InternalObjC/FIRLogger.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
 #import <asl.h>

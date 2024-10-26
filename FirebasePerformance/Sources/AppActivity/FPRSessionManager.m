@@ -18,6 +18,11 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 #import <UIKit/UIKit.h>
 
 NSString *const kFPRSessionIdUpdatedNotification = @"kFPRSessionIdUpdatedNotification";

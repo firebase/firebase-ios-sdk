@@ -20,6 +20,6 @@
 #import <Foundation/Foundation.h>
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
 
-FIRLoggerService kFIRLoggerInAppMessaging = @"[FirebaseInAppMessaging]";
+NSString *kFIRLoggerInAppMessaging = @"[FirebaseInAppMessaging]";
 
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION

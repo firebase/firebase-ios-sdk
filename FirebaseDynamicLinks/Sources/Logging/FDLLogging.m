@@ -20,9 +20,12 @@
 #import "FirebaseDynamicLinks/Sources/Logging/FDLLogging.h"
 
 #ifdef GIN_SCION_LOGGING
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
-FIRLoggerService kFIRLoggerDynamicLinks = @"[FirebaseDynamicLinks]";
+NSString *kFIRLoggerDynamicLinks = @"[FirebaseDynamicLinks]";
 #endif  // GIN_SCION_LOGGING
 
 #ifdef GIN_SCION_LOGGING

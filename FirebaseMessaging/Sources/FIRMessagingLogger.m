@@ -16,9 +16,13 @@
 
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
-FIRLoggerService kFIRLoggerMessaging = @"[FirebaseMessaging]";
+NSString *kFIRLoggerMessaging = @"[FirebaseMessaging]";
 
 @implementation FIRMessagingLogger
 

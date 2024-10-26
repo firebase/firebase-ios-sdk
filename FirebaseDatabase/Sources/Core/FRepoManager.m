@@ -15,12 +15,16 @@
  */
 
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabase_Private.h"
 #import "FirebaseDatabase/Sources/Core/FRepo.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @implementation FRepoManager
 

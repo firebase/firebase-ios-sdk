@@ -20,6 +20,11 @@
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRIAMCardViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingCardDisplay *cardDisplayMessage;

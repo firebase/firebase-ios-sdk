@@ -184,8 +184,8 @@ let package = Package(
       dependencies: [
         "Firebase",
         "FirebaseCoreInternal",
+        "FirebaseCoreInternalObjC",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Sources",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
@@ -249,8 +249,21 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseCoreInternalObjC",
+      dependencies: [
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULLogger", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseCore/InternalObjC",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+
+    .target(
       name: "FirebaseABTesting",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "FirebaseCoreExtension"],
       path: "FirebaseABTesting/Sources",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
@@ -580,6 +593,7 @@ let package = Package(
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseCore",
+        "FirebaseCoreExtension",
         "leveldb",
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
@@ -603,6 +617,7 @@ let package = Package(
       name: "DatabaseUnit",
       dependencies: [
         "FirebaseDatabase",
+        "FirebaseCoreExtension",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
@@ -652,7 +667,7 @@ let package = Package(
 
     .target(
       name: "FirebaseDynamicLinks",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "FirebaseCoreExtension"],
       path: "FirebaseDynamicLinks/Sources",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
@@ -1226,6 +1241,7 @@ let package = Package(
             dependencies: [
               "FirebaseAppCheckInterop",
               "FirebaseCore",
+              "FirebaseCoreExtension",
               .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),

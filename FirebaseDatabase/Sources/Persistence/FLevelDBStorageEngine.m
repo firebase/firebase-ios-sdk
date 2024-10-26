@@ -18,7 +18,6 @@
 
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/FQueryParams.h"
 #import "FirebaseDatabase/Sources/Core/FWriteRecord.h"
 #import "FirebaseDatabase/Sources/Persistence/FPendingPut.h"
@@ -28,6 +27,11 @@
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/third_party/Wrap-leveldb/APLevelDB.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @interface FLevelDBStorageEngine ()
 

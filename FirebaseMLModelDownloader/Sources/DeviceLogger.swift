@@ -14,7 +14,11 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCore
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
 
 /// Enum of log messages.
 enum LoggerMessageCode: Int {

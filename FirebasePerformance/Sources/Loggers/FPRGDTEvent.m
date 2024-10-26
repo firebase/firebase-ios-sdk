@@ -21,6 +21,11 @@
 
 #import "FirebasePerformance/Sources/Protogen/nanopb/perf_metric.nanopb.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FPRGDTEvent ()
 
 /** Perf metric that is going to be converted. */

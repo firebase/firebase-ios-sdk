@@ -33,6 +33,8 @@
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
+@import FirebaseCoreInternal;
+
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
 
 @interface FIRCLSOnDemandModelTests : XCTestCase

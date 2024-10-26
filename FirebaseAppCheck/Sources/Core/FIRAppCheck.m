@@ -32,6 +32,13 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
 #import "FirebaseAppCheck/Sources/Core/FIRInternalAppCheckProvider.h"
 
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /// A notification with the specified name is sent to the default notification center

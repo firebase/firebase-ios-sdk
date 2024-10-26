@@ -23,8 +23,6 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAppAttestProvider ()

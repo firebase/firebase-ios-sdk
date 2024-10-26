@@ -14,9 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FIRComponent.h"
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
+#import "FirebaseCore/InternalObjC/FIRComponent.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
+#import "FirebaseCore/InternalObjC/FIRLibrary.h"
 
 @protocol FIRComponentRegistrant;
 

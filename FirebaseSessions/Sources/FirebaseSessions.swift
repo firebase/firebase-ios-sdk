@@ -19,6 +19,11 @@ import Foundation
 @_implementationOnly import FirebaseInstallations
 @_implementationOnly import GoogleDataTransport
 
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
+
 #if swift(>=6.0)
   internal import Promises
 #elseif swift(>=5.10)
@@ -274,7 +279,7 @@ private enum GoogleDataTransportConfig {
     return [Component(SessionsProvider.self,
                       instantiationTiming: .alwaysEager) { container, isCacheable in
         // Sessions SDK only works for the default app
-        guard let app = container.app, app.isDefaultApp else { return nil }
+        guard let app = container.app, app.isDefaultApp() else { return nil }
         isCacheable.pointee = true
         let installations = Installations.installations(app: app)
         return self.init(appID: app.options.googleAppID, installations: installations)

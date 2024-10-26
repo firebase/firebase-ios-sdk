@@ -37,7 +37,12 @@
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredAuthToken.h"
 
+@import FirebaseCore;
+@import FirebaseCoreInternal;
 @import FirebaseCoreExtension;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 const NSNotificationName FIRInstallationIDDidChangeNotification =
     @"FIRInstallationIDDidChangeNotification";

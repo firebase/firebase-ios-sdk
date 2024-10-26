@@ -21,7 +21,8 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreExtension;
 
 @interface FIRAppCheckSettingsTests : XCTestCase
 

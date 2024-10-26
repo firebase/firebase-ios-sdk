@@ -27,11 +27,6 @@
  */
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSInteger, FIRConfigType) {
-  FIRConfigTypeCore = 1,
-  FIRConfigTypeSDK = 2,
-};
-
 extern NSString *const kFIRDefaultAppName;
 extern NSString *const kFIRAppReadyToConfigureSDKNotification;
 extern NSString *const kFIRAppDeleteNotification;
@@ -107,19 +102,24 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 /**
  * A flag indicating if this is the default app (has the default app name).
  */
-@property(nonatomic, readonly) BOOL isDefaultApp;
+- (BOOL)isDefaultApp;
 
 /**
  * The container of interop SDKs for this app.
  */
-@property(nonatomic) FIRComponentContainer *container;
+- (FIRComponentContainer *)container;
+
+/**
+ * The container of interop SDKs for this app.
+ */
+- (void)setContainer:(FIRComponentContainer *)container;
 
 /**
  * The heartbeat logger associated with this app.
  *
  * Firebase apps have a 1:1 relationship with heartbeat loggers.
  */
-@property(readonly) FIRHeartbeatLogger *heartbeatLogger;
+- (FIRHeartbeatLogger *)heartbeatLogger;
 
 /**
  * Checks if the default app is configured without trying to configure it.

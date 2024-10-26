@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
 
-#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
+#import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 @interface FIROptions (Testing)

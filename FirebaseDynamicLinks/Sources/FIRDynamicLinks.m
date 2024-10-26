@@ -22,7 +22,12 @@
 #import <UIKit/UIKit.h>
 
 #ifdef FIRDynamicLinks3P
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 #import "FirebaseDynamicLinks/Sources/FIRDLScionLogging.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 #else

@@ -16,8 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 @import FirebaseRemoteConfigInterop;
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @class FIRApp;
 @class FIRRemoteConfig;

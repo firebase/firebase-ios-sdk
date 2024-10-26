@@ -22,6 +22,11 @@
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Modal/FIRIAMModalViewController.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRIAMModalViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingModalDisplay *modalDisplayMessage;

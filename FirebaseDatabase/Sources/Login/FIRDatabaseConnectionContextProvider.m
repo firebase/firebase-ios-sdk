@@ -16,14 +16,17 @@
 
 #import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

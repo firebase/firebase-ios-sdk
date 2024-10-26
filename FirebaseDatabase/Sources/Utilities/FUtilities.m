@@ -15,17 +15,21 @@
  */
 
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Constants/FConstants.h"
 #import "FirebaseDatabase/Sources/Utilities/FAtomicNumber.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #define ARC4RANDOM_MAX 0x100000000
 
 #pragma mark -
 #pragma mark C functions
 
-FIRLoggerService kFIRLoggerDatabase = @"[FirebaseDatabase]";
+NSString *kFIRLoggerDatabase = @"[FirebaseDatabase]";
 static FLogLevel logLevel = FLogLevelInfo; // Default log level is info
 static NSMutableDictionary *options = nil;
 

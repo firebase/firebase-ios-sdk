@@ -23,7 +23,8 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreExtension;
 
 static NSString *const kAppName = @"test_app_name";
 static NSString *const kAppID = @"test_app_id";

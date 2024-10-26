@@ -18,7 +18,7 @@
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreExtension;
 
 NS_ASSUME_NONNULL_BEGIN
 

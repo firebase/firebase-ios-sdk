@@ -14,8 +14,10 @@
 #import "FirebaseAppDistribution/Sources/FIRFADApiService.h"
 #import <Foundation/Foundation.h>
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+
+@import FirebaseCore;
+@import FirebaseCoreExtension;
 
 NSString *const kFIRFADApiErrorDomain = @"com.firebase.appdistribution.api";
 NSString *const kFIRFADApiErrorDetailsKey = @"details";

@@ -22,7 +22,11 @@
 #import "FBLPromises.h"
 #endif
 
+@import FirebaseCoreInternal;
 @import FirebaseCoreExtension;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsHTTPError.h"

@@ -17,7 +17,6 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"

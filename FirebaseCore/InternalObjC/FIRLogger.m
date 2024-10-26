@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/InternalObjC/FIRLogger.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
@@ -57,7 +57,8 @@ static NSRegularExpression *sMessageCodeRegex;
 void FIRLoggerInitialize(void) {
   dispatch_once(&sFIRLoggerOnceToken, ^{
     // Register Firebase Version with GULLogger.
-    GULLoggerRegisterVersion(FIRFirebaseVersion());
+    // TODO!
+    // GULLoggerRegisterVersion(FIRFirebaseVersion());
 
     NSArray *arguments = [NSProcessInfo processInfo].arguments;
 

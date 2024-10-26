@@ -17,6 +17,11 @@
 #import "FirebasePerformance/Sources/Common/FPRConstants.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 #pragma mark - Public functions
 
 NSString *FPRReservableName(NSString *name) {

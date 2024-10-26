@@ -33,7 +33,12 @@
 
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @import FirebaseSessions;
 

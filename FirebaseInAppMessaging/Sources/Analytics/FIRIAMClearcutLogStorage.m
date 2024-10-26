@@ -19,7 +19,10 @@
 
 #import <UIKit/UIKit.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"

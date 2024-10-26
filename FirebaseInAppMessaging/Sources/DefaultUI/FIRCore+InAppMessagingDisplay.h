@@ -20,7 +20,7 @@
 // Firebase InAppMessagingDisplay is merged into main. Keep them separate now to help
 // with build from development folder and avoid merge conflicts.
 
-extern FIRLoggerService kFIRLoggerInAppMessagingDisplay;
+extern NSString *kFIRLoggerInAppMessagingDisplay;
 
 // this should eventually be in FIRError.h
 extern NSString *const kFirebaseInAppMessagingDisplayErrorDomain;

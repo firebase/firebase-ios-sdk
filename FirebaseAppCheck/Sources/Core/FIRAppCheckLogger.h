@@ -18,9 +18,7 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-extern FIRLoggerService kFIRLoggerAppCheck;
+extern NSString *kFIRLoggerAppCheck;
 
 // FIRAppCheck.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing;

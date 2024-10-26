@@ -20,10 +20,11 @@
 
 #import "FirebaseDatabase/Sources/Login/FIRDatabaseConnectionContextProvider.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckFake.h"
 #import "SharedTestUtilities/AppCheckFake/FIRAppCheckTokenResultFake.h"
 #import "SharedTestUtilities/FIRAuthInteropFake.h"
+
+@import FirebaseCoreExtension;
 
 @interface FIRDatabaseConnectionContextProviderTests : XCTestCase
 

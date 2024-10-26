@@ -15,9 +15,4 @@
 @import FirebaseCore;
 
 #import "FIRAppInternal.h"
-#import "FIRComponent.h"
-#import "FIRComponentContainer.h"
-#import "FIRComponentType.h"
 #import "FIRHeartbeatLogger.h"
-#import "FIRLibrary.h"
-#import "FIRLogger.h"

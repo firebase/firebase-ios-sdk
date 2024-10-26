@@ -22,7 +22,12 @@
 #import "FBLPromises.h"
 #endif
 
+@import FirebaseCore;
+@import FirebaseCoreInternal;
 @import FirebaseCoreExtension;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
 

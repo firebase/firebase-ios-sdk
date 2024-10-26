@@ -20,7 +20,6 @@
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 #import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
@@ -29,6 +28,12 @@
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKSettings.h"
 #import "FirebaseInAppMessaging/Sources/Private/Util/NSString+FIRInterlaceStrings.h"
 #import "FirebaseInAppMessaging/Sources/Public/FirebaseInAppMessaging/FIRInAppMessagingErrors.h"
+
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @implementation FIRInAppMessaging (Bootstrap)
 

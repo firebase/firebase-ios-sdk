@@ -20,6 +20,12 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRAppCheckLoggerTests : XCTestCase
 @end
 

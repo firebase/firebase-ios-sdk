@@ -15,7 +15,10 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
 
 ///
 /// Logger is responsible for printing console logs

@@ -52,7 +52,11 @@
 #import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
 
+@import FirebaseCoreInternal;
 @import FirebaseCoreExtension;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"

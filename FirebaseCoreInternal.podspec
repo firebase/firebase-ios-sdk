@@ -29,7 +29,8 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = watchos_deployment_target
 
   s.source_files = [
-    'FirebaseCore/Internal/Sources/**/*.swift'
+    'FirebaseCore/Internal/Sources/**/*.swift',
+    'FirebaseCore/InternalObjC/**/*.[mh]',
   ]
 
   s.resource_bundles = {
@@ -39,6 +40,11 @@ Pod::Spec.new do |s|
   s.swift_version = '5.9'
 
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
+
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+  }
 
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

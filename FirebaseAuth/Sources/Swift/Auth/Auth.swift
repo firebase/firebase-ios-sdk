@@ -17,12 +17,17 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreExtension
 #if COCOAPODS
   @_implementationOnly import GoogleUtilities
 #else
   @_implementationOnly import GoogleUtilities_AppDelegateSwizzler
   @_implementationOnly import GoogleUtilities_Environment
+#endif
+
+import FirebaseCoreExtension
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
 #endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -162,7 +167,7 @@ extension Auth: AuthInterop {
   /// - Parameter app: The app for which to retrieve the associated `Auth` instance.
   /// - Returns: The `Auth` instance associated with the given app.
   @objc open class func auth(app: FirebaseApp) -> Auth {
-    return ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container) as! Auth
+    return ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container()) as! Auth
   }
 
   /// Gets the `FirebaseApp` object that this auth object is connected to.
@@ -1622,7 +1627,7 @@ extension Auth: AuthInterop {
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
 
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
-                                                           in: app.container)
+                                                           in: app.container())
     guard let apiKey = app.options.apiKey else {
       fatalError("Missing apiKey for Auth initialization")
     }
@@ -1638,7 +1643,7 @@ extension Auth: AuthInterop {
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey,
                                                     appID: app.options.googleAppID,
                                                     auth: nil,
-                                                    heartbeatLogger: app.heartbeatLogger,
+                                                    heartbeatLogger: app.heartbeatLogger(),
                                                     appCheck: appCheck)
     super.init()
     requestConfiguration.auth = self

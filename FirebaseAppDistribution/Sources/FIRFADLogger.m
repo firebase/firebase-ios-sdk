@@ -13,7 +13,11 @@
 // limitations under the License.
 
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 FIRLoggerService kFIRLoggerAppDistribution = @"[FirebaseAppDistribution]";
 

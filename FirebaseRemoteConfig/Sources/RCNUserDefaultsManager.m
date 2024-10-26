@@ -19,6 +19,11 @@
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 static NSString *const kRCNGroupPrefix = @"group";
 static NSString *const kRCNGroupSuffix = @"firebase";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";

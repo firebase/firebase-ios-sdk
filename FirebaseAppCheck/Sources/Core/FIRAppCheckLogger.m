@@ -16,11 +16,15 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-FIRLoggerService kFIRLoggerAppCheck = @"[FirebaseAppCheck]";
+NSString *kFIRLoggerAppCheck = @"[FirebaseAppCheck]";
 
 // FIRAppCheck.m
 NSString *const kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing = @"I-FAA002001";

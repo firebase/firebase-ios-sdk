@@ -18,7 +18,10 @@
 
 #import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 
-@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 NSString *const kFIRInstallationsStoredAuthTokenStatusKey = @"status";
 NSString *const kFIRInstallationsStoredAuthTokenTokenKey = @"token";

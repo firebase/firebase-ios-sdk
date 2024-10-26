@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Realtime/FConnection.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"

@@ -26,6 +26,11 @@
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 #import "FirebasePerformance/Sources/ISASwizzler/FPRObjectSwizzler.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 @interface FPRNetworkTrace ()

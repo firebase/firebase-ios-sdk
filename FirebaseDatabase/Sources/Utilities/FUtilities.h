@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import <Foundation/Foundation.h>
 
 #import "FirebaseDatabase/Sources/Utilities/FParsedUrl.h"
+
+@import FirebaseCore;
+@import FirebaseCoreExtension;
 
 @interface FUtilities : NSObject
 
@@ -82,7 +84,7 @@ FOUNDATION_EXPORT NSString *const kFPersistenceLogTag;
 #define INTEGER_32_MIN (-2147483648)
 #define INTEGER_32_MAX 2147483647
 
-extern FIRLoggerService kFIRLoggerDatabase;
+extern NSString *kFIRLoggerDatabase;
 BOOL FFIsLoggingEnabled(FLogLevel logLevel);
 void firebaseUncaughtExceptionHandler(NSException *exception);
 void firebaseJobsTroll(void);

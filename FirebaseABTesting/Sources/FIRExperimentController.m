@@ -18,12 +18,18 @@
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 #import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 /// Logger Service String.
-FIRLoggerService kFIRLoggerABTesting = @"[FirebaseABTesting]";
+NSString *kFIRLoggerABTesting = @"[FirebaseABTesting]";
 
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =

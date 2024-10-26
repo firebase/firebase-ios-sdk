@@ -16,11 +16,17 @@
 
 #import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @implementation FIRRemoteConfigComponent
 

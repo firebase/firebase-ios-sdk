@@ -15,7 +15,7 @@
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
 // The Firebase service used in the Firebase logger.
-FIRLoggerService kFIRLoggerPerf = @"[FirebasePerformance]";
+NSString* const kFIRLoggerPerf = @"[FirebasePerformance]";
 
 // FPR Client message codes.
 NSString* const kFPRClientInitialize = @"I-PRF100001";

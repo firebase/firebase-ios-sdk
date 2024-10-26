@@ -16,6 +16,11 @@
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics_Private.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 void __FPRAssert(id object, BOOL condition, const char *func) {
   static BOOL diagnosticsEnabled = NO;
   static dispatch_once_t onceToken;

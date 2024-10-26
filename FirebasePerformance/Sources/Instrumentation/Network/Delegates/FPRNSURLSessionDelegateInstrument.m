@@ -22,6 +22,11 @@
 #import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLSessionDelegate.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 /** Returns the dispatch queue for all instrumentation to occur on. */
 static dispatch_queue_t GetInstrumentationQueue(void) {
   static dispatch_queue_t queue;

@@ -19,8 +19,10 @@ import FirebaseMessagingInterop
 import FirebaseSharedSwift
 import Foundation
 #if COCOAPODS
+  import FirebaseCoreInternal
   import GTMSessionFetcher
 #else
+  import FirebaseCoreInternalObjC
   import GTMSessionFetcherCore
 #endif
 
@@ -352,11 +354,11 @@ enum FunctionsConstants {
                    region: String,
                    customDomain: String?) {
     // TODO: These are not optionals, but they should be.
-    let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
+    let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container())
     let messaging = ComponentType<MessagingInterop>.instance(for: MessagingInterop.self,
-                                                             in: app.container)
+                                                             in: app.container())
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
-                                                           in: app.container)
+                                                           in: app.container())
 
     guard let projectID = app.options.projectID else {
       fatalError("Firebase Functions requires the projectID to be set in the App's Options.")

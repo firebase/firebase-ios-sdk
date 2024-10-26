@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseDatabase/Sources/Api/FIRDatabaseComponent.h"
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
@@ -27,6 +26,11 @@
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
 #import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
 #import "FirebaseDatabase/Sources/Utilities/FValidation.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @implementation FIRDatabase
 

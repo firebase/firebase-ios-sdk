@@ -17,6 +17,10 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
+#if SWIFT_PACKAGE
+  import FirebaseCoreInternalObjC
+#endif
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
@@ -271,9 +275,9 @@ import FirebaseCore
   init(app: FirebaseApp, bucket: String) {
     self.app = app
     auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self,
-                                               in: app.container)
+                                               in: app.container())
     appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
-                                                       in: app.container)
+                                                       in: app.container())
     storageBucket = bucket
     host = "firebasestorage.googleapis.com"
     scheme = "https"

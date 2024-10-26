@@ -20,6 +20,11 @@
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewController.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRIAMBannerViewController ()
 
 @property(nonatomic, readwrite) FIRInAppMessagingBannerDisplay *bannerDisplayMessage;

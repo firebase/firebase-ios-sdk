@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Persistence/FPersistenceManager.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/View/FCacheNode.h"
 #import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/Persistence/FLevelDBStorageEngine.h"
@@ -24,6 +23,11 @@
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
 #import "FirebaseDatabase/Sources/Snapshot/FIndexedNode.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @interface FPersistenceManager ()
 

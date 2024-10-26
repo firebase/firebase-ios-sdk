@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQueryManager.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseDatabase/Sources/Core/Utilities/FImmutableTree.h"
 #import "FirebaseDatabase/Sources/FClock.h"
 #import "FirebaseDatabase/Sources/Persistence/FCachePolicy.h"
@@ -23,6 +22,11 @@
 #import "FirebaseDatabase/Sources/Persistence/FPruneForest.h"
 #import "FirebaseDatabase/Sources/Persistence/FTrackedQuery.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
+
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 @interface FTrackedQueryManager ()
 

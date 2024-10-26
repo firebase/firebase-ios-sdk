@@ -17,6 +17,11 @@
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @implementation FPRNSURLSessionDelegate
 
 - (void)URLSession:(NSURLSession *)session

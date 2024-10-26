@@ -21,7 +21,10 @@
 
 #import "FirebaseSessions/SourcesObjC/Protogen/nanopb/sessions.nanopb.h"
 
-@import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>

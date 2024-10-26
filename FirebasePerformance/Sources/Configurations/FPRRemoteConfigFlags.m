@@ -21,7 +21,11 @@
 
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+@import FirebaseCore;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #define ONE_DAY_SECONDS 24 * 60 * 60
 

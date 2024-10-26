@@ -19,6 +19,11 @@
 
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 /** The expected key of the domain allowlist array. */
 static NSString *const kFPRAllowlistDomainsKey = @"FPRWhitelistedDomains";
 

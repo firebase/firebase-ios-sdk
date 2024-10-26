@@ -15,17 +15,19 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
+#import "FIRComponentContainer.h"
 
 @class FIRApp;
+@protocol FIRLibrary;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRComponentContainer (Private)
 
 /// Initializes a container for a given app. This should only be called by the app itself.
-- (instancetype)initWithApp:(FIRApp *)app;
+- (instancetype)initWithApp:(FIRApp *)app
+               isDefaultApp:(BOOL)isDefaultApp
+             isAppForARCore:(BOOL)isAppForARCore;
 
 /// Retrieves an instance that conforms to the specified protocol. This will return `nil` if the
 /// protocol wasn't registered, or if the instance couldn't be instantiated for the provided app.

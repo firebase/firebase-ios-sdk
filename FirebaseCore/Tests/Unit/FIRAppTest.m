@@ -29,8 +29,8 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponentType.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import "FirebaseCore/InternalObjC/FIRComponentType.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

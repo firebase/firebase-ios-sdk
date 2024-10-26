@@ -21,6 +21,11 @@
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
 #import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 @interface FIRIAMBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to
 // be considered as a valid impression help. If the app is closed before that's reached,

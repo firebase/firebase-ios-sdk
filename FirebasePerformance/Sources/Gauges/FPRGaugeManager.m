@@ -21,6 +21,11 @@
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 #import <UIKit/UIKit.h>
 
 // Number of gauge data information after which that gets flushed to Google Data Transport.

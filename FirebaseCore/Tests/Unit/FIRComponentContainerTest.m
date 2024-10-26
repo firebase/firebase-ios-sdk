@@ -14,9 +14,8 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
+#import "FirebaseCore/InternalObjC//FIRComponentType.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
@@ -28,7 +27,9 @@
 
 + (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass
                                 inSet:(NSMutableSet<Class> *)allRegistrants;
-- (instancetype)initWithApp:(FIRApp *)app registrants:(NSMutableSet<Class> *)allRegistrants;
+- (instancetype)initWithApp:(FIRApp *)app
+               isDefaultApp:(BOOL)isDefaultApp
+                registrants:(NSMutableSet<Class> *)allRegistrants;
 @end
 
 @interface FIRComponentContainer (TestInternalImplementations)
@@ -40,7 +41,9 @@
 
 - (instancetype)initWithApp:(FIRApp *)app
                  components:(NSDictionary<NSString *, FIRComponentCreationBlock> *)components {
-  self = [self initWithApp:app registrants:[[NSMutableSet alloc] init]];
+  self = [self initWithApp:app
+              isDefaultApp:app.isDefaultApp
+               registrants:[[NSMutableSet alloc] init]];
   if (self) {
     self.components = [components mutableCopy];
   }
@@ -234,8 +237,10 @@
   }
 
   // Override the app's container with the newly instantiated container.
-  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:_hostApp
-                                                                    registrants:allRegistrants];
+  FIRComponentContainer *container =
+      [[FIRComponentContainer alloc] initWithApp:_hostApp
+                                    isDefaultApp:_hostApp.isDefaultApp
+                                     registrants:allRegistrants];
   _hostApp.container = container;
 
   // Instantiate all the components that were eagerly registered now that all other properties are

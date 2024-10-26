@@ -25,6 +25,11 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrumentation.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 
 @implementation FIRPerformance

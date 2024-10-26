@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
-#import "FirebaseCore/Extension/FIRLogger.h"
 
 #define ABT_MSEC_PER_SEC 1000ull
 
@@ -47,4 +46,4 @@ typedef NS_ENUM(NSUInteger, ABTInternalErrorCode) {
 
 #pragma mark - Logger Service String
 
-extern FIRLoggerService kFIRLoggerABTesting;
+extern NSString *kFIRLoggerABTesting;
