@@ -30,6 +30,9 @@
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
+@import FirebaseCore;
+@import FirebaseCoreExtension;
+
 static NSString *const kAPIKey = @"myAPIKey";
 static NSString *const kStructuredLinkFmtFreeform = @"%@://google/link/%@";
 static NSString *const kStructuredLinkFmtDeepLink = @"%@://google/link/?deep_link_id=%@";

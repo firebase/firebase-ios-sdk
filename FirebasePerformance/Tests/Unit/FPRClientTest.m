@@ -14,7 +14,12 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseCore;
 @import FirebaseCoreExtension;
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
 
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h"
 #import "FirebasePerformance/Sources/FPRClient+Private.h"

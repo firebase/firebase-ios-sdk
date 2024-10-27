@@ -41,7 +41,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     base_dir + "Swift/Source/**/*.swift",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
@@ -59,7 +58,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     base_dir + "Swift/Source/**/*.swift",
     'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
-    'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
 
