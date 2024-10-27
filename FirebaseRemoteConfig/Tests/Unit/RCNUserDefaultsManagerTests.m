@@ -23,8 +23,8 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 static NSString* const AppName = @"testApp";
 static NSString* const FQNamespace1 = @"testNamespace1:testApp";
 static NSString* const FQNamespace2 = @"testNamespace2:testApp";
-static NSMutableDictionary<NSString *, NSObject *> *customSignals1 = nil;
-static NSMutableDictionary<NSString *, NSObject *> *customSignals2 = nil;
+static NSMutableDictionary<NSString*, NSObject*>* customSignals1 = nil;
+static NSMutableDictionary<NSString*, NSObject*>* customSignals2 = nil;
 
 @interface RCNUserDefaultsManagerTests : XCTestCase
 
@@ -38,13 +38,13 @@ static NSMutableDictionary<NSString *, NSObject *> *customSignals2 = nil;
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
   RCNUserDefaultsSampleTimeStamp = [[NSDate date] timeIntervalSince1970];
-  
+
   customSignals1 = [[NSMutableDictionary alloc] initWithDictionary:@{
-      @"signal1" : @"stringValue",
-    }];
-    customSignals2 = [[NSMutableDictionary alloc] initWithDictionary:@{
-      @"signal2" : @"stringValue2",
-    }];
+    @"signal1" : @"stringValue",
+  }];
+  customSignals2 = [[NSMutableDictionary alloc] initWithDictionary:@{
+    @"signal2" : @"stringValue2",
+  }];
 }
 
 - (void)testUserDefaultsEtagWriteAndRead {
@@ -184,7 +184,7 @@ static NSMutableDictionary<NSString *, NSObject *> *customSignals2 = nil;
                                             namespace:FQNamespace1];
   [manager setCustomSignals:customSignals1];
   XCTAssertEqualObjects([manager customSignals], customSignals1);
-  
+
   [manager setCustomSignals:customSignals2];
   XCTAssertEqualObjects([manager customSignals], customSignals2);
 }
@@ -269,7 +269,7 @@ static NSMutableDictionary<NSString *, NSObject *> *customSignals2 = nil;
   [manager2 setLastActiveTemplateVersion:@"2"];
   XCTAssertEqualObjects([manager1 lastActiveTemplateVersion], @"1");
   XCTAssertEqualObjects([manager2 lastActiveTemplateVersion], @"2");
-  
+
   /// Custom Singnals
   [manager1 setCustomSignals:customSignals1];
   [manager2 setCustomSignals:customSignals2];

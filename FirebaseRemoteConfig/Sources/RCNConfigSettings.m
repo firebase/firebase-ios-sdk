@@ -108,7 +108,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                    @"New config database created. Resetting user defaults.");
       [_userDefaultsManager resetUserDefaults];
     }
-    
+
     _customSignals = [_userDefaultsManager customSignals];
     _isFetchInProgress = NO;
     _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
@@ -445,7 +445,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       }
     }
   }
-  
+
   if (_customSignals.count > 0) {
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:_customSignals
@@ -533,7 +533,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                      completionHandler:nil];
 }
 
-- (void)setCustomSignals:(NSMutableDictionary<NSString *,NSObject *> *)customSignals {
+- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSObject *> *)customSignals {
   _customSignals = customSignals;
   [_userDefaultsManager setCustomSignals:customSignals];
 }

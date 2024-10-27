@@ -1839,8 +1839,9 @@ static NSString *UTCToLocal(NSString *utcTime) {
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    expectations[i] = [self expectationWithDescription:
-                                 [NSString stringWithFormat:@"Set custom signals - instance %d", i]];
+    expectations[i] = [self
+        expectationWithDescription:[NSString
+                                       stringWithFormat:@"Set custom signals - instance %d", i]];
 
     NSDictionary<NSString *, NSObject *> *testSignals = @{
       @"signal1" : @"stringValue",
@@ -1848,12 +1849,13 @@ static NSString *UTCToLocal(NSString *utcTime) {
     };
 
     [_configInstances[i] setCustomSignals:testSignals
-                         WithCompletion:^(NSError *_Nullable error) {
-      XCTAssertNil(error);
-      NSMutableDictionary<NSString *, NSObject *> *retrievedSignals = self->_configInstances[i].settings.customSignals;
-      XCTAssertEqualObjects(retrievedSignals, testSignals);
-      [expectations[i] fulfill];
-    }];
+                           WithCompletion:^(NSError *_Nullable error) {
+                             XCTAssertNil(error);
+                             NSMutableDictionary<NSString *, NSObject *> *retrievedSignals =
+                                 self->_configInstances[i].settings.customSignals;
+                             XCTAssertEqualObjects(retrievedSignals, testSignals);
+                             [expectations[i] fulfill];
+                           }];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }

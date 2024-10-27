@@ -35,7 +35,8 @@
 /// TODO: Rename according to obj-c style for constants.
 NSString *const FIRRemoteConfigErrorDomain = @"com.google.remoteconfig.ErrorDomain";
 // Remote Config Custom Signals Error Domain
-NSString *const FIRRemoteConfigCustomSignalsErrorDomain = @"com.google.remoteconfig.customsignals.ErrorDomain";
+NSString *const FIRRemoteConfigCustomSignalsErrorDomain =
+    @"com.google.remoteconfig.customsignals.ErrorDomain";
 // Remote Config Realtime Error Domain
 NSString *const FIRRemoteConfigUpdateErrorDomain = @"com.google.remoteconfig.update.ErrorDomain";
 /// Remote Config Error Info End Time Seconds;
@@ -250,15 +251,20 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       }
       return;
     }
-    
+
     for (NSString *key in customSignals) {
       NSObject *value = customSignals[key];
-      if (value && ![value isKindOfClass:[NSString class]] && ![value isKindOfClass:[NSNumber class]]) {
+      if (value && ![value isKindOfClass:[NSString class]] &&
+          ![value isKindOfClass:[NSNumber class]]) {
         if (completionHandler) {
           dispatch_async(dispatch_get_main_queue(), ^{
-            NSError *error = [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
-                                                 code:FIRRemoteConfigCustomSignalsErrorInvalidValueType
-                                             userInfo:@{NSLocalizedDescriptionKey: @"Invalid value type. Must be NSString or NSNumber."}];
+            NSError *error =
+                [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                                    code:FIRRemoteConfigCustomSignalsErrorInvalidValueType
+                                userInfo:@{
+                                  NSLocalizedDescriptionKey :
+                                      @"Invalid value type. Must be NSString or NSNumber."
+                                }];
             completionHandler(error);
           });
         }

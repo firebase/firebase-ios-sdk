@@ -100,11 +100,11 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateErr
 extern NSString *const _Nonnull FIRRemoteConfigCustomSignalsErrorDomain NS_SWIFT_NAME(RemoteConfigCustomSignalsErrorDomain);
 
 /// Firebase Remote Config custom signals error.
-typedef NS_ERROR_ENUM(FIRRemoteConfigCustomSignalsErrorDomain, FIRRemoteConfigCustomSignalsError) {
-  /// Unknown error.
-  FIRRemoteConfigCustomSignalsErrorUnknown = 8001,
-  /// Invalid value type in the custom signals dictionary.
-  FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8002,
+typedef NS_ERROR_ENUM(FIRRemoteConfigCustomSignalsErrorDomain, FIRRemoteConfigCustomSignalsError){
+    /// Unknown error.
+    FIRRemoteConfigCustomSignalsErrorUnknown = 8001,
+    /// Invalid value type in the custom signals dictionary.
+    FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8002,
 } NS_SWIFT_NAME(RemoteConfigCustomSignalsError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
