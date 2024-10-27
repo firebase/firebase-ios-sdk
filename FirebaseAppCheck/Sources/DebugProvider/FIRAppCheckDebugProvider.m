@@ -24,6 +24,7 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
 
+@import FirebaseCoreExtension;
 @import FirebaseCoreInternal;
 #if SWIFT_PACKAGE
 @import FirebaseCoreInternalObjC;

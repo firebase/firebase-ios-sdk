@@ -15,6 +15,7 @@
 import Foundation
 
 import FirebaseCore
+import FirebaseCoreExtension
 @testable import FirebaseStorage
 
 import FirebaseAppCheckInterop
