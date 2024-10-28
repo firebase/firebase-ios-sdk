@@ -385,6 +385,8 @@ final class AuthBackend: AuthBackendProtocol {
       .missingAppCredential(message: serverDetailErrorMessage)
     case "INVALID_CODE": return AuthErrorUtils
       .invalidVerificationCodeError(message: serverDetailErrorMessage)
+    case "INVALID_HOSTING_LINK_DOMAIN": return AuthErrorUtils
+      .invalidHostingLinkDomainError(message: serverDetailErrorMessage)
     case "INVALID_SESSION_INFO": return AuthErrorUtils
       .invalidVerificationIDError(message: serverDetailErrorMessage)
     case "SESSION_EXPIRED": return AuthErrorUtils
