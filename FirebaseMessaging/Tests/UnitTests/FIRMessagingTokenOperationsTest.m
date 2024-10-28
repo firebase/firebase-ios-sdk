@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"

@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import FirebaseCore;
-
-#import "FIRAppInternal.h"
 #import "FIRComponent.h"
 #import "FIRComponentContainer.h"
 #import "FIRComponentType.h"
-#import "FIRHeartbeatLogger.h"
 #import "FIRLibrary.h"
 #import "FIRLogger.h"

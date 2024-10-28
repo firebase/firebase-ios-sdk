@@ -16,4 +16,4 @@
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 // Firebase Core
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"

@@ -12,6 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 #import "SharedTestUtilities/ExceptionCatcher.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

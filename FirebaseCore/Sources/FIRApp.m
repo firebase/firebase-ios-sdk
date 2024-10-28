@@ -28,7 +28,7 @@
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
-@import FirebaseCoreInternal;
+#import "FirebaseCore/InternalObjC/FirebaseCoreInternal.h"
 #if SWIFT_PACKAGE
 @import FirebaseCoreInternalObjC;
 #endif

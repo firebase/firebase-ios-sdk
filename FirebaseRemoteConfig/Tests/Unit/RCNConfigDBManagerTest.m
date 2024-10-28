@@ -19,7 +19,7 @@
 
 #import <sqlite3.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"

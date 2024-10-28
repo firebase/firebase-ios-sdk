@@ -17,7 +17,7 @@
 @import FirebaseAuth;
 @import FirebaseStorage;
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 
 #import "FirebaseStorage/Tests/ObjCIntegration/Credentials.h"
 

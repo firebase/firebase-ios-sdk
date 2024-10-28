@@ -24,7 +24,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 @import FirebaseRemoteConfigInterop;
 
 @interface RCNThrottlingTests : XCTestCase {

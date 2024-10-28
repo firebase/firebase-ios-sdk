@@ -18,7 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"

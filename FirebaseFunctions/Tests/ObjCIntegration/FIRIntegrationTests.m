@@ -14,7 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
+#import "FirebaseCore/Extension/CoreExtension.h"
 #import "FirebaseFunctions/Tests/ObjCIntegration/FIRFunctions+Internal.h"
 
 @import FirebaseFunctions;
