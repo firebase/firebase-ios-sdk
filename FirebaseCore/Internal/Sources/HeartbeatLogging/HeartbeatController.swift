@@ -42,7 +42,7 @@ public final class HeartbeatController: Sendable {
   /// Public initializer.
   /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
   public convenience init(id: String) {
-    self.init(id: id, dateProvider: Date.init)
+    self.init(id: id, dateProvider: { Date() })
   }
 
   /// Convenience initializer. Mirrors the semantics of the public initializer with the added
@@ -61,7 +61,7 @@ public final class HeartbeatController: Sendable {
   ///   - storage: A heartbeat storage container.
   ///   - dateProvider: A date provider. Defaults to providing the current date.
   init(storage: HeartbeatStorageProtocol,
-       dateProvider: @escaping @Sendable () -> Date = Date.init) {
+       dateProvider: @escaping @Sendable () -> Date = { Date() }) {
     self.storage = storage
     self.dateProvider = { Self.dateStandardizer.standardize(dateProvider()) }
   }
