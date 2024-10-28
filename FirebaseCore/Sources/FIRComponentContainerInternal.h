@@ -15,7 +15,12 @@
  */
 #import <Foundation/Foundation.h>
 
-#import "FIRComponentContainer.h"
+@import FirebaseCoreInternal;
+#ifdef SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#else
+@import FirebaseCoreInternal;
+#endif
 
 @class FIRApp;
 @protocol FIRLibrary;

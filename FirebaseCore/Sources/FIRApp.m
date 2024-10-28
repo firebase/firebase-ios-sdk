@@ -28,6 +28,11 @@
 
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
+@import FirebaseCoreInternal;
+#if SWIFT_PACKAGE
+@import FirebaseCoreInternalObjC;
+#endif
+
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
@@ -35,14 +40,10 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
-
-@import FirebaseCoreInternal;
-#if SWIFT_PACKAGE
-@import FirebaseCoreInternalObjC;
-#endif
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

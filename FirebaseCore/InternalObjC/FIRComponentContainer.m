@@ -22,6 +22,33 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRComponentContainer (Private)
+
+/// Initializes a container for a given app. This should only be called by the app itself.
+- (instancetype)initWithApp:(FIRApp *)app
+               isDefaultApp:(BOOL)isDefaultApp
+             isAppForARCore:(BOOL)isAppForARCore;
+
+/// Retrieves an instance that conforms to the specified protocol. This will return `nil` if the
+/// protocol wasn't registered, or if the instance couldn't be instantiated for the provided app.
+- (nullable id)instanceForProtocol:(Protocol *)protocol
+    NS_SWIFT_UNAVAILABLE("Use `instance(for:)` from the FirebaseCoreExtension module instead.");
+
+/// Instantiates all the components that have registered as "eager" after initialization.
+- (void)instantiateEagerComponents;
+
+/// Remove all of the cached instances stored and allow them to clean up after themselves.
+- (void)removeAllCachedInstances;
+
+/// Removes all the components. After calling this method no new instances will be created.
+- (void)removeAllComponents;
+
+/// Register a class to provide components for the interoperability system. The class should conform
+/// to `FIRComponentRegistrant` and provide an array of `FIRComponent` objects.
++ (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass;
+
+@end
+
 @interface FIRComponentContainer ()
 
 /// The dictionary of components that are registered for a particular app. The key is an `NSString`

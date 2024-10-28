@@ -16,7 +16,6 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
-#import "FirebaseCore/InternalObjC/FIRComponentContainerInternal.h"
 #import "FirebaseCore/InternalObjC/FIRComponentType.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
@@ -34,6 +33,16 @@
 - (instancetype)initWithApp:(FIRApp *)app
                isDefaultApp:(BOOL)isDefaultApp
                 registrants:(NSMutableSet<Class> *)allRegistrants;
+
+/// Instantiates all the components that have registered as "eager" after initialization.
+- (void)instantiateEagerComponents;
+
+/// Remove all of the cached instances stored and allow them to clean up after themselves.
+- (void)removeAllCachedInstances;
+
+/// Removes all the components. After calling this method no new instances will be created.
+- (void)removeAllComponents;
+
 @end
 
 @interface FIRComponentContainer (TestInternalImplementations)

@@ -16,7 +16,15 @@
 
 #import "FirebaseCore/InternalObjC/FIRComponentType.h"
 
-#import "FirebaseCore/InternalObjC/FIRComponentContainerInternal.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
+
+@interface FIRComponentContainer (InstanceForProtocol)
+
+/// Retrieves an instance that conforms to the specified protocol. This will return `nil` if the
+/// protocol wasn't registered, or if the instance couldn't be instantiated for the provided app.
+- (nullable id)instanceForProtocol:(Protocol *)protocol
+    NS_SWIFT_UNAVAILABLE("Use `instance(for:)` from the FirebaseCoreExtension module instead.");
+@end
 
 @implementation FIRComponentType
 
