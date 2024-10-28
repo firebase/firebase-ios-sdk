@@ -400,11 +400,24 @@ class HeartbeatStorageTests: XCTestCase {
   }
 
   func testForMemoryLeakInInstanceManager() {
+    // This unchecked Sendable class is used to avoid passing a non-sendable
+    // type '[WeakContainer<HeartbeatStorage>]' to a `@Sendable` closure
+    // (`DispatchQueue.global().async { ... }`).
+    final class WeakRefs: @unchecked Sendable {
+      private(set) var weakRefs: [WeakContainer<HeartbeatStorage>] = []
+      // Lock is used to synchronize `weakRefs` during concurrent access.
+      private let weakRefsLock = NSLock()
+
+      func append(_ weakRef: WeakContainer<HeartbeatStorage>) {
+        weakRefsLock.withLock {
+          weakRefs.append(weakRef)
+        }
+      }
+    }
+
     // Given
     let id = "testID"
-    var weakRefs: [WeakContainer<HeartbeatStorage>] = []
-    // Lock is used to synchronize `weakRefs` during concurrent access.
-    let weakRefsLock = NSLock()
+    let weakRefs = WeakRefs()
 
     // When
     // Simulate concurrent access. This will help expose race conditions that could cause a crash.
@@ -413,9 +426,7 @@ class HeartbeatStorageTests: XCTestCase {
       group.enter()
       DispatchQueue.global().async {
         let instance = HeartbeatStorage.getInstance(id: id)
-        weakRefsLock.withLock {
-          weakRefs.append(WeakContainer(object: instance))
-        }
+        weakRefs.append(WeakContainer(object: instance))
         group.leave()
       }
     }
@@ -424,7 +435,7 @@ class HeartbeatStorageTests: XCTestCase {
     // Then
     // The `weakRefs` array's references should all be nil; otherwise, something is being
     // unexpectedly strongly retained.
-    for weakRef in weakRefs {
+    for weakRef in weakRefs.weakRefs {
       XCTAssertNil(weakRef.object, "Potential memory leak detected.")
     }
   }
