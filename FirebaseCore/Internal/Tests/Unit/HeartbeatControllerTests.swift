@@ -426,7 +426,10 @@ class HeartbeatControllerTests: XCTestCase {
 
 // MARK: - Fakes
 
-private class HeartbeatStorageFake: HeartbeatStorageProtocol {
+private final class HeartbeatStorageFake: HeartbeatStorageProtocol, @unchecked Sendable {
+  // The unchecked Sendable conformance is used to prevent warnings for the below var, which
+  // violates the class's Sendable conformance. Ignoring this violation should be okay for
+  // testing purposes.
   private var heartbeatsBundle: HeartbeatsBundle?
 
   func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) {
