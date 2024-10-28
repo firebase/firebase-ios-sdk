@@ -31,7 +31,7 @@
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import <GoogleUtilities/GULNSData+zlib.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
 @import FirebaseRemoteConfigInterop;
 
 @protocol FIRRolloutsStateSubscriber;

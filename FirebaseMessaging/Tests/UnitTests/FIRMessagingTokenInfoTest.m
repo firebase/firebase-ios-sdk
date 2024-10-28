@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAPNSInfo.h"
 

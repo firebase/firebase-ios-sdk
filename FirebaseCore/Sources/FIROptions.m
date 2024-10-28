@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-@import FirebaseCoreInternal;
+
+#import "FirebaseCore/InternalObjC/FirebaseCoreInternal.h"
 #if SWIFT_PACKAGE
 @import FirebaseCoreInternalObjC;
 #endif

@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
-#import "SharedTestUtilities/ExceptionCatcher.h"
-#import "SharedTestUtilities/FIROptionsMock.h"
+@import FirebaseCore;
+
+#import "FIRAppInternal.h"
+#import "FIRComponent.h"
+#import "FIRComponentContainer.h"
+#import "FIRComponentType.h"
+#import "FIRHeartbeatLogger.h"
+#import "FIRLibrary.h"
+#import "FIRLogger.h"

@@ -18,7 +18,7 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULUserDefaults.h>
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreExtension.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
 NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
