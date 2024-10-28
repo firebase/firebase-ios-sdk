@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-// This file contains declarations that should go into FirebaseCore when
-// Firebase InAppMessagingDisplay is merged into main. Keep them separate now to help
-// with build from development folder and avoid merge conflicts.
+#import <Foundation/Foundation.h>
 
 extern NSString *kFIRLoggerInAppMessagingDisplay;
 

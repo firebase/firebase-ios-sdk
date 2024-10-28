@@ -30,6 +30,9 @@
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h"
 #import "FirebaseInAppMessaging/Sources/Private/Runtime/FIRInAppMessaging+Bootstrap.h"
 
+@import FirebaseCoreInternal;
+@import FirebaseCoreExtension;
+
 static BOOL _autoBootstrapOnFIRAppInit = YES;
 
 @implementation FIRInAppMessaging {

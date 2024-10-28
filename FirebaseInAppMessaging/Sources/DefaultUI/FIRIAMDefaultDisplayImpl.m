@@ -17,6 +17,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
+@import FirebaseCoreExtension;
 @import FirebaseCoreInternal;
 #if SWIFT_PACKAGE
 @import FirebaseCoreInternalObjC;
