@@ -40,6 +40,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
     "SwiftPMTests", // The SwiftPM tests test module imports.
     "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
+    "FirebaseCore/InternalObjC/FirebaseCoreInternal.h", // umbrella header for cmake, g3
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
