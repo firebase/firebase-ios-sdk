@@ -1428,6 +1428,7 @@ func firestoreTargets() -> [Target] {
         dependencies: [
           "FirebaseAppCheckInterop",
           "FirebaseCore",
+          "FirebaseCoreInternalObjC",
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
           .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
@@ -1560,6 +1561,7 @@ func firestoreTargets() -> [Target] {
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseAppCheckInterop",
         "FirebaseCore",
+        "FirebaseCoreInternalObjC",
         "FirebaseCoreExtension",
         "leveldb",
         "FirebaseSharedSwift",

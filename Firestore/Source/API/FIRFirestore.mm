@@ -30,8 +30,8 @@
 #import "FIRTransactionOptions.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
-#import "FirebaseCore/Extension/FIRComponentType.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
+#import "FirebaseCore/InternalObjC/FIRComponentType.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"

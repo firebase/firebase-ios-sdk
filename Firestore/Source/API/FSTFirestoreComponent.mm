@@ -24,10 +24,10 @@
 
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRComponent.h"
-#import "FirebaseCore/Extension/FIRComponentContainer.h"
-#import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FIRLibrary.h"
+#import "FirebaseCore/InternalObjC/FIRComponent.h"
+#import "FirebaseCore/InternalObjC/FIRComponentContainer.h"
+#import "FirebaseCore/InternalObjC/FIRComponentType.h"
+#import "FirebaseCore/InternalObjC/FIRLibrary.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 

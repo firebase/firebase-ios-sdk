@@ -33,7 +33,7 @@
 #include <utility>
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/InternalObjC/FIRLogger.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
