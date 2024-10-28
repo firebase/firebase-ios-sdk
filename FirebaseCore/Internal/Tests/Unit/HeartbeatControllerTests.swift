@@ -15,6 +15,14 @@
 @testable import FirebaseCoreInternal
 import XCTest
 
+/// Used to manipulate a date across multiple concurrent contexts for simulation purposes.
+final class AdjustableDate: @unchecked Sendable {
+  var date: Date
+  init(date: Date) {
+    self.date = date
+  }
+}
+
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
@@ -99,11 +107,11 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLogAtEndOfTimePeriodAndAcceptAtStartOfNextOne() throws {
     // Given
-    var testDate = date
+    let testDate = AdjustableDate(date: date)
 
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { testDate }
+      dateProvider: { testDate.date }
     )
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
@@ -113,12 +121,12 @@ class HeartbeatControllerTests: XCTestCase {
     controller.log("dummy_agent")
 
     // - Advance to 2021-11-01 @ 23:59:59 (EST)
-    testDate.addTimeInterval(60 * 60 * 24 - 1)
+    testDate.date.addTimeInterval(60 * 60 * 24 - 1)
 
     controller.log("dummy_agent")
 
     // - Advance to 2021-11-02 @ 00:00:00 (EST)
-    testDate.addTimeInterval(1)
+    testDate.date.addTimeInterval(1)
 
     controller.log("dummy_agent")
 
@@ -271,18 +279,18 @@ class HeartbeatControllerTests: XCTestCase {
       ).date // 2021-11-02 @ 11 PM (Tokyo time zone)
     )
 
-    var testDate = newYorkDate
+    let testDate = AdjustableDate(date: newYorkDate)
 
     let heartbeatController = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { testDate }
+      dateProvider: { testDate.date }
     )
 
     // When
     heartbeatController.log("dummy_agent")
 
     // Device travels from NYC to Tokyo.
-    testDate = tokyoDate
+    testDate.date = tokyoDate
 
     heartbeatController.log("dummy_agent")
 
@@ -308,10 +316,10 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLoggingDependsOnDateNotUserAgent() throws {
     // Given
-    var testDate = date
+    let testDate = AdjustableDate(date: date)
     let heartbeatController = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { testDate }
+      dateProvider: { testDate.date }
     )
 
     // When
@@ -319,11 +327,11 @@ class HeartbeatControllerTests: XCTestCase {
     heartbeatController.log("dummy_agent")
 
     // - Day 2
-    testDate.addTimeInterval(60 * 60 * 24)
+    testDate.date.addTimeInterval(60 * 60 * 24)
     heartbeatController.log("some_other_agent")
 
     // - Day 3
-    testDate.addTimeInterval(60 * 60 * 24)
+    testDate.date.addTimeInterval(60 * 60 * 24)
     heartbeatController.log("dummy_agent")
 
     // Then
@@ -359,20 +367,20 @@ class HeartbeatControllerTests: XCTestCase {
     let todaysDate = date
     let tomorrowsDate = date.addingTimeInterval(60 * 60 * 24)
 
-    var testDate = yesterdaysDate
+    let testDate = AdjustableDate(date: yesterdaysDate)
 
     let heartbeatController = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { testDate }
+      dateProvider: { testDate.date }
     )
 
     // When
     heartbeatController.log("yesterdays_dummy_agent")
-    testDate = todaysDate
+    testDate.date = todaysDate
     heartbeatController.log("todays_dummy_agent")
-    testDate = tomorrowsDate
+    testDate.date = tomorrowsDate
     heartbeatController.log("tomorrows_dummy_agent")
-    testDate = todaysDate
+    testDate.date = todaysDate
 
     // Then
     let payload = heartbeatController.flushHeartbeatFromToday()
