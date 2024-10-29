@@ -178,7 +178,8 @@ public class Schema {
   public static func float(description: String? = nil, nullable: Bool = false) -> Schema {
     return self.init(
       type: .number,
-      format: "float",
+      // TODO(andrewheard): Revert this change when the backend accepts "float" as a format again.
+      // format: "float",
       description: description,
       nullable: nullable
     )
@@ -202,7 +203,8 @@ public class Schema {
   public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
     return self.init(
       type: .number,
-      format: "double",
+      // TODO(andrewheard): Revert this change when the backend accepts "double" as a format again.
+      // format: "double",
       description: description,
       nullable: nullable
     )
