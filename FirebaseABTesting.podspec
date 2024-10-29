@@ -51,8 +51,8 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseCore', '11.5'
-  s.dependency 'FirebaseCoreExtension', '11.5'
+  s.dependency 'FirebaseCore', '12.0'
+  s.dependency 'FirebaseCoreExtension', '12.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

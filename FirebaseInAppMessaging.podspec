@@ -78,7 +78,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '11.5'
+  s.dependency 'FirebaseCore', '12.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'FirebaseABTesting', '~> 11.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'

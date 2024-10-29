@@ -35,8 +35,8 @@ Cloud Functions for Firebase.
     'FirebaseFunctions/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '11.5'
-  s.dependency 'FirebaseCoreExtension', '11.5'
+  s.dependency 'FirebaseCore', '12.0'
+  s.dependency 'FirebaseCoreExtension', '12.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseAuthInterop', '~> 11.0'
   s.dependency 'FirebaseMessagingInterop', '~> 11.0'

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '11.5.0'
+  s.version          = '12.0.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -13,7 +13,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'CocoaPods-' + s.version.to_s
+    :tag => 'Core-' + s.version.to_s
   }
 
   s.social_media_url = 'https://twitter.com/Firebase'
@@ -53,7 +53,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
-  s.dependency 'FirebaseCoreInternal', '11.5'
+  s.dependency 'FirebaseCoreInternal', '12.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
