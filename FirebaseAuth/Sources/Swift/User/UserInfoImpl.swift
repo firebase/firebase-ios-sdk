@@ -72,9 +72,7 @@ extension UserInfoImpl: NSSecureCoding {}
   private static let kEmailCodingKey = "email"
   private static let kPhoneNumberCodingKey = "phoneNumber"
 
-  static var supportsSecureCoding: Bool {
-    return true
-  }
+  static let supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
     coder.encode(providerID, forKey: UserInfoImpl.kProviderIDCodingKey)

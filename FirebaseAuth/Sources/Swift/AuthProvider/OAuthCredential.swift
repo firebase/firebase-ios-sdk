@@ -96,7 +96,7 @@ import Foundation
 
   // MARK: Secure Coding
 
-  public static var supportsSecureCoding: Bool = true
+  public static let supportsSecureCoding: Bool = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(idToken, forKey: "IDToken")
