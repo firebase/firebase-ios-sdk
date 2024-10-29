@@ -15,11 +15,10 @@
  */
 #import <Foundation/Foundation.h>
 
-@import FirebaseCoreInternal;
 #ifdef SWIFT_PACKAGE
 @import FirebaseCoreInternalObjC;
 #else
-@import FirebaseCoreInternal;
+#import "FirebaseCore/InternalObjC/FirebaseCoreInternal.h"
 #endif
 
 @class FIRApp;

@@ -562,11 +562,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         return handler()
       }
 
-      func heartbeatCodeForToday() -> FIRDailyHeartbeatCode {
+      func heartbeatCodeForToday() -> NSInteger {
         // This API should not be used by the below tests because the Auth
         // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
         // getting heartbeats.
-        return FIRDailyHeartbeatCode.none
+        return 0
       }
     }
 

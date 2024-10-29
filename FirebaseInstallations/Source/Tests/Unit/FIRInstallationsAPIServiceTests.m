@@ -50,12 +50,12 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
   }
 }
 
-- (FIRDailyHeartbeatCode)heartbeatCodeForToday {
+- (NSInteger)heartbeatCodeForToday {
   // This API should not be used by the below tests because the Installations
   // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
   // getting heartbeats.
   [self doesNotRecognizeSelector:_cmd];
-  return FIRDailyHeartbeatCodeNone;
+  return 0;
 }
 
 - (void)log {

@@ -35,7 +35,7 @@ std::string GetUserAgent() {
   return MakeString([FIRApp firebaseUserAgent]);
 }
 
-FIRDailyHeartbeatCode GetHeartbeat(FIRApp* app) {
+NSInteger GetHeartbeat(FIRApp* app) {
   return [app.heartbeatLogger heartbeatCodeForToday];
 }
 
@@ -51,11 +51,11 @@ FirebaseMetadataProviderApple::FirebaseMetadataProviderApple(FIRApp* app)
 
 void FirebaseMetadataProviderApple::UpdateMetadata(
     grpc::ClientContext& context) {
-  FIRDailyHeartbeatCode heartbeat = GetHeartbeat(app_);
+  NSInteger heartbeat = GetHeartbeat(app_);
   // TODO(ncooke3): If support for notifying a heartbeat logger when a
   // request fails is implemented, we will need to change the below
   // code to place the heartbeat data back into heartbeat storage.
-  if (heartbeat != FIRDailyHeartbeatCodeNone) {
+  if (heartbeat != 0) {
     context.AddMetadata(kXFirebaseClientLogTypeHeader,
                         std::to_string(heartbeat));
   }

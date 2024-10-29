@@ -96,18 +96,18 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
   [heartbeatLogger log];
-  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  NSInteger heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
-  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeSome);
+  XCTAssertEqual(heartbeatInfoCode, 2);
 }
 
 - (void)testFlushing_UsingV1API_WhenNoHeartbeatsAreStored_ReturnsFIRDailyHeartbeatCodeNone {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When
-  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  NSInteger heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
-  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeNone);
+  XCTAssertEqual(heartbeatInfoCode, 0);
 }
 
 - (void)testFlushing_UsingV2API_WhenHeartbeatsAreStored_ReturnsNonEmptyPayload {
@@ -178,10 +178,10 @@
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   [heartbeatLogger log];
   // When
-  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  NSInteger heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
   // Then
-  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeSome);
+  XCTAssertEqual(heartbeatInfoCode, 2);
   [self assertHeartbeatsPayloadIsEmpty:heartbeatsPayload];
 }
 
@@ -192,14 +192,14 @@
   [heartbeatLogger log];
   // When
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
-  FIRDailyHeartbeatCode heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
+  NSInteger heartbeatInfoCode = [heartbeatLogger heartbeatCodeForToday];
   // Then
   [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
               isEqualToPayloadJSON:@{
                 @"version" : @2,
                 @"heartbeats" : @[ @{@"agent" : @"dummy_agent", @"dates" : @[ expectedDate ]} ]
               }];
-  XCTAssertEqual(heartbeatInfoCode, FIRDailyHeartbeatCodeNone);
+  XCTAssertEqual(heartbeatInfoCode, 0);
 }
 
 - (void)testHeartbeatLoggersWithSameIDShareTheSameStorage {
