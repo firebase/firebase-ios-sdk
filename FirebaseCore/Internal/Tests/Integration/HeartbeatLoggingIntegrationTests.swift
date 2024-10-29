@@ -232,8 +232,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
     // Given
-    var testdate = date
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { testdate })
+    let testDate = AdjustableDate(date: date)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { testDate.date })
 
     // When
     // Iterate over 35 days and log a heartbeat each day.
@@ -252,7 +252,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
         heartbeatController.log("dummy_agent_3")
       }
 
-      testdate.addTimeInterval(60 * 60 * 24) // Advance the test date by 1 day.
+      testDate.date.addTimeInterval(60 * 60 * 24) // Advance the test date by 1 day.
     }
 
     // Then
