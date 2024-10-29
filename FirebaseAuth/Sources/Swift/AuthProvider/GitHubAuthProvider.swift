@@ -48,7 +48,7 @@ import Foundation
 
   // MARK: Secure Coding
 
-  public static var supportsSecureCoding = true
+  public static let supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
     coder.encode(token, forKey: "token")

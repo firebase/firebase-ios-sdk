@@ -39,7 +39,7 @@ import Foundation
 
   // MARK: Secure Coding
 
-  public static var supportsSecureCoding = true
+  public static let supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     switch credentialKind {

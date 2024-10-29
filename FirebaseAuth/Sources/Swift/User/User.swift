@@ -1680,9 +1680,7 @@ extension User: NSSecureCoding {}
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
 
-  public static var supportsSecureCoding: Bool {
-    return true
-  }
+  public static let supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(uid, forKey: kUserIDCodingKey)
