@@ -19,8 +19,8 @@ endif()
 # GoogleUtilities is an external dependency without its own cmake configuration.
 include(GoogleUtilities)
 
-file(GLOB headers Sources/Private/*.h Sources/Public/FirebaseCore/*.h Sources/InternalObjC/*.h)
-file(GLOB sources Sources/*.m Sources/InternalObjC/*.m)
+file(GLOB headers Sources/Private/*.h Sources/Public/FirebaseCore/*.h InternalObjC/*.h)
+file(GLOB sources Sources/*.m InternalObjC/*.m)
 
 podspec_version(version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)
 firebase_version(firebase_version ${PROJECT_SOURCE_DIR}/FirebaseCore.podspec)

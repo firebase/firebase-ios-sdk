@@ -37,7 +37,7 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 @interface FIRHeartbeatLoggerFake : NSObject <FIRHeartbeatLoggerProtocol>
 @property(nonatomic, copy, nullable) FIRHeartbeatsPayload * (^onFlushHeartbeatsIntoPayloadHandler)
     (void);
-@property(nonatomic, copy, nullable) FIRDailyHeartbeatCode (^onHeartbeatCodeForTodayHandler)(void);
+@property(nonatomic, copy, nullable) NSInteger (^onHeartbeatCodeForTodayHandler)(void);
 @end
 
 @implementation FIRHeartbeatLoggerFake
