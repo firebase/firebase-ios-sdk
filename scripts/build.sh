@@ -508,6 +508,7 @@ case "$product-$platform-$method" in
       -project 'FirebaseVertexAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
       -scheme "VertexAITestApp-SPM" \
       "${xcb_flags[@]}" \
+      -parallel-testing-enabled NO \
       build \
       test
     ;;
