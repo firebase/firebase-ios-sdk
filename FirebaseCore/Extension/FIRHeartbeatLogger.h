@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef FIREBASECORE_FIRHEARTBEATLOGGER_H
+#define FIREBASECORE_FIRHEARTBEATLOGGER_H
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -102,3 +105,5 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_FIRHEARTBEATLOGGER_H
