@@ -130,15 +130,7 @@ open class HTTPSCallable: NSObject {
   /// - Returns: The result of the call.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
-    return try await withCheckedThrowingContinuation { continuation in
-      // TODO(bonus): Use task to handle and cancellation.
-      self.call(data) { callableResult, error in
-        if let callableResult {
-          continuation.resume(returning: callableResult)
-        } else {
-          continuation.resume(throwing: error!)
-        }
-      }
-    }
+    try await functions
+      .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 }

@@ -385,6 +385,30 @@ enum FunctionsConstants {
     return URL(string: "https://\(region)-\(projectID).cloudfunctions.net/\(name)")
   }
 
+  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
+  func callFunction(at url: URL,
+                    withObject data: Any?,
+                    options: HTTPSCallableOptions?,
+                    timeout: TimeInterval) async throws -> HTTPSCallableResult {
+    let context = try await contextProvider.context(options: options)
+    let fetcher = try makeFetcher(
+      url: url,
+      data: data,
+      options: options,
+      timeout: timeout,
+      context: context
+    )
+
+    do {
+      let rawData = try await fetcher.beginFetch()
+      return try callableResultFromResponse(data: rawData, error: nil)
+    } catch {
+      // This method always throws when `error` is not `nil`, but ideally,
+      // it should be refactored so it looks less confusing.
+      return try callableResultFromResponse(data: nil, error: error)
+    }
+  }
+
   func callFunction(at url: URL,
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
@@ -413,23 +437,53 @@ enum FunctionsConstants {
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let request = URLRequest(url: url,
-                             cachePolicy: .useProtocolCachePolicy,
-                             timeoutInterval: timeout)
-    let fetcher = fetcherService.fetcher(with: request)
-
+    let fetcher: GTMSessionFetcher
     do {
-      let data = data ?? NSNull()
-      let encoded = try serializer.encode(data)
-      let body = ["data": encoded]
-      let payload = try JSONSerialization.data(withJSONObject: body)
-      fetcher.bodyData = payload
+      fetcher = try makeFetcher(
+        url: url,
+        data: data,
+        options: options,
+        timeout: timeout,
+        context: context
+      )
     } catch {
       DispatchQueue.main.async {
         completion(.failure(error))
       }
       return
     }
+
+    fetcher.beginFetch { [self] data, error in
+      let result: Result<HTTPSCallableResult, any Error>
+      do {
+        result = try .success(callableResultFromResponse(data: data, error: error))
+      } catch {
+        result = .failure(error)
+      }
+
+      DispatchQueue.main.async {
+        completion(result)
+      }
+    }
+  }
+
+  private func makeFetcher(url: URL,
+                           data: Any?,
+                           options: HTTPSCallableOptions?,
+                           timeout: TimeInterval,
+                           context: FunctionsContext) throws -> GTMSessionFetcher {
+    let request = URLRequest(
+      url: url,
+      cachePolicy: .useProtocolCachePolicy,
+      timeoutInterval: timeout
+    )
+    let fetcher = fetcherService.fetcher(with: request)
+
+    let data = data ?? NSNull()
+    let encoded = try serializer.encode(data)
+    let body = ["data": encoded]
+    let payload = try JSONSerialization.data(withJSONObject: body)
+    fetcher.bodyData = payload
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -462,33 +516,27 @@ enum FunctionsConstants {
       fetcher.allowedInsecureSchemes = ["http"]
     }
 
-    fetcher.beginFetch { [self] data, error in
-      let result: Result<HTTPSCallableResult, any Error>
-      do {
-        let data = try responseData(data: data, error: error)
-        let json = try responseDataJSON(from: data)
-        // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
-        let payload = try serializer.decode(json)
-        // TODO: Remove `as Any` once `decode(_:)` is refactored
-        result = .success(HTTPSCallableResult(data: payload as Any))
-      } catch {
-        result = .failure(error)
-      }
-
-      DispatchQueue.main.async {
-        completion(result)
-      }
-    }
+    return fetcher
   }
 
-  private func responseData(data: Data?, error: (any Error)?) throws -> Data {
+  private func callableResultFromResponse(data: Data?,
+                                          error: (any Error)?) throws -> HTTPSCallableResult {
+    let processedData = try processedResponseData(from: data, error: error)
+    let json = try responseDataJSON(from: processedData)
+    // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
+    let payload = try serializer.decode(json)
+    // TODO: Remove `as Any` once `decode(_:)` is refactored
+    return HTTPSCallableResult(data: payload as Any)
+  }
+
+  private func processedResponseData(from data: Data?, error: (any Error)?) throws -> Data {
     // Case 1: `error` is not `nil` -> always throws
     if let error = error as NSError? {
       let localError: (any Error)?
       if error.domain == kGTMSessionFetcherStatusDomain {
         localError = FunctionsError(
           httpStatusCode: error.code,
-          body: data,
+          body: data ?? error.userInfo["data"] as? Data,
           serializer: serializer
         )
       } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {

@@ -293,6 +293,38 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
+  func testAsyncCallFunctionWhenAppCheckIsNotInstalled() async {
+    let networkError = NSError(
+      domain: "testCallFunctionWhenAppCheckIsInstalled",
+      code: -1,
+      userInfo: nil
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      let appCheckTokenHeader = fetcherToTest.request?
+        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+      XCTAssertNil(appCheckTokenHeader)
+      testResponse(nil, nil, networkError)
+      httpRequestExpectation.fulfill()
+    }
+
+    do {
+      _ = try await functionsCustomDomain?
+        .callFunction(
+          at: URL(string: "https://example.com/fake_func")!,
+          withObject: nil,
+          options: nil,
+          timeout: 10
+        )
+      XCTFail("Expected an error")
+    } catch {
+      XCTAssertEqual(error as NSError, networkError)
+    }
+
+    await fulfillment(of: [httpRequestExpectation], timeout: 1.5)
+  }
+
   func testCallFunctionWhenAppCheckIsNotInstalled() {
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
