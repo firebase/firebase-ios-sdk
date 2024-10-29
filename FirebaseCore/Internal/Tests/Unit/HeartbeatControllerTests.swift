@@ -15,14 +15,6 @@
 @testable import FirebaseCoreInternal
 import XCTest
 
-/// Used to manipulate a date across multiple concurrent contexts for simulation purposes.
-final class AdjustableDate: @unchecked Sendable {
-  var date: Date
-  init(date: Date) {
-    self.date = date
-  }
-}
-
 class HeartbeatControllerTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
