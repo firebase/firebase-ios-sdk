@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_FIRLOGGER_H
+#define FIREBASECORE_FIRLOGGER_H
+
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, FIRLoggerLevel);
@@ -191,3 +194,5 @@ NS_SWIFT_NAME(FirebaseLogger)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_FIRLOGGER_H

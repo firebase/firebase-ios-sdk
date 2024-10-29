@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifndef FIREBASECORE_FIRCOMPONENTCONTAINER_H
+#define FIREBASECORE_FIRCOMPONENTCONTAINER_H
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,3 +47,5 @@ NS_SWIFT_NAME(FirebaseComponentContainer)
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_FIRCOMPONENTCONTAINER_H

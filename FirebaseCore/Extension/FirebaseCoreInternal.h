@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef FIREBASECORE_FIREBASECOREINTERNAL_H
+#define FIREBASECORE_FIREBASECOREINTERNAL_H
+
 @import FirebaseCore;
 
 #import "FIRAppInternal.h"
@@ -21,3 +24,5 @@
 #import "FIRHeartbeatLogger.h"
 #import "FIRLibrary.h"
 #import "FIRLogger.h"
+
+#endif  // FIREBASECORE_FIREBASECOREINTERNAL_H
