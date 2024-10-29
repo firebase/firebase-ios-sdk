@@ -164,9 +164,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
   private static let kAccessTokenKey = "accessToken"
   private static let kAccessTokenExpirationDateKey = "accessTokenExpirationDate"
 
-  static var supportsSecureCoding: Bool {
-    true
-  }
+  static let supportsSecureCoding = true
 
   required convenience init?(coder: NSCoder) {
     guard let refreshToken = coder.decodeObject(of: [NSString.self],

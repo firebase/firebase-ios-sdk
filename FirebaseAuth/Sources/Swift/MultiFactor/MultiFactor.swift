@@ -282,9 +282,7 @@ import Foundation
 
     private let kEnrolledFactorsCodingKey = "enrolledFactors"
 
-    public static var supportsSecureCoding: Bool {
-      true
-    }
+    public static let supportsSecureCoding = true
 
     public func encode(with coder: NSCoder) {
       coder.encode(enrolledFactors, forKey: kEnrolledFactorsCodingKey)

@@ -36,9 +36,7 @@ extension UserMetadata: NSSecureCoding {}
   private static let kCreationDateCodingKey = "creationDate"
   private static let kLastSignInDateCodingKey = "lastSignInDate"
 
-  public static var supportsSecureCoding: Bool {
-    return true
-  }
+  public static let supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(creationDate, forKey: UserMetadata.kCreationDateCodingKey)
