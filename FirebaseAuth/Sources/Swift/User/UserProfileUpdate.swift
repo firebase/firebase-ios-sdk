@@ -49,8 +49,9 @@ actor UserProfileUpdate {
 
   func unlink(user: User, fromProvider provider: String) async throws -> User {
     let accessToken = try await user.internalGetTokenAsync()
-    let request = SetAccountInfoRequest(requestConfiguration: user.requestConfiguration)
-    request.accessToken = accessToken
+    let request = SetAccountInfoRequest(
+      accessToken: accessToken, requestConfiguration: user.requestConfiguration
+    )
 
     if user.providerDataRaw[provider] == nil {
       throw AuthErrorUtils.noSuchProviderError()
@@ -108,8 +109,10 @@ actor UserProfileUpdate {
 
     // Mutate setAccountInfoRequest in block
     let setAccountInfoRequest =
-      SetAccountInfoRequest(requestConfiguration: user.requestConfiguration)
-    setAccountInfoRequest.accessToken = accessToken
+      SetAccountInfoRequest(
+        accessToken: accessToken,
+        requestConfiguration: user.requestConfiguration
+      )
     changeBlock(userAccountInfo, setAccountInfoRequest)
     do {
       let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)

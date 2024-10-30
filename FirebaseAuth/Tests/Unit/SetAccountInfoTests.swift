@@ -221,6 +221,6 @@ class SetAccountInfoTests: RPCBaseTests {
   }
 
   private func setAccountInfoRequest() -> SetAccountInfoRequest {
-    return SetAccountInfoRequest(requestConfiguration: makeRequestConfiguration())
+    return SetAccountInfoRequest(accessToken: nil, requestConfiguration: makeRequestConfiguration())
   }
 }
