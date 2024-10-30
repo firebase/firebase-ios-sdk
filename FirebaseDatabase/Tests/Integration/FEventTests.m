@@ -362,8 +362,7 @@
 }
 
 - (void)testOnceChildAddedFiresExactlyOnce {
-  for(int i = 0; i < 100; i++) {
-
+  for (int i = 0; i < 100; i++) {
     FIRDatabaseReference* path = [FTestHelpers getRandomNode];
     __block BOOL firstCall = YES;
 
@@ -371,17 +370,17 @@
 
     [path observeSingleEventOfType:FIRDataEventTypeChildAdded
                          withBlock:^(FIRDataSnapshot* snapshot) {
-      XCTAssertTrue(firstCall, @"Properly saw first call");
-      firstCall = NO;
-      XCTAssertEqualObjects(@42, [snapshot value], @"Properly saw node value");
-      XCTAssertEqualObjects(@"foo", [snapshot key],
-                            @"Properly saw the first node");
-      if (![[snapshot value] isEqual:@42]) {
-        exit(-1);
-      }
+                           XCTAssertTrue(firstCall, @"Properly saw first call");
+                           firstCall = NO;
+                           XCTAssertEqualObjects(@42, [snapshot value], @"Properly saw node value");
+                           XCTAssertEqualObjects(@"foo", [snapshot key],
+                                                 @"Properly saw the first node");
+                           if (![[snapshot value] isEqual:@42]) {
+                             exit(-1);
+                           }
 
-      done = YES;
-    }];
+                           done = YES;
+                         }];
 
     [[path child:@"foo"] setValue:@42];
     [[path child:@"bar"] setValue:@84];  // XXX FIXME sometimes this event fires first
