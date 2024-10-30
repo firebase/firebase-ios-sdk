@@ -226,6 +226,60 @@ class AuthenticationExampleUITests: XCTestCase {
     removeUIInterruptionMonitor(interruptionMonitor)
   }
 
+  func testResetPasswordLinkCustomDomain() {
+    // assuming action type is in-app + continue URL everytime the app launches
+
+    // set Authorized Domain as Continue URL
+    let testContinueURL = "fir-ios-auth-sample.firebaseapp.com"
+    app.staticTexts["Continue URL"].tap()
+    app.alerts.textFields.element.typeText(testContinueURL)
+    app.buttons["Save"].tap()
+
+    // set Custom Hosting Domain as Link Domain
+    let testLinkDomain = "http://firebaseiosauthsample.testdomaindonotuse.com"
+    app.staticTexts["Link Domain"].tap()
+    app.alerts.textFields.element.typeText(testLinkDomain)
+    app.buttons["Save"].tap()
+
+    app.staticTexts["Request Password Reset"].tap()
+    let testEmail = "test@test.com"
+    app.alerts.textFields.element.typeText(testEmail)
+    app.buttons["Save"].tap()
+
+    // Go back and check that there is no user that is signed in
+    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    XCTAssertEqual(
+      app.cells.count,
+      0,
+      "The user shouldn't be signed in and the user view should have no cells."
+    )
+  }
+
+  func testResetPasswordLinkDefaultDomain() {
+    // assuming action type is in-app + continue URL everytime the app launches
+
+    // set Authorized Domain as Continue URL
+    let testContinueURL = "fir-ios-auth-sample.firebaseapp.com"
+    app.staticTexts["Continue URL"].tap()
+    app.alerts.textFields.element.typeText(testContinueURL)
+    app.buttons["Save"].tap()
+
+    app.staticTexts["Request Password Reset"].tap()
+    let testEmail = "test@test.com"
+    app.alerts.textFields.element.typeText(testEmail)
+    app.buttons["Save"].tap()
+
+    // Go back and check that there is no user that is signed in
+    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    XCTAssertEqual(
+      app.cells.count,
+      0,
+      "The user shouldn't be signed in and the user view should have no cells."
+    )
+  }
+
   // MARK: - Private Helpers
 
   private func signOut() {
