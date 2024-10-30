@@ -24,9 +24,9 @@ private let kTenantIDKey = "tenantId"
 class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartMFASignInResponse
 
-  var MFAPendingCredential: String?
-  var MFAEnrollmentID: String?
-  var signInInfo: AuthProtoStartMFAPhoneRequestInfo?
+  let MFAPendingCredential: String?
+  let MFAEnrollmentID: String?
+  let signInInfo: AuthProtoStartMFAPhoneRequestInfo?
 
   init(MFAPendingCredential: String?, MFAEnrollmentID: String?,
        signInInfo: AuthProtoStartMFAPhoneRequestInfo?,
