@@ -48,7 +48,7 @@ class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = CreateAuthURIResponse
 
   /// The email or federated ID of the user.
-  private let identifier: String
+  let identifier: String
 
   /// The URI to which the IDP redirects the user after the federated login flow.
   private let continueURI: String

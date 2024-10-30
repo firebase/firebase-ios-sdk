@@ -110,7 +110,7 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   private let requestType: GetOOBConfirmationCodeRequestType
 
   /// The email of the user for password reset.
-  private let email: String?
+  let email: String?
 
   /// The new email to be updated for verifyBeforeUpdateEmail.
   private let updatedEmail: String?
@@ -119,7 +119,7 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   private let accessToken: String?
 
   /// This URL represents the state/Continue URL in the form of a universal link.
-  private let continueURL: String?
+  let continueURL: String?
 
   /// The iOS bundle Identifier, if available.
   private let iOSBundleID: String?
@@ -135,16 +135,16 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
 
   /// Indicates whether the action code link will open the app directly or after being
   ///   redirected from a Firebase owned web widget.
-  private let handleCodeInApp: Bool
+  let handleCodeInApp: Bool
 
   /// The Firebase Dynamic Link domain used for out of band code flow.
   private let dynamicLinkDomain: String?
 
   /// Response to the captcha.
-  private(set) var captchaResponse: String?
+  var captchaResponse: String?
 
   /// The reCAPTCHA version.
-  private(set) var recaptchaVersion: String?
+  var recaptchaVersion: String?
 
   /// Designated initializer.
   /// - Parameter requestType: The types of OOB Confirmation Code to request.

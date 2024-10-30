@@ -37,13 +37,13 @@ class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = RevokeTokenResponse
 
   /// The provider that issued the token to revoke.
-  private let providerID: String
+  let providerID: String
 
   /// The type of the token to revoke.
-  private let tokenType: TokenType
+  let tokenType: TokenType
 
   /// The token to be revoked.
-  private let token: String
+  let token: String
 
   /// The ID Token associated with this credential.
   private let idToken: String

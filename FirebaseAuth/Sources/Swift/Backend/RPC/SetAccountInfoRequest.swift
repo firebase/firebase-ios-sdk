@@ -89,7 +89,7 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   var displayName: String?
 
   /// The local ID of the user.
-  private let localID: String? = nil
+  var localID: String? = nil
 
   /// The email of the user.
   var email: String? = nil
@@ -101,37 +101,38 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   var password: String? = nil
 
   /// The associated identity providers of the user.
-  private let providers: [String]? = nil
+  var providers: [String]? = nil
 
   /// The out-of-band code of the change email request.
   var oobCode: String?
 
   /// Whether to mark the email as verified or not.
-  private let emailVerified: Bool = false
+  var emailVerified: Bool = false
 
   /// Whether to mark the user to upgrade to federated login.
-  private let upgradeToFederatedLogin: Bool = false
+  var upgradeToFederatedLogin: Bool = false
 
   /// The captcha challenge.
-  private let captchaChallenge: String? = nil
+  var captchaChallenge: String? = nil
 
   /// Response to the captcha.
-  private let captchaResponse: String? = nil
+  var captchaResponse: String? = nil
 
   /// The list of user attributes to delete.
   ///
   /// Every element of the list must be one of the predefined constant starts with
   /// `SetAccountInfoUserAttribute`.
-  private let deleteAttributes: [String]? = nil
+  var deleteAttributes: [String]? = nil
 
   /// The list of identity providers to delete.
   var deleteProviders: [String]?
 
   /// Whether the response should return access token and refresh token directly.
   /// The default value is `true` .
-  private let returnSecureToken: Bool = true
+  var returnSecureToken: Bool = true
 
-  init(requestConfiguration: AuthRequestConfiguration) {
+  init(accessToken: String? = nil, requestConfiguration: AuthRequestConfiguration) {
+    self.accessToken = accessToken
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
