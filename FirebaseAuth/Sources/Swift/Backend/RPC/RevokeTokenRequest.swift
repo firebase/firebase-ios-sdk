@@ -37,16 +37,16 @@ class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = RevokeTokenResponse
 
   /// The provider that issued the token to revoke.
-  private(set) var providerID: String
+  private let providerID: String
 
   /// The type of the token to revoke.
-  private(set) var tokenType: TokenType
+  private let tokenType: TokenType
 
   /// The token to be revoked.
-  private(set) var token: String
+  private let token: String
 
   /// The ID Token associated with this credential.
-  private(set) var idToken: String
+  private let idToken: String
 
   enum TokenType: Int {
     case unspecified = 0, refreshToken = 1, accessToken = 2, authorizationCode = 3
