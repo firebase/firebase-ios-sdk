@@ -66,6 +66,7 @@ extension CustomSignalValue: ExpressibleByIntegerLiteral {
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension RemoteConfig {
   /// Sets custom signals for this Remote Config instance.
   /// - Parameter customSignals: A dictionary mapping string keys to custom
