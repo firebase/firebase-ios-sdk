@@ -15,21 +15,22 @@
 import Foundation
 
 /// A type that can perform atomic operations using block-based transformations.
-protocol HeartbeatStorageProtocol {
+protocol HeartbeatStorageProtocol: Sendable {
   func readAndWriteSync(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?)
-  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?)
+  func readAndWriteAsync(using transform: @escaping @Sendable (HeartbeatsBundle?)
+    -> HeartbeatsBundle?)
   func getAndSet(using transform: (HeartbeatsBundle?) -> HeartbeatsBundle?) throws
     -> HeartbeatsBundle?
-  func getAndSetAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?,
-                      completion: @escaping (Result<HeartbeatsBundle?, Error>) -> Void)
+  func getAndSetAsync(using transform: @escaping @Sendable (HeartbeatsBundle?) -> HeartbeatsBundle?,
+                      completion: @escaping @Sendable (Result<HeartbeatsBundle?, Error>) -> Void)
 }
 
 /// Thread-safe storage object designed for transforming heartbeat data that is persisted to disk.
-final class HeartbeatStorage: HeartbeatStorageProtocol {
+final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   /// The identifier used to differentiate instances.
   private let id: String
   /// The underlying storage container to read from and write to.
-  private let storage: Storage
+  private let storage: any Storage
   /// The encoder used for encoding heartbeat data.
   private let encoder: JSONEncoder = .init()
   /// The decoder used for decoding heartbeat data.
@@ -130,7 +131,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   /// Asynchronously reads from and writes to storage using the given transform block.
   /// - Parameter transform: A block to transform the currently stored heartbeats bundle to a new
   /// heartbeats bundle value.
-  func readAndWriteAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?) {
+  func readAndWriteAsync(using transform: @escaping @Sendable (HeartbeatsBundle?)
+    -> HeartbeatsBundle?) {
     queue.async { [self] in
       let oldHeartbeatsBundle = try? load(from: storage)
       let newHeartbeatsBundle = transform(oldHeartbeatsBundle)
@@ -166,8 +168,8 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   ///   - completion: An escaping block used to process the heartbeat data that
   ///   was stored (before the `transform` was applied); otherwise, the error
   ///   that occurred.
-  func getAndSetAsync(using transform: @escaping (HeartbeatsBundle?) -> HeartbeatsBundle?,
-                      completion: @escaping (Result<HeartbeatsBundle?, Error>) -> Void) {
+  func getAndSetAsync(using transform: @escaping @Sendable (HeartbeatsBundle?) -> HeartbeatsBundle?,
+                      completion: @escaping @Sendable (Result<HeartbeatsBundle?, Error>) -> Void) {
     queue.async {
       do {
         let oldHeartbeatsBundle = try? self.load(from: self.storage)

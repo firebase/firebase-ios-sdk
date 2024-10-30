@@ -15,7 +15,7 @@
 import Foundation
 
 /// An object that provides API to log and flush heartbeats from a synchronized storage container.
-public final class HeartbeatController {
+public final class HeartbeatController: Sendable {
   /// Used for standardizing dates for calendar-day comparison.
   private enum DateStandardizer {
     private static let calendar: Calendar = {
@@ -31,18 +31,18 @@ public final class HeartbeatController {
   }
 
   /// The thread-safe storage object to log and flush heartbeats from.
-  private let storage: HeartbeatStorageProtocol
+  private let storage: any HeartbeatStorageProtocol
   /// The max capacity of heartbeats to store in storage.
-  private let heartbeatsStorageCapacity: Int = 30
+  private static let heartbeatsStorageCapacity: Int = 30
   /// Current date provider. It is used for testability.
-  private let dateProvider: () -> Date
+  private let dateProvider: @Sendable () -> Date
   /// Used for standardizing dates for calendar-day comparison.
   private static let dateStandardizer = DateStandardizer.self
 
   /// Public initializer.
   /// - Parameter id: The `id` to associate this controller's heartbeat storage with.
   public convenience init(id: String) {
-    self.init(id: id, dateProvider: Date.init)
+    self.init(id: id, dateProvider: { Date() })
   }
 
   /// Convenience initializer. Mirrors the semantics of the public initializer with the added
@@ -51,7 +51,7 @@ public final class HeartbeatController {
   /// - Parameters:
   ///   - id: The id to associate this controller's heartbeat storage with.
   ///   - dateProvider: A date provider.
-  convenience init(id: String, dateProvider: @escaping () -> Date) {
+  convenience init(id: String, dateProvider: @escaping @Sendable () -> Date) {
     let storage = HeartbeatStorage.getInstance(id: id)
     self.init(storage: storage, dateProvider: dateProvider)
   }
@@ -61,7 +61,7 @@ public final class HeartbeatController {
   ///   - storage: A heartbeat storage container.
   ///   - dateProvider: A date provider. Defaults to providing the current date.
   init(storage: HeartbeatStorageProtocol,
-       dateProvider: @escaping () -> Date = Date.init) {
+       dateProvider: @escaping @Sendable () -> Date = { Date() }) {
     self.storage = storage
     self.dateProvider = { Self.dateStandardizer.standardize(dateProvider()) }
   }
@@ -76,7 +76,7 @@ public final class HeartbeatController {
 
     storage.readAndWriteAsync { heartbeatsBundle in
       var heartbeatsBundle = heartbeatsBundle ??
-        HeartbeatsBundle(capacity: self.heartbeatsStorageCapacity)
+        HeartbeatsBundle(capacity: Self.heartbeatsStorageCapacity)
 
       // Filter for the time periods where the last heartbeat to be logged for
       // that time period was logged more than one time period (i.e. day) ago.
@@ -109,7 +109,7 @@ public final class HeartbeatController {
       // The new value that's stored will use the old's cache to prevent the
       // logging of duplicates after flushing.
       return HeartbeatsBundle(
-        capacity: self.heartbeatsStorageCapacity,
+        capacity: Self.heartbeatsStorageCapacity,
         cache: oldHeartbeatsBundle.lastAddedHeartbeatDates
       )
     }
@@ -126,15 +126,15 @@ public final class HeartbeatController {
     }
   }
 
-  public func flushAsync(completionHandler: @escaping (HeartbeatsPayload) -> Void) {
-    let resetTransform = { (heartbeatsBundle: HeartbeatsBundle?) -> HeartbeatsBundle? in
+  public func flushAsync(completionHandler: @escaping @Sendable (HeartbeatsPayload) -> Void) {
+    let resetTransform = { @Sendable (heartbeatsBundle: HeartbeatsBundle?) -> HeartbeatsBundle? in
       guard let oldHeartbeatsBundle = heartbeatsBundle else {
         return nil // Storage was empty.
       }
       // The new value that's stored will use the old's cache to prevent the
       // logging of duplicates after flushing.
       return HeartbeatsBundle(
-        capacity: self.heartbeatsStorageCapacity,
+        capacity: Self.heartbeatsStorageCapacity,
         cache: oldHeartbeatsBundle.lastAddedHeartbeatDates
       )
     }
