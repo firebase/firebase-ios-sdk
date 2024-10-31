@@ -117,8 +117,8 @@ public class VertexAI {
 
   private let auth: AuthInterop?
 
-  /// A map of active  `VertexAI` instances for `app`, keyed by model resource names
-  /// (e.g., "projects/my-project-id/locations/us-central1/publishers/google/models/gemini-pro").
+  /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
+  /// the format `appName:location`.
   private static var instances: [String: VertexAI] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
