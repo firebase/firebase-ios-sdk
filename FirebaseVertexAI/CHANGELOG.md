@@ -1,3 +1,8 @@
+# 11.5.0
+- [fixed] Fixed an issue where `VertexAI.vertexAI(app: app1)` and
+  `VertexAI.vertexAI(app: app2)` would return the same instance if their
+  `location` was the same, including the default `us-central1`. (#14007)
+
 # 11.4.0
 - [feature] Vertex AI in Firebase is now Generally Available (GA) and can be
   used in production apps. (#13725)
