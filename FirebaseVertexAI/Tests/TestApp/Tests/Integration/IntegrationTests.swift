@@ -16,6 +16,7 @@ import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import FirebaseVertexAI
+import VertexAITestApp
 import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -73,6 +74,21 @@ final class IntegrationTests: XCTestCase {
 
     let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     XCTAssertEqual(text, "Mountain View")
+  }
+
+  func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
+    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    addTeardownBlock { await app.delete() }
+    let vertex = VertexAI.vertexAI(app: app)
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    do {
+      _ = try await model.generateContent(prompt)
+      XCTFail("Expected a Firebase App Check error; none thrown.")
+    } catch let GenerateContentError.internalError(error) {
+      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
+    }
   }
 
   // MARK: - Count Tokens
@@ -204,6 +220,21 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 34)
     XCTAssertEqual(response.totalBillableCharacters, 59)
+  }
+
+  func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
+    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    addTeardownBlock { await app.delete() }
+    let vertex = VertexAI.vertexAI(app: app)
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+    let prompt = "Why is the sky blue?"
+
+    do {
+      _ = try await model.countTokens(prompt)
+      XCTFail("Expected a Firebase App Check error; none thrown.")
+    } catch {
+      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
+    }
   }
 }
 

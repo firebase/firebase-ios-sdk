@@ -19,7 +19,7 @@ import SwiftUI
 @main
 struct TestApp: App {
   init() {
-    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+    AppCheck.setAppCheckProviderFactory(TestAppCheckProviderFactory())
     FirebaseApp.configure()
   }
 
