@@ -68,17 +68,16 @@ class RPCBaseTests: XCTestCase {
   let kTestIdentifier = "Identifier"
 
   var rpcIssuer: FakeBackendRPCIssuer!
-  var rpcImplementation: AuthBackendImplementation!
+  var authBackend: AuthBackend!
 
   override func setUp() {
     rpcIssuer = FakeBackendRPCIssuer()
-    AuthBackend.setTestRPCIssuer(issuer: rpcIssuer)
-    rpcImplementation = AuthBackend.implementation()
+    authBackend = AuthBackend(rpcIssuer: rpcIssuer)
   }
 
   override func tearDown() {
     rpcIssuer = nil
-    AuthBackend.resetRPCIssuer()
+    authBackend = nil
   }
 
   /** @fn checkRequest
@@ -101,7 +100,7 @@ class RPCBaseTests: XCTestCase {
       // Dummy response to unblock await.
       let _ = try self.rpcIssuer?.respond(withJSON: [:])
     }
-    let _ = try await AuthBackend.call(with: request)
+    let _ = try await authBackend.call(with: request)
   }
 
   /** @fn checkBackendError
@@ -125,7 +124,7 @@ class RPCBaseTests: XCTestCase {
       }
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Did not throw expected error")
       return
     } catch {

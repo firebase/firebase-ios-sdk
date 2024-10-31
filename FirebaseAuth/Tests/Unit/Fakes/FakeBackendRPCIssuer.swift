@@ -77,8 +77,8 @@ class FakeBackendRPCIssuer: AuthBackendRPCIssuer {
   var secureTokenErrorString: String?
   var recaptchaSiteKey = "unset recaptcha siteKey"
 
-  func asyncCallToURL<T>(with request: T, body: Data?,
-                         contentType: String) async -> (Data?, Error?)
+  override func asyncCallToURL<T>(with request: T, body: Data?,
+                                  contentType: String) async -> (Data?, Error?)
     where T: FirebaseAuth.AuthRPCRequest {
     return await withCheckedContinuation { continuation in
       self.asyncCallToURL(with: request, body: body, contentType: contentType) { data, error in
