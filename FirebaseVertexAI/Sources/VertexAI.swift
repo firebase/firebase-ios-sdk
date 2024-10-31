@@ -55,11 +55,12 @@ public class VertexAI {
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    if let instance = instances[location] {
+    let instanceKey = "\(app.name):\(location)"
+    if let instance = instances[instanceKey] {
       return instance
     }
     let newInstance = VertexAI(app: app, location: location)
-    instances[location] = newInstance
+    instances[instanceKey] = newInstance
     return newInstance
   }
 
