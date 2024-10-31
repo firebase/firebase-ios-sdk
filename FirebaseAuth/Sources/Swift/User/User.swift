@@ -1396,7 +1396,7 @@ extension User: NSSecureCoding {}
                                                           action: AuthRecaptchaAction
                                                             .signUpPassword)
           #else
-            let response = try await AuthBackend.call(with: request)
+            let response = try await backend.call(with: request)
           #endif
           guard let refreshToken = response.refreshToken,
                 let idToken = response.idToken else {
