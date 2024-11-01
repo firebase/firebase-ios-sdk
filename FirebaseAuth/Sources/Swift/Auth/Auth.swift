@@ -2337,7 +2337,7 @@ extension Auth: AuthInterop {
   ///   Auth's backend.
   var requestConfiguration: AuthRequestConfiguration
 
-  var backend: AuthBackend
+  let backend: AuthBackend
 
   #if os(iOS)
 
