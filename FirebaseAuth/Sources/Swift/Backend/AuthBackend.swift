@@ -146,21 +146,22 @@ class AuthBackend: AuthBackendProtocol {
   private static func phoneCredentialInUse(response: AuthRPCResponse) -> Error? {
     #if !os(iOS)
       return nil
+    #else
+      if let phoneAuthResponse = response as? VerifyPhoneNumberResponse,
+         let phoneNumber = phoneAuthResponse.phoneNumber,
+         phoneNumber.count > 0,
+         let temporaryProof = phoneAuthResponse.temporaryProof,
+         temporaryProof.count > 0 {
+        let credential = PhoneAuthCredential(withTemporaryProof: temporaryProof,
+                                             phoneNumber: phoneNumber,
+                                             providerID: PhoneAuthProvider.id)
+        return AuthErrorUtils.credentialAlreadyInUseError(message: nil,
+                                                          credential: credential,
+                                                          email: nil)
+      } else {
+        return nil
+      }
     #endif // !os(iOS)
-    if let phoneAuthResponse = response as? VerifyPhoneNumberResponse,
-       let phoneNumber = phoneAuthResponse.phoneNumber,
-       phoneNumber.count > 0,
-       let temporaryProof = phoneAuthResponse.temporaryProof,
-       temporaryProof.count > 0 {
-      let credential = PhoneAuthCredential(withTemporaryProof: temporaryProof,
-                                           phoneNumber: phoneNumber,
-                                           providerID: PhoneAuthProvider.id)
-      return AuthErrorUtils.credentialAlreadyInUseError(message: nil,
-                                                        credential: credential,
-                                                        email: nil)
-    } else {
-      return nil
-    }
   }
 
   /// Calls the RPC using HTTP request.
