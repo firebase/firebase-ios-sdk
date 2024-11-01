@@ -14,6 +14,7 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension UserInfoImpl: NSSecureCoding {}
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
