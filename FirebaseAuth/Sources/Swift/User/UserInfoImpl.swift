@@ -16,7 +16,8 @@ import Foundation
 
 extension UserInfoImpl: NSSecureCoding {}
 
-@objc(FIRUserInfoImpl) class UserInfoImpl: NSObject, UserInfo {
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class UserInfoImpl: NSObject, UserInfo {
   /// A convenience factory method for constructing a `UserInfo` instance from data
   /// returned by the getAccountInfo endpoint.
   /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
