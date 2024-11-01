@@ -5,6 +5,6 @@
 #ifndef FIREBASE_FIREBASEFIRESTORECPP_H
 #define FIREBASE_FIREBASEFIRESTORECPP_H
 
-#import "../include/used_by_swift.h"
+#import "used_by_swift.h"
 
 #endif  // FIREBASE_FIREBASEFIRESTORECPP_H

@@ -8,7 +8,7 @@
 import FirebaseFirestoreCpp
 
 public class SwiftCppWrapper {
-  public init(_ value : String ){
+  public init(_ value: String) {
     _ = UsedBySwift(std.string(value))
-    }
+  }
 }

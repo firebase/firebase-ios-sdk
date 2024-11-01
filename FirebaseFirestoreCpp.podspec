@@ -25,7 +25,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
-  s.public_header_files = 'Firestore/core/swift/umbrella/*.h'
+  s.public_header_files = 'Firestore/core/swift/include/*.h'
 
   s.source_files = [
     'Firestore/core/swift/**/*.{cc,h}'
