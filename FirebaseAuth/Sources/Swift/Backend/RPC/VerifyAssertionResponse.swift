@@ -106,7 +106,7 @@ struct VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   var isNewUser: Bool = false
 
   /// Dictionary containing the additional IdP specific information.
-  var profile: [String: Any]? // Is this used?
+  var profile: [String: Sendable]?
 
   /// The name of the user.
   var username: String?
