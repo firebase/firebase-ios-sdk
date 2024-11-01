@@ -108,28 +108,28 @@ class AuthBackend: AuthBackendProtocol {
     #if !os(iOS)
       return nil
     #else
-    if let mfaResponse = response as? AuthMFAResponse,
-       mfaResponse.idToken == nil,
-       let enrollments = mfaResponse.mfaInfo {
-      var info: [MultiFactorInfo] = []
-      for enrollment in enrollments {
-        // check which MFA factors are enabled.
-        if let _ = enrollment.phoneInfo {
-          info.append(PhoneMultiFactorInfo(proto: enrollment))
-        } else if let _ = enrollment.totpInfo {
-          info.append(TOTPMultiFactorInfo(proto: enrollment))
-        } else {
-          AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
+      if let mfaResponse = response as? AuthMFAResponse,
+         mfaResponse.idToken == nil,
+         let enrollments = mfaResponse.mfaInfo {
+        var info: [MultiFactorInfo] = []
+        for enrollment in enrollments {
+          // check which MFA factors are enabled.
+          if let _ = enrollment.phoneInfo {
+            info.append(PhoneMultiFactorInfo(proto: enrollment))
+          } else if let _ = enrollment.totpInfo {
+            info.append(TOTPMultiFactorInfo(proto: enrollment))
+          } else {
+            AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
+          }
         }
+        return AuthErrorUtils.secondFactorRequiredError(
+          pendingCredential: mfaResponse.mfaPendingCredential,
+          hints: info,
+          auth: auth
+        )
+      } else {
+        return nil
       }
-      return AuthErrorUtils.secondFactorRequiredError(
-        pendingCredential: mfaResponse.mfaPendingCredential,
-        hints: info,
-        auth: auth
-      )
-    } else {
-      return nil
-    }
     #endif // !os(iOS)
   }
 
