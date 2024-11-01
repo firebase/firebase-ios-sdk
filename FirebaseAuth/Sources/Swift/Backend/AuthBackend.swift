@@ -36,9 +36,17 @@ class AuthBackend: AuthBackendProtocol {
     return try await shared.call(with: request)
   }
 
+  static func setTestRPCIssuer(issuer: AuthBackendRPCIssuer) {
+    shared.rpcIssuer = issuer
+  }
+
+  static func resetRPCIssuer() {
+    shared.rpcIssuer = AuthBackendRPCIssuer()
+  }
+
   private static let shared: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer())
 
-  private let rpcIssuer: any AuthBackendRPCIssuerProtocol
+  private var rpcIssuer: any AuthBackendRPCIssuerProtocol
 
   init(rpcIssuer: any AuthBackendRPCIssuerProtocol) {
     self.rpcIssuer = rpcIssuer
@@ -241,7 +249,7 @@ class AuthBackend: AuthBackendProtocol {
     }
     dictionary = decodedDictionary
 
-    let response = T.Response()
+    var response = T.Response()
 
     // At this point we either have an error with successfully decoded
     // details in the body, or we have a response which must pass further

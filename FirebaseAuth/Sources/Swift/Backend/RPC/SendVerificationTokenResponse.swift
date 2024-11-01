@@ -14,12 +14,10 @@
 
 import Foundation
 
-class SendVerificationCodeResponse: AuthRPCResponse {
-  required init() {}
-
+struct SendVerificationCodeResponse: AuthRPCResponse {
   var verificationID: String?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  mutating func setFields(dictionary: [String: AnyHashable]) throws {
     verificationID = dictionary["sessionInfo"] as? String
   }
 }

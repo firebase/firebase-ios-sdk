@@ -14,10 +14,10 @@
 
 import Foundation
 
-class AuthProtoStartMFAPhoneResponseInfo: NSObject, AuthProto {
+struct AuthProtoStartMFAPhoneResponseInfo: AuthProto {
   var sessionInfo: String?
 
-  required init(dictionary: [String: AnyHashable]) {
+  init(dictionary: [String: AnyHashable]) {
     sessionInfo = dictionary["sessionInfo"] as? String
   }
 }
