@@ -481,7 +481,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
       Task {
         do {
-          let verifyResponse = try await AuthBackend.call(with: request)
+          let verifyResponse = try await AppManager.shared.auth().backend.call(with: request)
 
           guard let receipt = verifyResponse.receipt,
                 let timeoutDate = verifyResponse.suggestedTimeOutDate else {
@@ -510,7 +510,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
             )
 
             do {
-              _ = try await AuthBackend.call(with: request)
+              _ = try await AppManager.shared.auth().backend.call(with: request)
               print("Verify iOS client succeeded")
             } catch {
               print("Verify iOS Client failed: \(error.localizedDescription)")
