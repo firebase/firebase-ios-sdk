@@ -18,6 +18,8 @@
 		8692F29A2CC9477800539E8F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F2992CC9477800539E8F /* FirebaseAuth */; };
 		8692F29C2CC9477800539E8F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29B2CC9477800539E8F /* FirebaseStorage */; };
 		8692F29E2CC9477800539E8F /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29D2CC9477800539E8F /* FirebaseVertexAI */; };
+		8698D7462CD3CF3600ABA833 /* FirebaseAppTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8698D7452CD3CF2F00ABA833 /* FirebaseAppTestUtils.swift */; };
+		8698D7482CD4332B00ABA833 /* TestAppCheckProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +43,8 @@
 		868A7C502CCC263300E449DD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		868A7C532CCC26B500E449DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		868A7C552CCC271300E449DD /* TestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TestApp.entitlements; sourceTree = "<group>"; };
+		8698D7452CD3CF2F00ABA833 /* FirebaseAppTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppTestUtils.swift; sourceTree = "<group>"; };
+		8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppCheckProviderFactory.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				8661385B2CC943DD00F4B78E /* TestApp.swift */,
+				8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */,
 				8661385D2CC943DD00F4B78E /* ContentView.swift */,
 			);
 			path = Sources;
@@ -125,8 +130,17 @@
 			isa = PBXGroup;
 			children = (
 				868A7C572CCC27AF00E449DD /* Integration */,
+				8698D7442CD3CEF700ABA833 /* Utilities */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		8698D7442CD3CEF700ABA833 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				8698D7452CD3CF2F00ABA833 /* FirebaseAppTestUtils.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -181,7 +195,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					866138572CC943DD00F4B78E = {
 						CreatedOnToolsVersion = 15.2;
@@ -241,6 +255,7 @@
 			files = (
 				8661385E2CC943DD00F4B78E /* ContentView.swift in Sources */,
 				8661385C2CC943DD00F4B78E /* TestApp.swift in Sources */,
+				8698D7482CD4332B00ABA833 /* TestAppCheckProviderFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,6 +263,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8698D7462CD3CF3600ABA833 /* FirebaseAppTestUtils.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
 				8661386E2CC943DE00F4B78E /* IntegrationTests.swift in Sources */,
 			);
@@ -298,6 +314,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -359,6 +376,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -386,6 +404,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/TestApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -405,6 +424,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.VertexAITestApp;
+				PRODUCT_MODULE_NAME = VertexAITestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -422,6 +442,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/TestApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -441,6 +462,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.VertexAITestApp;
+				PRODUCT_MODULE_NAME = VertexAITestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -453,10 +475,10 @@
 		866138812CC943DE00F4B78E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
@@ -475,10 +497,10 @@
 		866138822CC943DE00F4B78E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
