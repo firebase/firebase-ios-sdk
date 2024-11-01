@@ -464,6 +464,9 @@ let package = Package(
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
         "FIROAuthProviderTests.m",
+      ],
+      swiftSettings: [
+        .define("FIREBASE_CI"),
       ]
     ),
     .target(
