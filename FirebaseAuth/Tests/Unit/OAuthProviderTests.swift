@@ -282,6 +282,7 @@ import FirebaseCore
         .replacingOccurrences(of: ")", with: "")
       FirebaseApp.configure(name: strippedName, options: options)
       OAuthProviderTests.auth = Auth.auth(app: FirebaseApp.app(name: strippedName)!)
+      OAuthProviderTests.auth?.backend = authBackend
       OAuthProviderTests.auth?.mainBundleUrlTypes =
         [["CFBundleURLSchemes": [scheme]]]
     }
