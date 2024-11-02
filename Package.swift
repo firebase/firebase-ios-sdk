@@ -419,6 +419,7 @@ let package = Package(
         "ObjC", "Public",
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: Context.environment["FIREBASE_CI"] != nil ? [.define("FIREBASE_CI")] : [],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
@@ -464,9 +465,6 @@ let package = Package(
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
         "FIROAuthProviderTests.m",
-      ],
-      swiftSettings: [
-        .define("FIREBASE_CI"),
       ]
     ),
     .target(
@@ -1338,7 +1336,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.4.0")
+  return .package(url: appMeasurementURL, branch: "main")
 }
 
 func abseilDependency() -> Package.Dependency {
