@@ -713,7 +713,7 @@ class AuthBackendTests: RPCBaseTests {
 
   private struct FakeResponse: AuthRPCResponse {
     var receivedValue: String?
-    mutating func setFields(dictionary: [String: AnyHashable]) throws {
+    init(dictionary: [String: AnyHashable]) throws {
       receivedValue = dictionary["TestKey"] as? String
     }
   }
@@ -739,7 +739,7 @@ class AuthBackendTests: RPCBaseTests {
   }
 
   private struct FakeDecodingErrorResponse: AuthRPCResponse {
-    mutating func setFields(dictionary: [String: AnyHashable]) throws {
+    init(dictionary: [String: AnyHashable]) throws {
       throw NSError(domain: "dummy", code: -1)
     }
   }

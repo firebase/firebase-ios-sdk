@@ -60,7 +60,7 @@ struct SetAccountInfoResponse: AuthRPCResponse {
   /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
     idToken = dictionary["idToken"] as? String

@@ -132,7 +132,7 @@ struct VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
 
   private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     federatedID = dictionary["federatedId"] as? String
     providerID = dictionary["providerId"] as? String
     localID = dictionary["localId"] as? String

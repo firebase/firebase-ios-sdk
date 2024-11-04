@@ -15,7 +15,7 @@
 import Foundation
 
 struct RevokeTokenResponse: AuthRPCResponse {
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     // Nothing to set or throw.
   }
 }

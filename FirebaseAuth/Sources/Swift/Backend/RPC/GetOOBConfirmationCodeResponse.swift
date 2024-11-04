@@ -19,7 +19,7 @@ private let kOOBCodeKey = "oobCode"
 struct GetOOBConfirmationCodeResponse: AuthRPCResponse {
   var OOBCode: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     OOBCode = dictionary[kOOBCodeKey] as? String
   }
 }
