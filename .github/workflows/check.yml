@@ -21,12 +21,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: 3.11
 
     - name: Cache Mint packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.MINT_PATH }}
         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}

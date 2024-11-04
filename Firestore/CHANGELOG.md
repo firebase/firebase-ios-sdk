@@ -1,4 +1,10 @@
-# Unreleased
+# 11.4.0
+- [changed] Prepare Firestore cache to support session token.
+
+# 11.3.0
+- [changed] Improve efficiency of memory persistence when processing a large number of writes. (#13572)
+
+# 11.2.0
 - [fixed] Marked all public classes with only readonly properties as `Sendable` to address
   Swift Concurrency Check warning. (#12666)
 

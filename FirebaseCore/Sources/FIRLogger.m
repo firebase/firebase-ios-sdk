@@ -87,12 +87,33 @@ __attribute__((no_sanitize("thread"))) void FIRSetAnalyticsDebugMode(BOOL analyt
 }
 
 FIRLoggerLevel FIRGetLoggerLevel(void) {
+  FIRLoggerInitialize();
   return (FIRLoggerLevel)GULGetLoggerLevel();
 }
 
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
   FIRLoggerInitialize();
   GULSetLoggerLevel((GULLoggerLevel)loggerLevel);
+}
+
+void FIRSetLoggerLevelNotice(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelNotice);
+}
+
+void FIRSetLoggerLevelWarning(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelWarning);
+}
+
+void FIRSetLoggerLevelError(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelError);
+}
+
+void FIRSetLoggerLevelDebug(void) {
+  FIRLoggerInitialize();
+  GULSetLoggerLevel(GULLoggerLevelDebug);
 }
 
 #ifdef DEBUG
@@ -124,6 +145,22 @@ __attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel lo
   return GULIsLoggableLevel((GULLoggerLevel)loggerLevel);
 }
 
+BOOL FIRIsLoggableLevelNotice(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelNotice, NO);
+}
+
+BOOL FIRIsLoggableLevelWarning(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelWarning, NO);
+}
+
+BOOL FIRIsLoggableLevelError(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelError, NO);
+}
+
+BOOL FIRIsLoggableLevelDebug(void) {
+  return FIRIsLoggableLevel(FIRLoggerLevelDebug, NO);
+}
+
 void FIRLogBasic(FIRLoggerLevel level,
                  NSString *category,
                  NSString *messageCode,
@@ -134,6 +171,18 @@ void FIRLogBasic(FIRLoggerLevel level,
                 sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:category],
                 messageCode, message, args_ptr);
 }
+
+#define FIR_LOGGING_FUNCTION_BASIC(level)                                               \
+  void FIRLogBasic##level(NSString *category, NSString *messageCode, NSString *message, \
+                          va_list args_ptr) {                                           \
+    FIRLogBasic(FIRLoggerLevel##level, category, messageCode, message, args_ptr);       \
+  }
+
+FIR_LOGGING_FUNCTION_BASIC(Error)
+FIR_LOGGING_FUNCTION_BASIC(Warning)
+FIR_LOGGING_FUNCTION_BASIC(Notice)
+FIR_LOGGING_FUNCTION_BASIC(Info)
+FIR_LOGGING_FUNCTION_BASIC(Debug)
 
 /**
  * Generates the logging functions using macros.

@@ -103,7 +103,7 @@
 - [changed] Changed the location of source under FirebaseMessaging folder to fit the current repository organization. (#5476)
 
 # 4.3.1
-- [fixed] Fixed an issue that when a token is deleted, the token refresh notificaiton and delegate is not triggered. (#5338)
+- [fixed] Fixed an issue that when a token is deleted, the token refresh notification and delegate is not triggered. (#5338)
 
 # 4.3.0
 - [changed] Deprecated FCM direct channel messaging via `shouldEstablishDirectChannel`. Instead, use APNs for downstream message delivery. Add `content_available` key to your payload if you want to continue use legacy APIs, but we strongly recommend HTTP v1 API as it provides full APNs support. The deprecated API will be removed in Firebase 7. (#4710)
@@ -157,11 +157,11 @@
 - [feature] Adding macOS support for Messaging. You can now send push notification to your mac app with Firebase Messaging.(#2880)
 
 # 4.0.2
-- [fixed] Disable data protection when opening the Rmq2PeristentStore. (#2963)
+- [fixed] Disable data protection when opening the Rmq2PersistentStore. (#2963)
 
 # 4.0.1
 - [fixed] Fixed race condition checkin is deleted before writing during app start. This cleans up the corrupted checkin and fixes #2438. (#2860)
-- [fixed] Separete APNS proxy methods in GULAppDelegateSwizzler so developers don't need to swizzle APNS related method unless explicitly requested, this fixes #2807. (#2835)
+- [fixed] Separate APNS proxy methods in GULAppDelegateSwizzler so developers don't need to swizzle APNS related method unless explicitly requested, this fixes #2807. (#2835)
 - [changed] Clean up code. Remove extra layer of class. (#2853)
 
 # 4.0.0

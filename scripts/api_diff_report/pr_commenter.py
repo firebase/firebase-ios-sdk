@@ -28,7 +28,7 @@ from requests.packages.urllib3.util.retry import Retry
 STAGES_PROGRESS = "progress"
 STAGES_END = "end"
 
-TITLE_PROGESS = "## ⏳&nbsp; Detecting API diff in progress...\n"
+TITLE_PROGRESS = "## ⏳&nbsp; Detecting API diff in progress...\n"
 TITLE_END_DIFF = '## Apple API Diff Report\n'
 TITLE_END_NO_DIFF = "## ✅&nbsp; No API diff detected\n"
 
@@ -54,7 +54,7 @@ def main():
   if stage == STAGES_PROGRESS:
     if comment_id:
       report = COMMENT_HIDDEN_IDENTIFIER
-      report += generate_markdown_title(TITLE_PROGESS, commit, run_id)
+      report += generate_markdown_title(TITLE_PROGRESS, commit, run_id)
       update_comment(token, comment_id, report)
       delete_label(token, pr_number, PR_LABEL)
   elif stage == STAGES_END:

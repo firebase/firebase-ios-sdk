@@ -67,7 +67,7 @@ typedef NS_ENUM(NSInteger, FIRIAMAutoDataCollectionSetting) {
 @property(nonatomic, nonnull) FIRIAMFetchResponseParser *responseParser;
 @end
 
-static NSString *const _userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting =
+static NSString *const _userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting =
     @"firebase-iam-sdk-auto-data-collection";
 
 @implementation FIRIAMRuntimeManager {
@@ -97,7 +97,7 @@ static NSString *const _userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetti
 
 - (FIRIAMAutoDataCollectionSetting)FIAMProgrammaticAutoDataCollectionSetting {
   id settingEntry = [[GULUserDefaults standardUserDefaults]
-      objectForKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
+      objectForKey:_userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting];
 
   if (![settingEntry isKindOfClass:[NSNumber class]]) {
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM180014",
@@ -155,7 +155,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
 }
 
 - (BOOL)shouldRunSDKFlowsOnStartup {
-  // This can be controlled at 3 different levels in decsending priority. If a higher-priority
+  // This can be controlled at 3 different levels in descending priority. If a higher-priority
   // setting exists, the lower level settings are ignored.
   //   1. Setting made by the app by setting FIAM SDK's automaticDataCollectionEnabled flag.
   //   2. FIAM specific data collection setting in plist file.
@@ -192,7 +192,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   // persist the setting
   [[GULUserDefaults standardUserDefaults]
       setObject:@(YES)
-         forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
+         forKey:_userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting];
 
   @synchronized(self) {
     if (!_running) {
@@ -213,7 +213,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   // persist the setting
   [[GULUserDefaults standardUserDefaults]
       setObject:@(NO)
-         forKey:_userDefaultsKeyForFIAMProgammaticAutoDataCollectionSetting];
+         forKey:_userDefaultsKeyForFIAMProgrammaticAutoDataCollectionSetting];
 
   @synchronized(self) {
     if (_running) {
@@ -369,7 +369,7 @@ static NSString *const kFirebaseInAppMessagingAutoDataCollectionKey =
   self.displayOnFIRAnalyticEventsFlow =
       [[FIRIAMDisplayCheckOnAnalyticEventsFlow alloc] initWithDisplayFlow:self.displayExecutor];
 
-  self.messageCache.analycisEventDislayCheckFlow = self.displayOnFIRAnalyticEventsFlow;
+  self.messageCache.analyticsEventDisplayCheckFlow = self.displayOnFIRAnalyticEventsFlow;
   [self.messageCache
       loadMessageDataFromServerFetchStorage:self.fetchResultStorage
                              withCompletion:^(BOOL success) {

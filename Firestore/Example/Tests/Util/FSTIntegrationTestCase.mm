@@ -34,7 +34,8 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Source/API/FIRAggregateQuery+Internal.h"

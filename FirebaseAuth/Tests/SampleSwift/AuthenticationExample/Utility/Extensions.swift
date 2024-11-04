@@ -77,7 +77,7 @@ public extension UIViewController {
     }
   }
 
-  func displayError(_ error: (any Error)?, from function: StaticString = #function) {
+  @MainActor func displayError(_ error: (any Error)?, from function: StaticString = #function) {
     guard let error = error else { return }
     print("ⓧ Error in \(function): \(error.localizedDescription)")
     let message = "\(error.localizedDescription)\n\n Occurred in \(function)"

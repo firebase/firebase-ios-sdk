@@ -16,28 +16,29 @@ import FirebaseVertexAI
 import MarkdownUI
 import SwiftUI
 
-extension SafetySetting.HarmCategory: CustomStringConvertible {
-  public var description: String {
+private extension HarmCategory {
+  /// Returns a description of the `HarmCategory` suitable for displaying in the UI.
+  var displayValue: String {
     switch self {
     case .dangerousContent: "Dangerous content"
     case .harassment: "Harassment"
     case .hateSpeech: "Hate speech"
     case .sexuallyExplicit: "Sexually explicit"
-    case .unknown: "Unknown"
-    case .unspecified: "Unspecified"
+    case .civicIntegrity: "Civic integrity"
+    default: "Unknown HarmCategory: \(rawValue)"
     }
   }
 }
 
-extension SafetyRating.HarmProbability: CustomStringConvertible {
-  public var description: String {
+private extension SafetyRating.HarmProbability {
+  /// Returns a description of the `HarmProbability` suitable for displaying in the UI.
+  var displayValue: String {
     switch self {
     case .high: "High"
     case .low: "Low"
     case .medium: "Medium"
     case .negligible: "Negligible"
-    case .unknown: "Unknown"
-    case .unspecified: "Unspecified"
+    default: "Unknown HarmProbability: \(rawValue)"
     }
   }
 }
@@ -75,10 +76,9 @@ private struct SafetyRatingsSection: View {
     Section("Safety ratings") {
       List(ratings, id: \.self) { rating in
         HStack {
-          Text("\(String(describing: rating.category))")
-            .font(.subheadline)
+          Text(rating.category.displayValue).font(.subheadline)
           Spacer()
-          Text("\(String(describing: rating.probability))")
+          Text(rating.probability.displayValue)
         }
       }
     }
@@ -162,17 +162,44 @@ struct ErrorDetailsView: View {
   let error = GenerateContentError.responseStoppedEarly(
     reason: .maxTokens,
     response: GenerateContentResponse(candidates: [
-      CandidateResponse(content: ModelContent(role: "model", [
+      Candidate(content: ModelContent(role: "model", parts:
         """
         A _hypothetical_ model response.
         Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
-        """,
-      ]),
+        """),
       safetyRatings: [
-        SafetyRating(category: .dangerousContent, probability: .high),
-        SafetyRating(category: .harassment, probability: .low),
-        SafetyRating(category: .hateSpeech, probability: .low),
-        SafetyRating(category: .sexuallyExplicit, probability: .low),
+        SafetyRating(
+          category: .dangerousContent,
+          probability: .medium,
+          probabilityScore: 0.8,
+          severity: .medium,
+          severityScore: 0.9,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .harassment,
+          probability: .low,
+          probabilityScore: 0.5,
+          severity: .low,
+          severityScore: 0.6,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .hateSpeech,
+          probability: .low,
+          probabilityScore: 0.3,
+          severity: .medium,
+          severityScore: 0.2,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .sexuallyExplicit,
+          probability: .low,
+          probabilityScore: 0.2,
+          severity: .negligible,
+          severityScore: 0.5,
+          blocked: false
+        ),
       ],
       finishReason: FinishReason.maxTokens,
       citationMetadata: nil),
@@ -185,17 +212,44 @@ struct ErrorDetailsView: View {
 #Preview("Prompt Blocked") {
   let error = GenerateContentError.promptBlocked(
     response: GenerateContentResponse(candidates: [
-      CandidateResponse(content: ModelContent(role: "model", [
+      Candidate(content: ModelContent(role: "model", parts:
         """
         A _hypothetical_ model response.
         Cillum ex aliqua amet aliquip labore amet eiusmod consectetur reprehenderit sit commodo.
-        """,
-      ]),
+        """),
       safetyRatings: [
-        SafetyRating(category: .dangerousContent, probability: .high),
-        SafetyRating(category: .harassment, probability: .low),
-        SafetyRating(category: .hateSpeech, probability: .low),
-        SafetyRating(category: .sexuallyExplicit, probability: .low),
+        SafetyRating(
+          category: .dangerousContent,
+          probability: .low,
+          probabilityScore: 0.8,
+          severity: .medium,
+          severityScore: 0.9,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .harassment,
+          probability: .low,
+          probabilityScore: 0.5,
+          severity: .low,
+          severityScore: 0.6,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .hateSpeech,
+          probability: .low,
+          probabilityScore: 0.3,
+          severity: .medium,
+          severityScore: 0.2,
+          blocked: false
+        ),
+        SafetyRating(
+          category: .sexuallyExplicit,
+          probability: .low,
+          probabilityScore: 0.2,
+          severity: .negligible,
+          severityScore: 0.5,
+          blocked: false
+        ),
       ],
       finishReason: FinishReason.other,
       citationMetadata: nil),

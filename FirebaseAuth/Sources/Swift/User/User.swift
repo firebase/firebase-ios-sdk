@@ -1229,7 +1229,7 @@ extension User: NSSecureCoding {}
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
   /// the auth global work queue in the future.
-  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
+  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponse.User,
                                                             SetAccountInfoRequest) -> Void,
                                     callback: @escaping (Error?) -> Void) {
     Task {
@@ -1250,7 +1250,7 @@ extension User: NSSecureCoding {}
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
+  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponse.User?,
                                                           Error?) -> Void) {
     Task {
       do {
@@ -1680,9 +1680,7 @@ extension User: NSSecureCoding {}
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
 
-  public static var supportsSecureCoding: Bool {
-    return true
-  }
+  public static let supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(uid, forKey: kUserIDCodingKey)

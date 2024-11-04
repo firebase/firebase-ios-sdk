@@ -16,7 +16,7 @@ import FirebaseVertexAI
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerationConfigTests: XCTestCase {
   let encoder = JSONEncoder()
 
@@ -47,16 +47,21 @@ final class GenerationConfigTests: XCTestCase {
     let topK = 40
     let candidateCount = 2
     let maxOutputTokens = 256
+    let presencePenalty: Float = 0.5
+    let frequencyPenalty: Float = 0.75
     let stopSequences = ["END", "DONE"]
-    let responseMIMEType = "text/plain"
+    let responseMIMEType = "application/json"
     let generationConfig = GenerationConfig(
       temperature: temperature,
       topP: topP,
       topK: topK,
       candidateCount: candidateCount,
       maxOutputTokens: maxOutputTokens,
+      presencePenalty: presencePenalty,
+      frequencyPenalty: frequencyPenalty,
       stopSequences: stopSequences,
-      responseMIMEType: responseMIMEType
+      responseMIMEType: responseMIMEType,
+      responseSchema: .array(items: .string())
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -65,8 +70,18 @@ final class GenerationConfigTests: XCTestCase {
     XCTAssertEqual(json, """
     {
       "candidateCount" : \(candidateCount),
+      "frequencyPenalty" : \(frequencyPenalty),
       "maxOutputTokens" : \(maxOutputTokens),
+      "presencePenalty" : \(presencePenalty),
       "responseMIMEType" : "\(responseMIMEType)",
+      "responseSchema" : {
+        "items" : {
+          "nullable" : false,
+          "type" : "STRING"
+        },
+        "nullable" : false,
+        "type" : "ARRAY"
+      },
       "stopSequences" : [
         "END",
         "DONE"
@@ -78,16 +93,46 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
-  func testEncodeGenerationConfig_responseMIMEType() throws {
-    let mimeType = "image/jpeg"
-    let generationConfig = GenerationConfig(responseMIMEType: mimeType)
+  func testEncodeGenerationConfig_jsonResponse() throws {
+    let mimeType = "application/json"
+    let generationConfig = GenerationConfig(
+      responseMIMEType: mimeType,
+      responseSchema: .object(properties: [
+        "firstName": .string(),
+        "lastName": .string(),
+        "age": .integer(),
+      ])
+    )
 
     let jsonData = try encoder.encode(generationConfig)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "responseMIMEType" : "\(mimeType)"
+      "responseMIMEType" : "\(mimeType)",
+      "responseSchema" : {
+        "nullable" : false,
+        "properties" : {
+          "age" : {
+            "nullable" : false,
+            "type" : "INTEGER"
+          },
+          "firstName" : {
+            "nullable" : false,
+            "type" : "STRING"
+          },
+          "lastName" : {
+            "nullable" : false,
+            "type" : "STRING"
+          }
+        },
+        "required" : [
+          "age",
+          "firstName",
+          "lastName"
+        ],
+        "type" : "OBJECT"
+      }
     }
     """)
   }

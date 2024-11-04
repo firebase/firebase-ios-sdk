@@ -110,27 +110,6 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
             NSURLSessionWebSocketTask *task =
                 [session webSocketTaskWithRequest:req];
             self.webSocketTask = task;
-
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION || TARGET_OS_MACCATALYST
-            NSString *resignName = UIApplicationWillResignActiveNotification;
-#elif TARGET_OS_OSX
-            NSString *resignName = NSApplicationWillResignActiveNotification;
-#elif TARGET_OS_WATCH
-            NSString *resignName = WKApplicationWillResignActiveNotification;
-#elif
-#error("missing platform")
-#endif
-            [[NSNotificationCenter defaultCenter]
-                addObserverForName:resignName
-                            object:nil
-                             queue:opQueue
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          FFLog(@"I-RDB083015",
-                                @"Received notification that application "
-                                @"will resign, "
-                                @"closing web socket.");
-                          [self onClosed];
-                        }];
         }
     }
     return self;

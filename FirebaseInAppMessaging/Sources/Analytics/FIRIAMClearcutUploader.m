@@ -111,8 +111,8 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
     _userDefaults = userDefaults ? userDefaults : [GULUserDefaults standardUserDefaults];
     // it would be 0 if it does not exist, which is equvilent to saying that
     // you can send now
-    _nextValidSendTimeInMills = (int64_t)
-        [_userDefaults doubleForKey:FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills];
+    _nextValidSendTimeInMills = (int64_t)[_userDefaults
+        doubleForKey:FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills];
 
     NSArray<FIRIAMClearcutLogRecord *> *availableLogs =
         [logStorage popStillValidRecordsForUpTo:strategy.batchSendSize];
@@ -177,7 +177,7 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
                                * Note that there is a chance that the app crashes before we can
                                * call pushRecords: on the logStorage below which means we lost
                                * these log records permanently. This is a trade-off between handling
-                               * duplicate records on server side vs taking the risk of lossing
+                               * duplicate records on server side vs taking the risk of losing
                                * data. This implementation picks the latter.
                                */
                               FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM260007",

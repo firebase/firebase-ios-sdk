@@ -137,7 +137,7 @@ Alternatively, disable signing in each target:
 
 ### Adding a New Firebase Pod
 
-Refer to [AddNewPod](AddNewPod.md) Markdown file for details.
+Refer to [AddNewPod](docs/AddNewPod.md) Markdown file for details.
 
 ### Managing Headers and Imports
 
@@ -153,7 +153,7 @@ GitHub Actions will verify that any code changes are done in a style-compliant
 way. Install `clang-format` and `mint`:
 
 ```console
-brew install clang-format@18
+brew install clang-format@19
 brew install mint
 ```
 

@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.2.0"
+let firebaseVersion = "11.5.0"
 
 let package = Package(
   name: "Firebase",
@@ -70,6 +70,10 @@ let package = Package(
       targets: ["FirebaseStorageCombineSwift"]
     ),
     .library(
+      name: "FirebaseCore",
+      targets: ["FirebaseCore"]
+    ),
+    .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
@@ -118,7 +122,7 @@ let package = Package(
       targets: ["FirebaseStorage"]
     ),
     .library(
-      name: "FirebaseVertexAI-Preview",
+      name: "FirebaseVertexAI",
       targets: ["FirebaseVertexAI"]
     ),
   ],
@@ -142,7 +146,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "3.4.1" ..< "4.0.0"
+      "3.4.1" ..< "5.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
@@ -299,8 +303,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.1.0/FirebaseAnalytics.zip",
-      checksum: "7477b92093cc001e713a3442bcf8725b83764294452c04f36164c8706d224510"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.4.0/FirebaseAnalytics.zip",
+      checksum: "fb0d7cd992ffdcd82ed5c5fdb83e50ac983664f1dde81b140a0ddaa1aa66baae"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -415,6 +419,7 @@ let package = Package(
         "ObjC", "Public",
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: Context.environment["FIREBASE_CI"] != nil ? [.define("FIREBASE_CI")] : [],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
@@ -1305,21 +1310,14 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
-      dependencies: ["FirebaseVertexAI", "SharedTestUtilities"],
+      dependencies: ["FirebaseVertexAI"],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),
+        .process("Resources"),
       ],
       cSettings: [
         .headerSearchPath("../../../"),
-      ]
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIIntegration",
-      dependencies: ["FirebaseVertexAI"],
-      path: "FirebaseVertexAI/Tests/Integration",
-      resources: [
-        .process("Resources"),
       ]
     ),
   ] + firestoreTargets(),
@@ -1338,7 +1336,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.1.0")
+  return .package(url: appMeasurementURL, exact: "11.4.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1507,8 +1505,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.1.0/rc1/FirebaseFirestoreInternal.zip",
-        checksum: "fc5453c2dc5f77426a62992bda3bcea21051b27c0f697f3a8ec461ecfafcdc44"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.4.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "2b467ccf81306a5b7f0e7e41d2f3aa384998235306a0c33d1c973209241e9cdb"
       )
     }
   }()

@@ -1,3 +1,9 @@
+# Unreleased
+- [changed] Updated `upload-symbols` to version 3.19, removed all methods require CFRelease and switch to modern classes (#13420).
+
+# 11.4.0
+- [fixed] Updated `upload-symbols` to version 3.18 with support for uploading multiple DWARF contents in a dSYM bundle (#13543).
+
 # 10.28.1
 - [changed] Reverted "Add SIGTERM support (#12881)" (#13117)
 

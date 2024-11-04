@@ -15,13 +15,11 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class SendVerificationCodeResponse: AuthRPCResponse {
-  required init() {}
-
+struct SendVerificationCodeResponse: AuthRPCResponse {
   // Default value will be overridden when `setField(dictionary:)` is called.
   private(set) var verificationID: String = ""
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  mutating func setFields(dictionary: [String: AnyHashable]) throws {
     guard let verificationID = dictionary["sessionInfo"] as? String else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }

@@ -68,9 +68,9 @@ enum PlatformMinimum {
   /// Useful to disable minimum version checking on pod installation. Pods still get built with
   /// for the minimum version specified in the podspec.
   static func useRecentVersions() {
-    minimumIOSVersion = "14.0"
-    minimumMacOSVersion = "11.0"
-    minimumTVOSVersion = "14.0"
+    minimumIOSVersion = "15.0"
+    minimumMacOSVersion = "12.0"
+    minimumTVOSVersion = "15.0"
     minimumWatchOSVersion = "8.0"
   }
 }

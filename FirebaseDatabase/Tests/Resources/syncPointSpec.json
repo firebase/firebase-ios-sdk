@@ -6957,7 +6957,7 @@
         ]
       },
       {
-        ".comment": "this caused vomitting in the past...",
+        ".comment": "this caused vomiting in the past...",
         "type": "set",
         "path": "a/foo/bar",
         "data": null,

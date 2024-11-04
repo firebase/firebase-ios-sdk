@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import CoreGraphics
-import FirebaseVertexAI
 import XCTest
 #if canImport(UIKit)
   import UIKit
@@ -24,7 +23,9 @@ import XCTest
   import CoreImage
 #endif // canImport(CoreImage)
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@testable import FirebaseVertexAI
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class PartsRepresentableTests: XCTestCase {
   #if !os(watchOS)
     func testModelContentFromCGImageIsNotEmpty() throws {
@@ -43,7 +44,7 @@ final class PartsRepresentableTests: XCTestCase {
         )!
         return ctx.makeImage()!
       }
-      let modelContent = try image.tryPartsValue()
+      let modelContent = image.partsValue
       XCTAssert(modelContent.count > 0, "Expected non-empty model content for CGImage: \(image)")
     }
   #endif // !os(watchOS)
@@ -52,59 +53,45 @@ final class PartsRepresentableTests: XCTestCase {
     func testModelContentFromCIImageIsNotEmpty() throws {
       let image = CIImage(color: CIColor.red)
         .cropped(to: CGRect(origin: CGPointZero, size: CGSize(width: 16, height: 16)))
-      let modelContent = try image.tryPartsValue()
+      let modelContent = image.partsValue
       XCTAssert(modelContent.count > 0, "Expected non-empty model content for CGImage: \(image)")
     }
 
     func testModelContentFromInvalidCIImageThrows() throws {
       let image = CIImage.empty()
-      do {
-        _ = try image.tryPartsValue()
-      } catch {
-        guard let imageError = (error as? ImageConversionError) else {
-          XCTFail("Got unexpected error type: \(error)")
-          return
-        }
-        switch imageError {
-        case let .couldNotConvertToJPEG(source):
-          // String(describing:) works around a type error.
-          XCTAssertEqual(String(describing: source), String(describing: image))
-          return
-        case _:
-          XCTFail("Expected image conversion error, got \(imageError) instead")
-          return
-        }
+      let modelContent = image.partsValue
+      let part = try XCTUnwrap(modelContent.first)
+      let errorPart = try XCTUnwrap(part as? ErrorPart, "Expected ErrorPart.")
+      let imageError = try XCTUnwrap(
+        errorPart.error as? ImageConversionError,
+        "Got unexpected error type: \(errorPart.error)"
+      )
+      guard case .couldNotConvertToJPEG = imageError else {
+        XCTFail("Expected JPEG conversion error, got \(imageError) instead.")
+        return
       }
-      XCTFail("Expected model content from invalid image to error")
     }
   #endif // canImport(CoreImage)
 
   #if canImport(UIKit) && !os(visionOS) // These tests are stalling in CI on visionOS.
     func testModelContentFromInvalidUIImageThrows() throws {
       let image = UIImage()
-      do {
-        _ = try image.tryPartsValue()
-      } catch {
-        guard let imageError = (error as? ImageConversionError) else {
-          XCTFail("Got unexpected error type: \(error)")
-          return
-        }
-        switch imageError {
-        case let .couldNotConvertToJPEG(source):
-          // String(describing:) works around a type error.
-          XCTAssertEqual(String(describing: source), String(describing: image))
-          return
-        case _:
-          XCTFail("Expected image conversion error, got \(imageError) instead")
-          return
-        }
+      let modelContent = image.partsValue
+      let part = try XCTUnwrap(modelContent.first)
+      let errorPart = try XCTUnwrap(part as? ErrorPart, "Expected ErrorPart.")
+      let imageError = try XCTUnwrap(
+        errorPart.error as? ImageConversionError,
+        "Got unexpected error type: \(errorPart.error)"
+      )
+      guard case .couldNotConvertToJPEG = imageError else {
+        XCTFail("Expected JPEG conversion error, got \(imageError) instead.")
+        return
       }
-      XCTFail("Expected model content from invalid image to error")
     }
 
     func testModelContentFromUIImageIsNotEmpty() throws {
       let image = try XCTUnwrap(UIImage(systemName: "star.fill"))
-      let modelContent = try image.tryPartsValue()
+      let modelContent = image.partsValue
       XCTAssert(modelContent.count > 0, "Expected non-empty model content for UIImage: \(image)")
     }
 
@@ -115,29 +102,23 @@ final class PartsRepresentableTests: XCTestCase {
       let rep = NSCIImageRep(ciImage: coreImage)
       let image = NSImage(size: rep.size)
       image.addRepresentation(rep)
-      let modelContent = try image.tryPartsValue()
+      let modelContent = image.partsValue
       XCTAssert(modelContent.count > 0, "Expected non-empty model content for NSImage: \(image)")
     }
 
     func testModelContentFromInvalidNSImageThrows() throws {
       let image = NSImage()
-      do {
-        _ = try image.tryPartsValue()
-      } catch {
-        guard let imageError = (error as? ImageConversionError) else {
-          XCTFail("Got unexpected error type: \(error)")
-          return
-        }
-        switch imageError {
-        case .invalidUnderlyingImage:
-          // Pass
-          return
-        case _:
-          XCTFail("Expected image conversion error, got \(imageError) instead")
-          return
-        }
+      let modelContent = image.partsValue
+      let part = try XCTUnwrap(modelContent.first)
+      let errorPart = try XCTUnwrap(part as? ErrorPart, "Expected ErrorPart.")
+      let imageError = try XCTUnwrap(
+        errorPart.error as? ImageConversionError,
+        "Got unexpected error type: \(errorPart.error)"
+      )
+      guard case .invalidUnderlyingImage = imageError else {
+        XCTFail("Expected invalid underyling image conversion error, got \(imageError) instead.")
+        return
       }
-      XCTFail("Expected model content from invalid image to error")
     }
   #endif
 }

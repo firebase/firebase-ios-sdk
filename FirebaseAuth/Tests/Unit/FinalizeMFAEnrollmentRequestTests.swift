@@ -29,6 +29,14 @@ class FinalizeMFAEnrollmentRequestTests: RPCBaseTests {
    @brief Tests the Finalize MFA Enrollment using TOTP request.
    */
   func testTOTPStartMFAEnrollmentRequest() async throws {
+    try await assertTOTPStartMFAEnrollmentRequest(displayName: "sparky")
+  }
+
+  func testTOTPStartMFAEnrollmentRequest_WhenDisplayNameIsNil() async throws {
+    try await assertTOTPStartMFAEnrollmentRequest(displayName: nil)
+  }
+
+  func assertTOTPStartMFAEnrollmentRequest(displayName: String?) async throws {
     let kIDToken = "idToken"
     let kDisplayName = "displayName"
     let kSessionInfo = "sessionInfo"
@@ -40,7 +48,7 @@ class FinalizeMFAEnrollmentRequestTests: RPCBaseTests {
     let requestInfo = AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: kSessionInfo,
                                                                     verificationCode: kVerificationCode)
     let request = FinalizeMFAEnrollmentRequest(idToken: kIDToken,
-                                               displayName: kDisplayName,
+                                               displayName: displayName,
                                                totpVerificationInfo: requestInfo,
                                                requestConfiguration: requestConfiguration)
 
@@ -55,7 +63,7 @@ class FinalizeMFAEnrollmentRequestTests: RPCBaseTests {
       value: kIDToken
     )
     let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
-    XCTAssertEqual(requestDictionary[kDisplayName], kDisplayName)
+    XCTAssertEqual(requestDictionary[kDisplayName], displayName)
     let totpInfo = try XCTUnwrap(requestDictionary[kTOTPVerificationInfo] as? [String: String])
     XCTAssertEqual(totpInfo["verificationCode"], kVerificationCode)
     XCTAssertNil(requestDictionary[kPhoneVerificationInfo])

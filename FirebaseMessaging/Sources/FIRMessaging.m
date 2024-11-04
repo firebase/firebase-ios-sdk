@@ -40,7 +40,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
 #import "FirebaseMessaging/Sources/FIRMessaging_Private.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
-#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessagingExtensionHelper.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
@@ -131,14 +130,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   return (FIRMessaging *)instance;
 }
 
-+ (FIRMessagingExtensionHelper *)extensionHelper {
-  static dispatch_once_t once;
-  static FIRMessagingExtensionHelper *extensionHelper;
-  dispatch_once(&once, ^{
-    extensionHelper = [[FIRMessagingExtensionHelper alloc] init];
-  });
-  return extensionHelper;
-}
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                      userDefaults:(GULUserDefaults *)defaults
                   heartbeatLogger:(FIRHeartbeatLogger *)heartbeatLogger {
@@ -1029,7 +1020,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 #pragma mark - Force Category Linking
-
+#if SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
+extern void FIRInclude_FIRMessaging_ExtensionHelper_Category(void);
+#endif  // SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
 extern void FIRInclude_NSDictionary_FIRMessaging_Category(void);
 extern void FIRInclude_NSError_FIRMessaging_Category(void);
 
@@ -1038,8 +1031,10 @@ extern void FIRInclude_NSError_FIRMessaging_Category(void);
 /// This method forces the linker to include categories even if
 /// users do not include the '-ObjC' linker flag in their project.
 + (void)noop {
+#if SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
+  FIRInclude_FIRMessaging_ExtensionHelper_Category();
+#endif  // SWIFT_PACKAGE || COCOAPODS || FIREBASE_BUILD_CARTHAGE || FIREBASE_BUILD_ZIP_FILE
   FIRInclude_NSDictionary_FIRMessaging_Category();
   FIRInclude_NSError_FIRMessaging_Category();
 }
-
 @end

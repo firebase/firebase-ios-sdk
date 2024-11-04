@@ -17,8 +17,6 @@ import Foundation
 /// Represents the response from the deleteAccount endpoint.
 ///
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
-class DeleteAccountResponse: NSObject, AuthRPCResponse {
-  override required init() {}
-
-  func setFields(dictionary: [String: AnyHashable]) throws {}
+struct DeleteAccountResponse: AuthRPCResponse {
+  mutating func setFields(dictionary: [String: AnyHashable]) throws {}
 }

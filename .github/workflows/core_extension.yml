@@ -20,12 +20,8 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-14, macos-13]
-        include:
-          - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-13
-            xcode: Xcode_15.2
+        os: [macos-14]
+        xcode: [Xcode_15.2, Xcode_16]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

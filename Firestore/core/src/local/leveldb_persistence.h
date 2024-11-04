@@ -25,6 +25,7 @@
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/leveldb_bundle_cache.h"
 #include "Firestore/core/src/local/leveldb_document_overlay_cache.h"
+#include "Firestore/core/src/local/leveldb_globals_cache.h"
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_lru_reference_delegate.h"
 #include "Firestore/core/src/local/leveldb_migrations.h"
@@ -83,6 +84,8 @@ class LevelDbPersistence : public Persistence {
   void Shutdown() override;
 
   LevelDbBundleCache* bundle_cache() override;
+
+  LevelDbGlobalsCache* globals_cache() override;
 
   LevelDbDocumentOverlayCache* GetDocumentOverlayCache(
       const credentials::User& user) override;
@@ -154,6 +157,7 @@ class LevelDbPersistence : public Persistence {
   bool started_ = false;
 
   std::unique_ptr<LevelDbBundleCache> bundle_cache_;
+  std::unique_ptr<LevelDbGlobalsCache> globals_cache_;
   std::unordered_map<std::string, std::unique_ptr<LevelDbDocumentOverlayCache>>
       document_overlay_caches_;
   std::unordered_map<std::string,

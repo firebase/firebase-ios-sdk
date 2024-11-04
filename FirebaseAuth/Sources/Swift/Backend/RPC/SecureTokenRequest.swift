@@ -59,21 +59,21 @@ private var gAPIHost = "securetoken.googleapis.com"
 
 /// Represents the parameters for the token endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class SecureTokenRequest: AuthRPCRequest {
+struct SecureTokenRequest: AuthRPCRequest {
   typealias Response = SecureTokenResponse
 
   /// The type of grant requested.
   /// See FIRSecureTokenRequestGrantType
-  var grantType: SecureTokenRequestGrantType
+  let grantType: SecureTokenRequestGrantType
 
   /// The scopes requested (a comma-delimited list of scope strings).
-  var scope: String?
+  let scope: String?
 
   /// The client's refresh token.
-  var refreshToken: String?
+  let refreshToken: String?
 
   /// The client's authorization code (legacy Gitkit "ID Token").
-  var code: String?
+  let code: String?
 
   /// The client's API Key.
   let apiKey: String
@@ -107,8 +107,8 @@ class SecureTokenRequest: AuthRPCRequest {
     )
   }
 
-  init(grantType: SecureTokenRequestGrantType, scope: String?, refreshToken: String?,
-       code: String?, requestConfiguration: AuthRequestConfiguration) {
+  private init(grantType: SecureTokenRequestGrantType, scope: String?, refreshToken: String?,
+               code: String?, requestConfiguration: AuthRequestConfiguration) {
     self.grantType = grantType
     self.scope = scope
     self.refreshToken = refreshToken

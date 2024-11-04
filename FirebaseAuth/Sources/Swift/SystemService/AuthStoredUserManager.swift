@@ -119,7 +119,87 @@ class AuthStoredUserManager {
     archiver.encode(user, forKey: Self.storedUserCoderKey)
     archiver.finishEncoding()
 
-    try keychainServices.setItem(archiver.encodedData, withQuery: query)
+    // In Firebase 10, the below query contained the `kSecAttrSynchronizable`
+    // key set to `true` when `shareAuthStateAcrossDevices == true`. This
+    // allows a user entry to be shared across devices via the iCloud keychain.
+    // For the purpose of this discussion, such a user entry will be referred
+    // to as a "iCloud entry". Conversely, a "non-iCloud entry" will refer to a
+    // user entry stored when `shareAuthStateAcrossDevices == false`. Keep in
+    // mind that this class exclusively manages user entries stored in
+    // device-specific keychain access groups, so both iCloud and non-iCloud
+    // entries are implicitly available at the device level to apps that
+    // have access rights to the specific keychain access group used.
+    //
+    // The iCloud/non-iCloud distinction is important because entries stored
+    // with `kSecAttrSynchronizable == true` can only be retrieved when the
+    // search query includes `kSecAttrSynchronizable == true`. Likewise,
+    // entries stored without the `kSecAttrSynchronizable` key (or
+    // `kSecAttrSynchronizable == false`) can only be retrieved when
+    // the search query omits `kSecAttrSynchronizable` or sets it to `false`.
+    //
+    // So for each access group, the SDK manages up to two buckets in the
+    // keychain, one for iCloud entries and one for non-iCloud entries.
+    //
+    // From Firebase 11.0.0 up to but not including 11.3.0, the
+    // `kSecAttrSynchronizable` key was *not* included in the query when
+    // `shareAuthStateAcrossDevices == true`. This had the effect of the iCloud
+    // bucket being inaccessible, and iCloud and non-iCloud entries attempting
+    // to be written to the same bucket. This was problematic because the
+    // two types of entries use another flag, the `kSecAttrAccessible` flag,
+    // with different values. If two queries are identical apart from different
+    // values for their `kSecAttrAccessible` key, whichever query written to
+    // the keychain first won't be accessible for reading or updating via the
+    // other query (resulting in a OSStatus of -25300 indicating the queried
+    // item cannot be found). And worse, attempting to write the other query to
+    // the keychain won't work because the write will conflict with the
+    // previously written query (resulting in a OSStatus of -25299 indicating a
+    // duplicate item already exists in the keychain). This formed the basis
+    // for the issues this bug caused.
+    //
+    // The missing key was added back in 11.3, but adding back the key
+    // introduced a new issue. If the buggy version succeeded at writing an
+    // iCloud entry to the non-iCloud bucket (e.g. keychain was empty before
+    // iCloud entry was written), then all future non-iCloud writes would fail
+    // due to the mismatching `kSecAttrAccessible` flag and throw an
+    // unrecoverable error. To address this the below error handling is used to
+    // detect such cases, remove the "corrupt" iCloud entry stored by the buggy
+    // version in the non-iCloud bucket, and retry writing the current
+    // non-iCloud entry again.
+    do {
+      try keychainServices.setItem(archiver.encodedData, withQuery: query)
+    } catch let error as NSError {
+      guard shareAuthStateAcrossDevices == false,
+            error.localizedFailureReason == "SecItemAdd (-25299)" else {
+        // The error is not related to the 11.0 - 11.2 issue described above,
+        // and should be rethrown.
+        throw error
+      }
+      // We are trying to write a non-iCloud entry but a corrupt iCloud entry
+      // is likely preventing it from happening.
+      //
+      // The corrupt query was supposed to contain the following keys:
+      //   {
+      //     kSecAttrSynchronizable: true,
+      //     kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock
+      //   }
+      // Instead, it contained:
+      //   {
+      //     kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock
+      //   }
+      //
+      // Excluding `kSecAttrSynchronizable` treats the query as if it's false
+      // and the entry won't be shared in iCloud across devices. It is instead
+      // written to the non-iCloud bucket. This query is corrupting the
+      // non-iCloud bucket because its `kSecAttrAccessible` value is not
+      // compatible with the value used for non-iCloud entries. To delete it,
+      // a compatible query is formed by swapping the accessibility flag
+      // out for `kSecAttrAccessibleAfterFirstUnlock`. This frees up the bucket
+      // so the non-iCloud entry can attempt to be written again.
+      let corruptQuery = query
+        .merging([kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock]) { $1 }
+      try keychainServices.removeItem(query: corruptQuery)
+      try keychainServices.setItem(archiver.encodedData, withQuery: query)
+    }
   }
 
   /// Remove the user that stored locally.
@@ -160,6 +240,10 @@ class AuthStoredUserManager {
       kSecAttrAccount as String: Self.sharedKeychainAccountValue,
     ]
     query[kSecUseDataProtectionKeychain as String] = true
+
+    if shareAuthStateAcrossDevices {
+      query[kSecAttrSynchronizable as String] = true
+    }
 
     return query
   }

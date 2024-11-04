@@ -39,7 +39,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 @implementation FacebookAuthTests
 
 // TODO(#10752) - Update and fix the Facebook login Sample app and tests.
-- (void)SKIPtestSignInWithFaceboook {
+- (void)SKIPtestSignInWithFacebook {
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");

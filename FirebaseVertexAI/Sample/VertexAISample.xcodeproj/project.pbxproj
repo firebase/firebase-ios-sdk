@@ -13,7 +13,7 @@
 		86D9CA8B2BED3EE1007D939E /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 86D9CA8A2BED3EE1007D939E /* FirebaseAppCheck */; };
 		86D9CA8F2BED3EE1007D939E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 86D9CA8E2BED3EE1007D939E /* FirebaseAuth */; };
 		86D9CAB52BED3EE1007D939E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 86D9CAB42BED3EE1007D939E /* FirebaseStorage */; };
-		86D9CAB92BED3EE1007D939E /* FirebaseVertexAI-Preview in Frameworks */ = {isa = PBXBuildFile; productRef = 86D9CAB82BED3EE1007D939E /* FirebaseVertexAI-Preview */; };
+		86D9CAB92BED3EE1007D939E /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 86D9CAB82BED3EE1007D939E /* FirebaseVertexAI */; };
 		88263BF02B239C09008AB09B /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88263BEE2B239BFE008AB09B /* ErrorView.swift */; };
 		88263BF12B239C11008AB09B /* ErrorDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 889873842B208563005B4896 /* ErrorDetailsView.swift */; };
 		8848C8332B0D04BC007B434F /* VertexAISampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848C8322B0D04BC007B434F /* VertexAISampleApp.swift */; };
@@ -72,7 +72,7 @@
 				86D9CA8F2BED3EE1007D939E /* FirebaseAuth in Frameworks */,
 				86D9CA8B2BED3EE1007D939E /* FirebaseAppCheck in Frameworks */,
 				886F95E32B17D6630036F07A /* GenerativeAIUIComponents in Frameworks */,
-				86D9CAB92BED3EE1007D939E /* FirebaseVertexAI-Preview in Frameworks */,
+				86D9CAB92BED3EE1007D939E /* FirebaseVertexAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,7 +301,7 @@
 				86D9CA8A2BED3EE1007D939E /* FirebaseAppCheck */,
 				86D9CA8E2BED3EE1007D939E /* FirebaseAuth */,
 				86D9CAB42BED3EE1007D939E /* FirebaseStorage */,
-				86D9CAB82BED3EE1007D939E /* FirebaseVertexAI-Preview */,
+				86D9CAB82BED3EE1007D939E /* FirebaseVertexAI */,
 			);
 			productName = GenerativeAISample;
 			productReference = 8848C82F2B0D04BC007B434F /* VertexAISample.app */;
@@ -625,9 +625,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseStorage;
 		};
-		86D9CAB82BED3EE1007D939E /* FirebaseVertexAI-Preview */ = {
+		86D9CAB82BED3EE1007D939E /* FirebaseVertexAI */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = "FirebaseVertexAI-Preview";
+			productName = FirebaseVertexAI;
 		};
 		886F95D72B17BA420036F07A /* MarkdownUI */ = {
 			isa = XCSwiftPackageProductDependency;

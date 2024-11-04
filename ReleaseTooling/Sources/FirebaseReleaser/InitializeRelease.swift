@@ -51,9 +51,12 @@ enum InitializeRelease {
       } else {
         updatePodspecVersion(pod: pod, version: version, path: path)
 
-        // Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
-        // should pin the dependency to the new version.
-        if pod.name.hasPrefix("GoogleAppMeasurement") || pod.name == "FirebaseFirestoreInternal" {
+        // Pods dependencies to update to latest.
+        if pod.name.hasPrefix("GoogleAppMeasurement") ||
+          pod.name == "FirebaseCore" ||
+          pod.name == "FirebaseCoreExtension" ||
+          pod.name == "FirebaseCoreInternal" ||
+          pod.name == "FirebaseFirestoreInternal" {
           updateDependenciesToLatest(
             dependency: pod.name,
             pods: manifest.pods,
@@ -82,8 +85,7 @@ enum InitializeRelease {
     Shell.executeCommand(command, workingDir: path)
   }
 
-  /// Pods depending on GoogleAppMeasurement and FirebaseFirestoreInternal specs
-  /// should pin the dependency to the new version.
+  /// Update dependencies that we want pinned to the latest version.
   private static func updateDependenciesToLatest(dependency: String,
                                                  pods: [Pod],
                                                  version: String,

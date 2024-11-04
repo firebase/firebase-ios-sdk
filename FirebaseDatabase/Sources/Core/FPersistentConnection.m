@@ -34,11 +34,9 @@
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleCallbackStatus.h"
 #import "FirebaseDatabase/Sources/Utilities/Tuples/FTupleOnDisconnect.h"
-#if TARGET_OS_WATCH
-#import <WatchKit/WatchKit.h>
-#else
+#if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
-#endif // TARGET_OS_WATCH
+#endif // !TARGET_OS_WATCH
 #import <dlfcn.h>
 #import <netinet/in.h>
 
@@ -168,7 +166,6 @@ typedef enum {
                         retryExponent:kPersistentConnReconnectMultiplier
                          jitterFactor:0.7];
 
-        [self setupNotifications];
         // Make sure we don't actually connect until open is called
         [self interruptForReason:kFInterruptReasonWaitingForOpen];
     }
@@ -551,29 +548,6 @@ typedef enum {
                                     appCheckToken:context.appCheckToken];
     self.realtime.delegate = self;
     [self.realtime open];
-}
-
-- (void)enteringForeground {
-    dispatch_async(self.dispatchQueue, ^{
-      // Reset reconnect delay
-      [self.retryHelper signalSuccess];
-      if (self->connectionState == ConnectionStateDisconnected) {
-          [self tryScheduleReconnect];
-      }
-    });
-}
-
-- (void)setupNotifications {
-#if TARGET_OS_WATCH
-    __weak FPersistentConnection *weakSelf = self;
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center addObserverForName:WKApplicationWillEnterForegroundNotification
-                        object:nil
-                         queue:nil
-                    usingBlock:^(NSNotification *_Nonnull note) {
-                      [weakSelf enteringForeground];
-                    }];
-#endif // TARGET_OS_WATCH
 }
 
 - (void)sendAuthAndRestoreStateAfterComplete:(BOOL)restoreStateAfterComplete {

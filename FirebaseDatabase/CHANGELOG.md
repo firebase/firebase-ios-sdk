@@ -1,3 +1,7 @@
+# 11.2.0
+- [fixed] Fix temporary disconnects when the app goes inactive. The issue was
+  introduced in 10.27.0. (#13529)
+
 # 11.0.0
 - [removed] **Breaking change**: The deprecated `FirebaseDatabaseSwift`
   module has been removed. See

@@ -31,7 +31,7 @@
 
   /// A class to manage APNs token in memory.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  class AuthAPNSTokenManager: NSObject {
+  class AuthAPNSTokenManager {
     /// The timeout for registering for remote notification.
     ///
     /// Only tests should access this property.

@@ -31,8 +31,8 @@
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
+#import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
 NSString *const kFIRTestAppName1 = @"test_app_name_1";
@@ -115,7 +115,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // We stop mocking `FIRHeartbeatLogger` in the class `tearDown` method to
   // prevent interfering with other tests that use the real `FIRHeartbeatLogger`.
   // Doing this in the instance `tearDown` causes test failures due to a race
-  // condition between `NSNoticationCenter` and `OCMVerifyAllWithDelay`.
+  // condition between `NSNotificationCenter` and `OCMVerifyAllWithDelay`.
   // Affected tests:
   // - testHeartbeatLogIsAttemptedWhenAppDidBecomeActive
   [OCMClassMock([FIRHeartbeatLogger class]) stopMocking];
@@ -301,7 +301,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithOptions:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
 
-  // Explicily stop the environmentMock.
+  // Explicitly stop the environmentMock.
   [environmentMock stopMocking];
   environmentMock = nil;
 }
@@ -330,7 +330,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
 
-  // Explicily stop the environmentMock.
+  // Explicitly stop the environmentMock.
   [environmentMock stopMocking];
   environmentMock = nil;
 }
@@ -601,7 +601,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 // Uncomment if you need to measure performance of [FIRApp validateAppID:].
 // It is commented because measures are heavily dependent on a build agent configuration,
 // so it cannot produce reliable resault on CI
-//- (void)testAppIDValidationPerfomance {
+//- (void)testAppIDValidationPerformance {
 //  [self measureBlock:^{
 //    for (NSInteger i = 0; i < 100; ++i) {
 //      [self testAppIDPrefix];

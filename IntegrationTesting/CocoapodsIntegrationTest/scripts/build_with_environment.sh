@@ -92,17 +92,17 @@ fi
 
 # Convert path to absolute one in case the script is run from another directory.
 RESOLVED_GEMFILE="$(realpath ${GEMFILE})"
-RESLOVED_PODFILE="$(realpath ${PODFILE})"
+RESOLVED_PODFILE="$(realpath ${PODFILE})"
 
 echo "Gemfile  = ${RESOLVED_GEMFILE}"
-echo "Podfile     = ${RESLOVED_PODFILE}"
+echo "Podfile     = ${RESOLVED_PODFILE}"
 
 # Make sure we build from the project root dir.
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 pushd "${scriptDir}/.."
 
 prepareBundle "${RESOLVED_GEMFILE}"
-prepareCocoapods "${RESLOVED_PODFILE}"
+prepareCocoapods "${RESOLVED_PODFILE}"
 runXcodebuild
 
 # Recover original directory just in case

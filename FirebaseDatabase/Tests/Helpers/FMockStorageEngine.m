@@ -125,7 +125,7 @@
       FPath *relativePath = [FPath relativePathFrom:prunePath to:absolutePath];
       if ([pruneForest shouldPruneUnkeptDescendantsAtPath:relativePath]) {
         __block FCompoundWrite *newCache = [FCompoundWrite emptyWrite];
-        [[pruneForest childAtPath:relativePath] enumarateKeptNodesUsingBlock:^(FPath *keepPath) {
+        [[pruneForest childAtPath:relativePath] enumerateKeptNodesUsingBlock:^(FPath *keepPath) {
           newCache = [newCache addWrite:[node getChild:keepPath] atPath:keepPath];
         }];
         self.serverCache =

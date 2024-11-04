@@ -30,7 +30,7 @@ class FunctionCallingViewModel: ObservableObject {
   }
 
   /// Function calls pending processing
-  private var functionCalls = [FunctionCall]()
+  private var functionCalls = [FunctionCallPart]()
 
   private var model: GenerativeModel
   private var chat: Chat
@@ -40,25 +40,20 @@ class FunctionCallingViewModel: ObservableObject {
   init() {
     model = VertexAI.vertexAI().generativeModel(
       modelName: "gemini-1.5-flash",
-      tools: [Tool(functionDeclarations: [
+      tools: [.functionDeclarations([
         FunctionDeclaration(
           name: "get_exchange_rate",
           description: "Get the exchange rate for currencies between countries",
           parameters: [
-            "currency_from": Schema(
-              type: .string,
-              format: "enum",
-              description: "The currency to convert from in ISO 4217 format",
-              enumValues: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"]
+            "currency_from": .enumeration(
+              values: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"],
+              description: "The currency to convert from in ISO 4217 format"
             ),
-            "currency_to": Schema(
-              type: .string,
-              format: "enum",
-              description: "The currency to convert to in ISO 4217 format",
-              enumValues: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"]
+            "currency_to": .enumeration(
+              values: ["USD", "EUR", "JPY", "GBP", "AUD", "CAD"],
+              description: "The currency to convert to in ISO 4217 format"
             ),
-          ],
-          requiredParameters: ["currency_from", "currency_to"]
+          ]
         ),
       ])]
     )
@@ -116,12 +111,12 @@ class FunctionCallingViewModel: ObservableObject {
     let functionResponses = try await processFunctionCalls()
     let responseStream: AsyncThrowingStream<GenerateContentResponse, Error>
     if functionResponses.isEmpty {
-      responseStream = chat.sendMessageStream(text)
+      responseStream = try chat.sendMessageStream(text)
     } else {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      responseStream = chat.sendMessageStream(functionResponses.modelContent())
+      responseStream = try chat.sendMessageStream(functionResponses.modelContent())
     }
     for try await chunk in responseStream {
       processResponseContent(content: chunk)
@@ -149,26 +144,26 @@ class FunctionCallingViewModel: ObservableObject {
 
     for part in candidate.content.parts {
       switch part {
-      case let .text(text):
+      case let textPart as TextPart:
         // replace pending message with backend response
-        messages[messages.count - 1].message += text
+        messages[messages.count - 1].message += textPart.text
         messages[messages.count - 1].pending = false
-      case let .functionCall(functionCall):
-        messages.insert(functionCall.chatMessage(), at: messages.count - 1)
-        functionCalls.append(functionCall)
-      case .data, .fileData, .functionResponse:
-        fatalError("Unsupported response content.")
+      case let functionCallPart as FunctionCallPart:
+        messages.insert(functionCallPart.chatMessage(), at: messages.count - 1)
+        functionCalls.append(functionCallPart)
+      default:
+        fatalError("Unsupported response part: \(part)")
       }
     }
   }
 
-  func processFunctionCalls() async throws -> [FunctionResponse] {
-    var functionResponses = [FunctionResponse]()
+  func processFunctionCalls() async throws -> [FunctionResponsePart] {
+    var functionResponses = [FunctionResponsePart]()
     for functionCall in functionCalls {
       switch functionCall.name {
       case "get_exchange_rate":
         let exchangeRates = getExchangeRate(args: functionCall.args)
-        functionResponses.append(FunctionResponse(
+        functionResponses.append(FunctionResponsePart(
           name: "get_exchange_rate",
           response: exchangeRates
         ))
@@ -213,7 +208,7 @@ class FunctionCallingViewModel: ObservableObject {
   }
 }
 
-private extension FunctionCall {
+private extension FunctionCallPart {
   func chatMessage() -> ChatMessage {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -233,7 +228,7 @@ private extension FunctionCall {
   }
 }
 
-private extension FunctionResponse {
+private extension FunctionResponsePart {
   func chatMessage() -> ChatMessage {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -253,12 +248,8 @@ private extension FunctionResponse {
   }
 }
 
-private extension [FunctionResponse] {
+private extension [FunctionResponsePart] {
   func modelContent() -> [ModelContent] {
-    return self.map { ModelContent(
-      role: "function",
-      parts: [ModelContent.Part.functionResponse($0)]
-    )
-    }
+    return self.map { ModelContent(role: "function", parts: [$0]) }
   }
 }
