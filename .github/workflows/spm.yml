@@ -21,6 +21,9 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
 
+env:
+  FIREBASE_CI: true
+
 jobs:
   spm-package-resolved:
     env:
