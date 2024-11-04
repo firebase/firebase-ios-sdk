@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct SendVerificationCodeResponse: AuthRPCResponse {
   // Default value will be overridden when `setField(dictionary:)` is called.
   private(set) var verificationID: String = ""
