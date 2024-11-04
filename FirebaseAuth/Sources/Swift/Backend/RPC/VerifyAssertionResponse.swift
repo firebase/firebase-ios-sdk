@@ -158,10 +158,10 @@ struct VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
     if let rawUserInfo = dictionary["rawUserInfo"] as? String,
        let data = rawUserInfo.data(using: .utf8) {
       if let info = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
-         let profile = info as? [String: Any] {
+         let profile = info as? [String: any Sendable] {
         self.profile = profile
       }
-    } else if let profile = dictionary["rawUserInfo"] as? [String: Any] {
+    } else if let profile = dictionary["rawUserInfo"] as? [String: any Sendable] {
       self.profile = profile
     }
     username = dictionary["username"] as? String
