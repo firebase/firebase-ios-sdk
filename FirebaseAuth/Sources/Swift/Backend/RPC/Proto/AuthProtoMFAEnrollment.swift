@@ -14,18 +14,22 @@
 
 import Foundation
 
-class AuthProtoMFAEnrollment: NSObject, AuthProto {
+struct AuthProtoMFAEnrollment: AuthProto {
   let phoneInfo: String?
   // In practice, this will be an empty dictionary. The presence of which
   // indicates TOTP MFA enrollment rather than phone MFA enrollment.
-  let totpInfo: NSObject?
+  let totpInfo: String?
   let mfaEnrollmentID: String?
   let displayName: String?
   let enrolledAt: Date?
 
-  required init(dictionary: [String: AnyHashable]) {
+  init(dictionary: [String: AnyHashable]) {
     phoneInfo = dictionary["phoneInfo"] as? String
-    totpInfo = dictionary["totpInfo"] as? NSObject
+    if let _ = dictionary["totpInfo"] as? NSObject {
+      totpInfo = ""
+    } else {
+      totpInfo = nil
+    }
     mfaEnrollmentID = dictionary["mfaEnrollmentId"] as? String
     displayName = dictionary["displayName"] as? String
     if let enrolledAt = dictionary["enrolledAt"] as? String {

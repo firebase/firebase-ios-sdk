@@ -14,10 +14,10 @@
 
 import Foundation
 
-class AuthProtoFinalizeMFAPhoneResponseInfo: NSObject, AuthProto {
+struct AuthProtoFinalizeMFAPhoneResponseInfo: AuthProto {
   var phoneNumber: String?
 
-  required init(dictionary: [String: AnyHashable]) {
+  init(dictionary: [String: AnyHashable]) {
     phoneNumber = dictionary["phoneNumber"] as? String
   }
 }
