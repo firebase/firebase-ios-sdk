@@ -28,7 +28,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # Header files that constitute the interface to this module. Only Objective-C
   # headers belong here, since FirebaseFirestore is primarily an Objective-C
   # framework.
-  s.public_header_files = 'Firestore/Source/Public/FirebaseFirestore/*.h'
+  s.public_header_files = [
+    'Firestore/Source/Public/FirebaseFirestore/*.h',
+    'Firestore/core/swift/include/*.h'
+  ]
 
   # source_files contains most of the header and source files for the project.
   # This includes files named in `public_header_files`.
@@ -52,6 +55,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
     'FirebaseAuth/Interop/**/*.h',
+    'Firestore/core/swift/**/*.{cc,h}',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal
