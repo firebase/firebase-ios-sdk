@@ -1,4 +1,4 @@
-# Unreleased
+# 11.5.0
 - [changed] Updated `upload-symbols` to version 3.19, removed all methods require CFRelease and switch to modern classes (#13420).
 
 # 11.4.0
