@@ -740,6 +740,9 @@ final class GenerativeModelTests: XCTestCase {
       return
     }
     XCTAssertEqual(underlyingError.localizedDescription, "Response was not an HTTP response.")
+    let underlyingNSError = underlyingError as NSError
+    XCTAssertEqual(underlyingNSError.domain, NSURLErrorDomain)
+    XCTAssertEqual(underlyingNSError.code, URLError.Code.badServerResponse.rawValue)
   }
 
   func testGenerateContent_failure_invalidResponse() async throws {
