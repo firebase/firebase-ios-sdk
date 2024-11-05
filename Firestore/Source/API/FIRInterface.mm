@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-#include "../include/used_by_swift.h"
-#include <iostream>
+#import <Foundation/Foundation.h>
 
-void CppInterfaceCalledBySwift::print(std::string content) {
-  std::cout << "C++ function runs with value: " << content << std::endl;
+#import "Firestore/Source/Public/FirebaseFirestore/FIRInterface.h"
+
+#import "Firestore/core/src/api/used_by_objective_c.h"
+#include "Firestore/core/src/util/string_apple.h"
+
+using firebase::firestore::util::MakeString;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@implementation FIRInterface
+
++ (void)print:(NSString *)content {
+  CppInterfaceCalledByObjectiveC::print(MakeString(content));
 }
+
+@end
+
+NS_ASSUME_NONNULL_END

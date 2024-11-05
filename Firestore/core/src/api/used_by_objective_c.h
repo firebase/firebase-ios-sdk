@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-#include "../include/used_by_swift.h"
-#include <iostream>
+#ifndef FIREBASE_USED_BY_SWIFT_H
+#define FIREBASE_USED_BY_SWIFT_H
 
-void CppInterfaceCalledBySwift::print(std::string content) {
-  std::cout << "C++ function runs with value: " << content << std::endl;
-}
+#include <string>
+
+class CppInterfaceCalledByObjectiveC {
+ public:
+  static void print(std::string content);
+};
+
+#endif  // FIREBASE_USED_BY_SWIFT_H
