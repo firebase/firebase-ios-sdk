@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import FirebaseFirestoreCpp
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreCpp
+#endif // SWIFT_PACKAGE
 
 public class SwiftCppWrapper {
   public init(_ value: String) {
