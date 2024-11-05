@@ -502,7 +502,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.internalError(error as RPCError) {
+    } catch let GenerateContentError.internalError(error as BackendError) {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
@@ -524,7 +524,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.internalError(error as RPCError) {
+    } catch let GenerateContentError.internalError(error as BackendError) {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
@@ -607,7 +607,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.internalError(underlying: rpcError as RPCError) {
+    } catch let GenerateContentError.internalError(underlying: rpcError as BackendError) {
       XCTAssertEqual(rpcError.status, .invalidArgument)
       XCTAssertEqual(rpcError.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(rpcError.message, "Request contains an invalid argument.")
@@ -706,7 +706,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.generateContent(testPrompt)
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.internalError(underlying: rpcError as RPCError) {
+    } catch let GenerateContentError.internalError(underlying: rpcError as BackendError) {
       XCTAssertEqual(rpcError.status, .notFound)
       XCTAssertEqual(rpcError.httpResponseCode, expectedStatusCode)
       XCTAssertTrue(rpcError.message.hasPrefix("models/unknown is not found"))
@@ -849,7 +849,7 @@ final class GenerativeModelTests: XCTestCase {
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
-    } catch let GenerateContentError.internalError(error as RPCError) {
+    } catch let GenerateContentError.internalError(error as BackendError) {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
@@ -873,7 +873,7 @@ final class GenerativeModelTests: XCTestCase {
       for try await _ in stream {
         XCTFail("No content is there, this shouldn't happen.")
       }
-    } catch let GenerateContentError.internalError(error as RPCError) {
+    } catch let GenerateContentError.internalError(error as BackendError) {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
@@ -1190,7 +1190,7 @@ final class GenerativeModelTests: XCTestCase {
         XCTAssertNotNil(content.text)
         responseCount += 1
       }
-    } catch let GenerateContentError.internalError(rpcError as RPCError) {
+    } catch let GenerateContentError.internalError(rpcError as BackendError) {
       XCTAssertEqual(rpcError.httpResponseCode, 499)
       XCTAssertEqual(rpcError.status, .cancelled)
 
@@ -1374,7 +1374,7 @@ final class GenerativeModelTests: XCTestCase {
     do {
       _ = try await model.countTokens("Why is the sky blue?")
       XCTFail("Request should not have succeeded.")
-    } catch let rpcError as RPCError {
+    } catch let rpcError as BackendError {
       XCTAssertEqual(rpcError.httpResponseCode, 404)
       XCTAssertEqual(rpcError.status, .notFound)
       XCTAssert(rpcError.message.hasPrefix("models/test-model-name is not found"))

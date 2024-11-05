@@ -251,7 +251,7 @@ struct GenerativeAIService {
 
   private func parseError(responseData: Data) -> Error {
     do {
-      let rpcError = try JSONDecoder().decode(RPCError.self, from: responseData)
+      let rpcError = try JSONDecoder().decode(BackendError.self, from: responseData)
       logRPCError(rpcError)
       return rpcError
     } catch {
@@ -262,7 +262,7 @@ struct GenerativeAIService {
 
   // Log specific RPC errors that cannot be mitigated or handled by user code.
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
-  private func logRPCError(_ error: RPCError) {
+  private func logRPCError(_ error: BackendError) {
     if error.isVertexAIInFirebaseServiceDisabledError() {
       VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
       The Vertex AI in Firebase SDK requires the Vertex AI in Firebase API \
