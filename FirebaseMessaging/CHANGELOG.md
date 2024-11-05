@@ -1,4 +1,4 @@
-# Unreleased
+# 11.5.0
 - [fixed] Improve token-fetch failure logging with detailed error info. (#13997).
 
 # 11.0.0
