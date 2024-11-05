@@ -36,6 +36,27 @@ struct BackendError: Error {
   }
 }
 
+// MARK: - CustomNSError Conformance
+
+extension BackendError: CustomNSError {
+  public static var errorDomain: String {
+    return "\(Constants.baseErrorDomain).\(Self.self)"
+  }
+
+  var errorCode: Int {
+    return httpResponseCode
+  }
+
+  var errorUserInfo: [String: Any] {
+    return [
+      NSLocalizedDescriptionKey:
+        "\(message) (\(Self.errorDomain) - HTTP \(httpResponseCode) \(status.rawValue))",
+    ]
+  }
+}
+
+// MARK: - Decodable Conformance
+
 extension BackendError: Decodable {
   enum CodingKeys: CodingKey {
     case error

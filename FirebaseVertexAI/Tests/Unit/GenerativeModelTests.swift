@@ -506,6 +506,12 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
+      XCTAssertTrue(error.localizedDescription.contains(error.message))
+      XCTAssertTrue(error.localizedDescription.contains(error.status.rawValue))
+      XCTAssertTrue(error.localizedDescription.contains("\(error.httpResponseCode)"))
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, "\(Constants.baseErrorDomain).\(BackendError.self)")
+      XCTAssertEqual(nsError.code, error.httpResponseCode)
       return
     } catch {
       XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
@@ -853,6 +859,12 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, 400)
       XCTAssertEqual(error.status, .invalidArgument)
       XCTAssertEqual(error.message, "API key not valid. Please pass a valid API key.")
+      XCTAssertTrue(error.localizedDescription.contains(error.message))
+      XCTAssertTrue(error.localizedDescription.contains(error.status.rawValue))
+      XCTAssertTrue(error.localizedDescription.contains("\(error.httpResponseCode)"))
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, "\(Constants.baseErrorDomain).\(BackendError.self)")
+      XCTAssertEqual(nsError.code, error.httpResponseCode)
       return
     }
 
