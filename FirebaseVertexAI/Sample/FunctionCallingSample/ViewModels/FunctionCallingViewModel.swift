@@ -116,7 +116,7 @@ class FunctionCallingViewModel: ObservableObject {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      responseStream = try chat.sendMessageStream(functionResponses.modelContent())
+      responseStream = try chat.sendMessageStream([functionResponses.modelContent()])
     }
     for try await chunk in responseStream {
       processResponseContent(content: chunk)
@@ -132,7 +132,7 @@ class FunctionCallingViewModel: ObservableObject {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      response = try await chat.sendMessage(functionResponses.modelContent())
+      response = try await chat.sendMessage([functionResponses.modelContent()])
     }
     processResponseContent(content: response)
   }
@@ -249,7 +249,7 @@ private extension FunctionResponsePart {
 }
 
 private extension [FunctionResponsePart] {
-  func modelContent() -> [ModelContent] {
-    return self.map { ModelContent(role: "function", parts: [$0]) }
+  func modelContent() -> ModelContent {
+    return ModelContent(role: "function", parts: self)
   }
 }
