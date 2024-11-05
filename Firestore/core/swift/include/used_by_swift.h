@@ -19,9 +19,9 @@
 
 #include <string>
 
-class UsedBySwift {
+class CppInterfaceCalledBySwift {
  public:
-  explicit UsedBySwift(std::string content);
+  static void print(std::string content);
 };
 
 #endif  // FIREBASE_USED_BY_SWIFT_H

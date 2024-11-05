@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-#include "../include/used_by_swift.h"
-#include <iostream>
+#import <Foundation/Foundation.h>
 
-void CppInterfaceCalledBySwift::print(std::string content) {
-  std::cout << "C++ function runs with value: " << content << std::endl;
-}
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRInterface : NSObject
+
+#pragma mark - Create Filter
+
++ (void)print:(NSString *)content;
+
+@end
+
+NS_ASSUME_NONNULL_END

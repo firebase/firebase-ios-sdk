@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "../include/used_by_swift.h"
+#include "used_by_objective_c.h"
 #include <iostream>
 
-void CppInterfaceCalledBySwift::print(std::string content) {
+void CppInterfaceCalledByObjectiveC::print(std::string content) {
   std::cout << "C++ function runs with value: " << content << std::endl;
 }

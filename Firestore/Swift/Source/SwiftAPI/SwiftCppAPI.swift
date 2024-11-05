@@ -18,8 +18,8 @@
   @_exported import FirebaseFirestoreCpp
 #endif // SWIFT_PACKAGE
 
-public class SwiftCppWrapper {
+public class SwiftCallingCpp {
   public init(_ value: String) {
-    _ = UsedBySwift(std.string(value))
+    CppInterfaceCalledBySwift.print(std.string(value))
   }
 }
