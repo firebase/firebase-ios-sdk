@@ -15,7 +15,7 @@
 import Foundation
 
 protocol AuthRPCResponse: Sendable {
-  /// initializes the response instance from the decoded JSON response.
+  /// Initializes the response instance from the decoded JSON response.
   /// - Parameter dictionary: The dictionary decoded from HTTP JSON response.
   /// - Parameter error: An out field for an error which occurred constructing the request.
   /// - Returns: Whether the operation was successful or not.
