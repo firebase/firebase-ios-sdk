@@ -73,6 +73,7 @@ public class UserDefaultsManager: NSObject {
     }
   }
 
+  private static let sharedInstanceMapLock = NSLock()
   private static var sharedInstanceMap: [String: UserDefaults] = [:]
 
   /// Returns the shared user defaults instance for the given bundle identifier.
@@ -81,14 +82,14 @@ public class UserDefaultsManager: NSObject {
   /// - Returns: The shared user defaults instance.
   @objc(sharedUserDefaultsForBundleIdentifier:)
   static func sharedUserDefaultsForBundleIdentifier(_ bundleIdentifier: String) -> UserDefaults {
-    objc_sync_enter(sharedInstanceMap)
-    defer { objc_sync_exit(sharedInstanceMap) }
-    if let instance = sharedInstanceMap[bundleIdentifier] {
-      return instance
+    sharedInstanceMapLock.withLock {
+      if let instance = sharedInstanceMap[bundleIdentifier] {
+        return instance
+      }
+      let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName(for: bundleIdentifier))!
+      sharedInstanceMap[bundleIdentifier] = userDefaults
+      return userDefaults
     }
-    let userDefaults = UserDefaults(suiteName: userDefaultsSuiteName(for: bundleIdentifier))!
-    sharedInstanceMap[bundleIdentifier] = userDefaults
-    return userDefaults
   }
 
   /// Returns the user defaults suite name for the given bundle identifier.
