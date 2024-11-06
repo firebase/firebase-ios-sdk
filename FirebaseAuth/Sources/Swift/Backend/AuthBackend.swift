@@ -262,7 +262,7 @@ class AuthBackend: AuthBackendProtocol {
     // first:
     switch responseResult {
     case let .success(response):
-      try propogateError(error, dictionary: dictionary, response: response)
+      try propagateError(error, dictionary: dictionary, response: response)
       // In case returnIDPCredential of a verifyAssertion request is set to
       // @YES, the server may return a 200 with a response that may contain a
       // server error.
@@ -282,13 +282,13 @@ class AuthBackend: AuthBackendProtocol {
       }
       return response
     case let .failure(failure):
-      try propogateError(error, dictionary: dictionary, response: nil)
+      try propagateError(error, dictionary: dictionary, response: nil)
       throw AuthErrorUtils
         .RPCResponseDecodingError(deserializedResponse: dictionary, underlyingError: failure)
     }
   }
 
-  private func propogateError(_ error: Error?, dictionary: [String: AnyHashable],
+  private func propagateError(_ error: Error?, dictionary: [String: AnyHashable],
                               response: AuthRPCResponse?) throws {
     guard let error else {
       return
