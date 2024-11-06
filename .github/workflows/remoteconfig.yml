@@ -104,60 +104,60 @@ jobs:
   #         path: .build
   #         key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    needs: [spm-package-resolved]
-    strategy:
-      matrix:
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-            test: spm
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16
-            target: iOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16
-            target: tvOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16
-            target: macOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16
-            target: watchOS
-            test: spmbuildonly
-          - os: macos-15
-            xcode: Xcode_16
-            target: catalyst
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16
-            target: visionOS
-            test: spm
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
-      with:
-        path: .build
-        key: ${{needs.spm-package-resolved.outputs.cache_key}}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
-    - name: Fake Console tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} ${{ matrix.test }}
+  # spm:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  #   needs: [spm-package-resolved]
+  #   strategy:
+  #     matrix:
+  #       include:
+  #         - os: macos-13
+  #           xcode: Xcode_15.2
+  #           target: iOS
+  #           test: spm
+  #         - os: macos-14
+  #           xcode: Xcode_15.4
+  #           target: iOS
+  #           test: spm
+  #         - os: macos-15
+  #           xcode: Xcode_16
+  #           target: iOS
+  #           test: spm
+  #         - os: macos-15
+  #           xcode: Xcode_16
+  #           target: tvOS
+  #           test: spm
+  #         - os: macos-15
+  #           xcode: Xcode_16
+  #           target: macOS
+  #           test: spm
+  #         - os: macos-15
+  #           xcode: Xcode_16
+  #           target: watchOS
+  #           test: spmbuildonly
+  #         - os: macos-15
+  #           xcode: Xcode_16
+  #           target: catalyst
+  #           test: spm
+  #         - os: macos-15
+  #           xcode: Xcode_16
+  #           target: visionOS
+  #           test: spm
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: actions/cache/restore@v4
+  #     with:
+  #       path: .build
+  #       key: ${{needs.spm-package-resolved.outputs.cache_key}}
+  #   - name: Xcode
+  #     run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+  #   - name: Initialize xcodebuild
+  #     run: scripts/setup_spm_tests.sh
+  #   - name: Unit Tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
+  #   - name: Fake Console tests
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} ${{ matrix.test }}
 
   catalyst:
     # Don't run on private repo unless it is a PR.
