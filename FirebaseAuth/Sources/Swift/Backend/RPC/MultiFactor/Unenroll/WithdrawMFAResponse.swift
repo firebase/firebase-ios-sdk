@@ -18,7 +18,7 @@ struct WithdrawMFAResponse: AuthRPCResponse {
   var idToken: String?
   var refreshToken: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
   }
