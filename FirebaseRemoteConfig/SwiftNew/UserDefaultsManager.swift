@@ -102,182 +102,128 @@ public class UserDefaultsManager: NSObject {
 
   /// The last ETag received from the server.
   @objc public var lastETag: String? {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNamelastETag] as? String
-  }
-
-  /// Sets the last ETag received from the server.
-  ///
-  /// - Parameter lastETag: The last ETag received from the server.
-  @objc public func setLastETag(_ lastETag: String?) {
-    if let lastETag = lastETag {
-      setInstanceUserDefaultsValue(lastETag, forKey: kRCNUserDefaultsKeyNamelastETag)
+    get { instanceUserDefaults[kRCNUserDefaultsKeyNamelastETag] as? String }
+    set {
+      if let lastETag = newValue {
+        setInstanceUserDefaultsValue(lastETag, forKey: kRCNUserDefaultsKeyNamelastETag)
+      }
     }
   }
 
   /// The last fetched template version.
   @objc public var lastFetchedTemplateVersion: String {
-    return instanceUserDefaults[ConfigConstants.fetchResponseKeyTemplateVersion] as? String ?? "0"
-  }
-
-  /// Sets the last fetched template version.
-  ///
-  /// - Parameter templateVersion: The last fetched template version.
-  @objc public func setLastFetchedTemplateVersion(_ templateVersion: String) {
-    setInstanceUserDefaultsValue(
-      templateVersion,
-      forKey: ConfigConstants.fetchResponseKeyTemplateVersion
-    )
+    get { instanceUserDefaults[ConfigConstants.fetchResponseKeyTemplateVersion] as? String ?? "0" }
+    set {
+      setInstanceUserDefaultsValue(
+        newValue,
+        forKey: ConfigConstants.fetchResponseKeyTemplateVersion
+      )
+    }
   }
 
   /// The last active template version.
   @objc public var lastActiveTemplateVersion: String {
-    return instanceUserDefaults[ConfigConstants.activeKeyTemplateVersion] as? String ?? "0"
-  }
-
-  /// Sets the last active template version.
-  ///
-  /// - Parameter templateVersion: The last active template version.
-  @objc public func setLastActiveTemplateVersion(_ templateVersion: String) {
-    setInstanceUserDefaultsValue(templateVersion, forKey: ConfigConstants.activeKeyTemplateVersion)
+    get { instanceUserDefaults[ConfigConstants.activeKeyTemplateVersion] as? String ?? "0" }
+    set {
+      setInstanceUserDefaultsValue(newValue, forKey: ConfigConstants.activeKeyTemplateVersion)
+    }
   }
 
   /// The last ETag update time.
   @objc public var lastETagUpdateTime: TimeInterval {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNamelastETagUpdateTime] as? TimeInterval ?? 0
-  }
-
-  /// Sets the last ETag update time.
-  ///
-  /// - Parameter lastETagUpdateTime: The last ETag update time.
-  @objc public func setLastETagUpdateTime(_ lastETagUpdateTime: TimeInterval) {
-    setInstanceUserDefaultsValue(
-      lastETagUpdateTime,
-      forKey: kRCNUserDefaultsKeyNamelastETagUpdateTime
-    )
+    get { instanceUserDefaults[kRCNUserDefaultsKeyNamelastETagUpdateTime] as? TimeInterval ?? 0 }
+    set {
+      setInstanceUserDefaultsValue(newValue, forKey: kRCNUserDefaultsKeyNamelastETagUpdateTime)
+    }
   }
 
   /// The last fetch time.
   @objc public var lastFetchTime: TimeInterval {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNameLastSuccessfulFetchTime] as? TimeInterval ??
-      0
-  }
-
-  /// Sets the last fetch time.
-  ///
-  /// - Parameter lastFetchTime: The last fetch time.
-  @objc public func setLastFetchTime(_ lastFetchTime: TimeInterval) {
-    setInstanceUserDefaultsValue(
-      lastFetchTime,
-      forKey: kRCNUserDefaultsKeyNameLastSuccessfulFetchTime
-    )
+    get {
+      instanceUserDefaults[kRCNUserDefaultsKeyNameLastSuccessfulFetchTime] as? TimeInterval ?? 0
+    }
+    set {
+      setInstanceUserDefaultsValue(newValue, forKey: kRCNUserDefaultsKeyNameLastSuccessfulFetchTime)
+    }
   }
 
   /// The last fetch status.
   @objc public var lastFetchStatus: String? {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNamelastFetchStatus] as? String
-  }
-
-  /// Sets the last fetch status.
-  ///
-  /// - Parameter lastFetchStatus: The last fetch status.
-  @objc public func setLastFetchStatus(_ lastFetchStatus: String?) {
-    if let lastFetchStatus = lastFetchStatus {
-      setInstanceUserDefaultsValue(lastFetchStatus, forKey: kRCNUserDefaultsKeyNamelastFetchStatus)
+    get { instanceUserDefaults[kRCNUserDefaultsKeyNamelastFetchStatus] as? String }
+    set {
+      if let lastFetchStatus = newValue {
+        setInstanceUserDefaultsValue(
+          lastFetchStatus,
+          forKey: kRCNUserDefaultsKeyNamelastFetchStatus
+        )
+      }
     }
   }
 
   /// Whether the client is throttled with exponential backoff.
   @objc public var isClientThrottledWithExponentialBackoff: Bool {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNameIsClientThrottled] as? Bool ?? false
-  }
-
-  /// Sets whether the client is throttled with exponential backoff.
-  ///
-  /// - Parameter isThrottledWithExponentialBackoff: Whether the client is throttled with
-  /// exponential backoff.
-  @objc public func setIsClientThrottledWithExponentialBackoff(_ isThrottledWithExponentialBackoff: Bool) {
-    setInstanceUserDefaultsValue(
-      isThrottledWithExponentialBackoff,
-      forKey: kRCNUserDefaultsKeyNameIsClientThrottled
-    )
+    get { instanceUserDefaults[kRCNUserDefaultsKeyNameIsClientThrottled] as? Bool ?? false }
+    set {
+      setInstanceUserDefaultsValue(
+        newValue,
+        forKey: kRCNUserDefaultsKeyNameIsClientThrottled
+      )
+    }
   }
 
   /// The throttle end time.
   @objc public var throttleEndTime: TimeInterval {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNameThrottleEndTime] as? TimeInterval ?? 0
-  }
-
-  /// Sets the throttle end time.
-  ///
-  /// - Parameter throttleEndTime: The throttle end time.
-  @objc public func setThrottleEndTime(_ throttleEndTime: TimeInterval) {
-    setInstanceUserDefaultsValue(throttleEndTime, forKey: kRCNUserDefaultsKeyNameThrottleEndTime)
+    get { instanceUserDefaults[kRCNUserDefaultsKeyNameThrottleEndTime] as? TimeInterval ?? 0 }
+    set {
+      setInstanceUserDefaultsValue(newValue, forKey: kRCNUserDefaultsKeyNameThrottleEndTime)
+    }
   }
 
   /// The current throttling retry interval in seconds.
   @objc public var currentThrottlingRetryIntervalSeconds: TimeInterval {
-    return instanceUserDefaults[
-      kRCNUserDefaultsKeyNameCurrentThrottlingRetryInterval
-    ] as? TimeInterval ??
-      0
-  }
-
-  /// Sets the current throttling retry interval in seconds.
-  ///
-  /// - Parameter throttlingRetryIntervalSeconds: The current throttling retry interval in seconds.
-  @objc public func setCurrentThrottlingRetryIntervalSeconds(_ throttlingRetryIntervalSeconds: TimeInterval) {
-    setInstanceUserDefaultsValue(
-      throttlingRetryIntervalSeconds,
-      forKey: kRCNUserDefaultsKeyNameCurrentThrottlingRetryInterval
-    )
+    get {
+      instanceUserDefaults[
+        kRCNUserDefaultsKeyNameCurrentThrottlingRetryInterval
+      ] as? TimeInterval ?? 0
+    }
+    set {
+      setInstanceUserDefaultsValue(
+        newValue, forKey: kRCNUserDefaultsKeyNameCurrentThrottlingRetryInterval
+      )
+    }
   }
 
   /// The realtime retry count.
   @objc public var realtimeRetryCount: Int {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNameRealtimeRetryCount] as? Int ?? 0
-  }
-
-  /// Sets the realtime retry count.
-  ///
-  /// - Parameter realtimeRetryCount: The realtime retry count.
-  @objc public func setRealtimeRetryCount(_ realtimeRetryCount: Int) {
-    setInstanceUserDefaultsValue(
-      realtimeRetryCount,
-      forKey: kRCNUserDefaultsKeyNameRealtimeRetryCount
-    )
+    get { instanceUserDefaults[kRCNUserDefaultsKeyNameRealtimeRetryCount] as? Int ?? 0 }
+    set { setInstanceUserDefaultsValue(newValue, forKey: kRCNUserDefaultsKeyNameRealtimeRetryCount)
+    }
   }
 
   /// The realtime throttle end time.
   @objc public var realtimeThrottleEndTime: TimeInterval {
-    return instanceUserDefaults[kRCNUserDefaultsKeyNameRealtimeThrottleEndTime] as? TimeInterval ??
-      0
-  }
-
-  /// Sets the realtime throttle end time.
-  ///
-  /// - Parameter throttleEndTime: The realtime throttle end time.
-  @objc public func setRealtimeThrottleEndTime(_ throttleEndTime: TimeInterval) {
-    setInstanceUserDefaultsValue(
-      throttleEndTime,
-      forKey: kRCNUserDefaultsKeyNameRealtimeThrottleEndTime
-    )
+    get {
+      instanceUserDefaults[kRCNUserDefaultsKeyNameRealtimeThrottleEndTime] as? TimeInterval ?? 0
+    }
+    set {
+      setInstanceUserDefaultsValue(
+        newValue, forKey: kRCNUserDefaultsKeyNameRealtimeThrottleEndTime
+      )
+    }
   }
 
   /// The current realtime throttling retry interval in seconds.
   @objc public var currentRealtimeThrottlingRetryIntervalSeconds: TimeInterval {
-    return instanceUserDefaults[
-      kRCNUserDefaultsKeyNameCurrentRealtimeThrottlingRetryInterval
-    ] as? TimeInterval ??
-      0
-  }
-
-  /// Sets the current realtime throttling retry interval in seconds.
-  ///
-  /// - Parameter throttlingRetryIntervalSeconds: The current realtime throttling retry interval in
-  /// seconds.
-  @objc public func setCurrentRealtimeThrottlingRetryIntervalSeconds(_ throttlingRetryIntervalSeconds: TimeInterval) {
-    setInstanceUserDefaultsValue(throttlingRetryIntervalSeconds,
-                                 forKey: kRCNUserDefaultsKeyNameCurrentRealtimeThrottlingRetryInterval)
+    get {
+      instanceUserDefaults[
+        kRCNUserDefaultsKeyNameCurrentRealtimeThrottlingRetryInterval
+      ] as? TimeInterval ?? 0
+    }
+    set {
+      setInstanceUserDefaultsValue(
+        newValue, forKey: kRCNUserDefaultsKeyNameCurrentRealtimeThrottlingRetryInterval
+      )
+    }
   }
 
   /// Resets the user defaults.
