@@ -1860,6 +1860,94 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
 }
 
+- (void)testSetCustomSignalsMultipleTimes {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString stringWithFormat:@"Set custom signals multiple times - instance %d", i]];
+
+    // First set of signals
+    NSDictionary<NSString *, NSObject *> *testSignals1 = @{
+      @"signal1" : @"stringValue1",
+      @"signal2" : @"stringValue2",
+    };
+
+    // Second set of signals (overwrites, remove and adds new)
+    NSDictionary<NSString *, NSObject *> *testSignals2 = @{
+      @"signal1" : @"updatedValue1",
+      @"signal2" : [NSNull null],
+      @"signal3" : @5,
+    };
+
+    // Expected final set of signals
+    NSDictionary<NSString *, NSObject *> *expectedSignals = @{
+      @"signal1" : @"updatedValue1",
+      @"signal3" : @5,
+    };
+
+    [_configInstances[i] setCustomSignals:testSignals1
+                           WithCompletion:^(NSError *_Nullable error) {
+                             XCTAssertNil(error);
+                             [_configInstances[i]
+                                 setCustomSignals:testSignals2
+                                   WithCompletion:^(NSError *_Nullable error) {
+                                     XCTAssertNil(error);
+                                     NSMutableDictionary<NSString *, NSObject *> *retrievedSignals =
+                                         self->_configInstances[i].settings.customSignals;
+                                     XCTAssertEqualObjects(retrievedSignals, expectedSignals);
+                                     [expectations[i] fulfill];
+                                   }];
+                           }];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testSetCustomSignals_invalidInput_throwsException {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] =
+        [self expectationWithDescription:
+                  [NSString stringWithFormat:@"Set custom signals expects error - instance %d", i]];
+
+    // Invalid value type.
+    NSDictionary<NSString *, NSObject *> *invalidSignals1 = @{@"name" : [NSDate date]};
+
+    // Key length exceeds limit.
+    NSDictionary<NSString *, NSObject *> *invalidSignals2 =
+        @{[@"a" stringByPaddingToLength:251 withString:@"a" startingAtIndex:0] : @"value"};
+
+    // Value length exceeds limit.
+    NSDictionary<NSString *, NSObject *> *invalidSignals3 =
+        @{@"key" : [@"a" stringByPaddingToLength:501 withString:@"a" startingAtIndex:0]};
+
+    [_configInstances[i]
+        setCustomSignals:invalidSignals1
+          WithCompletion:^(NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorInvalidValueType);
+          }];
+    [_configInstances[i]
+        setCustomSignals:invalidSignals2
+          WithCompletion:^(NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorLimitExceeded);
+          }];
+    [_configInstances[i]
+        setCustomSignals:invalidSignals3
+          WithCompletion:^(NSError *_Nullable error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorLimitExceeded);
+            [expectations[i] fulfill];
+          }];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 #pragma mark - Test Helpers
 
 - (FIROptions *)firstAppOptions {

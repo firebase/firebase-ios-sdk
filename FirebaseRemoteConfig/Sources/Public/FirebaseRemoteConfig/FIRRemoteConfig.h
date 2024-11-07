@@ -105,6 +105,8 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigCustomSignalsErrorDomain, FIRRemoteConfigCu
     FIRRemoteConfigCustomSignalsErrorUnknown = 8001,
     /// Invalid value type in the custom signals dictionary.
     FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8002,
+    /// Limit exceeded for key length, value length, or number of signals.
+    FIRRemoteConfigCustomSignalsErrorLimitExceeded = 8003,
 } NS_SWIFT_NAME(RemoteConfigCustomSignalsError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from

@@ -245,26 +245,44 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   void (^setCustomSignalsBlock)(void) = ^{
     if (!customSignals) {
       if (completionHandler) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           completionHandler(nil);
         });
       }
       return;
     }
 
+    // Validate value type, and key and value length
     for (NSString *key in customSignals) {
       NSObject *value = customSignals[key];
-      if (value && ![value isKindOfClass:[NSString class]] &&
+      if (![value isKindOfClass:[NSNull class]] && ![value isKindOfClass:[NSString class]] &&
           ![value isKindOfClass:[NSNumber class]]) {
         if (completionHandler) {
-          dispatch_async(dispatch_get_main_queue(), ^{
+          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSError *error =
                 [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
                                     code:FIRRemoteConfigCustomSignalsErrorInvalidValueType
                                 userInfo:@{
                                   NSLocalizedDescriptionKey :
-                                      @"Invalid value type. Must be NSString or NSNumber."
+                                      @"Invalid value type. Must be NSString, NSNumber or NSNull"
                                 }];
+            completionHandler(error);
+          });
+        }
+        return;
+      }
+
+      if (key.length > 250 ||
+          ([value isKindOfClass:[NSString class]] && [(NSString *)value length] > 500)) {
+        if (completionHandler) {
+          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSError *error = [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                                                 code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
+                                             userInfo:@{
+                                               NSLocalizedDescriptionKey :
+                                                   @"Custom signal keys and string values must be "
+                                                   @"250 and 500 characters or less respectively."
+                                             }];
             completionHandler(error);
           });
         }
@@ -272,26 +290,46 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       }
     }
 
+    // Merge new signals with existing ones, overwriting existing keys.
+    // Also, remove entries where the new value is null.
     NSMutableDictionary<NSString *, NSObject *> *newCustomSignals =
         [[NSMutableDictionary alloc] initWithDictionary:self->_settings.customSignals];
 
     for (NSString *key in customSignals) {
       NSObject *value = customSignals[key];
-      if (value) {
+      if (![value isKindOfClass:[NSNull class]]) {
         [newCustomSignals setObject:value forKey:key];
       } else {
         [newCustomSignals removeObjectForKey:key];
       }
     }
 
-    self->_settings.customSignals = newCustomSignals;
-    if (completionHandler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        completionHandler(nil);
-      });
+    // Check the size limit.
+    if (newCustomSignals.count > 100) {
+      if (completionHandler) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          NSError *error = [NSError
+              errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                         code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
+                     userInfo:@{
+                       NSLocalizedDescriptionKey : @"Custom signals count exceeds the limit of 100."
+                     }];
+          completionHandler(error);
+        });
+      }
+      return;
+    }
+
+    // Update only if there are changes.
+    if (![newCustomSignals isEqualToDictionary:self->_settings.customSignals]) {
+      self->_settings.customSignals = newCustomSignals;
+      if (completionHandler) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          completionHandler(nil);
+        });
+      }
     }
   };
-
   dispatch_async(_queue, setCustomSignalsBlock);
 }
 
