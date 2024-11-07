@@ -111,13 +111,13 @@ jobs:
       SDK: "ABTesting"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -173,11 +173,11 @@ jobs:
       SDK:  "Authentication"
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -225,13 +225,13 @@ jobs:
       SDK: "Config"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -277,13 +277,13 @@ jobs:
       SDK: "Crashlytics"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -404,13 +404,13 @@ jobs:
       SDK: "DynamicLinks"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -464,13 +464,13 @@ jobs:
       SDK: "Firestore"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -549,13 +549,13 @@ jobs:
       SDK: "InAppMessaging"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -606,13 +606,13 @@ jobs:
       SDK: "Messaging"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -662,13 +662,13 @@ jobs:
       SDK: "Storage"
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-13
             xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
