@@ -104,7 +104,7 @@ jobs:
   quickstart_framework_abtesting:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -166,7 +166,7 @@ jobs:
   quickstart_framework_auth:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -218,7 +218,7 @@ jobs:
   quickstart_framework_config:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -270,7 +270,7 @@ jobs:
   quickstart_framework_crashlytics:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -397,7 +397,7 @@ jobs:
   quickstart_framework_dynamiclinks:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -457,7 +457,7 @@ jobs:
   quickstart_framework_firestore:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -542,7 +542,7 @@ jobs:
   quickstart_framework_inappmessaging:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -599,7 +599,7 @@ jobs:
   quickstart_framework_messaging:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -655,7 +655,7 @@ jobs:
   quickstart_framework_storage:
     # Don't run on private repo.
     # if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    # needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
