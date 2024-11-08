@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
+  logged out when upgrading from Firebase 8.10.0 or earlier to Firebase 11.
+  (#14011)
+
 # 11.4.0
 - [fixed] Restore Firebase 10 behavior by ignoring `nil` display names used
   during multi factor enrollment. (#13856)
