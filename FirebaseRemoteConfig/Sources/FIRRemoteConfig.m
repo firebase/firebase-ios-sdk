@@ -323,11 +323,11 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     // Update only if there are changes.
     if (![newCustomSignals isEqualToDictionary:self->_settings.customSignals]) {
       self->_settings.customSignals = newCustomSignals;
-      if (completionHandler) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          completionHandler(nil);
-        });
-      }
+    }
+    if (completionHandler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completionHandler(nil);
+      });
     }
   };
   dispatch_async(_queue, setCustomSignalsBlock);
