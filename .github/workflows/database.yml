@@ -26,8 +26,11 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos --skip-tests, watchos]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -96,22 +99,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: macOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
