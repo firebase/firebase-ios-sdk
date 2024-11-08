@@ -1,0 +1,255 @@
+{
+  "configurations" : [
+    {
+      "id" : "E75D05E2-218A-4E1D-8350-72DFF6310BF0",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ABTestingUnit",
+        "name" : "ABTestingUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AnalyticsObjCAPI",
+        "name" : "AnalyticsObjCAPI"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AnalyticsSwiftUnit",
+        "name" : "AnalyticsSwiftUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AppDistributionUnit",
+        "name" : "AppDistributionUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AppDistributionUnitSwift",
+        "name" : "AppDistributionUnitSwift"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AuthUnit",
+        "name" : "AuthUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "CoreUnit",
+        "name" : "CoreUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "DatabaseUnit",
+        "name" : "DatabaseUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "DatabaseUnitSwift",
+        "name" : "DatabaseUnitSwift"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseAppCheckUnit",
+        "name" : "FirebaseAppCheckUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseAppCheckUnitSwift",
+        "name" : "FirebaseAppCheckUnitSwift"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseCoreInternalTests",
+        "name" : "FirebaseCoreInternalTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseCrashlyticsSwiftUnit",
+        "name" : "FirebaseCrashlyticsSwiftUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseCrashlyticsUnit",
+        "name" : "FirebaseCrashlyticsUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseFunctionsIntegration",
+        "name" : "FirebaseFunctionsIntegration"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseFunctionsObjCIntegration",
+        "name" : "FirebaseFunctionsObjCIntegration"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseFunctionsUnit",
+        "name" : "FirebaseFunctionsUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseMLModelDownloaderUnit",
+        "name" : "FirebaseMLModelDownloaderUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseSessionsUnit",
+        "name" : "FirebaseSessionsUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseSharedSwiftTests",
+        "name" : "FirebaseSharedSwiftTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseStorageUnit",
+        "name" : "FirebaseStorageUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirebaseVertexAIUnit",
+        "name" : "FirebaseVertexAIUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FirestoreTestingSupportTests",
+        "name" : "FirestoreTestingSupportTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FunctionsCombineUnit",
+        "name" : "FunctionsCombineUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MessagingUnit",
+        "name" : "MessagingUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PerformanceUnit",
+        "name" : "PerformanceUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "RemoteConfigFakeConsole",
+        "name" : "RemoteConfigFakeConsole"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "RemoteConfigSwiftUnit",
+        "name" : "RemoteConfigSwiftUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "RemoteConfigUnit",
+        "name" : "RemoteConfigUnit"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "StorageObjCIntegration",
+        "name" : "StorageObjCIntegration"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "analytics-import-test",
+        "name" : "analytics-import-test"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "objc-import-test",
+        "name" : "objc-import-test"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "swift-test",
+        "name" : "swift-test"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "version-test",
+        "name" : "version-test"
+      }
+    }
+  ],
+  "version" : 1
+}
