@@ -225,7 +225,7 @@ class AuthenticationExampleUITests: XCTestCase {
     // Cleanup
     removeUIInterruptionMonitor(interruptionMonitor)
   }
-  
+
   func testEmailLinkSentSuccessfully() {
     app.staticTexts["Email Link/Passwordless"].tap()
 
@@ -254,6 +254,7 @@ class AuthenticationExampleUITests: XCTestCase {
       "The user shouldn't be signed in and the user view should have no cells."
     )
   }
+
   func testResetPasswordLinkCustomDomain() {
     // assuming action type is in-app + continue URL everytime the app launches
 
@@ -307,6 +308,22 @@ class AuthenticationExampleUITests: XCTestCase {
       "The user shouldn't be signed in and the user view should have no cells."
     )
   }
+
+  // MARK: - Private Helpers
+
+  private func signOut() {
+    if app.tabBars.firstMatch.buttons.element(boundBy: 1).exists {
+      app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    }
+    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    if app.staticTexts["Sign Out"].exists {
+      app.staticTexts["Sign Out"].tap()
+    }
+    if app.tabBars.firstMatch.buttons.element(boundBy: 0).exists {
+      app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
+    }
+  }
+}
 
 extension XCTestCase {
   func wait(forElement element: XCUIElement, timeout: TimeInterval) {
