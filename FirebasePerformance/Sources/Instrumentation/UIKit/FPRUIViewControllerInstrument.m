@@ -69,36 +69,9 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
 
     // This has to be called on the main thread and so it's done here instead of in
     // FPRScreenTraceTracker.
-#if !defined(TARGET_OS_VISION) || !TARGET_OS_VISION
-    NSArray *windows = nil;
-
-    if (@available(iOS 13.0, *)) {
-      NSArray *scenes = FPRSharedApplication().connectedScenes.allObjects;
-      for (UIScreen *scene in scenes) {
-        if ([scene isKindOfClass:[UIWindowScene class]]) {
-          windows = [(UIWindowScene *)scene windows];
-          break;
-        }
-      }
-    } else {
-      windows = FPRSharedApplication().windows;
-    }
-
-    if (!windows || windows.count == 0) {
-      return;
-    }
-
-    UIWindow *foundKeyWindow = nil;
-    for (UIWindow *window in windows) {
-      if (window.isKeyWindow) {
-        foundKeyWindow = window;
-        break;
-      }
-    }
-    if (foundKeyWindow && [((UIViewController *)_self).view isDescendantOfView:foundKeyWindow]) {
+    if (FPRSharedApplication() && ((UIViewController *)_self).view.window.keyWindow) {
       [[FPRScreenTraceTracker sharedInstance] viewControllerDidAppear:_self];
     }
-#endif
   }];
 }
 
