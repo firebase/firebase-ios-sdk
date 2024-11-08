@@ -20,13 +20,20 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        podspec: [FirebaseAppCheckInterop.podspec, FirebaseAppCheck.podspec]
         target: [ios, tvos, macos --skip-tests, watchos]
         include:
           - os: macos-14
             xcode: Xcode_15.2
+            podspec: FirebaseAppCheckInterop.podspec
+          - os: macos-14
+            xcode: Xcode_15.2
+            podspec: FirebaseAppCheck.podspec
           - os: macos-15
             xcode: Xcode_16.1
+            podspec: FirebaseAppCheckInterop.podspec
+          - os: macos-15
+            xcode: Xcode_16.1
+            podspec: FirebaseAppCheck.podspec
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
