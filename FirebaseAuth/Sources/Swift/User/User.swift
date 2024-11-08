@@ -1598,18 +1598,22 @@ extension User: NSSecureCoding {}
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
   /// - Parameter forceRefresh
   func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
+    var keychainError = false
     do {
       let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
         forcingRefresh: forceRefresh
       )
       if tokenUpdated {
         if let error = updateKeychain() {
+          keychainError = true
           throw error
         }
       }
       return token!
     } catch {
-      signOutIfTokenIsInvalid(withError: error)
+      if !keychainError {
+        signOutIfTokenIsInvalid(withError: error)
+      }
       throw error
     }
   }
