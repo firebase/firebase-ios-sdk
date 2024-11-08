@@ -14,10 +14,8 @@
 
 import Foundation
 
-class RevokeTokenResponse: AuthRPCResponse {
-  required init() {}
-
-  func setFields(dictionary: [String: AnyHashable]) throws {
+struct RevokeTokenResponse: AuthRPCResponse {
+  init(dictionary: [String: AnyHashable]) throws {
     // Nothing to set or throw.
   }
 }

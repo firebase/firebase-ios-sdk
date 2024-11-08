@@ -254,7 +254,7 @@ extension User: NSSecureCoding {}
     ///    sensitive operation that requires a recent login from the user. This error indicates
     ///    the user has not signed in recently enough. To resolve, reauthenticate the user by
     ///     calling `reauthenticate(with:)`.
-    /// - Parameter phoneNumberCredential: The new phone number credential corresponding to the
+    /// - Parameter credential: The new phone number credential corresponding to the
     /// phone number to be added to the Firebase account, if a phone number is already linked to the
     /// account this new phone number will replace it.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -769,8 +769,6 @@ extension User: NSSecureCoding {}
     /// - Parameter uiDelegate: Optionally an instance of a class conforming to the `AuthUIDelegate`
     /// protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
     ///    will be used.
-    /// - Parameter completion: Optionally; a block which is invoked when the link flow finishes, or
-    ///    is canceled. Invoked asynchronously on the main thread in the future.
     /// - Returns: An AuthDataResult.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
@@ -1031,7 +1029,7 @@ extension User: NSSecureCoding {}
   }
 
   /// Send an email to verify the ownership of the account then update to the new email.
-  /// - Parameter email: The email to be updated to.
+  /// - Parameter newEmail: The email to be updated to.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   ///    handling action codes.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -1234,7 +1232,7 @@ extension User: NSSecureCoding {}
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
   /// the auth global work queue in the future.
-  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
+  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponse.User,
                                                             SetAccountInfoRequest) -> Void,
                                     callback: @escaping (Error?) -> Void) {
     Task {
@@ -1255,7 +1253,7 @@ extension User: NSSecureCoding {}
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
+  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponse.User?,
                                                           Error?) -> Void) {
     Task {
       do {

@@ -32,7 +32,6 @@ class AuthBackend: AuthBackendProtocol {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
   }
 
-
   private let rpcIssuer: any AuthBackendRPCIssuerProtocol
 
   init(rpcIssuer: any AuthBackendRPCIssuerProtocol) {
@@ -238,66 +237,74 @@ class AuthBackend: AuthBackendProtocol {
     }
     dictionary = decodedDictionary
 
-    let response = T.Response()
+    let responseResult = Result {
+      try T.Response(dictionary: dictionary)
+    }
 
     // At this point we either have an error with successfully decoded
     // details in the body, or we have a response which must pass further
     // validation before we know it's truly successful. We deal with the
     // case where we have an error with successfully decoded error details
     // first:
-    if error != nil {
-      if let errorDictionary = dictionary["error"] as? [String: AnyHashable] {
-        if let errorMessage = errorDictionary["message"] as? String {
-          if let clientError = Self.clientError(
-            withServerErrorMessage: errorMessage,
-            errorDictionary: errorDictionary,
-            response: response,
-            error: error
-          ) {
-            throw clientError
+    switch responseResult {
+    case let .success(response):
+      try propagateError(error, dictionary: dictionary, response: response)
+      // In case returnIDPCredential of a verifyAssertion request is set to
+      // @YES, the server may return a 200 with a response that may contain a
+      // server error.
+      if let verifyAssertionRequest = request as? VerifyAssertionRequest {
+        if verifyAssertionRequest.returnIDPCredential {
+          if let errorMessage = dictionary["errorMessage"] as? String {
+            if let clientError = Self.clientError(
+              withServerErrorMessage: errorMessage,
+              errorDictionary: dictionary,
+              response: response,
+              error: error
+            ) {
+              throw clientError
+            }
           }
         }
-        // Not a message we know, return the message directly.
-        throw AuthErrorUtils.unexpectedErrorResponse(
-          deserializedResponse: errorDictionary,
-          underlyingError: error
-        )
       }
-      // No error message at all, return the decoded response.
+      return response
+    case let .failure(failure):
+      try propagateError(error, dictionary: dictionary, response: nil)
       throw AuthErrorUtils
-        .unexpectedErrorResponse(deserializedResponse: dictionary, underlyingError: error)
+        .RPCResponseDecodingError(deserializedResponse: dictionary, underlyingError: failure)
+    }
+  }
+
+  private func propagateError(_ error: Error?, dictionary: [String: AnyHashable],
+                              response: AuthRPCResponse?) throws {
+    guard let error else {
+      return
     }
 
-    // Finally, we try to populate the response object with the JSON values.
-    do {
-      try response.setFields(dictionary: dictionary)
-    } catch {
-      throw AuthErrorUtils
-        .RPCResponseDecodingError(deserializedResponse: dictionary, underlyingError: error)
-    }
-    // In case returnIDPCredential of a verifyAssertion request is set to
-    // @YES, the server may return a 200 with a response that may contain a
-    // server error.
-    if let verifyAssertionRequest = request as? VerifyAssertionRequest {
-      if verifyAssertionRequest.returnIDPCredential {
-        if let errorMessage = dictionary["errorMessage"] as? String {
-          if let clientError = Self.clientError(
-            withServerErrorMessage: errorMessage,
-            errorDictionary: dictionary,
-            response: response,
-            error: error
-          ) {
-            throw clientError
-          }
+    if let errorDictionary = dictionary["error"] as? [String: AnyHashable] {
+      if let errorMessage = errorDictionary["message"] as? String {
+        if let clientError = Self.clientError(
+          withServerErrorMessage: errorMessage,
+          errorDictionary: errorDictionary,
+          response: response,
+          error: error
+        ) {
+          throw clientError
         }
       }
+      // Not a message we know, return the message directly.
+      throw AuthErrorUtils.unexpectedErrorResponse(
+        deserializedResponse: errorDictionary,
+        underlyingError: error
+      )
     }
-    return response
+    // No error message at all, return the decoded response.
+    throw AuthErrorUtils
+      .unexpectedErrorResponse(deserializedResponse: dictionary, underlyingError: error)
   }
 
   private static func clientError(withServerErrorMessage serverErrorMessage: String,
                                   errorDictionary: [String: Any],
-                                  response: AuthRPCResponse,
+                                  response: AuthRPCResponse?,
                                   error: Error?) -> Error? {
     let split = serverErrorMessage.split(separator: ":")
     let shortErrorMessage = split.first?.trimmingCharacters(in: .whitespacesAndNewlines)

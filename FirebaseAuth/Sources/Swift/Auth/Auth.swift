@@ -253,8 +253,6 @@ extension Auth: AuthInterop {
 
   /// Sets the `currentUser` on the receiver to the provided user object.
   /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
-  /// - Parameter completion: Optionally; a block invoked after the user of the calling Auth
-  /// instance has been updated or an error was encountered.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateCurrentUser(_ user: User) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1431,6 +1429,7 @@ extension Auth: AuthInterop {
   }
 
   /// Revoke the users token with authorization code.
+  /// - Parameter authorizationCode: The authorization code used to perform the revocation.
   /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
   /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
@@ -1451,8 +1450,7 @@ extension Auth: AuthInterop {
   }
 
   /// Revoke the users token with authorization code.
-  /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
-  /// complete, or fails. Invoked asynchronously on the main thread in the future.
+  /// - Parameter authorizationCode: The authorization code used to perform the revocation.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in

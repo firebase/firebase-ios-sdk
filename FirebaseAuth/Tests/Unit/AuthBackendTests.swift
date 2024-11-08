@@ -529,7 +529,7 @@ class AuthBackendTests: RPCBaseTests {
       try self.rpcIssuer.respond(withJSON: [kTestKey: kTestValue])
     }
     let rpcResponse = try await authBackend.call(with: FakeRequest(withRequestBody: [:]))
-    XCTAssertEqual(try XCTUnwrap(rpcResponse.receivedDictionary[kTestKey] as? String), kTestValue)
+    XCTAssertEqual(try XCTUnwrap(rpcResponse.receivedValue), kTestValue)
   }
 
   #if COCOAPODS || SWIFT_PACKAGE
@@ -711,12 +711,10 @@ class AuthBackendTests: RPCBaseTests {
     }
   }
 
-  private class FakeResponse: AuthRPCResponse {
-    required init() {}
-
-    var receivedDictionary: [String: AnyHashable] = [:]
-    func setFields(dictionary: [String: AnyHashable]) throws {
-      receivedDictionary = dictionary
+  private struct FakeResponse: AuthRPCResponse {
+    var receivedValue: String?
+    init(dictionary: [String: AnyHashable]) throws {
+      receivedValue = dictionary["TestKey"] as? String
     }
   }
 
@@ -740,10 +738,8 @@ class AuthBackendTests: RPCBaseTests {
     }
   }
 
-  private class FakeDecodingErrorResponse: FakeResponse {
-    required init() {}
-
-    override func setFields(dictionary: [String: AnyHashable]) throws {
+  private struct FakeDecodingErrorResponse: AuthRPCResponse {
+    init(dictionary: [String: AnyHashable]) throws {
       throw NSError(domain: "dummy", code: -1)
     }
   }

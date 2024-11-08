@@ -34,8 +34,8 @@ import Foundation
     @objc public let auth: Auth
 
     /// A helper function to help users complete sign in with a second factor using a
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
-    /// challenge.
+    /// - Parameter assertion: The assertion confirming the user successfully
+    ///  completed the second factor challenge.
     /// - Parameter completion: The block invoked when the request is complete, or fails.
     @objc(resolveSignInWithAssertion:completion:)
     open func resolveSignIn(with assertion: MultiFactorAssertion,
@@ -90,8 +90,8 @@ import Foundation
     }
 
     /// A helper function to help users complete sign in with a second factor using a
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
-    /// challenge.
+    /// - Parameter assertion: The assertion confirming the user successfully
+    ///  completed the second factor challenge.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in

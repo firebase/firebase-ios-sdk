@@ -419,6 +419,7 @@ let package = Package(
         "ObjC", "Public",
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: Context.environment["FIREBASE_CI"] != nil ? [.define("FIREBASE_CI")] : [],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),

@@ -24,9 +24,7 @@ import Foundation
 /// * FIRAuthErrorCodeInvalidActionCode
 ///
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
-class ResetPasswordResponse: AuthRPCResponse {
-  required init() {}
-
+struct ResetPasswordResponse: AuthRPCResponse {
   /// The email address corresponding to the reset password request.
   var email: String?
 
@@ -36,7 +34,7 @@ class ResetPasswordResponse: AuthRPCResponse {
   /// The type of request as returned by the backend.
   var requestType: String?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     requestType = dictionary["requestType"] as? String
     verifiedEmail = dictionary["newEmail"] as? String

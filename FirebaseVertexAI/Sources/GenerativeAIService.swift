@@ -211,15 +211,16 @@ struct GenerativeAIService {
   }
 
   private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {
-    // Verify the status code is 200
+    // The following condition should always be true: "Whenever you make HTTP URL load requests, any
+    // response objects you get back from the URLSession, NSURLConnection, or NSURLDownload class
+    // are instances of the HTTPURLResponse class."
     guard let response = urlResponse as? HTTPURLResponse else {
       VertexLog.error(
         code: .generativeAIServiceNonHTTPResponse,
         "Response wasn't an HTTP response, internal error \(urlResponse)"
       )
-      throw NSError(
-        domain: "com.google.generative-ai",
-        code: -1,
+      throw URLError(
+        .badServerResponse,
         userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
       )
     }
@@ -229,14 +230,11 @@ struct GenerativeAIService {
 
   private func jsonData(jsonText: String) throws -> Data {
     guard let data = jsonText.data(using: .utf8) else {
-      let error = NSError(
-        domain: "com.google.generative-ai",
-        code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Could not parse response as UTF8."]
-      )
-      throw error
+      throw DecodingError.dataCorrupted(DecodingError.Context(
+        codingPath: [],
+        debugDescription: "Could not parse response as UTF8."
+      ))
     }
-
     return data
   }
 
@@ -251,7 +249,7 @@ struct GenerativeAIService {
 
   private func parseError(responseData: Data) -> Error {
     do {
-      let rpcError = try JSONDecoder().decode(RPCError.self, from: responseData)
+      let rpcError = try JSONDecoder().decode(BackendError.self, from: responseData)
       logRPCError(rpcError)
       return rpcError
     } catch {
@@ -262,7 +260,7 @@ struct GenerativeAIService {
 
   // Log specific RPC errors that cannot be mitigated or handled by user code.
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
-  private func logRPCError(_ error: RPCError) {
+  private func logRPCError(_ error: BackendError) {
     if error.isVertexAIInFirebaseServiceDisabledError() {
       VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
       The Vertex AI in Firebase SDK requires the Vertex AI in Firebase API \
