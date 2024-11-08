@@ -1704,11 +1704,6 @@ extension User: NSSecureCoding {}
 
   public required init?(coder: NSCoder) {
     guard let userID = coder.decodeObject(of: NSString.self, forKey: kUserIDCodingKey) as? String,
-          let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String,
-          let appID = coder.decodeObject(
-            of: NSString.self,
-            forKey: kFirebaseAppIDCodingKey
-          ) as? String,
           let tokenService = coder.decodeObject(of: SecureTokenService.self,
                                                 forKey: kTokenServiceCodingKey) else {
       return nil
@@ -1746,8 +1741,17 @@ extension User: NSSecureCoding {}
     self.phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
-    // The `heartbeatLogger` and `appCheck` will be set later via a property update.
-    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey, appID: appID)
+
+    // Note, in practice, the caller will set the `auth` property of this user
+    // instance which will as a side-effect overwrite the request configuration.
+    // The assignment here is a best-effort placeholder.
+    let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String
+    let appID = coder.decodeObject(
+      of: NSString.self,
+      forKey: kFirebaseAppIDCodingKey
+    ) as? String
+    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey ?? "", appID: appID ?? "")
+
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS)
       self.multiFactor = multiFactor ?? MultiFactor()
