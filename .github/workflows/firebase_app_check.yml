@@ -20,21 +20,14 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
+        podspec: [FirebaseAppCheckInterop.podspec, FirebaseAppCheck.podspec]
         target: [ios, tvos, macos --skip-tests, watchos]
-        include:
+        build-env:
           - os: macos-14
             xcode: Xcode_15.2
-            podspec: FirebaseAppCheckInterop.podspec
-          - os: macos-14
-            xcode: Xcode_15.2
-            podspec: FirebaseAppCheck.podspec
           - os: macos-15
             xcode: Xcode_16.1
-            podspec: FirebaseAppCheckInterop.podspec
-          - os: macos-15
-            xcode: Xcode_16.1
-            podspec: FirebaseAppCheck.podspec
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -43,7 +36,7 @@ jobs:
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: FirebaseAppCheck
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
 
@@ -138,22 +131,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
