@@ -32,21 +32,7 @@ class AuthBackend: AuthBackendProtocol {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
   }
 
-  static func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
-    return try await shared.call(with: request)
-  }
-
-  static func setTestRPCIssuer(issuer: AuthBackendRPCIssuer) {
-    shared.rpcIssuer = issuer
-  }
-
-  static func resetRPCIssuer() {
-    shared.rpcIssuer = AuthBackendRPCIssuer()
-  }
-
-  private static let shared: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer())
-
-  private var rpcIssuer: any AuthBackendRPCIssuerProtocol
+  private let rpcIssuer: any AuthBackendRPCIssuerProtocol
 
   init(rpcIssuer: any AuthBackendRPCIssuerProtocol) {
     self.rpcIssuer = rpcIssuer
