@@ -74,7 +74,8 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?
-  var recaptchaSiteKey = "unset recaptcha siteKey"
+  var recaptchaSiteKey = "projects/fakeProjectId/keys/mockSiteKey"
+  var rceMode: String = "OFF"
 
   func asyncCallToURL<T>(with request: T, body: Data?,
                          contentType: String) async -> (Data?, Error?)
@@ -120,9 +121,28 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
       }
       return
     } else if let _ = request as? GetRecaptchaConfigRequest {
-      guard let _ = try? respond(withJSON: ["recaptchaKey": recaptchaSiteKey])
-      else {
-        fatalError("GetRecaptchaConfigRequest respond failed")
+      if rceMode != "OFF" { // Check if reCAPTCHA is enabled
+        let recaptchaKey = recaptchaSiteKey // iOS key from your config
+        let enforcementState = [
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": rceMode],
+          ["provider": "PHONE_PROVIDER", "enforcementState": rceMode],
+        ]
+        guard let _ = try? respond(withJSON: [
+          "recaptchaKey": recaptchaKey,
+          "recaptchaEnforcementState": enforcementState,
+        ]) else {
+          fatalError("GetRecaptchaConfigRequest respond failed")
+        }
+      } else { // reCAPTCHA OFF
+        let enforcementState = [
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
+          ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+        ]
+        guard let _ = try? respond(withJSON: [
+          "recaptchaEnforcementState": enforcementState,
+        ]) else {
+          fatalError("GetRecaptchaConfigRequest respond failed")
+        }
       }
       return
     } else if let _ = request as? SecureTokenRequest {
