@@ -476,10 +476,7 @@ let package = Package(
       dependencies: [
         "FirebaseFirestoreTarget",
       ],
-      path: "FirebaseCombineSwift/Sources/Firestore",
-      swiftSettings: [
-        .interoperabilityMode(.Cxx), // C++ interoperability setting
-      ]
+      path: "FirebaseCombineSwift/Sources/Firestore"
     ),
     .target(
       name: "FirebaseStorageCombineSwift",
@@ -1174,10 +1171,7 @@ let package = Package(
         "FirebaseStorage",
         .product(name: "nanopb", package: "nanopb"),
       ],
-      path: "SwiftPMTests/swift-test",
-      swiftSettings: [
-        .interoperabilityMode(.Cxx), // C++ interoperability setting
-      ]
+      path: "SwiftPMTests/swift-test"
     ),
     .testTarget(
       name: "analytics-import-test",
