@@ -331,3 +331,15 @@ extension Schema: Codable {
     case requiredProperties = "required"
   }
 }
+
+// MARK: - Equatable Conformance
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Schema: Equatable {
+  public static func == (lhs: Schema, rhs: Schema) -> Bool {
+    return lhs.dataType == rhs.dataType && lhs.format == rhs.format
+      && lhs.description == rhs.description && lhs.nullable == rhs.nullable
+      && lhs.enumValues == rhs.enumValues && lhs.items == rhs.items
+      && lhs.properties == rhs.properties && lhs.requiredProperties == rhs.requiredProperties
+  }
+}

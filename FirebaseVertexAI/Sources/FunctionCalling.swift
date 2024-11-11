@@ -19,7 +19,7 @@ import Foundation
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionDeclaration {
+public struct FunctionDeclaration: Equatable {
   /// The name of the function.
   let name: String
 
