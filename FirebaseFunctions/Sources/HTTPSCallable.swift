@@ -78,22 +78,32 @@ open class HTTPSCallable: NSObject {
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping (HTTPSCallableResult?,
                                                                           Error?) -> Void) {
-    let callback: ((Result<HTTPSCallableResult, Error>) -> Void) = { result in
-      switch result {
-      case let .success(callableResult):
-        completion(callableResult, nil)
-      case let .failure(error):
-        completion(nil, error)
+    if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
+      Task {
+        do {
+          let result = try await call(data)
+          completion(result, nil)
+        } catch {
+          completion(nil, error)
+        }
+      }
+    } else {
+      // This isn’t expected to ever be called because Functions
+      // doesn’t officially support the older platforms.
+      functions.callFunction(
+        at: url,
+        withObject: data,
+        options: options,
+        timeout: timeoutInterval
+      ) { result in
+        switch result {
+        case let .success(callableResult):
+          completion(callableResult, nil)
+        case let .failure(error):
+          completion(nil, error)
+        }
       }
     }
-
-    functions.callFunction(
-      at: url,
-      withObject: data,
-      options: options,
-      timeout: timeoutInterval,
-      completion: callback
-    )
   }
 
   /// Executes this Callable HTTPS trigger asynchronously. This API should only be used from
