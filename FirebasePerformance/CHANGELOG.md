@@ -1,3 +1,7 @@
+# 11.5.0
+- [fixed] Replaced usage of the deprecated `UIApplication.keyWindow` property
+  with `UIWindow.isKeyWindow`; this API is also available on visionOS. (#14048)
+
 # 11.4.0
 - [fixed] Fix a crash related to thread sanitization on FPRNetworkTrace class (#13581).
 
