@@ -15,11 +15,11 @@
  */
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreCpp
+  @_implementationOnly import FirebaseFirestoreCpp
 #endif // SWIFT_PACKAGE
 
 public class SwiftCallingCpp {
-  public init(_ value: String) {
+  public static func print(_ value: String) {
     CppInterfaceCalledBySwift.print(std.string(value))
   }
 }
