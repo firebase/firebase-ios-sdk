@@ -29,6 +29,27 @@ final class FunctionCallingSnippets: XCTestCase {
     await FirebaseApp.deleteDefaultAppForSnippets()
   }
 
+  func testFunctionDeclaration_jsonString() throws {
+    let json = """
+    {
+      "name": "getWeather",
+      "description": "gets the weather for a requested city",
+      "parameters": {
+        "type": "OBJECT",
+        "properties": {
+          "city": {
+            "type": "STRING"
+          }
+        }
+      }
+    }
+    """
+
+    let functionDeclaration = try FunctionDeclaration(jsonString: json)
+
+    print(functionDeclaration)
+  }
+
   func testFunctionCalling() async throws {
     // This function calls a hypothetical external API that returns
     // a collection of weather information for a given location on a given date.

@@ -48,6 +48,22 @@ public struct FunctionDeclaration {
       nullable: false
     )
   }
+
+  /// Constructs a new `FunctionDeclaration`.
+  ///
+  /// - Parameters:
+  ///   - jsonString: A string representing a function declaration in JSON format; see the [REST
+  ///   documentation]( https://cloud.google.com/vertex-ai/generative-ai/docs/reference/rest/v1/Tool#FunctionDeclaration)
+  ///   for details.
+  public init(jsonString: String) throws {
+    guard let jsonData = jsonString.data(using: .utf8) else {
+      throw DecodingError.dataCorrupted(DecodingError.Context(
+        codingPath: [],
+        debugDescription: "Could not parse JSON string as UTF8."
+      ))
+    }
+    self = try JSONDecoder().decode(Self.self, from: jsonData)
+  }
 }
 
 /// A helper tool that the model may use when generating responses.
@@ -146,7 +162,7 @@ public struct ToolConfig {
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FunctionDeclaration: Encodable {
+extension FunctionDeclaration: Codable {
   enum CodingKeys: String, CodingKey {
     case name
     case description
