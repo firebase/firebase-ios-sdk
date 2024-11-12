@@ -1,3 +1,6 @@
+#Unreleased
+- [fixed] Fix a crash related to registering for notifications when the app is inbetween foreground or background states. (#13174)
+
 # 11.4.0
 - [fixed] Fix a crash related to thread sanitization on FPRNetworkTrace class (#13581).
 
