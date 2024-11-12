@@ -44,7 +44,7 @@
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  class AuthRecaptchaVerifier {
+  class AuthRecaptchaVerifier: @unchecked Sendable {
     private(set) weak var auth: Auth?
     private(set) var agentConfig: AuthRecaptchaConfig?
     private(set) var tenantConfigs: [String: AuthRecaptchaConfig] = [:]

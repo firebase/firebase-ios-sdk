@@ -36,7 +36,8 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRGoogleAuthCredential) class GoogleAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRGoogleAuthCredential) class GoogleAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
   let idToken: String
   let accessToken: String
 
