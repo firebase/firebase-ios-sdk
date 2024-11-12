@@ -1605,18 +1605,22 @@ extension User: NSSecureCoding {}
   /// - Parameter forceRefresh
   func internalGetTokenAsync(forceRefresh: Bool = false,
                              backend: AuthBackend) async throws -> String {
+    var keychainError = false
     do {
       let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
         forcingRefresh: forceRefresh, backend: backend
       )
       if tokenUpdated {
         if let error = updateKeychain() {
+          keychainError = true
           throw error
         }
       }
       return token!
     } catch {
-      signOutIfTokenIsInvalid(withError: error)
+      if !keychainError {
+        signOutIfTokenIsInvalid(withError: error)
+      }
       throw error
     }
   }
@@ -1711,11 +1715,6 @@ extension User: NSSecureCoding {}
 
   public required init?(coder: NSCoder) {
     guard let userID = coder.decodeObject(of: NSString.self, forKey: kUserIDCodingKey) as? String,
-          let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String,
-          let appID = coder.decodeObject(
-            of: NSString.self,
-            forKey: kFirebaseAppIDCodingKey
-          ) as? String,
           let tokenService = coder.decodeObject(of: SecureTokenService.self,
                                                 forKey: kTokenServiceCodingKey) else {
       return nil
@@ -1753,14 +1752,17 @@ extension User: NSSecureCoding {}
     self.phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
-    // This property will be overwritten later via the `user.auth` property update. This is to
-    // provide the `heartbeatLogger` and `appCheck` will be set later via the `user.auth` property
-    // update. For now, a placeholder is set as the property update should happen right after this
-    // intializer.
-    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey, appID: appID)
-    // This property will be overwritten later via the `user.auth` property update. For now, a
-    // placeholder is set as the property update should happen right after this intializer.
-    backend = AuthBackend(rpcIssuer: AuthBackendRPCIssuer())
+
+    // Note, in practice, the caller will set the `auth` property of this user
+    // instance which will as a side-effect overwrite the request configuration.
+    // The assignment here is a best-effort placeholder.
+    let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String
+    let appID = coder.decodeObject(
+      of: NSString.self,
+      forKey: kFirebaseAppIDCodingKey
+    ) as? String
+    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey ?? "", appID: appID ?? "")
+
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS)
       self.multiFactor = multiFactor ?? MultiFactor()

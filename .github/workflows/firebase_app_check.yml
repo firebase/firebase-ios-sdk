@@ -22,9 +22,12 @@ jobs:
       matrix:
         podspec: [FirebaseAppCheckInterop.podspec, FirebaseAppCheck.podspec]
         target: [ios, tvos, macos --skip-tests, watchos]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
-    runs-on: ${{ matrix.os }}
+        build-env:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -33,7 +36,7 @@ jobs:
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: FirebaseAppCheck
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
 

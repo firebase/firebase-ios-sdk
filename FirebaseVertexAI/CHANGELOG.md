@@ -1,3 +1,8 @@
+# Unreleased
+- [changed] The token counts from `GenerativeModel.countTokens(...)` now include
+  tokens from the schema for JSON output and function calling; reported token
+  counts will now be higher if using these features.
+
 # 11.5.0
 - [fixed] Fixed an issue where `VertexAI.vertexAI(app: app1)` and
   `VertexAI.vertexAI(app: app2)` would return the same instance if their
