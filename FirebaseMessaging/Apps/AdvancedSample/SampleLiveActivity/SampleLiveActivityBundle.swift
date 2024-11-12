@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 @main
 struct SampleLiveActivityBundle: WidgetBundle {
-    var body: some Widget {
-        SampleLiveActivity()
-        SampleLiveActivityLiveActivity()
-    }
+  var body: some Widget {
+    SampleLiveActivity()
+    SampleLiveActivityLiveActivity()
+  }
 }

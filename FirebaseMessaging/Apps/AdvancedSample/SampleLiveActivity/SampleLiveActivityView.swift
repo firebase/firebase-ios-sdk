@@ -16,28 +16,27 @@ import SwiftUI
 import WidgetKit
 
 struct SampleLiveActivityView: View {
-    
-    let context: ActivityViewContext< SampleLiveActivityAttributes>
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Image(systemName: "cup.and.saucer")
-                ProgressView(value: context.state.status.rawValue, total: 2)
-                    .tint(.black)
-                    .background(Color.brown)
-                Image(systemName: "cup.and.saucer.fill")
-            }
-            .padding(16)
-            
-            Text("\(context.state.status.description)")
-                .font(.system(size: 18, weight: .semibold))
-                .padding(.bottom)
-            Text("Instance No: " + String(context.attributes.lvInstanceNumber))
-                .font(.system(size: 18, weight: .semibold))
-                .padding(.bottom)
-            Spacer()
-        }
-        .background(Color.brown.opacity(0.6))
+  let context: ActivityViewContext<SampleLiveActivityAttributes>
+
+  var body: some View {
+    VStack {
+      HStack {
+        Image(systemName: "cup.and.saucer")
+        ProgressView(value: context.state.status.rawValue, total: 2)
+          .tint(.black)
+          .background(Color.brown)
+        Image(systemName: "cup.and.saucer.fill")
+      }
+      .padding(16)
+
+      Text("\(context.state.status.description)")
+        .font(.system(size: 18, weight: .semibold))
+        .padding(.bottom)
+      Text("Instance No: " + String(context.attributes.lvInstanceNumber))
+        .font(.system(size: 18, weight: .semibold))
+        .padding(.bottom)
+      Spacer()
     }
+    .background(Color.brown.opacity(0.6))
+  }
 }

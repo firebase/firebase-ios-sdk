@@ -13,96 +13,96 @@
 // limitations under the License.
 
 import ActivityKit
-import WidgetKit
 import SwiftUI
+import WidgetKit
 
 struct SampleLiveActivityAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        enum LVStatus: Float, Codable, Hashable {
-            case started = 0
-            case inProgress = 1
-            case completed = 2
-            
-            var description: String {
-                switch self {
-                case .started:
-                    return "Your Live Activity is started!"
-                case .inProgress:
-                    return "Your Live Activity is in progress!"
-                case .completed:
-                    return "Your Live activity is completed!"
-                }
-            }
+  public struct ContentState: Codable, Hashable {
+    enum LVStatus: Float, Codable, Hashable {
+      case started = 0
+      case inProgress = 1
+      case completed = 2
+
+      var description: String {
+        switch self {
+        case .started:
+          return "Your Live Activity is started!"
+        case .inProgress:
+          return "Your Live Activity is in progress!"
+        case .completed:
+          return "Your Live activity is completed!"
         }
-        
-        let status: LVStatus
+      }
     }
 
-    // Fixed non-changing properties about your activity go here!
-    var lvInstanceNumber: Double
+    let status: LVStatus
+  }
+
+  // Fixed non-changing properties about your activity go here!
+  var lvInstanceNumber: Double
 }
 
 struct SampleLiveActivityLiveActivity: Widget {
-    var body: some WidgetConfiguration {
-        ActivityConfiguration(for: SampleLiveActivityAttributes.self) { context in
-            // Lock screen/banner UI goes here
-            VStack {
-                SampleLiveActivityView(context: context)
-            }
-            .activityBackgroundTint(Color.cyan)
-            .activitySystemActionForegroundColor(Color.black)
+  var body: some WidgetConfiguration {
+    ActivityConfiguration(for: SampleLiveActivityAttributes.self) { context in
+      // Lock screen/banner UI goes here
+      VStack {
+        SampleLiveActivityView(context: context)
+      }
+      .activityBackgroundTint(Color.cyan)
+      .activitySystemActionForegroundColor(Color.black)
 
-        } dynamicIsland: { context in
-            DynamicIsland {
-                // Expanded UI goes here.  Compose the expanded UI through
-                // various regions, like leading/trailing/center/bottom
-                DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
-                }
-                DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom")
-                    // more content
-                }
-            } compactLeading: {
-                Text("L")
-            } compactTrailing: {
-                Text("T")
-            } minimal: {
-                Text("M")
-            }
-            .widgetURL(URL(string: "http://www.apple.com"))
-            .keylineTint(Color.red)
+    } dynamicIsland: { context in
+      DynamicIsland {
+        // Expanded UI goes here.  Compose the expanded UI through
+        // various regions, like leading/trailing/center/bottom
+        DynamicIslandExpandedRegion(.leading) {
+          Text("Leading")
         }
+        DynamicIslandExpandedRegion(.trailing) {
+          Text("Trailing")
+        }
+        DynamicIslandExpandedRegion(.bottom) {
+          Text("Bottom")
+          // more content
+        }
+      } compactLeading: {
+        Text("L")
+      } compactTrailing: {
+        Text("T")
+      } minimal: {
+        Text("M")
+      }
+      .widgetURL(URL(string: "http://www.apple.com"))
+      .keylineTint(Color.red)
     }
+  }
 }
 
-extension SampleLiveActivityAttributes {
-    fileprivate static var preview: SampleLiveActivityAttributes {
-        SampleLiveActivityAttributes(lvInstanceNumber: 1)
-    }
+private extension SampleLiveActivityAttributes {
+  static var preview: SampleLiveActivityAttributes {
+    SampleLiveActivityAttributes(lvInstanceNumber: 1)
+  }
 }
 
-extension SampleLiveActivityAttributes.ContentState {
-    fileprivate static var stateStarted: SampleLiveActivityAttributes.ContentState {
-        SampleLiveActivityAttributes.ContentState(status:LVStatus.started)
-     }
-    
-    fileprivate static var stateInProgress: SampleLiveActivityAttributes.ContentState {
-        SampleLiveActivityAttributes.ContentState(status:LVStatus.inProgress)
-    }
-     
-     fileprivate static var stateCompleted: SampleLiveActivityAttributes.ContentState {
-         SampleLiveActivityAttributes.ContentState(status:LVStatus.completed)
-     }
+private extension SampleLiveActivityAttributes.ContentState {
+  static var stateStarted: SampleLiveActivityAttributes.ContentState {
+    SampleLiveActivityAttributes.ContentState(status: LVStatus.started)
+  }
+
+  static var stateInProgress: SampleLiveActivityAttributes.ContentState {
+    SampleLiveActivityAttributes.ContentState(status: LVStatus.inProgress)
+  }
+
+  static var stateCompleted: SampleLiveActivityAttributes.ContentState {
+    SampleLiveActivityAttributes.ContentState(status: LVStatus.completed)
+  }
 }
 
 #Preview("Notification", as: .content, using: SampleLiveActivityAttributes.preview) {
-   SampleLiveActivityLiveActivity()
+  SampleLiveActivityLiveActivity()
 } contentStates: {
-    SampleLiveActivityAttributes.ContentState.stateStarted
-    SampleLiveActivityAttributes.ContentState.stateInProgress
-    SampleLiveActivityAttributes.ContentState.stateCompleted
+  SampleLiveActivityAttributes.ContentState.stateStarted
+  SampleLiveActivityAttributes.ContentState.stateInProgress
+  SampleLiveActivityAttributes.ContentState.stateCompleted
 }

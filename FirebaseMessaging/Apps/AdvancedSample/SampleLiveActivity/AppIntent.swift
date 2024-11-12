@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import WidgetKit
 import AppIntents
+import WidgetKit
 
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Configuration"
-    static var description = IntentDescription("This is an example widget.")
+  static var title: LocalizedStringResource = "Configuration"
+  static var description = IntentDescription("This is an example widget.")
 
-    // An example configurable parameter.
-    @Parameter(title: "Favorite Emoji", default: "😃")
-    var favoriteEmoji: String
+  // An example configurable parameter.
+  @Parameter(title: "Favorite Emoji", default: "😃")
+  var favoriteEmoji: String
 }
