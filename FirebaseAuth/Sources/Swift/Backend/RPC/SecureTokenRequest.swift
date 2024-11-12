@@ -55,10 +55,12 @@ private let kRefreshTokenKey = "refreshToken"
 private let kCodeKey = "code"
 
 #if compiler(>=6)
-  /// Host for server API calls.
+  /// Host for server API calls. This should be changed via
+  /// `SecureTokenRequest.setHost(_ host:)` for testing purposes only.
   private nonisolated(unsafe) var gAPIHost = "securetoken.googleapis.com"
 #else
-  /// Host for server API calls.
+  /// Host for server API calls. This should be changed via
+  /// `SecureTokenRequest.setHost(_ host:)` for testing purposes only.
   private var gAPIHost = "securetoken.googleapis.com"
 #endif // compiler(>=6)
 
