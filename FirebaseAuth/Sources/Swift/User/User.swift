@@ -251,7 +251,7 @@ extension User: NSSecureCoding {}
     ///    sensitive operation that requires a recent login from the user. This error indicates
     ///    the user has not signed in recently enough. To resolve, reauthenticate the user by
     ///     calling `reauthenticate(with:)`.
-    /// - Parameter phoneNumberCredential: The new phone number credential corresponding to the
+    /// - Parameter credential: The new phone number credential corresponding to the
     /// phone number to be added to the Firebase account, if a phone number is already linked to the
     /// account this new phone number will replace it.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -766,8 +766,6 @@ extension User: NSSecureCoding {}
     /// - Parameter uiDelegate: Optionally an instance of a class conforming to the `AuthUIDelegate`
     /// protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
     ///    will be used.
-    /// - Parameter completion: Optionally; a block which is invoked when the link flow finishes, or
-    ///    is canceled. Invoked asynchronously on the main thread in the future.
     /// - Returns: An AuthDataResult.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
@@ -1028,7 +1026,7 @@ extension User: NSSecureCoding {}
   }
 
   /// Send an email to verify the ownership of the account then update to the new email.
-  /// - Parameter email: The email to be updated to.
+  /// - Parameter newEmail: The email to be updated to.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   ///    handling action codes.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -1229,7 +1227,7 @@ extension User: NSSecureCoding {}
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
   /// the auth global work queue in the future.
-  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
+  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponse.User,
                                                             SetAccountInfoRequest) -> Void,
                                     callback: @escaping (Error?) -> Void) {
     Task {
@@ -1250,7 +1248,7 @@ extension User: NSSecureCoding {}
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
+  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponse.User?,
                                                           Error?) -> Void) {
     Task {
       do {
@@ -1600,18 +1598,22 @@ extension User: NSSecureCoding {}
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
   /// - Parameter forceRefresh
   func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
+    var keychainError = false
     do {
       let (token, tokenUpdated) = try await tokenService.fetchAccessToken(
         forcingRefresh: forceRefresh
       )
       if tokenUpdated {
         if let error = updateKeychain() {
+          keychainError = true
           throw error
         }
       }
       return token!
     } catch {
-      signOutIfTokenIsInvalid(withError: error)
+      if !keychainError {
+        signOutIfTokenIsInvalid(withError: error)
+      }
       throw error
     }
   }
@@ -1680,9 +1682,7 @@ extension User: NSSecureCoding {}
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
 
-  public static var supportsSecureCoding: Bool {
-    return true
-  }
+  public static let supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(uid, forKey: kUserIDCodingKey)
@@ -1708,11 +1708,6 @@ extension User: NSSecureCoding {}
 
   public required init?(coder: NSCoder) {
     guard let userID = coder.decodeObject(of: NSString.self, forKey: kUserIDCodingKey) as? String,
-          let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String,
-          let appID = coder.decodeObject(
-            of: NSString.self,
-            forKey: kFirebaseAppIDCodingKey
-          ) as? String,
           let tokenService = coder.decodeObject(of: SecureTokenService.self,
                                                 forKey: kTokenServiceCodingKey) else {
       return nil
@@ -1750,8 +1745,17 @@ extension User: NSSecureCoding {}
     self.phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
-    // The `heartbeatLogger` and `appCheck` will be set later via a property update.
-    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey, appID: appID)
+
+    // Note, in practice, the caller will set the `auth` property of this user
+    // instance which will as a side-effect overwrite the request configuration.
+    // The assignment here is a best-effort placeholder.
+    let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String
+    let appID = coder.decodeObject(
+      of: NSString.self,
+      forKey: kFirebaseAppIDCodingKey
+    ) as? String
+    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey ?? "", appID: appID ?? "")
+
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS)
       self.multiFactor = multiFactor ?? MultiFactor()

@@ -28,4 +28,18 @@
   XCTAssertNotNil(config.analyticsConfiguration);
 }
 
+- (void)testGetDefaultLevel {
+  FIRConfiguration *config = [FIRConfiguration sharedInstance];
+  FIRLoggerLevel defaultLevel = [config loggerLevel];
+  XCTAssertEqual(defaultLevel, FIRLoggerLevelNotice);
+}
+
+- (void)testSetAndGet {
+  FIRConfiguration *config = [FIRConfiguration sharedInstance];
+  for (FIRLoggerLevel level = FIRLoggerLevelMin; level <= FIRLoggerLevelMax; level++) {
+    [config setLoggerLevel:level];
+    XCTAssertEqual([config loggerLevel], level);
+  }
+}
+
 @end

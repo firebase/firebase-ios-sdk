@@ -21,7 +21,7 @@ import Foundation
 @_implementationOnly import FirebaseCoreExtension
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public class VertexAI {
   // MARK: - Public APIs
 
@@ -55,11 +55,12 @@ public class VertexAI {
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    if let instance = instances[location] {
+    let instanceKey = "\(app.name):\(location)"
+    if let instance = instances[instanceKey] {
       return instance
     }
     let newInstance = VertexAI(app: app, location: location)
-    instances[location] = newInstance
+    instances[instanceKey] = newInstance
     return newInstance
   }
 
@@ -116,8 +117,8 @@ public class VertexAI {
 
   private let auth: AuthInterop?
 
-  /// A map of active  `VertexAI` instances for `app`, keyed by model resource names
-  /// (e.g., "projects/my-project-id/locations/us-central1/publishers/google/models/gemini-pro").
+  /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
+  /// the format `appName:location`.
   private static var instances: [String: VertexAI] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.

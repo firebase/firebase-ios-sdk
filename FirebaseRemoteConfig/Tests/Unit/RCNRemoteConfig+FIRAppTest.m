@@ -72,7 +72,7 @@
   XCTAssertThrows([rc configureConfig:app]);
 }
 
-- (void)testConfigureConfigNotIntallingSenderID {
+- (void)testConfigureConfigNotInstallingSenderID {
   id settingsMock = OCMClassMock([RCNConfigSettings class]);
   OCMStub([settingsMock instancesRespondToSelector:@selector(senderID)]).andReturn(NO);
 

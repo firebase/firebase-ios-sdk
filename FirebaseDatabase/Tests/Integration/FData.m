@@ -1190,10 +1190,10 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 
   NSArray *expectedValues = @[ @5, @5 ];
-  NSArray *expectedPriorites = @[ [NSNull null], @10 ];
+  NSArray *expectedPriorities = @[ [NSNull null], @10 ];
   XCTAssertTrue([values isEqualToArray:expectedValues],
                 @"Expected both listeners to get 5, got %@ instead", values);
-  XCTAssertTrue([priorities isEqualToArray:expectedPriorites],
+  XCTAssertTrue([priorities isEqualToArray:expectedPriorities],
                 @"The first listener should have missed the priority, got %@ instead", priorities);
 }
 

@@ -560,7 +560,7 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
   [self runTestForName:@"Update descendant of default listener with full cache"];
 }
 
-- (void)testDescendantSetBelowAnEmptyDefaultLIstenerIsIgnored {
+- (void)testDescendantSetBelowAnEmptyDefaultListenerIsIgnored {
   [self runTestForName:@"Descendant set below an empty default listener is ignored"];
 }
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '11.4.0'
+  s.version          = '11.5.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -59,7 +59,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseCore', '11.5'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'FirebaseRemoteConfig', '~> 11.0'
   s.dependency 'FirebaseSessions', '~> 11.0'

@@ -74,7 +74,7 @@ class MockEventSource : public core::QueryEventSource {
   MOCK_METHOD1(StopListeningToRemoteStoreOnly, void(const core::Query&));
 };
 
-TEST(EventManagerTest, HandlesManyListnersPerQuery) {
+TEST(EventManagerTest, HandlesManyListenersPerQuery) {
   core::Query query = Query("foo/bar");
   auto listener1 = NoopQueryListener(query);
   auto listener2 = NoopQueryListener(query);
@@ -94,7 +94,7 @@ TEST(EventManagerTest, HandlesManyListnersPerQuery) {
   event_manager.RemoveQueryListener(listener1);
 }
 
-TEST(EventManagerTest, HandlesManyCacheListnersPerQuery) {
+TEST(EventManagerTest, HandlesManyCacheListenersPerQuery) {
   core::Query query = Query("foo/bar");
   auto listener1 = NoopQueryCacheListener(query);
   auto listener2 = NoopQueryCacheListener(query);

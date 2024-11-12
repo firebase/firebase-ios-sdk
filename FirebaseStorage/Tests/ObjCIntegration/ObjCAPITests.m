@@ -207,7 +207,7 @@
   [task resume];
 }
 
-- (void)FIRStorageTaskSnaphotApis:(FIRStorageTaskSnapshot *)snapshot {
+- (void)FIRStorageTaskSnapshotApis:(FIRStorageTaskSnapshot *)snapshot {
   [snapshot task];
   [snapshot metadata];
   [snapshot reference];

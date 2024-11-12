@@ -71,7 +71,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 - (void)testKeyChainNoCorruptionWithUniqueAccount {
 // macOS only support one service and one account.
 #if TARGET_OS_IOS || TARGET_OS_TV
-  XCTestExpectation *noCurruptionExpectation =
+  XCTestExpectation *noCorruptionExpectation =
       [self expectationWithDescription:@"No corruption between different accounts."];
   // Create a keychain with a service and a unique account
   NSString *service = [NSString stringWithFormat:@"%@:%@", kAuthorizedEntity, kScope];
@@ -134,7 +134,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                         account:@"*"
                                                         handler:^(NSError *_Nonnull error) {
                                                           XCTAssertNil(error);
-                                                          [noCurruptionExpectation fulfill];
+                                                          [noCorruptionExpectation fulfill];
                                                         }];
                      }];
             }];
@@ -144,7 +144,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
 
 - (void)testKeyChainNoCorruptionWithUniqueService {
 #if TARGET_OS_IOS || TARGET_OS_TV
-  XCTestExpectation *noCurruptionExpectation =
+  XCTestExpectation *noCorruptionExpectation =
       [self expectationWithDescription:@"No corruption between different services."];
   // Create a keychain with a service and a unique account
   NSString *service1 = [NSString stringWithFormat:@"%@:%@", kAuthorizedEntity, kScope];
@@ -209,7 +209,7 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                      account:@"*"
                                                      handler:^(NSError *_Nonnull error) {
                                                        XCTAssertNil(error);
-                                                       [noCurruptionExpectation fulfill];
+                                                       [noCorruptionExpectation fulfill];
                                                      }];
                   }];
          }];

@@ -14,18 +14,21 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension UserInfoImpl: NSSecureCoding {}
 
-@objc(FIRUserInfoImpl) class UserInfoImpl: NSObject, UserInfo {
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class UserInfoImpl: NSObject, UserInfo {
   /// A convenience factory method for constructing a `UserInfo` instance from data
   /// returned by the getAccountInfo endpoint.
   /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
   /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
-  class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
+  class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponse
+    .ProviderUserInfo)
     -> UserInfoImpl {
     guard let providerID = providerUserInfo.providerID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?
-      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
+      fatalError("Missing providerID from GetAccountInfoResponse.ProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
                         userID: providerUserInfo.federatedID ?? "",
@@ -72,9 +75,7 @@ extension UserInfoImpl: NSSecureCoding {}
   private static let kEmailCodingKey = "email"
   private static let kPhoneNumberCodingKey = "phoneNumber"
 
-  static var supportsSecureCoding: Bool {
-    return true
-  }
+  static let supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
     coder.encode(providerID, forKey: UserInfoImpl.kProviderIDCodingKey)

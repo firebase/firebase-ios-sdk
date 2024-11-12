@@ -114,6 +114,7 @@ import Foundation
             }
           }
         }
+        return
       } else if assertion.factorID != PhoneMultiFactorInfo.PhoneMultiFactorID {
         return
       }
@@ -171,7 +172,6 @@ import Foundation
     /// - Parameter assertion: The `MultiFactorAssertion`.
     /// - Parameter displayName: An optional display name associated with the multi factor to
     /// enroll.
-    /// - Parameter completion: The block invoked when the request is complete, or fails.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func enroll(with assertion: MultiFactorAssertion, displayName: String?) async throws {
       return try await withCheckedThrowingContinuation { continuation in
@@ -186,6 +186,7 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
+    /// - Parameter factorInfo: The second factor instance to unenroll.
     /// - Parameter completion: The block invoked when the request to send the verification email is
     /// complete, or fails.
     @objc(unenrollWithInfo:completion:)
@@ -201,6 +202,8 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
+    /// - Parameter factorUID: The unique identifier corresponding to the
+    /// second factor being unenrolled.
     /// - Parameter completion: The block invoked when the request to send the verification email is
     /// complete, or fails.
     @objc(unenrollWithFactorUID:completion:)
@@ -281,9 +284,7 @@ import Foundation
 
     private let kEnrolledFactorsCodingKey = "enrolledFactors"
 
-    public static var supportsSecureCoding: Bool {
-      true
-    }
+    public static let supportsSecureCoding = true
 
     public func encode(with coder: NSCoder) {
       coder.encode(enrolledFactors, forKey: kEnrolledFactorsCodingKey)

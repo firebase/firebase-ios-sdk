@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '11.4.0-beta'
+  s.version          = '11.5.0-beta'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -30,7 +30,7 @@ iOS SDK for App Distribution for Firebase.
   ]
   s.public_header_files = base_dir + 'Public/FirebaseAppDistribution/*.h'
 
-  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseCore', '11.5'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'

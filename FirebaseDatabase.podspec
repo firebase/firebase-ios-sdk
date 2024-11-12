@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '11.4.0'
+  s.version          = '11.5.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -47,7 +47,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseCore', '11.5'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseSharedSwift', '~> 11.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'

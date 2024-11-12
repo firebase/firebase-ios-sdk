@@ -14,19 +14,11 @@
 
 import Foundation
 
-/// A predicted function call returned from the model.
-public struct FunctionCall: Equatable, Sendable {
-  /// The name of the function to call.
-  public let name: String
-
-  /// The function parameters and values.
-  public let args: JSONObject
-}
-
 /// Structured representation of a function declaration.
 ///
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionDeclaration {
   /// The name of the function.
   let name: String
@@ -34,7 +26,7 @@ public struct FunctionDeclaration {
   /// A brief description of the function.
   let description: String
 
-  /// Describes the parameters to this function; must be of type ``DataType/object``.
+  /// Describes the parameters to this function; must be of type `DataType.object`.
   let parameters: Schema?
 
   /// Constructs a new `FunctionDeclaration`.
@@ -44,6 +36,8 @@ public struct FunctionDeclaration {
   ///   with a maximum length of 63.
   ///   - description: A brief description of the function.
   ///   - parameters: Describes the parameters to this function.
+  ///   - optionalParameters: The names of parameters that may be omitted by the model in function
+  ///   calls; by default, all parameters are considered required.
   public init(name: String, description: String, parameters: [String: Schema],
               optionalParameters: [String] = []) {
     self.name = name
@@ -56,66 +50,91 @@ public struct FunctionDeclaration {
   }
 }
 
-/// Helper tools that the model may use to generate response.
+/// A helper tool that the model may use when generating responses.
 ///
-/// A `Tool` is a piece of code that enables the system to interact with external systems to
-/// perform an action, or set of actions, outside of knowledge and scope of the model.
+/// A `Tool` is a piece of code that enables the system to interact with external systems to perform
+/// an action, or set of actions, outside of knowledge and scope of the model.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Tool {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
 
-  /// Constructs a new `Tool`.
+  init(functionDeclarations: [FunctionDeclaration]?) {
+    self.functionDeclarations = functionDeclarations
+  }
+
+  /// Creates a tool that allows the model to perform function calling.
+  ///
+  /// Function calling can be used to provide data to the model that was not known at the time it
+  /// was trained (for example, the current date or weather conditions) or to allow it to interact
+  /// with external systems (for example, making an API request or querying/updating a database).
+  /// For more details and use cases, see [Introduction to function
+  /// calling](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling).
   ///
   /// - Parameters:
   ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
   ///   used for function calling.
   ///   The model or system does not execute the function. Instead the defined function may be
-  ///   returned as a ``FunctionCall`` in ``ModelContent/Part/functionCall(_:)`` with arguments to
-  ///   the client side for execution. The model may decide to call a subset of these functions by
-  ///   populating ``FunctionCall`` in the response. The next conversation turn may contain a
-  ///   ``FunctionResponse`` in ``ModelContent/Part/functionResponse(_:)`` with the
-  ///   ``ModelContent/role`` "function", providing generation context for the next model turn.
-  public init(functionDeclarations: [FunctionDeclaration]?) {
-    self.functionDeclarations = functionDeclarations
+  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
+  ///   model may decide to call none, some or all of the declared functions; this behavior may be
+  ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
+  ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
+  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
+  ///   `"function"`; this response contains the result of executing the function on the client,
+  ///   providing generation context for the model's next turn.
+  public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
+    return self.init(functionDeclarations: functionDeclarations)
   }
 }
 
 /// Configuration for specifying function calling behavior.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallingConfig {
-  /// Defines the execution behavior for function calling by defining the
-  /// execution mode.
-  public enum Mode: String {
-    /// The default behavior for function calling. The model calls functions to answer queries at
-    /// its discretion.
+  /// Defines the execution behavior for function calling by defining the execution mode.
+  enum Mode: String {
     case auto = "AUTO"
-
-    /// The model always predicts a provided function call to answer every query.
     case any = "ANY"
-
-    /// The model will never predict a function call to answer a query. This can also be achieved by
-    /// not passing any tools to the model.
     case none = "NONE"
   }
 
-  /// Specifies the mode in which function calling should execute. If
-  /// unspecified, the default value will be set to AUTO.
+  /// Specifies the mode in which function calling should execute.
   let mode: Mode?
 
-  /// A set of function names that, when provided, limits the functions the model
-  /// will call.
-  ///
-  /// This should only be set when the Mode is ANY. Function names
-  /// should match [FunctionDeclaration.name]. With mode set to ANY, model will
-  /// predict a function call from the set of function names provided.
+  /// A set of function names that, when provided, limits the functions the model will call.
   let allowedFunctionNames: [String]?
 
-  public init(mode: FunctionCallingConfig.Mode? = nil, allowedFunctionNames: [String]? = nil) {
+  init(mode: FunctionCallingConfig.Mode? = nil, allowedFunctionNames: [String]? = nil) {
     self.mode = mode
     self.allowedFunctionNames = allowedFunctionNames
+  }
+
+  /// Creates a function calling config where the model calls functions at its discretion.
+  ///
+  /// > Note: This is the default behavior.
+  public static func auto() -> FunctionCallingConfig {
+    return FunctionCallingConfig(mode: .auto)
+  }
+
+  /// Creates a function calling config where the model will always call a provided function.
+  ///
+  ///  - Parameters:
+  ///    - allowedFunctionNames: A set of function names that, when provided, limits the functions
+  ///    that the model will call.
+  public static func any(allowedFunctionNames: [String]? = nil) -> FunctionCallingConfig {
+    return FunctionCallingConfig(mode: .any, allowedFunctionNames: allowedFunctionNames)
+  }
+
+  /// Creates a function calling config where the model will never call a function.
+  ///
+  /// > Note: This can also be achieved by not passing any ``FunctionDeclaration`` tools when
+  /// > instantiating the model.
+  public static func none() -> FunctionCallingConfig {
+    return FunctionCallingConfig(mode: FunctionCallingConfig.Mode.none)
   }
 }
 
 /// Tool configuration for any `Tool` specified in the request.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolConfig {
   let functionCallingConfig: FunctionCallingConfig?
 
@@ -124,50 +143,9 @@ public struct ToolConfig {
   }
 }
 
-/// Result output from a ``FunctionCall``.
-///
-/// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
-/// containing any output from the function is used as context to the model. This should contain the
-/// result of a ``FunctionCall`` made based on model prediction.
-public struct FunctionResponse: Equatable, Sendable {
-  /// The name of the function that was called.
-  let name: String
-
-  /// The function's response.
-  let response: JSONObject
-
-  /// Constructs a new `FunctionResponse`.
-  ///
-  /// - Parameters:
-  ///   - name: The name of the function that was called.
-  ///   - response: The function's response.
-  public init(name: String, response: JSONObject) {
-    self.name = name
-    self.response = response
-  }
-}
-
 // MARK: - Codable Conformance
 
-extension FunctionCall: Decodable {
-  enum CodingKeys: CodingKey {
-    case name
-    case args
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    name = try container.decode(String.self, forKey: .name)
-    if let args = try container.decodeIfPresent(JSONObject.self, forKey: .args) {
-      self.args = args
-    } else {
-      args = JSONObject()
-    }
-  }
-}
-
-extension FunctionCall: Encodable {}
-
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionDeclaration: Encodable {
   enum CodingKeys: String, CodingKey {
     case name
@@ -183,12 +161,14 @@ extension FunctionDeclaration: Encodable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Tool: Encodable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig: Encodable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig.Mode: Encodable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}
-
-extension FunctionResponse: Codable {}

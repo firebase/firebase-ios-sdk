@@ -405,7 +405,7 @@ jobs:
           - os: macos-13
             platforms: 'ios'
         include:
-          - os: macos-14
+          - os: macos-15
             xcode: Xcode_16
           - os: macos-13
             xcode: Xcode_15.2
@@ -461,9 +461,28 @@ jobs:
       (github.event_name == 'pull_request')
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: macOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: catalyst
+          - os: macos-15
+            xcode: Xcode_16
+            target: visionOS
     runs-on: ${{ matrix.os }}
     env:
       FIREBASE_SOURCE_FIRESTORE: 1

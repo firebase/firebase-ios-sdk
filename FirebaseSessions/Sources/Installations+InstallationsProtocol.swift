@@ -37,7 +37,7 @@ extension InstallationsProtocol {
 
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
     var authTokenComplete = ""
-    var intallationComplete: String?
+    var installationComplete: String?
     var errorComplete: Error?
 
     let workingGroup = DispatchGroup()
@@ -51,7 +51,7 @@ extension InstallationsProtocol {
     workingGroup.enter()
     installationID { (installationID: String?, error: Error?) in
       if let installationID {
-        intallationComplete = installationID
+        installationComplete = installationID
       } else if let error = error {
         errorComplete = error
       }
@@ -67,8 +67,8 @@ extension InstallationsProtocol {
       completion(.failure(FirebaseSessionsError.SessionInstallationsTimeOutError))
       return
     default:
-      if let intallationComplete {
-        completion(.success((intallationComplete, authTokenComplete)))
+      if let installationComplete {
+        completion(.success((installationComplete, authTokenComplete)))
       } else if let errorComplete {
         completion(.failure(errorComplete))
       }

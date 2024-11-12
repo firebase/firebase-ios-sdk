@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '11.4.0'
+  s.version          = '11.5.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -52,7 +52,7 @@ app update.
   }
   s.dependency 'FirebaseABTesting', '~> 11.0'
   s.dependency 'FirebaseSharedSwift', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.0'
+  s.dependency 'FirebaseCore', '11.5'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'

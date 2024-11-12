@@ -27,7 +27,7 @@ private let kFakeAPIKey = "kTestAPIKey"
 private let kFakeAppID = "kTestFirebaseAppID"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthBackendRPCImplementationTests: RPCBaseTests {
+class AuthBackendTests: RPCBaseTests {
   let kFakeErrorDomain = "fakeDomain"
   let kFakeErrorCode = -1
 
@@ -41,7 +41,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let request = FakeRequest(withEncodingError: encodingError)
 
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -71,7 +71,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
   func testBodyDataSerializationError() async throws {
     let request = FakeRequest(withRequestBody: ["unencodable": self])
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -99,7 +99,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       try self.rpcIssuer.respond(withData: nil, error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -131,7 +131,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       try self.rpcIssuer.respond(withData: data, error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -168,7 +168,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       try self.rpcIssuer.respond(withData: data, error: nil)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -210,7 +210,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       try self.rpcIssuer.respond(withData: data, error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -252,7 +252,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       try self.rpcIssuer.respond(withData: data, error: nil)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -287,7 +287,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
                                  error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -329,7 +329,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       )
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -356,7 +356,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
                                  error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -398,7 +398,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
                                  error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -436,7 +436,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let _ = try self.rpcIssuer.respond(withJSON: [:], error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -473,7 +473,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       try self.rpcIssuer.respond(serverErrorMessage: customErrorMessage, error: responseError)
     }
     do {
-      let _ = try await rpcImplementation.call(with: FakeRequest(withRequestBody: [:]))
+      let _ = try await AuthBackend.call(with: FakeRequest(withRequestBody: [:]))
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -497,7 +497,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     }
     do {
       let request = FakeDecodingErrorRequest(withRequestBody: [:])
-      let _ = try await rpcImplementation.call(with: request)
+      let _ = try await AuthBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -528,13 +528,18 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       // value it was given.
       try self.rpcIssuer.respond(withJSON: [kTestKey: kTestValue])
     }
-    let rpcResponse = try await rpcImplementation.call(with: FakeRequest(withRequestBody: [:]))
-    XCTAssertEqual(try XCTUnwrap(rpcResponse.receivedDictionary[kTestKey] as? String), kTestValue)
+    let rpcResponse = try await AuthBackend.call(with: FakeRequest(withRequestBody: [:]))
+    XCTAssertEqual(try XCTUnwrap(rpcResponse.receivedValue), kTestValue)
   }
 
   #if COCOAPODS || SWIFT_PACKAGE
     private class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol {
       func headerValue() -> String? {
+        // `asyncHeaderValue` should be used instead.
+        fatalError("FakeHeartbeatLogger headerValue should not be used in tests.")
+      }
+
+      func asyncHeaderValue() async -> String? {
         let payload = flushHeartbeatsIntoPayload()
         guard !payload.isEmpty else {
           return nil
@@ -588,7 +593,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      _ = try? await rpcImplementation.call(with: request)
+      _ = try? await AuthBackend.call(with: request)
 
       // Then
       let expectedHeader = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload.headerValue()
@@ -615,7 +620,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Just force return from async call.
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      _ = try? await rpcImplementation.call(with: request)
+      _ = try? await AuthBackend.call(with: request)
 
       let completeRequest = await rpcIssuer.completeRequest.value
       let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-AppCheck")
@@ -645,7 +650,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      _ = try? await rpcImplementation.call(with: request)
+      _ = try? await AuthBackend.call(with: request)
 
       // Then
       let completeRequest = await rpcIssuer.completeRequest.value
@@ -706,12 +711,10 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     }
   }
 
-  private class FakeResponse: AuthRPCResponse {
-    required init() {}
-
-    var receivedDictionary: [String: AnyHashable] = [:]
-    func setFields(dictionary: [String: AnyHashable]) throws {
-      receivedDictionary = dictionary
+  private struct FakeResponse: AuthRPCResponse {
+    var receivedValue: String?
+    mutating func setFields(dictionary: [String: AnyHashable]) throws {
+      receivedValue = dictionary["TestKey"] as? String
     }
   }
 
@@ -735,10 +738,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     }
   }
 
-  private class FakeDecodingErrorResponse: FakeResponse {
-    required init() {}
-
-    override func setFields(dictionary: [String: AnyHashable]) throws {
+  private struct FakeDecodingErrorResponse: AuthRPCResponse {
+    mutating func setFields(dictionary: [String: AnyHashable]) throws {
       throw NSError(domain: "dummy", code: -1)
     }
   }

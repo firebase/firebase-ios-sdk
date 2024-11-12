@@ -68,17 +68,15 @@ class RPCBaseTests: XCTestCase {
   let kTestIdentifier = "Identifier"
 
   var rpcIssuer: FakeBackendRPCIssuer!
-  var rpcImplementation: AuthBackendImplementation!
 
   override func setUp() {
     rpcIssuer = FakeBackendRPCIssuer()
-    AuthBackend.setDefaultBackendImplementationWithRPCIssuer(issuer: rpcIssuer)
-    rpcImplementation = AuthBackend.implementation()
+    AuthBackend.setTestRPCIssuer(issuer: rpcIssuer)
   }
 
   override func tearDown() {
     rpcIssuer = nil
-    AuthBackend.setDefaultBackendImplementationWithRPCIssuer(issuer: nil)
+    AuthBackend.resetRPCIssuer()
   }
 
   /** @fn checkRequest

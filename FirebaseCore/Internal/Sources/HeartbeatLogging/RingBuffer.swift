@@ -22,7 +22,7 @@ struct RingBuffer<Element>: Sequence {
   private var tailIndex: Array<Element?>.Index
 
   /// Error types for `RingBuffer` operations.
-  enum Error: LocalizedError {
+  enum Error: Swift.Error {
     case outOfBoundsPush(pushIndex: Array<Element?>.Index, endIndex: Array<Element?>.Index)
 
     var errorDescription: String {

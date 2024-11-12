@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSessions'
-  s.version          = '11.4.0'
+  s.version          = '11.5.0'
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
@@ -39,8 +39,8 @@ Pod::Spec.new do |s|
     base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
   ]
 
-  s.dependency 'FirebaseCore', '~> 11.4'
-  s.dependency 'FirebaseCoreExtension', '~> 11.4'
+  s.dependency 'FirebaseCore', '11.5'
+  s.dependency 'FirebaseCoreExtension', '11.5'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'GoogleDataTransport', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'

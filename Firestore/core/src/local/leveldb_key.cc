@@ -39,6 +39,7 @@ namespace local {
 namespace {
 
 const char* kVersionGlobalTable = "version";
+const char* kGlobalsTable = "globals";
 const char* kMutationsTable = "mutation";
 const char* kDocumentMutationsTable = "document_mutation";
 const char* kMutationQueuesTable = "mutation_queue";
@@ -160,6 +161,11 @@ enum ComponentLabel {
   DataMigrationName = 25,
 
   /**
+   * The name of a global.
+   */
+  GlobalName = 26,
+
+  /**
    * A path segment describes just a single segment in a resource path. Path
    * segments that occur sequentially in a key represent successive segments in
    * a single path.
@@ -243,6 +249,10 @@ class Reader {
 
   std::string ReadBundleId() {
     return ReadLabeledString(ComponentLabel::BundleId);
+  }
+
+  std::string ReadGlobalName() {
+    return ReadLabeledString(ComponentLabel::GlobalName);
   }
 
   std::string ReadQueryName() {
@@ -716,6 +726,10 @@ class Writer {
 
   void WriteTableName(const char* table_name) {
     WriteLabeledString(ComponentLabel::TableName, table_name);
+  }
+
+  void WriteGlobalName(absl::string_view global_name) {
+    WriteLabeledString(ComponentLabel::GlobalName, global_name);
   }
 
   void WriteBatchId(model::BatchId batch_id) {
@@ -1202,6 +1216,28 @@ bool LevelDbRemoteDocumentReadTimeKey::Decode(absl::string_view key) {
   collection_path_ = reader.ReadResourcePath();
   read_time_ = reader.ReadSnapshotVersion();
   document_id_ = reader.ReadDocumentId();
+  reader.ReadTerminator();
+  return reader.ok();
+}
+
+std::string LevelDbGlobalKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kGlobalsTable);
+  return writer.result();
+}
+
+std::string LevelDbGlobalKey::Key(absl::string_view global_name) {
+  Writer writer;
+  writer.WriteTableName(kGlobalsTable);
+  writer.WriteGlobalName(global_name);
+  writer.WriteTerminator();
+  return writer.result();
+}
+
+bool LevelDbGlobalKey::Decode(absl::string_view key) {
+  Reader reader{key};
+  reader.ReadTableNameMatching(kGlobalsTable);
+  global_name_ = reader.ReadGlobalName();
   reader.ReadTerminator();
   return reader.ok();
 }

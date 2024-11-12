@@ -233,7 +233,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 #pragma mark - Overrides
 
 - (void)setResponseCode:(int32_t)responseCode {
-  _responseCode = responseCode;
+  dispatch_sync(self.syncQueue, ^{
+    _responseCode = responseCode;
+  });
   if (responseCode != 0) {
     _hasValidResponseCode = YES;
   }
@@ -279,7 +281,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 }
 
 - (void)didReceiveData:(NSData *)data {
-  self.responseSize = data.length;
+  dispatch_sync(self.syncQueue, ^{
+    self.responseSize = data.length;
+  });
 }
 
 - (void)didReceiveFileURL:(NSURL *)URL {
@@ -290,7 +294,9 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     if (error) {
       FPRLogNotice(kFPRNetworkTraceFileError, @"Unable to determine the size of file.");
     } else {
-      self.responseSize = value.unsignedIntegerValue;
+      dispatch_sync(self.syncQueue, ^{
+        self.responseSize = value.unsignedIntegerValue;
+      });
     }
   }
 }

@@ -54,7 +54,7 @@ extension AuthDataResult: NSSecureCoding {}
   private let kUserCodingKey = "user"
   private let kCredentialCodingKey = "credential"
 
-  public static var supportsSecureCoding = true
+  public static let supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(user, forKey: kUserCodingKey)
