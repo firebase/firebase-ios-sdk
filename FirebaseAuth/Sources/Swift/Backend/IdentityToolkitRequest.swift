@@ -20,12 +20,12 @@ private let kHttpProtocol = "http:"
 private let kEmulatorHostAndPrefixFormat = "%@/%@"
 
 #if compiler(>=6)
-/// Host for server API calls.
-private nonisolated(unsafe) var gAPIHost = "www.googleapis.com"
+  /// Host for server API calls.
+  private nonisolated(unsafe) var gAPIHost = "www.googleapis.com"
 #else
-/// Host for server API calls.
-private var gAPIHost = "www.googleapis.com"
-#endif  // compiler(>=6)
+  /// Host for server API calls.
+  private var gAPIHost = "www.googleapis.com"
+#endif // compiler(>=6)
 
 private let kFirebaseAuthAPIHost = "www.googleapis.com"
 private let kIdentityPlatformAPIHost = "identitytoolkit.googleapis.com"
