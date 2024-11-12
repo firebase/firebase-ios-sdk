@@ -287,11 +287,11 @@ import Foundation
     /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
     /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
     /// - Parameter phoneNumber: The phone number to be verified.
-    private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
-                                                              retryOnInvalidAppCredential: Bool,
-                                                              multiFactorSession session: MultiFactorSession?,
-                                                              uiDelegate: AuthUIDelegate?,
-                                                              recaptchaVerifier: AuthRecaptchaVerifier) async throws
+    func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
+                                                      retryOnInvalidAppCredential: Bool,
+                                                      multiFactorSession session: MultiFactorSession?,
+                                                      uiDelegate: AuthUIDelegate?,
+                                                      recaptchaVerifier: AuthRecaptchaVerifier) async throws
       -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {

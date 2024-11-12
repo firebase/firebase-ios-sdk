@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ import XCTest
 
 @testable import FirebaseAuth
 
-/** @class StartMFAEnrollmentRequestTests
-    @brief Tests for @c StartMFAEnrollmentRequest
+/** @class StartMFASignInRequestTests
+    @brief Tests for @c StartMFASignInRequest
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class StartMFAEnrollmentRequestTests: RPCBaseTests {
+class StartMFASignInRequestTests: RPCBaseTests {
   let kAPIKey = "APIKey"
-  let kIDToken = "idToken"
+  let kMfaEnrollmentId = "mfaEnrollmentId"
   let kTOTPEnrollmentInfo = "totpEnrollmentInfo"
   let kPhoneEnrollmentInfo = "enrollmentInfo"
   let kPhoneNumber = "phoneNumber"
@@ -32,53 +32,30 @@ class StartMFAEnrollmentRequestTests: RPCBaseTests {
   let kRecaptchaVersion = "recaptchaVersion"
 
   /**
-   @fn testTOTPStartMFAEnrollmentRequest
-   @brief Tests the Start MFA Enrollment using TOTP request.
+   @fn testPhoneStartMFASignInRequest
+   @brief Tests the Start MFA Sign In using SMS request.
    */
-  func testTOTPStartMFAEnrollmentRequest() async throws {
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
-    let requestInfo = AuthProtoStartMFATOTPEnrollmentRequestInfo()
-    let request = StartMFAEnrollmentRequest(idToken: kIDToken,
-                                            totpEnrollmentInfo: requestInfo,
-                                            requestConfiguration: requestConfiguration)
-
-    let expectedURL =
-      "https://identitytoolkit.googleapis.com/v2/accounts/mfaEnrollment:start?key=\(kAPIKey)"
-
-    do {
-      try await checkRequest(
-        request: request,
-        expected: expectedURL,
-        key: kIDToken,
-        value: kIDToken
-      )
-    } catch {
-      // Ignore error from missing users array in fake JSON return.
-      return
-    }
-    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
-    let totpInfo = try XCTUnwrap(requestDictionary[kTOTPEnrollmentInfo] as? [String: String])
-    XCTAssertEqual(totpInfo, [:])
-    XCTAssertNil(requestDictionary[kPhoneEnrollmentInfo])
-  }
-
-  /**
-   @fn testPhoneStartMFAEnrollmentRequest
-   @brief Tests the Start MFA Enrollment using SMS request.
-   */
-  func testPhoneStartMFAEnrollmentInjectRecaptchaFields() async throws {
-    // created a base startMFAEnrollment Request
+  func testPhoneStartMFASignInRequest() async throws {
+    let testPendingCredential = "FAKE_PENDING_CREDENTIAL"
+    let testEnrollmentID = "FAKE_ENROLLMENT_ID"
     let testPhoneNumber = "1234567890"
     let testRecaptchaToken = "RECAPTCHA_FAKE_TOKEN"
 
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
-    let smsEnrollmentInfo = AuthProtoStartMFAPhoneRequestInfo(
+    let smsSignInInfo = AuthProtoStartMFAPhoneRequestInfo(
       phoneNumber: testPhoneNumber,
       codeIdentity: CodeIdentity.recaptcha(testRecaptchaToken)
     )
-    let request = StartMFAEnrollmentRequest(idToken: kIDToken,
-                                            enrollmentInfo: smsEnrollmentInfo,
-                                            requestConfiguration: requestConfiguration)
+
+    let request = StartMFASignInRequest(
+      MFAPendingCredential: testPendingCredential,
+      MFAEnrollmentID: testEnrollmentID,
+      signInInfo: smsSignInInfo,
+      requestConfiguration: requestConfiguration
+    )
+
+    let expectedURL =
+      "https://identitytoolkit.googleapis.com/v2/accounts/mfaSignIn:start?key=\(kAPIKey)"
 
     // inject reCAPTCHA response
     let testRecaptchaResponse = "RECAPTCHA_FAKE_RESPONSE"
@@ -88,15 +65,12 @@ class StartMFAEnrollmentRequestTests: RPCBaseTests {
       recaptchaVersion: testRecaptchaVersion
     )
 
-    let expectedURL =
-      "https://identitytoolkit.googleapis.com/v2/accounts/mfaEnrollment:start?key=\(kAPIKey)"
-
     do {
       try await checkRequest(
         request: request,
         expected: expectedURL,
-        key: kIDToken,
-        value: kIDToken
+        key: kMfaEnrollmentId,
+        value: testEnrollmentID
       )
     } catch {
       // Ignore error from missing users array in fake JSON return.
