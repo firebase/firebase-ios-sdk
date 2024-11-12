@@ -111,14 +111,13 @@ jobs:
       SDK: "ABTesting"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -134,7 +133,7 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -225,14 +224,13 @@ jobs:
       SDK: "Config"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -247,7 +245,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
 
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -277,14 +275,13 @@ jobs:
       SDK: "Crashlytics"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -300,7 +297,7 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -404,14 +401,13 @@ jobs:
       SDK: "DynamicLinks"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -430,7 +426,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Update Environment Variable For DynamicLinks
@@ -464,14 +460,13 @@ jobs:
       SDK: "Firestore"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -493,7 +488,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
         quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
@@ -505,7 +500,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.os }}
+        name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
         path: quickstart_artifacts_firestore.zip
 
   check_framework_firestore_symbols:
@@ -549,14 +544,13 @@ jobs:
       SDK: "InAppMessaging"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -577,7 +571,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
@@ -606,14 +600,13 @@ jobs:
       SDK: "Messaging"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -633,7 +626,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
@@ -662,14 +655,13 @@ jobs:
       SDK: "Storage"
     strategy:
       matrix:
-        os: [macos-13, macos-15]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
-        include:
+        build-env:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
@@ -692,7 +684,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       env:
         LEGACY: true
