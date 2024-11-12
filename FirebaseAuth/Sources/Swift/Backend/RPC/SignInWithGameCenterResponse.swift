@@ -14,9 +14,7 @@
 
 import Foundation
 
-class SignInWithGameCenterResponse: AuthRPCResponse {
-  required init() {}
-
+struct SignInWithGameCenterResponse: AuthRPCResponse {
   var idToken: String?
   var refreshToken: String?
   var localID: String?
@@ -27,7 +25,7 @@ class SignInWithGameCenterResponse: AuthRPCResponse {
   var isNewUser: Bool = false
   var displayName: String?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     localID = dictionary["localId"] as? String

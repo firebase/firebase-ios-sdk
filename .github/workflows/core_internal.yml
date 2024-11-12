@@ -18,16 +18,19 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
-    runs-on: ${{ matrix.os }}
+        build-env:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCoreInternal.podspec --platforms=${{ matrix.target }}
 
@@ -68,22 +71,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: macOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:

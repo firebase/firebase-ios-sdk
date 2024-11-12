@@ -24,7 +24,7 @@ class GetRecaptchaConfigTests: RPCBaseTests {
    */
   func testGetRecaptchaConfigRequest() async throws {
     let request = GetRecaptchaConfigRequest(requestConfiguration: makeRequestConfiguration())
-    //    let _ = try await AuthBackend.call(with: request)
+    //    let _ = try await authBackend.call(with: request)
     XCTAssertFalse(request.containsPostBody)
 
     // Confirm that the request has no decoded body as it is get request.
@@ -47,7 +47,7 @@ class GetRecaptchaConfigTests: RPCBaseTests {
     let request = GetRecaptchaConfigRequest(requestConfiguration: makeRequestConfiguration())
 
     rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
-    let response = try await AuthBackend.call(with: request)
+    let response = try await authBackend.call(with: request)
     XCTAssertEqual(response.recaptchaKey, kTestRecaptchaKey)
     XCTAssertNil(response.enforcementState)
   }

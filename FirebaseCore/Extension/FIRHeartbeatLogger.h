@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, FIRDailyHeartbeatCode) {
   FIRDailyHeartbeatCodeSome = 2,
 };
 
+NS_SWIFT_SENDABLE
 @protocol FIRHeartbeatLoggerProtocol <NSObject>
 
 /// Asynchronously logs a heartbeat.

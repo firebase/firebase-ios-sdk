@@ -25,12 +25,13 @@ actor SecureTokenServiceInternal {
   /// - Parameter forceRefresh: Forces the token to be refreshed.
   /// - Returns : A tuple with the token and flag of whether it was updated.
   func fetchAccessToken(forcingRefresh forceRefresh: Bool,
-                        service: SecureTokenService) async throws -> (String?, Bool) {
+                        service: SecureTokenService,
+                        backend: AuthBackend) async throws -> (String?, Bool) {
     if !forceRefresh, hasValidAccessToken(service: service) {
       return (service.accessToken, false)
     } else {
       AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
-      return try await requestAccessToken(retryIfExpired: true, service: service)
+      return try await requestAccessToken(retryIfExpired: true, service: service, backend: backend)
     }
   }
 
@@ -41,7 +42,8 @@ actor SecureTokenServiceInternal {
   ///
   /// - Returns: Token and Bool indicating if update occurred.
   private func requestAccessToken(retryIfExpired: Bool,
-                                  service: SecureTokenService) async throws -> (String?, Bool) {
+                                  service: SecureTokenService,
+                                  backend: AuthBackend) async throws -> (String?, Bool) {
     // TODO: This was a crash in ObjC SDK, should it callback with an error?
     guard let refreshToken = service.refreshToken,
           let requestConfiguration = service.requestConfiguration else {
@@ -50,7 +52,7 @@ actor SecureTokenServiceInternal {
 
     let request = SecureTokenRequest.refreshRequest(refreshToken: refreshToken,
                                                     requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.call(with: request)
+    let response = try await backend.call(with: request)
     var tokenUpdated = false
     if let newAccessToken = response.accessToken,
        newAccessToken.count > 0,
@@ -67,7 +69,11 @@ actor SecureTokenServiceInternal {
           if expirationDate.timeIntervalSinceNow <= kFiveMinutes {
             // We only retry once, to avoid an infinite loop in the case that an end-user has
             // their local time skewed by over an hour.
-            return try await requestAccessToken(retryIfExpired: false, service: service)
+            return try await requestAccessToken(
+              retryIfExpired: false,
+              service: service,
+              backend: backend
+            )
           }
         }
       }
@@ -152,8 +158,10 @@ class SecureTokenService: NSObject, NSSecureCoding {
   ///    Invoked asynchronously on the auth global work queue in the future.
   /// - Parameter forceRefresh: Forces the token to be refreshed.
   /// - Returns : A tuple with the token and flag of whether it was updated.
-  func fetchAccessToken(forcingRefresh forceRefresh: Bool) async throws -> (String?, Bool) {
-    return try await internalService.fetchAccessToken(forcingRefresh: forceRefresh, service: self)
+  func fetchAccessToken(forcingRefresh forceRefresh: Bool,
+                        backend: AuthBackend) async throws -> (String?, Bool) {
+    return try await internalService
+      .fetchAccessToken(forcingRefresh: forceRefresh, service: self, backend: backend)
   }
 
   // MARK: NSSecureCoding

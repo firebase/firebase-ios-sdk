@@ -662,7 +662,7 @@
       let strippedName = functionName.replacingOccurrences(of: "(", with: "")
         .replacingOccurrences(of: ")", with: "")
       FirebaseApp.configure(name: strippedName, options: options)
-      let auth = Auth.auth(app: FirebaseApp.app(name: strippedName)!)
+      let auth = Auth(app: FirebaseApp.app(name: strippedName)!, backend: authBackend)
 
       kAuthGlobalWorkQueue.sync {
         // Wait for Auth protectedDataInitialization to finish.

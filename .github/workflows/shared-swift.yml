@@ -24,16 +24,19 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
-    runs-on: ${{ matrix.os }}
+        build-env:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSharedSwift.podspec --platforms=${{ matrix.target }}
 
@@ -67,9 +70,12 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
-    runs-on: ${{ matrix.os }}
+        build-env:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
@@ -77,7 +83,7 @@ jobs:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests

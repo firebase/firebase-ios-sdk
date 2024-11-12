@@ -14,59 +14,6 @@
 
 import Foundation
 
-struct RPCError: Error {
-  let httpResponseCode: Int
-  let message: String
-  let status: RPCStatus
-  let details: [ErrorDetails]
-
-  private var errorInfo: ErrorDetails? {
-    return details.first { $0.isErrorInfo() }
-  }
-
-  init(httpResponseCode: Int, message: String, status: RPCStatus, details: [ErrorDetails]) {
-    self.httpResponseCode = httpResponseCode
-    self.message = message
-    self.status = status
-    self.details = details
-  }
-
-  func isVertexAIInFirebaseServiceDisabledError() -> Bool {
-    return details.contains { $0.isVertexAIInFirebaseServiceDisabledErrorDetails() }
-  }
-}
-
-extension RPCError: Decodable {
-  enum CodingKeys: CodingKey {
-    case error
-  }
-
-  init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let status = try container.decode(ErrorStatus.self, forKey: .error)
-
-    if let code = status.code {
-      httpResponseCode = code
-    } else {
-      httpResponseCode = -1
-    }
-
-    if let message = status.message {
-      self.message = message
-    } else {
-      message = "Unknown error."
-    }
-
-    if let rpcStatus = status.status {
-      self.status = rpcStatus
-    } else {
-      self.status = .unknown
-    }
-
-    details = status.details
-  }
-}
-
 struct ErrorStatus {
   let code: Int?
   let message: String?

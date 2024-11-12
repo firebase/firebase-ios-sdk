@@ -16,10 +16,7 @@ import Foundation
 
 /// Represents the response from the verifyAssertion endpoint.
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
-class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
-  required init() {}
-
-  /// The unique ID identifies the IdP account.
+struct VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   var federatedID: String?
 
   /// The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
@@ -109,7 +106,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   var isNewUser: Bool = false
 
   /// Dictionary containing the additional IdP specific information.
-  var profile: [String: Any]?
+  var profile: [String: Sendable]?
 
   /// The name of the user.
   var username: String?
@@ -135,7 +132,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
 
   private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     federatedID = dictionary["federatedId"] as? String
     providerID = dictionary["providerId"] as? String
     localID = dictionary["localId"] as? String
@@ -161,10 +158,10 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
     if let rawUserInfo = dictionary["rawUserInfo"] as? String,
        let data = rawUserInfo.data(using: .utf8) {
       if let info = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves),
-         let profile = info as? [String: Any] {
+         let profile = info as? [String: any Sendable] {
         self.profile = profile
       }
-    } else if let profile = dictionary["rawUserInfo"] as? [String: Any] {
+    } else if let profile = dictionary["rawUserInfo"] as? [String: any Sendable] {
       self.profile = profile
     }
     username = dictionary["username"] as? String

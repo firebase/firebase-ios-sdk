@@ -217,8 +217,8 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(prompt)
 
-    XCTAssertEqual(response.totalTokens, 34)
-    XCTAssertEqual(response.totalBillableCharacters, 59)
+    XCTAssertEqual(response.totalTokens, 58)
+    XCTAssertEqual(response.totalBillableCharacters, 160)
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
