@@ -1763,6 +1763,10 @@ extension User: NSSecureCoding {}
     ) as? String
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey ?? "", appID: appID ?? "")
 
+    // This property will be overwritten later via the `user.auth` property update. For now, a
+    // placeholder is set as the property update should happen right after this intializer.
+    backend = AuthBackend(rpcIssuer: AuthBackendRPCIssuer())
+
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS)
       self.multiFactor = multiFactor ?? MultiFactor()
