@@ -34,7 +34,8 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRGitHubAuthCredential) class GitHubAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRGitHubAuthCredential) class GitHubAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
   let token: String
 
   init(withToken token: String) {
