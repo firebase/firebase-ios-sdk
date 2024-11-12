@@ -54,8 +54,13 @@ private let kRefreshTokenKey = "refreshToken"
 /// The key for the "code" parameter in the request.
 private let kCodeKey = "code"
 
+#if compiler(>=6)
+/// Host for server API calls.
+private nonisolated(unsafe) var gAPIHost = "securetoken.googleapis.com"
+#else
 /// Host for server API calls.
 private var gAPIHost = "securetoken.googleapis.com"
+#endif  // compiler(>=6)
 
 /// Represents the parameters for the token endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
