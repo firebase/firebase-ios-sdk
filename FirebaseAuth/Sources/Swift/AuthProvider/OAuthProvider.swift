@@ -413,7 +413,7 @@ import Foundation
   private func getHeadfulLiteUrl(eventID: String,
                                  sessionID: String) async throws -> URL? {
     let authDomain = try await AuthWebUtils
-      .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration)
+      .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration, backend: auth.backend)
     let bundleID = Bundle.main.bundleIdentifier
     let clientID = auth.app?.options.clientID
     let appID = auth.app?.options.googleAppID

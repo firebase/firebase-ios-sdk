@@ -34,7 +34,7 @@ struct ResetPasswordResponse: AuthRPCResponse {
   /// The type of request as returned by the backend.
   var requestType: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     requestType = dictionary["requestType"] as? String
     verifiedEmail = dictionary["newEmail"] as? String

@@ -37,7 +37,7 @@ struct SecureTokenResponse: AuthRPCResponse {
 
   var expectedKind: String? { nil }
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     refreshToken = dictionary[kRefreshTokenKey] as? String
     self.accessToken = dictionary[kAccessTokenKey] as? String
     idToken = dictionary[kIDTokenKey] as? String

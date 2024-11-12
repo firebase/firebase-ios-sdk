@@ -88,7 +88,7 @@ import Foundation
                                                        .requestConfiguration)
           Task {
             do {
-              let response = try await AuthBackend.call(with: request)
+              let response = try await auth.backend.call(with: request)
               do {
                 let user = try await auth.completeSignIn(withAccessToken: response.idToken,
                                                          accessTokenExpirationDate: nil,
@@ -139,7 +139,7 @@ import Foundation
 
         Task {
           do {
-            let response = try await AuthBackend.call(with: request)
+            let response = try await auth.backend.call(with: request)
             do {
               let user = try await auth.completeSignIn(withAccessToken: response.idToken,
                                                        accessTokenExpirationDate: nil,
@@ -217,7 +217,7 @@ import Foundation
                                        requestConfiguration: user.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           do {
             let user = try await auth.completeSignIn(withAccessToken: response.idToken,
                                                      accessTokenExpirationDate: nil,
