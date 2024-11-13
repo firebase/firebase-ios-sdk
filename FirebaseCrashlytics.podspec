@@ -59,7 +59,7 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/CrashlyticsInputFiles.xcfilelist ./CrashlyticsInputFiles.xcfilelist
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '11.6.0'
+  s.dependency 'FirebaseCore', '~> 11.6.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'FirebaseSessions', '~> 11.0'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 11.0'

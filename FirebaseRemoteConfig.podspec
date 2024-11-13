@@ -52,7 +52,7 @@ app update.
   }
   s.dependency 'FirebaseABTesting', '~> 11.0'
   s.dependency 'FirebaseSharedSwift', '~> 11.0'
-  s.dependency 'FirebaseCore', '11.6.0'
+  s.dependency 'FirebaseCore', '~> 11.6.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
