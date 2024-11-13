@@ -46,8 +46,8 @@ Firebase SDK.
 
   s.dependency 'FirebaseAppCheckInterop', '~> 11.4'
   s.dependency 'FirebaseAuthInterop', '~> 11.4'
-  s.dependency 'FirebaseCore', '11.6.0'
-  s.dependency 'FirebaseCoreExtension', '11.6.0'
+  s.dependency 'FirebaseCore', '~> 11.6.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.6.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'
