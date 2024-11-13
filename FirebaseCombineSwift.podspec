@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCombineSwift'
-  s.version          = '11.0.0'
+  s.version          = '11.6.0'
   s.summary          = 'Swift extensions with Combine support for Firebase'
 
   s.description      = <<-DESC
