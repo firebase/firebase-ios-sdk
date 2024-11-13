@@ -219,8 +219,7 @@ extension Auth: AuthInterop {
   ///   - user: The user object to be set as the current user of the calling Auth instance.
   ///   - completion: Optionally; a block invoked after the user of the calling Auth instance has
   ///             been updated or an error was encountered.
-  @objc open func updateCurrentUser(_ user: User?,
-                                    completion: (@Sendable (Error?) -> Void)? = nil) {
+  @objc open func updateCurrentUser(_ user: User?, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       guard let user else {
         let error = AuthErrorUtils.nullUserError(message: nil)
@@ -287,7 +286,7 @@ extension Auth: AuthInterop {
     )
   #endif // !FIREBASE_CI
   @objc open func fetchSignInMethods(forEmail email: String,
-                                     completion: (@Sendable ([String]?, Error?) -> Void)? = nil) {
+                                     completion: (([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http://www.google.com/",
@@ -351,7 +350,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          password: String,
-                         completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       Task {
@@ -450,7 +449,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          link: String,
-                         completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let credential = EmailAuthCredential(withEmail: email, link: link)
@@ -529,7 +528,7 @@ extension Auth: AuthInterop {
     @objc(signInWithProvider:UIDelegate:completion:)
     open func signIn(with provider: FederatedAuthProvider,
                      uiDelegate: AuthUIDelegate?,
-                     completion: (@Sendable (AuthDataResult?, Error?) -> Void)?) {
+                     completion: ((AuthDataResult?, Error?) -> Void)?) {
       kAuthGlobalWorkQueue.async {
         Task {
           let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
@@ -630,7 +629,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc(signInWithCredential:completion:)
   open func signIn(with credential: AuthCredential,
-                   completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
+                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       Task {
@@ -700,8 +699,7 @@ extension Auth: AuthInterop {
   /// not enabled. Enable them in the Auth section of the Firebase console.
   /// - Parameter completion: Optionally; a block which is invoked when the sign in finishes, or is
   /// canceled. Invoked asynchronously on the main thread in the future.
-  @objc open func signInAnonymously(completion: (@Sendable (AuthDataResult?, Error?) -> Void)? =
-    nil) {
+  @objc open func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       if let currentUser = self.currentUser, currentUser.isAnonymous {
@@ -767,7 +765,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the sign in finishes, or is
   ///    canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withCustomToken token: String,
-                         completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let request = VerifyCustomTokenRequest(token: token,
@@ -836,7 +834,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func createUser(withEmail email: String,
                              password: String,
-                             completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
+                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     guard password.count > 0 else {
       if let completion {
         completion(nil, AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing password"))
@@ -949,7 +947,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
   /// Invoked asynchronously on the main thread in the future.
   @objc open func confirmPasswordReset(withCode code: String, newPassword: String,
-                                       completion: @Sendable @escaping (Error?) -> Void) {
+                                       completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
@@ -989,8 +987,7 @@ extension Auth: AuthInterop {
   /// Invoked
   /// asynchronously on the main thread in the future.
   @objc open func checkActionCode(_ code: String,
-                                  completion: @Sendable @escaping (ActionCodeInfo?, Error?)
-                                    -> Void) {
+                                  completion: @escaping (ActionCodeInfo?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: nil,
@@ -1035,8 +1032,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
   /// Invoked asynchronously on the main thread in the future.
   @objc open func verifyPasswordResetCode(_ code: String,
-                                          completion: @Sendable @escaping (String?, Error?)
-                                            -> Void) {
+                                          completion: @escaping (String?, Error?) -> Void) {
     checkActionCode(code) { info, error in
       if let error {
         completion(nil, error)
@@ -1069,8 +1065,7 @@ extension Auth: AuthInterop {
   /// - Parameter code: The out of band code to be applied.
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
   /// Invoked asynchronously on the main thread in the future.
-  @objc open func applyActionCode(_ code: String,
-                                  completion: @Sendable @escaping (Error?) -> Void) {
+  @objc open func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
@@ -1115,7 +1110,7 @@ extension Auth: AuthInterop {
   /// Invoked
   /// asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
-                                    completion: (@Sendable (Error?) -> Void)? = nil) {
+                                    completion: ((Error?) -> Void)? = nil) {
     sendPasswordReset(withEmail: email, actionCodeSettings: nil, completion: completion)
   }
 
@@ -1148,7 +1143,7 @@ extension Auth: AuthInterop {
   /// Invoked asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
                                     actionCodeSettings: ActionCodeSettings?,
-                                    completion: (@Sendable (Error?) -> Void)? = nil) {
+                                    completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
         email: email,
@@ -1217,7 +1212,7 @@ extension Auth: AuthInterop {
   /// Invoked asynchronously on the main thread in the future.
   @objc open func sendSignInLink(toEmail email: String,
                                  actionCodeSettings: ActionCodeSettings,
-                                 completion: (@Sendable (Error?) -> Void)? = nil) {
+                                 completion: ((Error?) -> Void)? = nil) {
     if !actionCodeSettings.handleCodeInApp {
       fatalError("The handleCodeInApp flag in ActionCodeSettings must be true for Email-link " +
         "Authentication.")

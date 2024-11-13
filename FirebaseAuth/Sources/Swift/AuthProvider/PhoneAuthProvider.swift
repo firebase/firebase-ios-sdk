@@ -71,7 +71,7 @@ import Foundation
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession? = nil,
-                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
+                                completion: ((_: String?, _: Error?) -> Void)?) {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
         fatalError(
