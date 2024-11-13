@@ -52,7 +52,7 @@ import Foundation
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
                         multiFactorSession: nil,
@@ -71,7 +71,7 @@ import Foundation
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession? = nil,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
         fatalError(
@@ -132,7 +132,7 @@ import Foundation
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession?,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
       multiFactorSession?.multiFactorInfo = multiFactorInfo
       verifyPhoneNumber(multiFactorInfo.phoneNumber,
                         uiDelegate: uiDelegate,
