@@ -39,7 +39,7 @@
 /** Validates if the foreground & background state is captured correctly. */
 - (void)testBackgroundTracking {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Application state change"];
-  
+
   FPRTraceBackgroundActivityTracker *tracker = [[FPRTraceBackgroundActivityTracker alloc] init];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
   dispatch_async(dispatch_get_main_queue(), ^{
@@ -49,14 +49,16 @@
                                  object:[UIApplication sharedApplication]];
     [expectation fulfill];
   });
-  
-  [self waitForExpectationsWithTimeout:5.0 handler:^(NSError * _Nullable error) {
-    if (error) {
-        XCTFail(@"Expectation failed with error: %@", error);
-    } else {
-      XCTAssertEqual(tracker.traceBackgroundState, FPRTraceStateBackgroundAndForeground);
-    }
-  }];
+
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation failed with error: %@", error);
+                                 } else {
+                                   XCTAssertEqual(tracker.traceBackgroundState,
+                                                  FPRTraceStateBackgroundAndForeground);
+                                 }
+                               }];
 }
 
 @end
