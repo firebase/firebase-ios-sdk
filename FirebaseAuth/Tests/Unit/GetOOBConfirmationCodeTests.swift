@@ -199,7 +199,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       rpcIssuer?.respondBlock = {
         try self.rpcIssuer?.respond(withJSON: [self.kOOBCodeKey: self.kTestOOBCode])
       }
-      let response = try await AuthBackend.call(with: request())
+      let response = try await authBackend.call(with: request())
       XCTAssertEqual(response.OOBCode, kTestOOBCode)
     }
   }
@@ -217,7 +217,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       rpcIssuer?.respondBlock = {
         try self.rpcIssuer?.respond(withJSON: [:])
       }
-      let response = try await AuthBackend.call(with: request())
+      let response = try await authBackend.call(with: request())
       XCTAssertNil(response.OOBCode)
     }
   }

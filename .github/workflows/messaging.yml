@@ -59,24 +59,23 @@ jobs:
       matrix:
         podspec: [FirebaseMessagingInterop.podspec, FirebaseMessaging.podspec]
         target: [ios, tvos, macos --skip-tests, watchos --skip-tests] # skipping tests on mac because of keychain access
-        os: [macos-14]
-        include:
+        build-env:
           - os: macos-14
             xcode: Xcode_15.3
             tests: --test-specs=unit
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
             tests: --skip-tests
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} ${{ matrix.tests }} --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} ${{ matrix.build-env.tests }} --platforms=${{ matrix.target }}
 
   spm-package-resolved:
     env:
@@ -115,22 +114,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS spmbuildonly
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: iOS spm
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: tvOS spmbuildonly
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: macOS spmbuildonly
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: watchOS spmbuildonly
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: catalyst spmbuildonly
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: visionOS spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:
@@ -170,8 +169,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
-            xcode: Xcode_15.3
+          - os: macos-15
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

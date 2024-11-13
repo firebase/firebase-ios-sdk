@@ -129,7 +129,7 @@
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthCredential)
-  class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
+  class GameCenterAuthCredential: AuthCredential, NSSecureCoding, @unchecked Sendable {
     let playerID: String
     let teamPlayerID: String?
     let gamePlayerID: String?

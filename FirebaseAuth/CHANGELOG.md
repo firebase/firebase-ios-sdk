@@ -1,7 +1,12 @@
-# Unreleased
+# 11.5.0
 - [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
   logged out when upgrading from Firebase 8.10.0 or earlier to Firebase 11.
-  (#14011)
+  Note that this fix will not be in the 11.5.0 zip and Carthage
+  distributions, but will be included from 11.6.0 onwards. (#14011)
+- [fixed] Restore Firebase 10 keychain error handling behavior when retrieving
+  Firebase Auth tokens, potentially causing user sign-out on Firebase 11. Note
+  that this fix will not be in the 11.5.0 zip and Carthage distributions, but
+  will be included from 11.6.0 onwards. (#14067)
 
 # 11.4.0
 - [fixed] Restore Firebase 10 behavior by ignoring `nil` display names used

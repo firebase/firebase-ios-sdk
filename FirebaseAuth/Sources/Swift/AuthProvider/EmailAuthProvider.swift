@@ -38,7 +38,8 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIREmailPasswordAuthCredential) class EmailAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIREmailPasswordAuthCredential) class EmailAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
   let email: String
 
   enum EmailType {

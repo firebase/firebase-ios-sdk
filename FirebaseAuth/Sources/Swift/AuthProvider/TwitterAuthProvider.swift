@@ -35,7 +35,8 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRTwitterAuthCredential) class TwitterAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRTwitterAuthCredential) class TwitterAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
   let token: String
   let secret: String
 

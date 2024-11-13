@@ -123,11 +123,12 @@ extension Auth: AuthInterop {
         return
       }
       // Call back with current user token.
-      currentUser.internalGetToken(forceRefresh: forceRefresh) { token, error in
-        DispatchQueue.main.async {
-          callback(token, error)
+      currentUser
+        .internalGetToken(forceRefresh: forceRefresh, backend: strongSelf.backend) { token, error in
+          DispatchQueue.main.async {
+            callback(token, error)
+          }
         }
-      }
     }
   }
 
@@ -292,7 +293,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
           Auth.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
         } catch {
           Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
@@ -395,7 +396,7 @@ extension Auth: AuthInterop {
       let response = try await injectRecaptcha(request: request,
                                                action: AuthRecaptchaAction.signInWithPassword)
     #else
-      let response = try await AuthBackend.call(with: request)
+      let response = try await backend.call(with: request)
     #endif
     return try await completeSignIn(
       withAccessToken: response.idToken,
@@ -709,7 +710,7 @@ extension Auth: AuthInterop {
       let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -771,7 +772,7 @@ extension Auth: AuthInterop {
                                              requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -881,7 +882,7 @@ extension Auth: AuthInterop {
         if let inResponse {
           response = inResponse
         } else {
-          response = try await AuthBackend.call(with: request)
+          response = try await self.backend.call(with: request)
         }
         let user = try await self.completeSignIn(
           withAccessToken: response.idToken,
@@ -993,7 +994,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
 
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
           guard let email = response.email else {
@@ -1433,7 +1434,7 @@ extension Auth: AuthInterop {
   /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
                               completion: ((Error?) -> Void)? = nil) {
-    currentUser?.internalGetToken { idToken, error in
+    currentUser?.internalGetToken(backend: backend) { idToken, error in
       if let error {
         Auth.wrapMainAsync(completion, error)
         return
@@ -1613,7 +1614,9 @@ extension Auth: AuthInterop {
 
   // MARK: Internal methods
 
-  init(app: FirebaseApp, keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal()) {
+  init(app: FirebaseApp,
+       keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal(),
+       backend: AuthBackend = AuthBackend(rpcIssuer: AuthBackendRPCIssuer())) {
     Auth.setKeychainServiceNameForApp(app)
     self.app = app
     mainBundleUrlTypes = Bundle.main
@@ -1638,6 +1641,7 @@ extension Auth: AuthInterop {
                                                     auth: nil,
                                                     heartbeatLogger: app.heartbeatLogger,
                                                     appCheck: appCheck)
+    self.backend = backend
     super.init()
     requestConfiguration.auth = self
 
@@ -1911,17 +1915,18 @@ extension Auth: AuthInterop {
         return
       }
       let uid = strongSelf.currentUser?.uid
-      strongSelf.currentUser?.internalGetToken(forceRefresh: true) { token, error in
-        if strongSelf.currentUser?.uid != uid {
-          return
+      strongSelf.currentUser?
+        .internalGetToken(forceRefresh: true, backend: strongSelf.backend) { token, error in
+          if strongSelf.currentUser?.uid != uid {
+            return
+          }
+          if error != nil {
+            // Kicks off exponential back off logic to retry failed attempt. Starts with one minute
+            // delay (60 seconds) if this is the first failed attempt.
+            let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
+            strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
+          }
         }
-        if error != nil {
-          // Kicks off exponential back off logic to retry failed attempt. Starts with one minute
-          // delay (60 seconds) if this is the first failed attempt.
-          let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
-          strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
-        }
-      }
     }
   }
 
@@ -2075,7 +2080,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: requestConfiguration)
     request.autoCreate = !isReauthentication
     credential.prepare(request)
-    let response = try await AuthBackend.call(with: request)
+    let response = try await backend.call(with: request)
     if response.needConfirmation {
       let email = response.email
       let credential = OAuthCredential(withVerifyAssertionResponse: response)
@@ -2114,7 +2119,7 @@ extension Auth: AuthInterop {
                                                phoneNumber: phoneNumber,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        return try await AuthBackend.call(with: request)
+        return try await backend.call(with: request)
       case let .verification(verificationID, code):
         guard verificationID.count > 0 else {
           throw AuthErrorUtils.missingVerificationIDError(message: nil)
@@ -2126,7 +2131,7 @@ extension Auth: AuthInterop {
                                                verificationCode: code,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        return try await AuthBackend.call(with: request)
+        return try await backend.call(with: request)
       }
     }
   #endif
@@ -2152,7 +2157,7 @@ extension Auth: AuthInterop {
                                                 timestamp: credential.timestamp,
                                                 displayName: credential.displayName,
                                                 requestConfiguration: requestConfiguration)
-      let response = try await AuthBackend.call(with: request)
+      let response = try await backend.call(with: request)
       let user = try await completeSignIn(withAccessToken: response.idToken,
                                           accessTokenExpirationDate: response
                                             .approximateExpirationDate,
@@ -2184,7 +2189,7 @@ extension Auth: AuthInterop {
     let request = EmailLinkSignInRequest(email: email,
                                          oobCode: actionCode,
                                          requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.call(with: request)
+    let response = try await backend.call(with: request)
     let user = try await completeSignIn(withAccessToken: response.idToken,
                                         accessTokenExpirationDate: response
                                           .approximateExpirationDate,
@@ -2242,7 +2247,7 @@ extension Auth: AuthInterop {
   private func wrapAsyncRPCTask(_ request: any AuthRPCRequest, _ callback: ((Error?) -> Void)?) {
     Task {
       do {
-        let _ = try await AuthBackend.call(with: request)
+        let _ = try await self.backend.call(with: request)
         Auth.wrapMainAsync(callback, nil)
       } catch {
         Auth.wrapMainAsync(callback, error)
@@ -2294,7 +2299,7 @@ extension Auth: AuthInterop {
                                                           action: action)
       } else {
         do {
-          return try await AuthBackend.call(with: request)
+          return try await backend.call(with: request)
         } catch {
           let nsError = error as NSError
           if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
@@ -2313,7 +2318,7 @@ extension Auth: AuthInterop {
           }
         }
       }
-      return try await AuthBackend.call(with: request)
+      return try await backend.call(with: request)
     }
   #endif
 
@@ -2329,6 +2334,8 @@ extension Auth: AuthInterop {
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
   var requestConfiguration: AuthRequestConfiguration
+
+  let backend: AuthBackend
 
   #if os(iOS)
 

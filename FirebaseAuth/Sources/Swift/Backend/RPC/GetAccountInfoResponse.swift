@@ -139,7 +139,7 @@ struct GetAccountInfoResponse: AuthRPCResponse {
   /// The requested users' profiles.
   var users: [Self.User]?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     guard let usersData = dictionary["users"] as? [[String: AnyHashable]] else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
