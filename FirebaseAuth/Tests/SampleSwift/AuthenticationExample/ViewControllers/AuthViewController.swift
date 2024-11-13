@@ -202,35 +202,31 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     // [END_EXCLUDE]
     let config = GIDConfiguration(clientID: clientID)
     GIDSignIn.sharedInstance.configuration = config
+    Task {
+      do {
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: self)
+        let user = result.user
+        guard let idToken = user.idToken?.tokenString
+        else {
+          // [START_EXCLUDE]
+          let error = NSError(
+            domain: "GIDSignInError",
+            code: -1,
+            userInfo: [
+              NSLocalizedDescriptionKey: "Unexpected sign in result: required authentication data is missing.",
+            ]
+          )
+          return displayError(error)
+          // [END_EXCLUDE]
+        }
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                       accessToken: user.accessToken.tokenString)
+        try await newSignIn(with: credential)
 
-    // Start the sign in flow!
-    GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] result, error in
-      guard error == nil else {
-        // [START_EXCLUDE]
+      } catch {
         return displayError(error)
-        // [END_EXCLUDE]
       }
 
-      guard let user = result?.user,
-            let idToken = user.idToken?.tokenString
-      else {
-        // [START_EXCLUDE]
-        let error = NSError(
-          domain: "GIDSignInError",
-          code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey: "Unexpected sign in result: required authentication data is missing.",
-          ]
-        )
-        return displayError(error)
-        // [END_EXCLUDE]
-      }
-
-      let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                     accessToken: user.accessToken.tokenString)
-
-      // [START_EXCLUDE]
-      signIn(with: credential)
       // [END_EXCLUDE]
     }
     // [END headless_google_auth]
@@ -250,6 +246,22 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       // [END_EXCLUDE]
     }
     // [END signin_google_credential]
+  }
+
+  func newSignIn(with credential: AuthCredential) async throws {
+    do {
+      _ = try await AppManager.shared.auth().signIn(with: credential)
+      transitionToUserViewController()
+    } catch {
+      let authError = error as NSError
+      if authError.code == AuthErrorCode.secondFactorRequired.rawValue {
+        let resolver = authError
+          .userInfo[AuthErrorUserInfoMultiFactorResolverKey] as! MultiFactorResolver
+        performMfaLoginFlow(resolver: resolver)
+      } else {
+        return displayError(error)
+      }
+    }
   }
 
   // For Sign in with Apple
@@ -356,6 +368,13 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     phoneAuthViewController.delegate = self
     let navPhoneAuthController = UINavigationController(rootViewController: phoneAuthViewController)
     navigationController?.present(navPhoneAuthController, animated: true)
+  }
+
+  private func performMfaLoginFlow(resolver: MultiFactorResolver) {
+    let mfaLoginController = MFALoginViewController(resolver: resolver)
+    mfaLoginController.delegate = self
+    let navMfaLoginController = UINavigationController(rootViewController: mfaLoginController)
+    navigationController?.present(navMfaLoginController, animated: true)
   }
 
   private func performAnonymousLoginFlow() {
