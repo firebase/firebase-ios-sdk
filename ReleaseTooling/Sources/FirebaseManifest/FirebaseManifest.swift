@@ -55,8 +55,6 @@ public let shared = Manifest(
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
     Pod("FirebaseVertexAI", zip: true),
     Pod("Firebase", allowWarnings: true, platforms: ["ios", "tvos", "macos"], zip: true),
-    Pod("FirebaseAuthTestingSupport", podVersion: "2.0.0", releasing: false, zip: false),
-    Pod("FirebaseFirestoreTestingSupport", podVersion: "1.0.0", releasing: false, zip: false),
     Pod("FirebaseCombineSwift", releasing: false, zip: false),
   ]
 )
