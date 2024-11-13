@@ -427,15 +427,28 @@
 
 /** Validates the value of background state when the app is backgrounded. */
 - (void)testValidTraceWithBackgrounding {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Application state change"];
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
-  [defaultCenter postNotificationName:UIApplicationDidEnterBackgroundNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-  XCTAssertEqual(trace.backgroundTraceState, FPRTraceStateBackgroundAndForeground);
-  [trace stop];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [defaultCenter postNotificationName:UIApplicationDidEnterBackgroundNotification
+                                 object:[UIApplication sharedApplication]];
+    [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
+                                 object:[UIApplication sharedApplication]];
+    [expectation fulfill];
+  });
+
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation failed with error: %@", error);
+                                 } else {
+                                   XCTAssertEqual(trace.backgroundTraceState,
+                                                  FPRTraceStateBackgroundAndForeground);
+                                   [trace stop];
+                                 }
+                               }];
 }
 
 /** Validates the value of background state when trace is not started. */
@@ -452,15 +465,28 @@
 
 /** Validates the value of background state is available after trace is stopped. */
 - (void)testBackgroundStateAfterTraceStop {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Application state change"];
+
   NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace start];
-  [defaultCenter postNotificationName:UIApplicationDidEnterBackgroundNotification
-                               object:[UIApplication sharedApplication]];
-  [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
-                               object:[UIApplication sharedApplication]];
-  [trace stop];
-  XCTAssertEqual(trace.backgroundTraceState, FPRTraceStateBackgroundAndForeground);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [defaultCenter postNotificationName:UIApplicationDidEnterBackgroundNotification
+                                 object:[UIApplication sharedApplication]];
+    [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
+                                 object:[UIApplication sharedApplication]];
+  });
+
+  [self waitForExpectationsWithTimeout:5.0
+                               handler:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   XCTFail(@"Expectation failed with error: %@", error);
+                                 } else {
+                                   XCTAssertEqual(trace.backgroundTraceState,
+                                                  FPRTraceStateBackgroundAndForeground);
+                                   [trace stop];
+                                 }
+                               }];
 }
 
 /** Validates that stages do not have any valid background state. */
