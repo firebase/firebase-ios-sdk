@@ -268,7 +268,7 @@ import Foundation
     /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
     /// thread when the mobile web flow is completed.
     open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
-                                completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+                                completion: (@Sendable (AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
             AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: urlTypes) else {

@@ -59,7 +59,7 @@ import Foundation
   /// This method should only be called once.Once called, property values should not be changed.
   /// - Parameter completion: Optionally; the block invoked when the user profile change has been
   /// applied.
-  @objc open func commitChanges(completion: ((Error?) -> Void)? = nil) {
+  @objc open func commitChanges(completion: (@Sendable (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.consumed {
         fatalError("Internal Auth Error: commitChanges should only be called once.")
