@@ -199,7 +199,7 @@ import Foundation
       }
 
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: false)
+      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
 
       switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
       case .off:
@@ -321,7 +321,7 @@ import Foundation
           try await recaptchaVerifier.injectRecaptchaFields(
             request: request,
             provider: .phone,
-            action: .startMfaEnrollment
+            action: .mfaSmsEnrollment
           )
           let response = try await AuthBackend.call(with: request)
           return response.phoneSessionInfo?.sessionInfo
@@ -333,7 +333,7 @@ import Foundation
           try await recaptchaVerifier.injectRecaptchaFields(
             request: request,
             provider: .phone,
-            action: .startMfaSignin
+            action: .mfaSmsSignIn
           )
           let response = try await AuthBackend.call(with: request)
           return response.responseInfo?.sessionInfo

@@ -59,8 +59,8 @@
     case getOobCode
     case signUpPassword
     case sendVerificationCode
-    case startMfaSignin
-    case startMfaEnrollment
+    case mfaSmsSignIn
+    case mfaSmsEnrollment
 
     // Convenience property for mapping values
     var stringValue: String { rawValue }

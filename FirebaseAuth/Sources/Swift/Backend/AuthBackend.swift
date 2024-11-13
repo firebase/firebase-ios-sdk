@@ -177,6 +177,7 @@ final class AuthBackend: AuthBackendProtocol {
         withJSONObject: postBody,
         options: JSONWritingOptions
       )
+
       if bodyData == nil {
         // This is an untested case. This happens exclusively when there is an error in the
         // framework implementation of dataWithJSONObject:options:error:. This shouldn't normally
