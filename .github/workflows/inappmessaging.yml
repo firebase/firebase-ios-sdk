@@ -24,14 +24,17 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseInAppMessaging.podspec]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
-    runs-on: ${{ matrix.os }}
+        build-env:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: FirebaseInAppMessaging
@@ -97,7 +100,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.4
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -139,7 +142,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
     - uses: actions/checkout@v4
