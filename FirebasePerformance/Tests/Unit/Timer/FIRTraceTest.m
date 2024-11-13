@@ -475,6 +475,7 @@
                                  object:[UIApplication sharedApplication]];
     [defaultCenter postNotificationName:UIApplicationDidBecomeActiveNotification
                                  object:[UIApplication sharedApplication]];
+    [expectation fulfill];
   });
 
   [self waitForExpectationsWithTimeout:5.0
@@ -482,9 +483,9 @@
                                  if (error) {
                                    XCTFail(@"Expectation failed with error: %@", error);
                                  } else {
+                                   [trace stop];
                                    XCTAssertEqual(trace.backgroundTraceState,
                                                   FPRTraceStateBackgroundAndForeground);
-                                   [trace stop];
                                  }
                                }];
 }
