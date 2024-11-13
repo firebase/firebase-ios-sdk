@@ -55,6 +55,7 @@ public let shared = Manifest(
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
     Pod("FirebaseVertexAI", zip: true),
     Pod("Firebase", allowWarnings: true, platforms: ["ios", "tvos", "macos"], zip: true),
+    Pod("FirebaseCombineSwift", releasing: false, zip: false),
   ]
 )
 
@@ -64,6 +65,7 @@ public struct Manifest {
   public let pods: [Pod]
 
   public func versionString(_ pod: Pod) -> String {
+    let version = pod.podVersion ?? self.version
     return pod.isBeta ? version + "-beta" : version
   }
 }
