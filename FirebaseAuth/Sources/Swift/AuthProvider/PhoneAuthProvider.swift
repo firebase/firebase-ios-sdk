@@ -52,7 +52,7 @@ import Foundation
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
-                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
+                                completion: ((_: String?, _: Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
                         multiFactorSession: nil,
@@ -132,7 +132,7 @@ import Foundation
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession?,
-                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
+                                completion: ((_: String?, _: Error?) -> Void)?) {
       multiFactorSession?.multiFactorInfo = multiFactorInfo
       verifyPhoneNumber(multiFactorInfo.phoneNumber,
                         uiDelegate: uiDelegate,
