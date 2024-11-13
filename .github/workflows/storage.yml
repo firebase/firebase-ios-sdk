@@ -139,8 +139,8 @@ jobs:
           #- os: macos-13
           #  xcode: Xcode_14.2 # TODO: the legacy ObjC quickstart doesn't build with Xcode 15.
           - swift: swift
-            os: macos-14
-            xcode: Xcode_15.3
+            os: macos-15
+            xcode: Xcode_16.1
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
