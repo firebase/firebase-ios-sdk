@@ -221,7 +221,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         }
         let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                        accessToken: user.accessToken.tokenString)
-        try await newSignIn(with: credential)
+        try await signIn(with: credential)
 
       } catch {
         return displayError(error)
@@ -232,23 +232,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     // [END headless_google_auth]
   }
 
-  func signIn(with credential: AuthCredential) {
-    // [START signin_google_credential]
-    AppManager.shared.auth().signIn(with: credential) { result, error in
-      // [START_EXCLUDE silent]
-      guard error == nil else { return self.displayError(error) }
-      // [END_EXCLUDE]
-
-      // At this point, our user is signed in
-      // [START_EXCLUDE silent]
-      // so we advance to the User View Controller
-      self.transitionToUserViewController()
-      // [END_EXCLUDE]
-    }
-    // [END signin_google_credential]
-  }
-
-  func newSignIn(with credential: AuthCredential) async throws {
+  func signIn(with credential: AuthCredential) async throws {
     do {
       _ = try await AppManager.shared.auth().signIn(with: credential)
       transitionToUserViewController()
