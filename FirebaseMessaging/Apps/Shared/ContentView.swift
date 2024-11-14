@@ -58,12 +58,12 @@ struct ContentView: View {
             Text("Topic")
               .fontWeight(.semibold)
           }
-#if LIVE_ACTIVITY_ENABLED
-          NavigationLink(destination: LiveActivityView()) {
-            Text("Live Activity")
-              .fontWeight(.semibold)
-          }
-#endif
+          #if LIVE_ACTIVITY_ENABLED
+            NavigationLink(destination: LiveActivityView()) {
+              Text("Live Activity")
+                .fontWeight(.semibold)
+            }
+          #endif
 
           // MARK: Action buttons
 
