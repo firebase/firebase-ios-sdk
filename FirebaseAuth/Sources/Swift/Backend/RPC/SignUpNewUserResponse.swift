@@ -26,7 +26,7 @@ struct SignUpNewUserResponse: AuthRPCResponse {
   /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     if let approximateExpirationDate = dictionary["expiresIn"] as? String {
       self

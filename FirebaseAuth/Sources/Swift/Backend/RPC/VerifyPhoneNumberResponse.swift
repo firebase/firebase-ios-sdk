@@ -43,7 +43,7 @@ struct VerifyPhoneNumberResponse: AuthRPCResponse {
     nil
   }
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     isNewUser = (dictionary["isNewUser"] as? Bool) ?? false

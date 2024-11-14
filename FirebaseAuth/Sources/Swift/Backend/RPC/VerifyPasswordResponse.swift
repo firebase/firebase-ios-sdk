@@ -51,7 +51,7 @@ struct VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
 
   private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String

@@ -47,7 +47,8 @@ class AuthTests: RPCBaseTests {
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: name)!,
-      keychainStorageProvider: keychainStorageProvider
+      keychainStorageProvider: keychainStorageProvider,
+      backend: authBackend
     )
 
     // Set authDispatcherCallback implementation in order to save the token refresh task for later

@@ -33,12 +33,13 @@ class UserTests: RPCBaseTests {
   let kVerificationID = "55432"
   let kPhoneNumber = "555-1234"
 
-  static var auth: Auth?
+  var auth: Auth?
 
-  override class func setUp() {
+  override func setUp() {
+    super.setUp()
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kFakeAPIKey
+    options.apiKey = Self.kFakeAPIKey
     options.projectID = "myUserProjectID"
     FirebaseApp.configure(name: "test-UserTests", options: options)
     #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
@@ -48,13 +49,17 @@ class UserTests: RPCBaseTests {
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: "test-UserTests")!,
-      keychainStorageProvider: keychainStorageProvider
+      keychainStorageProvider: keychainStorageProvider,
+      backend: authBackend
     )
   }
 
   override func tearDown() {
     // Verifies that no tasks are left suspended on the AuthSerialTaskQueue.
-    try? UserTests.auth?.signOut()
+    try? auth?.signOut()
+    auth = nil
+    FirebaseApp.resetApps()
+    super.tearDown()
   }
 
   /** @fn testUserPropertiesAndNSSecureCoding
@@ -415,7 +420,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -441,7 +446,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is no longer signed in..
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -457,7 +462,7 @@ class UserTests: RPCBaseTests {
     func testUpdatePhoneSuccess() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
@@ -491,7 +496,7 @@ class UserTests: RPCBaseTests {
     func testUpdatePhoneNumberFailure() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
@@ -523,7 +528,7 @@ class UserTests: RPCBaseTests {
     func testUpdatePhoneNumberFailureAutoSignOut() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
@@ -540,7 +545,7 @@ class UserTests: RPCBaseTests {
             let error = try! XCTUnwrap(rawError)
             XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
             // User is no longer signed in.
-            XCTAssertNil(UserTests.auth?.currentUser)
+            XCTAssertNil(self.auth?.currentUser)
             expectation.fulfill()
           }
         }
@@ -579,7 +584,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -605,7 +610,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -632,7 +637,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -688,7 +693,7 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(user.email, self.kEmail)
           XCTAssertEqual(user.displayName, self.kDisplayName)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -716,7 +721,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -821,7 +826,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.quotaExceeded.rawValue)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -848,7 +853,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
           // User is no longer signed in.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -878,7 +883,7 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(result.user.email, user.email)
           XCTAssertEqual(result.additionalUserInfo?.isNewUser, false)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -914,7 +919,7 @@ class UserTests: RPCBaseTests {
           }
           XCTAssertNil(error)
           // Verify that the current user is unchanged.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           // Verify that the current user and reauthenticated user are not same pointers.
           XCTAssertNotEqual(user, reauthenticatedAuthResult?.user)
           // Verify that anyway the current user and reauthenticated user have same IDs.
@@ -933,7 +938,7 @@ class UserTests: RPCBaseTests {
       }
     }
     waitForExpectations(timeout: 5)
-    try assertUserGoogle(UserTests.auth?.currentUser)
+    try assertUserGoogle(auth?.currentUser)
   }
 
   /** @fn testReauthenticateFailure
@@ -958,7 +963,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -987,7 +992,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1001,7 +1006,7 @@ class UserTests: RPCBaseTests {
   func testLinkAndRetrieveDataSuccess() throws {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    let auth = try XCTUnwrap(UserTests.auth)
+    let auth = try XCTUnwrap(self.auth)
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
@@ -1069,7 +1074,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kFacebookEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1100,7 +1105,7 @@ class UserTests: RPCBaseTests {
             XCTFail("Expected to throw providerAlreadyLinked error.")
           }
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1130,7 +1135,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userDisabled.rawValue)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -1145,7 +1150,7 @@ class UserTests: RPCBaseTests {
   func testLinkEmailAndRetrieveDataSuccess() throws {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    let auth = try XCTUnwrap(UserTests.auth)
+    let auth = try XCTUnwrap(self.auth)
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
@@ -1213,7 +1218,7 @@ class UserTests: RPCBaseTests {
               XCTFail("Expected to throw providerAlreadyLinked error.")
             }
             // User is still signed in.
-            XCTAssertEqual(UserTests.auth?.currentUser, user)
+            XCTAssertEqual(self.auth?.currentUser, user)
             expectation.fulfill()
           }
         }
@@ -1247,7 +1252,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.tooManyRequests.rawValue)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1277,7 +1282,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -1307,7 +1312,7 @@ class UserTests: RPCBaseTests {
     func testLinkProviderFailure() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithFacebookCredential { user in
         XCTAssertNotNil(user)
         do {
@@ -1322,7 +1327,7 @@ class UserTests: RPCBaseTests {
             let error = try! XCTUnwrap(rawError)
             XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
             // User is signed out.
-            XCTAssertNil(UserTests.auth?.currentUser)
+            XCTAssertNil(self.auth?.currentUser)
             expectation.fulfill()
           }
         }
@@ -1336,7 +1341,7 @@ class UserTests: RPCBaseTests {
     func testReauthenticateWithProviderFailure() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithFacebookCredential { user in
         XCTAssertNotNil(user)
         do {
@@ -1351,7 +1356,7 @@ class UserTests: RPCBaseTests {
             let error = try! XCTUnwrap(rawError)
             XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
             // User is still signed in.
-            XCTAssertEqual(UserTests.auth?.currentUser, user)
+            XCTAssertEqual(self.auth?.currentUser, user)
             expectation.fulfill()
           }
         }
@@ -1365,7 +1370,7 @@ class UserTests: RPCBaseTests {
     func testLinkPhoneAuthCredentialSuccess() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         XCTAssertNotNil(user)
         self.expectVerifyPhoneNumberRequest(isLink: true)
@@ -1410,7 +1415,7 @@ class UserTests: RPCBaseTests {
     func testUnlinkPhoneAuthCredentialSuccess() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         XCTAssertNotNil(user)
         self.expectVerifyPhoneNumberRequest(isLink: true)
@@ -1506,7 +1511,7 @@ class UserTests: RPCBaseTests {
     func testlinkPhoneCredentialAlreadyExistsError() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         XCTAssertNotNil(user)
         self.expectVerifyPhoneNumberRequest(isLink: true)
@@ -1668,12 +1673,12 @@ class UserTests: RPCBaseTests {
     }
     // 1. After setting up fakes, sign out and sign in.
     do {
-      try UserTests.auth?.signOut()
+      try auth?.signOut()
     } catch {
       XCTFail("Sign out failed: \(error)")
       return
     }
-    UserTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -1716,10 +1721,10 @@ class UserTests: RPCBaseTests {
     }
 
     do {
-      try UserTests.auth?.signOut()
+      try auth?.signOut()
       let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
                                                            accessToken: kGoogleAccessToken)
-      UserTests.auth?.signIn(with: googleCredential) { authResult, error in
+      auth?.signIn(with: googleCredential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         guard let user = authResult?.user else {
@@ -1783,10 +1788,10 @@ class UserTests: RPCBaseTests {
     }
 
     do {
-      try UserTests.auth?.signOut()
+      try auth?.signOut()
       let facebookCredential = FacebookAuthProvider
         .credential(withAccessToken: kFacebookAccessToken)
-      UserTests.auth?.signIn(with: facebookCredential) { authResult, error in
+      auth?.signIn(with: facebookCredential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         guard let user = authResult?.user else {
@@ -1838,8 +1843,8 @@ class UserTests: RPCBaseTests {
     }
 
     do {
-      try UserTests.auth?.signOut()
-      UserTests.auth?.signIn(
+      try auth?.signOut()
+      auth?.signIn(
         withEmail: kEmail,
         link: "https://www.google.com?oobCode=aCode&mode=signIn"
       ) { authResult, error in

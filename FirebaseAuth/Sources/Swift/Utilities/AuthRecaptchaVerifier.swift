@@ -44,7 +44,7 @@
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  class AuthRecaptchaVerifier {
+  class AuthRecaptchaVerifier: @unchecked Sendable {
     private(set) weak var auth: Auth?
     private(set) var agentConfig: AuthRecaptchaConfig?
     private(set) var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
@@ -149,12 +149,12 @@
         }
       }
 
-      guard let requestConfiguration = auth?.requestConfiguration else {
+      guard let auth = auth else {
         throw AuthErrorUtils.error(code: .recaptchaNotEnabled,
                                    message: "No requestConfiguration for Auth instance")
       }
-      let request = GetRecaptchaConfigRequest(requestConfiguration: requestConfiguration)
-      let response = try await AuthBackend.call(with: request)
+      let request = GetRecaptchaConfigRequest(requestConfiguration: auth.requestConfiguration)
+      let response = try await auth.backend.call(with: request)
       AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
       // Response's site key is of the format projects/<project-id>/keys/<site-key>'
       guard let keys = response.recaptchaKey?.components(separatedBy: "/"),
@@ -179,7 +179,7 @@
       }
       let config = AuthRecaptchaConfig(siteKey: siteKey, enablementStatus: enablementStatus)
 
-      if let tenantID = auth?.tenantID {
+      if let tenantID = auth.tenantID {
         tenantConfigs[tenantID] = config
       } else {
         agentConfig = config

@@ -62,28 +62,27 @@ jobs:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
         podspec: [FirebaseRemoteConfig.podspec]
-        os: [macos-14]
-        include:
+        build-env:
           - os: macos-14
             xcode: Xcode_15.3
             # TODO(#13078): Fix testing infra to enforce warnings again.
             tests: --allow-warnings
           # Flaky tests on CI
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
             tests: --skip-tests
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Build and test
       run: |
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} \
-         ${{ matrix.tests }}
+         ${{ matrix.build-env.tests }}
 
   spm-package-resolved:
     env:
@@ -124,27 +123,27 @@ jobs:
             target: iOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: iOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: tvOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: macOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: watchOS
             test: spmbuildonly
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: catalyst
             test: spm
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: visionOS
             test: spm
     runs-on: ${{ matrix.os }}
@@ -184,7 +183,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
