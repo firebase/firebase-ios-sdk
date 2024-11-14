@@ -45,20 +45,20 @@ class AuthTests: RPCBaseTests {
     #else
       let keychainStorageProvider = AuthKeychainStorageReal()
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
-    auth = Auth(
-      app: FirebaseApp.app(name: name)!,
-      keychainStorageProvider: keychainStorageProvider,
-      backend: authBackend
-    )
 
-    // Set authDispatcherCallback implementation in order to save the token refresh task for later
-    // execution.
-    AuthDispatcher.shared.dispatchAfterImplementation = { delay, queue, task in
+    // Stub the implementation to save the token refresh task for later execution.
+    let authDispatcher = AuthDispatcher { delay, queue, task in
       XCTAssertNotNil(task)
       XCTAssertGreaterThan(delay, 0)
       XCTAssertEqual(kAuthGlobalWorkQueue, queue)
       self.authDispatcherCallback = task
     }
+    auth = Auth(
+      app: FirebaseApp.app(name: name)!,
+      keychainStorageProvider: keychainStorageProvider,
+      backend: authBackend,
+      authDispatcher: authDispatcher
+    )
     // Wait until Auth initialization completes
     waitForAuthGlobalWorkQueueDrain()
   }
