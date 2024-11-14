@@ -243,7 +243,7 @@ import Foundation
           provider: .phone,
           action: .sendVerificationCode
         )
-        let response = try await AuthBackend.call(with: request)
+        let response = try await auth.backend.call(with: request)
         return response.verificationID
       } catch {
         return try await handleVerifyErrorWithRetry(error: error,
@@ -270,7 +270,7 @@ import Foundation
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
       do {
-        let response = try await AuthBackend.call(with: request)
+        let response = try await auth.backend.call(with: request)
         return response.verificationID
       } catch {
         return try await handleVerifyErrorWithRetry(
@@ -300,7 +300,7 @@ import Foundation
           codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-        let response = try await AuthBackend.call(with: request)
+        let response = try await auth.backend.call(with: request)
         return response.verificationID
       }
       guard let session else {
@@ -323,7 +323,7 @@ import Foundation
             provider: .phone,
             action: .mfaSmsEnrollment
           )
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           return response.phoneSessionInfo?.sessionInfo
         } else {
           let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
@@ -335,7 +335,7 @@ import Foundation
             provider: .phone,
             action: .mfaSmsSignIn
           )
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           return response.responseInfo?.sessionInfo
         }
       } catch {

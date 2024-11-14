@@ -207,7 +207,7 @@
       }
       let config = AuthRecaptchaConfig(siteKey: siteKey, enablementStatus: enablementStatus)
 
-      if let tenantID = auth.tenantID {
+      if let tenantID = auth?.tenantID {
         tenantConfigs[tenantID] = config
       } else {
         agentConfig = config
