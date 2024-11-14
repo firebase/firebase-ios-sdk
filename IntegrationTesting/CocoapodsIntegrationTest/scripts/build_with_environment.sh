@@ -29,6 +29,8 @@ function runXcodebuild() {
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 14'
     CODE_SIGNING_REQUIRED=NO
+    CODE_SIGNING_ALLOWED=NO
+    CODE_SIGN_IDENTITY=-
     clean
     build
   )
