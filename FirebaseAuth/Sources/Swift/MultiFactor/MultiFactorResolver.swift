@@ -107,7 +107,6 @@ import Foundation
 
     let mfaPendingCredential: String?
 
-    // TODO(ncooke3): Do not lead with `with`.
     init(with mfaPendingCredential: String?, hints: [MultiFactorInfo], auth: Auth) {
       self.mfaPendingCredential = mfaPendingCredential
       self.hints = hints

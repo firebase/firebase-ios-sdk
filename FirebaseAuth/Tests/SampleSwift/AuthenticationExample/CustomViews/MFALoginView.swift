@@ -111,7 +111,6 @@ extension MFALoginView {
     )
     let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
     do {
-      // TODO(ncooke3): Consider if this API should return a discardable result?
       _ = try await resolver.resolveSignIn(with: assertion)
       dismiss()
     } catch {
@@ -177,14 +176,3 @@ private struct SymbolTextField: TextFieldStyle {
     .textInputAutocapitalization(.never)
   }
 }
-
-// TODO(ncooke3): This view was hard to preview due to the dependency on resolver.
-// #Preview {
-//  MFALoginView(
-//    resolver: MultiFactorResolver(
-//      with: "pendingCredential",
-//      hints: [MultiFactorInfo(proto: .init(dictionary: [:]), factorID: "Sparky")],
-//      auth: Auth.auth()
-//    )
-//  )
-// }
