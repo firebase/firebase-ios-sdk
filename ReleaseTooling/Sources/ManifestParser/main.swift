@@ -42,15 +42,12 @@ struct ManifestParser: ParsableCommand {
           })
   var outputFilePath: URL
 
-  @Option(parsing: .upToNextOption, help: "Podspec files that will not be included.")
-  var excludedSpecs: [String]
-
   @Flag(help: "Parsing mode for manifest")
   var mode: ParsingMode
 
   func parsePodNames(_ manifest: Manifest) throws {
     var output: [String] = []
-    for pod in manifest.pods {
+    for pod in manifest.pods.filter({ $0.releasing }) {
       output.append(pod.name)
     }
     do {
