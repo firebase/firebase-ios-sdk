@@ -36,7 +36,7 @@ function runXcodebuild() {
   parameters=("${buildcache_xcb_flags[@]}" "${parameters[@]}")
 
   echo xcodebuild "${parameters[@]}"
-  xcodebuild "${parameters[@]}"; result=$?
+  xcodebuild "${parameters[@]}" -verbose; result=$?
 }
 
 # Configures bundler environment using Gemfile at the specified path.
