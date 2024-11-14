@@ -1616,7 +1616,8 @@ extension Auth: AuthInterop {
 
   init(app: FirebaseApp,
        keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal(),
-       backend: AuthBackend = AuthBackend(rpcIssuer: AuthBackendRPCIssuer())) {
+       backend: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer()),
+       authDispatcher: AuthDispatcher = .init()) {
     Auth.setKeychainServiceNameForApp(app)
     self.app = app
     mainBundleUrlTypes = Bundle.main
@@ -1642,6 +1643,7 @@ extension Auth: AuthInterop {
                                                     heartbeatLogger: app.heartbeatLogger,
                                                     appCheck: appCheck)
     self.backend = backend
+    self.authDispatcher = authDispatcher
     super.init()
     requestConfiguration.auth = self
 
@@ -1902,7 +1904,7 @@ extension Auth: AuthInterop {
     }
     autoRefreshScheduled = true
     weak var weakSelf = self
-    AuthDispatcher.shared.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
+    authDispatcher.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
       guard let strongSelf = weakSelf else {
         return
       }
@@ -2360,6 +2362,8 @@ extension Auth: AuthInterop {
 
   /// The Firebase app name.
   private let firebaseAppName: String
+
+  private let authDispatcher: AuthDispatcher
 
   /// The keychain service.
   private var keychainServices: AuthKeychainServices!
