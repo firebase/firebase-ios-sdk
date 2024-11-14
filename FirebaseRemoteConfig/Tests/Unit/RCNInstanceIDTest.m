@@ -42,10 +42,6 @@
                             app:firebaseApp;
 @end
 
-@interface RCNConfigDBManager (Test)
-- (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;
-@end
-
 @interface RCNUserDefaultsManager (Test)
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
 @end
@@ -216,7 +212,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)tearDown {
-  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseWithPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [FIRApp resetApps];
   [_installationsMock stopMocking];
