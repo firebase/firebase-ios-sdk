@@ -1,5 +1,5 @@
-#Unreleased
-- [fixed] Fix a crash related to registering for notifications when the app is inbetween foreground or background states. (#13174)
+# Unreleased
+- [fixed] Fix a crash related to registering for notifications when the app is between foreground or background states. (#13174)
 
 # 11.5.0
 - [fixed] Replaced usage of the deprecated `UIApplication.keyWindow` property
