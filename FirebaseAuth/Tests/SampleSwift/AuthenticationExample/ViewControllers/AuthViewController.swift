@@ -27,6 +27,8 @@ import GameKit
 import GoogleSignIn
 import UIKit
 
+import SwiftUI
+
 // For Sign in with Apple
 import AuthenticationServices
 import CryptoKit
@@ -355,10 +357,8 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func performMfaLoginFlow(resolver: MultiFactorResolver) {
-    let mfaLoginController = MFALoginViewController(resolver: resolver)
-    mfaLoginController.delegate = self
-    let navMfaLoginController = UINavigationController(rootViewController: mfaLoginController)
-    navigationController?.present(navMfaLoginController, animated: true)
+    let mfaLoginController = UIHostingController(rootView: MFALoginView(resolver: resolver))
+    present(mfaLoginController, animated: true)
   }
 
   private func performAnonymousLoginFlow() {
