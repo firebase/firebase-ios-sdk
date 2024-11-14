@@ -107,7 +107,7 @@ jobs:
   buildup_SpecsReleasing_repo:
     needs: [buildup_SpecsReleasing_repo_FirebaseCore, specs_checking]
     # Don't run on private repo unless it is a PR.
-    if: github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.repository == 'Firebase/firebase-ios-sdk' || github.event_name == 'workflow_dispatch'
     runs-on: macos-14
     strategy:
       fail-fast: false
