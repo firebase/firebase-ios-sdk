@@ -66,9 +66,8 @@ public class UserDefaultsManager: NSObject {
       let components = namespace.components(separatedBy: ":")
       return components[0]
     } else {
-      // TODO: FIRLogError(kFIRLoggerRemoteConfig, "I-RCN00064",
-      //                    "Error: Namespace %@ is not fully qualified app:namespace.", namespace)
-      print("Error: Namespace \(namespace) is not fully qualified app:namespace.")
+      RCLog.error("I-RCN00064", "Error: Namespace \(namespace) " +
+        "is not fully qualified app:namespace.")
       return namespace
     }
   }

@@ -120,7 +120,7 @@
 - (NSString *)nextRequestWithUserProperties:(NSDictionary *)userProperties;
 
 /// Returns metadata from metadata table.
-- (NSDictionary *)loadConfigFromMetadataTable;
+- (void)loadConfigFromMetadataTable;
 
 /// Updates internal content with the latest successful config response.
 - (void)updateInternalContentWithResponse:(NSDictionary *)response;
