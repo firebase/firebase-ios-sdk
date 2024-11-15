@@ -45,9 +45,7 @@ struct MFALoginView: View {
           accentColor: .white,
           backgroundColor: .orange
         ) {
-          // TODO(ncooke3): Does this task inherit a higher priority? What about the regular SwiftUI
-          // button?
-          Task(priority: .userInitiated, operation: startMfALogin)
+          Task { await startMfALogin() }
         }
         .padding()
       } else {
@@ -59,7 +57,7 @@ struct MFALoginView: View {
           accentColor: .white,
           backgroundColor: .orange
         ) {
-          Task(priority: .userInitiated, operation: finishMfALogin)
+          Task { await finishMfALogin() }
         }
         .padding()
       }
@@ -112,7 +110,10 @@ extension MFALoginView {
     let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
     do {
       _ = try await resolver.resolveSignIn(with: assertion)
-      dismiss()
+      // MFA login was successful.
+      await MainActor.run {
+        dismiss()
+      }
     } catch {
       print(error)
     }
@@ -128,7 +129,9 @@ extension MFALoginView {
     do {
       _ = try await resolver.resolveSignIn(with: assertion)
       // MFA login was successful.
-      dismiss()
+      await MainActor.run {
+        dismiss()
+      }
     } catch {
       // Wrong or expired OTP. Re-prompt the user.
       // TODO(ncooke3): Show error to user.
