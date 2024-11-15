@@ -28,7 +28,7 @@ jobs:
   performance:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         target: [iOS, tvOS]
@@ -43,7 +43,6 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
       run: gem install xcpretty
-    #TODO: Xcode 15 tests are blocked by #11903
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
 
