@@ -16,13 +16,13 @@ import FirebaseCore
 import FirebaseCoreExtension
 import Foundation
 #if COCOAPODS
-  import GTMSessionFetcher
+  @preconcurrency import GTMSessionFetcher
 #else
-  import GTMSessionFetcherCore
+  @preconcurrency import GTMSessionFetcherCore
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-protocol AuthBackendRPCIssuerProtocol {
+protocol AuthBackendRPCIssuerProtocol: Sendable {
   /// Asynchronously send a HTTP request.
   /// - Parameter request: The request to be made.
   /// - Parameter body: Request body.
@@ -35,7 +35,7 @@ protocol AuthBackendRPCIssuerProtocol {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthBackendRPCIssuer: AuthBackendRPCIssuerProtocol {
+final class AuthBackendRPCIssuer: AuthBackendRPCIssuerProtocol {
   let fetcherService: GTMSessionFetcherService
 
   init() {
