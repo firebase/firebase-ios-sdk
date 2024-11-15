@@ -24,7 +24,13 @@ struct MFALoginView: View {
   // This is needed for both phone and TOTP MFA.
   @State private var verificationCode: String = ""
 
-  let resolver: MultiFactorResolver
+  private let resolver: MultiFactorResolver
+  private weak var delegate: (any LoginDelegate)?
+
+  init(resolver: MultiFactorResolver, delegate: (any LoginDelegate)?) {
+    self.resolver = resolver
+    self.delegate = delegate
+  }
 
   var body: some View {
     Text("Choose a second factor to continue.")
@@ -113,6 +119,7 @@ extension MFALoginView {
       // MFA login was successful.
       await MainActor.run {
         dismiss()
+        delegate?.loginDidOccur(resolver: nil)
       }
     } catch {
       print(error)
@@ -131,6 +138,7 @@ extension MFALoginView {
       // MFA login was successful.
       await MainActor.run {
         dismiss()
+        delegate?.loginDidOccur(resolver: nil)
       }
     } catch {
       // Wrong or expired OTP. Re-prompt the user.
