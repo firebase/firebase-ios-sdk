@@ -50,6 +50,12 @@ const NSNotificationName FIRRemoteConfigActivateNotification =
     @"FIRRemoteConfigActivateNotification";
 static NSNotificationName FIRRolloutsStateDidChangeNotificationName =
     @"FIRRolloutsStateDidChangeNotification";
+/// Maximum allowed length for a custom signal key (in characters).
+static const NSUInteger FIRRemoteConfigCustomSignalsMaxKeyLength = 250;
+/// Maximum allowed length for a string value in custom signals (in characters).
+static const NSUInteger FIRRemoteConfigCustomSignalsMaxStringValueLength = 500;
+/// Maximum number of custom signals allowed.
+static const NSUInteger FIRRemoteConfigCustomSignalsMaxCount = 100;
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -272,17 +278,21 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
         return;
       }
 
-      if (key.length > 250 ||
-          ([value isKindOfClass:[NSString class]] && [(NSString *)value length] > 500)) {
+      if (key.length > FIRRemoteConfigCustomSignalsMaxKeyLength ||
+          ([value isKindOfClass:[NSString class]] &&
+           [(NSString *)value length] > FIRRemoteConfigCustomSignalsMaxStringValueLength)) {
         if (completionHandler) {
           dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSError *error = [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
-                                                 code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
-                                             userInfo:@{
-                                               NSLocalizedDescriptionKey :
-                                                   @"Custom signal keys and string values must be "
-                                                   @"250 and 500 characters or less respectively."
-                                             }];
+            NSError *error = [NSError
+                errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
+                           code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
+                       userInfo:@{
+                         NSLocalizedDescriptionKey : [NSString
+                             stringWithFormat:@"Custom signal keys and string values must be "
+                                              @"%lu and %lu characters or less respectively.",
+                                              FIRRemoteConfigCustomSignalsMaxKeyLength,
+                                              FIRRemoteConfigCustomSignalsMaxStringValueLength]
+                       }];
             completionHandler(error);
           });
         }
@@ -305,14 +315,16 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     }
 
     // Check the size limit.
-    if (newCustomSignals.count > 100) {
+    if (newCustomSignals.count > FIRRemoteConfigCustomSignalsMaxCount) {
       if (completionHandler) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           NSError *error = [NSError
               errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
                          code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
                      userInfo:@{
-                       NSLocalizedDescriptionKey : @"Custom signals count exceeds the limit of 100."
+                       NSLocalizedDescriptionKey : [NSString
+                           stringWithFormat:@"Custom signals count exceeds the limit of %lu.",
+                                            FIRRemoteConfigCustomSignalsMaxCount]
                      }];
           completionHandler(error);
         });
@@ -325,7 +337,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       self->_settings.customSignals = newCustomSignals;
     }
     if (completionHandler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         completionHandler(nil);
       });
     }
