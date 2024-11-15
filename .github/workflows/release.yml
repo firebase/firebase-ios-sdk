@@ -202,6 +202,8 @@ jobs:
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
