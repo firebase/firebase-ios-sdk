@@ -2364,7 +2364,7 @@ extension Auth: AuthInterop {
   // MARK: Private properties
 
   /// The stored user manager.
-  private var storedUserManager: AuthStoredUserManager
+  private let storedUserManager: AuthStoredUserManager
 
   /// The Firebase app name.
   private let firebaseAppName: String
@@ -2372,7 +2372,7 @@ extension Auth: AuthInterop {
   private let authDispatcher: AuthDispatcher
 
   /// The keychain service.
-  private var keychainServices: AuthKeychainServices
+  private let keychainServices: AuthKeychainServices
 
   /// The user access (ID) token used last time for posting auth state changed notification.
   private var lastNotifiedUserToken: String?
