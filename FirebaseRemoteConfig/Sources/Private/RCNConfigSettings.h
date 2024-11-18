@@ -87,7 +87,7 @@
 #pragma mark - Custom Signals
 
 /// A dictionary to hold custom signals that are set by the developer.
-@property(nonatomic, readwrite, strong) NSMutableDictionary<NSString *, NSObject *> *customSignals;
+@property(nonatomic, readwrite, strong) NSMutableDictionary<NSString *, NSString *> *customSignals;
 
 #pragma mark Throttling properties
 

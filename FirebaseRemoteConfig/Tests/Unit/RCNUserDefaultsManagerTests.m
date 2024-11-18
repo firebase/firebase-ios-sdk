@@ -23,8 +23,8 @@ static NSTimeInterval RCNUserDefaultsSampleTimeStamp = 0;
 static NSString* const AppName = @"testApp";
 static NSString* const FQNamespace1 = @"testNamespace1:testApp";
 static NSString* const FQNamespace2 = @"testNamespace2:testApp";
-static NSMutableDictionary<NSString*, NSObject*>* customSignals1 = nil;
-static NSMutableDictionary<NSString*, NSObject*>* customSignals2 = nil;
+static NSMutableDictionary<NSString*, NSString*>* customSignals1 = nil;
+static NSMutableDictionary<NSString*, NSString*>* customSignals2 = nil;
 
 @interface RCNUserDefaultsManagerTests : XCTestCase
 
@@ -270,7 +270,7 @@ static NSMutableDictionary<NSString*, NSObject*>* customSignals2 = nil;
   XCTAssertEqualObjects([manager1 lastActiveTemplateVersion], @"1");
   XCTAssertEqualObjects([manager2 lastActiveTemplateVersion], @"2");
 
-  /// Custom Singnals
+  /// Custom Signals
   [manager1 setCustomSignals:customSignals1];
   [manager2 setCustomSignals:customSignals2];
   XCTAssertEqualObjects([manager1 customSignals], customSignals1);

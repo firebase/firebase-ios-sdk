@@ -1851,7 +1851,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
     [_configInstances[i] setCustomSignals:testSignals
                            WithCompletion:^(NSError *_Nullable error) {
                              XCTAssertNil(error);
-                             NSMutableDictionary<NSString *, NSObject *> *retrievedSignals =
+                             NSMutableDictionary<NSString *, NSString *> *retrievedSignals =
                                  self->_configInstances[i].settings.customSignals;
                              XCTAssertEqualObjects(retrievedSignals, testSignals);
                              [expectations[i] fulfill];
@@ -1883,9 +1883,9 @@ static NSString *UTCToLocal(NSString *utcTime) {
     };
 
     // Expected final set of signals
-    NSDictionary<NSString *, NSObject *> *expectedSignals = @{
+    NSDictionary<NSString *, NSString *> *expectedSignals = @{
       @"signal1" : @"updatedValue1",
-      @"signal3" : @5,
+      @"signal3" : @"5",
     };
 
     [_configInstances[i] setCustomSignals:testSignals1
@@ -1895,7 +1895,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                  setCustomSignals:testSignals2
                                    WithCompletion:^(NSError *_Nullable error) {
                                      XCTAssertNil(error);
-                                     NSMutableDictionary<NSString *, NSObject *> *retrievedSignals =
+                                     NSMutableDictionary<NSString *, NSString *> *retrievedSignals =
                                          self->_configInstances[i].settings.customSignals;
                                      XCTAssertEqualObjects(retrievedSignals, expectedSignals);
                                      [expectations[i] fulfill];

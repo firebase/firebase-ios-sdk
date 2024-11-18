@@ -302,13 +302,14 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
     // Merge new signals with existing ones, overwriting existing keys.
     // Also, remove entries where the new value is null.
-    NSMutableDictionary<NSString *, NSObject *> *newCustomSignals =
+    NSMutableDictionary<NSString *, NSString *> *newCustomSignals =
         [[NSMutableDictionary alloc] initWithDictionary:self->_settings.customSignals];
 
     for (NSString *key in customSignals) {
       NSObject *value = customSignals[key];
       if (![value isKindOfClass:[NSNull class]]) {
-        [newCustomSignals setObject:value forKey:key];
+        NSString *stringValue = [value description];
+        [newCustomSignals setObject:stringValue forKey:key];
       } else {
         [newCustomSignals removeObjectForKey:key];
       }

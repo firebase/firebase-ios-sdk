@@ -533,7 +533,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                      completionHandler:nil];
 }
 
-- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSObject *> *)customSignals {
+- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSString *> *)customSignals {
   _customSignals = customSignals;
   [_userDefaultsManager setCustomSignals:customSignals];
 }

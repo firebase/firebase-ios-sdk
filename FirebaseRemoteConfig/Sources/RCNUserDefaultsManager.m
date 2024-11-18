@@ -142,16 +142,16 @@ static NSString *const kRCNUserDefaultsKeyCustomSignals = @"customSignals";
   }
 }
 
-- (NSMutableDictionary<NSString *, NSObject *> *)customSignals {
+- (NSMutableDictionary<NSString *, NSString *> *)customSignals {
   NSDictionary *userDefaults = [self instanceUserDefaults];
   if ([userDefaults objectForKey:kRCNUserDefaultsKeyCustomSignals]) {
     return [userDefaults objectForKey:kRCNUserDefaultsKeyCustomSignals];
   }
 
-  return [[NSMutableDictionary<NSString *, NSObject *> alloc] init];
+  return [[NSMutableDictionary<NSString *, NSString *> alloc] init];
 }
 
-- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSObject *> *)customSignals {
+- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSString *> *)customSignals {
   if (customSignals) {
     [self setInstanceUserDefaultsValue:customSignals forKey:kRCNUserDefaultsKeyCustomSignals];
   }
