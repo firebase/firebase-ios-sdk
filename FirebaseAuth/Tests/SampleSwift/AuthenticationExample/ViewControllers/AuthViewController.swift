@@ -357,7 +357,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func performMfaLoginFlow(resolver: MultiFactorResolver) {
-    let mfaLoginController = UIHostingController(rootView: MFALoginView(resolver: resolver))
+    let mfaLoginController = UIHostingController(rootView: MFALoginView(
+      resolver: resolver,
+      delegate: self
+    ))
     present(mfaLoginController, animated: true)
   }
 
@@ -1067,8 +1070,12 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 // MARK: - LoginDelegate
 
 extension AuthViewController: LoginDelegate {
-  public func loginDidOccur() {
-    transitionToUserViewController()
+  public func loginDidOccur(resolver: MultiFactorResolver?) {
+    if let resolver {
+      performMfaLoginFlow(resolver: resolver)
+    } else {
+      transitionToUserViewController()
+    }
   }
 }
 

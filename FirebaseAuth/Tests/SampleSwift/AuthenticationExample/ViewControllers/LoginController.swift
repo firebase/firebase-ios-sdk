@@ -64,15 +64,25 @@ class LoginController: UIViewController {
 
   private func login(with email: String, password: String) {
     AppManager.shared.auth().signIn(withEmail: email, password: password) { result, error in
-      guard error == nil else { return self.displayError(error) }
-      self.delegate?.loginDidOccur()
+      if let error {
+        let authError = error as NSError
+        if authError.code == AuthErrorCode.secondFactorRequired.rawValue {
+          let resolver = authError
+            .userInfo[AuthErrorUserInfoMultiFactorResolverKey] as! MultiFactorResolver
+          self.delegate?.loginDidOccur(resolver: resolver)
+        } else {
+          self.displayError(error)
+        }
+      } else {
+        self.delegate?.loginDidOccur(resolver: nil)
+      }
     }
   }
 
   private func createUser(email: String, password: String) {
     AppManager.shared.auth().createUser(withEmail: email, password: password) { authResult, error in
       guard error == nil else { return self.displayError(error) }
-      self.delegate?.loginDidOccur()
+      self.delegate?.loginDidOccur(resolver: nil)
     }
   }
 
