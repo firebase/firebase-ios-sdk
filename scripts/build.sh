@@ -114,7 +114,6 @@ function RunXcodebuild() {
 
   result=0
   xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" || result=$?
-  result=$(CheckUnexpectedFailures $result xcodebuild.log)
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -124,7 +123,6 @@ function RunXcodebuild() {
 
     result=0
     xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" || result=$?
-    result=$(CheckUnexpectedFailures $result xcodebuild.log)
   fi
 
   if [[ $result != 0 ]]; then
@@ -138,19 +136,6 @@ function RunXcodebuild() {
 # Exports any logs output captured in the xcresult
 function ExportLogs() {
   python "${scripts_dir}/xcresult_logs.py" "$@"
-}
-
-function CheckUnexpectedFailures() {
-  local result=$1
-  local log_file=$2
-
-  if [[ $result != 0 ]]; then
-    return "$result"
-  elif grep -Eq "[1-9]\d* failures \([1-9]\d* unexpected\)" "$log_file"; then
-    return 65
-  else
-    return 0
-  fi
 }
 
 if [[ "$xcode_major" -lt 15 ]]; then
