@@ -110,12 +110,11 @@ source scripts/check_secrets.sh
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  xcbeautify_cmd=(xcbeautify --renderer github-actions)
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-    && CheckUnexpectedFailures xcodebuild.log \
-    || result=$?
+  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" || result=$?
+  result=$(CheckUnexpectedFailures $result xcodebuild.log)
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -124,9 +123,8 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-      && CheckUnexpectedFailures xcodebuild.log \
-      || result=$?
+    xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" || result=$?
+    result=$(CheckUnexpectedFailures $result xcodebuild.log)
   fi
 
   if [[ $result != 0 ]]; then
@@ -143,11 +141,16 @@ function ExportLogs() {
 }
 
 function CheckUnexpectedFailures() {
-  local log_file=$1
+  local result=$1
+  local log_file=$2
 
-  if grep -Eq "[1-9]\d* failures \([1-9]\d* unexpected\)" "$log_file"; then
-    echo "xcodebuild failed with unexpected failures." 1>&2
+  if [[ $result != 0 ]]; then
+    return "$result"
+  elif grep -Eq "[1-9]\d* failures \([1-9]\d* unexpected\)" "$log_file"; then
+    echo "xcodebuild failed with unexpected failures; updating exit code." 1>&2
     return 65
+  else
+    return "$result"
   fi
 }
 
