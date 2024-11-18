@@ -1624,7 +1624,6 @@ extension Auth: AuthInterop {
        keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal(),
        backend: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer()),
        authDispatcher: AuthDispatcher = .init()) {
-    Auth.setKeychainServiceNameForApp(app)
     self.app = app
     mainBundleUrlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
@@ -1650,26 +1649,27 @@ extension Auth: AuthInterop {
                                                     appCheck: appCheck)
     self.backend = backend
     self.authDispatcher = authDispatcher
+
+    let keychainServiceName = Auth.keychainServiceName(for: app)
+    keychainServices = AuthKeychainServices(service: keychainServiceName,
+                                            storage: keychainStorageProvider)
+    storedUserManager = AuthStoredUserManager(
+      serviceName: keychainServiceName,
+      keychainServices: keychainServices
+    )
+
     super.init()
     requestConfiguration.auth = self
 
-    protectedDataInitialization(keychainStorageProvider)
+    protectedDataInitialization()
   }
 
-  private func protectedDataInitialization(_ keychainStorageProvider: AuthKeychainStorage) {
+  private func protectedDataInitialization() {
     // Continue with the rest of initialization in the work thread.
     kAuthGlobalWorkQueue.async { [weak self] in
       // Load current user from Keychain.
       guard let self else {
         return
-      }
-      if let keychainServiceName = Auth.keychainServiceName(forAppName: self.firebaseAppName) {
-        self.keychainServices = AuthKeychainServices(service: keychainServiceName,
-                                                     storage: keychainStorageProvider)
-        self.storedUserManager = AuthStoredUserManager(
-          serviceName: keychainServiceName,
-          keychainServices: self.keychainServices
-        )
       }
 
       do {
@@ -1729,21 +1729,21 @@ extension Auth: AuthInterop {
 
   #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func addProtectedDataDidBecomeAvailableObserver() {
-      weak var weakSelf = self
       protectedDataDidBecomeAvailableObserver =
         NotificationCenter.default.addObserver(
           forName: UIApplication.protectedDataDidBecomeAvailableNotification,
           object: nil,
           queue: nil
-        ) { notification in
-          let strongSelf = weakSelf
-          if let observer = strongSelf?.protectedDataDidBecomeAvailableObserver {
+        ) { [weak self] notification in
+          guard let self else { return }
+          if let observer = self.protectedDataDidBecomeAvailableObserver {
             NotificationCenter.default.removeObserver(
               observer,
               name: UIApplication.protectedDataDidBecomeAvailableNotification,
               object: nil
             )
           }
+          self.protectedDataInitialization()
         }
     }
   #endif
@@ -1817,28 +1817,34 @@ extension Auth: AuthInterop {
   /// @synchronized([FIRAuth class]) context.
   fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
 
-  /// Sets the keychain service name global data for the particular app.
-  /// - Parameter app: The Firebase app to set keychain service name for.
-  class func setKeychainServiceNameForApp(_ app: FirebaseApp) {
-    objc_sync_enter(Auth.self)
-    gKeychainServiceNameForAppName[app.name] = "firebase_auth_\(app.options.googleAppID)"
-    objc_sync_exit(Auth.self)
-  }
-
-  /// Gets the keychain service name global data for the particular app by name.
-  /// - Parameter appName: The name of the Firebase app to get keychain service name for.
-  class func keychainServiceName(forAppName appName: String) -> String? {
+  /// Gets the keychain service name global data for the particular app by
+  /// name, creating an entry for one if it does not exist.
+  /// - Parameter app: The Firebase app to get the keychain service name for.
+  /// - Returns: The keychain service name for the given app.
+  static func keychainServiceName(for app: FirebaseApp) -> String {
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
-    return gKeychainServiceNameForAppName[appName]
+    let appName = app.name
+    if let serviceName = gKeychainServiceNameForAppName[appName] {
+      return serviceName
+    } else {
+      let serviceName = "firebase_auth_\(app.options.googleAppID)"
+      gKeychainServiceNameForAppName[appName] = serviceName
+      return serviceName
+    }
   }
 
   /// Deletes the keychain service name global data for the particular app by name.
   /// - Parameter appName: The name of the Firebase app to delete keychain service name for.
-  class func deleteKeychainServiceNameForAppName(_ appName: String) {
+  /// - Returns: The deleted keychain service name, if any.
+  static func deleteKeychainServiceNameForAppName(_ appName: String) -> String? {
     objc_sync_enter(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    guard let serviceName = gKeychainServiceNameForAppName[appName] else {
+      return nil
+    }
     gKeychainServiceNameForAppName.removeValue(forKey: appName)
-    objc_sync_exit(Auth.self)
+    return serviceName
   }
 
   func signOutByForce(withUserID userID: String) throws {
@@ -2364,7 +2370,7 @@ extension Auth: AuthInterop {
   // MARK: Private properties
 
   /// The stored user manager.
-  private var storedUserManager: AuthStoredUserManager!
+  private let storedUserManager: AuthStoredUserManager
 
   /// The Firebase app name.
   private let firebaseAppName: String
@@ -2372,7 +2378,7 @@ extension Auth: AuthInterop {
   private let authDispatcher: AuthDispatcher
 
   /// The keychain service.
-  private var keychainServices: AuthKeychainServices!
+  private let keychainServices: AuthKeychainServices
 
   /// The user access (ID) token used last time for posting auth state changed notification.
   private var lastNotifiedUserToken: String?
