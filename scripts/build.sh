@@ -131,7 +131,7 @@ function RunXcodebuild() {
     echo "xcodebuild exited with $result" 1>&2
 
     ExportLogs "$@"
-    return $result
+    return "$result"
   fi
 }
 
@@ -147,9 +147,10 @@ function CheckUnexpectedFailures() {
   if [[ $result != 0 ]]; then
     return "$result"
   elif grep -Eq "[1-9]\d* failures \([1-9]\d* unexpected\)" "$log_file"; then
+    echo "xcodebuild failed with unexpected failures; updating exit code." 1>&2
     return 65
   else
-    return 0
+    return "$result"
   fi
 }
 
