@@ -116,7 +116,7 @@ extension Auth: AuthInterop {
         }
       }
       // Call back with 'nil' if there is no current user.
-      guard let strongSelf = self, let currentUser = strongSelf.currentUser else {
+      guard let strongSelf = self, let currentUser = strongSelf._currentUser else {
         DispatchQueue.main.async {
           callback(nil, nil)
         }
@@ -136,7 +136,7 @@ extension Auth: AuthInterop {
   ///
   /// This method is not for public use. It is for Firebase clients of AuthInterop.
   open func getUserID() -> String? {
-    return currentUser?.uid
+    return _currentUser?.uid
   }
 }
 
@@ -170,7 +170,13 @@ extension Auth: AuthInterop {
   @objc public internal(set) weak var app: FirebaseApp?
 
   /// Synchronously gets the cached current user, or null if there is none.
-  @objc public internal(set) var currentUser: User?
+  @objc public var currentUser: User? {
+    kAuthGlobalWorkQueue.sync {
+      _currentUser
+    }
+  }
+
+  private var _currentUser: User?
 
   /// The current user language code.
   ///
@@ -702,7 +708,7 @@ extension Auth: AuthInterop {
   @objc open func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
-      if let currentUser = self.currentUser, currentUser.isAnonymous {
+      if let currentUser = self._currentUser, currentUser.isAnonymous {
         let result = AuthDataResult(withUser: currentUser, additionalUserInfo: nil)
         decoratedCallback(result, nil)
         return
@@ -1264,7 +1270,7 @@ extension Auth: AuthInterop {
   /// dictionary will contain more information about the error encountered.
   @objc(signOut:) open func signOut() throws {
     try kAuthGlobalWorkQueue.sync {
-      guard self.currentUser != nil else {
+      guard self._currentUser != nil else {
         return
       }
       return try self.updateCurrentUser(nil, byForce: false, savingToDisk: true)
@@ -1385,14 +1391,14 @@ extension Auth: AuthInterop {
       queue: OperationQueue.main
     ) { notification in
       if let auth = notification.object as? Auth {
-        listener(auth, auth.currentUser)
+        listener(auth, auth._currentUser)
       }
     }
     objc_sync_enter(Auth.self)
     listenerHandles.add(listener)
     objc_sync_exit(Auth.self)
     DispatchQueue.main.async {
-      listener(self, self.currentUser)
+      listener(self, self._currentUser)
     }
     return handle
   }
@@ -1434,7 +1440,7 @@ extension Auth: AuthInterop {
   /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
                               completion: ((Error?) -> Void)? = nil) {
-    currentUser?.internalGetToken(backend: backend) { idToken, error in
+    _currentUser?.internalGetToken(backend: backend) { idToken, error in
       if let error {
         Auth.wrapMainAsync(completion, error)
         return
@@ -1790,7 +1796,7 @@ extension Auth: AuthInterop {
   }
 
   func updateKeychain(withUser user: User?) -> Error? {
-    if user != currentUser {
+    if user != _currentUser {
       // No-op if the user is no longer signed in. This is not considered an error as we don't check
       // whether the user is still current on other callbacks of user operations either.
       return nil
@@ -1836,7 +1842,7 @@ extension Auth: AuthInterop {
   }
 
   func signOutByForce(withUserID userID: String) throws {
-    guard currentUser?.uid == userID else {
+    guard _currentUser?.uid == userID else {
       return
     }
     try updateCurrentUser(nil, byForce: true, savingToDisk: true)
@@ -1846,7 +1852,7 @@ extension Auth: AuthInterop {
 
   /// Posts the auth state change notification if current user's token has been changed.
   private func possiblyPostAuthStateChangeNotification() {
-    let token = currentUser?.rawAccessToken()
+    let token = _currentUser?.rawAccessToken()
     if lastNotifiedUserToken == token ||
       (token != nil && lastNotifiedUserToken == token) {
       return
@@ -1863,7 +1869,7 @@ extension Auth: AuthInterop {
     if let token, token.count > 0 {
       internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token
     }
-    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = currentUser?
+    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = _currentUser?
       .uid
     let notifications = NotificationCenter.default
     DispatchQueue.main.async {
@@ -1880,7 +1886,7 @@ extension Auth: AuthInterop {
   /// If the token expires in less than 5 minutes, schedule the token refresh immediately.
   private func scheduleAutoTokenRefresh() {
     let tokenExpirationInterval =
-      (currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
+      (_currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
     scheduleAutoTokenRefresh(withDelay: max(tokenExpirationInterval, 0), retry: false)
   }
 
@@ -1889,7 +1895,7 @@ extension Auth: AuthInterop {
   /// to be executed.
   /// - Parameter retry: Flag to determine whether the invocation is a retry attempt or not.
   private func scheduleAutoTokenRefresh(withDelay delay: TimeInterval, retry: Bool) {
-    guard let accessToken = currentUser?.rawAccessToken() else {
+    guard let accessToken = _currentUser?.rawAccessToken() else {
       return
     }
     let intDelay = Int(ceil(delay))
@@ -1908,7 +1914,7 @@ extension Auth: AuthInterop {
       guard let strongSelf = weakSelf else {
         return
       }
-      guard strongSelf.currentUser?.rawAccessToken() == accessToken else {
+      guard strongSelf._currentUser?.rawAccessToken() == accessToken else {
         // Another auto refresh must have been scheduled, so keep _autoRefreshScheduled unchanged.
         return
       }
@@ -1916,10 +1922,10 @@ extension Auth: AuthInterop {
       if strongSelf.isAppInBackground {
         return
       }
-      let uid = strongSelf.currentUser?.uid
-      strongSelf.currentUser?
+      let uid = strongSelf._currentUser?.uid
+      strongSelf._currentUser?
         .internalGetToken(forceRefresh: true, backend: strongSelf.backend) { token, error in
-          if strongSelf.currentUser?.uid != uid {
+          if strongSelf._currentUser?.uid != uid {
             return
           }
           if error != nil {
@@ -1943,7 +1949,7 @@ extension Auth: AuthInterop {
   /// - Parameter saveToDisk: Indicates the method should persist the user data to disk.
   func updateCurrentUser(_ user: User?, byForce force: Bool,
                          savingToDisk saveToDisk: Bool) throws {
-    if user == currentUser {
+    if user == _currentUser {
       possiblyPostAuthStateChangeNotification()
     }
     if let user {
@@ -1960,7 +1966,7 @@ extension Auth: AuthInterop {
       }
     }
     if throwError == nil || force {
-      currentUser = user
+      _currentUser = user
       possiblyPostAuthStateChangeNotification()
     }
     if let throwError {
