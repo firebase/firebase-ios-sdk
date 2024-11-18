@@ -38,9 +38,6 @@ class AuthRequestConfiguration {
   /// The appCheck is used to generate a token.
   var appCheck: AppCheckInterop?
 
-  /// The HTTP method used in the request.
-  var httpMethod: String
-
   /// Additional framework marker that will be added as part of the header of every request.
   var additionalFrameworkMarker: String?
 
@@ -57,6 +54,5 @@ class AuthRequestConfiguration {
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger
     self.appCheck = appCheck
-    httpMethod = "POST"
   }
 }

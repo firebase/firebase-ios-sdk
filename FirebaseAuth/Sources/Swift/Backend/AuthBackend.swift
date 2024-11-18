@@ -60,15 +60,15 @@ final class AuthBackend: AuthBackendProtocol {
     }
   }
 
-  static func request(withURL url: URL,
-                      contentType: String,
-                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
+  static func urlRequest(from rpcRequest: any AuthRPCRequest,
+                         contentType: String,
+                         requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
     // Kick off tasks for the async header values.
     async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue()
     async let appCheckTokenHeaderValue = requestConfiguration.appCheck?
       .getToken(forcingRefresh: true)
 
-    var request = URLRequest(url: url)
+    var request = URLRequest(url: rpcRequest.requestURL())
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
       .additionalFrameworkMarker ?? "FirebaseCore-iOS"
@@ -76,7 +76,7 @@ final class AuthBackend: AuthBackendProtocol {
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    request.httpMethod = requestConfiguration.httpMethod
+    request.httpMethod = rpcRequest.containsPostBody ? "POST" : "GET"
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
       request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")

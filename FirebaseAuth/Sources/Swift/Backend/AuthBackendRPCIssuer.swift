@@ -52,9 +52,11 @@ final class AuthBackendRPCIssuer: AuthBackendRPCIssuerProtocol {
                                          body: Data?,
                                          contentType: String) async -> (Data?, Error?) {
     let requestConfiguration = request.requestConfiguration()
-    let request = await AuthBackend.request(withURL: request.requestURL(),
-                                            contentType: contentType,
-                                            requestConfiguration: requestConfiguration)
+    let request = await AuthBackend.urlRequest(
+      from: request,
+      contentType: contentType,
+      requestConfiguration: requestConfiguration
+    )
     let fetcher = fetcherService.fetcher(with: request)
     if let _ = requestConfiguration.emulatorHostAndPort {
       fetcher.allowLocalhostRequest = true

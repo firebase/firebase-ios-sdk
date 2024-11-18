@@ -48,7 +48,6 @@ class GetRecaptchaConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetRecaptchaConfigResponse
 
   required init(requestConfiguration: AuthRequestConfiguration) {
-    requestConfiguration.httpMethod = "GET"
     super.init(
       endpoint: kGetRecaptchaConfigEndpoint,
       requestConfiguration: requestConfiguration,
