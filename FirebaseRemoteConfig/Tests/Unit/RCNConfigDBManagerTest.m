@@ -55,12 +55,10 @@ typedef void (^RCNDBDictCompletion)(NSDictionary *result);
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
 
   _expectionTimeout = 10.0;
-  id classMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
-  _DBManager = [[RCNConfigDBManager alloc] init];
+  _DBManager = [[RCNConfigDBManager alloc] initWithDbPath:_DBPath];
 
   // TODO: Why does this make all tests fail?
-  //  [_DBManager removeDatabaseWithPath: _DBPath];
+  //[_DBManager removeDatabaseWithPath: _DBPath];
 }
 
 - (void)tearDown {
@@ -134,9 +132,12 @@ typedef void (^RCNDBDictCompletion)(NSDictionary *result);
         // check DB read correctly
         [self->_DBManager
             loadMainWithBundleIdentifier:bundleIdentifier
-                       completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                           NSDictionary *activeConfig, NSDictionary *defaultConfig,
-                                           NSDictionary *unusedRolloutMetadata) {
+                       completionHandler:^(
+                           BOOL loadSuccess,
+                           NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
+                           NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
+                           NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                           NSDictionary *unusedRolloutMetadata) {
                          NSMutableDictionary *res = [fetchedConfig mutableCopy];
                          XCTAssertTrue(success);
                          FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
@@ -219,7 +220,7 @@ static NSString *const RCNKeyLastSetDefaultsTime = @"last_set_defaults_time";
   NSTimeInterval lastFetchTimestamp = [NSDate date].timeIntervalSince1970;
 
   NSDictionary *deviceContext =
-      @{@"app_version" : @"1.0.1", @"app_build" : @"1.0.1.11", @"os_version" : @"iOS9.1"};
+      @{@"app_version" : @"1.0.1", @"app_build" : @"1.0.1.11", @"os_version" : @"iOS19.1"};
   NSDictionary *syncedDBCustomVariables = @{@"user_level" : @15, @"user_experiences" : @"2468"};
   NSArray *successFetchTimes = @[];
   NSTimeInterval now = [NSDate date].timeIntervalSince1970;

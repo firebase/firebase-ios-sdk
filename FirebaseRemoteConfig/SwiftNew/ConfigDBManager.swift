@@ -50,17 +50,17 @@ open class ConfigDBManager: NSObject {
   /// Shared Singleton Instance
   @objc public static let sharedInstance = ConfigDBManager()
 
-  private let databaseActor = DatabaseActor() // Use the actor
+  private let databaseActor: DatabaseActor
 
   @objc public var isNewDatabase: Bool = false
 
-  @objc override public init() {
+  @objc public init(dbPath: String = remoteConfigPathForDatabase()) {
+    databaseActor = DatabaseActor(dbPath: dbPath)
     super.init()
   }
 
   /// Returns the current version of the Remote Config database.
-  @objc public
-  static func remoteConfigPathForDatabase() -> String {
+  public static func remoteConfigPathForDatabase() -> String {
     #if os(tvOS)
       let dirPaths = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
     #else

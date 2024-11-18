@@ -93,10 +93,9 @@
 
   // Always remove the database at the start of testing.
   NSString *DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  id DBMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([DBMock remoteConfigPathForDatabase]).andReturn(DBPath);
+  RCNConfigDBManager *DBManager = [[RCNConfigDBManager alloc] initWithDbPath:DBPath];
 
-  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:DBMock];
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:DBManager];
 
   // Create a mock FIRRemoteConfig instance.
   _configInstance = OCMPartialMock([[FIRRemoteConfig alloc]
@@ -104,7 +103,7 @@
            FIROptions:[[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:test"
                                                   GCMSenderID:@"testSender"]
             namespace:@"namespace"
-            DBManager:DBMock
+            DBManager:DBManager
         configContent:configContent
             analytics:_analyticsMock]);
   [_configInstance setValue:[RCNPersonalizationTest mockFetchRequest] forKey:@"_configFetch"];

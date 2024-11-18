@@ -63,8 +63,6 @@
   [super setUp];
   _expectationTimeout = 1.0;
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([_DBManagerMock remoteConfigPathForDatabase]).andReturn(_DBPath);
 
   // Mock all database operations.
   NSDictionary<NSString *, id> *payload1 = @{@"experimentId" : @"DBValue1"};

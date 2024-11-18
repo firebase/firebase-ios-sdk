@@ -24,8 +24,10 @@ private let RCNDatabaseName = "RemoteConfig.sqlite3"
 actor DatabaseActor {
   private var database: OpaquePointer?
   private var isNewDatabase: Bool = false
+  private let dbPath: String
 
-  init() {
+  init(dbPath: String) {
+    self.dbPath = dbPath
     Task {
       await createOrOpenDatabase()
     }
@@ -39,12 +41,8 @@ actor DatabaseActor {
                  "Old database V0 exists, removed it and replace with the new one.")
       removeDatabase(atPath: oldV0DBPath)
     }
-    let dbPath = ConfigDBManager.remoteConfigPathForDatabase()
     RCLog.info("I-RCN000062", "Loading database at path \(dbPath)")
     let cDbPath = (dbPath as NSString).utf8String
-
-    #warning("Delete me")
-    removeDatabase(atPath: dbPath)
 
     // Create or open database path.
     if !createFilePath(ifNotExist: dbPath) {
@@ -87,7 +85,7 @@ actor DatabaseActor {
 
   func insertMetadataTable(withValues columnNameToValue: [String: Any]) -> Bool {
     let sql = """
-    INSERT INTO fetch_metadata (\
+    INSERT into fetch_metadata (\
       bundle_identifier, \
       namespace, \
       fetch_time, \
