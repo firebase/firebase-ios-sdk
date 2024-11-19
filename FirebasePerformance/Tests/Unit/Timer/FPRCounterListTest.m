@@ -19,6 +19,10 @@
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 #import "FirebasePerformance/Sources/Timer/FPRCounterList.h"
 
+// This test requires the UNSWIZZLE_AVAILABLE preprocessor macro to be defined in order to complete
+// successfully. See FPRSelectorInstrumentor.m for more details.
+#ifdef UNSWIZZLE_AVAILABLE
+
 @interface FPRCounterListTest : XCTestCase
 
 @end
@@ -162,3 +166,5 @@
 }
 
 @end
+
+#endif  // UNSWIZZLE_AVAILABLE
