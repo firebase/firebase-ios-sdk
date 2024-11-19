@@ -19,10 +19,6 @@
 #import "FirebasePerformance/Sources/Public/FirebasePerformance/FIRPerformance.h"
 #import "FirebasePerformance/Sources/Timer/FPRCounterList.h"
 
-// This test requires the UNSWIZZLE_AVAILABLE preprocessor macro to be defined in order to complete
-// successfully. See FPRSelectorInstrumentor.m for more details.
-#ifdef UNSWIZZLE_AVAILABLE
-
 @interface FPRCounterListTest : XCTestCase
 
 @end
@@ -33,14 +29,18 @@
   [super setUp];
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:YES];
+#ifdef UNSWIZZLE_AVAILABLE
   [[FPRClient sharedInstance] disableInstrumentation];
+#endif  // UNSWIZZLE_AVAILABLE
 }
 
 + (void)tearDown {
   [super tearDown];
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:NO];
+#ifdef UNSWIZZLE_AVAILABLE
   [[FPRClient sharedInstance] disableInstrumentation];
+#endif  // UNSWIZZLE_AVAILABLE
 }
 
 /** Validates counterlist object creation. */
@@ -166,5 +166,3 @@
 }
 
 @end
-
-#endif  // UNSWIZZLE_AVAILABLE
