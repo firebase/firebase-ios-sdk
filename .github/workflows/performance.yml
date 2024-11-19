@@ -145,6 +145,7 @@ jobs:
           path: .build
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
   spm:
+    # TODO: Remove before merging; triggering CI run.
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     needs: [spm-package-resolved]
