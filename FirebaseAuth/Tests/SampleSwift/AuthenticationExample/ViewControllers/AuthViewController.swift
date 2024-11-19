@@ -27,6 +27,8 @@ import GameKit
 import GoogleSignIn
 import UIKit
 
+import SwiftUI
+
 // For Sign in with Apple
 import AuthenticationServices
 import CryptoKit
@@ -202,54 +204,50 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     // [END_EXCLUDE]
     let config = GIDConfiguration(clientID: clientID)
     GIDSignIn.sharedInstance.configuration = config
+    Task {
+      do {
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: self)
+        let user = result.user
+        guard let idToken = user.idToken?.tokenString
+        else {
+          // [START_EXCLUDE]
+          let error = NSError(
+            domain: "GIDSignInError",
+            code: -1,
+            userInfo: [
+              NSLocalizedDescriptionKey: "Unexpected sign in result: required authentication data is missing.",
+            ]
+          )
+          return displayError(error)
+          // [END_EXCLUDE]
+        }
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                       accessToken: user.accessToken.tokenString)
+        try await signIn(with: credential)
 
-    // Start the sign in flow!
-    GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] result, error in
-      guard error == nil else {
-        // [START_EXCLUDE]
+      } catch {
         return displayError(error)
-        // [END_EXCLUDE]
       }
 
-      guard let user = result?.user,
-            let idToken = user.idToken?.tokenString
-      else {
-        // [START_EXCLUDE]
-        let error = NSError(
-          domain: "GIDSignInError",
-          code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey: "Unexpected sign in result: required authentication data is missing.",
-          ]
-        )
-        return displayError(error)
-        // [END_EXCLUDE]
-      }
-
-      let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                     accessToken: user.accessToken.tokenString)
-
-      // [START_EXCLUDE]
-      signIn(with: credential)
       // [END_EXCLUDE]
     }
     // [END headless_google_auth]
   }
 
-  func signIn(with credential: AuthCredential) {
-    // [START signin_google_credential]
-    AppManager.shared.auth().signIn(with: credential) { result, error in
-      // [START_EXCLUDE silent]
-      guard error == nil else { return self.displayError(error) }
-      // [END_EXCLUDE]
-
-      // At this point, our user is signed in
-      // [START_EXCLUDE silent]
-      // so we advance to the User View Controller
-      self.transitionToUserViewController()
-      // [END_EXCLUDE]
+  func signIn(with credential: AuthCredential) async throws {
+    do {
+      _ = try await AppManager.shared.auth().signIn(with: credential)
+      transitionToUserViewController()
+    } catch {
+      let authError = error as NSError
+      if authError.code == AuthErrorCode.secondFactorRequired.rawValue {
+        let resolver = authError
+          .userInfo[AuthErrorUserInfoMultiFactorResolverKey] as! MultiFactorResolver
+        performMfaLoginFlow(resolver: resolver)
+      } else {
+        return displayError(error)
+      }
     }
-    // [END signin_google_credential]
   }
 
   // For Sign in with Apple
@@ -356,6 +354,14 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     phoneAuthViewController.delegate = self
     let navPhoneAuthController = UINavigationController(rootViewController: phoneAuthViewController)
     navigationController?.present(navPhoneAuthController, animated: true)
+  }
+
+  private func performMfaLoginFlow(resolver: MultiFactorResolver) {
+    let mfaLoginController = UIHostingController(rootView: MFALoginView(
+      resolver: resolver,
+      delegate: self
+    ))
+    present(mfaLoginController, animated: true)
   }
 
   private func performAnonymousLoginFlow() {
@@ -1064,8 +1070,12 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 // MARK: - LoginDelegate
 
 extension AuthViewController: LoginDelegate {
-  public func loginDidOccur() {
-    transitionToUserViewController()
+  public func loginDidOccur(resolver: MultiFactorResolver?) {
+    if let resolver {
+      performMfaLoginFlow(resolver: resolver)
+    } else {
+      transitionToUserViewController()
+    }
   }
 }
 

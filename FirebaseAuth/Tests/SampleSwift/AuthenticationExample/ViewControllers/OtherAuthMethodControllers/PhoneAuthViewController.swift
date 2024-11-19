@@ -47,7 +47,7 @@ class PhoneAuthViewController: OtherAuthViewController {
     AppManager.shared.auth().signIn(with: credential) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.navigationController?.dismiss(animated: true, completion: {
-        self.delegate?.loginDidOccur()
+        self.delegate?.loginDidOccur(resolver: nil)
       })
     }
   }

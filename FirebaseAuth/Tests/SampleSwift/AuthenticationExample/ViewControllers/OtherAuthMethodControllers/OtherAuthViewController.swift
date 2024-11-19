@@ -27,7 +27,7 @@ class OtherAuthViewController: UIViewController {
     return textField
   }()
 
-  private var textFieldInputLabel: UILabel?
+  var textFieldInputLabel: UILabel?
 
   private lazy var button: UIButton = {
     let button = UIButton()
@@ -113,6 +113,8 @@ class OtherAuthViewController: UIViewController {
     let label = UILabel()
     label.font = .systemFont(ofSize: 12)
     label.textColor = .secondaryLabel
+    // unlimited line breaks
+    label.numberOfLines = 0
     label.text = text
     label.alpha = UIDevice.current.orientation.isLandscape ? 0 : 1
     label.translatesAutoresizingMaskIntoConstraints = false
