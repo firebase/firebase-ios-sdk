@@ -111,10 +111,6 @@
 }
 @end
 
-@interface RCNConfigDBManager (Test)
-- (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;
-@end
-
 @interface RCNUserDefaultsManager (Test)
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
 @end
@@ -145,7 +141,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSUserDefaults *_userDefaults;
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
-  id _DBManagerMock;
   id _experimentMock;
   id _userDefaultsMock;
   NSString *_fullyQualifiedNamespace;
@@ -301,11 +296,9 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)tearDown {
-  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseWithPath:_DBPath];
   [FIRRemoteConfigComponent clearAllComponentInstances];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
-  [_DBManagerMock stopMocking];
-  _DBManagerMock = nil;
   [_userDefaultsMock stopMocking];
   _userDefaultsMock = nil;
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
