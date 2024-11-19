@@ -49,7 +49,7 @@ class GetRecaptchaConfigTests: RPCBaseTests {
     rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
     let enforcementMode = "AUDIT"
     rpcIssuer.rceMode = enforcementMode
-    let response = try await AuthBackend.call(with: request)
+    let response = try await authBackend.call(with: request)
     XCTAssertEqual(response.recaptchaKey, kTestRecaptchaKey)
     XCTAssertEqual(
       response.enforcementState,
@@ -67,7 +67,7 @@ class GetRecaptchaConfigTests: RPCBaseTests {
     let request = GetRecaptchaConfigRequest(requestConfiguration: makeRequestConfiguration())
     let enforcementMode = "OFF"
     rpcIssuer.rceMode = enforcementMode
-    let response = try await AuthBackend.call(with: request)
+    let response = try await authBackend.call(with: request)
     XCTAssertEqual(response.recaptchaKey, nil)
     XCTAssertEqual(
       response.enforcementState,
