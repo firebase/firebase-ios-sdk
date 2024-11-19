@@ -274,7 +274,7 @@ import Foundation
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: auth.requestConfiguration)
           let response = try await auth.backend.call(with: request)
-          guard let sessionInfo = response.responseInfo?.sessionInfo else {
+          guard let sessionInfo = response.responseInfo.sessionInfo else {
             throw AuthErrorUtils.error(code: .multiFactorInfoNotFound)
           }
           return sessionInfo
