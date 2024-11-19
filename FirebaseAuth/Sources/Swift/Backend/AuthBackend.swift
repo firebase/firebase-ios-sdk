@@ -167,7 +167,6 @@ final class AuthBackend: AuthBackendProtocol {
     if let postBody = request.unencodedHTTPRequestBody {
       #if DEBUG
         let JSONWritingOptions = JSONSerialization.WritingOptions.prettyPrinted
-      )
       #else
         let JSONWritingOptions = JSONSerialization.WritingOptions(rawValue: 0)
       #endif
