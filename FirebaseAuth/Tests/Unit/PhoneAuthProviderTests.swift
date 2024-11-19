@@ -818,7 +818,7 @@
       }
     }
 
-    class FakeAuthRecaptchaVerifier: AuthRecaptchaVerifier {
+    class FakeAuthRecaptchaVerifier: AuthRecaptchaVerifier, @unchecked Sendable {
       var captchaResponse: String
       var error: Error?
       init(captchaResponse: String? = nil, error: Error? = nil) {
