@@ -25,10 +25,7 @@ class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-    // TODO: Probably nicer to throw, but what should we throw?
-    fatalError()
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
+    nil
   }
-
-  override var containsPostBody: Bool { return false }
 }

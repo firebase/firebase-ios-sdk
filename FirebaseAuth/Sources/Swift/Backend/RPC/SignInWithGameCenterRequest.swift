@@ -76,7 +76,7 @@ class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [
       "playerId": playerID,
       "publicKeyUrl": publicKeyURL.absoluteString,

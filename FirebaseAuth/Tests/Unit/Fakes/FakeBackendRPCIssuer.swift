@@ -149,8 +149,9 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
       // be verified during testing.
       completeRequest = Task {
         await AuthBackend
-          .urlRequest(
-            from: request,
+          .request(
+            for: request.requestURL(),
+            httpMethod: requestData == nil ? "GET" : "POST",
             contentType: contentType,
             requestConfiguration: request.requestConfiguration()
           )

@@ -52,8 +52,9 @@ final class AuthBackendRPCIssuer: AuthBackendRPCIssuerProtocol {
                                          body: Data?,
                                          contentType: String) async -> (Data?, Error?) {
     let requestConfiguration = request.requestConfiguration()
-    let request = await AuthBackend.urlRequest(
-      from: request,
+    let request = await AuthBackend.request(
+      for: request.requestURL(),
+      httpMethod: body == nil ? "GET" : "POST",
       contentType: contentType,
       requestConfiguration: requestConfiguration
     )

@@ -136,7 +136,7 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let accessToken {
       postBody[kIDTokenKey] = accessToken

@@ -40,7 +40,7 @@ class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kVerifyCustomTokenEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [
       kTokenKey: token,
     ]

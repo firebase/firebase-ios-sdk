@@ -60,15 +60,16 @@ final class AuthBackend: AuthBackendProtocol {
     }
   }
 
-  static func urlRequest(from rpcRequest: any AuthRPCRequest,
-                         contentType: String,
-                         requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
+  static func request(for url: URL,
+                      httpMethod: String,
+                      contentType: String,
+                      requestConfiguration: AuthRequestConfiguration) async -> URLRequest {
     // Kick off tasks for the async header values.
     async let heartbeatsHeaderValue = requestConfiguration.heartbeatLogger?.asyncHeaderValue()
     async let appCheckTokenHeaderValue = requestConfiguration.appCheck?
       .getToken(forcingRefresh: true)
 
-    var request = URLRequest(url: rpcRequest.requestURL())
+    var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
       .additionalFrameworkMarker ?? "FirebaseCore-iOS"
@@ -76,7 +77,7 @@ final class AuthBackend: AuthBackendProtocol {
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    request.httpMethod = rpcRequest.containsPostBody ? "POST" : "GET"
+    request.httpMethod = httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
       request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")
@@ -163,21 +164,12 @@ final class AuthBackend: AuthBackendProtocol {
   /// - Returns: The response.
   fileprivate func callInternal<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     var bodyData: Data?
-    if request.containsPostBody {
-      var postBody: [String: AnyHashable]
-      do {
-        // TODO: Can unencodedHTTPRequestBody ever throw?
-        // They don't today, but there are a few fatalErrors that might better be implemented as
-        // thrown errors.. Although perhaps the case of 'containsPostBody' returning false could
-        // perhaps be modeled differently so that the failing unencodedHTTPRequestBody could only
-        // be called when a body exists...
-        postBody = try request.unencodedHTTPRequestBody()
-      } catch {
-        throw AuthErrorUtils.RPCRequestEncodingError(underlyingError: error)
-      }
-      var JSONWritingOptions: JSONSerialization.WritingOptions = .init(rawValue: 0)
+    if let postBody = request.unencodedHTTPRequestBody {
       #if DEBUG
-        JSONWritingOptions = JSONSerialization.WritingOptions.prettyPrinted
+        let JSONWritingOptions = JSONSerialization.WritingOptions.prettyPrinted
+      )
+      #else
+        let JSONWritingOptions = JSONSerialization.WritingOptions(rawValue: 0)
       #endif
 
       guard JSONSerialization.isValidJSONObject(postBody) else {

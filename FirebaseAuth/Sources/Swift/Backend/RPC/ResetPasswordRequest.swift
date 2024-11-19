@@ -48,7 +48,7 @@ class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kResetPasswordEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
 
     postBody[kOOBCodeKey] = oobCode

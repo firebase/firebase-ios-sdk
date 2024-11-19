@@ -41,7 +41,7 @@ class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kDeleteAccountEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     [
       kIDTokenKey: accessToken,
       kLocalIDKey: localID,
