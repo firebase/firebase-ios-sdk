@@ -15,8 +15,7 @@
 import Foundation
 
 struct SendVerificationCodeResponse: AuthRPCResponse {
-  // Default value will be overridden when `setField(dictionary:)` is called.
-  private(set) var verificationID: String = ""
+  let verificationID: String
 
   init(dictionary: [String: AnyHashable]) throws {
     guard let verificationID = dictionary["sessionInfo"] as? String else {
