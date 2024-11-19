@@ -19,7 +19,7 @@ struct StartMFASignInResponse: AuthRPCResponse {
 //  var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
   private(set) var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneResponseInfo"] as? [String: AnyHashable] {
       responseInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
     } else {

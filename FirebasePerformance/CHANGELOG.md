@@ -1,3 +1,12 @@
+# Unreleased
+- [fixed] Fix a crash related to registering for notifications when the app is between foreground or background states. (#13174)
+
+# 11.5.0
+- [fixed] Replaced usage of the deprecated `UIApplication.keyWindow` property
+  with `UIWindow.isKeyWindow`; this API is also available on visionOS. Note that
+  this fix will not be in the 11.5.0 zip and Carthage distributions, but will be
+  included from 11.6.0 onwards. (#14048)
+
 # 11.4.0
 - [fixed] Fix a crash related to thread sanitization on FPRNetworkTrace class (#13581).
 

@@ -29,7 +29,7 @@ target 'AppClips' do
 end
 
 target 'SampleWatchWatchKitExtension' do
-  platform :watchos, '6.0'
+  platform :watchos, '7.0'
   shared_pods
 end
 

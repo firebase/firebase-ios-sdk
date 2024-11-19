@@ -41,7 +41,7 @@ class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [:]
     if let MFAPendingCredential = MFAPendingCredential {
       body["mfaPendingCredential"] = MFAPendingCredential

@@ -1,3 +1,6 @@
+# 11.5.0
+- [fixed] Improve token-fetch failure logging with detailed error info. (#13997).
+
 # 11.0.0
 - [fixed] Completed Messaging's transition to NSSecureCoding (#12343).
 

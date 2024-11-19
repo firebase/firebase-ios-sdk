@@ -19,7 +19,7 @@ struct GetProjectConfigResponse: AuthRPCResponse {
 
   var authorizedDomains: [String]?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     projectID = dictionary["projectId"] as? String
     if let authorizedDomains = dictionary["authorizedDomains"] as? String,
        let data = authorizedDomains.data(using: .utf8) {

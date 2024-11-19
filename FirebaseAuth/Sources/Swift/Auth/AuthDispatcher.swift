@@ -15,13 +15,17 @@
 import Foundation
 
 /// A utility class used to facilitate scheduling tasks to be executed in the future.
-class AuthDispatcher {
-  static let shared = AuthDispatcher()
-
+struct AuthDispatcher {
   /// Allows custom implementation of dispatchAfterDelay:queue:callback:.
   ///
   /// Set to nil to restore default implementation.
-  var dispatchAfterImplementation: ((TimeInterval, DispatchQueue, @escaping () -> Void) -> Void)?
+  private let dispatchAfterImplementation: ((TimeInterval, DispatchQueue, @escaping () -> Void)
+    -> Void)?
+
+  init(dispatchAfterImplementation: ((TimeInterval, DispatchQueue, @escaping () -> Void) -> Void)? =
+    nil) {
+    self.dispatchAfterImplementation = dispatchAfterImplementation
+  }
 
   /// Schedules task in the future after a specified delay.
   /// - Parameter delay: The delay in seconds after which the task will be scheduled to execute.

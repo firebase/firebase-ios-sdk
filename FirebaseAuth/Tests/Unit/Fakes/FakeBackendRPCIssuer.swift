@@ -17,13 +17,12 @@ import XCTest
 
 @testable import FirebaseAuth
 
-// TODO: Investigate making this class support generics for the `request`.
-/** @class FakeBackendRPCIssuer
-    @brief An implementation of @c AuthBackendRPCIssuer which is used to test backend request,
-        response, and glue logic.
- */
+// TODO(ncooke3): Investigate making this class support generics for the `request`.
+// TODO(ncooke3): Refactor to make checked Sendable.
+/// An implementation of `AuthBackendRPCIssuerProtocol` which is used to test
+/// backend request, response, and glue logic.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class FakeBackendRPCIssuer: AuthBackendRPCIssuer {
+final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Sendable {
   /** @property requestURL
       @brief The URL which was requested.
    */
@@ -77,8 +76,8 @@ class FakeBackendRPCIssuer: AuthBackendRPCIssuer {
   var secureTokenErrorString: String?
   var recaptchaSiteKey = "unset recaptcha siteKey"
 
-  override func asyncCallToURL<T>(with request: T, body: Data?,
-                                  contentType: String) async -> (Data?, Error?)
+  func asyncCallToURL<T>(with request: T, body: Data?,
+                         contentType: String) async -> (Data?, Error?)
     where T: FirebaseAuth.AuthRPCRequest {
     return await withCheckedContinuation { continuation in
       self.asyncCallToURL(with: request, body: body, contentType: contentType) { data, error in
@@ -149,9 +148,13 @@ class FakeBackendRPCIssuer: AuthBackendRPCIssuer {
       // Use the real implementation so that the complete request can
       // be verified during testing.
       completeRequest = Task {
-        await AuthBackend.request(withURL: requestURL!,
-                                  contentType: contentType,
-                                  requestConfiguration: request.requestConfiguration())
+        await AuthBackend
+          .request(
+            for: request.requestURL(),
+            httpMethod: requestData == nil ? "GET" : "POST",
+            contentType: contentType,
+            requestConfiguration: request.requestConfiguration()
+          )
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
@@ -172,7 +175,7 @@ class FakeBackendRPCIssuer: AuthBackendRPCIssuer {
   }
 
   func respond(serverErrorMessage errorMessage: String, error: NSError) throws {
-    let _ = try respond(withJSON: ["error": ["message": errorMessage]], error: error)
+    _ = try respond(withJSON: ["error": ["message": errorMessage]], error: error)
   }
 
   @discardableResult func respond(underlyingErrorMessage errorMessage: String,

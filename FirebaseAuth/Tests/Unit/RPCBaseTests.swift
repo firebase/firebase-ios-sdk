@@ -68,15 +68,16 @@ class RPCBaseTests: XCTestCase {
   let kTestIdentifier = "Identifier"
 
   var rpcIssuer: FakeBackendRPCIssuer!
+  var authBackend: AuthBackend!
 
   override func setUp() {
     rpcIssuer = FakeBackendRPCIssuer()
-    AuthBackend.setTestRPCIssuer(issuer: rpcIssuer)
+    authBackend = AuthBackend(rpcIssuer: rpcIssuer)
   }
 
   override func tearDown() {
     rpcIssuer = nil
-    AuthBackend.resetRPCIssuer()
+    authBackend = nil
   }
 
   /** @fn checkRequest
@@ -90,7 +91,7 @@ class RPCBaseTests: XCTestCase {
     rpcIssuer.respondBlock = {
       XCTAssertEqual(self.rpcIssuer.requestURL?.absoluteString, expected)
       if checkPostBody {
-        XCTAssertFalse(request.containsPostBody)
+        XCTAssertNil(request.unencodedHTTPRequestBody)
       } else if let requestDictionary = self.rpcIssuer.decodedRequest as? [String: AnyHashable] {
         XCTAssertEqual(requestDictionary[key], value)
       } else {
@@ -99,7 +100,7 @@ class RPCBaseTests: XCTestCase {
       // Dummy response to unblock await.
       let _ = try self.rpcIssuer?.respond(withJSON: ["sessionInfo": "verification_id_123"])
     }
-    let _ = try await AuthBackend.call(with: request)
+    let _ = try await authBackend.call(with: request)
   }
 
   /** @fn checkBackendError
@@ -123,7 +124,7 @@ class RPCBaseTests: XCTestCase {
       }
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Did not throw expected error")
       return
     } catch {

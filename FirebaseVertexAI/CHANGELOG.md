@@ -1,7 +1,15 @@
+# Unreleased
+- [changed] The token counts from `GenerativeModel.countTokens(...)` now include
+  tokens from the schema for JSON output and function calling; reported token
+  counts will now be higher if using these features.
+
 # 11.5.0
 - [fixed] Fixed an issue where `VertexAI.vertexAI(app: app1)` and
   `VertexAI.vertexAI(app: app2)` would return the same instance if their
   `location` was the same, including the default `us-central1`. (#14007)
+- [changed] Removed `format: "double"` in `Schema.double()` since
+  double-precision accuracy isn't enforced by the model; continue using the
+  Swift `Double` type when decoding data produced with this schema. (#13990)
 
 # 11.4.0
 - [feature] Vertex AI in Firebase is now Generally Available (GA) and can be

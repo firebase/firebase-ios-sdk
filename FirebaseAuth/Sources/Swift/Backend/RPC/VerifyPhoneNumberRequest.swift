@@ -133,7 +133,7 @@ class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let verificationID {
       postBody[kVerificationIDKey] = verificationID

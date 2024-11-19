@@ -184,15 +184,10 @@ public class Schema {
     )
   }
 
-  /// Returns a `Schema` representing a double-precision floating-point number.
+  /// Returns a `Schema` representing a floating-point number.
   ///
-  /// This schema instructs the model to produce data of type `"NUMBER"` with the `format`
-  /// `"double"`, which is suitable for decoding into a Swift `Double` (or `Double?`, if `nullable`
-  /// is set to `true`).
-  ///
-  /// > Important: This `Schema` provides a hint to the model that it should generate a
-  /// > double-precision floating-point number, a `double`, but only guarantees that the value will
-  /// > be a number.
+  /// This schema instructs the model to produce data of type `"NUMBER"`, which is suitable for
+  /// decoding into a Swift `Double` (or `Double?`, if `nullable` is set to `true`).
   ///
   /// - Parameters:
   ///   - description: An optional description of what the number should contain or represent; may
@@ -202,7 +197,6 @@ public class Schema {
   public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
     return self.init(
       type: .number,
-      format: "double",
       description: description,
       nullable: nullable
     )

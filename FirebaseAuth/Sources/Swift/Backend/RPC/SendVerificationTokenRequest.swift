@@ -60,7 +60,7 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     postBody[kPhoneNumberKey] = phoneNumber
     switch codeIdentity {

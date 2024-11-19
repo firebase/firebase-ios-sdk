@@ -217,7 +217,7 @@ import Foundation
                                                   .requestConfiguration)
 
       do {
-        let response = try await AuthBackend.call(with: request)
+        let response = try await auth.backend.call(with: request)
         return response.verificationID
       } catch {
         return try await handleVerifyErrorWithRetry(error: error,
@@ -245,7 +245,7 @@ import Foundation
           requestConfiguration: auth.requestConfiguration
         )
 
-        let response = try await AuthBackend.call(with: request)
+        let response = try await auth.backend.call(with: request)
         return response.verificationID
       }
       guard let session else {
@@ -263,7 +263,7 @@ import Foundation
           let request = StartMFAEnrollmentRequest(idToken: idToken,
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           guard let sessionInfo = response.phoneSessionInfo?.sessionInfo else {
             throw AuthErrorUtils.error(code: .missingMultiFactorInfo)
           }
@@ -273,8 +273,7 @@ import Foundation
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: auth.requestConfiguration)
-
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           guard let sessionInfo = response.responseInfo?.sessionInfo else {
             throw AuthErrorUtils.error(code: .multiFactorInfoNotFound)
           }
@@ -334,7 +333,7 @@ import Foundation
                                         isSandbox: token.type == AuthAPNSTokenType.sandbox,
                                         requestConfiguration: auth.requestConfiguration)
       do {
-        let verifyResponse = try await AuthBackend.call(with: request)
+        let verifyResponse = try await auth.backend.call(with: request)
         guard let receipt = verifyResponse.receipt,
               let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow else {
           fatalError("Internal Auth Error: invalid VerifyClientResponse")
@@ -442,7 +441,7 @@ import Foundation
     /// - Parameter eventID: The event ID used for this purpose.
     private func reCAPTCHAURL(withEventID eventID: String) async throws -> URL? {
       let authDomain = try await AuthWebUtils
-        .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration)
+        .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration, backend: auth.backend)
       let bundleID = Bundle.main.bundleIdentifier
       let clientID = auth.app?.options.clientID
       let appID = auth.app?.options.googleAppID

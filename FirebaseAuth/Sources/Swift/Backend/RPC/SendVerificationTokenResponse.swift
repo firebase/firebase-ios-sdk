@@ -18,7 +18,7 @@ struct SendVerificationCodeResponse: AuthRPCResponse {
   // Default value will be overridden when `setField(dictionary:)` is called.
   private(set) var verificationID: String = ""
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     guard let verificationID = dictionary["sessionInfo"] as? String else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }

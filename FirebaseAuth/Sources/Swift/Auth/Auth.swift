@@ -116,18 +116,19 @@ extension Auth: AuthInterop {
         }
       }
       // Call back with 'nil' if there is no current user.
-      guard let strongSelf = self, let currentUser = strongSelf.currentUser else {
+      guard let strongSelf = self, let currentUser = strongSelf._currentUser else {
         DispatchQueue.main.async {
           callback(nil, nil)
         }
         return
       }
       // Call back with current user token.
-      currentUser.internalGetToken(forceRefresh: forceRefresh) { token, error in
-        DispatchQueue.main.async {
-          callback(token, error)
+      currentUser
+        .internalGetToken(forceRefresh: forceRefresh, backend: strongSelf.backend) { token, error in
+          DispatchQueue.main.async {
+            callback(token, error)
+          }
         }
-      }
     }
   }
 
@@ -135,7 +136,7 @@ extension Auth: AuthInterop {
   ///
   /// This method is not for public use. It is for Firebase clients of AuthInterop.
   open func getUserID() -> String? {
-    return currentUser?.uid
+    return _currentUser?.uid
   }
 }
 
@@ -169,7 +170,13 @@ extension Auth: AuthInterop {
   @objc public internal(set) weak var app: FirebaseApp?
 
   /// Synchronously gets the cached current user, or null if there is none.
-  @objc public internal(set) var currentUser: User?
+  @objc public var currentUser: User? {
+    kAuthGlobalWorkQueue.sync {
+      _currentUser
+    }
+  }
+
+  private var _currentUser: User?
 
   /// The current user language code.
   ///
@@ -252,8 +259,6 @@ extension Auth: AuthInterop {
 
   /// Sets the `currentUser` on the receiver to the provided user object.
   /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
-  /// - Parameter completion: Optionally; a block invoked after the user of the calling Auth
-  /// instance has been updated or an error was encountered.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateCurrentUser(_ user: User) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -294,7 +299,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
           Auth.wrapMainAsync(callback: completion, with: .success(response.signinMethods))
         } catch {
           Auth.wrapMainAsync(callback: completion, with: .failure(error))
@@ -397,7 +402,7 @@ extension Auth: AuthInterop {
       let response = try await injectRecaptcha(request: request,
                                                action: AuthRecaptchaAction.signInWithPassword)
     #else
-      let response = try await AuthBackend.call(with: request)
+      let response = try await backend.call(with: request)
     #endif
     return try await completeSignIn(
       withAccessToken: response.idToken,
@@ -703,7 +708,7 @@ extension Auth: AuthInterop {
   @objc open func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
-      if let currentUser = self.currentUser, currentUser.isAnonymous {
+      if let currentUser = self._currentUser, currentUser.isAnonymous {
         let result = AuthDataResult(withUser: currentUser, additionalUserInfo: nil)
         decoratedCallback(result, nil)
         return
@@ -711,7 +716,7 @@ extension Auth: AuthInterop {
       let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -773,7 +778,7 @@ extension Auth: AuthInterop {
                                              requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -883,7 +888,7 @@ extension Auth: AuthInterop {
         if let inResponse {
           response = inResponse
         } else {
-          response = try await AuthBackend.call(with: request)
+          response = try await self.backend.call(with: request)
         }
         let user = try await self.completeSignIn(
           withAccessToken: response.idToken,
@@ -995,7 +1000,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.backend.call(with: request)
 
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
           guard let email = response.email else {
@@ -1265,7 +1270,7 @@ extension Auth: AuthInterop {
   /// dictionary will contain more information about the error encountered.
   @objc(signOut:) open func signOut() throws {
     try kAuthGlobalWorkQueue.sync {
-      guard self.currentUser != nil else {
+      guard self._currentUser != nil else {
         return
       }
       return try self.updateCurrentUser(nil, byForce: false, savingToDisk: true)
@@ -1386,14 +1391,14 @@ extension Auth: AuthInterop {
       queue: OperationQueue.main
     ) { notification in
       if let auth = notification.object as? Auth {
-        listener(auth, auth.currentUser)
+        listener(auth, auth._currentUser)
       }
     }
     objc_sync_enter(Auth.self)
     listenerHandles.add(listener)
     objc_sync_exit(Auth.self)
     DispatchQueue.main.async {
-      listener(self, self.currentUser)
+      listener(self, self._currentUser)
     }
     return handle
   }
@@ -1430,11 +1435,12 @@ extension Auth: AuthInterop {
   }
 
   /// Revoke the users token with authorization code.
+  /// - Parameter authorizationCode: The authorization code used to perform the revocation.
   /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
   /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
                               completion: ((Error?) -> Void)? = nil) {
-    currentUser?.internalGetToken { idToken, error in
+    _currentUser?.internalGetToken(backend: backend) { idToken, error in
       if let error {
         Auth.wrapMainAsync(completion, error)
         return
@@ -1450,8 +1456,7 @@ extension Auth: AuthInterop {
   }
 
   /// Revoke the users token with authorization code.
-  /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
-  /// complete, or fails. Invoked asynchronously on the main thread in the future.
+  /// - Parameter authorizationCode: The authorization code used to perform the revocation.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1615,8 +1620,10 @@ extension Auth: AuthInterop {
 
   // MARK: Internal methods
 
-  init(app: FirebaseApp, keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal()) {
-    Auth.setKeychainServiceNameForApp(app)
+  init(app: FirebaseApp,
+       keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal(),
+       backend: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer()),
+       authDispatcher: AuthDispatcher = .init()) {
     self.app = app
     mainBundleUrlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
@@ -1640,26 +1647,29 @@ extension Auth: AuthInterop {
                                                     auth: nil,
                                                     heartbeatLogger: app.heartbeatLogger,
                                                     appCheck: appCheck)
+    self.backend = backend
+    self.authDispatcher = authDispatcher
+
+    let keychainServiceName = Auth.keychainServiceName(for: app)
+    keychainServices = AuthKeychainServices(service: keychainServiceName,
+                                            storage: keychainStorageProvider)
+    storedUserManager = AuthStoredUserManager(
+      serviceName: keychainServiceName,
+      keychainServices: keychainServices
+    )
+
     super.init()
     requestConfiguration.auth = self
 
-    protectedDataInitialization(keychainStorageProvider)
+    protectedDataInitialization()
   }
 
-  private func protectedDataInitialization(_ keychainStorageProvider: AuthKeychainStorage) {
+  private func protectedDataInitialization() {
     // Continue with the rest of initialization in the work thread.
     kAuthGlobalWorkQueue.async { [weak self] in
       // Load current user from Keychain.
       guard let self else {
         return
-      }
-      if let keychainServiceName = Auth.keychainServiceName(forAppName: self.firebaseAppName) {
-        self.keychainServices = AuthKeychainServices(service: keychainServiceName,
-                                                     storage: keychainStorageProvider)
-        self.storedUserManager = AuthStoredUserManager(
-          serviceName: keychainServiceName,
-          keychainServices: self.keychainServices
-        )
       }
 
       do {
@@ -1719,21 +1729,21 @@ extension Auth: AuthInterop {
 
   #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func addProtectedDataDidBecomeAvailableObserver() {
-      weak var weakSelf = self
       protectedDataDidBecomeAvailableObserver =
         NotificationCenter.default.addObserver(
           forName: UIApplication.protectedDataDidBecomeAvailableNotification,
           object: nil,
           queue: nil
-        ) { notification in
-          let strongSelf = weakSelf
-          if let observer = strongSelf?.protectedDataDidBecomeAvailableObserver {
+        ) { [weak self] notification in
+          guard let self else { return }
+          if let observer = self.protectedDataDidBecomeAvailableObserver {
             NotificationCenter.default.removeObserver(
               observer,
               name: UIApplication.protectedDataDidBecomeAvailableNotification,
               object: nil
             )
           }
+          self.protectedDataInitialization()
         }
     }
   #endif
@@ -1786,7 +1796,7 @@ extension Auth: AuthInterop {
   }
 
   func updateKeychain(withUser user: User?) -> Error? {
-    if user != currentUser {
+    if user != _currentUser {
       // No-op if the user is no longer signed in. This is not considered an error as we don't check
       // whether the user is still current on other callbacks of user operations either.
       return nil
@@ -1807,32 +1817,38 @@ extension Auth: AuthInterop {
   /// @synchronized([FIRAuth class]) context.
   fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
 
-  /// Sets the keychain service name global data for the particular app.
-  /// - Parameter app: The Firebase app to set keychain service name for.
-  class func setKeychainServiceNameForApp(_ app: FirebaseApp) {
-    objc_sync_enter(Auth.self)
-    gKeychainServiceNameForAppName[app.name] = "firebase_auth_\(app.options.googleAppID)"
-    objc_sync_exit(Auth.self)
-  }
-
-  /// Gets the keychain service name global data for the particular app by name.
-  /// - Parameter appName: The name of the Firebase app to get keychain service name for.
-  class func keychainServiceName(forAppName appName: String) -> String? {
+  /// Gets the keychain service name global data for the particular app by
+  /// name, creating an entry for one if it does not exist.
+  /// - Parameter app: The Firebase app to get the keychain service name for.
+  /// - Returns: The keychain service name for the given app.
+  static func keychainServiceName(for app: FirebaseApp) -> String {
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
-    return gKeychainServiceNameForAppName[appName]
+    let appName = app.name
+    if let serviceName = gKeychainServiceNameForAppName[appName] {
+      return serviceName
+    } else {
+      let serviceName = "firebase_auth_\(app.options.googleAppID)"
+      gKeychainServiceNameForAppName[appName] = serviceName
+      return serviceName
+    }
   }
 
   /// Deletes the keychain service name global data for the particular app by name.
   /// - Parameter appName: The name of the Firebase app to delete keychain service name for.
-  class func deleteKeychainServiceNameForAppName(_ appName: String) {
+  /// - Returns: The deleted keychain service name, if any.
+  static func deleteKeychainServiceNameForAppName(_ appName: String) -> String? {
     objc_sync_enter(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    guard let serviceName = gKeychainServiceNameForAppName[appName] else {
+      return nil
+    }
     gKeychainServiceNameForAppName.removeValue(forKey: appName)
-    objc_sync_exit(Auth.self)
+    return serviceName
   }
 
   func signOutByForce(withUserID userID: String) throws {
-    guard currentUser?.uid == userID else {
+    guard _currentUser?.uid == userID else {
       return
     }
     try updateCurrentUser(nil, byForce: true, savingToDisk: true)
@@ -1842,7 +1858,7 @@ extension Auth: AuthInterop {
 
   /// Posts the auth state change notification if current user's token has been changed.
   private func possiblyPostAuthStateChangeNotification() {
-    let token = currentUser?.rawAccessToken()
+    let token = _currentUser?.rawAccessToken()
     if lastNotifiedUserToken == token ||
       (token != nil && lastNotifiedUserToken == token) {
       return
@@ -1859,7 +1875,7 @@ extension Auth: AuthInterop {
     if let token, token.count > 0 {
       internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token
     }
-    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = currentUser?
+    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = _currentUser?
       .uid
     let notifications = NotificationCenter.default
     DispatchQueue.main.async {
@@ -1876,7 +1892,7 @@ extension Auth: AuthInterop {
   /// If the token expires in less than 5 minutes, schedule the token refresh immediately.
   private func scheduleAutoTokenRefresh() {
     let tokenExpirationInterval =
-      (currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
+      (_currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
     scheduleAutoTokenRefresh(withDelay: max(tokenExpirationInterval, 0), retry: false)
   }
 
@@ -1885,7 +1901,7 @@ extension Auth: AuthInterop {
   /// to be executed.
   /// - Parameter retry: Flag to determine whether the invocation is a retry attempt or not.
   private func scheduleAutoTokenRefresh(withDelay delay: TimeInterval, retry: Bool) {
-    guard let accessToken = currentUser?.rawAccessToken() else {
+    guard let accessToken = _currentUser?.rawAccessToken() else {
       return
     }
     let intDelay = Int(ceil(delay))
@@ -1900,11 +1916,11 @@ extension Auth: AuthInterop {
     }
     autoRefreshScheduled = true
     weak var weakSelf = self
-    AuthDispatcher.shared.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
+    authDispatcher.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
       guard let strongSelf = weakSelf else {
         return
       }
-      guard strongSelf.currentUser?.rawAccessToken() == accessToken else {
+      guard strongSelf._currentUser?.rawAccessToken() == accessToken else {
         // Another auto refresh must have been scheduled, so keep _autoRefreshScheduled unchanged.
         return
       }
@@ -1912,18 +1928,19 @@ extension Auth: AuthInterop {
       if strongSelf.isAppInBackground {
         return
       }
-      let uid = strongSelf.currentUser?.uid
-      strongSelf.currentUser?.internalGetToken(forceRefresh: true) { token, error in
-        if strongSelf.currentUser?.uid != uid {
-          return
+      let uid = strongSelf._currentUser?.uid
+      strongSelf._currentUser?
+        .internalGetToken(forceRefresh: true, backend: strongSelf.backend) { token, error in
+          if strongSelf._currentUser?.uid != uid {
+            return
+          }
+          if error != nil {
+            // Kicks off exponential back off logic to retry failed attempt. Starts with one minute
+            // delay (60 seconds) if this is the first failed attempt.
+            let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
+            strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
+          }
         }
-        if error != nil {
-          // Kicks off exponential back off logic to retry failed attempt. Starts with one minute
-          // delay (60 seconds) if this is the first failed attempt.
-          let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
-          strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
-        }
-      }
     }
   }
 
@@ -1938,7 +1955,7 @@ extension Auth: AuthInterop {
   /// - Parameter saveToDisk: Indicates the method should persist the user data to disk.
   func updateCurrentUser(_ user: User?, byForce force: Bool,
                          savingToDisk saveToDisk: Bool) throws {
-    if user == currentUser {
+    if user == _currentUser {
       possiblyPostAuthStateChangeNotification()
     }
     if let user {
@@ -1955,7 +1972,7 @@ extension Auth: AuthInterop {
       }
     }
     if throwError == nil || force {
-      currentUser = user
+      _currentUser = user
       possiblyPostAuthStateChangeNotification()
     }
     if let throwError {
@@ -2077,7 +2094,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: requestConfiguration)
     request.autoCreate = !isReauthentication
     credential.prepare(request)
-    let response = try await AuthBackend.call(with: request)
+    let response = try await backend.call(with: request)
     if response.needConfirmation {
       let email = response.email
       let credential = OAuthCredential(withVerifyAssertionResponse: response)
@@ -2116,7 +2133,7 @@ extension Auth: AuthInterop {
                                                phoneNumber: phoneNumber,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        return try await AuthBackend.call(with: request)
+        return try await backend.call(with: request)
       case let .verification(verificationID, code):
         guard verificationID.count > 0 else {
           throw AuthErrorUtils.missingVerificationIDError(message: nil)
@@ -2128,7 +2145,7 @@ extension Auth: AuthInterop {
                                                verificationCode: code,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        return try await AuthBackend.call(with: request)
+        return try await backend.call(with: request)
       }
     }
   #endif
@@ -2154,7 +2171,7 @@ extension Auth: AuthInterop {
                                                 timestamp: credential.timestamp,
                                                 displayName: credential.displayName,
                                                 requestConfiguration: requestConfiguration)
-      let response = try await AuthBackend.call(with: request)
+      let response = try await backend.call(with: request)
       let user = try await completeSignIn(withAccessToken: response.idToken,
                                           accessTokenExpirationDate: response
                                             .approximateExpirationDate,
@@ -2186,7 +2203,7 @@ extension Auth: AuthInterop {
     let request = EmailLinkSignInRequest(email: email,
                                          oobCode: actionCode,
                                          requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.call(with: request)
+    let response = try await backend.call(with: request)
     let user = try await completeSignIn(withAccessToken: response.idToken,
                                         accessTokenExpirationDate: response
                                           .approximateExpirationDate,
@@ -2248,7 +2265,7 @@ extension Auth: AuthInterop {
   private func wrapAsyncRPCTask(_ request: any AuthRPCRequest, _ callback: ((Error?) -> Void)?) {
     Task {
       do {
-        let _ = try await AuthBackend.call(with: request)
+        let _ = try await self.backend.call(with: request)
         Auth.wrapMainAsync(callback, nil)
       } catch {
         Auth.wrapMainAsync(callback, error)
@@ -2303,7 +2320,7 @@ extension Auth: AuthInterop {
                                                           action: action)
       } else {
         do {
-          return try await AuthBackend.call(with: request)
+          return try await backend.call(with: request)
         } catch {
           let nsError = error as NSError
           if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
@@ -2322,7 +2339,7 @@ extension Auth: AuthInterop {
           }
         }
       }
-      return try await AuthBackend.call(with: request)
+      return try await backend.call(with: request)
     }
   #endif
 
@@ -2338,6 +2355,8 @@ extension Auth: AuthInterop {
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
   var requestConfiguration: AuthRequestConfiguration
+
+  let backend: AuthBackend
 
   #if os(iOS)
 
@@ -2358,13 +2377,15 @@ extension Auth: AuthInterop {
   // MARK: Private properties
 
   /// The stored user manager.
-  private var storedUserManager: AuthStoredUserManager!
+  private let storedUserManager: AuthStoredUserManager
 
   /// The Firebase app name.
   private let firebaseAppName: String
 
+  private let authDispatcher: AuthDispatcher
+
   /// The keychain service.
-  private var keychainServices: AuthKeychainServices!
+  private let keychainServices: AuthKeychainServices
 
   /// The user access (ID) token used last time for posting auth state changed notification.
   private var lastNotifiedUserToken: String?

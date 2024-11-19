@@ -31,11 +31,10 @@ struct SDKPodspec: Codable {
 struct GHAMatrixSpecCollector {
   var SDKRepoURL: URL
   var outputSpecFileURL: URL
-  var excludedSDKs: [String] = []
 
   func getPodsInManifest(_ manifest: Manifest) -> [String: SDKPodspec] {
     var podsMap: [String: SDKPodspec] = [:]
-    for pod in manifest.pods {
+    for pod in manifest.pods.filter({ $0.releasing }) {
       podsMap[pod.name] = SDKPodspec(podspec: pod.name, allowWarnings: pod.allowWarnings)
     }
     return podsMap

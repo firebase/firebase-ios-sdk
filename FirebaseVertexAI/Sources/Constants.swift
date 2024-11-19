@@ -18,4 +18,10 @@ import Foundation
 enum Constants {
   /// The Vertex AI backend endpoint URL.
   static let baseURL = "https://firebasevertexai.googleapis.com"
+
+  /// The base reverse-DNS name for `NSError` or `CustomNSError` error domains.
+  ///
+  /// - Important: A suffix must be appended to produce an error domain (e.g.,
+  ///   "com.google.firebase.vertexai.ExampleError").
+  static let baseErrorDomain = "com.google.firebase.vertexai"
 }

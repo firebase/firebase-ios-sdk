@@ -27,7 +27,7 @@ function runXcodebuild() {
     -workspace 'CocoapodsIntegrationTest.xcworkspace'
     -scheme 'CocoapodsIntegrationTest'
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 14'
+    -destination 'platform=iOS Simulator,name=iPhone 15'
     CODE_SIGNING_REQUIRED=NO
     clean
     build
@@ -36,7 +36,7 @@ function runXcodebuild() {
   parameters=("${buildcache_xcb_flags[@]}" "${parameters[@]}")
 
   echo xcodebuild "${parameters[@]}"
-  xcodebuild "${parameters[@]}" | xcpretty; result=$?
+  xcodebuild "${parameters[@]}" | xcbeautify --renderer github-actions; result=$?
 }
 
 # Configures bundler environment using Gemfile at the specified path.

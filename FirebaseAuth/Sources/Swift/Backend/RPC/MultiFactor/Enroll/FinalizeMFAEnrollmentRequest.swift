@@ -71,7 +71,7 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [:]
     if let idToken = idToken {
       body["idToken"] = idToken

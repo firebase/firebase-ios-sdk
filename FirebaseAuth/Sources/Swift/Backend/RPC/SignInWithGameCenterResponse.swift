@@ -25,7 +25,7 @@ struct SignInWithGameCenterResponse: AuthRPCResponse {
   var isNewUser: Bool = false
   var displayName: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     localID = dictionary["localId"] as? String
