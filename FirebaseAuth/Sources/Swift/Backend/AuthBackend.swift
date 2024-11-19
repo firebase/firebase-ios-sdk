@@ -71,8 +71,7 @@ final class AuthBackend: AuthBackendProtocol {
 
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
-    let additionalFrameworkMarker = requestConfiguration
-      .additionalFrameworkMarker ?? "FirebaseCore-iOS"
+    let additionalFrameworkMarker = requestConfiguration.additionalFrameworkMarker
     let clientVersion = "iOS/FirebaseSDK/\(FirebaseVersion())/\(additionalFrameworkMarker)"
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
