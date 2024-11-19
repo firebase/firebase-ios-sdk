@@ -148,9 +148,13 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
       // Use the real implementation so that the complete request can
       // be verified during testing.
       completeRequest = Task {
-        await AuthBackend.request(withURL: requestURL!,
-                                  contentType: contentType,
-                                  requestConfiguration: request.requestConfiguration())
+        await AuthBackend
+          .request(
+            for: request.requestURL(),
+            httpMethod: requestData == nil ? "GET" : "POST",
+            contentType: contentType,
+            requestConfiguration: request.requestConfiguration()
+          )
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }

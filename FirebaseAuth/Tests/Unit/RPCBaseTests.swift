@@ -91,7 +91,7 @@ class RPCBaseTests: XCTestCase {
     rpcIssuer.respondBlock = {
       XCTAssertEqual(self.rpcIssuer.requestURL?.absoluteString, expected)
       if checkPostBody {
-        XCTAssertFalse(request.containsPostBody)
+        XCTAssertNil(request.unencodedHTTPRequestBody)
       } else if let requestDictionary = self.rpcIssuer.decodedRequest as? [String: AnyHashable] {
         XCTAssertEqual(requestDictionary[key], value)
       } else {

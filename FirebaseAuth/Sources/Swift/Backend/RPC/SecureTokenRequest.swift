@@ -134,9 +134,7 @@ class SecureTokenRequest: AuthRPCRequest {
     return URL(string: urlString)!
   }
 
-  var containsPostBody: Bool { return true }
-
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [
       kGrantTypeKey: grantType.value,
     ]

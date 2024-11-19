@@ -50,13 +50,7 @@ class AuthBackendTests: RPCBaseTests {
 
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCRequestEncodingError.rawValue)
-
-      let underlyingUnderlying = try XCTUnwrap(underlyingError
-        .userInfo[NSUnderlyingErrorKey] as? NSError)
-      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.JSONSerializationError.rawValue)
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
     }
@@ -670,11 +664,17 @@ class AuthBackendTests: RPCBaseTests {
       return try! XCTUnwrap(URL(string: kFakeRequestURL))
     }
 
-    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-      if let encodingError {
-        throw encodingError
+    var unencodedHTTPRequestBody: [String: AnyHashable]? {
+      if encodingError == nil {
+        return requestBody
       }
-      return requestBody
+      // Else, return an unencodable request body that will cause an error to be thrown.
+      struct UnencodableObject: Hashable {
+        static func == (lhs: UnencodableObject, rhs: UnencodableObject) -> Bool {
+          true
+        }
+      }
+      return ["foo": UnencodableObject()]
     }
 
     static func makeRequestConfiguration() -> AuthRequestConfiguration {
@@ -683,8 +683,6 @@ class AuthBackendTests: RPCBaseTests {
         appID: kFakeAppID
       )
     }
-
-    var containsPostBody: Bool { return true }
 
     private let configuration: AuthRequestConfiguration
 
@@ -724,8 +722,8 @@ class AuthBackendTests: RPCBaseTests {
       return fakeRequest.requestURL()
     }
 
-    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-      return try fakeRequest.unencodedHTTPRequestBody()
+    var unencodedHTTPRequestBody: [String: AnyHashable]? {
+      fakeRequest.unencodedHTTPRequestBody
     }
 
     func requestConfiguration() -> FirebaseAuth.AuthRequestConfiguration {

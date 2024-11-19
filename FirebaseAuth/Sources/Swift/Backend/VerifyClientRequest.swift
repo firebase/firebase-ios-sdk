@@ -27,7 +27,7 @@ class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The key for the isSandbox request parameter.
   private static let isSandboxKey = "isSandbox"
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody = [String: AnyHashable]()
     if let appToken = appToken {
       postBody[Self.appTokenKey] = appToken

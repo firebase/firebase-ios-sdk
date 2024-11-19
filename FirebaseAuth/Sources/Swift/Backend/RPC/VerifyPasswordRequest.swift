@@ -79,7 +79,7 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [
       kEmailKey: email,
       kPasswordKey: password,

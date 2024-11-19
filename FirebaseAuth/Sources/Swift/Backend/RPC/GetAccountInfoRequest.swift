@@ -39,7 +39,7 @@ class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kGetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     return [kIDTokenKey: accessToken]
   }
 }

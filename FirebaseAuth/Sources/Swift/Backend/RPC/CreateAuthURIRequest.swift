@@ -78,7 +78,7 @@ class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kCreateAuthURIEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [
       kIdentifierKey: identifier,
       kContinueURIKey: continueURI,

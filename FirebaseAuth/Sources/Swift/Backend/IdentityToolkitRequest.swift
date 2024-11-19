@@ -70,8 +70,6 @@ class IdentityToolkitRequest {
     tenantID = requestConfiguration.auth?.tenantID
   }
 
-  var containsPostBody: Bool { return true }
-
   func queryParams() -> String {
     return ""
   }

@@ -135,7 +135,7 @@ class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kVerifyAssertionEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var components = URLComponents()
     var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
     if let providerIDToken = providerIDToken {
