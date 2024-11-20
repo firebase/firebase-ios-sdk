@@ -276,9 +276,12 @@ import Foundation
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
       if auditFallback {
-        request.injectRecaptchaFields(recaptchaResponse: PhoneAuthProvider.kFakeCaptchaResponse, recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion)
+        request.injectRecaptchaFields(
+          recaptchaResponse: PhoneAuthProvider.kFakeCaptchaResponse,
+          recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion
+        )
       }
-        //TODO inject fake_token when .audit
+      // TODO: inject fake_token when .audit
       do {
         let response = try await auth.backend.call(with: request)
         return response.verificationID
@@ -294,7 +297,8 @@ import Foundation
       }
     }
 
-    /// Starts the flow to verify the client via silent push notification. This is used in both .Audit and .Enforce mode
+    /// Starts the flow to verify the client via silent push notification. This is used in both
+    /// .Audit and .Enforce mode
     /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
     /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
     /// - Parameter phoneNumber: The phone number to be verified.
@@ -398,14 +402,18 @@ import Foundation
       let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
                                                                   codeIdentity: codeIdentity)
       if auditFallback {
-        startMFARequestInfo.injectRecaptchaFields(recaptchaResponse: PhoneAuthProvider.kFakeCaptchaResponse, recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion, clientType: PhoneAuthProvider.kClientType)
+        startMFARequestInfo.injectRecaptchaFields(
+          recaptchaResponse: PhoneAuthProvider.kFakeCaptchaResponse,
+          recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion,
+          clientType: PhoneAuthProvider.kClientType
+        )
       }
       do {
         if let idToken = session.idToken {
           let request = StartMFAEnrollmentRequest(idToken: idToken,
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
-          // TODO if mode is audit, inject recaptcha field with no_recaptcha
+          // TODO: if mode is audit, inject recaptcha field with no_recaptcha
           let response = try await auth.backend.call(with: request)
           return response.phoneSessionInfo?.sessionInfo
         } else {
