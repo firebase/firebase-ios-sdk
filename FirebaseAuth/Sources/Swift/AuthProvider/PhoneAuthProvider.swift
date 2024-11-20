@@ -281,7 +281,6 @@ import Foundation
           recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion
         )
       }
-      // TODO: inject fake_token when .audit
       do {
         let response = try await auth.backend.call(with: request)
         return response.verificationID
@@ -413,7 +412,6 @@ import Foundation
           let request = StartMFAEnrollmentRequest(idToken: idToken,
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
-          // TODO: if mode is audit, inject recaptcha field with no_recaptcha
           let response = try await auth.backend.call(with: request)
           return response.phoneSessionInfo?.sessionInfo
         } else {
