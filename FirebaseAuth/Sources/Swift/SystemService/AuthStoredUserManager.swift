@@ -43,7 +43,7 @@ class AuthStoredUserManager {
   /// Get the user access group stored locally.
   /// - Returns: The stored user access group; otherwise, `nil`.
   func getStoredUserAccessGroup() -> String? {
-    if let data = try? userDefaults.data(forKey: Self.storedUserAccessGroupKey) {
+    if let data = userDefaults.data(forKey: Self.storedUserAccessGroupKey) {
       let userAccessGroup = String(data: data, encoding: .utf8)
       return userAccessGroup
     } else {
@@ -55,9 +55,9 @@ class AuthStoredUserManager {
   /// - Parameter accessGroup: The access group to be store.
   func setStoredUserAccessGroup(accessGroup: String?) {
     if let data = accessGroup?.data(using: .utf8) {
-      try? userDefaults.setData(data, forKey: Self.storedUserAccessGroupKey)
+      userDefaults.setData(data, forKey: Self.storedUserAccessGroupKey)
     } else {
-      try? userDefaults.removeData(forKey: Self.storedUserAccessGroupKey)
+      userDefaults.removeData(forKey: Self.storedUserAccessGroupKey)
     }
   }
 
