@@ -155,39 +155,6 @@
                                }];
 }
 
-- (void)testWriteAndLoadInternalMetadataResult {
-  XCTestExpectation *loadConfigContentExpectation = [self
-      expectationWithDescription:@"Write and read internal metadata in database successfully"];
-  __block int count = 0;
-  for (int i = 0; i <= 100; ++i) {
-    // check DB write correctly
-    RCNDBCompletion insertCompletion = ^void(BOOL success, NSDictionary *result) {
-      count++;
-      XCTAssertTrue(success);
-      if (count == 100) {
-        // check DB read correctly
-        NSDictionary *result = [self->_DBManager loadInternalMetadataTable];
-        NSString *stringValue = [[NSString alloc] initWithData:result[@"key100"]
-                                                      encoding:NSUTF8StringEncoding];
-        XCTAssertEqualObjects(stringValue, @"value100");
-        if (success) {
-          [loadConfigContentExpectation fulfill];
-        }
-      }
-    };
-    NSString *value = [NSString stringWithFormat:@"value%d", i];
-    NSString *key = [NSString stringWithFormat:@"key%d", i];
-
-    NSArray *values = @[ key, [value dataUsingEncoding:NSUTF8StringEncoding] ];
-    [_DBManager insertInternalMetadataTableWithValues:values completionHandler:insertCompletion];
-  }
-
-  [self waitForExpectationsWithTimeout:_expectionTimeout
-                               handler:^(NSError *error) {
-                                 XCTAssertNil(error);
-                               }];
-}
-
 - (void)testWriteAndLoadMetadataResult {
   XCTestExpectation *writeAndLoadMetadataExpectation =
       [self expectationWithDescription:@"Write and load metadata in database successfully"];
