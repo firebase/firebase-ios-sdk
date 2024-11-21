@@ -117,6 +117,10 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 - (void)deleteRecordFromMainTableWithNamespace:(NSString *)namespace_p
                               bundleIdentifier:(NSString *)bundleIdentifier
                                     fromSource:(RCNDBSource)source;
+/// Remove all the records of given package name and namespace from metadata DB
+/// before updating new values from response.
+- (void)deleteRecordWithBundleIdentifier:(NSString *)bundlerIdentifier
+                               namespace:(NSString *)namespace;
 /// Remove all the records from a config content table.
 - (void)deleteAllRecordsFromTableWithSource:(RCNDBSource)source;
 

@@ -1101,6 +1101,20 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   });
 }
 
+- (void)deleteRecordWithBundleIdentifier:(NSString *)bundleIdentifier
+                               namespace:(NSString *)namespace {
+  __weak RCNConfigDBManager *weakSelf = self;
+  dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+    const char *SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
+    NSArray *params = @[ bundleIdentifier, namespace ];
+    [strongSelf executeQuery:SQL withParams:params];
+  });
+}
+
 - (void)deleteAllRecordsFromTableWithSource:(RCNDBSource)source {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
