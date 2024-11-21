@@ -141,7 +141,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                       namespace:(NSString *)FIRNamespace
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
-                   userDefaults:(NSUserDefaults *)userDefaults
+                   userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics {
   self = [super init];
   if (self) {

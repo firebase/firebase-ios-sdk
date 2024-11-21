@@ -154,7 +154,7 @@ NS_SWIFT_NAME(RemoteConfigValue)
 
 /// TODO: internal API for temporary bridging
 /// Designated initializer.
-- (instancetype _Nonnull)initWithData:(NSData *_Nonnull)data
+- (instancetype _Nonnull)initWithData:(nullable NSData *)data
                                source:(FIRRemoteConfigSource)source NS_DESIGNATED_INITIALIZER;
 @end
 
