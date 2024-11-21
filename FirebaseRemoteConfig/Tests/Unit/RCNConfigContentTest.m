@@ -33,6 +33,7 @@
 - (BOOL)checkAndWaitForInitialDatabaseLoad;
 @end
 
+// TODO: These depend on RCNConfigDBManager subclassing. Reimplement in Swift.
 // extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 //@interface RCNConfigDBManagerMock : RCNConfigDBManager
 //@property(nonatomic, assign) BOOL isLoadMainCompleted;

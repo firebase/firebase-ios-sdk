@@ -190,9 +190,7 @@ open class ConfigDBManager: NSObject {
     Task { // Use Task to call the actor method asynchronously
       let table = await self.databaseActor.loadMetadataTable(withBundleIdentifier: bundleIdentifier,
                                                              namespace: namespace)
-      Task {
-        handler(table) // Call the completion handler
-      }
+      handler(table) // Call the completion handler
     }
   }
 
