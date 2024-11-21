@@ -231,7 +231,9 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
         "signal_3": 5,
         "signal_4": "enable_feature",
         "signal_5": "enable_feature_\("secret")",
-        "signal_6": nil, // Used to delete the custom signal for a given key.
+        "signal_6": .double(3.14),
+        "signal_7": 3.14159,
+        "signal_8": nil, // Used to delete the custom signal for a given key.
       ]
       try await config.setCustomSignals(signals)
     }

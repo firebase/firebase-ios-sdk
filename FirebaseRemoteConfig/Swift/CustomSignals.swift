@@ -17,11 +17,13 @@ import Foundation
   @_exported import FirebaseRemoteConfigInternal
 #endif // SWIFT_PACKAGE
 
-// TODO: Document.
+/// Represents a value associated with a key in a custom signal, restricted to the allowed data
+/// types : String, Int, Double.
 public struct CustomSignalValue {
   private enum Kind {
     case string(String)
     case integer(Int)
+    case double(Double)
   }
 
   private let kind: Kind
@@ -44,12 +46,21 @@ public struct CustomSignalValue {
     Self(kind: .integer(integer))
   }
 
+  /// Returns an floating-point backed custom signal.
+  /// - Parameter double: The given floating-point value to back the custom signal with.
+  /// - Returns: An floating-point backed custom signal
+  public static func double(_ double: Double) -> Self {
+    Self(kind: .double(double))
+  }
+
   fileprivate func toNSObject() -> NSObject {
     switch kind {
     case let .string(string):
       return string as NSString
     case let .integer(int):
       return int as NSNumber
+    case let .double(double):
+      return double as NSNumber
     }
   }
 }
@@ -63,6 +74,12 @@ extension CustomSignalValue: ExpressibleByStringInterpolation {
 extension CustomSignalValue: ExpressibleByIntegerLiteral {
   public init(integerLiteral value: Int) {
     self = .integer(value)
+  }
+}
+
+extension CustomSignalValue: ExpressibleByFloatLiteral {
+  public init(floatLiteral value: Double) {
+    self = .double(value)
   }
 }
 
