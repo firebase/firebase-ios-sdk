@@ -213,31 +213,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 #pragma mark - update DB/cached
 
-// Update internal metadata content to cache and DB.
-- (void)updateInternalContentWithResponse:(NSDictionary *)response {
-  // Remove all the keys with current package name.
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
-                                     namespace:_FIRNamespace
-                                  isInternalDB:YES];
-
-  for (NSString *key in _internalMetadata.allKeys) {
-    if ([key hasPrefix:_bundleIdentifier]) {
-      [_internalMetadata removeObjectForKey:key];
-    }
-  }
-
-  for (NSString *entry in response) {
-    NSData *val = [response[entry] dataUsingEncoding:NSUTF8StringEncoding];
-    NSArray *values = @[ entry, val ];
-    _internalMetadata[entry] = response[entry];
-    [self updateInternalMetadataTableWithValues:values];
-  }
-}
-
-- (void)updateInternalMetadataTableWithValues:(NSArray *)values {
-  [_DBManager insertInternalMetadataTableWithValues:values completionHandler:nil];
-}
-
 /// If the last fetch was not successful, update the (exponential backoff) period that we wait until
 /// fetching again. Any subsequent fetch requests will be checked and allowed only if past this
 /// throttle end time.
@@ -338,9 +313,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)updateMetadataTable {
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
-                                     namespace:_FIRNamespace
-                                  isInternalDB:NO];
+  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier namespace:_FIRNamespace];
   NSError *error;
   // Objects to be serialized cannot be invalid.
   if (!_bundleIdentifier) {

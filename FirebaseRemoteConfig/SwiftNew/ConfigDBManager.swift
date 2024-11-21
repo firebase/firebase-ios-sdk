@@ -313,12 +313,14 @@ open class ConfigDBManager: NSObject {
                     bundleIdentifier: String,
                     fromSource source: DBSource) {
     let params = [bundleIdentifier, namespace]
-    var sql = "DELETE FROM main WHERE bundle_identifier = ? and namespace = ?"
-    if source == .default {
-      sql = "DELETE FROM main_default WHERE bundle_identifier = ? and namespace = ?"
-    } else if source == .active {
-      sql = "DELETE FROM main_active WHERE bundle_identifier = ? and namespace = ?"
-    }
+    let sql =
+      if source == .default {
+        "DELETE FROM main_default WHERE bundle_identifier = ? and namespace = ?"
+      } else if source == .active {
+        "DELETE FROM main_active WHERE bundle_identifier = ? and namespace = ?"
+      } else {
+        "DELETE FROM main WHERE bundle_identifier = ? and namespace = ?"
+      }
     Task {
       await self.databaseActor.executeQuery(sql, withParams: params)
     }
@@ -326,14 +328,9 @@ open class ConfigDBManager: NSObject {
 
   @objc public
   func deleteRecord(withBundleIdentifier bundleIdentifier: String,
-                    namespace: String,
-                    isInternalDB: Bool) {
-    var sql = "DELETE FROM internal_metadata WHERE key LIKE ?"
-    var params = [bundleIdentifier]
-    if !isInternalDB {
-      sql = "DELETE FROM fetch_metadata WHERE bundle_identifier = ? and namespace = ?"
-      params = [bundleIdentifier, namespace]
-    }
+                    namespace: String) {
+    let sql = "DELETE FROM fetch_metadata WHERE bundle_identifier = ? and namespace = ?"
+    let params = [bundleIdentifier, namespace]
     Task {
       await self.databaseActor.executeQuery(sql, withParams: params)
     }
@@ -341,12 +338,14 @@ open class ConfigDBManager: NSObject {
 
   @objc public
   func deleteAllRecords(fromTableWithSource source: DBSource) {
-    var sql = "DELETE FROM main"
-    if source == .default {
-      sql = "DELETE FROM main_default"
-    } else if source == .active {
-      sql = "DELETE FROM main_active"
-    }
+    let sql =
+      if source == .default {
+        "DELETE FROM main_default"
+      } else if source == .active {
+        "DELETE FROM main_active"
+      } else {
+        "DELETE FROM main"
+      }
     Task {
       await self.databaseActor.executeQuery(sql)
     }
