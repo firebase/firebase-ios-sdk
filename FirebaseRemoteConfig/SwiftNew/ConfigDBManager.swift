@@ -89,9 +89,7 @@ open class ConfigDBManager: NSObject {
     Task { // Use Task to call the actor method asynchronously
       let success = await self.databaseActor.insertMetadataTable(withValues: columnNameToValue)
       if let handler {
-        DispatchQueue.main.async {
-          handler(success, nil) // Call the completion handler
-        }
+        handler(success, nil) // Call the completion handler
       }
     }
   }
@@ -103,9 +101,7 @@ open class ConfigDBManager: NSObject {
     Task { // Use Task to call the actor method asynchronously
       let success = await self.databaseActor.insertMainTable(withValues: values, fromSource: source)
       if let handler {
-        DispatchQueue.main.async {
-          handler(success, nil) // Call the completion handler
-        }
+        handler(success, nil) // Call the completion handler
       }
     }
   }
@@ -117,9 +113,7 @@ open class ConfigDBManager: NSObject {
     Task { // Use Task to call the actor method asynchronously
       let success = await self.databaseActor.insertInternalMetadataTable(withValues: values)
       if let handler {
-        DispatchQueue.main.async {
-          handler(success, nil) // Call the completion handler
-        }
+        handler(success, nil) // Call the completion handler
       }
     }
   }
@@ -134,9 +128,7 @@ open class ConfigDBManager: NSObject {
         await self.databaseActor.update(experimentMetadata: serializedValue) :
         await self.databaseActor.insertExperimentTable(withKey: key, value: serializedValue)
       if let handler {
-        DispatchQueue.main.async {
-          handler(success, nil) // Call the completion handler
-        }
+        handler(success, nil) // Call the completion handler
       }
     }
   }
@@ -167,9 +159,7 @@ open class ConfigDBManager: NSObject {
         value: metadataList
       )
       if let handler {
-        DispatchQueue.main.async {
-          handler(success, nil) // Call the completion handler
-        }
+        handler(success, nil) // Call the completion handler
       }
     }
   }
@@ -186,9 +176,7 @@ open class ConfigDBManager: NSObject {
                                                                  namespace: namespace,
                                                                  values: values)
       if let handler {
-        DispatchQueue.main.async {
-          handler(success, nil) // Call the completion handler
-        }
+        handler(success, nil) // Call the completion handler
       }
     }
   }
@@ -202,7 +190,7 @@ open class ConfigDBManager: NSObject {
     Task { // Use Task to call the actor method asynchronously
       let table = await self.databaseActor.loadMetadataTable(withBundleIdentifier: bundleIdentifier,
                                                              namespace: namespace)
-      DispatchQueue.main.async {
+      Task {
         handler(table) // Call the completion handler
       }
     }
@@ -235,12 +223,10 @@ open class ConfigDBManager: NSObject {
         fromKey: ConfigConstants.rolloutTableKeyActiveMetadata
       )
       if let handler {
-        DispatchQueue.main.async {
-          handler(true, fetchedConfig, activeConfig, defaultConfig, [
-            ConfigConstants.rolloutTableKeyFetchedMetadata: fetchedRolloutMetadata,
-            ConfigConstants.rolloutTableKeyActiveMetadata: activeRolloutMetadata,
-          ])
-        }
+        handler(true, fetchedConfig, activeConfig, defaultConfig, [
+          ConfigConstants.rolloutTableKeyFetchedMetadata: fetchedRolloutMetadata,
+          ConfigConstants.rolloutTableKeyActiveMetadata: activeRolloutMetadata,
+        ])
       }
     }
   }
@@ -270,13 +256,11 @@ open class ConfigDBManager: NSObject {
         fromKey: ConfigConstants.experimentTableKeyActivePayload
       ) ?? [])
       if let handler {
-        DispatchQueue.main.async {
-          handler(true, [
-            ConfigConstants.experimentTableKeyPayload: experimentPayloads,
-            ConfigConstants.experimentTableKeyMetadata: experimentMetadata,
-            ConfigConstants.experimentTableKeyActivePayload: activeExperimentPayloads,
-          ])
-        }
+        handler(true, [
+          ConfigConstants.experimentTableKeyPayload: experimentPayloads,
+          ConfigConstants.experimentTableKeyMetadata: experimentMetadata,
+          ConfigConstants.experimentTableKeyActivePayload: activeExperimentPayloads,
+        ])
       }
     }
   }
@@ -309,9 +293,7 @@ open class ConfigDBManager: NSObject {
           [String: String]()
         }
       if let handler {
-        DispatchQueue.main.async {
-          handler(true, fetchedPersonalization, activePersonalization, [:], [:])
-        }
+        handler(true, fetchedPersonalization, activePersonalization, [:], [:])
       }
     }
   }

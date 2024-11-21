@@ -141,6 +141,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                       namespace:(NSString *)FIRNamespace
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
+                   userDefaults:(NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics {
   self = [super init];
   if (self) {
@@ -154,7 +155,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_FIRNamespace
                                                    firebaseAppName:appName
-                                                       googleAppID:options.googleAppID];
+                                                       googleAppID:options.googleAppID
+                                                      userDefaults:userDefaults];
 
     FIRExperimentController *experimentController = [FIRExperimentController sharedInstance];
     _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManager
@@ -190,6 +192,21 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     }
   }
   return self;
+}
+
+- (instancetype)initWithAppName:(NSString *)appName
+                     FIROptions:(FIROptions *)options
+                      namespace:(NSString *)FIRNamespace
+                      DBManager:(RCNConfigDBManager *)DBManager
+                  configContent:(RCNConfigContent *)configContent
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics {
+  return [self initWithAppName:appName
+                    FIROptions:options
+                     namespace:FIRNamespace
+                     DBManager:DBManager
+                 configContent:configContent
+                  userDefaults:nil
+                     analytics:analytics];
 }
 
 // Initialize with default config settings.
@@ -315,6 +332,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     }
     // Check if the last fetched config has already been activated. Fetches with no data change are
     // ignored.
+    NSLog(@"%f %f", strongSelf->_settings.lastETagUpdateTime,
+          strongSelf->_settings.lastApplyTimeInterval);
     if (strongSelf->_settings.lastETagUpdateTime == 0 ||
         strongSelf->_settings.lastETagUpdateTime <= strongSelf->_settings.lastApplyTimeInterval) {
       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",

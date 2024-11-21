@@ -32,7 +32,6 @@ typedef void (^RCNDBCompletion)(BOOL success, NSDictionary *result);
 typedef void (^RCNDBDictCompletion)(NSDictionary *result);
 
 @interface RCNConfigDBManager (Test)
-- (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;
 - (void)insertExperimentTableWithKey:(NSString *)key
                                value:(NSData *)serializedValue
                    completionHandler:(RCNDBCompletion)handler;
@@ -51,7 +50,6 @@ typedef void (^RCNDBDictCompletion)(NSDictionary *result);
 
 - (void)setUp {
   [super setUp];
-  // always remove the database at the start of testing
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
 
   _expectionTimeout = 10.0;
@@ -59,8 +57,7 @@ typedef void (^RCNDBDictCompletion)(NSDictionary *result);
 }
 
 - (void)tearDown {
-  // Causes crash if main thread exits before the RCNConfigDB queue cleans up
-  //  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseWithPath:_DBPath];
 }
 
 - (void)testV1NamespaceMigrationToV2Namespace {

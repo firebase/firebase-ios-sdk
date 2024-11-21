@@ -113,6 +113,12 @@
                         firebaseAppName:(NSString *)appName
                             googleAppID:(NSString *)googleAppID;
 
+- (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
+                              namespace:(NSString *)FIRNamespace
+                        firebaseAppName:(NSString *)appName
+                            googleAppID:(NSString *)googleAppID
+                           userDefaults:(NSUserDefaults *)userDefaults;
+
 /// Returns a fetch request with the latest device and config change.
 /// Whenever user issues a fetch api call, collect the latest request.
 /// @param userProperties  User properties to set to config request.

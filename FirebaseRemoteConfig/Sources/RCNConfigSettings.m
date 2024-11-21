@@ -79,8 +79,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   NSString *_googleAppID;
   /// The user defaults manager scoped to this RC instance of FIRApp and namespace.
   RCNUserDefaultsManager *_userDefaultsManager;
-  /// The timestamp of last eTag update.
-  NSTimeInterval _lastETagUpdateTime;
 }
 @end
 
@@ -89,7 +87,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
                               namespace:(NSString *)FIRNamespace
                         firebaseAppName:(NSString *)appName
-                            googleAppID:(NSString *)googleAppID {
+                            googleAppID:(NSString *)googleAppID
+                           userDefaults:(NSUserDefaults *)userDefaults {
   self = [super init];
   if (self) {
     _FIRNamespace = FIRNamespace;
@@ -107,15 +106,10 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     _failureFetchTimes = [[NSMutableArray alloc] init];
     _DBManager = manager;
 
-#warning("fix internalMetadata initialization")
-    // Consider accessing this from RCNConfigDBManager.
-    //_internalMetadata = [[_DBManager loadInternalMetadataTable] mutableCopy];
-    //    if (!_internalMetadata) {
-    //      _internalMetadata = [[NSMutableDictionary alloc] init];
-    //    }
     _userDefaultsManager = [[RCNUserDefaultsManager alloc] initWithAppName:appName
                                                                   bundleID:_bundleIdentifier
-                                                                 namespace:_FIRNamespace];
+                                                                 namespace:_FIRNamespace
+                                                              userDefaults:userDefaults];
 
     // Check if the config database is new. If so, clear the configs saved in userDefaults.
     if ([_DBManager isNewDatabase]) {
@@ -135,6 +129,17 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   return self;
 }
 
+- (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
+                              namespace:(NSString *)FIRNamespace
+                        firebaseAppName:(NSString *)appName
+                            googleAppID:(NSString *)googleAppID {
+  return [self initWithDatabaseManager:manager
+                             namespace:FIRNamespace
+                       firebaseAppName:appName
+                           googleAppID:googleAppID
+                          userDefaults:nil];
+}
+
 #pragma mark - read from / update userDefaults
 - (NSString *)lastETag {
   return [_userDefaultsManager lastETag];
@@ -146,6 +151,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)setLastETagUpdateTime:(NSTimeInterval)lastETagUpdateTime {
+  NSLog(@"setter: %f", lastETagUpdateTime);
   [_userDefaultsManager setLastETagUpdateTime:lastETagUpdateTime];
 }
 
