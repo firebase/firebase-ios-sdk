@@ -272,8 +272,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)updateMetadataTable {
-  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier
-                                     namespace:_FIRNamespace];
+  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier namespace:_FIRNamespace];
   NSError *error;
   // Objects to be serialized cannot be invalid.
   if (!_bundleIdentifier) {

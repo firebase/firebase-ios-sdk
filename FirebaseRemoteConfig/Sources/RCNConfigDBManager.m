@@ -1109,7 +1109,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     if (!strongSelf) {
       return;
     }
-    const char *SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
+    const char *SQL =
+        "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
     NSArray *params = @[ bundleIdentifier, namespace ];
     [strongSelf executeQuery:SQL withParams:params];
   });
