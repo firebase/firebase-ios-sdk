@@ -332,8 +332,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     }
     // Check if the last fetched config has already been activated. Fetches with no data change are
     // ignored.
-    NSLog(@"%f %f", strongSelf->_settings.lastETagUpdateTime,
-          strongSelf->_settings.lastApplyTimeInterval);
     if (strongSelf->_settings.lastETagUpdateTime == 0 ||
         strongSelf->_settings.lastETagUpdateTime <= strongSelf->_settings.lastApplyTimeInterval) {
       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069",

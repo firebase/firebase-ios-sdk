@@ -34,7 +34,7 @@ actor DatabaseActor {
   }
 
   func createOrOpenDatabase() {
-    let oldV0DBPath = RemoteConfigPathForOldDatabaseV0()
+    let oldV0DBPath = remoteConfigPathForOldDatabaseV0()
     // Backward Compatibility
     if FileManager.default.fileExists(atPath: oldV0DBPath) {
       RCLog.info("I-RCN000009",
@@ -74,7 +74,7 @@ actor DatabaseActor {
       } else {
         // DB file already exists. Migrate any V1 namespace column entries to V2 fully qualified
         // 'namespace:FIRApp' entries.
-        migrateV1Namespace(toV2Namespace: ())
+        migrateV1NamespaceToV2Namespace()
         // Exclude the app data used from iCloud backup.
         addSkipBackupAttribute(toItemAtPath: dbPath)
       }
@@ -609,7 +609,7 @@ actor DatabaseActor {
     return internalMetadata
   }
 
-  private func migrateV1Namespace(toV2Namespace: Void) {
+  private func migrateV1NamespaceToV2Namespace() {
     for table in ["main", "main_active", "main_default"] {
       let selectSQL = "SELECT namespace FROM \(table) WHERE namespace NOT LIKE '%%:%%'"
       var statement: OpaquePointer?
@@ -828,7 +828,7 @@ actor DatabaseActor {
 
   // MARK: Fileprivate Helpers
 
-  fileprivate func RemoteConfigPathForOldDatabaseV0() -> String {
+  fileprivate func remoteConfigPathForOldDatabaseV0() -> String {
     let dirPaths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
     let docPath = dirPaths[0]
     return URL(fileURLWithPath: docPath).appendingPathComponent(RCNDatabaseName).path

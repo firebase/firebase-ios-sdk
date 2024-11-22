@@ -42,7 +42,9 @@ private let RCNDatabaseName = "RemoteConfig.sqlite3"
 /// The storage sub-directory that the Remote Config database resides in.
 private let RCNRemoteConfigStorageSubDirectory = "Google/RemoteConfig"
 
-// TODO: Delete all publics and objc's
+// TODO: Delete all publics, opens, and objc's
+// TODO: Convert all callback functions to `async` functions
+// TODO: Consider deleting this file completely in favor of direct async calls to DatabaseActor.
 
 /// Persist config data in sqlite database on device. Managing data read/write from/to database.
 @objc(RCNConfigDBManager)
@@ -72,12 +74,6 @@ open class ConfigDBManager: NSObject {
       .appendingPathComponent(RCNRemoteConfigStorageSubDirectory)
       .appendingPathComponent(RCNDatabaseName).path
     return dbPath
-  }
-
-  private func RemoteConfigPathForOldDatabaseV0() -> String {
-    let dirPaths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-    let docPath = dirPaths[0]
-    return URL(fileURLWithPath: docPath).appendingPathComponent(RCNDatabaseName).path
   }
 
   // MARK: - Insert
