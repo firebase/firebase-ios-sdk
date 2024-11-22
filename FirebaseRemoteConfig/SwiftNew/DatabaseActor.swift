@@ -49,28 +49,32 @@ actor DatabaseActor {
       return
     }
 
-    var flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX
-    #if SQLITE_OPEN_FILEPROTECTION_COMPLETEUNTILFIRSTUSERAUTHENTICATION
-      flags |= SQLITE_OPEN_FILEPROTECTION_COMPLETEUNTILFIRSTUSERAUTHENTICATION
-    #endif
+    let flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX |
+      SQLITE_OPEN_FILEPROTECTION_COMPLETEUNTILFIRSTUSERAUTHENTICATION
     if sqlite3_open_v2(cDbPath, &database, flags, nil) == SQLITE_OK {
       // Always try to create table if not exists for backward compatibility.
       if !createTableSchema() {
         // Remove database before failing.
         removeDatabase(atPath: dbPath)
+        // If it failed again, there's nothing we can do here.
         RCLog.error("I-RCN000010", "Failed to create table.")
         // Create a new database if existing database file is corrupted.
-        if createFilePath(ifNotExist: dbPath),
-           sqlite3_open_v2(cDbPath, &database, flags, nil) == SQLITE_OK,
-           createTableSchema() {
-          // Exclude the app data used from iCloud backup.
-          addSkipBackupAttribute(toItemAtPath: dbPath)
-        } else {
-          removeDatabase(atPath: dbPath)
-          // If it failed again, there's nothing we can do here.
-          RCLog.error("I-RCN000010", "Failed to create table.")
+        if !createFilePath(ifNotExist: dbPath) {
+          return
         }
-
+        if sqlite3_open_v2(cDbPath, &database, flags, nil) == SQLITE_OK {
+          if !createTableSchema() {
+            // Remove database before fail.
+            removeDatabase(atPath: dbPath)
+            // If it failed again, there's nothing we can do here.
+            RCLog.error("I-RCN000010", "Failed to create table.")
+          } else {
+            // Exclude the app data used from iCloud backup.
+            addSkipBackupAttribute(toItemAtPath: dbPath)
+          }
+        } else {
+          logDatabaseError()
+        }
       } else {
         // DB file already exists. Migrate any V1 namespace column entries to V2 fully qualified
         // 'namespace:FIRApp' entries.
