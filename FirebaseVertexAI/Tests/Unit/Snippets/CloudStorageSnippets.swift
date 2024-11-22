@@ -12,52 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
-import FirebaseStorage
-import FirebaseVertexAI
+#if SWIFT_PACKAGE // The FirebaseStorage dependency has only been added in Package.swift.
 
-// These CloudStorageSnippets are not currently runnable due to the GCS upload paths but are used as
-// compilation tests.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class CloudStorageSnippets {
-  let model: GenerativeModel! = nil
+  import FirebaseCore
+  import FirebaseStorage
+  import FirebaseVertexAI
 
-  func cloudStorageFile_referenceMIMEType() async throws {
-    // Upload an image file using Cloud Storage for Firebase.
-    let storageRef = Storage.storage().reference(withPath: "images/image.jpg")
-    guard let imageURL = Bundle.main.url(forResource: "image", withExtension: "jpg") else {
-      fatalError("File 'image.jpg' not found in main bundle.")
+  // These CloudStorageSnippets are not currently runnable due to the GCS upload paths but are used
+  // as compilation tests.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  final class CloudStorageSnippets {
+    let model: GenerativeModel! = nil
+
+    func cloudStorageFile_referenceMIMEType() async throws {
+      // Upload an image file using Cloud Storage for Firebase.
+      let storageRef = Storage.storage().reference(withPath: "images/image.jpg")
+      guard let imageURL = Bundle.main.url(forResource: "image", withExtension: "jpg") else {
+        fatalError("File 'image.jpg' not found in main bundle.")
+      }
+      let metadata = try await storageRef.putFileAsync(from: imageURL)
+
+      // Get the MIME type and Cloud Storage for Firebase URL.
+      guard let mimeType = metadata.contentType else {
+        fatalError("The MIME type of the uploaded image is nil.")
+      }
+      // Construct a URL in the required format.
+      let storageURL = "gs://\(storageRef.bucket)/\(storageRef.fullPath)"
+
+      let prompt = "What's in this picture?"
+      // Construct the imagePart with the MIME type and the URL.
+      let imagePart = FileDataPart(uri: storageURL, mimeType: mimeType)
+
+      // To generate text output, call generateContent with the prompt and the imagePart.
+      let result = try await model.generateContent(prompt, imagePart)
+      if let text = result.text {
+        print(text)
+      }
     }
-    let metadata = try await storageRef.putFileAsync(from: imageURL)
 
-    // Get the MIME type and Cloud Storage for Firebase URL.
-    guard let mimeType = metadata.contentType else {
-      fatalError("The MIME type of the uploaded image is nil.")
-    }
-    // Construct a URL in the required format.
-    let storageURL = "gs://\(storageRef.bucket)/\(storageRef.fullPath)"
+    func cloudStorageFile_explicitMIMEType() async throws {
+      let prompt = "What's in this picture?"
+      // Construct an imagePart that explicitly includes the MIME type and Cloud Storage for
+      // Firebase URL values.
+      let imagePart = FileDataPart(uri: "gs://bucket-name/path/image.jpg", mimeType: "image/jpeg")
 
-    let prompt = "What's in this picture?"
-    // Construct the imagePart with the MIME type and the URL.
-    let imagePart = FileDataPart(uri: storageURL, mimeType: mimeType)
-
-    // To generate text output, call generateContent with the prompt and the imagePart.
-    let result = try await model.generateContent(prompt, imagePart)
-    if let text = result.text {
-      print(text)
+      // To generate text output, call generateContent with the prompt and imagePart.
+      let result = try await model.generateContent(prompt, imagePart)
+      if let text = result.text {
+        print(text)
+      }
     }
   }
 
-  func cloudStorageFile_explicitMIMEType() async throws {
-    let prompt = "What's in this picture?"
-    // Construct an imagePart that explicitly includes the MIME type and Cloud Storage for Firebase
-    // URL values.
-    let imagePart = FileDataPart(uri: "gs://bucket-name/path/image.jpg", mimeType: "image/jpeg")
-
-    // To generate text output, call generateContent with the prompt and imagePart.
-    let result = try await model.generateContent(prompt, imagePart)
-    if let text = result.text {
-      print(text)
-    }
-  }
-}
+#endif // SWIFT_PACKAGE
