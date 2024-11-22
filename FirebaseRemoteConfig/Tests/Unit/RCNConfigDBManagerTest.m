@@ -157,6 +157,20 @@ typedef void (^RCNDBDictCompletion)(NSDictionary *result);
                                }];
 }
 
+/// Column names in metadata table
+static NSString *const RCNKeyBundleIdentifier = @"bundle_identifier";
+static NSString *const RCNKeyNamespace = @"namespace";
+static NSString *const RCNKeyFetchTime = @"fetch_time";
+static NSString *const RCNKeyDigestPerNamespace = @"digest_per_ns";
+static NSString *const RCNKeyDeviceContext = @"device_context";
+static NSString *const RCNKeyAppContext = @"app_context";
+static NSString *const RCNKeySuccessFetchTime = @"success_fetch_time";
+static NSString *const RCNKeyFailureFetchTime = @"failure_fetch_time";
+static NSString *const RCNKeyLastFetchStatus = @"last_fetch_status";
+static NSString *const RCNKeyLastFetchError = @"last_fetch_error";
+static NSString *const RCNKeyLastApplyTime = @"last_apply_time";
+static NSString *const RCNKeyLastSetDefaultsTime = @"last_set_defaults_time";
+
 - (void)testWriteAndLoadMetadataResult {
   XCTestExpectation *writeAndLoadMetadataExpectation =
       [self expectationWithDescription:@"Write and load metadata in database successfully"];
