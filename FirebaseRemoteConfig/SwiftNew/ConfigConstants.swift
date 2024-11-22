@@ -44,4 +44,12 @@ enum ConfigConstants {
   static let fetchResponseKeyStateEmptyConfig = "EMPTY_CONFIG"
   static let fetchResponseKeyTemplateVersion = "templateVersion"
   static let activeKeyTemplateVersion = "activeTemplateVersion"
+
+  // MARK: Formerly RCNConfigDefines.h
+
+  static let experimentTableKeyPayload = "experiment_payload"
+  static let experimentTableKeyMetadata = "experiment_metadata"
+  static let experimentTableKeyActivePayload = "experiment_active_payload"
+  static let rolloutTableKeyActiveMetadata = "active_rollout_metadata"
+  static let rolloutTableKeyFetchedMetadata = "fetched_rollout_metadata"
 }

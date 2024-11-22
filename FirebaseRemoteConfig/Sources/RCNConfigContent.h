@@ -16,13 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-
-typedef NS_ENUM(NSInteger, RCNDBSource) {
-  RCNDBSourceActive,
-  RCNDBSourceDefault,
-  RCNDBSourceFetched,
-};
 
 @class RCNConfigDBManager;
 

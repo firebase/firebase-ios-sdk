@@ -50,15 +50,26 @@ public class UserDefaultsManager: NSObject {
     "currentRealtimeThrottlingRetryInterval"
   let kRCNUserDefaultsKeyNameRealtimeRetryCount = "realtimeRetryCount"
 
-  @objc public init(appName: String, bundleID: String, namespace: String) {
+  // Delete when ObjC tests are gone.
+  @objc public convenience init(appName: String, bundleID: String, namespace: String) {
+    self.init(appName: appName, bundleID: bundleID, namespace: namespace, userDefaults: nil)
+  }
+
+  @objc public init(appName: String, bundleID: String, namespace: String,
+                    userDefaults: UserDefaults? = nil) {
     firebaseAppName = appName
     bundleIdentifier = bundleID
     firebaseNamespace = UserDefaultsManager.validateNamespace(namespace: namespace)
 
-    // Initialize the user defaults with a prefix and the bundleID. For app extensions, this will be
-    // the bundleID of the app extension.
-    userDefaults =
-      UserDefaultsManager.sharedUserDefaultsForBundleIdentifier(bundleIdentifier)
+    if let userDefaults {
+      self.userDefaults = userDefaults
+    } else {
+      // Initialize the user defaults with a prefix and the bundleID. For app extensions, this will
+      // be
+      // the bundleID of the app extension.
+      self.userDefaults =
+        UserDefaultsManager.sharedUserDefaultsForBundleIdentifier(bundleIdentifier)
+    }
   }
 
   private static func validateNamespace(namespace: String) -> String {
@@ -66,9 +77,8 @@ public class UserDefaultsManager: NSObject {
       let components = namespace.components(separatedBy: ":")
       return components[0]
     } else {
-      // TODO: FIRLogError(kFIRLoggerRemoteConfig, "I-RCN00064",
-      //                    "Error: Namespace %@ is not fully qualified app:namespace.", namespace)
-      print("Error: Namespace \(namespace) is not fully qualified app:namespace.")
+      RCLog.error("I-RCN00064", "Error: Namespace \(namespace) " +
+        "is not fully qualified app:namespace.")
       return namespace
     }
   }

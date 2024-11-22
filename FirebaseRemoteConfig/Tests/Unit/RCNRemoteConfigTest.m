@@ -25,7 +25,7 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 
@@ -111,10 +111,6 @@
 }
 @end
 
-@interface RCNConfigDBManager (Test)
-- (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;
-@end
-
 @interface RCNUserDefaultsManager (Test)
 + (NSUserDefaults *)sharedUserDefaultsForBundleIdentifier:(NSString *)bundleIdentifier;
 @end
@@ -143,11 +139,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<id> *_configRealtime;
   RCNConfigDBManager *_DBManager;
   NSUserDefaults *_userDefaults;
+  RCNUserDefaultsManager *_userDefaultsManager;
   NSString *_userDefaultsSuiteName;
   NSString *_DBPath;
-  id _DBManagerMock;
   id _experimentMock;
-  id _userDefaultsMock;
   NSString *_fullyQualifiedNamespace;
   RCNConfigSettings *_settings;
   dispatch_queue_t _queue;
@@ -165,15 +160,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  _DBManagerMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([_DBManagerMock remoteConfigPathForDatabase]).andReturn(_DBPath);
-  _DBManager = [[RCNConfigDBManager alloc] init];
+  _DBManager = [[RCNConfigDBManager alloc] initWithDbPath:_DBPath];
 
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
-  _userDefaultsMock = OCMClassMock([RCNUserDefaultsManager class]);
-  OCMStub([_userDefaultsMock sharedUserDefaultsForBundleIdentifier:[OCMArg any]])
-      .andReturn(_userDefaults);
 
   _experimentMock = OCMClassMock([RCNConfigExperiment class]);
   OCMStub([_experimentMock
@@ -223,19 +213,20 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     }
     _fullyQualifiedNamespace =
         [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
-    FIRRemoteConfig *config =
-        OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
-                                                     FIROptions:currentOptions
-                                                      namespace:currentNamespace
-                                                      DBManager:_DBManager
-                                                  configContent:configContent
-                                                      analytics:nil]);
+    FIRRemoteConfig *config = [[FIRRemoteConfig alloc] initWithAppName:currentAppName
+                                                            FIROptions:currentOptions
+                                                             namespace:currentNamespace
+                                                             DBManager:_DBManager
+                                                         configContent:configContent
+                                                          userDefaults:_userDefaults
+                                                             analytics:nil];
     _configInstances[i] = config;
 
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_fullyQualifiedNamespace
                                                    firebaseAppName:currentAppName
-                                                       googleAppID:currentOptions.googleAppID];
+                                                       googleAppID:currentOptions.googleAppID
+                                                      userDefaults:_userDefaults];
     _queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
@@ -303,15 +294,10 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)tearDown {
-  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseWithPath:_DBPath];
   [FIRRemoteConfigComponent clearAllComponentInstances];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
-  [_DBManagerMock stopMocking];
-  _DBManagerMock = nil;
-  [_userDefaultsMock stopMocking];
-  _userDefaultsMock = nil;
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    [(id)_configInstances[i] stopMocking];
     [(id)_configFetch[i] stopMocking];
   }
   [_configInstances removeAllObjects];
@@ -365,8 +351,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         XCTAssertEqualObjects(self->_configInstances[i][key1].stringValue, value1);
         XCTAssertEqualObjects(self->_configInstances[i][key2].stringValue, value2);
 
-        OCMVerify([self->_configInstances[i] objectForKeyedSubscript:key1]);
-
         XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
                        @"Callback of first successful config "
                        @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccessFresh.");
@@ -405,8 +389,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
       NSString *value2 = [NSString stringWithFormat:@"value2-%d", i];
       XCTAssertEqualObjects(self->_configInstances[i][key1].stringValue, value1);
       XCTAssertEqualObjects(self->_configInstances[i][key2].stringValue, value2);
-
-      OCMVerify([self->_configInstances[i] objectForKeyedSubscript:key1]);
 
       XCTAssertEqual(
           status, FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote,
@@ -454,8 +436,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         NSString *value2 = [NSString stringWithFormat:@"value2-%d", i];
         XCTAssertEqualObjects(self->_configInstances[i][key1].stringValue, value1);
         XCTAssertEqualObjects(self->_configInstances[i][key2].stringValue, value2);
-
-        OCMVerify([self->_configInstances[i] objectForKeyedSubscript:key1]);
 
         XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
                        @"Callback of first successful config "
@@ -622,11 +602,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         currentNamespace = RCNTestsFIRNamespace;
         break;
     }
-    RCNUserDefaultsManager *userDefaultsManager =
-        [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
-                                               bundleID:[NSBundle mainBundle].bundleIdentifier
-                                              namespace:_fullyQualifiedNamespace];
-    userDefaultsManager.lastFetchTime = 0;
 
     FIRRemoteConfig *config =
         OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
@@ -634,6 +609,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       namespace:currentNamespace
                                                       DBManager:_DBManager
                                                   configContent:configContent
+                                                   userDefaults:_userDefaults
                                                       analytics:nil]);
 
     _configInstances[i] = config;
@@ -740,7 +716,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     RCNUserDefaultsManager *userDefaultsManager =
         [[RCNUserDefaultsManager alloc] initWithAppName:currentAppName
                                                bundleID:[NSBundle mainBundle].bundleIdentifier
-                                              namespace:fullyQualifiedNamespace];
+                                              namespace:fullyQualifiedNamespace
+                                           userDefaults:_userDefaults];
     userDefaultsManager.lastFetchTime = 0;
 
     FIRRemoteConfig *config =
@@ -749,6 +726,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                       namespace:currentNamespace
                                                       DBManager:_DBManager
                                                   configContent:configContent
+                                                   userDefaults:_userDefaults
                                                       analytics:nil]);
 
     _configInstances[i] = config;
@@ -756,7 +734,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                  namespace:fullyQualifiedNamespace
                                            firebaseAppName:currentAppName
-                                               googleAppID:currentOptions.googleAppID];
+                                               googleAppID:currentOptions.googleAppID
+                                              userDefaults:_userDefaults];
     dispatch_queue_t queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
@@ -1070,7 +1049,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         NSString *value7 = [NSString stringWithFormat:@"value7-%d", i];
         XCTAssertEqualObjects(self->_configInstances[i][key1].stringValue, value1);
         XCTAssertEqualObjects(self->_configInstances[i][key2].stringValue, value2);
-        OCMVerify([self->_configInstances[i] objectForKeyedSubscript:key1]);
         XCTAssertEqualObjects([self->_configInstances[i] configValueForKey:key3].stringValue,
                               value3);
         if (i == RCNTestRCInstanceDefault) {
@@ -1130,7 +1108,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         XCTAssertEqualObjects(self->_configInstances[i][key2].stringValue, value2);
         XCTAssertEqualObjects(self->_configInstances[i][key0].stringValue, @"value0-0");
         XCTAssertNil([self->_configInstances[i] defaultValueForKey:nil]);
-        OCMVerify([self->_configInstances[i] objectForKeyedSubscript:key1]);
         XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
                        @"Callback of first successful config "
                        @"fetch. Status must equal to FIRRemoteConfigFetchStatusSuccess.");
@@ -1254,7 +1231,6 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
         XCTAssertEqual(self->_configInstances[i][key1].source, FIRRemoteConfigSourceRemote);
         XCTAssertEqualObjects([self->_configInstances[i] defaultValueForKey:key1].stringValue,
                               @"default key1");
-        OCMVerify([self->_configInstances[i] objectForKeyedSubscript:key1]);
 
         XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess,
                        @"Callback of first successful config "

@@ -23,7 +23,7 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
@@ -40,10 +40,6 @@
                           queue:(dispatch_queue_t)queue
                       namespace:firebaseNamespace
                             app:firebaseApp;
-@end
-
-@interface RCNConfigDBManager (Test)
-- (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path;
 @end
 
 @interface RCNUserDefaultsManager (Test)
@@ -97,9 +93,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 
   // Always remove the database at the start of testing.
   _DBPath = [RCNTestUtilities remoteConfigPathForTestDatabase];
-  id classMock = OCMClassMock([RCNConfigDBManager class]);
-  OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
-  _DBManager = [[RCNConfigDBManager alloc] init];
+  _DBManager = [[RCNConfigDBManager alloc] initWithDbPath:_DBPath];
 
   _userDefaultsSuiteName = [RCNTestUtilities userDefaultsSuiteNameForTestSuite];
   _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
@@ -216,7 +210,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
 }
 
 - (void)tearDown {
-  [_DBManager removeDatabaseOnDatabaseQueueAtPath:_DBPath];
+  [_DBManager removeDatabaseWithPath:_DBPath];
   [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:_userDefaultsSuiteName];
   [FIRApp resetApps];
   [_installationsMock stopMocking];
