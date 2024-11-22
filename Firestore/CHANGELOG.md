@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is
+  `Sendable` if `T` is `Sendable`. (#14042)
+
 # 11.4.0
 - [changed] Prepare Firestore cache to support session token.
 
