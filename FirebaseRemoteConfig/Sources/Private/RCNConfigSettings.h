@@ -21,7 +21,7 @@
 @class RCNConfigDBManager;
 
 /// This internal class contains a set of variables that are unique among all the config instances.
-/// It also handles all metadata and internal metadata. This class is not thread safe and does not
+/// It also handles all metadata. This class is not thread safe and does not
 /// inherently allow for synchronized access. Callers are responsible for synchronization
 /// (currently using serial dispatch queues).
 @interface RCNConfigSettings : NSObject
@@ -108,6 +108,12 @@
                         firebaseAppName:(NSString *)appName
                             googleAppID:(NSString *)googleAppID;
 
+- (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
+                              namespace:(NSString *)FIRNamespace
+                        firebaseAppName:(NSString *)appName
+                            googleAppID:(NSString *)googleAppID
+                           userDefaults:(NSUserDefaults *)userDefaults;
+
 /// Returns a fetch request with the latest device and config change.
 /// Whenever user issues a fetch api call, collect the latest request.
 /// @param userProperties  User properties to set to config request.
@@ -115,7 +121,7 @@
 - (NSString *)nextRequestWithUserProperties:(NSDictionary *)userProperties;
 
 /// Returns metadata from metadata table.
-- (NSDictionary *)loadConfigFromMetadataTable;
+- (void)loadConfigFromMetadataTable;
 
 /// Updates the metadata table with the current fetch status.
 /// @param fetchSuccess True if fetch was successful.

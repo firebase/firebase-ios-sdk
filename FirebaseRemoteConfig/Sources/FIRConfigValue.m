@@ -26,7 +26,7 @@
 }
 
 /// Designated initializer
-- (instancetype)initWithData:(NSData *)data source:(FIRRemoteConfigSource)source {
+- (instancetype)initWithData:(nullable NSData *)data source:(FIRRemoteConfigSource)source {
   self = [super init];
   if (self) {
     _data = [data copy];

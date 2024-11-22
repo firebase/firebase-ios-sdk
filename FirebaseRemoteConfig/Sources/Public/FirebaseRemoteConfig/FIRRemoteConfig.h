@@ -151,6 +151,11 @@ NS_SWIFT_NAME(RemoteConfigValue)
 @property(nonatomic, readonly, nullable) id JSONValue NS_SWIFT_NAME(jsonValue);
 /// Identifies the source of the fetched value.
 @property(nonatomic, readonly) FIRRemoteConfigSource source;
+
+/// TODO: internal API for temporary bridging
+/// Designated initializer.
+- (instancetype _Nonnull)initWithData:(nullable NSData *)data
+                               source:(FIRRemoteConfigSource)source NS_DESIGNATED_INITIALIZER;
 @end
 
 #pragma mark - FIRRemoteConfigSettings
