@@ -85,7 +85,7 @@ actor DatabaseActor {
 
   func insertMetadataTable(withValues columnNameToValue: [String: Any]) -> Bool {
     let sql = """
-    INSERT into fetch_metadata (\
+    INSERT into fetch_metadata_v2 (\
       bundle_identifier, \
       namespace, \
       fetch_time, \
@@ -333,12 +333,12 @@ actor DatabaseActor {
     var sql: String
     switch option {
     case .applyTime:
-      sql = "UPDATE fetch_metadata SET last_apply_time = ? WHERE namespace = ?"
+      sql = "UPDATE fetch_metadata_v2 SET last_apply_time = ? WHERE namespace = ?"
     case .defaultTime:
-      sql = "UPDATE fetch_metadata SET last_set_defaults_time = ? WHERE namespace = ?"
+      sql = "UPDATE fetch_metadata_v2 SET last_set_defaults_time = ? WHERE namespace = ?"
     case .fetchStatus:
       sql =
-        "UPDATE fetch_metadata SET last_fetch_status = ?, last_fetch_error = ? WHERE namespace = ?"
+        "UPDATE fetch_metadata_v2 SET last_fetch_status = ?, last_fetch_error = ? WHERE namespace = ?"
     }
 
     var statement: OpaquePointer? = nil
@@ -389,7 +389,7 @@ actor DatabaseActor {
       last_fetch_error, \
       last_apply_time, \
       last_set_defaults_time \
-    FROM fetch_metadata \
+    FROM fetch_metadata_v2 \
     WHERE bundle_identifier = ? AND namespace = ?
     """
     var statement: OpaquePointer?
@@ -703,7 +703,7 @@ actor DatabaseActor {
     """
 
     let createMetadata = """
-    CREATE TABLE IF NOT EXISTS fetch_metadata (
+    CREATE TABLE IF NOT EXISTS fetch_metadata_v2 (
       _id INTEGER PRIMARY KEY,
       bundle_identifier TEXT,
       namespace TEXT,

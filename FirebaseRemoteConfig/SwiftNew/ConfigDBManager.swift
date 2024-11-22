@@ -323,7 +323,7 @@ open class ConfigDBManager: NSObject {
   @objc public
   func deleteRecord(withBundleIdentifier bundleIdentifier: String,
                     namespace: String) {
-    let sql = "DELETE FROM fetch_metadata WHERE bundle_identifier = ? and namespace = ?"
+    let sql = "DELETE FROM fetch_metadata_v2 WHERE bundle_identifier = ? and namespace = ?"
     let params = [bundleIdentifier, namespace]
     Task {
       await self.databaseActor.executeQuery(sql, withParams: params)

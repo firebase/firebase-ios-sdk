@@ -151,7 +151,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 - (void)setLastETagUpdateTime:(NSTimeInterval)lastETagUpdateTime {
-  NSLog(@"setter: %f", lastETagUpdateTime);
   [_userDefaultsManager setLastETagUpdateTime:lastETagUpdateTime];
 }
 
