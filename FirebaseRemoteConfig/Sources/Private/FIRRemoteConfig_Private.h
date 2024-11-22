@@ -73,6 +73,14 @@ NS_ASSUME_NONNULL_BEGIN
                   configContent:(RCNConfigContent *)configContent
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
+- (instancetype)initWithAppName:(NSString *)appName
+                     FIROptions:(FIROptions *)options
+                      namespace:(NSString *)FIRNamespace
+                      DBManager:(RCNConfigDBManager *)DBManager
+                  configContent:(RCNConfigContent *)configContent
+                   userDefaults:(nullable NSUserDefaults *)userDefaults
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+
 /// Register RolloutsStateSubcriber to FIRRemoteConfig instance
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
 

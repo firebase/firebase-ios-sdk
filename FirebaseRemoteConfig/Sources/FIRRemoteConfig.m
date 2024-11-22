@@ -24,7 +24,6 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
@@ -142,6 +141,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                       namespace:(NSString *)FIRNamespace
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
+                   userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics {
   self = [super init];
   if (self) {
@@ -155,7 +155,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_FIRNamespace
                                                    firebaseAppName:appName
-                                                       googleAppID:options.googleAppID];
+                                                       googleAppID:options.googleAppID
+                                                      userDefaults:userDefaults];
 
     FIRExperimentController *experimentController = [FIRExperimentController sharedInstance];
     _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManager
@@ -191,6 +192,21 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     }
   }
   return self;
+}
+
+- (instancetype)initWithAppName:(NSString *)appName
+                     FIROptions:(FIROptions *)options
+                      namespace:(NSString *)FIRNamespace
+                      DBManager:(RCNConfigDBManager *)DBManager
+                  configContent:(RCNConfigContent *)configContent
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics {
+  return [self initWithAppName:appName
+                    FIROptions:options
+                     namespace:FIRNamespace
+                     DBManager:DBManager
+                 configContent:configContent
+                  userDefaults:nil
+                     analytics:analytics];
 }
 
 // Initialize with default config settings.

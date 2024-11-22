@@ -19,11 +19,24 @@
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
+// Temps from old RCNConfigDBManager.h
+static NSString *const RCNKeyBundleIdentifier = @"bundle_identifier";
+static NSString *const RCNKeyNamespace = @"namespace";
+static NSString *const RCNKeyFetchTime = @"fetch_time";
+static NSString *const RCNKeyDigestPerNamespace = @"digest_per_ns";
+static NSString *const RCNKeyDeviceContext = @"device_context";
+static NSString *const RCNKeyAppContext = @"app_context";
+static NSString *const RCNKeySuccessFetchTime = @"success_fetch_time";
+static NSString *const RCNKeyFailureFetchTime = @"failure_fetch_time";
+static NSString *const RCNKeyLastFetchStatus = @"last_fetch_status";
+static NSString *const RCNKeyLastFetchError = @"last_fetch_error";
+static NSString *const RCNKeyLastApplyTime = @"last_apply_time";
+static NSString *const RCNKeyLastSetDefaultsTime = @"last_set_defaults_time";
 
 static NSString *const kRCNGroupPrefix = @"frc.group.";
 static NSString *const kRCNUserDefaultsKeyNamelastETag = @"lastETag";
@@ -69,7 +82,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
                               namespace:(NSString *)FIRNamespace
                         firebaseAppName:(NSString *)appName
-                            googleAppID:(NSString *)googleAppID {
+                            googleAppID:(NSString *)googleAppID
+                           userDefaults:(NSUserDefaults *)userDefaults {
   self = [super init];
   if (self) {
     _FIRNamespace = FIRNamespace;
@@ -86,9 +100,11 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     _successFetchTimes = [[NSMutableArray alloc] init];
     _failureFetchTimes = [[NSMutableArray alloc] init];
     _DBManager = manager;
+
     _userDefaultsManager = [[RCNUserDefaultsManager alloc] initWithAppName:appName
                                                                   bundleID:_bundleIdentifier
-                                                                 namespace:_FIRNamespace];
+                                                                 namespace:_FIRNamespace
+                                                              userDefaults:userDefaults];
 
     // Check if the config database is new. If so, clear the configs saved in userDefaults.
     if ([_DBManager isNewDatabase]) {
@@ -106,6 +122,17 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     _realtimeRetryCount = [_userDefaultsManager realtimeRetryCount];
   }
   return self;
+}
+
+- (instancetype)initWithDatabaseManager:(RCNConfigDBManager *)manager
+                              namespace:(NSString *)FIRNamespace
+                        firebaseAppName:(NSString *)appName
+                            googleAppID:(NSString *)googleAppID {
+  return [self initWithDatabaseManager:manager
+                             namespace:FIRNamespace
+                       firebaseAppName:appName
+                           googleAppID:googleAppID
+                          userDefaults:nil];
 }
 
 #pragma mark - read from / update userDefaults
@@ -136,39 +163,46 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 }
 
 #pragma mark - load from DB
-- (NSDictionary *)loadConfigFromMetadataTable {
-  NSDictionary *metadata = [[_DBManager loadMetadataWithBundleIdentifier:_bundleIdentifier
-                                                               namespace:_FIRNamespace] copy];
-  if (metadata) {
-    // TODO: Remove (all metadata in general) once ready to
-    // migrate to user defaults completely.
-    if (metadata[RCNKeyDeviceContext]) {
-      self->_deviceContext = [metadata[RCNKeyDeviceContext] mutableCopy];
-    }
-    if (metadata[RCNKeyAppContext]) {
-      self->_customVariables = [metadata[RCNKeyAppContext] mutableCopy];
-    }
-    if (metadata[RCNKeySuccessFetchTime]) {
-      self->_successFetchTimes = [metadata[RCNKeySuccessFetchTime] mutableCopy];
-    }
-    if (metadata[RCNKeyFailureFetchTime]) {
-      self->_failureFetchTimes = [metadata[RCNKeyFailureFetchTime] mutableCopy];
-    }
-    if (metadata[RCNKeyLastFetchStatus]) {
-      self->_lastFetchStatus =
-          (FIRRemoteConfigFetchStatus)[metadata[RCNKeyLastFetchStatus] intValue];
-    }
-    if (metadata[RCNKeyLastFetchError]) {
-      self->_lastFetchError = (FIRRemoteConfigError)[metadata[RCNKeyLastFetchError] intValue];
-    }
-    if (metadata[RCNKeyLastApplyTime]) {
-      self->_lastApplyTimeInterval = [metadata[RCNKeyLastApplyTime] doubleValue];
-    }
-    if (metadata[RCNKeyLastFetchStatus]) {
-      self->_lastSetDefaultsTimeInterval = [metadata[RCNKeyLastSetDefaultsTime] doubleValue];
-    }
-  }
-  return metadata;
+- (void)loadConfigFromMetadataTable {
+  [_DBManager
+      loadMetadataWithBundleIdentifier:_bundleIdentifier
+                             namespace:_FIRNamespace
+                     completionHandler:^(NSDictionary<NSString *, id> *_Nonnull metadata) {
+                       if (metadata) {
+                         // TODO: Remove (all metadata in general) once ready to
+                         // migrate to user defaults completely.
+                         if (metadata[RCNKeyDeviceContext]) {
+                           self->_deviceContext = [metadata[RCNKeyDeviceContext] mutableCopy];
+                         }
+                         if (metadata[RCNKeyAppContext]) {
+                           self->_customVariables = [metadata[RCNKeyAppContext] mutableCopy];
+                         }
+                         if (metadata[RCNKeySuccessFetchTime]) {
+                           self->_successFetchTimes =
+                               [metadata[RCNKeySuccessFetchTime] mutableCopy];
+                         }
+                         if (metadata[RCNKeyFailureFetchTime]) {
+                           self->_failureFetchTimes =
+                               [metadata[RCNKeyFailureFetchTime] mutableCopy];
+                         }
+                         if (metadata[RCNKeyLastFetchStatus]) {
+                           self->_lastFetchStatus = (FIRRemoteConfigFetchStatus)
+                               [metadata[RCNKeyLastFetchStatus] intValue];
+                         }
+                         if (metadata[RCNKeyLastFetchError]) {
+                           self->_lastFetchError =
+                               (FIRRemoteConfigError)[metadata[RCNKeyLastFetchError] intValue];
+                         }
+                         if (metadata[RCNKeyLastApplyTime]) {
+                           self->_lastApplyTimeInterval =
+                               [metadata[RCNKeyLastApplyTime] doubleValue];
+                         }
+                         if (metadata[RCNKeyLastFetchStatus]) {
+                           self->_lastSetDefaultsTimeInterval =
+                               [metadata[RCNKeyLastSetDefaultsTime] doubleValue];
+                         }
+                       }
+                     }];
 }
 
 #pragma mark - update DB/cached
@@ -415,7 +449,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (void)setLastFetchError:(FIRRemoteConfigError)lastFetchError {
   if (_lastFetchError != lastFetchError) {
     _lastFetchError = lastFetchError;
-    [_DBManager updateMetadataWithOption:RCNUpdateOptionFetchStatus
+    [_DBManager updateMetadataWithOption:UpdateOptionFetchStatus
                                namespace:_FIRNamespace
                                   values:@[ @(_lastFetchStatus), @(_lastFetchError) ]
                        completionHandler:nil];
@@ -461,7 +495,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 - (void)setLastApplyTimeInterval:(NSTimeInterval)lastApplyTimestamp {
   _lastApplyTimeInterval = lastApplyTimestamp;
-  [_DBManager updateMetadataWithOption:RCNUpdateOptionApplyTime
+  [_DBManager updateMetadataWithOption:UpdateOptionApplyTime
                              namespace:_FIRNamespace
                                 values:@[ @(lastApplyTimestamp) ]
                      completionHandler:nil];
@@ -469,7 +503,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
 - (void)setLastSetDefaultsTimeInterval:(NSTimeInterval)lastSetDefaultsTimestamp {
   _lastSetDefaultsTimeInterval = lastSetDefaultsTimestamp;
-  [_DBManager updateMetadataWithOption:RCNUpdateOptionDefaultTime
+  [_DBManager updateMetadataWithOption:UpdateOptionDefaultTime
                              namespace:_FIRNamespace
                                 values:@[ @(lastSetDefaultsTimestamp) ]
                      completionHandler:nil];
