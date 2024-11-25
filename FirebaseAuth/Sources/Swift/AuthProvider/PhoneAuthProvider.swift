@@ -22,9 +22,9 @@ import Foundation
 @objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject {
   /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
-  @objc private static let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
-  @objc private static let kClientType = "CLIENT_TYPE_IOS"
-  @objc private static let kFakeCaptchaResponse = "NO_RECAPTCHA"
+  private static let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
+  private static let clientType = "CLIENT_TYPE_IOS"
+  private static let fakeCaptchaResponse = "NO_RECAPTCHA"
 
   #if os(iOS)
     /// Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
@@ -260,7 +260,7 @@ import Foundation
     }
 
     /// Starts the flow to verify the client via silent push notification.
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
+    /// - Parameter retryOnInvalidAppCredential: Whether or not the flow should be retried if an
     ///  AuthErrorCodeInvalidAppCredential error is returned from the backend.
     /// - Parameter phoneNumber: The phone number to be verified.
     /// - Parameter callback: The callback to be invoked on the global work queue when the flow is
@@ -277,8 +277,8 @@ import Foundation
                                                   .requestConfiguration)
       if auditFallback {
         request.injectRecaptchaFields(
-          recaptchaResponse: PhoneAuthProvider.kFakeCaptchaResponse,
-          recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion
+          recaptchaResponse: PhoneAuthProvider.fakeCaptchaResponse,
+          recaptchaVersion: PhoneAuthProvider.recaptchaVersion
         )
       }
       do {
@@ -402,9 +402,9 @@ import Foundation
                                                                   codeIdentity: codeIdentity)
       if auditFallback {
         startMFARequestInfo.injectRecaptchaFields(
-          recaptchaResponse: PhoneAuthProvider.kFakeCaptchaResponse,
-          recaptchaVersion: PhoneAuthProvider.kRecaptchaVersion,
-          clientType: PhoneAuthProvider.kClientType
+          recaptchaResponse: PhoneAuthProvider.fakeCaptchaResponse,
+          recaptchaVersion: PhoneAuthProvider.recaptchaVersion,
+          clientType: PhoneAuthProvider.clientType
         )
       }
       do {
