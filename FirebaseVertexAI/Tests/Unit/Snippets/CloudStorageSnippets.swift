@@ -52,8 +52,8 @@
 
     func cloudStorageFile_explicitMIMEType() async throws {
       let prompt = "What's in this picture?"
-      // Construct an imagePart that explicitly includes the MIME type and Cloud Storage for
-      // Firebase URL values.
+      // Construct an imagePart that explicitly includes the MIME type and
+      // Cloud Storage for Firebase URL values.
       let imagePart = FileDataPart(uri: "gs://bucket-name/path/image.jpg", mimeType: "image/jpeg")
 
       // To generate text output, call generateContent with the prompt and imagePart.
