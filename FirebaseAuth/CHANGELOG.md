@@ -2,6 +2,8 @@
 - [fixed] Restore Firebase 10 behavior by synchronizing access to the
   `Auth.currentUser` API. This resolves some Firebase 11 issues where the
   current user is unexpectedly `nil` at startup.
+- [fixed] Restore Firebase 10 behavior decoding behavior to prevent user
+  provider data from being decoded as `nil`. (#14011)
 
 # 11.5.0
 - [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
