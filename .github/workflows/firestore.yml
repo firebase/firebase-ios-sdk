@@ -30,16 +30,22 @@ jobs:
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
-      changed: ${{ steps.changes.outputs.sources == 'true' && steps.changes.outputs.docs == 'false' }}
+      changed: ${{ steps.firestore_src_changes.outputs.sources || steps.related_changes.outputs.other_changes }}
     steps:
       - uses: dorny/paths-filter@v2
-        id: changes
+        id: firestore_src_changes
         with:
+          predicate-quantifier: 'every'
           filters: |
             sources:
               # Firestore sources
               - 'Firestore/**'
-
+              - '!**/*.md'
+      - uses: dorny/paths-filter@v2
+        id: related_changes
+        with:
+          filters: |
+            other_changes:
               # Interop headers
               - 'FirebaseAuth/Interop/*.h'
 
@@ -75,8 +81,6 @@ jobs:
 
               # Rebuild on Ruby infrastructure changes.
               - 'Gemfile*'
-            docs:
-              - 'Firestore/CHANGELOG.md'
 
   check:
     needs: changes
