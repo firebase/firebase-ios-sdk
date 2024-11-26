@@ -629,7 +629,7 @@ import Foundation
     private let usingClientIDScheme: Bool
     private var recaptchaVerifier: AuthRecaptchaVerifier?
 
-    init(auth: Auth, recaptchaVerifier: AuthRecaptchaVerifier? = nil) {
+    init(auth: Auth) {
       self.auth = auth
       if let clientID = auth.app?.options.clientID {
         let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
