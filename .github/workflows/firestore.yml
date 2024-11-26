@@ -30,7 +30,7 @@ jobs:
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
-      changed: ${{ steps.changes.outputs.sources == 'true' && steps.changes.outputs.docs  == 'false' }}
+      changed: ${{ steps.changes.outputs.sources == 'true' && steps.changes.outputs.docs == 'false' }}
     steps:
       - uses: dorny/paths-filter@v2
         id: changes
