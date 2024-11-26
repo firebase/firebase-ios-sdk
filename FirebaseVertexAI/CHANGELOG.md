@@ -1,4 +1,4 @@
-# Unreleased
+# 11.6.0
 - [changed] The token counts from `GenerativeModel.countTokens(...)` now include
   tokens from the schema for JSON output and function calling; reported token
   counts will now be higher if using these features.

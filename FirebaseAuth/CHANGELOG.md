@@ -1,4 +1,4 @@
-# Unreleased
+# 11.6.0
 - [added] Added reCAPTCHA enterprise support before sending SMS. This includes
   Phone Authentication flows and SMS MFA flows. (#14114)
 - [fixed] Restore Firebase 10 behavior by synchronizing access to the
