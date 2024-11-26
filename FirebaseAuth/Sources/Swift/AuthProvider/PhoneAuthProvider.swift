@@ -648,7 +648,7 @@ import Foundation
         return
       }
       callbackScheme = ""
-      self.recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+      recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
     }
 
     private let kAuthTypeVerifyApp = "verifyApp"
