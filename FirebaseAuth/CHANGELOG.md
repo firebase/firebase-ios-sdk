@@ -1,6 +1,6 @@
 # 11.6.0
-- [added] Added reCAPTCHA enterprise support before sending SMS. This includes
-  Phone Authentication flows and SMS MFA flows. (#14114)
+- [added] Added reCAPTCHA Enterprise support for app verification during phone
+  authentication for Firebase Authentication (#14114)
 - [fixed] Restore Firebase 10 behavior by synchronizing access to the
   `Auth.currentUser` API. This resolves some Firebase 11 issues where the
   current user is unexpectedly `nil` at startup.
