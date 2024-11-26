@@ -181,6 +181,7 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
 @end
 
+NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRRemoteConfig
 /// Firebase Remote Config class. The class method `remoteConfig()` can be used
 /// to fetch, activate and read config results and set default config results on the default
@@ -377,3 +378,4 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
 @end
+NS_ASSUME_NONNULL_END
