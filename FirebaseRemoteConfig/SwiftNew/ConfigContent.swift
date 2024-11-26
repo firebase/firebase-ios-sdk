@@ -96,6 +96,8 @@ class ConfigContent: NSObject {
     return checkAndWaitForInitialDatabaseLoad()
   }
 
+  /// We load the database async at init time. Block all further calls to active/fetched/default
+  /// configs until load is done.
   @discardableResult
   private func checkAndWaitForInitialDatabaseLoad() -> Bool {
     /// Wait until load is done. This should be a no-op for subsequent calls.
