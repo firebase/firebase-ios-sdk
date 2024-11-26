@@ -30,13 +30,13 @@ jobs:
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
-      changed: ${{ steps.changes.outputs.changed }}
+      changed: ${{ steps.changes.outputs.sources == 'true' && steps.changes.outputs.docs  == 'false' }}
     steps:
       - uses: dorny/paths-filter@v2
         id: changes
         with:
           filters: |
-            changed:
+            sources:
               # Firestore sources
               - 'Firestore/**'
 
@@ -75,6 +75,8 @@ jobs:
 
               # Rebuild on Ruby infrastructure changes.
               - 'Gemfile*'
+            docs:
+              - 'Firestore/CHANGELOG.md'
 
   check:
     needs: changes
