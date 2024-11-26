@@ -33,9 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *_FIRNamespace;
 }
 
-/// Internal settings
-@property(nonatomic, readonly, strong) RCNConfigSettings *settings;
-
 /// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) RCNConfigFetch *configFetch;
 
@@ -63,23 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
                                               app:(FIRApp *)app
     NS_SWIFT_NAME(remoteConfig(FIRNamespace:app:));
-
-/// Initialize a FIRRemoteConfig instance with all the required parameters directly. This exists so
-/// tests can create FIRRemoteConfig objects without needing FIRApp.
-- (instancetype)initWithAppName:(NSString *)appName
-                     FIROptions:(FIROptions *)options
-                      namespace:(NSString *)FIRNamespace
-                      DBManager:(RCNConfigDBManager *)DBManager
-                  configContent:(RCNConfigContent *)configContent
-                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
-
-- (instancetype)initWithAppName:(NSString *)appName
-                     FIROptions:(FIROptions *)options
-                      namespace:(NSString *)FIRNamespace
-                      DBManager:(RCNConfigDBManager *)DBManager
-                  configContent:(RCNConfigContent *)configContent
-                   userDefaults:(nullable NSUserDefaults *)userDefaults
-                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
 /// Register RolloutsStateSubcriber to FIRRemoteConfig instance
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;

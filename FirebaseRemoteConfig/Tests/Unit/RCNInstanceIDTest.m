@@ -19,17 +19,19 @@
 
 @import FirebaseRemoteConfig;
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+// #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
 @import FirebaseRemoteConfigInterop;
 
 @interface RCNConfigFetch (ForTest)
