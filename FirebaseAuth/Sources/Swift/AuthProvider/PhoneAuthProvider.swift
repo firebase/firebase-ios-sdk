@@ -298,7 +298,7 @@ import Foundation
 
     /// Starts the flow to verify the client via silent push notification. This is used in both
     /// .Audit and .Enforce mode
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
+    /// - Parameter retryOnInvalidAppCredential: Whether or not the flow should be retried if an
     /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
     /// - Parameter phoneNumber: The phone number to be verified.
     private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
@@ -367,7 +367,7 @@ import Foundation
 
     /// Starts the flow to verify the client via silent push notification.
     /// This method is called in Audit fallback flow with "NO_RECAPTCHA" fake token and Off flow
-    /// - Parameter retryOnInvalidAppCredential: Whether of not the flow should be retried if an
+    /// - Parameter retryOnInvalidAppCredential: Whether or not the flow should be retried if an
     /// AuthErrorCodeInvalidAppCredential error is returned from the backend.
     /// - Parameter phoneNumber: The phone number to be verified.
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,

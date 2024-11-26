@@ -45,7 +45,6 @@
     private let kRecaptchaVersion: String = "RECAPTCHA_ENTERPRISE"
 
     static var auth: Auth?
-    // static var authRecaptchaVerifier: AuthRecaptchaVerifier
 
     /** @fn testCredentialWithVerificationID
      @brief Tests the @c credentialWithToken method to make sure that it returns a valid AuthCredential instance.

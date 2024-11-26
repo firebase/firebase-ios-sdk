@@ -85,6 +85,7 @@
       return _shared
     }
 
+    /// This function is only for testing.
     class func setShared(_ instance: AuthRecaptchaVerifier, auth: Auth?) {
       _shared = instance
       _ = shared(auth: auth)
