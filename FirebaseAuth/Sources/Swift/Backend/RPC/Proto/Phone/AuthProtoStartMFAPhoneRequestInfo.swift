@@ -26,6 +26,15 @@ private let kSecretKey = "iosSecret"
 /// The key for the reCAPTCHAToken parameter in the request.
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
+/// The key for the "captchaResponse" value in the request.
+private let kCaptchaResponseKey = "captchaResponse"
+
+/// The key for the "recaptchaVersion" value in the request.
+private let kRecaptchaVersion = "recaptchaVersion"
+
+/// The key for the "clientType" value in the request.
+private let kClientType = "clientType"
+
 class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
   required init(dictionary: [String: AnyHashable]) {
     fatalError()
@@ -33,6 +42,9 @@ class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
 
   var phoneNumber: String?
   var codeIdentity: CodeIdentity
+  var captchaResponse: String?
+  var recaptchaVersion: String?
+  var clientType: String?
   init(phoneNumber: String?, codeIdentity: CodeIdentity) {
     self.phoneNumber = phoneNumber
     self.codeIdentity = codeIdentity
@@ -42,6 +54,15 @@ class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
     var dict: [String: AnyHashable] = [:]
     if let phoneNumber = phoneNumber {
       dict[kPhoneNumberKey] = phoneNumber
+    }
+    if let captchaResponse = captchaResponse {
+      dict[kCaptchaResponseKey] = captchaResponse
+    }
+    if let recaptchaVersion = recaptchaVersion {
+      dict[kRecaptchaVersion] = recaptchaVersion
+    }
+    if let clientType = clientType {
+      dict[kClientType] = clientType
     }
     switch codeIdentity {
     case let .credential(appCredential):
@@ -53,5 +74,12 @@ class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
       break
     }
     return dict
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String,
+                             clientType: String?) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
+    self.clientType = clientType
   }
 }
