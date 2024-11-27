@@ -118,14 +118,11 @@
 - (NSString *)nextRequestWithUserProperties:(NSDictionary *)userProperties;
 @end
 
-// TODO: Restore `RCNTestRCNumTotalInstances` to end after FIRRemoteConfig is in Swift
-// and ConfigContent wraps fetchedConfig, etc in an actor.
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   RCNTestRCInstanceDefault,
-  RCNTestRCNumTotalInstances,
   RCNTestRCInstanceSecondNamespace,
   RCNTestRCInstanceSecondApp,
-  //  RCNTestRCNumTotalInstances
+  RCNTestRCNumTotalInstances
 };
 
 @interface RCNRemoteConfigTest : XCTestCase {
