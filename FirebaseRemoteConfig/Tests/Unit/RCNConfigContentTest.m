@@ -22,16 +22,13 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
 @import FirebaseRemoteConfig;
 @import FirebaseRemoteConfigInterop;
-
-@interface RCNConfigContent (Testing)
-- (BOOL)checkAndWaitForInitialDatabaseLoad;
-@end
 
 // TODO: These depend on RCNConfigDBManager subclassing. Reimplement in Swift.
 // extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
@@ -91,9 +88,6 @@
       stringWithFormat:@"%@:%@", _namespaceGoogleMobilePlatform, RCNTestsSecondFIRAppName];
 
   _configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
-
-  id partialMock = OCMPartialMock(_configContent);
-  OCMStub([partialMock checkAndWaitForInitialDatabaseLoad]).andDo(nil);
 }
 
 /// Passing in a nil bundleID should not crash the app

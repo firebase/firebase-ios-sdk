@@ -20,14 +20,15 @@
 @import FirebaseRemoteConfig;
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+// #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
 @interface RCNConfigFetch (ForTest)
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content

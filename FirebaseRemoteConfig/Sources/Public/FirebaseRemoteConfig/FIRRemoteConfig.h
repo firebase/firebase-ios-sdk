@@ -18,6 +18,11 @@
 
 @class FIRApp;
 @class FIRRemoteConfigUpdate;
+@class RCNConfigDBManager;
+@class RCNConfigContent;
+@class FIROptions;
+@class RCNConfigSettings;
+@protocol FIRAnalyticsInterop;
 
 /// The Firebase Remote Config service default namespace, to be used if the API method does not
 /// specify a different namespace. Use the default namespace if configuring from the Google Firebase
@@ -176,6 +181,7 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 @property(nonatomic, assign) NSTimeInterval fetchTimeout;
 @end
 
+NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FIRRemoteConfig
 /// Firebase Remote Config class. The class method `remoteConfig()` can be used
 /// to fetch, activate and read config results and set default config results on the default
@@ -350,4 +356,26 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
+// TODO: Below here is temporary public for Swift port
+
+@property(nonatomic, readonly, strong) RCNConfigSettings *settings;
+
+/// Initialize a FIRRemoteConfig instance with all the required parameters directly. This exists so
+/// tests can create FIRRemoteConfig objects without needing FIRApp.
+- (instancetype)initWithAppName:(NSString *)appName
+                     FIROptions:(FIROptions *)options
+                      namespace:(NSString *)FIRNamespace
+                      DBManager:(RCNConfigDBManager *)DBManager
+                  configContent:(RCNConfigContent *)configContent
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+
+- (instancetype)initWithAppName:(NSString *)appName
+                     FIROptions:(FIROptions *)options
+                      namespace:(NSString *)FIRNamespace
+                      DBManager:(RCNConfigDBManager *)DBManager
+                  configContent:(RCNConfigContent *)configContent
+                   userDefaults:(nullable NSUserDefaults *)userDefaults
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+
 @end
+NS_ASSUME_NONNULL_END
