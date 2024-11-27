@@ -194,9 +194,10 @@ open class ConfigDBManager: NSObject {
 
   @objc public
   func loadMain(withBundleIdentifier bundleIdentifier: String,
-                completionHandler handler: ((Bool, [String: AnyHashable]?,
-                                             [String: AnyHashable]?, [String: Any]?,
-                                             [String: Any]?) -> Void)? = nil) {
+                completionHandler handler: ((Bool, [String: [String: RemoteConfigValue]],
+                                             [String: [String: RemoteConfigValue]],
+                                             [String: [String: RemoteConfigValue]],
+                                             [String: Any]) -> Void)? = nil) {
     Task {
       let fetchedConfig = await self.databaseActor.loadMainTable(
         withBundleIdentifier: bundleIdentifier,
@@ -260,9 +261,8 @@ open class ConfigDBManager: NSObject {
   }
 
   @objc public
-  func loadPersonalization(completionHandler handler: ((Bool, [String: AnyHashable]?,
-                                                        [String: AnyHashable]?, [String: Any]?,
-                                                        [String: Any]?) -> Void)? = nil) {
+  func loadPersonalization(completionHandler handler: ((Bool, [String: AnyHashable],
+                                                        [String: AnyHashable]) -> Void)? = nil) {
     Task {
       let activePersonalizationData =
         await self.databaseActor.loadPersonalizationTable(fromKey: DBSource.active.rawValue)
@@ -287,7 +287,7 @@ open class ConfigDBManager: NSObject {
           [String: String]()
         }
       if let handler {
-        handler(true, fetchedPersonalization, activePersonalization, [:], [:])
+        handler(true, fetchedPersonalization, activePersonalization)
       }
     }
   }

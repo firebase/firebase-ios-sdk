@@ -23,7 +23,6 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
@@ -343,9 +342,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       }
       return;
     }
-    [strongSelf->_configContent copyFromDictionary:self->_configContent.fetchedConfig
+    [strongSelf->_configContent copyFromDictionary:strongSelf->_configContent.fetchedConfig
                                           toSource:RCNDBSourceActive
-                                      forNamespace:self->_FIRNamespace];
+                                      forNamespace:strongSelf->_FIRNamespace];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
