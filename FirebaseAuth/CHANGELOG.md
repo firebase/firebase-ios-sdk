@@ -5,7 +5,11 @@
   `Auth.currentUser` API. This resolves some Firebase 11 issues where the
   current user is unexpectedly `nil` at startup.
 - [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
-  from being decoded as `nil`. (#14011)
+  from being always decoded as `nil` when reading Firebase 10 data. (#14011)
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from being decoded as `nil` when a user has multiple linked providers. Note
+  that this fix will not be in the 11.6.0 zip and Carthage distributions, but
+  will be included from 11.6.0 onwards. (#14011)
 
 # 11.5.0
 - [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
