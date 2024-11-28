@@ -459,8 +459,8 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                                                            initWithData:jsonData
                                                                encoding:NSUTF8StringEncoding]]];
       // Log the custom signals during fetch.
-      FIRLogDebug(kFIRLoggerRemoteConfig,  @"I-RCN000078",@"Fetching with custom signals: %@", _customSignals);
-      
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078", @"Fetching with custom signals: %@",
+                  _customSignals);
     }
   }
   ret = [ret stringByAppendingString:@"}"];
