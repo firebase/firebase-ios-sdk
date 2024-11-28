@@ -30,7 +30,7 @@ jobs:
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
-      changed: ${{ steps.firestore_src_changes.outputs.sources || steps.related_changes.outputs.other_changes }}
+      changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
       - uses: dorny/paths-filter@v3.0.2
         id: firestore_src_changes
