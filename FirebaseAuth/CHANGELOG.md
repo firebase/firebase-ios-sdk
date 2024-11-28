@@ -7,6 +7,8 @@
 - [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
   from being decoded as `nil`. (#14011)
 
+  delete me.
+
 # 11.5.0
 - [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
   logged out when upgrading from Firebase 8.10.0 or earlier to Firebase 11.
