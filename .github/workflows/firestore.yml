@@ -32,7 +32,7 @@ jobs:
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources || steps.related_changes.outputs.other_changes }}
     steps:
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: firestore_src_changes
         with:
           predicate-quantifier: 'every'
@@ -41,7 +41,7 @@ jobs:
               # Firestore sources
               - 'Firestore/**'
               - '!**/*.md'
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: related_changes
         with:
           filters: |
