@@ -28,7 +28,6 @@
 #define RCNTableNameMainDefault "main_default"
 #define RCNTableNameMetadataDeprecated "fetch_metadata"
 #define RCNTableNameMetadata "fetch_metadata_v2"
-#define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
 #define RCNTableNamePersonalization "personalization"
 #define RCNTableNameRollout "rollout"
@@ -278,10 +277,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       "success_fetch_time BLOB, failure_fetch_time BLOB, last_fetch_status INTEGER, "
       "last_fetch_error INTEGER, last_apply_time INTEGER, last_set_defaults_time INTEGER)";
 
-  static const char *createTableInternalMetadata =
-      "create TABLE IF NOT EXISTS " RCNTableNameInternalMetadata
-      " (_id INTEGER PRIMARY KEY, key TEXT, value BLOB)";
-
   static const char *createTableExperiment = "create TABLE IF NOT EXISTS " RCNTableNameExperiment
                                              " (_id INTEGER PRIMARY KEY, key TEXT, value BLOB)";
   static const char *createTablePersonalization =
@@ -293,7 +288,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
   return [self executeQuery:createTableMain] && [self executeQuery:createTableMainActive] &&
          [self executeQuery:createTableMainDefault] && [self executeQuery:createTableMetadata] &&
-         [self executeQuery:createTableInternalMetadata] &&
          [self executeQuery:createTableExperiment] &&
          [self executeQuery:createTablePersonalization] && [self executeQuery:createTableRollout];
 }
@@ -466,48 +460,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   }
   if (sqlite3_step(statement) != SQLITE_DONE) {
     return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-  }
-  sqlite3_finalize(statement);
-  return YES;
-}
-
-- (void)insertInternalMetadataTableWithValues:(NSArray *)values
-                            completionHandler:(RCNDBCompletion)handler {
-  __weak RCNConfigDBManager *weakSelf = self;
-  dispatch_async(_databaseOperationQueue, ^{
-    BOOL success = [weakSelf insertInternalMetadataWithValues:values];
-    if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(success, nil);
-      });
-    }
-  });
-}
-
-- (BOOL)insertInternalMetadataWithValues:(NSArray *)values {
-  RCN_MUST_NOT_BE_MAIN_THREAD();
-  if (values.count != 2) {
-    return NO;
-  }
-  const char *SQL =
-      "INSERT OR REPLACE INTO " RCNTableNameInternalMetadata " (key, value) values (?, ?)";
-  sqlite3_stmt *statement = [self prepareSQL:SQL];
-  if (!statement) {
-    return NO;
-  }
-  NSString *aString = values[0];
-  if (![self bindStringToStatement:statement index:1 string:aString]) {
-    [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-    return NO;
-  }
-  NSData *blobData = values[1];
-  if (sqlite3_bind_blob(statement, 2, blobData.bytes, (int)blobData.length, NULL) != SQLITE_OK) {
-    [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-    return NO;
-  }
-  if (sqlite3_step(statement) != SQLITE_DONE) {
-    [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
-    return NO;
   }
   sqlite3_finalize(statement);
   return YES;
@@ -1039,34 +991,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return results[0];
 }
 
-- (NSDictionary *)loadInternalMetadataTable {
-  __block NSMutableDictionary *internalMetadataTableResult;
-  __weak RCNConfigDBManager *weakSelf = self;
-  dispatch_sync(_databaseOperationQueue, ^{
-    internalMetadataTableResult = [weakSelf loadInternalMetadataTableInternal];
-  });
-  return internalMetadataTableResult;
-}
-
-- (NSMutableDictionary *)loadInternalMetadataTableInternal {
-  NSMutableDictionary *internalMetadata = [[NSMutableDictionary alloc] init];
-  const char *SQL = "SELECT key, value FROM " RCNTableNameInternalMetadata;
-  sqlite3_stmt *statement = [self prepareSQL:SQL];
-  if (!statement) {
-    return nil;
-  }
-
-  while (sqlite3_step(statement) == SQLITE_ROW) {
-    NSString *key = [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 0)];
-
-    NSData *dataValue = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 1)
-                                       length:sqlite3_column_bytes(statement, 1)];
-    internalMetadata[key] = dataValue;
-  }
-  sqlite3_finalize(statement);
-  return internalMetadata;
-}
-
 /// This method is only meant to be called at init time. The underlying logic will need to be
 /// reevaluated if the assumption changes at a later time.
 - (void)loadMainWithBundleIdentifier:(NSString *)bundleIdentifier
@@ -1178,20 +1102,16 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 }
 
 - (void)deleteRecordWithBundleIdentifier:(NSString *)bundleIdentifier
-                               namespace:(NSString *)namespace
-                            isInternalDB:(BOOL)isInternalDB {
+                               namespace:(NSString *)namespace {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
       return;
     }
-    const char *SQL = "DELETE FROM " RCNTableNameInternalMetadata " WHERE key LIKE ?";
-    NSArray *params = @[ bundleIdentifier ];
-    if (!isInternalDB) {
-      SQL = "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
-      params = @[ bundleIdentifier, namespace ];
-    }
+    const char *SQL =
+        "DELETE FROM " RCNTableNameMetadata " WHERE bundle_identifier = ? and namespace = ?";
+    NSArray *params = @[ bundleIdentifier, namespace ];
     [strongSelf executeQuery:SQL withParams:params];
   });
 }

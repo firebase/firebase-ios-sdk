@@ -42,6 +42,7 @@ class RPCBaseTests: XCTestCase {
   let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
   let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
   let kTestPhoneNumber = "415-555-1234"
+  let kIdToken = "FAKE_ID_TOKEN"
   static let kOAuthSessionID = "sessionID"
   static let kOAuthRequestURI = "requestURI"
   let kGoogleIDToken = "GOOGLE_ID_TOKEN"

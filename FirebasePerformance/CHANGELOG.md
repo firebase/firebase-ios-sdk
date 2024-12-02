@@ -1,4 +1,4 @@
-# Unreleased
+# 11.6.0
 - [fixed] Fix a crash related to registering for notifications when the app is between foreground or background states. (#13174)
 
 # 11.5.0

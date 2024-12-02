@@ -1,7 +1,17 @@
-# Unreleased
+# 11.6.0
+- [added] Added reCAPTCHA Enterprise support for app verification during phone
+  authentication for Firebase Authentication (#14114)
 - [fixed] Restore Firebase 10 behavior by synchronizing access to the
   `Auth.currentUser` API. This resolves some Firebase 11 issues where the
   current user is unexpectedly `nil` at startup.
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from always being decoded as `nil` . Note that this fix was only needed for
+  cases where Firebase 11 was reading data written by Firebase 10. (#14011)
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from being decoded as `nil` when a user has multiple linked providers. Note
+  that this fix was only needed for cases where Firebase 11 was reading data
+  written by Firebase 10. Note that this fix will not be in the 11.6.0 zip and
+  Carthage distributions, but will be included from 11.6.0 onwards. (#14011)
 
 # 11.5.0
 - [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting

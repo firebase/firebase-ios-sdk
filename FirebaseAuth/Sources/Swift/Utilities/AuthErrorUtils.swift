@@ -203,6 +203,10 @@ class AuthErrorUtils {
     error(code: .missingAndroidPackageName, message: message)
   }
 
+  static func invalidRecaptchaTokenError() -> Error {
+    error(code: .invalidRecaptchaToken)
+  }
+
   static func unauthorizedDomainError(message: String?) -> Error {
     error(code: .unauthorizedDomain, message: message)
   }
