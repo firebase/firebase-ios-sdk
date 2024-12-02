@@ -24,16 +24,21 @@ static id<RCARecaptchaClientProtocol> recaptchaClient;
 static void retrieveToken(NSString *actionString,
                           NSString *fakeToken,
                           FIRAuthRecaptchaTokenCallback callback) {
-  Class RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
+  Class RecaptchaActionClass = NSClassFromString(@"RecaptchaEnterprise.RCAAction");
   SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
+  if (!RecaptchaActionClass) {
+    // Fall back to attempting to connect with pre-18.7.0 RecaptchaEnterprise.
+    RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
+  }
+
   if (RecaptchaActionClass &&
       [RecaptchaActionClass instancesRespondToSelector:customActionSelector]) {
     // Initialize with a custom action
     id (*funcWithCustomAction)(id, SEL, NSString *) = (id(*)(
         id, SEL, NSString *))[RecaptchaActionClass instanceMethodForSelector:customActionSelector];
 
-    id<RCAActionProtocol> customAction = funcWithCustomAction([[RecaptchaActionClass alloc] init],
-                                                              customActionSelector, actionString);
+    id<RCAActionProtocol> customAction =
+        funcWithCustomAction([RecaptchaActionClass alloc], customActionSelector, actionString);
     if (customAction) {
       [recaptchaClient execute:customAction
                     completion:^(NSString *_Nullable token, NSError *_Nullable error) {
@@ -64,8 +69,15 @@ void FIRRecaptchaGetToken(NSString *siteKey,
     return;
   }
 
-  Class RecaptchaClass = NSClassFromString(@"Recaptcha");
-  SEL selector = NSSelectorFromString(@"getClientWithSiteKey:completion:");
+  // Why not use `conformsToProtocol`?
+  Class RecaptchaClass = NSClassFromString(@"RecaptchaEnterprise.RCARecaptcha");
+  SEL selector = NSSelectorFromString(@"fetchClientWithSiteKey:completion:");
+  if (!RecaptchaClass) {
+    // Fall back to attempting to connect with pre-18.7.0 RecaptchaEnterprise.
+    RecaptchaClass = NSClassFromString(@"Recaptcha");
+    selector = NSSelectorFromString(@"getClientWithSiteKey:completion:");
+  }
+
   if (RecaptchaClass && [RecaptchaClass respondsToSelector:selector]) {
     void (*funcWithoutTimeout)(id, SEL, NSString *,
                                void (^)(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
