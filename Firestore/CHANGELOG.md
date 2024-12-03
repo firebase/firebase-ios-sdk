@@ -1,5 +1,3 @@
-# Unreleased
-
 # 11.6.0
 - [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is
   `Sendable` if `T` is `Sendable`. (#14042)
