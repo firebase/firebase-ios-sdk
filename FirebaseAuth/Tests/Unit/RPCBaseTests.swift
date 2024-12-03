@@ -99,7 +99,7 @@ class RPCBaseTests: XCTestCase {
         XCTFail("decodedRequest is not a dictionary")
       }
       // Dummy response to unblock await.
-      let _ = try self.rpcIssuer?.respond(withJSON: ["sessionInfo": "verification_id_123"])
+      let _ = try self.rpcIssuer?.respond(withJSON: [:])
     }
     let _ = try await authBackend.call(with: request)
   }
