@@ -40,7 +40,6 @@
 @property(nonatomic, copy) NSMutableArray *experimentPayloads;
 @property(nonatomic, copy) NSMutableDictionary *experimentMetadata;
 @property(nonatomic, copy) NSMutableArray *activeExperimentPayloads;
-@property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
 - (void)updateActiveExperimentsInDB;

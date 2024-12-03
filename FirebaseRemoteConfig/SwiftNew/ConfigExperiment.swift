@@ -20,9 +20,9 @@ import Foundation
   private static let experimentMetadataKeyLastStartTime = "last_experiment_start_time"
   private static let serviceOrigin = "frc"
 
-  private var experimentPayloads: [Data]
-  private var experimentMetadata: [String: Any]?
-  private var activeExperimentPayloads: [Data]
+  @objc private var experimentPayloads: [Data]
+  @objc private var experimentMetadata: [String: Any]?
+  @objc private var activeExperimentPayloads: [Data]
   private let dbManager: ConfigDBManager?
   private let experimentController: ExperimentController
   private let experimentStartTimeDateFormatter: DateFormatter
@@ -48,7 +48,7 @@ import Foundation
     loadExperimentFromTable()
   }
 
-  private func loadExperimentFromTable() {
+  @objc private func loadExperimentFromTable() {
     guard let dbManager else { return }
 
     let completionHandler: (Bool, [String: Sendable]?) -> Void = { [weak self] _, result in
@@ -141,7 +141,7 @@ import Foundation
     updateActiveExperimentsInDB()
   }
 
-  private func updateExperimentStartTime() {
+  @objc private func updateExperimentStartTime() {
     let existingLastStartTime =
       experimentMetadata?[Self.experimentMetadataKeyLastStartTime] as? Double
 
@@ -166,7 +166,7 @@ import Foundation
     }
   }
 
-  private func updateActiveExperimentsInDB() {
+  @objc private func updateActiveExperimentsInDB() {
     // Put current fetched experiment payloads into activated experiment DB.
     activeExperimentPayloads.removeAll()
     dbManager?.deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyActivePayload)
