@@ -32,8 +32,10 @@ jobs:
         build-env:
           - os: macos-14
             xcode: Xcode_15.2
+            tests: --skip-tests
           - os: macos-15
             xcode: Xcode_16.1
+            tests: ""
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
