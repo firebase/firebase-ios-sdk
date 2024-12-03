@@ -16,7 +16,7 @@ import FirebaseABTesting
 import Foundation
 
 /// Handles experiment information update and persistence.
-/*@objc(RCNConfigExperiment)*/ open class ConfigExperiment: NSObject {
+@objc(RCNConfigExperiment) public class ConfigExperiment: NSObject {
   private static let experimentMetadataKeyLastStartTime = "last_experiment_start_time"
   private static let serviceOrigin = "frc"
 
@@ -28,19 +28,17 @@ import Foundation
   private let experimentStartTimeDateFormatter: DateFormatter
 
   /// Designated initializer;
-  public init(DBManager: ConfigDBManager?,
-              experimentController controller: ExperimentController?) {
+  @objc public init(DBManager: ConfigDBManager?,
+                    experimentController controller: ExperimentController?) {
     experimentPayloads = []
     experimentMetadata = [:]
     activeExperimentPayloads = []
     experimentStartTimeDateFormatter = {
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-      dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
       // Locale needs to be hardcoded. See
       // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
       dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-      // TODO(ncooke3): Trace back and see why timeZone is set twice.
       dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
       return dateFormatter
     }()
@@ -98,7 +96,7 @@ import Foundation
   }
 
   /// Update/Persist experiment information from config fetch response.
-  open func updateExperiments(withResponse response: [[String: Any]]?) {
+  @objc public func updateExperiments(withResponse response: [[String: Any]]?) {
     // Cache fetched experiment payloads.
     experimentPayloads.removeAll()
     dbManager?.deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyPayload)
@@ -121,7 +119,7 @@ import Foundation
   }
 
   /// Update experiments to Firebase Analytics when `activateWithCompletion:` happens.
-  open func updateExperiments(handler: (((any Error)?) -> Void)? = nil) {
+  @objc public func updateExperiments(handler: (((any Error)?) -> Void)? = nil) {
     let lifecycleEvent = LifecycleEvents()
 
     // Get the last experiment start time prior to the latest payload.
@@ -134,7 +132,7 @@ import Foundation
         withServiceOrigin: Self.serviceOrigin,
         events: lifecycleEvent,
         policy: .discardOldest,
-        lastStartTime: lastStartTime,
+        lastStartTime: lastStartTime ?? 0,
         payloads: experimentPayloads,
         completionHandler: handler
       )

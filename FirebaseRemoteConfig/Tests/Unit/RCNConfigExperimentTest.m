@@ -19,8 +19,6 @@
 
 @import FirebaseRemoteConfig;
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
@@ -30,6 +28,8 @@
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
 // Surface the internal FIRExperimentController initializer.
 @interface FIRExperimentController ()
