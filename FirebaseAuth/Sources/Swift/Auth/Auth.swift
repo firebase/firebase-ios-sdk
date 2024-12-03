@@ -2281,10 +2281,8 @@ extension Auth: AuthInterop {
     guard let callback else { return }
     DispatchQueue.main.async {
       switch result {
-      case let .success(success):
-        callback(success, nil)
-      case let .failure(error):
-        callback(nil, error)
+      case let .success(success): callback(success, nil)
+      case let .failure(error): callback(nil, error)
       }
     }
   }
