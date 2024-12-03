@@ -15,8 +15,11 @@
 import FirebaseABTesting
 import Foundation
 
+// TODO(ncooke3): Once everything is ported, the `@objc` and `public` access
+// can be removed.
+
 /// Handles experiment information update and persistence.
-@objc(RCNConfigExperiment) public class ConfigExperiment: NSObject {
+@objc(RCNConfigExperiment) public final class ConfigExperiment: NSObject {
   private static let experimentMetadataKeyLastStartTime = "last_experiment_start_time"
   private static let serviceOrigin = "frc"
 
