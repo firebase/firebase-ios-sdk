@@ -236,7 +236,7 @@ import Foundation
                                                       retryOnInvalidAppCredential: Bool,
                                                       uiDelegate: AuthUIDelegate?,
                                                       recaptchaVerifier: AuthRecaptchaVerifier) async throws
-      -> String {
+      -> String? {
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
                                                 codeIdentity: CodeIdentity.empty,
                                                 requestConfiguration: auth
@@ -269,7 +269,7 @@ import Foundation
                                                  retryOnInvalidAppCredential: Bool,
                                                  uiDelegate: AuthUIDelegate?,
                                                  auditFallback: Bool = false) async throws
-      -> String {
+      -> String? {
       let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
                                                 codeIdentity: codeIdentity,
@@ -375,7 +375,7 @@ import Foundation
                                                  multiFactorSession session: MultiFactorSession?,
                                                  uiDelegate: AuthUIDelegate?,
                                                  auditFallback: Bool = false) async throws
-      -> String {
+      -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
         let request = SendVerificationCodeRequest(
@@ -413,20 +413,14 @@ import Foundation
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
           let response = try await auth.backend.call(with: request)
-          guard let sessionInfo = response.phoneSessionInfo?.sessionInfo else {
-            throw AuthErrorUtils.error(code: .missingMultiFactorInfo)
-          }
-          return sessionInfo
+          return response.phoneSessionInfo?.sessionInfo
         } else {
           let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: auth.requestConfiguration)
           let response = try await auth.backend.call(with: request)
-          guard let sessionInfo = response.responseInfo.sessionInfo else {
-            throw AuthErrorUtils.error(code: .multiFactorInfoNotFound)
-          }
-          return sessionInfo
+          return response.responseInfo.sessionInfo
         }
       } catch {
         return try await handleVerifyErrorWithRetry(
@@ -446,7 +440,7 @@ import Foundation
                                             retryOnInvalidAppCredential: Bool,
                                             multiFactorSession session: MultiFactorSession?,
                                             uiDelegate: AuthUIDelegate?,
-                                            auditFallback: Bool = false) async throws -> String {
+                                            auditFallback: Bool = false) async throws -> String? {
       if (error as NSError).code == AuthErrorCode.invalidAppCredential.rawValue {
         if retryOnInvalidAppCredential {
           auth.appCredentialManager.clearCredential()

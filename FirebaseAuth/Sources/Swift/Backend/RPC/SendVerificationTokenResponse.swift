@@ -16,12 +16,9 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct SendVerificationCodeResponse: AuthRPCResponse {
-  let verificationID: String
+  let verificationID: String?
 
   init(dictionary: [String: AnyHashable]) throws {
-    guard let verificationID = dictionary["sessionInfo"] as? String else {
-      throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
-    }
-    self.verificationID = verificationID
+    verificationID = dictionary["sessionInfo"] as? String
   }
 }
