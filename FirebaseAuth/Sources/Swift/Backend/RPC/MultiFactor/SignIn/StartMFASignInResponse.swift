@@ -16,7 +16,7 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct StartMFASignInResponse: AuthRPCResponse {
-  var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
+  let responseInfo: AuthProtoStartMFAPhoneResponseInfo
 
   init(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneResponseInfo"] as? [String: AnyHashable] {

@@ -15,7 +15,7 @@
 import Foundation
 
 struct SendVerificationCodeResponse: AuthRPCResponse {
-  var verificationID: String?
+  let verificationID: String?
 
   init(dictionary: [String: AnyHashable]) throws {
     verificationID = dictionary["sessionInfo"] as? String
