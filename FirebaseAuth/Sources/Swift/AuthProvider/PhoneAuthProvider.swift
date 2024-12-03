@@ -191,7 +191,7 @@ import Foundation
     private func internalVerify(phoneNumber: String,
                                 uiDelegate: AuthUIDelegate?,
                                 multiFactorSession: MultiFactorSession? = nil) async throws
-      -> String {
+      -> String? {
       guard !phoneNumber.isEmpty else {
         throw AuthErrorUtils.missingPhoneNumberError(message: nil)
       }
@@ -236,7 +236,7 @@ import Foundation
                                                       retryOnInvalidAppCredential: Bool,
                                                       uiDelegate: AuthUIDelegate?,
                                                       recaptchaVerifier: AuthRecaptchaVerifier) async throws
-      -> String? {
+      -> String {
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
                                                 codeIdentity: CodeIdentity.empty,
                                                 requestConfiguration: auth
@@ -350,7 +350,7 @@ import Foundation
             action: .mfaSmsSignIn
           )
           let response = try await auth.backend.call(with: request)
-          return response.responseInfo?.sessionInfo
+          return response.responseInfo.sessionInfo
         }
       } catch {
         // For Audit fallback only after rCE check failed
