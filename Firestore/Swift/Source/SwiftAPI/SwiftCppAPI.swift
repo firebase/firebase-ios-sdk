@@ -20,6 +20,7 @@
 
 public class SwiftCallingCpp {
   public init(_ value: String) {
-    CppInterfaceCalledBySwift.print(std.string(value))
+    firebase.CppInterfaceCalledBySwift.print(std.string(value))
+    firebase.CppInterfaceCalledBySwift.printTime(firebase.Timestamp(56, 32))
   }
 }

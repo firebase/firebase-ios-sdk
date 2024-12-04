@@ -17,6 +17,10 @@
 #include "../include/used_by_swift.h"
 #include <iostream>
 
-void CppInterfaceCalledBySwift::print(std::string content) {
+void firebase::CppInterfaceCalledBySwift::print(std::string content) {
   std::cout << "C++ function runs with value: " << content << std::endl;
+}
+
+void firebase::CppInterfaceCalledBySwift::printTime(firebase::Timestamp time) {
+  std::cout << "C++ function runs with value: " << time.ToString() << std::endl;
 }
