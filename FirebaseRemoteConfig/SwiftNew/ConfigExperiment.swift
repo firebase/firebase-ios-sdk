@@ -27,7 +27,7 @@ import Foundation
   @objc private var experimentMetadata: [String: Any]?
   @objc private var activeExperimentPayloads: [Data]
   private let dbManager: ConfigDBManager?
-  private let experimentController: ExperimentController
+  private let experimentController: ExperimentController?
   private let experimentStartTimeDateFormatter: DateFormatter
 
   /// Designated initializer;
@@ -46,7 +46,7 @@ import Foundation
       return dateFormatter
     }()
     dbManager = DBManager
-    experimentController = controller!
+    experimentController = controller
     super.init()
     loadExperimentFromTable()
   }
@@ -130,7 +130,7 @@ import Foundation
 
     // Update the last experiment start time with the latest payload.
     updateExperimentStartTime()
-    experimentController
+    experimentController?
       .updateExperiments(
         withServiceOrigin: Self.serviceOrigin,
         events: lifecycleEvent,
@@ -184,10 +184,10 @@ import Foundation
   }
 
   private func latestStartTime(existingLastStartTime: Double) -> TimeInterval {
-    experimentController
+    experimentController?
       .latestExperimentStartTimestampBetweenTimestamp(
         existingLastStartTime,
         andPayloads: experimentPayloads
-      )
+      ) ?? 0
   }
 }
