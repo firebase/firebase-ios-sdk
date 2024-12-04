@@ -300,9 +300,9 @@ extension Auth: AuthInterop {
       Task {
         do {
           let response = try await self.backend.call(with: request)
-          Auth.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
+          Auth.wrapMainAsync(callback: completion, with: .success(response.signinMethods))
         } catch {
-          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          Auth.wrapMainAsync(callback: completion, with: .failure(error))
         }
       }
     }
@@ -365,9 +365,9 @@ extension Auth: AuthInterop {
             withEmail: email,
             password: password
           )
-          decoratedCallback(authData, nil)
+          decoratedCallback(.success(authData))
         } catch {
-          decoratedCallback(nil, error)
+          decoratedCallback(.failure(error))
         }
       }
     }
@@ -463,9 +463,9 @@ extension Auth: AuthInterop {
         do {
           let authData = try await self.internalSignInAndRetrieveData(withCredential: credential,
                                                                       isReauthentication: false)
-          decoratedCallback(authData, nil)
+          decoratedCallback(.success(authData))
         } catch {
-          decoratedCallback(nil, error)
+          decoratedCallback(.failure(error))
         }
       }
     }
@@ -544,9 +544,9 @@ extension Auth: AuthInterop {
               withCredential: credential,
               isReauthentication: false
             )
-            decoratedCallback(authData, nil)
+            decoratedCallback(.success(authData))
           } catch {
-            decoratedCallback(nil, error)
+            decoratedCallback(.failure(error))
           }
         }
       }
@@ -642,9 +642,9 @@ extension Auth: AuthInterop {
         do {
           let authData = try await self.internalSignInAndRetrieveData(withCredential: credential,
                                                                       isReauthentication: false)
-          decoratedCallback(authData, nil)
+          decoratedCallback(.success(authData))
         } catch {
-          decoratedCallback(nil, error)
+          decoratedCallback(.failure(error))
         }
       }
     }
@@ -710,7 +710,7 @@ extension Auth: AuthInterop {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       if let currentUser = self._currentUser, currentUser.isAnonymous {
         let result = AuthDataResult(withUser: currentUser, additionalUserInfo: nil)
-        decoratedCallback(result, nil)
+        decoratedCallback(.success(result))
         return
       }
       let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
@@ -728,10 +728,11 @@ extension Auth: AuthInterop {
                                                       profile: nil,
                                                       username: nil,
                                                       isNewUser: true)
-          decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
-                            nil)
+          decoratedCallback(
+            .success(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo))
+          )
         } catch {
-          decoratedCallback(nil, error)
+          decoratedCallback(.failure(error))
         }
       }
     }
@@ -790,10 +791,11 @@ extension Auth: AuthInterop {
                                                       profile: nil,
                                                       username: nil,
                                                       isNewUser: response.isNewUser)
-          decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
-                            nil)
+          decoratedCallback(
+            .success(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo))
+          )
         } catch {
-          decoratedCallback(nil, error)
+          decoratedCallback(.failure(error))
         }
       }
     }
@@ -866,7 +868,7 @@ extension Auth: AuthInterop {
                                  action: AuthRecaptchaAction.signUpPassword) { response, error in
           if let error {
             DispatchQueue.main.async {
-              decoratedCallback(nil, error)
+              decoratedCallback(.failure(error))
             }
             return
           }
@@ -881,7 +883,8 @@ extension Auth: AuthInterop {
 
   func internalCreateUserWithEmail(request: SignUpNewUserRequest,
                                    inResponse: SignUpNewUserResponse? = nil,
-                                   decoratedCallback: @escaping (AuthDataResult?, Error?) -> Void) {
+                                   decoratedCallback: @escaping (Result<AuthDataResult, Error>)
+                                     -> Void) {
     Task {
       do {
         var response: SignUpNewUserResponse
@@ -900,11 +903,11 @@ extension Auth: AuthInterop {
                                                     profile: nil,
                                                     username: nil,
                                                     isNewUser: true)
-        decoratedCallback(AuthDataResult(withUser: user,
-                                         additionalUserInfo: additionalUserInfo),
-                          nil)
+        decoratedCallback(
+          .success(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo))
+        )
       } catch {
-        decoratedCallback(nil, error)
+        decoratedCallback(.failure(error))
       }
     }
   }
@@ -1009,9 +1012,9 @@ extension Auth: AuthInterop {
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
                                               newEmail: response.verifiedEmail)
-          Auth.wrapMainAsync(callback: completion, withParam: actionCodeInfo, error: nil)
+          Auth.wrapMainAsync(callback: completion, with: .success(actionCodeInfo))
         } catch {
-          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          Auth.wrapMainAsync(callback: completion, with: .failure(error))
         }
       }
     }
@@ -2238,23 +2241,19 @@ extension Auth: AuthInterop {
   /// Invoked asynchronously on the main thread in the future.
   /// - Returns: Returns a block that updates the current user.
   func signInFlowAuthDataResultCallback(byDecorating callback:
-    ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
-    let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
-      { callback, result, error in
-        Auth.wrapMainAsync(callback: callback, withParam: result, error: error)
+    ((AuthDataResult?, Error?) -> Void)?) -> (Result<AuthDataResult, Error>) -> Void {
+    return { result in
+      switch result {
+      case let .success(authResult):
+        do {
+          try self.updateCurrentUser(authResult.user, byForce: false, savingToDisk: true)
+          Auth.wrapMainAsync(callback: callback, with: .success(authResult))
+        } catch {
+          Auth.wrapMainAsync(callback: callback, with: .failure(error))
+        }
+      case let .failure(error):
+        Auth.wrapMainAsync(callback: callback, with: .failure(error))
       }
-    return { authResult, error in
-      if let error {
-        authDataCallback(callback, nil, error)
-        return
-      }
-      do {
-        try self.updateCurrentUser(authResult?.user, byForce: false, savingToDisk: true)
-      } catch {
-        authDataCallback(callback, nil, error)
-        return
-      }
-      authDataCallback(callback, authResult, nil)
     }
   }
 
@@ -2278,11 +2277,12 @@ extension Auth: AuthInterop {
   }
 
   class func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
-                                   withParam param: T?,
-                                   error: Error?) -> Void {
-    if let callback {
-      DispatchQueue.main.async {
-        callback(param, error)
+                                   with result: Result<T, Error>) -> Void {
+    guard let callback else { return }
+    DispatchQueue.main.async {
+      switch result {
+      case let .success(success): callback(success, nil)
+      case let .failure(error): callback(nil, error)
       }
     }
   }

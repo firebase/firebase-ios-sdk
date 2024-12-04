@@ -32,8 +32,10 @@ jobs:
         build-env:
           - os: macos-14
             xcode: Xcode_15.2
+            tests: --skip-tests
           - os: macos-15
             xcode: Xcode_16.1
+            tests: ""
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -48,7 +50,7 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.tests }} ${{ matrix.flags }}
+        command: scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.build-env.tests }} ${{ matrix.flags }}
 
 
   spm-package-resolved:

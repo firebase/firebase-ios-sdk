@@ -265,10 +265,10 @@ import Foundation
     /// - Parameter phoneNumber: The phone number to be verified.
     /// - Parameter callback: The callback to be invoked on the global work queue when the flow is
     /// finished.
-    func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
-                                         retryOnInvalidAppCredential: Bool,
-                                         uiDelegate: AuthUIDelegate?,
-                                         auditFallback: Bool = false) async throws
+    private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
+                                                 retryOnInvalidAppCredential: Bool,
+                                                 uiDelegate: AuthUIDelegate?,
+                                                 auditFallback: Bool = false) async throws
       -> String? {
       let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
@@ -350,7 +350,7 @@ import Foundation
             action: .mfaSmsSignIn
           )
           let response = try await auth.backend.call(with: request)
-          return response.responseInfo?.sessionInfo
+          return response.responseInfo.sessionInfo
         }
       } catch {
         // For Audit fallback only after rCE check failed
@@ -419,9 +419,8 @@ import Foundation
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: auth.requestConfiguration)
-
           let response = try await auth.backend.call(with: request)
-          return response.responseInfo?.sessionInfo
+          return response.responseInfo.sessionInfo
         }
       } catch {
         return try await handleVerifyErrorWithRetry(
