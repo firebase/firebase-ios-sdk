@@ -102,11 +102,11 @@ extern NSString *const _Nonnull FIRRemoteConfigCustomSignalsErrorDomain NS_SWIFT
 /// Firebase Remote Config custom signals error.
 typedef NS_ERROR_ENUM(FIRRemoteConfigCustomSignalsErrorDomain, FIRRemoteConfigCustomSignalsError){
     /// Unknown error.
-    FIRRemoteConfigCustomSignalsErrorUnknown = 8001,
+    FIRRemoteConfigCustomSignalsErrorUnknown = 8101,
     /// Invalid value type in the custom signals dictionary.
-    FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8002,
+    FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8102,
     /// Limit exceeded for key length, value length, or number of signals.
-    FIRRemoteConfigCustomSignalsErrorLimitExceeded = 8003,
+    FIRRemoteConfigCustomSignalsErrorLimitExceeded = 8103,
 } NS_SWIFT_NAME(RemoteConfigCustomSignalsError);
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from

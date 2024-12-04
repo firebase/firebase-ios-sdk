@@ -251,7 +251,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   void (^setCustomSignalsBlock)(void) = ^{
     if (!customSignals) {
       if (completionHandler) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
           completionHandler(nil);
         });
       }
@@ -264,7 +264,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       if (![value isKindOfClass:[NSNull class]] && ![value isKindOfClass:[NSString class]] &&
           ![value isKindOfClass:[NSNumber class]]) {
         if (completionHandler) {
-          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          dispatch_async(dispatch_get_main_queue(), ^{
             NSError *error =
                 [NSError errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
                                     code:FIRRemoteConfigCustomSignalsErrorInvalidValueType
@@ -282,7 +282,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
           ([value isKindOfClass:[NSString class]] &&
            [(NSString *)value length] > FIRRemoteConfigCustomSignalsMaxStringValueLength)) {
         if (completionHandler) {
-          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          dispatch_async(dispatch_get_main_queue(), ^{
             NSError *error = [NSError
                 errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
                            code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
@@ -318,7 +318,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     // Check the size limit.
     if (newCustomSignals.count > FIRRemoteConfigCustomSignalsMaxCount) {
       if (completionHandler) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
           NSError *error = [NSError
               errorWithDomain:FIRRemoteConfigCustomSignalsErrorDomain
                          code:FIRRemoteConfigCustomSignalsErrorLimitExceeded
@@ -342,7 +342,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                 newCustomSignals);
 
     if (completionHandler) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
         completionHandler(nil);
       });
     }
