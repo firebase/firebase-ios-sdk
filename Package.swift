@@ -1411,6 +1411,7 @@ func firebaseFirestoreCppTarget() -> Target {
     path: "Firestore/core/swift",
     publicHeadersPath: "include", // Path to the public headers
     cxxSettings: [
+      .headerSearchPath("../../../"),
       .headerSearchPath("include"), // Ensure the header search path is correct
     ]
   )
