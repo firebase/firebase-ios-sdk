@@ -182,6 +182,44 @@ class AuthenticationExampleUITests: XCTestCase {
     )
   }
 
+  func testPhoneMultiFactorEnrollUnenrollTest() {
+    // login with email password
+    app.staticTexts["Email & Password Login"].tap()
+    let testEmail = "sample.auth.ios@gmail.com"
+    app.textFields["Email"].tap()
+    app.typeText(testEmail)
+    app.buttons["return"].tap() // Dismiss keyboard
+    let testPassword = "sampleauthios"
+    app.textFields["Password"].tap()
+    app.typeText(testPassword)
+    app.buttons["return"].tap() // Dismiss keyboard
+    app.buttons["Login"].tap()
+    // enroll with phone
+    app.tabBars.buttons["Authentication"].tap()
+    app.tables.cells.staticTexts["Phone Enroll"].tap()
+    let testPhone = "+11234567890"
+    app.typeText(testPhone)
+    app.buttons["Save"].tap()
+    let testVerificationCode = "123456"
+    app.typeText(testVerificationCode)
+    app.buttons["Save"].tap()
+    let testPhoneSecondFactorDisplayName = "phone1"
+    app.typeText(testPhoneSecondFactorDisplayName)
+    app.buttons["Save"].tap()
+    // unenroll
+    app.swipeUp(velocity: .fast)
+    app.tables.cells.staticTexts["Multifactor unenroll"].tap()
+    XCTAssertTrue(app.buttons["phone1"].exists) // enrollment successful
+    app.buttons["phone1"].tap()
+    app.swipeUp(velocity: .fast)
+    app.tables.cells.staticTexts["Multifactor unenroll"].tap()
+    XCTAssertFalse(app.buttons["phone1"].exists) // unenrollment successful
+    app.buttons["Cancel"].tap()
+    // Sign out explicitly after unenroll
+    app.tabBars.buttons["Current User"].tap()
+    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+  }
+
   func DRAFT_testGoogleSignInAndLinkAccount() {
     let interruptionMonitor = addUIInterruptionMonitor(withDescription: "Sign in with Google") {
       alert -> Bool in
