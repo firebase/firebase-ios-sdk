@@ -246,18 +246,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
   }
 }
 
-- (void)setCustomSignals:(nullable NSDictionary<NSString *, NSObject *> *)customSignals
-          WithCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler {
+- (void)setCustomSignals:(nonnull NSDictionary<NSString *, NSObject *> *)customSignals
+          withCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler {
   void (^setCustomSignalsBlock)(void) = ^{
-    if (!customSignals) {
-      if (completionHandler) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          completionHandler(nil);
-        });
-      }
-      return;
-    }
-
     // Validate value type, and key and value length
     for (NSString *key in customSignals) {
       NSObject *value = customSignals[key];

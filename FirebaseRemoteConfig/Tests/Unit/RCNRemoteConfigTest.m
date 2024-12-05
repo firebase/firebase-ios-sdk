@@ -1834,7 +1834,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
 }
 
-- (void)testSetCustomSingals {
+- (void)testSetCustomSignals {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
 
@@ -1849,7 +1849,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
     };
 
     [_configInstances[i] setCustomSignals:testSignals
-                           WithCompletion:^(NSError *_Nullable error) {
+                           withCompletion:^(NSError *_Nullable error) {
                              XCTAssertNil(error);
                              NSMutableDictionary<NSString *, NSString *> *retrievedSignals =
                                  self->_configInstances[i].settings.customSignals;
@@ -1889,11 +1889,11 @@ static NSString *UTCToLocal(NSString *utcTime) {
     };
 
     [_configInstances[i] setCustomSignals:testSignals1
-                           WithCompletion:^(NSError *_Nullable error) {
+                           withCompletion:^(NSError *_Nullable error) {
                              XCTAssertNil(error);
                              [_configInstances[i]
                                  setCustomSignals:testSignals2
-                                   WithCompletion:^(NSError *_Nullable error) {
+                                   withCompletion:^(NSError *_Nullable error) {
                                      XCTAssertNil(error);
                                      NSMutableDictionary<NSString *, NSString *> *retrievedSignals =
                                          self->_configInstances[i].settings.customSignals;
@@ -1927,19 +1927,19 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
     [_configInstances[i]
         setCustomSignals:invalidSignals1
-          WithCompletion:^(NSError *_Nullable error) {
+          withCompletion:^(NSError *_Nullable error) {
             XCTAssertNotNil(error);
             XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorInvalidValueType);
           }];
     [_configInstances[i]
         setCustomSignals:invalidSignals2
-          WithCompletion:^(NSError *_Nullable error) {
+          withCompletion:^(NSError *_Nullable error) {
             XCTAssertNotNil(error);
             XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorLimitExceeded);
           }];
     [_configInstances[i]
         setCustomSignals:invalidSignals3
-          WithCompletion:^(NSError *_Nullable error) {
+          withCompletion:^(NSError *_Nullable error) {
             XCTAssertNotNil(error);
             XCTAssertEqual(error.code, FIRRemoteConfigCustomSignalsErrorLimitExceeded);
             [expectations[i] fulfill];
