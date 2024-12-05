@@ -46,7 +46,7 @@ import Foundation
       return .init(idToken: currentUser.tokenService.accessToken, currentUser: currentUser)
     }
 
-    init(idToken: String, currentUser: User) {
+    init(idToken: String?, currentUser: User) {
       self.idToken = idToken
       self.currentUser = currentUser
     }
