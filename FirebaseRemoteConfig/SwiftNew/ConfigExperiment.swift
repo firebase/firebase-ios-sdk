@@ -26,12 +26,15 @@ import Foundation
   @objc private var experimentPayloads: [Data]
   @objc private var experimentMetadata: [String: Any]
   @objc private var activeExperimentPayloads: [Data]
-  private let dbManager: ConfigDBManager?
+  private let dbManager: ConfigDBManager
+  // TODO(ncooke3): This property could be made non-optional after ensuring the
+  // unit tests properly configure the default app. This is because the
+  // experiment controller comes from the ABTesting component.
   private let experimentController: ExperimentController?
   private let experimentStartTimeDateFormatter: DateFormatter
 
   /// Designated initializer;
-  @objc public init(DBManager: ConfigDBManager?,
+  @objc public init(DBManager: ConfigDBManager,
                     experimentController controller: ExperimentController?) {
     experimentPayloads = []
     experimentMetadata = [:]
@@ -52,8 +55,6 @@ import Foundation
   }
 
   @objc private func loadExperimentFromTable() {
-    guard let dbManager else { return }
-
     let completionHandler: (Bool, [String: Any]?) -> Void = { [weak self] _, result in
       guard let self else { return }
 
@@ -101,14 +102,14 @@ import Foundation
   @objc public func updateExperiments(withResponse response: [[String: Any]]?) {
     // Cache fetched experiment payloads.
     experimentPayloads.removeAll()
-    dbManager?.deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyPayload)
+    dbManager.deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyPayload)
 
     if let response {
       for experiment in response {
         do {
           let jsonData = try JSONSerialization.data(withJSONObject: experiment)
           experimentPayloads.append(jsonData)
-          dbManager?
+          dbManager
             .insertExperimentTable(
               withKey: ConfigConstants.experimentTableKeyPayload,
               value: jsonData
@@ -160,7 +161,7 @@ import Foundation
       withJSONObject: experimentMetadata,
       options: .prettyPrinted
     ) {
-      dbManager?
+      dbManager
         .insertExperimentTable(
           withKey: ConfigConstants.experimentTableKeyMetadata,
           value: serializedExperimentMetadata
@@ -171,10 +172,10 @@ import Foundation
   @objc private func updateActiveExperimentsInDB() {
     // Put current fetched experiment payloads into activated experiment DB.
     activeExperimentPayloads.removeAll()
-    dbManager?.deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyActivePayload)
+    dbManager.deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyActivePayload)
     for data in experimentPayloads {
       activeExperimentPayloads.append(data)
-      dbManager?
+      dbManager
         .insertExperimentTable(
           withKey: ConfigConstants.experimentTableKeyActivePayload,
           value: data
