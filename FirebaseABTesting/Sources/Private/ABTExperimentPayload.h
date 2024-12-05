@@ -14,16 +14,9 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRExperimentController.h"
 
-/// Policy for handling the case where there's an overflow of experiments for an installation
-/// instance.
-typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
-  ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue = 999,
-  ABTExperimentPayloadExperimentOverflowPolicyUnspecified = 0,
-  ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest = 1,
-  ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest = 2,
-};
+NS_ASSUME_NONNULL_BEGIN
 
 @interface ABTExperimentLite : NSObject
 @property(nonatomic, readonly, copy) NSString *experimentId;
