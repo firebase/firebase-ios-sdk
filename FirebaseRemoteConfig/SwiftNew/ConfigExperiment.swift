@@ -24,7 +24,7 @@ import Foundation
   private static let serviceOrigin = "frc"
 
   @objc private var experimentPayloads: [Data]
-  @objc private var experimentMetadata: [String: Any]?
+  @objc private var experimentMetadata: [String: Any]
   @objc private var activeExperimentPayloads: [Data]
   private let dbManager: ConfigDBManager?
   private let experimentController: ExperimentController?
@@ -54,7 +54,7 @@ import Foundation
   @objc private func loadExperimentFromTable() {
     guard let dbManager else { return }
 
-    let completionHandler: (Bool, [String: Sendable]?) -> Void = { [weak self] _, result in
+    let completionHandler: (Bool, [String: Any]?) -> Void = { [weak self] _, result in
       guard let self else { return }
 
       if result?[ConfigConstants.experimentTableKeyPayload] != nil {
@@ -71,10 +71,9 @@ import Foundation
         }
       }
 
-      if result?[ConfigConstants.experimentTableKeyMetadata] != nil {
-        self
-          .experimentMetadata =
-          result?[ConfigConstants.experimentTableKeyMetadata] as? [String: Any]
+      if let experimentTable =
+        result?[ConfigConstants.experimentTableKeyMetadata] as? [String: Any] {
+        self.experimentMetadata = experimentTable
       }
 
       if result?[ConfigConstants.experimentTableKeyActivePayload] != nil {
@@ -126,7 +125,7 @@ import Foundation
     let lifecycleEvent = LifecycleEvents()
 
     // Get the last experiment start time prior to the latest payload.
-    let lastStartTime = experimentMetadata?[Self.experimentMetadataKeyLastStartTime] as? Double
+    let lastStartTime = experimentMetadata[Self.experimentMetadataKeyLastStartTime] as? Double
 
     // Update the last experiment start time with the latest payload.
     updateExperimentStartTime()
@@ -146,13 +145,13 @@ import Foundation
 
   @objc private func updateExperimentStartTime() {
     let existingLastStartTime =
-      experimentMetadata?[Self.experimentMetadataKeyLastStartTime] as? Double
+      experimentMetadata[Self.experimentMetadataKeyLastStartTime] as? Double
 
     let latestStartTime = latestStartTime(existingLastStartTime: existingLastStartTime ?? 0)
 
-    experimentMetadata?[Self.experimentMetadataKeyLastStartTime] = latestStartTime
+    experimentMetadata[Self.experimentMetadataKeyLastStartTime] = latestStartTime
 
-    guard let experimentMetadata, JSONSerialization.isValidJSONObject(experimentMetadata) else {
+    guard JSONSerialization.isValidJSONObject(experimentMetadata) else {
       RCLog.error("I-RCN000028", "Invalid fetched experiment metadata to be serialized.")
       return
     }
