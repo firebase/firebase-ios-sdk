@@ -18,83 +18,43 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRRecaptchaBridge.h"
 #import "RecaptchaInterop/RecaptchaInterop.h"
 
-// This is thread safe since it is only called by the AuthRecaptchaVerifier singleton.
-static id<RCARecaptchaClientProtocol> recaptchaClient;
-
-static void retrieveToken(NSString *actionString,
-                          NSString *fakeToken,
-                          FIRAuthRecaptchaTokenCallback callback) {
-  Class RecaptchaActionClass = NSClassFromString(@"RecaptchaEnterprise.RCAAction");
-  SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
-  if (!RecaptchaActionClass) {
-    // Fall back to attempting to connect with pre-18.7.0 RecaptchaEnterprise.
-    RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
-  }
-
-  if (RecaptchaActionClass &&
-      [RecaptchaActionClass instancesRespondToSelector:customActionSelector]) {
-    // Initialize with a custom action
-    id (*funcWithCustomAction)(id, SEL, NSString *) = (id(*)(
-        id, SEL, NSString *))[RecaptchaActionClass instanceMethodForSelector:customActionSelector];
-
-    id<RCAActionProtocol> customAction =
-        funcWithCustomAction([RecaptchaActionClass alloc], customActionSelector, actionString);
-    if (customAction) {
-      [recaptchaClient execute:customAction
-                    completion:^(NSString *_Nullable token, NSError *_Nullable error) {
-                      if (!error) {
-                        callback(token, nil, YES, YES);
-                        return;
-                      } else {
-                        callback(fakeToken, nil, YES, YES);
-                      }
-                    }];
-    } else {
-      // RecaptchaAction class creation failed.
-      callback(@"", nil, YES, NO);
-    }
-
-  } else {
-    // RecaptchaEnterprise not linked.
-    callback(@"", nil, NO, NO);
-  }
-}
-
-void FIRRecaptchaGetToken(NSString *siteKey,
-                          NSString *actionString,
-                          NSString *fakeToken,
-                          FIRAuthRecaptchaTokenCallback callback) {
-  if (recaptchaClient != nil) {
-    retrieveToken(actionString, fakeToken, callback);
-    return;
-  }
-
-  // Why not use `conformsToProtocol`?
-  Class RecaptchaClass = NSClassFromString(@"RecaptchaEnterprise.RCARecaptcha");
-  SEL selector = NSSelectorFromString(@"fetchClientWithSiteKey:completion:");
-  if (!RecaptchaClass) {
-    // Fall back to attempting to connect with pre-18.7.0 RecaptchaEnterprise.
-    RecaptchaClass = NSClassFromString(@"Recaptcha");
-    selector = NSSelectorFromString(@"getClientWithSiteKey:completion:");
-  }
-
-  if (RecaptchaClass && [RecaptchaClass respondsToSelector:selector]) {
+void __objc_getClientWithSiteKey(
+    NSString *siteKey,
+    Class recaptchaClass,
+    void (^completionHandler)(id<RCARecaptchaClientProtocol> _Nullable result,
+                              NSError *_Nullable error)) {
+  SEL selector = NSSelectorFromString(@"getClientWithSiteKey:completion:");
+  if (recaptchaClass && [recaptchaClass respondsToSelector:selector]) {
     void (*funcWithoutTimeout)(id, SEL, NSString *,
                                void (^)(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
                                         NSError *_Nullable error)) =
-        (void *)[RecaptchaClass methodForSelector:selector];
-    funcWithoutTimeout(RecaptchaClass, selector, siteKey,
+        (void *)[recaptchaClass methodForSelector:selector];
+    funcWithoutTimeout(recaptchaClass, selector, siteKey,
                        ^(id<RCARecaptchaClientProtocol> _Nonnull client, NSError *_Nullable error) {
                          if (error) {
-                           callback(@"", error, YES, YES);
+                           completionHandler(nil, error);
                          } else {
-                           recaptchaClient = client;
-                           retrieveToken(actionString, fakeToken, callback);
+                           completionHandler(client, nil);
                          }
                        });
   } else {
-    // RecaptchaEnterprise not linked.
-    callback(@"", nil, NO, NO);
+    completionHandler(nil, nil);  // TODO(ncooke3): Add error just in case.
   }
 }
+
+id<RCAActionProtocol> _Nullable __fir_initActionFromClass(Class _Nonnull klass,
+                                                          NSString *_Nonnull actionString) {
+  SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
+  if (klass && [klass instancesRespondToSelector:customActionSelector]) {
+    id (*funcWithCustomAction)(id, SEL, NSString *) =
+        (id(*)(id, SEL, NSString *))[klass instanceMethodForSelector:customActionSelector];
+
+    id<RCAActionProtocol> customAction =
+        funcWithCustomAction([klass alloc], customActionSelector, actionString);
+    return customAction;
+  } else {
+    return nil;
+  }
+}
+
 #endif
