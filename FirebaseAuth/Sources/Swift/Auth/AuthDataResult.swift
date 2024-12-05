@@ -24,7 +24,7 @@ extension AuthDataResult: NSSecureCoding {}
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthDataResult) open class AuthDataResult: NSObject {
   /// The signed in user.
-  @objc public let user: User?
+  @objc public let user: User
 
   /// If available, contains the additional IdP specific information about signed in user.
   @objc public let additionalUserInfo: AdditionalUserInfo?
@@ -63,7 +63,10 @@ extension AuthDataResult: NSSecureCoding {}
   }
 
   public required init?(coder: NSCoder) {
-    user = coder.decodeObject(of: User.self, forKey: kUserCodingKey) as User?
+    guard let user = coder.decodeObject(of: User.self, forKey: kUserCodingKey) else {
+      return nil
+    }
+    self.user = user
     additionalUserInfo = coder.decodeObject(of: AdditionalUserInfo.self,
                                             forKey: kAdditionalUserInfoCodingKey)
     credential = coder.decodeObject(of: OAuthCredential.self, forKey: kCredentialCodingKey)

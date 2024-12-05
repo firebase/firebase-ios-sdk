@@ -17,7 +17,7 @@ import Foundation
 extension AdditionalUserInfo: NSSecureCoding {}
 @objc(FIRAdditionalUserInfo) open class AdditionalUserInfo: NSObject {
   /// The provider identifier.
-  @objc public let providerID: String?
+  @objc public let providerID: String
 
   /// Dictionary containing the additional IdP specific information.
   @objc public let profile: [String: Any]?
@@ -35,7 +35,7 @@ extension AdditionalUserInfo: NSSecureCoding {}
     return isNewUser
   }
 
-  init(providerID: String?, profile: [String: Any]?, username: String?, isNewUser: Bool) {
+  init(providerID: String, profile: [String: Any]?, username: String?, isNewUser: Bool) {
     self.providerID = providerID
     self.profile = profile
     self.username = username
@@ -52,10 +52,13 @@ extension AdditionalUserInfo: NSSecureCoding {}
   public static let supportsSecureCoding = true
 
   public required init?(coder aDecoder: NSCoder) {
-    providerID = aDecoder.decodeObject(
+    guard let providerID = aDecoder.decodeObject(
       of: NSString.self,
       forKey: AdditionalUserInfo.providerIDCodingKey
-    ) as String?
+    ) as? String else {
+      return nil
+    }
+    self.providerID = providerID
     profile = aDecoder.decodeObject(
       of: [NSDictionary.self, NSString.self],
       forKey: AdditionalUserInfo.profileCodingKey

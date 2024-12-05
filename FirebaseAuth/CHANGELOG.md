@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Updated most decoders to be consistent with Firebase 10's behavior
+  for decoding `nil` values. (#14212)
+
+
 # 11.6.0
 - [added] Added reCAPTCHA Enterprise support for app verification during phone
   authentication for Firebase Authentication (#14114)
