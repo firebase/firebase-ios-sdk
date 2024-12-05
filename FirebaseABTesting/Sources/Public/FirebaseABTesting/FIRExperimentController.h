@@ -14,14 +14,20 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRLifecycleEvents.h"
+
 @class ABTExperimentPayload;
 
-// Forward declaration to avoid importing into the module header
-typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy);
+/// Policy for handling the case where there's an overflow of experiments for an installation
+/// instance.
+typedef NS_ENUM(int32_t, ABTExperimentPayloadExperimentOverflowPolicy) {
+  ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue = 999,
+  ABTExperimentPayloadExperimentOverflowPolicyUnspecified = 0,
+  ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest = 1,
+  ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest = 2,
+};
 
 NS_ASSUME_NONNULL_BEGIN
-
-@class FIRLifecycleEvents;
 
 /// The default experiment overflow policy, that is to discard the experiment with the oldest start
 /// time when users start the experiment on the web console.

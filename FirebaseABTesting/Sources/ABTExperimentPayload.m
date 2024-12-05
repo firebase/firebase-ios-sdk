@@ -14,6 +14,8 @@
 
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 
+#import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRExperimentController.h"
+
 static NSString *const kExperimentPayloadKeyExperimentID = @"experimentId";
 static NSString *const kExperimentPayloadKeyVariantID = @"variantId";
 

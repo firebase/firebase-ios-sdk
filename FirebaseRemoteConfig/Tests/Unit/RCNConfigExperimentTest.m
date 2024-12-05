@@ -19,8 +19,6 @@
 
 @import FirebaseRemoteConfig;
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
-
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
@@ -31,6 +29,8 @@
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
+#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
 // Surface the internal FIRExperimentController initializer.
 @interface FIRExperimentController ()
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics;
@@ -40,7 +40,6 @@
 @property(nonatomic, copy) NSMutableArray *experimentPayloads;
 @property(nonatomic, copy) NSMutableDictionary *experimentMetadata;
 @property(nonatomic, copy) NSMutableArray *activeExperimentPayloads;
-@property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
 - (void)updateActiveExperimentsInDB;

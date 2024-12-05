@@ -22,7 +22,6 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
