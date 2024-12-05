@@ -130,14 +130,14 @@
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthCredential)
   class GameCenterAuthCredential: AuthCredential, NSSecureCoding, @unchecked Sendable {
-    let playerID: String
+    let playerID: String?
     let teamPlayerID: String?
     let gamePlayerID: String?
     let publicKeyURL: URL?
     let signature: Data?
     let salt: Data?
-    let timestamp: UInt64
-    let displayName: String
+    let timestamp: UInt64?
+    let displayName: String?
 
     /// - Parameter playerID: The ID of the Game Center local player.
     /// - Parameter teamPlayerID: The teamPlayerID of the Game Center local player.
@@ -177,27 +177,20 @@
     }
 
     required init?(coder: NSCoder) {
-      guard let playerID = coder.decodeObject(of: NSString.self, forKey: "playerID") as? String,
-            let teamPlayerID = coder.decodeObject(
-              of: NSString.self,
-              forKey: "teamPlayerID"
-            ) as? String,
-            let gamePlayerID = coder.decodeObject(
-              of: NSString.self,
-              forKey: "gamePlayerID"
-            ) as? String,
-            let timestamp = coder.decodeObject(of: NSNumber.self, forKey: "timestamp") as? UInt64,
-            let displayName = coder.decodeObject(
-              of: NSString.self,
-              forKey: "displayName"
-            ) as? String else {
-        return nil
-      }
-      self.playerID = playerID
-      self.teamPlayerID = teamPlayerID
-      self.gamePlayerID = gamePlayerID
-      self.timestamp = timestamp
-      self.displayName = displayName
+      playerID = coder.decodeObject(of: NSString.self, forKey: "playerID") as String?
+      teamPlayerID = coder.decodeObject(
+        of: NSString.self,
+        forKey: "teamPlayerID"
+      ) as String?
+      gamePlayerID = coder.decodeObject(
+        of: NSString.self,
+        forKey: "gamePlayerID"
+      ) as String?
+      timestamp = coder.decodeObject(of: NSNumber.self, forKey: "timestamp") as? UInt64
+      displayName = coder.decodeObject(
+        of: NSString.self,
+        forKey: "displayName"
+      ) as String?
       publicKeyURL = coder.decodeObject(forKey: "publicKeyURL") as? URL
       signature = coder.decodeObject(of: NSData.self, forKey: "signature") as? Data
       salt = coder.decodeObject(of: NSData.self, forKey: "salt") as? Data

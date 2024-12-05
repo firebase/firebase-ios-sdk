@@ -123,7 +123,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
 
   /// The cached access token.
   ///
-  ///  This method is specifically for providing the access token to internal clients during
+  /// This method is specifically for providing the access token to internal clients during
   /// deserialization and sign-in events, and should not be used to retrieve the access token by
   ///     anyone else.
   var accessToken: String
