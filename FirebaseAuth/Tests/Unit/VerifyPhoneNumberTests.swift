@@ -108,7 +108,7 @@ import XCTest
       let kTestRefreshToken = "REFRESH_TOKEN"
 
       rpcIssuer.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON: [
+        try self.rpcIssuer.respond(withJSON: [
           "idToken": kTestIDToken,
           "refreshToken": kTestRefreshToken,
           "localId": kTestLocalID,
@@ -129,7 +129,7 @@ import XCTest
      */
     func testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof() async throws {
       rpcIssuer.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON: [
+        try self.rpcIssuer.respond(withJSON: [
           "temporaryProof": self.kTemporaryProof,
           "phoneNumber": self.kPhoneNumber,
         ])

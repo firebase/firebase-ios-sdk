@@ -110,17 +110,18 @@
       AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "ENFORCE"
       let requestExpectation = expectation(description: "verifyRequester")
-      rpcIssuer?.verifyRequester = { request in
+      rpcIssuer.verifyRequester = { request in
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
         XCTAssertEqual(request.captchaResponse, self.kCaptchaResponse)
         XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
         requestExpectation.fulfill()
         do {
-          try self.rpcIssuer?
+          return try self.rpcIssuer
             .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
       do {
@@ -157,13 +158,12 @@
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
         requestExpectation.fulfill()
         do {
-          try self.rpcIssuer?
-            .respond(
-              serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
-              error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError
-            )
+          return try self.rpcIssuer
+            .respond(serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
+                     error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError)
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
       do {
@@ -218,17 +218,18 @@
       AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "AUDIT"
       let requestExpectation = expectation(description: "verifyRequester")
-      rpcIssuer?.verifyRequester = { request in
+      rpcIssuer.verifyRequester = { request in
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
         XCTAssertEqual(request.captchaResponse, self.kCaptchaResponse)
         XCTAssertEqual(request.recaptchaVersion, "RECAPTCHA_ENTERPRISE")
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
         requestExpectation.fulfill()
         do {
-          try self.rpcIssuer?
+          return try self.rpcIssuer
             .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
       do {
@@ -263,13 +264,14 @@
         XCTAssertEqual(request.codeIdentity, CodeIdentity.empty)
         requestExpectation.fulfill()
         do {
-          try self.rpcIssuer?
+          return try self.rpcIssuer
             .respond(
               serverErrorMessage: "INVALID_RECAPTCHA_TOKEN",
               error: AuthErrorUtils.invalidRecaptchaTokenError() as NSError
             )
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
       do {
@@ -573,12 +575,13 @@
         verifyClientRequestExpectation.fulfill()
         do {
           // Response for the underlying VerifyClientRequest RPC call.
-          try self.rpcIssuer?.respond(withJSON: [
+          return try self.rpcIssuer.respond(withJSON: [
             "receipt": self.kTestReceipt,
             "suggestedTimeout": self.kTestTimeout,
           ])
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
 
@@ -598,15 +601,18 @@
         do {
           if visited == false || goodRetry == false {
             // First Response for the underlying SendVerificationCode RPC call.
-            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_APP_CREDENTIAL")
+            let (data, error) = try self.rpcIssuer
+              .respond(serverErrorMessage: "INVALID_APP_CREDENTIAL")
             visited = true
+            return (data, error)
           } else {
             // Second Response for the underlying SendVerificationCode RPC call.
-            try self.rpcIssuer?
+            return try self.rpcIssuer
               .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
           }
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
 
@@ -662,29 +668,29 @@
         verifyClientRequestExpectation.fulfill()
         do {
           // Response for the underlying VerifyClientRequest RPC call.
-          try self.rpcIssuer?.respond(withJSON: [
+          return try self.rpcIssuer.respond(withJSON: [
             "receipt": self.kTestReceipt,
             "suggestedTimeout": self.kTestTimeout,
           ])
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
       if reCAPTCHAfallback {
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
-        rpcIssuer?.projectConfigRequester = { request in
+        rpcIssuer.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
           projectConfigExpectation.fulfill()
-          kAuthGlobalWorkQueue.async {
-            do {
-              // Response for the underlying VerifyClientRequest RPC call.
-              try self.rpcIssuer?.respond(
-                withJSON: ["projectId": "kFakeProjectID",
-                           "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
-              )
-            } catch {
-              XCTFail("Failure sending response: \(error)")
-            }
+          do {
+            // Response for the underlying VerifyClientRequest RPC call.
+            return try self.rpcIssuer.respond(
+              withJSON: ["projectId": "kFakeProjectID",
+                         "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
+            )
+          } catch {
+            XCTFail("Failure sending response: \(error)")
+            return (nil, nil)
           }
         }
       }
@@ -711,10 +717,11 @@
         verifyRequesterExpectation.fulfill()
         do {
           // Response for the underlying SendVerificationCode RPC call.
-          try self.rpcIssuer?
+          return try self.rpcIssuer
             .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
         } catch {
           XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
         }
       }
 
@@ -771,17 +778,18 @@
         // 1. Intercept, handle, and test the projectConfiguration RPC calls.
         let projectConfigExpectation = expectation(description: "projectConfiguration")
         expectations.append(projectConfigExpectation)
-        rpcIssuer?.projectConfigRequester = { request in
+        rpcIssuer.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
           projectConfigExpectation.fulfill()
           do {
             // Response for the underlying VerifyClientRequest RPC call.
-            try self.rpcIssuer?.respond(
+            return try self.rpcIssuer.respond(
               withJSON: ["projectId": "kFakeProjectID",
                          "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
             )
           } catch {
             XCTFail("Failure sending response: \(error)")
+            return (nil, nil)
           }
         }
       }
@@ -802,7 +810,7 @@
       if errorURLString == nil, presenterError == nil {
         let requestExpectation = expectation(description: "verifyRequester")
         expectations.append(requestExpectation)
-        rpcIssuer?.verifyRequester = { request in
+        rpcIssuer.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
           switch request.codeIdentity {
           case let .credential(credential):
@@ -819,13 +827,14 @@
           do {
             // Response for the underlying SendVerificationCode RPC call.
             if let errorString {
-              try self.rpcIssuer?.respond(serverErrorMessage: errorString)
+              return try self.rpcIssuer.respond(serverErrorMessage: errorString)
             } else {
-              try self.rpcIssuer?
+              return try self.rpcIssuer
                 .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
             }
           } catch {
             XCTFail("Failure sending response: \(error)")
+            return (nil, nil)
           }
         }
       }

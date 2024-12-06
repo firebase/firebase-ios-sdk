@@ -206,7 +206,7 @@ class SetAccountInfoTests: RPCBaseTests {
     let kTestRefreshToken = "REFRESH_TOKEN"
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON:
+      try self.rpcIssuer.respond(withJSON:
         [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
          kIDTokenKey: kTestIDToken,
          kExpiresInKey: kTestExpiresIn,

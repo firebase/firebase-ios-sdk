@@ -96,9 +96,10 @@ class GetAccountInfoTests: RPCBaseTests {
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
     ] as [String: Any]]
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
 
-    rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: ["users": usersIn])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: ["users": usersIn])
     }
     let rpcResponse = try await authBackend.call(with: makeGetAccountInfoRequest())
 

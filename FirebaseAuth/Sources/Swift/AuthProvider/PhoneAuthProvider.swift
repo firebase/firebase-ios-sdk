@@ -525,7 +525,7 @@ import Foundation
         )
       }
 
-      return try await withCheckedThrowingContinuation { continuation in
+      return try await withUnsafeThrowingContinuation { continuation in
         self.auth.authURLPresenter.present(url,
                                            uiDelegate: uiDelegate,
                                            callbackMatcher: callbackMatcher) { callbackURL, error in

@@ -100,7 +100,7 @@ class VerifyCustomTokenTests: RPCBaseTests {
     let kIsNewUserKey = "isNewUser"
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         kIDTokenKey: kTestIDToken,
         kExpiresInKey: kTestExpiresIn,
         kRefreshTokenKey: kTestRefreshToken,

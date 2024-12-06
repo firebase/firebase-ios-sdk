@@ -74,7 +74,7 @@
     }
 
     func getToken() async throws -> AuthAPNSToken {
-      return try await withCheckedThrowingContinuation { continuation in
+      return try await withUnsafeThrowingContinuation { continuation in
         self.getTokenInternal { result in
           switch result {
           case let .success(token):

@@ -161,7 +161,7 @@ class VerifyPasswordTests: RPCBaseTests {
     let kTestPhotoUrl = "www.example.com"
 
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         kLocalIDKey: kTestLocalID,
         kEmailKey: kTestEmail,
         kDisplayNameKey: kTestDisplayName,

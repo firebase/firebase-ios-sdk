@@ -114,7 +114,7 @@
     }
 
     func checkNotificationForwarding() async -> Bool {
-      return await withCheckedContinuation { continuation in
+      return await withUnsafeContinuation { continuation in
         checkNotificationForwardingInternal { value in
           continuation.resume(returning: value)
         }

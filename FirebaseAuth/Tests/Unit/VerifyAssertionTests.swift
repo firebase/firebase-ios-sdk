@@ -168,7 +168,7 @@ class VerifyAssertionTests: RPCBaseTests {
    */
   func testSuccessfulVerifyAssertionResponse() async throws {
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         self.kProviderIDKey: self.kTestProviderID,
         self.kIDTokenKey: self.kTestIDToken,
         self.kExpiresInKey: self.kTestExpiresIn,
@@ -199,7 +199,7 @@ class VerifyAssertionTests: RPCBaseTests {
    */
   func testSuccessfulVerifyAssertionResponseWithTextData() async throws {
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         self.kProviderIDKey: self.kTestProviderID,
         self.kIDTokenKey: self.kTestIDToken,
         self.kExpiresInKey: self.kTestExpiresIn,
