@@ -76,7 +76,7 @@ class SignUpNewUserTests: RPCBaseTests {
     let kRefreshTokenKey = "refreshToken"
 
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         kIDTokenKey: kTestIDToken,
         kExpiresInKey: kTestExpiresIn,
         kRefreshTokenKey: kTestRefreshToken,

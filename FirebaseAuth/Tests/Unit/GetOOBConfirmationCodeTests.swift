@@ -191,13 +191,14 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
           it succeeds, and we get the OOB Code decoded correctly.
    */
   func testSuccessfulOOBResponse() async throws {
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
     for request in [
       getPasswordResetRequest,
       getSignInWithEmailRequest,
       getEmailVerificationRequest,
     ] {
-      rpcIssuer?.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON: [self.kOOBCodeKey: self.kTestOOBCode])
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: [self.kOOBCodeKey: self.kTestOOBCode])
       }
       let response = try await authBackend.call(with: request())
       XCTAssertEqual(response.OOBCode, kTestOOBCode)
@@ -209,13 +210,14 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
           response value. It should still succeed.
    */
   func testSuccessfulOOBResponseWithoutOOBCode() async throws {
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
     for request in [
       getPasswordResetRequest,
       getSignInWithEmailRequest,
       getEmailVerificationRequest,
     ] {
-      rpcIssuer?.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON: [:])
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: [:])
       }
       let response = try await authBackend.call(with: request())
       XCTAssertNil(response.OOBCode)

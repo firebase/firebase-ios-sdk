@@ -99,7 +99,7 @@ class RPCBaseTests: XCTestCase {
         XCTFail("decodedRequest is not a dictionary")
       }
       // Dummy response to unblock await.
-      let _ = try self.rpcIssuer?.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     let _ = try await authBackend.call(with: request)
   }
@@ -117,11 +117,11 @@ class RPCBaseTests: XCTestCase {
                          checkLocalizedDescription: String? = nil) async throws {
     rpcIssuer.respondBlock = {
       if let json = json {
-        _ = try self.rpcIssuer.respond(withJSON: json)
+        return try self.rpcIssuer.respond(withJSON: json)
       } else if let reason = reason {
-        _ = try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
+        return try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
       } else {
-        _ = try self.rpcIssuer.respond(serverErrorMessage: message)
+        return try self.rpcIssuer.respond(serverErrorMessage: message)
       }
     }
     do {
