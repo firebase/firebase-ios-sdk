@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Returns the current version of Firebase. */
+@interface FIRInterface : NSObject
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma mark - Create Filter
 
-NS_SWIFT_NAME(FirebaseVersion())
-NSString* FIRFirebaseVersion(void);
++ (void)print:(NSString *)content;
 
-#ifdef __cplusplus
-}
-#endif
+@end
 
 NS_ASSUME_NONNULL_END
