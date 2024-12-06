@@ -26,6 +26,9 @@ struct ImageGenerationParameters {
   let includeResponsibleAIFilterReason: Bool?
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ImageGenerationParameters: Equatable {}
+
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
