@@ -188,11 +188,11 @@ class AuthenticationExampleUITests: XCTestCase {
     let testEmail = "sample.auth.ios@gmail.com"
     app.textFields["Email"].tap()
     app.typeText(testEmail)
-    app.buttons["return"].tap() // Dismiss keyboard
+    app.buttons["return"].tap() // dismiss keyboard
     let testPassword = "sampleauthios"
     app.textFields["Password"].tap()
     app.typeText(testPassword)
-    app.buttons["return"].tap() // Dismiss keyboard
+    app.buttons["return"].tap() // dismiss keyboard
     app.buttons["Login"].tap()
     // enroll multifactor with phone
     app.tabBars.buttons["Authentication"].tap()
@@ -215,7 +215,7 @@ class AuthenticationExampleUITests: XCTestCase {
     app.tables.cells.staticTexts["Multifactor unenroll"].tap()
     XCTAssertFalse(app.buttons["phone1"].exists) // unenrollment successful
     app.buttons["Cancel"].tap()
-    // Sign out after unenroll
+    // sign out after unenroll
     app.tabBars.buttons["Current User"].tap()
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
   }
@@ -226,20 +226,24 @@ class AuthenticationExampleUITests: XCTestCase {
     let testEmail = "sample.ios.auth@gmail.com"
     app.textFields["Email"].tap()
     app.typeText(testEmail)
-    app.buttons["return"].tap() // Dismiss keyboard
+    app.buttons["return"].tap() // dismiss keyboard
     let testPassword = "sampleios123"
     app.textFields["Password"].tap()
     app.typeText(testPassword)
-    app.buttons["return"].tap() // Dismiss keyboard
+    app.buttons["return"].tap() // dismiss keyboard
     app.buttons["Login"].tap()
     // login with second factor
-    XCTAssertTrue(app.staticTexts["Choose a second factor to continue."].waitForExistence(timeout: 5))
-    let secondFactor = app.staticTexts["phone2"]  // Select 'phone2' from the modal list
+    XCTAssertTrue(app.staticTexts["Choose a second factor to continue."]
+      .waitForExistence(timeout: 5))
+    let secondFactor = app.staticTexts["phone2"] // select 'phone2' as second factor
     XCTAssertTrue(secondFactor.exists, "'phone2' option should be visible in the modal.")
     secondFactor.tap()
     app.buttons["Send Verification Code"].tap()
     let verificationCodeInput = app.textFields["Enter verification code."]
-    XCTAssertTrue(verificationCodeInput.waitForExistence(timeout: 2), "OTP input field should appear.")  // Wait for the OTP input field to appear
+    XCTAssertTrue(
+      verificationCodeInput.waitForExistence(timeout: 2),
+      "Verification code input field should appear."
+    ) // wait for the verification code input field to appear
     verificationCodeInput.tap()
     let testVerificationCode = "123456"
     verificationCodeInput.typeText(testVerificationCode)
@@ -249,7 +253,7 @@ class AuthenticationExampleUITests: XCTestCase {
     // sign out
     let signOutButton = app.buttons["Sign Out"]
     if signOutButton.exists {
-        signOutButton.tap()
+      signOutButton.tap()
     }
   }
 
