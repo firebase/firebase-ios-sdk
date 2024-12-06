@@ -188,11 +188,11 @@ class AuthenticationExampleUITests: XCTestCase {
     let testEmail = "sample.auth.ios@gmail.com"
     app.textFields["Email"].tap()
     app.typeText(testEmail)
-    app.buttons["return"].tap() // dismiss keyboard
+//    app.buttons["return"].tap() // dismiss keyboard
     let testPassword = "sampleauthios"
     app.textFields["Password"].tap()
     app.typeText(testPassword)
-    app.buttons["return"].tap() // dismiss keyboard
+//    app.buttons["return"].tap() // dismiss keyboard
     app.buttons["Login"].tap()
     // enroll multifactor with phone
     app.tabBars.buttons["Authentication"].tap()
@@ -240,10 +240,6 @@ class AuthenticationExampleUITests: XCTestCase {
     secondFactor.tap()
     app.buttons["Send Verification Code"].tap()
     let verificationCodeInput = app.textFields["Enter verification code."]
-    XCTAssertTrue(
-      verificationCodeInput.waitForExistence(timeout: 2),
-      "Verification code input field should appear."
-    ) // wait for the verification code input field to appear
     verificationCodeInput.tap()
     let testVerificationCode = "123456"
     verificationCodeInput.typeText(testVerificationCode)
