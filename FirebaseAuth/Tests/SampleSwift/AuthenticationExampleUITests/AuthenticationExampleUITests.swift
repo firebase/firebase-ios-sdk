@@ -185,13 +185,13 @@ class AuthenticationExampleUITests: XCTestCase {
   func testPhoneAuthLoginRCEInEnforceMode() {
     app.staticTexts["Phone Number"].tap()
     XCTAssertTrue(app.staticTexts["Sign in using Phone Auth"].waitForExistence(timeout: 3))
-    let testPhone = "+12345678901"
+    let testPhone = "12345678901"
     app.textFields["Enter Phone Number"].tap()
     app.textFields["Enter Phone Number"].typeText(testPhone)
     app.buttons["Send Verification Code"].tap()
     // Wait for the error message to appear (if there is an error)
     let errorAlert = app.alerts.staticTexts["Error"]
-    let errorExists = errorAlert.waitForExistence(timeout: 5.0)
+    let errorExists = errorAlert.waitForExistence(timeout: 3.0)
     XCTAssertFalse(errorExists, "Error")
     let verificationCodeInput = app.textFields["Enter verification code."]
     XCTAssertTrue(
@@ -207,6 +207,36 @@ class AuthenticationExampleUITests: XCTestCase {
     if signOutButton.exists {
       signOutButton.tap()
     }
+  }
+
+  func testPhoneAuthLoginRCEInEnforceModeIncorrectNumber() {
+    app.staticTexts["Phone Number"].tap()
+    XCTAssertTrue(app.staticTexts["Sign in using Phone Auth"].waitForExistence(timeout: 3))
+    let testPhone = "1234567890"
+    app.textFields["Enter Phone Number"].tap()
+    app.textFields["Enter Phone Number"].typeText(testPhone)
+    app.buttons["Send Verification Code"].tap()
+    // Verify that the error dialog appears
+    let errorDialog = app.alerts["Error"]
+    XCTAssertTrue(
+      errorDialog.waitForExistence(timeout: 5),
+      "Error dialog should appear."
+    )
+    let okButton = errorDialog.buttons["OK"] // Dismiss the error dialog
+    XCTAssertTrue(okButton.exists, "The 'OK' button should be present in the error dialog.")
+    okButton.tap()
+    // Ensure the dialog is dismissed
+    XCTAssertFalse(errorDialog.exists, "The error dialog should be dismissed after tapping 'OK'.")
+    // Go back and check that there is no user that is signed in
+    app.swipeDown(velocity: .fast)
+    // Go back and check that there is no user that is signed in
+    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    XCTAssertEqual(
+      app.cells.count,
+      0,
+      "The user shouldn't be signed in and the user view should have no cells."
+    )
   }
 
   func DRAFT_testGoogleSignInAndLinkAccount() {
