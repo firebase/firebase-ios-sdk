@@ -20,6 +20,9 @@ struct ImageGenerationOutputOptions {
   let compressionQuality: Int?
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ImageGenerationOutputOptions: Equatable {}
+
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
