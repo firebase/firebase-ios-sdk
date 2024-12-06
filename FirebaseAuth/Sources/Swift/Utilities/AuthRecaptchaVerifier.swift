@@ -177,18 +177,8 @@
       } else if let recaptcha = NSClassFromString("Recaptcha") {
         // Fall back to attempting to connect with pre-18.7.0 RecaptchaEnterprise.
         do {
-          let client: any RCARecaptchaClientProtocol =
-            try await withCheckedThrowingContinuation { continuation in
-              __objc_getClientWithSiteKey(siteKey, recaptcha) { client, error in
-                if let error {
-                  continuation.resume(throwing: error)
-                }
-                if let client {
-                  continuation.resume(returning: client)
-                }
-                // TODO(ncooke3): Handle other case.
-              }
-            }
+          let recaptcha = __fir_castToRecaptchaProtocolFromClass(recaptcha)
+          let client = try await recaptcha.getClient(withSiteKey: siteKey)
           recaptchaClient = client
           return await retrieveToken(actionString: actionString, fakeToken: fakeToken)
         } catch {
@@ -208,10 +198,10 @@
         let action = recaptchaAction.init(customAction: actionString)
         let token = try? await recaptchaClient!.execute(withAction: action)
         return (token ?? "NO_RECAPTCHA", nil, true, true)
-      } else if
-        let recaptchaAction = NSClassFromString("RecaptchaAction"),
-        let action = __fir_initActionFromClass(recaptchaAction, actionString) {
+      } else if let recaptchaAction = NSClassFromString("RecaptchaAction") {
         // Fall back to attempting to connect with pre-18.7.0 RecaptchaEnterprise.
+        let recaptchaAction = __fir_castToRecaptchaActionProtocolFromClass(recaptchaAction)
+        let action = recaptchaAction.init(customAction: actionString)
         let token = try? await recaptchaClient!.execute(withAction: action)
         return (token ?? "NO_RECAPTCHA", nil, true, true)
       } else {

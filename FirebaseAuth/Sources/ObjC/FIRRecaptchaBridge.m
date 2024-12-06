@@ -18,43 +18,23 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRRecaptchaBridge.h"
 #import "RecaptchaInterop/RecaptchaInterop.h"
 
-void __objc_getClientWithSiteKey(
-    NSString *siteKey,
-    Class recaptchaClass,
-    void (^completionHandler)(id<RCARecaptchaClientProtocol> _Nullable result,
-                              NSError *_Nullable error)) {
-  SEL selector = NSSelectorFromString(@"getClientWithSiteKey:completion:");
-  if (recaptchaClass && [recaptchaClass respondsToSelector:selector]) {
-    void (*funcWithoutTimeout)(id, SEL, NSString *,
-                               void (^)(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
-                                        NSError *_Nullable error)) =
-        (void *)[recaptchaClass methodForSelector:selector];
-    funcWithoutTimeout(recaptchaClass, selector, siteKey,
-                       ^(id<RCARecaptchaClientProtocol> _Nonnull client, NSError *_Nullable error) {
-                         if (error) {
-                           completionHandler(nil, error);
-                         } else {
-                           completionHandler(client, nil);
-                         }
-                       });
+Class<RCARecaptchaProtocol> _Nonnull __fir_castToRecaptchaProtocolFromClass(Class _Nonnull klass) {
+  if ([klass conformsToProtocol:@protocol(RCARecaptchaProtocol)]) {
+    NSLog(@"RCARecaptchaProtocol - true");
   } else {
-    completionHandler(nil, nil);  // TODO(ncooke3): Add error just in case.
+    NSLog(@"RCARecaptchaProtocol - false");
   }
+  return (Class<RCARecaptchaProtocol>)klass;
 }
 
-id<RCAActionProtocol> _Nullable __fir_initActionFromClass(Class _Nonnull klass,
-                                                          NSString *_Nonnull actionString) {
-  SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
-  if (klass && [klass instancesRespondToSelector:customActionSelector]) {
-    id (*funcWithCustomAction)(id, SEL, NSString *) =
-        (id(*)(id, SEL, NSString *))[klass instanceMethodForSelector:customActionSelector];
-
-    id<RCAActionProtocol> customAction =
-        funcWithCustomAction([klass alloc], customActionSelector, actionString);
-    return customAction;
+Class<RCAActionProtocol> _Nonnull __fir_castToRecaptchaActionProtocolFromClass(
+    Class _Nonnull klass) {
+  if ([klass conformsToProtocol:@protocol(RCAActionProtocol)]) {
+    NSLog(@"RCAActionProtocol - true");
   } else {
-    return nil;
+    NSLog(@"RCAActionProtocol - false");
   }
+  return (Class<RCAActionProtocol>)klass;
 }
 
 #endif

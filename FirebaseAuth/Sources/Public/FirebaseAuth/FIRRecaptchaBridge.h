@@ -17,16 +17,12 @@
 
 #if TARGET_OS_IOS
 
-@protocol RCARecaptchaClientProtocol;
+@protocol RCARecaptchaProtocol;
 @protocol RCAActionProtocol;
 
-void __objc_getClientWithSiteKey(
-    NSString *_Nonnull siteKey,
-    Class _Nonnull recaptchaClass,
-    void (^_Nonnull completionHandler)(id<RCARecaptchaClientProtocol> _Nullable result,
-                                       NSError *_Nullable error));
+Class<RCARecaptchaProtocol> _Nonnull __fir_castToRecaptchaProtocolFromClass(Class _Nonnull klass);
 
-id<RCAActionProtocol> _Nullable __fir_initActionFromClass(Class _Nonnull klass,
-                                                          NSString *_Nonnull actionString);
+Class<RCAActionProtocol> _Nonnull __fir_castToRecaptchaActionProtocolFromClass(
+    Class _Nonnull klass);
 
 #endif
