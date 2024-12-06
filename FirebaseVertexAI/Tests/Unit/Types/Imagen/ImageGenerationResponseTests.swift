@@ -22,12 +22,8 @@ final class ImageGenerationResponseTests: XCTestCase {
 
   func testDecodeResponse_oneBase64Image_noneFiltered() throws {
     let mimeType = "image/png"
-    let bytesBase64Encoded = "test-base64-bytes"
-    let image = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: bytesBase64Encoded,
-      gcsURI: nil
-    )
+    let bytesBase64Encoded = "dGVzdC1iYXNlNjQtZGF0YQ=="
+    let image = ImagenInlineDataImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded)
     let json = """
     {
       "predictions": [
@@ -40,7 +36,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [image])
     XCTAssertNil(response.raiFilteredReason)
@@ -48,24 +47,12 @@ final class ImageGenerationResponseTests: XCTestCase {
 
   func testDecodeResponse_multipleBase64Images_noneFiltered() throws {
     let mimeType = "image/png"
-    let bytesBase64Encoded1 = "test-base64-bytes-1"
-    let bytesBase64Encoded2 = "test-base64-bytes-2"
-    let bytesBase64Encoded3 = "test-base64-bytes-3"
-    let image1 = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: bytesBase64Encoded1,
-      gcsURI: nil
-    )
-    let image2 = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: bytesBase64Encoded2,
-      gcsURI: nil
-    )
-    let image3 = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: bytesBase64Encoded3,
-      gcsURI: nil
-    )
+    let bytesBase64Encoded1 = "dGVzdC1iYXNlNjQtYnl0ZXMtMQ=="
+    let bytesBase64Encoded2 = "dGVzdC1iYXNlNjQtYnl0ZXMtMg=="
+    let bytesBase64Encoded3 = "dGVzdC1iYXNlNjQtYnl0ZXMtMw=="
+    let image1 = ImagenInlineDataImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded1)
+    let image2 = ImagenInlineDataImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded2)
+    let image3 = ImagenInlineDataImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded3)
     let json = """
     {
       "predictions": [
@@ -86,7 +73,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [image1, image2, image3])
     XCTAssertNil(response.raiFilteredReason)
@@ -94,18 +84,10 @@ final class ImageGenerationResponseTests: XCTestCase {
 
   func testDecodeResponse_multipleBase64Images_someFiltered() throws {
     let mimeType = "image/png"
-    let bytesBase64Encoded1 = "test-base64-bytes-1"
-    let bytesBase64Encoded2 = "test-base64-bytes-2"
-    let image1 = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: bytesBase64Encoded1,
-      gcsURI: nil
-    )
-    let image2 = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: bytesBase64Encoded2,
-      gcsURI: nil
-    )
+    let bytesBase64Encoded1 = "dGVzdC1iYXNlNjQtYnl0ZXMtMQ=="
+    let bytesBase64Encoded2 = "dGVzdC1iYXNlNjQtYnl0ZXMtMg=="
+    let image1 = ImagenInlineDataImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded1)
+    let image2 = ImagenInlineDataImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded2)
     let raiFilteredReason = """
     Your current safety filter threshold filtered out 2 generated images. You will not be charged \
     for blocked images. Try rephrasing the prompt. If you think this was an error, send feedback.
@@ -129,7 +111,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [image1, image2])
     XCTAssertEqual(response.raiFilteredReason, raiFilteredReason)
@@ -139,12 +124,8 @@ final class ImageGenerationResponseTests: XCTestCase {
     let mimeType = "image/png"
     let gcsURI1 = "gs://test-bucket/images/123456789/sample_0.png"
     let gcsURI2 = "gs://test-bucket/images/123456789/sample_1.png"
-    let image1 = InternalImagenImage(
-      mimeType: mimeType,
-      bytesBase64Encoded: nil,
-      gcsURI: gcsURI1
-    )
-    let image2 = InternalImagenImage(mimeType: mimeType, bytesBase64Encoded: nil, gcsURI: gcsURI2)
+    let image1 = ImagenFileDataImage(mimeType: mimeType, gcsURI: gcsURI1)
+    let image2 = ImagenFileDataImage(mimeType: mimeType, gcsURI: gcsURI2)
     let json = """
     {
       "predictions": [
@@ -161,7 +142,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenFileDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [image1, image2])
     XCTAssertNil(response.raiFilteredReason)
@@ -184,7 +168,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [])
     XCTAssertEqual(response.raiFilteredReason, raiFilteredReason)
@@ -194,7 +181,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     let json = "{}"
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [])
     XCTAssertNil(response.raiFilteredReason)
@@ -217,7 +207,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenFileDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [])
     XCTAssertEqual(response.raiFilteredReason, raiFilteredReason1)
@@ -236,7 +229,10 @@ final class ImageGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(ImageGenerationResponse.self, from: jsonData)
+    let response = try decoder.decode(
+      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      from: jsonData
+    )
 
     XCTAssertEqual(response.images, [])
     XCTAssertNil(response.raiFilteredReason)

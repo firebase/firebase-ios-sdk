@@ -15,15 +15,15 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ImageGenerationResponse {
-  let images: [InternalImagenImage]
+public struct ImageGenerationResponse<ImageType: ImagenImageRepresentable> {
+  let images: [ImageType]
   let raiFilteredReason: String?
 }
 
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationResponse: Decodable {
+extension ImageGenerationResponse: Decodable where ImageType: Decodable {
   enum CodingKeys: CodingKey {
     case predictions
   }
@@ -38,15 +38,15 @@ extension ImageGenerationResponse: Decodable {
     }
     var predictionsContainer = try container.nestedUnkeyedContainer(forKey: .predictions)
 
-    var images = [InternalImagenImage]()
+    var images = [ImageType]()
     var raiFilteredReasons = [String]()
     while !predictionsContainer.isAtEnd {
-      if let image = try? predictionsContainer.decode(InternalImagenImage.self) {
+      if let image = try? predictionsContainer.decode(ImageType.self) {
         images.append(image)
       } else if let filterReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
         raiFilteredReasons.append(filterReason.raiFilteredReason)
       } else if let _ = try? predictionsContainer.decode(JSONObject.self) {
-        // TODO: Log or throw unsupported prediction type
+        // TODO(#14221): Log or throw unsupported prediction type
       } else {
         // This should never be thrown since JSONObject accepts any valid JSON.
         throw DecodingError.dataCorruptedError(
@@ -58,6 +58,6 @@ extension ImageGenerationResponse: Decodable {
 
     self.images = images
     raiFilteredReason = raiFilteredReasons.first
-    // TODO: Log if more than one RAI Filtered Reason; unexpected behaviour.
+    // TODO(#14221): Log if more than one RAI Filtered Reason; unexpected behaviour.
   }
 }
