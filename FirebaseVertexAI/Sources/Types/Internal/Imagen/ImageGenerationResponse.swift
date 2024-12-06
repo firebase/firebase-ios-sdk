@@ -16,72 +16,11 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImageGenerationResponse {
-  let images: [Image]
+  let images: [InternalImagenImage]
   let raiFilteredReason: String?
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationResponse {
-  struct Image: Equatable {
-    let mimeType: String
-    let bytesBase64Encoded: String?
-    let gcsURI: String?
-  }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationResponse {
-  struct RAIFilteredReason {
-    let raiFilteredReason: String
-  }
-}
-
 // MARK: - Codable Conformances
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationResponse.Image: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case mimeType
-    case bytesBase64Encoded
-    case gcsURI = "gcsUri"
-  }
-
-  init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    mimeType = try container.decode(String.self, forKey: .mimeType)
-    bytesBase64Encoded = try container.decodeIfPresent(String.self, forKey: .bytesBase64Encoded)
-    gcsURI = try container.decodeIfPresent(String.self, forKey: .gcsURI)
-    guard bytesBase64Encoded != nil || gcsURI != nil else {
-      throw DecodingError.dataCorrupted(
-        DecodingError.Context(
-          codingPath: [CodingKeys.bytesBase64Encoded, CodingKeys.gcsURI],
-          debugDescription: """
-          Expected one of \(CodingKeys.bytesBase64Encoded.rawValue) or \
-          \(CodingKeys.gcsURI.rawValue); both are nil.
-          """
-        )
-      )
-    }
-    guard bytesBase64Encoded == nil || gcsURI == nil else {
-      throw DecodingError.dataCorrupted(
-        DecodingError.Context(
-          codingPath: [CodingKeys.bytesBase64Encoded, CodingKeys.gcsURI],
-          debugDescription: """
-          Expected one of \(CodingKeys.bytesBase64Encoded.rawValue) or \
-          \(CodingKeys.gcsURI.rawValue); both are specified.
-          """
-        )
-      )
-    }
-  }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationResponse.RAIFilteredReason: Decodable {
-  enum CodingKeys: CodingKey {
-    case raiFilteredReason
-  }
-}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageGenerationResponse: Decodable {
@@ -99,10 +38,10 @@ extension ImageGenerationResponse: Decodable {
     }
     var predictionsContainer = try container.nestedUnkeyedContainer(forKey: .predictions)
 
-    var images = [Image]()
+    var images = [InternalImagenImage]()
     var raiFilteredReasons = [String]()
     while !predictionsContainer.isAtEnd {
-      if let image = try? predictionsContainer.decode(Image.self) {
+      if let image = try? predictionsContainer.decode(InternalImagenImage.self) {
         images.append(image)
       } else if let filterReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
         raiFilteredReasons.append(filterReason.raiFilteredReason)

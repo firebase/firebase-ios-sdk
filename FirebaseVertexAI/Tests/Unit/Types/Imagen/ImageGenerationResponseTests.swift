@@ -20,138 +20,10 @@ import XCTest
 final class ImageGenerationResponseTests: XCTestCase {
   let decoder = JSONDecoder()
 
-  // MARK: - Image Decoding
-
-  func testDecodeImage_bytesBase64Encoded() throws {
-    let mimeType = "image/png"
-    let bytesBase64Encoded = "test-base64-bytes"
-    let json = """
-    {
-      "bytesBase64Encoded": "\(bytesBase64Encoded)",
-      "mimeType": "\(mimeType)"
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    let image = try decoder.decode(ImageGenerationResponse.Image.self, from: jsonData)
-
-    XCTAssertEqual(image.mimeType, mimeType)
-    XCTAssertEqual(image.bytesBase64Encoded, bytesBase64Encoded)
-    XCTAssertNil(image.gcsURI)
-  }
-
-  func testDecodeImage_gcsURI() throws {
-    let gcsURI = "gs://test-bucket/images/123456789/sample_0.png"
-    let mimeType = "image/jpeg"
-    let json = """
-    {
-      "mimeType": "\(mimeType)",
-      "gcsUri": "\(gcsURI)"
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    let image = try decoder.decode(ImageGenerationResponse.Image.self, from: jsonData)
-
-    XCTAssertEqual(image.mimeType, mimeType)
-    XCTAssertEqual(image.gcsURI, gcsURI)
-    XCTAssertNil(image.bytesBase64Encoded)
-  }
-
-  func testDecodeImage_missingBytesBase64EncodedAndGCSURI_throws() throws {
-    let json = """
-    {
-      "mimeType": "image/jpeg"
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    do {
-      _ = try decoder.decode(ImageGenerationResponse.Image.self, from: jsonData)
-      XCTFail("Expected an error; none thrown.")
-    } catch let DecodingError.dataCorrupted(context) {
-      let codingPath = try XCTUnwrap(context
-        .codingPath as? [ImageGenerationResponse.Image.CodingKeys])
-      XCTAssertEqual(codingPath, [.bytesBase64Encoded, .gcsURI])
-      XCTAssertTrue(context.debugDescription.contains("both are nil"))
-    } catch {
-      XCTFail("Expected a DecodingError.dataCorrupted error; got \(error).")
-    }
-  }
-
-  func testDecodeImage_bothBytesBase64EncodedAndGCSURI_throws() throws {
-    let json = """
-    {
-      "bytesBase64Encoded": "test-base64-bytes",
-      "mimeType": "image/png",
-      "gcsUri": "gs://test-bucket/images/123456789/sample_0.png"
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    do {
-      _ = try decoder.decode(ImageGenerationResponse.Image.self, from: jsonData)
-      XCTFail("Expected an error; none thrown.")
-    } catch let DecodingError.dataCorrupted(context) {
-      let codingPath = try XCTUnwrap(context
-        .codingPath as? [ImageGenerationResponse.Image.CodingKeys])
-      XCTAssertEqual(codingPath, [.bytesBase64Encoded, .gcsURI])
-      XCTAssertTrue(context.debugDescription.contains("both are specified"))
-    } catch {
-      XCTFail("Expected a DecodingError.dataCorrupted error; got \(error).")
-    }
-  }
-
-  // MARK: - RAI Filtered Reason Decoding
-
-  func testDecodeRAIFilteredReason() throws {
-    let raiFilteredReason = """
-    Unable to show generated images. All images were filtered out because they violated Vertex \
-    AI's usage guidelines. You will not be charged for blocked images. Try rephrasing the prompt. \
-    If you think this was an error, send feedback. Support codes: 1234567
-    """
-    let json = """
-    {
-      "raiFilteredReason": "\(raiFilteredReason)"
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    let filterReason = try decoder.decode(
-      ImageGenerationResponse.RAIFilteredReason.self,
-      from: jsonData
-    )
-
-    XCTAssertEqual(filterReason.raiFilteredReason, raiFilteredReason)
-  }
-
-  func testDecodeRAIFilteredReason_reasonNotSpecified_throws() throws {
-    let json = """
-    {
-      "otherField": "test-value"
-    }
-    """
-    let jsonData = try XCTUnwrap(json.data(using: .utf8))
-
-    do {
-      _ = try decoder.decode(ImageGenerationResponse.RAIFilteredReason.self, from: jsonData)
-      XCTFail("Expected an error; none thrown.")
-    } catch let DecodingError.keyNotFound(codingKey, _) {
-      let codingKey = try XCTUnwrap(
-        codingKey as? ImageGenerationResponse.RAIFilteredReason.CodingKeys
-      )
-      XCTAssertEqual(codingKey, .raiFilteredReason)
-    } catch {
-      XCTFail("Expected a DecodingError.keyNotFound error; got \(error).")
-    }
-  }
-
-  // MARK: - Image Generation Response Decoding
-
   func testDecodeResponse_oneBase64Image_noneFiltered() throws {
     let mimeType = "image/png"
     let bytesBase64Encoded = "test-base64-bytes"
-    let image = ImageGenerationResponse.Image(
+    let image = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: bytesBase64Encoded,
       gcsURI: nil
@@ -179,17 +51,17 @@ final class ImageGenerationResponseTests: XCTestCase {
     let bytesBase64Encoded1 = "test-base64-bytes-1"
     let bytesBase64Encoded2 = "test-base64-bytes-2"
     let bytesBase64Encoded3 = "test-base64-bytes-3"
-    let image1 = ImageGenerationResponse.Image(
+    let image1 = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: bytesBase64Encoded1,
       gcsURI: nil
     )
-    let image2 = ImageGenerationResponse.Image(
+    let image2 = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: bytesBase64Encoded2,
       gcsURI: nil
     )
-    let image3 = ImageGenerationResponse.Image(
+    let image3 = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: bytesBase64Encoded3,
       gcsURI: nil
@@ -224,12 +96,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let mimeType = "image/png"
     let bytesBase64Encoded1 = "test-base64-bytes-1"
     let bytesBase64Encoded2 = "test-base64-bytes-2"
-    let image1 = ImageGenerationResponse.Image(
+    let image1 = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: bytesBase64Encoded1,
       gcsURI: nil
     )
-    let image2 = ImageGenerationResponse.Image(
+    let image2 = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: bytesBase64Encoded2,
       gcsURI: nil
@@ -267,16 +139,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let mimeType = "image/png"
     let gcsURI1 = "gs://test-bucket/images/123456789/sample_0.png"
     let gcsURI2 = "gs://test-bucket/images/123456789/sample_1.png"
-    let image1 = ImageGenerationResponse.Image(
+    let image1 = InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: nil,
       gcsURI: gcsURI1
     )
-    let image2 = ImageGenerationResponse.Image(
-      mimeType: mimeType,
-      bytesBase64Encoded: nil,
-      gcsURI: gcsURI2
-    )
+    let image2 = InternalImagenImage(mimeType: mimeType, bytesBase64Encoded: nil, gcsURI: gcsURI2)
     let json = """
     {
       "predictions": [
