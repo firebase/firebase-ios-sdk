@@ -17,17 +17,12 @@
 
 #if TARGET_OS_IOS
 
-typedef void (^FIRAuthRecaptchaTokenCallback)(NSString *_Nonnull token,
-                                              NSError *_Nullable error,
-                                              BOOL linked,
-                                              BOOL recaptchaActionCreated);
+@protocol RCARecaptchaProtocol;
+@protocol RCAActionProtocol;
 
-// Provide a bridge to the Objective-C protocol provided by the optional Recaptcha Enterprise
-// dependency. Once the Recaptcha Enterprise provides a Swift interop protocol, this C and
-// Objective-C code can be converted to Swift. Casting to a Objective-C protocol does not seem
-// possible in Swift. The C API is a workaround for linkage problems with an Objective-C API.
-void FIRRecaptchaGetToken(NSString *_Nonnull siteKey,
-                          NSString *_Nonnull actionString,
-                          NSString *_Nonnull fakeToken,
-                          _Nonnull FIRAuthRecaptchaTokenCallback callback);
+Class<RCARecaptchaProtocol> _Nonnull __fir_castToRecaptchaProtocolFromClass(Class _Nonnull klass);
+
+Class<RCAActionProtocol> _Nonnull __fir_castToRecaptchaActionProtocolFromClass(
+    Class _Nonnull klass);
+
 #endif
