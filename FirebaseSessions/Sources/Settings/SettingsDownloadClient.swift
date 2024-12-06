@@ -51,27 +51,31 @@ class SettingsDownloader: SettingsDownloadClient {
       return
     }
 
-    installations.installationID { result in
-      switch result {
-      case let .success(installationsInfo):
-        let request = self.buildRequest(url: validURL, fiid: installationsInfo.0)
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-          if let data {
-            if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-              completion(.success(dict))
-            } else {
-              completion(.failure(
-                .JSONParseError("Failed to parse JSON to dictionary")
-              ))
+    DispatchQueue.main.async {
+      // Installation's FIRInstallationsIDController isn't thread-safe, so this has to go
+      // on the main thread.
+      self.installations.installationID { result in
+        switch result {
+        case let .success(installationsInfo):
+          let request = self.buildRequest(url: validURL, fiid: installationsInfo.0)
+          let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data {
+              if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                completion(.success(dict))
+              } else {
+                completion(.failure(
+                  .JSONParseError("Failed to parse JSON to dictionary")
+                ))
+              }
+            } else if let error {
+              completion(.failure(.URLSessionError(error.localizedDescription)))
             }
-          } else if let error {
-            completion(.failure(.URLSessionError(error.localizedDescription)))
           }
+          // Start the task that sends the network request
+          task.resume()
+        case let .failure(error):
+          completion(.failure(.InstallationIDError(error.localizedDescription)))
         }
-        // Start the task that sends the network request
-        task.resume()
-      case let .failure(error):
-        completion(.failure(.InstallationIDError(error.localizedDescription)))
       }
     }
   }

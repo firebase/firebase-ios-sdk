@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed an issue where Installations was sometimes invoked off the main queue (#13961).
+
 # 11.5.0
 - [changed] Updated `upload-symbols` to version 3.19, removed all methods require CFRelease and switch to modern classes (#13420).
 
