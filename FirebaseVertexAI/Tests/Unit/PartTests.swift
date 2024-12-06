@@ -132,7 +132,7 @@ final class PartTests: XCTestCase {
     XCTAssertEqual(json, """
     {
       "fileData" : {
-        "fileURI" : "\(fileURI)",
+        "fileUri" : "\(fileURI)",
         "mimeType" : "\(mimeType)"
       }
     }
