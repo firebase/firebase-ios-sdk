@@ -243,12 +243,7 @@ final class IntegrationTests: XCTestCase {
   // MARK: - Imagen
 
   func testGenerateImage_inlineData() async throws {
-    if let imagenEnvVar = ProcessInfo.processInfo.environment["VTXIntegrationImagen"] {
-      XCTFail("VTXIntegrationImagen: \(imagenEnvVar)")
-    } else {
-      XCTFail("VTXIntegrationImagen is undefined.")
-    }
-
+    try IntegrationTestUtils.skipUnless(environmentVariable: "VTXIntegrationImagen")
     let imagePrompt = """
     A realistic photo of a male lion, mane thick and dark, standing proudly on a rocky outcrop
     overlooking a vast African savanna at sunset. Golden hour light, long shadows, sharp focus on
