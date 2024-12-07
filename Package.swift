@@ -1310,7 +1310,10 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
-      dependencies: ["FirebaseVertexAI"],
+      dependencies: [
+        "FirebaseVertexAI",
+        "FirebaseStorage",
+      ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),
