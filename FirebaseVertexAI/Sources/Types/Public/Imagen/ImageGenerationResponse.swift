@@ -33,7 +33,7 @@ extension ImageGenerationResponse: Decodable where ImageType: Decodable {
     guard container.contains(.predictions) else {
       images = []
       raiFilteredReason = nil
-      // TODO: Log warning if no predictions.
+      // TODO(#14221): Log warning if no predictions.
       return
     }
     var predictionsContainer = try container.nestedUnkeyedContainer(forKey: .predictions)
