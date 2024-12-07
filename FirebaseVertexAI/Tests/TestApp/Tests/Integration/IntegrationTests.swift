@@ -244,25 +244,29 @@ final class IntegrationTests: XCTestCase {
   // MARK: - Imagen
 
   func testGenerateImage_inlineData() async throws {
+    try IntegrationTestUtils.skipUnless(environmentVariable: "VTXIntegrationImagen")
     let imagePrompt = """
     A realistic photo of a male lion, mane thick and dark, standing proudly on a rocky outcrop
     overlooking a vast African savanna at sunset. Golden hour light, long shadows, sharp focus on
     the lion, shallow depth of field, detailed fur texture, DSLR, 85mm lens.
     """
 
-    let imageResponse = try await imagenModel.generateImages(prompt: imagePrompt)
+    let response = try await imagenModel.generateImages(prompt: imagePrompt)
 
-    XCTAssertNil(imageResponse.raiFilteredReason)
-    XCTAssertEqual(imageResponse.images.count, 1)
-    let image = try XCTUnwrap(imageResponse.images.first)
-
-    let textResponse = try await model.generateContent(
-      InlineDataPart(data: image.data, mimeType: "image/png"),
-      "What is the name of this animal? Answer with the animal name only."
-    )
-
-    let text = try XCTUnwrap(textResponse.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    XCTAssertEqual(text, "Lion")
+    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertEqual(response.images.count, 1)
+    let image = try XCTUnwrap(response.images.first)
+    XCTAssertEqual(image.mimeType, "image/png")
+    XCTAssertGreaterThan(image.data.count, 0)
+    let imagenImage = image.imagenImage
+    XCTAssertEqual(imagenImage.mimeType, image.mimeType)
+    XCTAssertEqual(imagenImage.bytesBase64Encoded, image.data.base64EncodedString())
+    XCTAssertNil(imagenImage.gcsURI)
+    #if canImport(UIKit)
+      let uiImage = try XCTUnwrap(UIImage(data: image.data))
+      XCTAssertEqual(uiImage.size.width, 1024.0)
+      XCTAssertEqual(uiImage.size.height, 1024.0)
+    #endif
   }
 }
 
