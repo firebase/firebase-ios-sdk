@@ -249,13 +249,19 @@ final class IntegrationTests: XCTestCase {
     overlooking a vast African savanna at sunset. Golden hour light, long shadows, sharp focus on
     the lion, shallow depth of field, detailed fur texture, DSLR, 85mm lens.
     """
+    var generationConfig = ImagenGenerationConfig()
+    generationConfig.aspectRatio = .landscape16x9
+    generationConfig.imageFormat = .jpeg(compressionQuality: 70)
 
-    let response = try await imagenModel.generateImages(prompt: imagePrompt)
+    let response = try await imagenModel.generateImages(
+      prompt: imagePrompt,
+      generationConfig: generationConfig
+    )
 
     XCTAssertNil(response.raiFilteredReason)
     XCTAssertEqual(response.images.count, 1)
     let image = try XCTUnwrap(response.images.first)
-    XCTAssertEqual(image.mimeType, "image/png")
+    XCTAssertEqual(image.mimeType, "image/jpeg")
     XCTAssertGreaterThan(image.data.count, 0)
     let imagenImage = image.imagenImage
     XCTAssertEqual(imagenImage.mimeType, image.mimeType)
@@ -263,8 +269,8 @@ final class IntegrationTests: XCTestCase {
     XCTAssertNil(imagenImage.gcsURI)
     #if canImport(UIKit)
       let uiImage = try XCTUnwrap(UIImage(data: image.data))
-      XCTAssertEqual(uiImage.size.width, 1024.0)
-      XCTAssertEqual(uiImage.size.height, 1024.0)
+      XCTAssertEqual(uiImage.size.width, 1408.0)
+      XCTAssertEqual(uiImage.size.height, 768.0)
     #endif
   }
 }
