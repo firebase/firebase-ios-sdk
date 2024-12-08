@@ -20,5 +20,15 @@ public struct ImagenGenerationConfig {
   public var imageFormat: ImagenImageFormat?
   public var addWatermark: Bool?
 
-  public init() {}
+  public init(numberOfImages: Int? = nil,
+              negativePrompt: String? = nil,
+              aspectRatio: ImagenAspectRatio? = nil,
+              imageFormat: ImagenImageFormat? = nil,
+              addWatermark: Bool? = nil) {
+    self.numberOfImages = numberOfImages
+    self.negativePrompt = negativePrompt
+    self.aspectRatio = aspectRatio
+    self.imageFormat = imageFormat
+    self.addWatermark = addWatermark
+  }
 }
