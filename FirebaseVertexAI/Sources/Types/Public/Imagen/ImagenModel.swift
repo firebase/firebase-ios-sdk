@@ -24,12 +24,15 @@ public final class ImagenModel {
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
 
+  let safetySettings: ImagenSafetySettings?
+
   /// Configuration parameters for sending requests to the backend.
   let requestOptions: RequestOptions
 
   init(name: String,
        projectID: String,
        apiKey: String,
+       safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        appCheck: AppCheckInterop?,
        auth: AuthInterop?,
@@ -42,6 +45,7 @@ public final class ImagenModel {
       auth: auth,
       urlSession: urlSession
     )
+    self.safetySettings = safetySettings
     self.requestOptions = requestOptions
   }
 
@@ -89,8 +93,8 @@ public final class ImagenModel {
       seed: nil,
       negativePrompt: generationConfig?.negativePrompt,
       aspectRatio: generationConfig?.aspectRatio?.rawValue,
-      safetyFilterLevel: nil,
-      personGeneration: nil,
+      safetyFilterLevel: safetySettings?.safetyFilterLevel?.rawValue,
+      personGeneration: safetySettings?.personGeneration?.rawValue,
       outputOptions: generationConfig?.imageFormat.map {
         ImageGenerationOutputOptions(
           mimeType: $0.mimeType,
@@ -98,7 +102,7 @@ public final class ImagenModel {
         )
       },
       addWatermark: generationConfig?.addWatermark,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: safetySettings?.includeFilterReason ?? true
     )
   }
 }
