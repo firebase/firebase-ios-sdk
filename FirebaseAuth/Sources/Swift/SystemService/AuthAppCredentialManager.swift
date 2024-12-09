@@ -65,7 +65,7 @@
 
     func didStartVerification(withReceipt receipt: String,
                               timeout: TimeInterval) async -> AuthAppCredential {
-      return await withCheckedContinuation { continuation in
+      return await withUnsafeContinuation { continuation in
         self.didStartVerificationInternal(withReceipt: receipt, timeout: timeout) { credential in
           continuation.resume(returning: credential)
         }

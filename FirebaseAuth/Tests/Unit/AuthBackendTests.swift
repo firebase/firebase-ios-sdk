@@ -90,7 +90,7 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(withData: nil, error: responseError)
+      return (nil, responseError)
     }
     do {
       let _ = try await authBackend.call(with: request)
@@ -122,7 +122,7 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(withData: data, error: responseError)
+      return (data, error: responseError)
     }
     do {
       let _ = try await authBackend.call(with: request)
@@ -159,7 +159,7 @@ class AuthBackendTests: RPCBaseTests {
     let data = "<xml>Some non-JSON value.</xml>".data(using: .utf8)
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withData: data, error: nil)
+      (data, nil)
     }
     do {
       let _ = try await authBackend.call(with: request)
@@ -201,7 +201,7 @@ class AuthBackendTests: RPCBaseTests {
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withData: data, error: responseError)
+      (data, responseError)
     }
     do {
       let _ = try await authBackend.call(with: request)
@@ -243,7 +243,7 @@ class AuthBackendTests: RPCBaseTests {
     let data = "[]".data(using: .utf8)
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withData: data, error: nil)
+      (data, nil)
     }
     do {
       let _ = try await authBackend.call(with: request)
@@ -277,8 +277,8 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageCaptchaRequired,
-                                 error: responseError)
+      return try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageCaptchaRequired,
+                                        error: responseError)
     }
     do {
       let _ = try await authBackend.call(with: request)
@@ -317,7 +317,7 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(
+      return try self.rpcIssuer.respond(
         serverErrorMessage: kErrorMessageCaptchaCheckFailed,
         error: responseError
       )
@@ -427,7 +427,7 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     rpcIssuer.respondBlock = {
-      let _ = try self.rpcIssuer.respond(withJSON: [:], error: responseError)
+      try self.rpcIssuer.respond(withJSON: [:], error: responseError)
     }
     do {
       let _ = try await authBackend.call(with: request)

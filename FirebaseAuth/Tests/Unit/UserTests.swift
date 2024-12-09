@@ -411,7 +411,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_EMAIL")
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_EMAIL")
         }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -437,7 +437,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
         }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -466,8 +466,8 @@ class UserTests: RPCBaseTests {
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken])
           }
           self.expectVerifyPhoneNumberRequest()
           self.rpcIssuer?.fakeGetAccountProviderJSON = [[
@@ -500,7 +500,7 @@ class UserTests: RPCBaseTests {
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
+            try self.rpcIssuer.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
           }
           self.expectVerifyPhoneNumberRequest()
 
@@ -532,7 +532,7 @@ class UserTests: RPCBaseTests {
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           self.expectVerifyPhoneNumberRequest()
 
@@ -575,7 +575,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+          try self.rpcIssuer.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
         }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -601,7 +601,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
+          try self.rpcIssuer.respond(serverErrorMessage: "WEAK_PASSWORD")
         }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -628,7 +628,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
         }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -654,8 +654,8 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken])
         }
         let profileChange = user.createProfileChangeRequest()
         profileChange.photoURL = URL(string: self.kTestPhotoURL)
@@ -681,7 +681,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+          try self.rpcIssuer.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
         }
         let profileChange = user.createProfileChangeRequest()
         profileChange.displayName = self.kNewDisplayName
@@ -710,7 +710,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_NOT_FOUND")
         }
         let profileChange = user.createProfileChangeRequest()
         profileChange.displayName = self.kNewDisplayName
@@ -816,7 +816,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "QUOTA_EXCEEDED")
+          try self.rpcIssuer.respond(serverErrorMessage: "QUOTA_EXCEEDED")
         }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
@@ -843,7 +843,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
@@ -870,8 +870,8 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken])
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -899,14 +899,14 @@ class UserTests: RPCBaseTests {
     signInWithGoogleCredential { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken,
-                                                 "federatedId": self.kGoogleID,
-                                                 "providerId": GoogleAuthProvider.id,
-                                                 "localId": self.kLocalID,
-                                                 "displayName": self.kGoogleDisplayName,
-                                                 "rawUserInfo": self.kGoogleProfile,
-                                                 "username": self.kUserName])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken,
+                                                "federatedId": self.kGoogleID,
+                                                "providerId": GoogleAuthProvider.id,
+                                                "localId": self.kLocalID,
+                                                "displayName": self.kGoogleDisplayName,
+                                                "rawUserInfo": self.kGoogleProfile,
+                                                "username": self.kUserName])
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -950,8 +950,8 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken])
         }
         self.setFakeGetAccountProvider(withLocalID: "A different Local ID")
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
@@ -981,7 +981,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_NOT_FOUND")
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1012,14 +1012,14 @@ class UserTests: RPCBaseTests {
       do {
         self.setFakeGoogleGetAccountProvider()
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken,
-                                                 "federatedId": self.kGoogleID,
-                                                 "providerId": GoogleAuthProvider.id,
-                                                 "localId": self.kLocalID,
-                                                 "displayName": self.kGoogleDisplayName,
-                                                 "rawUserInfo": self.kGoogleProfile,
-                                                 "username": self.kUserName])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken,
+                                                "federatedId": self.kGoogleID,
+                                                "providerId": GoogleAuthProvider.id,
+                                                "localId": self.kLocalID,
+                                                "displayName": self.kGoogleDisplayName,
+                                                "rawUserInfo": self.kGoogleProfile,
+                                                "username": self.kUserName])
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1062,7 +1062,7 @@ class UserTests: RPCBaseTests {
       do {
         self.setFakeGetAccountProvider()
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+          try self.rpcIssuer.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1125,7 +1125,7 @@ class UserTests: RPCBaseTests {
       do {
         self.setFakeGetAccountProvider()
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1160,9 +1160,12 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(request?.email, self.kEmail)
           XCTAssertEqual(request?.password, self.kFakePassword)
           XCTAssertNil(request?.displayName)
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          let (data, error) = try self.rpcIssuer.respond(withJSON: [
+            "idToken": RPCBaseTests.kFakeAccessToken,
+            "refreshToken": self.kRefreshToken,
+          ])
           self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+          return (data, error)
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1200,9 +1203,12 @@ class UserTests: RPCBaseTests {
           XCTAssertNotNil(request)
           XCTAssertEqual(request?.email, self.kEmail)
           XCTAssertEqual(request?.password, self.kFakePassword)
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          let (data, error) = try self.rpcIssuer.respond(withJSON: [
+            "idToken": RPCBaseTests.kFakeAccessToken,
+            "refreshToken": self.kRefreshToken,
+          ])
           self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+          return (data, error)
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1242,7 +1248,7 @@ class UserTests: RPCBaseTests {
           XCTAssertNotNil(request)
           XCTAssertEqual(request?.email, self.kEmail)
           XCTAssertEqual(request?.password, self.kFakePassword)
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1272,7 +1278,7 @@ class UserTests: RPCBaseTests {
       do {
         self.rpcIssuer.respondBlock = {
           XCTAssertNotNil(self.rpcIssuer?.request as? SignUpNewUserRequest)
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1292,16 +1298,12 @@ class UserTests: RPCBaseTests {
 
   #if os(iOS)
     private class FakeOAuthProvider: OAuthProvider {
-      override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                                      completion: ((AuthCredential?, Error?) -> Void)? = nil) {
-        if let completion {
-          let credential = OAuthCredential(
-            withProviderID: GoogleAuthProvider.id,
-            sessionID: UserTests.kOAuthSessionID,
-            OAuthResponseURLString: UserTests.kOAuthRequestURI
-          )
-          completion(credential, nil)
-        }
+      override func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+        return OAuthCredential(
+          withProviderID: GoogleAuthProvider.id,
+          sessionID: UserTests.kOAuthSessionID,
+          OAuthResponseURLString: UserTests.kOAuthRequestURI
+        )
       }
     }
 
@@ -1318,7 +1320,7 @@ class UserTests: RPCBaseTests {
         do {
           self.setFakeGetAccountProvider()
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           user.link(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                     uiDelegate: nil) { linkAuthResult, rawError in
@@ -1347,7 +1349,7 @@ class UserTests: RPCBaseTests {
         do {
           self.setFakeGetAccountProvider()
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           user.reauthenticate(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                               uiDelegate: nil) { linkAuthResult, rawError in
@@ -1377,8 +1379,8 @@ class UserTests: RPCBaseTests {
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken])
           }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
@@ -1422,8 +1424,8 @@ class UserTests: RPCBaseTests {
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken])
           }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
@@ -1460,8 +1462,8 @@ class UserTests: RPCBaseTests {
               XCTAssertNil(request.providers)
               XCTAssertNil(request.deleteAttributes)
               XCTAssertEqual(try XCTUnwrap(request.deleteProviders?.first), PhoneAuthProvider.id)
-              try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                     "refreshToken": self.kRefreshToken])
+              return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                           "refreshToken": self.kRefreshToken])
             }
             user.unlink(fromProvider: PhoneAuthProvider.id) { user, error in
               XCTAssertNil(error)
@@ -1518,10 +1520,10 @@ class UserTests: RPCBaseTests {
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken,
-                                                   "phoneNumber": self.kTestPhoneNumber,
-                                                   "temporaryProof": "Fake Temporary Proof"])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken,
+                                                  "phoneNumber": self.kTestPhoneNumber,
+                                                  "temporaryProof": "Fake Temporary Proof"])
           }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
@@ -1627,9 +1629,9 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(request.deleteAttributes)
         XCTAssertNil(request.deleteProviders)
 
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "email": self.kNewEmail,
-                                               "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "email": self.kNewEmail,
+                                                     "refreshToken": self.kRefreshToken])
       }
       if changeEmail {
         user.updateEmail(to: kNewEmail) { error in
@@ -1664,11 +1666,12 @@ class UserTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
       do {
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
-                                               "isNewUser": true,
-                                               "refreshToken": kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
+                                                     "isNewUser": true,
+                                                     "refreshToken": kRefreshToken])
       } catch {
         XCTFail("Failure sending response: \(error)")
+        return (nil, nil)
       }
     }
     // 1. After setting up fakes, sign out and sign in.
@@ -1711,13 +1714,13 @@ class UserTests: RPCBaseTests {
       )
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                             "providerId": GoogleAuthProvider.id,
-                                             "refreshToken": self.kRefreshToken,
-                                             "localId": self.kLocalID,
-                                             "displayName": self.kDisplayName,
-                                             "rawUserInfo": self.kGoogleProfile,
-                                             "username": self.kUserName])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "providerId": GoogleAuthProvider.id,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "localId": self.kLocalID,
+                                                   "displayName": self.kDisplayName,
+                                                   "rawUserInfo": self.kGoogleProfile,
+                                                   "username": self.kUserName])
     }
 
     do {
@@ -1777,14 +1780,14 @@ class UserTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                             "refreshToken": self.kRefreshToken,
-                                             "federatedId": self.kFacebookID,
-                                             "providerId": FacebookAuthProvider.id,
-                                             "localId": self.kLocalID,
-                                             "displayName": self.kDisplayName,
-                                             "rawUserInfo": self.kGoogleProfile,
-                                             "username": self.kUserName])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "federatedId": self.kFacebookID,
+                                                   "providerId": FacebookAuthProvider.id,
+                                                   "localId": self.kLocalID,
+                                                   "displayName": self.kDisplayName,
+                                                   "rawUserInfo": self.kGoogleProfile,
+                                                   "username": self.kUserName])
     }
 
     do {
@@ -1837,9 +1840,9 @@ class UserTests: RPCBaseTests {
       XCTAssertNil(request.idToken)
 
       // Send the response from the fake backend.
-      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                             "isNewUser": true,
-                                             "refreshToken": kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "isNewUser": true,
+                                                   "refreshToken": kRefreshToken])
     }
 
     do {

@@ -79,8 +79,8 @@ class ResetPasswordTests: RPCBaseTests {
     let kExpectedResetPasswordRequestType = "PASSWORD_RESET"
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: ["email": kTestEmail,
-                                             "requestType": kExpectedResetPasswordRequestType])
+      try self.rpcIssuer.respond(withJSON: ["email": kTestEmail,
+                                            "requestType": kExpectedResetPasswordRequestType])
     }
     let rpcResponse = try await authBackend.call(with: makeResetPasswordRequest())
 

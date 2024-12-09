@@ -87,7 +87,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertEqual(requestDictionary[kDisplayNameKey], kDisplayName)
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         "idToken": self.kIDToken,
         "refreshToken": kRefreshToken,
         "localId": kLocalID,
