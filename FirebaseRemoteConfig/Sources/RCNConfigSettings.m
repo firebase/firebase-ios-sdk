@@ -109,7 +109,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       [_userDefaultsManager resetUserDefaults];
     }
 
-    _customSignals = [_userDefaultsManager customSignals];
     _isFetchInProgress = NO;
     _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
     _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];
@@ -446,9 +445,10 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
     }
   }
 
-  if (_customSignals.count > 0) {
+  NSDictionary<NSString *, NSString *> *customSignals = [self customSignals];
+  if (customSignals.count > 0) {
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:_customSignals
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:customSignals
                                                        options:0
                                                          error:&error];
     if (!error) {
@@ -460,7 +460,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                                                                encoding:NSUTF8StringEncoding]]];
       // Log the custom signals during fetch.
       FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078", @"Fetching with custom signals: %@",
-                  _customSignals);
+                  customSignals);
     }
   }
   ret = [ret stringByAppendingString:@"}"];
@@ -536,8 +536,11 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                      completionHandler:nil];
 }
 
-- (void)setCustomSignals:(NSMutableDictionary<NSString *, NSString *> *)customSignals {
-  _customSignals = customSignals;
+- (NSDictionary<NSString *, NSString *> *)customSignals {
+  return [_userDefaultsManager customSignals];
+}
+
+- (void)setCustomSignals:(NSDictionary<NSString *, NSString *> *)customSignals {
   [_userDefaultsManager setCustomSignals:customSignals];
 }
 
