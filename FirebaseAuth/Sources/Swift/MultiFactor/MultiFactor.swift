@@ -34,7 +34,7 @@ import Foundation
     /// operation.
     @objc(getSessionWithCompletion:)
     open func getSessionWithCompletion(_ completion: ((MultiFactorSession?, Error?) -> Void)?) {
-      let session = MultiFactorSession.sessionForCurrentUser
+      let session = MultiFactorSession.session(for: user)
       if let completion {
         completion(session, nil)
       }
