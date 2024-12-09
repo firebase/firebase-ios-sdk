@@ -299,10 +299,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     for (NSString *key in customSignals) {
       NSObject *value = customSignals[key];
       if (![value isKindOfClass:[NSNull class]]) {
-        NSString *stringValue =
-            [value isKindOfClass:[NSNumber class]]
-                ? [(NSNumber *)value descriptionWithLocale:[NSLocale currentLocale]]
-                : (NSString *)value;
+        NSString *stringValue = [value isKindOfClass:[NSNumber class]]
+                                    ? [(NSNumber *)value stringValue]
+                                    : (NSString *)value;
         [newCustomSignals setObject:stringValue forKey:key];
       } else {
         [newCustomSignals removeObjectForKey:key];
