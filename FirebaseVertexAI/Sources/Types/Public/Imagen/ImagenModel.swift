@@ -86,11 +86,9 @@ public final class ImagenModel {
   func imageGenerationParameters(storageURI: String?,
                                  generationConfig: ImagenGenerationConfig? = nil)
     -> ImageGenerationParameters {
-    // TODO(#14221): Add support for configuring remaining parameters.
     return ImageGenerationParameters(
       sampleCount: generationConfig?.numberOfImages ?? 1,
       storageURI: storageURI,
-      seed: nil,
       negativePrompt: generationConfig?.negativePrompt,
       aspectRatio: generationConfig?.aspectRatio?.rawValue,
       safetyFilterLevel: safetySettings?.safetyFilterLevel?.rawValue,

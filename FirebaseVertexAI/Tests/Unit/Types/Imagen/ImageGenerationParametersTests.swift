@@ -29,7 +29,6 @@ final class ImageGenerationParametersTests: XCTestCase {
   func testEncodeParameters_allSpecified() throws {
     let sampleCount = 4
     let storageURI = "gs://bucket/folder"
-    let seed: Int32 = 1_076_107_968
     let negativePrompt = "test-negative-prompt"
     let aspectRatio = "16:9"
     let safetyFilterLevel = "block_low_and_above"
@@ -41,7 +40,6 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImageGenerationParameters(
       sampleCount: sampleCount,
       storageURI: storageURI,
-      seed: seed,
       negativePrompt: negativePrompt,
       aspectRatio: aspectRatio,
       safetyFilterLevel: safetyFilterLevel,
@@ -66,7 +64,6 @@ final class ImageGenerationParametersTests: XCTestCase {
       "personGeneration" : "\(personGeneration)",
       "safetySetting" : "\(safetyFilterLevel)",
       "sampleCount" : \(sampleCount),
-      "seed" : \(seed),
       "storageUri" : "\(storageURI)"
     }
     """)
@@ -80,7 +77,6 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImageGenerationParameters(
       sampleCount: sampleCount,
       storageURI: nil,
-      seed: nil,
       negativePrompt: nil,
       aspectRatio: aspectRatio,
       safetyFilterLevel: safetyFilterLevel,
@@ -107,7 +103,6 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImageGenerationParameters(
       sampleCount: nil,
       storageURI: nil,
-      seed: nil,
       negativePrompt: nil,
       aspectRatio: nil,
       safetyFilterLevel: nil,
