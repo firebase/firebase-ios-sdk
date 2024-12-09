@@ -167,7 +167,7 @@
       if let recaptcha =
         NSClassFromString("RecaptchaEnterprise.RCARecaptcha") as? RCARecaptchaProtocol.Type {
         do {
-          // TODO(ncooke3): This should be `fetchClient(withSiteKey:)`.
+          // let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
           let client = try await recaptcha.getClient(withSiteKey: siteKey)
           recaptchaClient = client
           return await retrieveToken(actionString: actionString, fakeToken: fakeToken)
