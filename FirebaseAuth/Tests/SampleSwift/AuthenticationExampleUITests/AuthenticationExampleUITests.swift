@@ -189,10 +189,11 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Enter Phone Number"].tap()
     app.textFields["Enter Phone Number"].typeText(testPhone)
     app.buttons["Send Verification Code"].tap()
-    // Wait for the error message to appear (if there is an error)
-    let errorAlert = app.alerts.staticTexts["Error"]
-    let errorExists = errorAlert.waitForExistence(timeout: 3.0)
-    XCTAssertFalse(errorExists, "Error")
+    let errorDialog = app.alerts["Error"]
+    XCTAssertFalse(
+      errorDialog.waitForExistence(timeout: 5),
+      "Error"
+    )
     let verificationCodeInput = app.textFields["Enter verification code."]
     XCTAssertTrue(
       verificationCodeInput.waitForExistence(timeout: 2),
