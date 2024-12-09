@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
+  Enterprise X.Y.Z or later.
+
 # 11.6.0
 - [added] Added reCAPTCHA Enterprise support for app verification during phone
   authentication for Firebase Authentication (#14114)
