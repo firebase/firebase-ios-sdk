@@ -31,7 +31,7 @@ public struct RequestOptions {
   let timeout: TimeInterval
 
   /// The API version to use in requests to the backend.
-  let apiVersion = "v1beta"
+  let apiVersion = "v1beta1"
 
   /// Initializes a request options object.
   ///

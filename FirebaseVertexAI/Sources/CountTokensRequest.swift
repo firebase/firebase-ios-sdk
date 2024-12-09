@@ -17,6 +17,7 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
   let model: String
+  let location: String
 
   let contents: [ModelContent]
   let systemInstruction: ModelContent?
@@ -31,7 +32,9 @@ extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
   var url: URL {
-    URL(string: "\(Constants.baseURL)/\(options.apiVersion)/\(model):countTokens")!
+    URL(
+      string: "https://\(location)-\(Constants.baseURL)/\(options.apiVersion)/\(model):countTokens"
+    )!
   }
 }
 
