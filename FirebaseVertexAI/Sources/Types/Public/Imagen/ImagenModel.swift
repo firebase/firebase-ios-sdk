@@ -45,19 +45,24 @@ public final class ImagenModel {
     self.requestOptions = requestOptions
   }
 
-  public func generateImages(prompt: String) async throws
+  public func generateImages(prompt: String,
+                             generationConfig: ImagenGenerationConfig? = nil) async throws
     -> ImageGenerationResponse<ImagenInlineDataImage> {
     return try await generateImages(
       prompt: prompt,
-      parameters: imageGenerationParameters(storageURI: nil)
+      parameters: imageGenerationParameters(storageURI: nil, generationConfig: generationConfig)
     )
   }
 
-  public func generateImages(prompt: String, storageURI: String) async throws
+  public func generateImages(prompt: String, storageURI: String,
+                             generationConfig: ImagenGenerationConfig? = nil) async throws
     -> ImageGenerationResponse<ImagenFileDataImage> {
     return try await generateImages(
       prompt: prompt,
-      parameters: imageGenerationParameters(storageURI: storageURI)
+      parameters: imageGenerationParameters(
+        storageURI: storageURI,
+        generationConfig: generationConfig
+      )
     )
   }
 
@@ -74,18 +79,25 @@ public final class ImagenModel {
     return try await generativeAIService.loadRequest(request: request)
   }
 
-  func imageGenerationParameters(storageURI: String?) -> ImageGenerationParameters {
-    // TODO(#14221): Add support for configuring these parameters.
+  func imageGenerationParameters(storageURI: String?,
+                                 generationConfig: ImagenGenerationConfig? = nil)
+    -> ImageGenerationParameters {
+    // TODO(#14221): Add support for configuring remaining parameters.
     return ImageGenerationParameters(
-      sampleCount: 1,
+      sampleCount: generationConfig?.numberOfImages ?? 1,
       storageURI: storageURI,
       seed: nil,
-      negativePrompt: nil,
-      aspectRatio: nil,
+      negativePrompt: generationConfig?.negativePrompt,
+      aspectRatio: generationConfig?.aspectRatio?.rawValue,
       safetyFilterLevel: nil,
       personGeneration: nil,
-      outputOptions: nil,
-      addWatermark: nil,
+      outputOptions: generationConfig?.imageFormat.map {
+        ImageGenerationOutputOptions(
+          mimeType: $0.mimeType,
+          compressionQuality: $0.compressionQuality
+        )
+      },
+      addWatermark: generationConfig?.addWatermark,
       includeResponsibleAIFilterReason: true
     )
   }
