@@ -17,7 +17,7 @@ import Foundation
 /// Constants associated with the Vertex AI for Firebase SDK.
 enum Constants {
   /// The Vertex AI backend endpoint URL.
-  static let baseURL = "https://firebasevertexai.googleapis.com"
+  static let baseURL = "staging-aiplatform.sandbox.googleapis.com"
 
   /// The base reverse-DNS name for `NSError` or `CustomNSError` error domains.
   ///
