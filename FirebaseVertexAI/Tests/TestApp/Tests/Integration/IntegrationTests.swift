@@ -63,7 +63,11 @@ final class IntegrationTests: XCTestCase {
       systemInstruction: systemInstruction
     )
     imagenModel = vertex.imagenModel(
-      modelName: "imagen-3.0-fast-generate-001"
+      modelName: "imagen-3.0-fast-generate-001",
+      safetySettings: ImagenSafetySettings(
+        safetyFilterLevel: .blockLowAndAbove,
+        personGeneration: .blockAll
+      )
     )
 
     storage = Storage.storage()

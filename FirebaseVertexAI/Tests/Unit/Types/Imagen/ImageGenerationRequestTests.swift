@@ -28,7 +28,6 @@ final class ImageGenerationRequestTests: XCTestCase {
   lazy var parameters = ImageGenerationParameters(
     sampleCount: sampleCount,
     storageURI: nil,
-    seed: nil,
     negativePrompt: nil,
     aspectRatio: aspectRatio,
     safetyFilterLevel: safetyFilterLevel,
