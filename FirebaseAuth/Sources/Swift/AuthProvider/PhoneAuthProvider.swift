@@ -202,10 +202,9 @@ import Foundation
         throw AuthErrorUtils.notificationNotForwardedError()
       }
 
-      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-      try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
+      try await auth.recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
 
-      switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
+      switch auth.recaptchaVerifier.enablementStatus(forProvider: .phone) {
       case .off:
         return try await verifyClAndSendVerificationCode(
           toPhoneNumber: phoneNumber,
@@ -218,31 +217,28 @@ import Foundation
           toPhoneNumber: phoneNumber,
           retryOnInvalidAppCredential: true,
           multiFactorSession: multiFactorSession,
-          uiDelegate: uiDelegate,
-          recaptchaVerifier: recaptchaVerifier
+          uiDelegate: uiDelegate
         )
       case .enforce:
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: phoneNumber,
           retryOnInvalidAppCredential: false,
           multiFactorSession: multiFactorSession,
-          uiDelegate: uiDelegate,
-          recaptchaVerifier: recaptchaVerifier
+          uiDelegate: uiDelegate
         )
       }
     }
 
     func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
                                                       retryOnInvalidAppCredential: Bool,
-                                                      uiDelegate: AuthUIDelegate?,
-                                                      recaptchaVerifier: AuthRecaptchaVerifier) async throws
+                                                      uiDelegate: AuthUIDelegate?) async throws
       -> String? {
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
                                                 codeIdentity: CodeIdentity.empty,
                                                 requestConfiguration: auth
                                                   .requestConfiguration)
       do {
-        try await recaptchaVerifier.injectRecaptchaFields(
+        try await auth.recaptchaVerifier.injectRecaptchaFields(
           request: request,
           provider: .phone,
           action: .sendVerificationCode
@@ -304,8 +300,7 @@ import Foundation
     private func verifyClAndSendVerificationCodeWithRecaptcha(toPhoneNumber phoneNumber: String,
                                                               retryOnInvalidAppCredential: Bool,
                                                               multiFactorSession session: MultiFactorSession?,
-                                                              uiDelegate: AuthUIDelegate?,
-                                                              recaptchaVerifier: AuthRecaptchaVerifier) async throws
+                                                              uiDelegate: AuthUIDelegate?) async throws
       -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
@@ -321,8 +316,7 @@ import Foundation
         return try await verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: phoneNumber,
           retryOnInvalidAppCredential: retryOnInvalidAppCredential,
-          uiDelegate: uiDelegate,
-          recaptchaVerifier: recaptchaVerifier
+          uiDelegate: uiDelegate
         )
       }
       let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
@@ -332,7 +326,7 @@ import Foundation
           let request = StartMFAEnrollmentRequest(idToken: idToken,
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
-          try await recaptchaVerifier.injectRecaptchaFields(
+          try await auth.recaptchaVerifier.injectRecaptchaFields(
             request: request,
             provider: .phone,
             action: .mfaSmsEnrollment
@@ -344,7 +338,7 @@ import Foundation
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: auth.requestConfiguration)
-          try await recaptchaVerifier.injectRecaptchaFields(
+          try await auth.recaptchaVerifier.injectRecaptchaFields(
             request: request,
             provider: .phone,
             action: .mfaSmsSignIn
@@ -627,7 +621,6 @@ import Foundation
     private let auth: Auth
     private let callbackScheme: String
     private let usingClientIDScheme: Bool
-    private var recaptchaVerifier: AuthRecaptchaVerifier?
 
     init(auth: Auth) {
       self.auth = auth
@@ -648,7 +641,6 @@ import Foundation
         return
       }
       callbackScheme = ""
-      recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
     }
 
     private let kAuthTypeVerifyApp = "verifyApp"

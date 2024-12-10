@@ -102,12 +102,13 @@
      @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise enforced
      */
     func testVerifyPhoneNumberWithRceEnforceSuccess() async throws {
-      initApp(#function)
+      initApp(
+        #function,
+        mockRecaptchaVerifier: FakeAuthRecaptchaVerifier(captchaResponse: kCaptchaResponse)
+      )
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let mockVerifier = FakeAuthRecaptchaVerifier(captchaResponse: kCaptchaResponse)
-      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "ENFORCE"
       let requestExpectation = expectation(description: "verifyRequester")
       rpcIssuer?.verifyRequester = { request in
@@ -127,8 +128,7 @@
         let result = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
           retryOnInvalidAppCredential: false,
-          uiDelegate: nil,
-          recaptchaVerifier: mockVerifier
+          uiDelegate: nil
         )
         XCTAssertEqual(result, kTestVerificationID)
       } catch {
@@ -142,12 +142,10 @@
      @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise enforced
      */
     func testVerifyPhoneNumberWithRceEnforceInvalidRecaptcha() async throws {
-      initApp(#function)
+      initApp(#function, mockRecaptchaVerifier: FakeAuthRecaptchaVerifier())
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let mockVerifier = FakeAuthRecaptchaVerifier()
-      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "ENFORCE"
       let requestExpectation = expectation(description: "verifyRequester")
       rpcIssuer?.verifyRequester = { request in
@@ -170,8 +168,7 @@
         _ = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
           retryOnInvalidAppCredential: false,
-          uiDelegate: nil,
-          recaptchaVerifier: mockVerifier
+          uiDelegate: nil
         )
         // XCTAssertEqual(result, kTestVerificationID)
       } catch {
@@ -211,11 +208,12 @@
     /// @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise in
     /// audit mode
     func testVerifyPhoneNumberWithRceAuditSuccess() async throws {
-      initApp(#function)
+      initApp(
+        #function,
+        mockRecaptchaVerifier: FakeAuthRecaptchaVerifier(captchaResponse: kCaptchaResponse)
+      )
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let mockVerifier = FakeAuthRecaptchaVerifier(captchaResponse: kCaptchaResponse)
-      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "AUDIT"
       let requestExpectation = expectation(description: "verifyRequester")
       rpcIssuer?.verifyRequester = { request in
@@ -235,8 +233,7 @@
         let result = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
           retryOnInvalidAppCredential: false,
-          uiDelegate: nil,
-          recaptchaVerifier: mockVerifier
+          uiDelegate: nil
         )
         XCTAssertEqual(result, kTestVerificationID)
       } catch {
@@ -249,11 +246,9 @@
     /// @brief Tests a successful invocation of @c verifyPhoneNumber with recaptcha enterprise in
     /// audit mode
     func testVerifyPhoneNumberWithRceAuditInvalidRecaptcha() async throws {
-      initApp(#function)
+      initApp(#function, mockRecaptchaVerifier: FakeAuthRecaptchaVerifier())
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let mockVerifier = FakeAuthRecaptchaVerifier()
-      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "AUDIT"
       let requestExpectation = expectation(description: "verifyRequester")
       rpcIssuer?.verifyRequester = { request in
@@ -276,8 +271,7 @@
         _ = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
           retryOnInvalidAppCredential: false,
-          uiDelegate: nil,
-          recaptchaVerifier: mockVerifier
+          uiDelegate: nil
         )
       } catch {
         let underlyingError = (error as NSError).userInfo[NSUnderlyingErrorKey] as? NSError
@@ -530,20 +524,17 @@
     }
 
     private func testRecaptchaFlowError(function: String, rceError: Error) async throws {
-      initApp(function)
+      initApp(function, mockRecaptchaVerifier: FakeAuthRecaptchaVerifier(error: rceError))
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       // TODO: Figure out how to mock objective C's FIRRecaptchaGetToken response
       // Mocking the output of verify() method
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let mockVerifier = FakeAuthRecaptchaVerifier(error: rceError)
-      AuthRecaptchaVerifier.setShared(mockVerifier, auth: auth)
       rpcIssuer.rceMode = "ENFORCE"
       do {
         let _ = try await provider.verifyClAndSendVerificationCodeWithRecaptcha(
           toPhoneNumber: kTestPhoneNumber,
           retryOnInvalidAppCredential: false,
-          uiDelegate: nil,
-          recaptchaVerifier: mockVerifier
+          uiDelegate: nil
         )
       } catch {
         XCTAssertEqual((error as NSError).code, (rceError as NSError).code)
@@ -852,7 +843,8 @@
                          bothClientAndAppID: Bool = false,
                          testMode: Bool = false,
                          forwardingNotification: Bool = true,
-                         fakeToken: Bool = false) {
+                         fakeToken: Bool = false,
+                         mockRecaptchaVerifier: AuthRecaptchaVerifier? = nil) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
       options.apiKey = PhoneAuthProviderTests.kFakeAPIKey
@@ -870,7 +862,15 @@
       let strippedName = functionName.replacingOccurrences(of: "(", with: "")
         .replacingOccurrences(of: ")", with: "")
       FirebaseApp.configure(name: strippedName, options: options)
-      let auth = Auth(app: FirebaseApp.app(name: strippedName)!, backend: authBackend)
+      let auth = if let mockRecaptchaVerifier {
+        Auth(
+          app: FirebaseApp.app(name: strippedName)!,
+          backend: authBackend,
+          recaptchaVerifier: mockRecaptchaVerifier
+        )
+      } else {
+        Auth(app: FirebaseApp.app(name: strippedName)!, backend: authBackend)
+      }
 
       kAuthGlobalWorkQueue.sync {
         // Wait for Auth protectedDataInitialization to finish.
