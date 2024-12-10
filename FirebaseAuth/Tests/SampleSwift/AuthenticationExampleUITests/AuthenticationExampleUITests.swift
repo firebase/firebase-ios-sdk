@@ -190,6 +190,8 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Enter Phone Number"].typeText(testPhone)
     app.buttons["Send Verification Code"].tap()
     let verificationCodeInput = app.textFields["Enter verification code."]
+    let exists = verificationCodeInput.waitForExistence(timeout: 10)
+    XCTAssertTrue(exists, "Verification code field does not exist")
     let testVerificationCode = "123456"
     verificationCodeInput.typeText(testVerificationCode)
     app.buttons["Continue"].tap()
