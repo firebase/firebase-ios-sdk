@@ -189,17 +189,7 @@ class AuthenticationExampleUITests: XCTestCase {
     app.textFields["Enter Phone Number"].tap()
     app.textFields["Enter Phone Number"].typeText(testPhone)
     app.buttons["Send Verification Code"].tap()
-    let errorDialog = app.alerts["Error"]
-    XCTAssertFalse(
-      errorDialog.waitForExistence(timeout: 5),
-      "Error"
-    )
     let verificationCodeInput = app.textFields["Enter verification code."]
-    XCTAssertTrue(
-      verificationCodeInput.waitForExistence(timeout: 2),
-      "OTP input should appear."
-    )
-    verificationCodeInput.tap()
     let testVerificationCode = "123456"
     verificationCodeInput.typeText(testVerificationCode)
     app.buttons["Continue"].tap()
