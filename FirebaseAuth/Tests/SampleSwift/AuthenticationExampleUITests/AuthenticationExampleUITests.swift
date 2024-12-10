@@ -188,14 +188,15 @@ class AuthenticationExampleUITests: XCTestCase {
     let testEmail = "sample.auth.ios@gmail.com"
     app.textFields["Email"].tap()
     app.typeText(testEmail)
-//    app.buttons["return"].tap() // dismiss keyboard
     let testPassword = "sampleauthios"
     app.textFields["Password"].tap()
     app.typeText(testPassword)
-//    app.buttons["return"].tap() // dismiss keyboard
     app.buttons["Login"].tap()
     // enroll multifactor with phone
-    app.tabBars.buttons["Authentication"].tap()
+    let authenticationButton = app.tabBars.buttons["Authentication"]
+    let exists = authenticationButton.waitForExistence(timeout: 5)
+    XCTAssertTrue(exists, "Authentication button did not appear in time.")
+    authenticationButton.tap()
     app.tables.cells.staticTexts["Phone Enroll"].tap()
     let testSecondFactorPhone = "+11234567890"
     app.typeText(testSecondFactorPhone)
@@ -226,11 +227,9 @@ class AuthenticationExampleUITests: XCTestCase {
     let testEmail = "sample.ios.auth@gmail.com"
     app.textFields["Email"].tap()
     app.typeText(testEmail)
-    app.buttons["return"].tap() // dismiss keyboard
     let testPassword = "sampleios123"
     app.textFields["Password"].tap()
     app.typeText(testPassword)
-    app.buttons["return"].tap() // dismiss keyboard
     app.buttons["Login"].tap()
     // login with second factor
     XCTAssertTrue(app.staticTexts["Choose a second factor to continue."]
