@@ -183,31 +183,35 @@ class AuthenticationExampleUITests: XCTestCase {
   }
 
   func testPhoneAuthLoginRCEInEnforceMode() {
-    app.staticTexts["Phone Number"].tap()
-    XCTAssertTrue(app.staticTexts["Sign in using Phone Auth"].waitForExistence(timeout: 3))
-    let testPhone = "12345678901"
-    app.textFields["Enter Phone Number"].tap()
-    app.textFields["Enter Phone Number"].typeText(testPhone)
-    app.buttons["Send Verification Code"].tap()
-    let errorDialog = app.alerts["Error"]
-    XCTAssertFalse(
-      errorDialog.waitForExistence(timeout: 5),
-      "Error"
-    )
-    let verificationCodeInput = app.textFields["Enter verification code."]
-    XCTAssertTrue(
-      verificationCodeInput.waitForExistence(timeout: 2),
-      "OTP input should appear."
-    )
-    verificationCodeInput.tap()
-    let testVerificationCode = "123456"
-    verificationCodeInput.typeText(testVerificationCode)
-    app.buttons["Continue"].tap()
-    // Sign out
-    let signOutButton = app.buttons["Sign Out"]
-    if signOutButton.exists {
-      signOutButton.tap()
-    }
+    #if os(iOS)
+      app.staticTexts["Phone Number"].tap()
+      XCTAssertTrue(app.staticTexts["Sign in using Phone Auth"].waitForExistence(timeout: 3))
+      let testPhone = "12345678901"
+      app.textFields["Enter Phone Number"].tap()
+      app.textFields["Enter Phone Number"].typeText(testPhone)
+      app.buttons["Send Verification Code"].tap()
+      let errorDialog = app.alerts["Error"]
+      XCTAssertFalse(
+        errorDialog.waitForExistence(timeout: 5),
+        "Error"
+      )
+      let verificationCodeInput = app.textFields["Enter verification code."]
+      XCTAssertTrue(
+        verificationCodeInput.waitForExistence(timeout: 2),
+        "OTP input should appear."
+      )
+      verificationCodeInput.tap()
+      let testVerificationCode = "123456"
+      verificationCodeInput.typeText(testVerificationCode)
+      app.buttons["Continue"].tap()
+      // Sign out
+      let signOutButton = app.buttons["Sign Out"]
+      if signOutButton.exists {
+        signOutButton.tap()
+      }
+    #else
+      XCTFail("This test is only supported on iOS.")
+    #endif
   }
 
   func testPhoneAuthLoginRCEInEnforceModeIncorrectNumber() {
