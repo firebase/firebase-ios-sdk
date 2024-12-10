@@ -16,7 +16,6 @@
 struct ImageGenerationParameters {
   let sampleCount: Int?
   let storageURI: String?
-  let seed: Int32?
   let negativePrompt: String?
   let aspectRatio: String?
   let safetyFilterLevel: String?
@@ -36,7 +35,6 @@ extension ImageGenerationParameters: Encodable {
   enum CodingKeys: String, CodingKey {
     case sampleCount
     case storageURI = "storageUri"
-    case seed
     case negativePrompt
     case aspectRatio
     case safetyFilterLevel = "safetySetting"
@@ -50,7 +48,6 @@ extension ImageGenerationParameters: Encodable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(sampleCount, forKey: .sampleCount)
     try container.encodeIfPresent(storageURI, forKey: .storageURI)
-    try container.encodeIfPresent(seed, forKey: .seed)
     try container.encodeIfPresent(negativePrompt, forKey: .negativePrompt)
     try container.encodeIfPresent(aspectRatio, forKey: .aspectRatio)
     try container.encodeIfPresent(safetyFilterLevel, forKey: .safetyFilterLevel)

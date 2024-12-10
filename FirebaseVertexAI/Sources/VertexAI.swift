@@ -104,12 +104,13 @@ public class VertexAI {
     )
   }
 
-  public func imagenModel(modelName: String, requestOptions: RequestOptions = RequestOptions())
-    -> ImagenModel {
+  public func imagenModel(modelName: String, safetySettings: ImagenSafetySettings? = nil,
+                          requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
     return ImagenModel(
       name: modelResourceName(modelName: modelName),
       projectID: projectID,
       apiKey: apiKey,
+      safetySettings: safetySettings,
       requestOptions: requestOptions,
       appCheck: appCheck,
       auth: auth
