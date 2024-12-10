@@ -235,7 +235,7 @@ class AuthenticationExampleUITests: XCTestCase {
     XCTAssertTrue(app.staticTexts["Choose a second factor to continue."]
       .waitForExistence(timeout: 5))
     let secondFactor = app.staticTexts["phone2"] // select 'phone2' as second factor
-    XCTAssertTrue(secondFactor.exists, "'phone2' option should be visible in the modal.")
+    XCTAssertTrue(secondFactor.exists, "'phone2' option should be visible.")
     secondFactor.tap()
     app.buttons["Send Verification Code"].tap()
     let verificationCodeInput = app.textFields["Enter verification code."]
