@@ -46,6 +46,7 @@
 		EA20B50C249E8F0700B5E581 /* AuthMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA20B50B249E8F0700B5E581 /* AuthMenu.swift */; };
 		EA20B510249FDB4400B5E581 /* OtherAuthMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA20B50F249FDB4400B5E581 /* OtherAuthMethods.swift */; };
 		EA217895248979E200736757 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA217894248979E200736757 /* LaunchScreen.storyboard */; };
+		EA3348322C90EFF40091D7C2 /* LoginViewSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA3348312C90EFE40091D7C2 /* LoginViewSwiftUI.swift */; };
 		EA527CAA24A0766D00ADB9A2 /* OtherAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA527CA924A0766D00ADB9A2 /* OtherAuthViewController.swift */; };
 		EA527CAC24A0EE9600ADB9A2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */; };
 		EAB3A1792494433500385291 /* DataSourceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB3A1782494433500385291 /* DataSourceProvider.swift */; };
@@ -57,7 +58,6 @@
 		EAE4CBC924855E3A00245E92 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBC824855E3A00245E92 /* AuthViewController.swift */; };
 		EAE4CBCE24855E3D00245E92 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAE4CBCD24855E3D00245E92 /* Assets.xcassets */; };
 		EAE4CBE724855E3E00245E92 /* AuthenticationExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBE624855E3E00245E92 /* AuthenticationExampleUITests.swift */; };
-		EAE4CBF524857A5100245E92 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBF424857A5100245E92 /* LoginController.swift */; };
 		EAEBCE0F2489FFDE00FCEA92 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEBCE0E2489FFDE00FCEA92 /* Extensions.swift */; };
 		EAEBCE11248A9AA000FCEA92 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEBCE10248A9AA000FCEA92 /* Section.swift */; };
 		EAFDF2BE2490439F0082B6F1 /* Animator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFDF2BD2490439F0082B6F1 /* Animator.swift */; };
@@ -125,8 +125,8 @@
 		EA20B50B249E8F0700B5E581 /* AuthMenu.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = AuthMenu.swift; sourceTree = "<group>"; };
 		EA20B50F249FDB4400B5E581 /* OtherAuthMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherAuthMethods.swift; sourceTree = "<group>"; };
 		EA217894248979E200736757 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		EA3348312C90EFE40091D7C2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		EA527CA924A0766D00ADB9A2 /* OtherAuthViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtherAuthViewController.swift; sourceTree = "<group>"; };
-		EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		EAB3A1782494433500385291 /* DataSourceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceProvider.swift; sourceTree = "<group>"; };
 		EAB3A17B2494628200385291 /* UserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewController.swift; sourceTree = "<group>"; };
 		EAD8BD3F2CE535C400E23E30 /* MFALoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MFALoginView.swift; sourceTree = "<group>"; };
@@ -140,7 +140,6 @@
 		EAE4CBE224855E3E00245E92 /* AuthenticationExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticationExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE4CBE624855E3E00245E92 /* AuthenticationExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationExampleUITests.swift; sourceTree = "<group>"; };
 		EAE4CBE824855E3E00245E92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EAE4CBF424857A5100245E92 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 		EAEBCE0E2489FFDE00FCEA92 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		EAEBCE10248A9AA000FCEA92 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		EAFDF2BD2490439F0082B6F1 /* Animator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Animator.swift; sourceTree = "<group>"; };
@@ -224,7 +223,6 @@
 			children = (
 				EAE08EB424CF5D09006FA3A5 /* AccountLinkingViewController.swift */,
 				EAE4CBC824855E3A00245E92 /* AuthViewController.swift */,
-				EAE4CBF424857A5100245E92 /* LoginController.swift */,
 				EAB3A17B2494628200385291 /* UserViewController.swift */,
 				EA02F68E24A0714B0079D000 /* OtherAuthMethodControllers */,
 				DEC2E5DC2A95331D0090260A /* SettingsViewController.swift */,
@@ -248,7 +246,7 @@
 			children = (
 				EAD8BD3F2CE535C400E23E30 /* MFALoginView.swift */,
 				EA20B46B2495A9F900B5E581 /* SignedOutView.swift */,
-				EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */,
+				EA3348312C90EFE40091D7C2 /* LoginView.swift */,
 			);
 			path = CustomViews;
 			sourceTree = "<group>";
@@ -550,6 +548,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA20B46E2495B2C700B5E581 /* DataSourceProtocols.swift in Sources */,
+				EA3348322C90EFF40091D7C2 /* LoginView.swift in Sources */,
 				EAB3A1792494433500385291 /* DataSourceProvider.swift in Sources */,
 				EA20B46C2495A9F900B5E581 /* SignedOutView.swift in Sources */,
 				EA527CAA24A0766D00ADB9A2 /* OtherAuthViewController.swift in Sources */,
@@ -560,7 +559,6 @@
 				EA02F68524A000E00079D000 /* UserActions.swift in Sources */,
 				EA02F68D24A063E90079D000 /* LoginDelegate.swift in Sources */,
 				EA20B50A249D3D8600B5E581 /* PasswordlessViewController.swift in Sources */,
-				EAE4CBF524857A5100245E92 /* LoginController.swift in Sources */,
 				EA20B510249FDB4400B5E581 /* OtherAuthMethods.swift in Sources */,
 				EA12697F29E33A5D00D79E66 /* CryptoUtils.swift in Sources */,
 				EAEBCE11248A9AA000FCEA92 /* Section.swift in Sources */,
@@ -572,7 +570,6 @@
 				EAFDF2BE2490439F0082B6F1 /* Animator.swift in Sources */,
 				EAE4CBC724855E3A00245E92 /* SceneDelegate.swift in Sources */,
 				EAE08EB524CF5D09006FA3A5 /* AccountLinkingViewController.swift in Sources */,
-				EA527CAC24A0EE9600ADB9A2 /* LoginView.swift in Sources */,
 				EAEBCE0F2489FFDE00FCEA92 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -717,7 +714,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -772,7 +769,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -815,6 +812,7 @@
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = EQHXZ8M8AV;
 				INFOPLIST_FILE = AuthenticationExample/SwiftApplication.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -839,7 +837,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SwiftApiTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -864,7 +862,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = SwiftApiTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
