@@ -34,6 +34,11 @@ struct FileData: Codable, Equatable, Sendable {
     self.fileURI = fileURI
     self.mimeType = mimeType
   }
+
+  enum CodingKeys: String, CodingKey {
+    case fileURI = "fileUri"
+    case mimeType
+  }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
