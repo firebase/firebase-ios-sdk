@@ -91,33 +91,6 @@ import Foundation
             AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: secret.sessionInfo,
                                                           verificationCode: totpAssertion
                                                             .oneTimePassword)
-<<<<<<< Updated upstream
-          let request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
-                                                     displayName: displayName,
-                                                     totpVerificationInfo: finalizeMFATOTPRequestInfo,
-                                                     requestConfiguration: user
-                                                       .requestConfiguration)
-          Task {
-            do {
-              let response = try await auth.backend.call(with: request)
-              do {
-                let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                         accessTokenExpirationDate: nil,
-                                                         refreshToken: response.refreshToken,
-                                                         anonymous: false)
-                try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-                if let completion {
-                  DispatchQueue.main.async {
-                    completion(nil)
-                  }
-                }
-              } catch {
-                DispatchQueue.main.async {
-                  if let completion {
-                    completion(error)
-                  }
-                }
-=======
           request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
                                                  displayName: displayName,
                                                  totpVerificationInfo: finalizeMFATOTPRequestInfo,
@@ -153,81 +126,22 @@ import Foundation
 
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
-          do {
-            let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                     accessTokenExpirationDate: nil,
-                                                     refreshToken: response.refreshToken,
-                                                     anonymous: false)
-            try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-            if let completion {
-              DispatchQueue.main.async {
-                completion(nil)
->>>>>>> Stashed changes
-              }
-            }
-          } catch {
+          let response = try await auth.backend.call(with: request)
+          let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                   accessTokenExpirationDate: nil,
+                                                   refreshToken: response.refreshToken,
+                                                   anonymous: false)
+          try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+          if let completion {
             DispatchQueue.main.async {
-              if let completion {
-                completion(error)
-              }
+              completion(nil)
             }
           }
-<<<<<<< Updated upstream
-        }
-        return
-      } else if assertion.factorID != PhoneMultiFactorInfo.PhoneMultiFactorID {
-        return
-      }
-      let phoneAssertion = assertion as? PhoneMultiFactorAssertion
-      guard let credential = phoneAssertion?.authCredential else {
-        fatalError("Internal Error: Missing credential")
-      }
-      switch credential.credentialKind {
-      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
-      case let .verification(verificationID, code):
-        let finalizeMFAPhoneRequestInfo =
-          AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
-        guard let user = user, let auth = user.auth else {
-          fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
-        }
-        let request = FinalizeMFAEnrollmentRequest(
-          idToken: self.user?.rawAccessToken(),
-          displayName: displayName,
-          phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
-          requestConfiguration: user.requestConfiguration
-        )
-
-        Task {
-          do {
-            let response = try await auth.backend.call(with: request)
-            do {
-              let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                       accessTokenExpirationDate: nil,
-                                                       refreshToken: response.refreshToken,
-                                                       anonymous: false)
-              try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-              if let completion {
-                DispatchQueue.main.async {
-                  completion(nil)
-                }
-              }
-            } catch {
-              DispatchQueue.main.async {
-                if let completion {
-                  completion(error)
-                }
-              }
-            }
-          } catch {
-            if let completion {
-              completion(error)
-            }
-=======
         } catch {
           if let completion {
-            completion(error)
->>>>>>> Stashed changes
+            DispatchQueue.main.async {
+              completion(error)
+            }
           }
         }
       }
