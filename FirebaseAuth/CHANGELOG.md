@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fix Multi-factor session crash on second Firebase app. (#14238)
 - [fixed] Updated most decoders to be consistent with Firebase 10's behavior
   for decoding `nil` values. (#14212)
 

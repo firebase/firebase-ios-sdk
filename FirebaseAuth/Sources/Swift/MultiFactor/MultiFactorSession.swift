@@ -39,8 +39,9 @@ import Foundation
     /// Current user object.
     var currentUser: User?
 
-    class var sessionForCurrentUser: MultiFactorSession {
-      guard let currentUser = Auth.auth().currentUser else {
+    class func session(for user: User?) -> MultiFactorSession {
+      let currentUser = user ?? Auth.auth().currentUser
+      guard let currentUser else {
         fatalError("Internal Auth Error: missing user for multifactor auth")
       }
       return .init(idToken: currentUser.tokenService.accessToken, currentUser: currentUser)
