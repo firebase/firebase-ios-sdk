@@ -40,11 +40,7 @@ import Foundation
     var currentUser: User?
 
     class func session(for user: User?) -> MultiFactorSession {
-      let currentUser = if user != nil {
-        user
-      } else {
-        Auth.auth().currentUser
-      }
+      let currentUser = user ?? Auth.auth().currentUser
       guard let currentUser else {
         fatalError("Internal Auth Error: missing user for multifactor auth")
       }
