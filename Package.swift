@@ -1408,6 +1408,9 @@ func firestoreWrapperTarget() -> Target {
 func firebaseFirestoreCppTarget() -> Target {
   return .target(
     name: "FirebaseFirestoreCpp",
+    dependencies: [
+      "FirebaseFirestoreInternalWrapper",
+    ],
     path: "Firestore/core/swift",
     publicHeadersPath: "include", // Path to the public headers
     cxxSettings: [

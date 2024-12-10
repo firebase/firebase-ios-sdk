@@ -18,7 +18,7 @@
 #define FIREBASE_USED_BY_SWIFT_H
 
 #include <string>
-#include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "../../include/firebase/firestore/timestamp.h"
 
 namespace firebase {
 class CppInterfaceCalledBySwift {

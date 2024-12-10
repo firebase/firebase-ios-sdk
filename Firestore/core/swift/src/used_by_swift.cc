@@ -16,6 +16,7 @@
 
 #include "../include/used_by_swift.h"
 #include <iostream>
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 void firebase::CppInterfaceCalledBySwift::print(std::string content) {
   std::cout << "C++ function runs with value: " << content << std::endl;
