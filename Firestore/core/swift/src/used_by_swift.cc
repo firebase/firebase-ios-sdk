@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#include "../include/used_by_swift.h"
+#include <iostream>
 
-NS_ASSUME_NONNULL_BEGIN
-
-/** Returns the current version of Firebase. */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-NS_SWIFT_NAME(FirebaseVersion())
-NSString* FIRFirebaseVersion(void);
-
-#ifdef __cplusplus
+void CppInterfaceCalledBySwift::print(std::string content) {
+  std::cout << "C++ function runs with value: " << content << std::endl;
 }
-#endif
-
-NS_ASSUME_NONNULL_END
