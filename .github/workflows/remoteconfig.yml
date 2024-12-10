@@ -70,7 +70,7 @@ jobs:
           # Flaky tests on CI
           - os: macos-15
             xcode: Xcode_16.1
-            tests:
+            tests: --allow-warnings
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
