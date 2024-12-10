@@ -34,6 +34,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
   private let kAndroidMinimumVersionKey = "androidMinimumVersion"
   private let kCanHandleCodeInAppKey = "canHandleCodeInApp"
   private let kDynamicLinkDomainKey = "dynamicLinkDomain"
+  private let kLinkDomainKey = "linkDomain"
   private let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getOobConfirmationCode?key=APIKey"
   private let kOOBCodeKey = "oobCode"
@@ -66,6 +67,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       XCTAssertEqual(decodedRequest[kAndroidInstallAppKey] as? Bool, true)
       XCTAssertEqual(decodedRequest[kCanHandleCodeInAppKey] as? Bool, true)
       XCTAssertEqual(decodedRequest[kDynamicLinkDomainKey] as? String, kDynamicLinkDomain)
+      XCTAssertEqual(decodedRequest[kLinkDomainKey] as? String, kLinkDomain)
     }
   }
 
@@ -110,6 +112,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       XCTAssertEqual(decodedRequest[kAndroidInstallAppKey] as? Bool, true)
       XCTAssertEqual(decodedRequest[kCanHandleCodeInAppKey] as? Bool, true)
       XCTAssertEqual(decodedRequest[kDynamicLinkDomainKey] as? String, kDynamicLinkDomain)
+      XCTAssertEqual(decodedRequest[kLinkDomainKey] as? String, kLinkDomain)
       XCTAssertEqual(decodedRequest[kCaptchaResponseKey] as? String, kTestCaptchaResponse)
       XCTAssertEqual(decodedRequest[kClientTypeKey] as? String, kTestClientType)
       XCTAssertEqual(decodedRequest[kRecaptchaVersionKey] as? String, kTestRecaptchaVersion)

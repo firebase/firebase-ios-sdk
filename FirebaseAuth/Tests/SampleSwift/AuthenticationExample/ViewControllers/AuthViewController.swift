@@ -41,6 +41,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
   var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
   var actionCodeContinueURL: URL?
+  var actionCodeLinkDomain: String?
   var actionCodeRequestType: ActionCodeRequestType = .inApp
 
   let spinner = UIActivityIndicatorView(style: .medium)
@@ -71,6 +72,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     let settings = ActionCodeSettings()
     settings.url = actionCodeContinueURL
     settings.handleCodeInApp = (actionCodeRequestType == .inApp)
+    settings.linkDomain = actionCodeLinkDomain
     return settings
   }
 
@@ -157,6 +159,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .continueURL:
       changeActionCodeContinueURL(at: indexPath)
+
+    case .linkDomain:
+      changeActionCodeLinkDomain(at: indexPath)
 
     case .requestVerifyEmail:
       requestVerifyEmail()
@@ -558,12 +563,28 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   private func changeActionCodeContinueURL(at indexPath: IndexPath) {
     showTextInputPrompt(with: "Continue URL:", completion: { newContinueURL in
       self.actionCodeContinueURL = URL(string: newContinueURL)
-      print("Successfully set Continue URL  to: \(newContinueURL)")
+      print("Successfully set Continue URL to: \(newContinueURL)")
       self.dataSourceProvider.updateItem(
         at: indexPath,
         item: Item(
           title: AuthMenu.continueURL.name,
           detailTitle: self.actionCodeContinueURL?.absoluteString,
+          isEditable: true
+        )
+      )
+      self.tableView.reloadData()
+    })
+  }
+
+  private func changeActionCodeLinkDomain(at indexPath: IndexPath) {
+    showTextInputPrompt(with: "Link Domain:", completion: { newLinkDomain in
+      self.actionCodeLinkDomain = newLinkDomain
+      print("Successfully set Link Domain to: \(newLinkDomain)")
+      self.dataSourceProvider.updateItem(
+        at: indexPath,
+        item: Item(
+          title: AuthMenu.linkDomain.name,
+          detailTitle: self.actionCodeLinkDomain,
           isEditable: true
         )
       )

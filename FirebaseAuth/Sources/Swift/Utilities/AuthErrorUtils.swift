@@ -370,6 +370,10 @@ class AuthErrorUtils {
     error(code: .invalidDynamicLinkDomain, message: message)
   }
 
+  static func invalidHostingLinkDomainError(message: String?) -> Error {
+    error(code: .invalidHostingLinkDomain, message: message)
+  }
+
   static func missingOrInvalidNonceError(message: String?) -> Error {
     error(code: .missingOrInvalidNonce, message: message)
   }
