@@ -160,8 +160,12 @@
                                 actionString: String,
                                 fakeToken: String) async -> (token: String, error: Error?,
                                                              linked: Bool, actionCreated: Bool) {
-      if recaptchaClient != nil {
-        return await retrieveToken(actionString: actionString, fakeToken: fakeToken)
+      if let recaptchaClient {
+        return await retrieveToken(
+          actionString: actionString,
+          fakeToken: fakeToken,
+          recaptchaClient: recaptchaClient
+        )
       }
 
       if let recaptcha =
@@ -170,7 +174,11 @@
           // let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
           let client = try await recaptcha.getClient(withSiteKey: siteKey)
           recaptchaClient = client
-          return await retrieveToken(actionString: actionString, fakeToken: fakeToken)
+          return await retrieveToken(
+            actionString: actionString,
+            fakeToken: fakeToken,
+            recaptchaClient: client
+          )
         } catch {
           return ("", error, true, true)
         }
@@ -181,12 +189,15 @@
     }
 
     private func retrieveToken(actionString: String,
-                               fakeToken: String) async -> (token: String, error: Error?,
-                                                            linked: Bool, actionCreated: Bool) {
+                               fakeToken: String,
+                               recaptchaClient: RCARecaptchaClientProtocol) async -> (token: String,
+                                                                                      error: Error?,
+                                                                                      linked: Bool,
+                                                                                      actionCreated: Bool) {
       if let recaptchaAction =
         NSClassFromString("RecaptchaEnterprise.RCAAction") as? RCAActionProtocol.Type {
         let action = recaptchaAction.init(customAction: actionString)
-        let token = try? await recaptchaClient!.execute(withAction: action)
+        let token = try? await recaptchaClient.execute(withAction: action)
         return (token ?? "NO_RECAPTCHA", nil, true, true)
       } else {
         // RecaptchaEnterprise not linked.
