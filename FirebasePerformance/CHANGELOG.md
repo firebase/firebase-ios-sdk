@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed an issue where Installations was sometimes invoked off the main queue (#13961).
+
 # 11.6.0
 - [fixed] Fix a crash related to registering for notifications when the app is between foreground or background states. (#13174)
 
