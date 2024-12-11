@@ -29,51 +29,42 @@ struct LoginView: View {
   }
 
   var body: some View {
-    Group {
-      VStack {
-        Group {
-          HStack {
-            VStack {
-              Text("Email/Password Auth")
-                .font(.title)
-                .bold()
-            }
-            Spacer()
-          }
-          HStack {
-            Text(
-              "Login or create an account using the Email/Password auth " +
-                "provider.\n\nEnsure that the Email/Password provider is " +
-                "enabled on the Firebase console for the given project."
-            )
-            .fixedSize(horizontal: false, vertical: true)
-            Spacer()
-          }
-        }
-        .padding(.vertical)
-
-        Spacer()
-        TextField("Email", text: $email)
-          .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
-        TextField("Password", text: $password)
-          .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
-        Spacer()
-        Group {
-          LoginViewButton(
-            text: "Login",
-            accentColor: .white,
-            backgroundColor: .orange,
-            action: login
+    VStack {
+      Group {
+        HStack {
+          Text(
+            "Login or create an account using the Email/Password auth " +
+              "provider.\n\nEnsure that the Email/Password provider is " +
+              "enabled on the Firebase console for the given project."
           )
-          LoginViewButton(
-            text: "Create Account",
-            accentColor: .orange,
-            backgroundColor: .primary,
-            action: createUser
-          )
+          .fixedSize(horizontal: false, vertical: true)
+          Spacer()
         }
-        .disabled(email.isEmpty || password.isEmpty)
       }
+      .padding(.bottom)
+
+      TextField("Email", text: $email)
+        .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
+      TextField("Password", text: $password)
+        .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
+        .padding(.bottom)
+
+      Group {
+        LoginViewButton(
+          text: "Login",
+          accentColor: .white,
+          backgroundColor: .orange,
+          action: login
+        )
+        LoginViewButton(
+          text: "Create Account",
+          accentColor: .orange,
+          backgroundColor: .primary,
+          action: createUser
+        )
+      }
+      .disabled(email.isEmpty || password.isEmpty)
+
       Spacer()
     }
     .padding()
@@ -85,6 +76,10 @@ struct LoginView: View {
         _ = try await AppManager.shared
           .auth()
           .signIn(withEmail: email, password: password)
+        await MainActor.run {
+          dismiss()
+          delegate?.loginDidOccur(resolver: nil)
+        }
         // TODO(ncooke3): Investigate possible improvements.
 //      } catch let error as AuthErrorCode
 //        where error.code == .secondFactorRequired {
