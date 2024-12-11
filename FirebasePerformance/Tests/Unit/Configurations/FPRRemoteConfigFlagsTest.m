@@ -22,6 +22,8 @@
 
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
 
+@import FirebaseRemoteConfig;
+
 static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
 @interface FPRRemoteConfigFlagsTest : XCTestCase

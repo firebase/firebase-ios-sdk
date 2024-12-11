@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+@import FirebaseRemoteConfig;
 
 @import FirebaseRemoteConfig;
 
@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @brief Different configurations values that needs to be stored and returned. */
 @property(nonatomic) NSMutableDictionary<NSString *, FIRRemoteConfigValue *> *configValues;
+
+- (instancetype)init;
 
 /**
  * Fake fetch call for fetching configs. Calling this method will just call the completionHandler.

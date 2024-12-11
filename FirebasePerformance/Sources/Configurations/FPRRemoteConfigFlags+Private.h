@@ -14,7 +14,7 @@
 
 #import "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags.h"
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
+@import FirebaseRemoteConfig;
 
 NS_ASSUME_NONNULL_BEGIN
 
