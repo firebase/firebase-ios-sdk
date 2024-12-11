@@ -65,7 +65,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
                                 forKey:@"fpr_vc_session_sampling_rate"];
 
   // Trigger the RC config fetch
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   remoteConfig.lastFetchTime = nil;
   configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   [configFlags update];
@@ -92,7 +92,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
                                 forKey:@"fpr_vc_session_sampling_rate"];
 
   // Retrigger the RC config fetch
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   remoteConfig.lastFetchTime = nil;
   [configFlags update];
 
@@ -112,7 +112,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   [configFlags update];
   XCTAssertNotNil(configFlags.lastFetchedTime);
@@ -179,7 +179,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   [configFlags update];
   XCTAssertNotNil(configFlags.lastFetchedTime);
@@ -203,7 +203,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
   FPRRemoteConfigFlags *configFlags =
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
 
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   configFlags.appStartConfigFetchDelayInSeconds = 0.0;
   [configFlags update];
   XCTAssertNotNil(configFlags.lastFetchedTime);
@@ -224,7 +224,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
   // Setting the status to success. Calling update on the config flags should trigger updation of
   // fetch time. Fetch would trigger activation.
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   NSDate *lastActivatedTime = configFlags.lastFetchedTime;
   [configFlags update];
   XCTAssert([configFlags.lastFetchedTime timeIntervalSinceDate:lastActivatedTime] == 0);
@@ -240,7 +240,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
       [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
   configFlags.appStartConfigFetchDelayInSeconds = 0.0;
 
-  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchAndActivateStatusSuccessUsingPreFetchedData;
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Dummy expectation to wait for the fetch delay."];
   dispatch_after(

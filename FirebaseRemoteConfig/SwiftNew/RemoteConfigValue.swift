@@ -20,10 +20,10 @@ public class RemoteConfigValue: NSObject, NSCopying {
   /// Data backing the config value.
   @objc public let dataValue: Data
 
-  /// Identifies the source of the fetched value.
+  /// Identifies the source of the fetched value. Only for Firebase internal use.
   @objc public let source: RemoteConfigSource
 
-  /// Designated initializer
+  /// Designated initializer. Only for Firebase internal use.
   @objc public init(data: Data, source: RemoteConfigSource) {
     dataValue = data
     self.source = source

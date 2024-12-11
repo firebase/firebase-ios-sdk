@@ -15,7 +15,8 @@
 #import <Foundation/Foundation.h>
 
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+
+@import FirebaseRemoteConfig;
 
 NS_ASSUME_NONNULL_BEGIN
 

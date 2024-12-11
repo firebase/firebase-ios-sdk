@@ -85,8 +85,8 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     _ = FirebaseRemoteConfig.RemoteConfigUpdateError.messageInvalid
     _ = FirebaseRemoteConfig.RemoteConfigUpdateError.unavailable
 
-    // TODO(ncooke3): This should probably not be initializable.
-    let value = FirebaseRemoteConfig.RemoteConfigValue()
+    // This is only initializable for internal clients - fire-perf.
+    let value = FirebaseRemoteConfig.RemoteConfigValue(data: Data(), source: .default)
     let _: String? = value.stringValue
     // TODO(ncooke3): Returns an Objective-C reference type.
     let _: NSNumber = value.numberValue
