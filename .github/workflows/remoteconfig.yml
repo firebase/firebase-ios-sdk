@@ -66,11 +66,11 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.3
             # TODO(#13078): Fix testing infra to enforce warnings again.
-            tests: --allow-warnings
+            tests: --allow-warnings --skip-tests
           # Flaky tests on CI
           - os: macos-15
             xcode: Xcode_16.1
-            tests: --skip-tests
+            tests: --allow-warnings
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -174,6 +174,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
     - name: Setup project and Build for Catalyst
       run: scripts/test_catalyst.sh FirebaseRemoteConfig test FirebaseRemoteConfig-Unit-unit
 
