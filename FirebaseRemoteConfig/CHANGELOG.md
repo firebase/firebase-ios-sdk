@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Mark ConfigUpdateListenerRegistration Sendable. (#14215)
+
 # 11.5.0
 - [fixed] Mark two internal properties as `atomic` to prevent concurrency
   related crash. (#13898)
