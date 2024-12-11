@@ -21,19 +21,59 @@ import Foundation
   case fetched
 }
 
+/// The AtomicConfig class for the config variables enables atomic accesses to support multiple
+/// namespace usage of RemoteConfig.
+private class AtomicConfig {
+  private var value: [String: [String: RemoteConfigValue]]
+  private let lock = NSLock()
+
+  init(_ value: [String: [String: RemoteConfigValue]]) {
+    self.value = value
+  }
+
+  var wrappedValue: [String: [String: RemoteConfigValue]] {
+    get { return load() }
+    set { store(newValue: newValue) }
+  }
+
+  func load() -> [String: [String: RemoteConfigValue]] {
+    lock.lock()
+    defer { lock.unlock() }
+    return value
+  }
+
+  func store(newValue: [String: [String: RemoteConfigValue]]) {
+    lock.lock()
+    defer { lock.unlock() }
+    value = newValue
+  }
+
+  func update(namespace: String, newValue: [String: RemoteConfigValue]) {
+    lock.lock()
+    defer { lock.unlock() }
+    value[namespace] = newValue
+  }
+
+  func update(namespace: String, key: String, rcValue: RemoteConfigValue) {
+    lock.lock()
+    defer { lock.unlock() }
+    value[namespace]?[key] = rcValue
+  }
+}
+
 /// This class handles all the config content that is fetched from the server, cached in local
 /// config or persisted in database.
 @objc(RCNConfigContent) public
 class ConfigContent: NSObject {
   /// Active config data that is currently used.
-  private var _activeConfig: [String: [String: RemoteConfigValue]] = [:]
+  private var _activeConfig = AtomicConfig([:])
 
   /// Pending config (aka Fetched config) data that is latest data from server that might or might
   /// not be applied.
-  private var _fetchedConfig: [String: [String: RemoteConfigValue]] = [:]
+  private var _fetchedConfig = AtomicConfig([:])
 
   /// Default config provided by user.
-  private var _defaultConfig: [String: [String: RemoteConfigValue]] = [:]
+  private var _defaultConfig = AtomicConfig([:])
 
   /// Active Personalization metadata that is currently used.
   private var _activePersonalization: [String: Any] = [:]
@@ -126,9 +166,9 @@ class ConfigContent: NSObject {
     dbManager.loadMain(withBundleIdentifier: bundleIdentifier) { [weak self] success,
       fetched, active, defaults, rolloutMetadata in
       guard let self = self else { return }
-      self._fetchedConfig = fetched
-      self._activeConfig = active
-      self._defaultConfig = defaults
+      self._fetchedConfig.store(newValue: fetched)
+      self._activeConfig.store(newValue: active)
+      self._defaultConfig.store(newValue: defaults)
       self
         ._fetchedRolloutMetadata =
         rolloutMetadata[ConfigConstants.rolloutTableKeyFetchedMetadata] as? [[String: Any]] ?? []
@@ -173,14 +213,14 @@ class ConfigContent: NSObject {
 
     switch dbSource {
     case .default:
-      toDictionary = _defaultConfig
+      toDictionary = defaultConfig()
       source = .default
     case .fetched:
       RCLog.warning("I-RCN000008",
                     "This shouldn't happen. Destination dictionary should never be pending type.")
       return
     case .active:
-      toDictionary = _activeConfig
+      toDictionary = activeConfig()
       source = .remote
       toDictionary.removeValue(forKey: firebaseNamespace)
     }
@@ -241,9 +281,9 @@ class ConfigContent: NSObject {
     }
 
     if dbSource == .default {
-      _defaultConfig = toDictionary
+      _defaultConfig.store(newValue: toDictionary)
     } else {
-      _activeConfig = toDictionary
+      _activeConfig.store(newValue: toDictionary)
     }
   }
 
@@ -307,19 +347,15 @@ class ConfigContent: NSObject {
   // MARK: - State Handling
 
   func handleNoChangeState(forConfigNamespace firebaseNamespace: String) {
-    if _fetchedConfig[firebaseNamespace] == nil {
-      _fetchedConfig[firebaseNamespace] = [:]
+    if fetchedConfig()[firebaseNamespace] == nil {
+      _fetchedConfig.update(namespace: firebaseNamespace, newValue: [:])
     }
   }
 
   func handleEmptyConfigState(forConfigNamespace firebaseNamespace: String) {
-    if let _ = _fetchedConfig[firebaseNamespace] {
-      _fetchedConfig[firebaseNamespace]?.removeAll()
-    } else {
-      // If namespace has empty status and it doesn't exist in _fetchedConfig, we will
-      // still add an entry for that namespace. Even if it will not be persisted in database.
-      _fetchedConfig[firebaseNamespace] = [:]
-    }
+    // If namespace has empty status and it doesn't exist in _fetchedConfig, we will
+    // still add an entry for that namespace. Even if it will not be persisted in database.
+    _fetchedConfig.update(namespace: firebaseNamespace, newValue: [:])
     dbManager?.deleteRecord(fromMainTableWithNamespace: firebaseNamespace,
                             bundleIdentifier: bundleIdentifier,
                             fromSource: .fetched)
@@ -327,7 +363,7 @@ class ConfigContent: NSObject {
 
   func handleNoTemplateState(forConfigNamespace firebaseNamespace: String) {
     // Remove the namespace.
-    _fetchedConfig.removeValue(forKey: firebaseNamespace)
+    _fetchedConfig.update(namespace: firebaseNamespace, newValue: [:])
     dbManager?.deleteRecord(fromMainTableWithNamespace: firebaseNamespace,
                             bundleIdentifier: bundleIdentifier,
                             fromSource: .fetched)
@@ -341,17 +377,14 @@ class ConfigContent: NSObject {
     dbManager?.deleteRecord(fromMainTableWithNamespace: firebaseNamespace,
                             bundleIdentifier: bundleIdentifier,
                             fromSource: .fetched)
-    if _fetchedConfig[firebaseNamespace] != nil {
-      _fetchedConfig[firebaseNamespace]?.removeAll()
-    } else {
-      _fetchedConfig[firebaseNamespace] = [:]
-    }
+    _fetchedConfig.update(namespace: firebaseNamespace, newValue: [:])
 
     // Store the fetched config values.
     for (key, value) in entries {
       guard let valueData = value.data(using: .utf8) else { continue }
-      _fetchedConfig[firebaseNamespace]?[key] = RemoteConfigValue(data: valueData,
-                                                                  source: .remote)
+      _fetchedConfig
+        .update(namespace: firebaseNamespace, key: key,
+                rcValue: RemoteConfigValue(data: valueData, source: .remote))
       let values: [Any] = [bundleIdentifier, firebaseNamespace, key, valueData]
       updateMainTable(withValues: values, fromSource: .fetched)
     }
@@ -377,23 +410,23 @@ class ConfigContent: NSObject {
     /// If this is the first time reading the fetchedConfig, we might still be reading it from the
     /// database.
     checkAndWaitForInitialDatabaseLoad()
-    return _fetchedConfig
+    return _fetchedConfig.wrappedValue
   }
 
   @objc public
-  func activeConfig() -> [String: Any] {
+  func activeConfig() -> [String: [String: RemoteConfigValue]] {
     /// If this is the first time reading the activeConfig, we might still be reading it from the
     /// database.
     checkAndWaitForInitialDatabaseLoad()
-    return _activeConfig
+    return _activeConfig.wrappedValue
   }
 
   @objc public
-  func defaultConfig() -> [String: Any] {
+  func defaultConfig() -> [String: [String: RemoteConfigValue]] {
     /// If this is the first time reading the defaultConfig, we might still be reading it from the
     /// database.
     checkAndWaitForInitialDatabaseLoad()
-    return _defaultConfig
+    return _defaultConfig.wrappedValue
   }
 
   @objc public
@@ -420,7 +453,7 @@ class ConfigContent: NSObject {
     // database.
     checkAndWaitForInitialDatabaseLoad()
     return [
-      ConfigConstants.fetchResponseKeyEntries: _activeConfig[firebaseNamespace] as Any,
+      ConfigConstants.fetchResponseKeyEntries: activeConfig()[firebaseNamespace] as Any,
       ConfigConstants.fetchResponseKeyPersonalizationMetadata: activePersonalization,
     ]
   }
@@ -431,8 +464,8 @@ class ConfigContent: NSObject {
     // TODO: handle diff in experiment metadata.
     var updatedKeys = Set<String>()
 
-    let fetchedConfig = _fetchedConfig[firebaseNamespace] ?? [:]
-    let activeConfig = _activeConfig[firebaseNamespace] ?? [:]
+    let fetchedConfig = fetchedConfig()[firebaseNamespace] ?? [:]
+    let activeConfig = activeConfig()[firebaseNamespace] ?? [:]
     let fetchedP13n = _fetchedPersonalization
     let activeP13n = _activePersonalization
     let fetchedRolloutMetadata = _fetchedRolloutMetadata
