@@ -150,8 +150,18 @@ class BasePath {
            std::equal(begin(), end(), potential_child.begin());
   }
 
+  /**
+   * Compares the current path against another Path object. Paths are compared
+   * segment by segment, prioritizing numeric IDs (e.g., "__id123__") in numeric
+   * ascending order, followed by string segments in lexicographical order.
+   */
   util::ComparisonResult CompareTo(const T& rhs) const {
-    return util::CompareContainer(segments_, rhs.segments_);
+    size_t min_size = std::min(size(), rhs.size());
+    for (size_t i = 0; i < min_size; ++i) {
+      auto cmp = compareSegments(segments_[i], rhs.segments_[i]);
+      if (!util::Same(cmp)) return cmp;
+    }
+    return util::Compare(size(), rhs.size());
   }
 
   friend bool operator==(const BasePath& lhs, const BasePath& rhs) {
@@ -174,6 +184,31 @@ class BasePath {
 
  private:
   SegmentsT segments_;
+
+  static util::ComparisonResult compareSegments(const std::string& lhs,
+                                                const std::string& rhs) {
+    bool isLhsNumeric = isNumericId(lhs);
+    bool isRhsNumeric = isNumericId(rhs);
+
+    if (isLhsNumeric && !isRhsNumeric) {
+      return util::ComparisonResult::Ascending;
+    } else if (!isLhsNumeric && isRhsNumeric) {
+      return util::ComparisonResult::Descending;
+    } else if (isLhsNumeric && isRhsNumeric) {
+      return util::Compare(extractNumericId(lhs), extractNumericId(rhs));
+    } else {
+      return util::Compare(lhs, rhs);
+    }
+  }
+
+  static bool isNumericId(const std::string& segment) {
+    return segment.substr(0, 4) == "__id" &&
+           segment.substr(segment.size() - 2) == "__";
+  }
+
+  static long extractNumericId(const std::string& segment) {
+    return std::stol(segment.substr(4, segment.size() - 2));
+  }
 };
 
 }  // namespace impl
