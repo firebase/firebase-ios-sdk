@@ -28,48 +28,6 @@ struct LoginView: View {
     self.delegate = delegate
   }
 
-  var body: some View {
-    VStack {
-      Group {
-        HStack {
-          Text(
-            "Login or create an account using the Email/Password auth " +
-              "provider.\n\nEnsure that the Email/Password provider is " +
-              "enabled on the Firebase console for the given project."
-          )
-          .fixedSize(horizontal: false, vertical: true)
-          Spacer()
-        }
-      }
-      .padding(.bottom)
-
-      TextField("Email", text: $email)
-        .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
-      TextField("Password", text: $password)
-        .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
-        .padding(.bottom)
-
-      Group {
-        LoginViewButton(
-          text: "Login",
-          accentColor: .white,
-          backgroundColor: .orange,
-          action: login
-        )
-        LoginViewButton(
-          text: "Create Account",
-          accentColor: .orange,
-          backgroundColor: .primary,
-          action: createUser
-        )
-      }
-      .disabled(email.isEmpty || password.isEmpty)
-
-      Spacer()
-    }
-    .padding()
-  }
-
   private func login() {
     Task {
       do {
@@ -120,6 +78,45 @@ struct LoginView: View {
   }
 }
 
+extension LoginView {
+  var body: some View {
+    VStack(alignment: .leading) {
+      Text(
+        "Login or create an account using the Email/Password auth " +
+          "provider.\n\nEnsure that the Email/Password provider is " +
+          "enabled on the Firebase console for the given project."
+      )
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.bottom)
+
+      TextField("Email", text: $email)
+        .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
+
+      TextField("Password", text: $password)
+        .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
+        .padding(.bottom)
+
+      Group {
+        Button(action: login) {
+          Text("Login")
+            .bold()
+        }
+        .buttonStyle(CustomButtonStyle(backgroundColor: .orange, foregroundColor: .white))
+
+        Button(action: createUser) {
+          Text("Create Account")
+            .bold()
+        }
+        .buttonStyle(CustomButtonStyle(backgroundColor: .primary, foregroundColor: .orange))
+      }
+      .disabled(email.isEmpty || password.isEmpty)
+
+      Spacer()
+    }
+    .padding()
+  }
+}
+
 private struct SymbolTextField: TextFieldStyle {
   let symbolName: String
 
@@ -138,26 +135,19 @@ private struct SymbolTextField: TextFieldStyle {
   }
 }
 
-// TODO(ncooke3): Use view modifiers?
-private struct LoginViewButton: View {
-  let text: String
-  let accentColor: Color
+private struct CustomButtonStyle: ButtonStyle {
   let backgroundColor: Color
-  let action: () -> Void
-
-  var body: some View {
-    Button(action: action) {
-      HStack {
-        Spacer()
-        Text(text)
-          .bold()
-          .accentColor(accentColor)
-        Spacer()
-      }
-      .padding()
-      .background(backgroundColor)
-      .cornerRadius(14)
+  let foregroundColor: Color
+  func makeBody(configuration: Configuration) -> some View {
+    HStack {
+      Spacer()
+      configuration.label
+      Spacer()
     }
+    .padding()
+    .background(backgroundColor, in: RoundedRectangle(cornerRadius: 14))
+    .foregroundStyle(foregroundColor)
+    .opacity(configuration.isPressed ? 0.5 : 1) // is disabled?
   }
 }
 
