@@ -101,10 +101,10 @@ extension LoginView {
       .padding(.bottom)
 
       TextField("Email", text: $email)
-        .textFieldStyle(SymbolTextField(symbolName: "person.crop.circle"))
+        .textFieldStyle(SymbolTextFieldStyle(symbolName: "person.crop.circle"))
 
       TextField("Password", text: $password)
-        .textFieldStyle(SymbolTextField(symbolName: "lock.fill"))
+        .textFieldStyle(SymbolTextFieldStyle(symbolName: "lock.fill"))
         .padding(.bottom)
 
       Group {
@@ -136,7 +136,7 @@ extension LoginView {
   }
 }
 
-private struct SymbolTextField: TextFieldStyle {
+private struct SymbolTextFieldStyle: TextFieldStyle {
   let symbolName: String
 
   func _body(configuration: TextField<Self._Label>) -> some View {
