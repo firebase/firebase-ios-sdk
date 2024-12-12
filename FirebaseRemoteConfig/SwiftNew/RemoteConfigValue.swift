@@ -51,9 +51,6 @@ public class RemoteConfigValue: NSObject, NSCopying {
 
   /// Gets a foundation object (NSDictionary / NSArray) by parsing the value as JSON.
   @objc(JSONValue) public var jsonValue: Any? {
-    guard !dataValue.isEmpty else {
-      return nil
-    }
     do {
       let jsonObject = try JSONSerialization.jsonObject(with: dataValue, options: [])
       return jsonObject
