@@ -23,6 +23,8 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+@import FirebaseRemoteConfig;
+
 #define ONE_DAY_SECONDS 24 * 60 * 60
 
 static NSDate *FPRAppStartTime = nil;

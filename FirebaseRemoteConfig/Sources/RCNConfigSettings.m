@@ -19,7 +19,6 @@
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
