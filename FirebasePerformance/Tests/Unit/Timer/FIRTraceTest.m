@@ -32,7 +32,7 @@
 #import "FirebasePerformance/Tests/Unit/Configurations/FPRFakeRemoteConfig.h"
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+@import FirebaseRemoteConfig;
 
 #import <OCMock/OCMock.h>
 

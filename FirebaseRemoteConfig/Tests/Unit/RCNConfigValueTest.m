@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
+@import FirebaseRemoteConfig;
 
 @interface FIRRemoteConfigValueTest : XCTestCase
 @end

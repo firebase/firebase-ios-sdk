@@ -22,6 +22,7 @@
 @class RCNConfigContent;
 @class FIROptions;
 @class RCNConfigSettings;
+@class FIRRemoteConfigValue;
 @protocol FIRAnalyticsInterop;
 
 /// The Firebase Remote Config service default namespace, to be used if the API method does not
@@ -138,31 +139,6 @@ typedef void (^FIRRemoteConfigInitializationCompletion)(NSError *_Nullable initi
 typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
     FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
-
-#pragma mark - FIRRemoteConfigValue
-/// This class provides a wrapper for Remote Config parameter values, with methods to get parameter
-/// values as different data types.
-NS_SWIFT_NAME(RemoteConfigValue)
-@interface FIRRemoteConfigValue : NSObject <NSCopying>
-/// Gets the value as a string.
-@property(nonatomic, readonly, nonnull) NSString *stringValue;
-/// Gets the value as a number value.
-@property(nonatomic, readonly, nonnull) NSNumber *numberValue;
-/// Gets the value as a NSData object.
-@property(nonatomic, readonly, nonnull) NSData *dataValue;
-/// Gets the value as a boolean.
-@property(nonatomic, readonly) BOOL boolValue;
-/// Gets a foundation object (NSDictionary / NSArray) by parsing the value as JSON. This method uses
-/// NSJSONSerialization's JSONObjectWithData method with an options value of 0.
-@property(nonatomic, readonly, nullable) id JSONValue NS_SWIFT_NAME(jsonValue);
-/// Identifies the source of the fetched value.
-@property(nonatomic, readonly) FIRRemoteConfigSource source;
-
-/// TODO: internal API for temporary bridging
-/// Designated initializer.
-- (instancetype _Nonnull)initWithData:(nullable NSData *)data
-                               source:(FIRRemoteConfigSource)source NS_DESIGNATED_INITIALIZER;
-@end
 
 #pragma mark - FIRRemoteConfigSettings
 /// Firebase Remote Config settings.

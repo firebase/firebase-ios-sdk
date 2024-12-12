@@ -55,8 +55,6 @@ jobs:
       matrix:
         target: [ios, tvos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.1
     runs-on: ${{ matrix.build-env.os }}
