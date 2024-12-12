@@ -15,6 +15,8 @@
 import FirebaseCore
 import Foundation
 
+// TODO: Some objc's and public's should be removed.
+
 @objc(FIRRemoteConfigValue)
 public class RemoteConfigValue: NSObject, NSCopying {
   /// Data backing the config value.
@@ -24,8 +26,8 @@ public class RemoteConfigValue: NSObject, NSCopying {
   @objc public let source: RemoteConfigSource
 
   /// Designated initializer. Only for Firebase internal use.
-  @objc public init(data: Data, source: RemoteConfigSource) {
-    dataValue = data
+  @objc public init(data: Data?, source: RemoteConfigSource) {
+    dataValue = data ?? Data()
     self.source = source
   }
 

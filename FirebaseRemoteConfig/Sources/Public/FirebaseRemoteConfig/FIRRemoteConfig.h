@@ -354,18 +354,5 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                    userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
-/// Firebase INTERNAL use only!
-/// Returns the FIRRemoteConfig instance for your namespace and for the default 3P developer's app.
-/// This singleton object contains the complete set of Remote Config parameter values available to
-/// the app, including the Active Config and Default Config. This object also caches values fetched
-/// from the Remote Config Server until they are copied to the Active Config by calling
-/// activateFetched. When you fetch values from the Remote Config Server using the default Firebase
-/// namespace service, you should use this class method to create a shared instance of the
-/// FIRRemoteConfig object to ensure that your app will function properly with the Remote Config
-/// Server and the Firebase service.
-+ (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
-                                              app:(FIRApp *)app
-    NS_SWIFT_NAME(remoteConfig(FIRNamespace:app:));
-
 @end
 NS_ASSUME_NONNULL_END

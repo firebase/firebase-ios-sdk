@@ -18,6 +18,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRRemoteConfig ()
++ (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
+                                              app:(FIRApp *)app;
+@end
+
+@interface FIRRemoteConfigValue ()
+@property(nonatomic, readwrite, assign) FIRRemoteConfigSource source;
+
+/// Designated initializer.
+- (instancetype)initWithData:(nullable NSData *)data
+                      source:(FIRRemoteConfigSource)source NS_DESIGNATED_INITIALIZER;
+@end
+
 @class GULUserDefaults;
 
 static NSString *const kFPRConfigPrefix = @"com.fireperf";
