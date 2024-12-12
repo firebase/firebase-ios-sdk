@@ -22,6 +22,10 @@ struct LoginView: View {
   @State private var email: String = ""
   @State private var password: String = ""
 
+  // Properties for displaying error alerts.
+  @State private var showingAlert: Bool = false
+  @State private var error: Error?
+
   private weak var delegate: (any LoginDelegate)?
 
   init(delegate: (any LoginDelegate)? = nil) {
@@ -44,16 +48,22 @@ struct LoginView: View {
 //        // error as? AuthErrorCode == nil because AuthErrorUtils returns generic
 //        /Errors
 //        // https://firebase.google.com/docs/auth/ios/totp-mfa#sign_in_users_with_a_second_factor
-      } catch let error as NSError
-        where error.code == AuthErrorCode.secondFactorRequired.rawValue {
-        let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
-        guard let resolver = error.userInfo[mfaKey] as? MultiFactorResolver else { throw error }
-        await MainActor.run {
-          dismiss()
-          delegate?.loginDidOccur(resolver: resolver)
-        }
       } catch {
+        let error = error as NSError
+        if error.code == AuthErrorCode.secondFactorRequired.rawValue {
+          let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
+          if let resolver = error.userInfo[mfaKey] as? MultiFactorResolver {
+            // Multi-factor auth is required is to complete sign-in.
+            await MainActor.run {
+              dismiss()
+              delegate?.loginDidOccur(resolver: resolver)
+            }
+          }
+        }
+
         print(error.localizedDescription)
+        self.error = error
+        self.showingAlert.toggle()
       }
     }
   }
@@ -71,8 +81,9 @@ struct LoginView: View {
           delegate?.loginDidOccur(resolver: nil)
         }
       } catch {
-        // TODO(ncooke3): Implement error display.
         print(error.localizedDescription)
+        self.error = error
+        self.showingAlert.toggle()
       }
     }
   }
@@ -114,6 +125,14 @@ extension LoginView {
       Spacer()
     }
     .padding()
+    .alert("Something went wrong.", isPresented: $showingAlert) {
+      if let error {
+        Text("Error: " + error.localizedDescription)
+      }
+      Button("OK", role: .cancel) {
+        showingAlert.toggle()
+      }
+    }
   }
 }
 
@@ -147,7 +166,7 @@ private struct CustomButtonStyle: ButtonStyle {
     .padding()
     .background(backgroundColor, in: RoundedRectangle(cornerRadius: 14))
     .foregroundStyle(foregroundColor)
-    .opacity(configuration.isPressed ? 0.5 : 1) // is disabled?
+    .opacity(configuration.isPressed ? 0.5 : 1)
   }
 }
 
