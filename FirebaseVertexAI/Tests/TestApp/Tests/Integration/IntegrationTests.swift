@@ -268,10 +268,6 @@ final class IntegrationTests: XCTestCase {
     let image = try XCTUnwrap(response.images.first)
     XCTAssertEqual(image.mimeType, "image/jpeg")
     XCTAssertGreaterThan(image.data.count, 0)
-    let imagenImage = image.imagenImage
-    XCTAssertEqual(imagenImage.mimeType, image.mimeType)
-    XCTAssertEqual(imagenImage.bytesBase64Encoded, image.data.base64EncodedString())
-    XCTAssertNil(imagenImage.gcsURI)
     #if canImport(UIKit)
       let uiImage = try XCTUnwrap(UIImage(data: image.data))
       XCTAssertEqual(uiImage.size.width, 1408.0)

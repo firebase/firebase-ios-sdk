@@ -35,9 +35,9 @@ final class ImagenFileDataImageTests: XCTestCase {
 
     XCTAssertEqual(image.mimeType, mimeType)
     XCTAssertEqual(image.gcsURI, gcsURI)
-    XCTAssertEqual(image.imagenImage.mimeType, mimeType)
-    XCTAssertEqual(image.imagenImage.gcsURI, gcsURI)
-    XCTAssertNil(image.imagenImage.bytesBase64Encoded)
+    XCTAssertEqual(image._imagenImage.mimeType, mimeType)
+    XCTAssertEqual(image._imagenImage.gcsURI, gcsURI)
+    XCTAssertNil(image._imagenImage.bytesBase64Encoded)
   }
 
   func testDecodeImage_missingGCSURI_throws() throws {
