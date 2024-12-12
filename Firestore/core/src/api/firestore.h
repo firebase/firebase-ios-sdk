@@ -29,6 +29,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/byte_stream.h"
 #include "Firestore/core/src/util/status_fwd.h"
+#include "Firestore/core/swift/include/pipeline_source.h"
 
 namespace firebase {
 namespace firestore {
@@ -124,6 +125,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
    * "gl-<language>/<version>" where version might be blank, e.g. `gl-objc/`.
    */
   static void SetClientLanguage(std::string language_token);
+
+  PipelineSource pipeline();
 
  private:
   void EnsureClientConfigured();
