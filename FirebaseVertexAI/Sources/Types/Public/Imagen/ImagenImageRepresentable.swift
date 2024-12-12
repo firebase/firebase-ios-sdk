@@ -16,12 +16,5 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol ImagenImageRepresentable {
-  var imagenImage: any ImagenImage { get }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension ImagenImage {
-  var imagenImage: any ImagenImage {
-    return self
-  }
+  var _imagenImage: _ImagenImage { get }
 }

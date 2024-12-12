@@ -31,8 +31,8 @@ public struct ImagenInlineDataImage {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenInlineDataImage: ImagenImageRepresentable {
-  public var imagenImage: any ImagenImage {
-    InternalImagenImage(
+  public var _imagenImage: _ImagenImage {
+    _ImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: data.base64EncodedString(),
       gcsURI: nil

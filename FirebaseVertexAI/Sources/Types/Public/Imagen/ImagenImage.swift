@@ -15,8 +15,8 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol ImagenImage: ImagenImageRepresentable {
-  var mimeType: String { get }
-  var bytesBase64Encoded: String? { get }
-  var gcsURI: String? { get }
+public struct _ImagenImage {
+  let mimeType: String
+  let bytesBase64Encoded: String?
+  let gcsURI: String?
 }
