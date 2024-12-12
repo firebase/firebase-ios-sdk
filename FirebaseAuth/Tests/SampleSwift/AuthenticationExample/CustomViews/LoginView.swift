@@ -125,9 +125,9 @@ extension LoginView {
       Spacer()
     }
     .padding()
-    .alert("Something went wrong.", isPresented: $showingAlert) {
+    .alert("Error", isPresented: $showingAlert) {
       if let error {
-        Text("Error: " + error.localizedDescription)
+        Text(error.localizedDescription)
       }
       Button("OK", role: .cancel) {
         showingAlert.toggle()
