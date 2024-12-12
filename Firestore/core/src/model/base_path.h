@@ -206,7 +206,7 @@ class BasePath {
            segment.substr(segment.size() - 2) == "__";
   }
 
-  static long extractNumericId(const std::string& segment) {
+  static int64_t extractNumericId(const std::string& segment) {
     return std::stol(segment.substr(4, segment.size() - 2));
   }
 };
