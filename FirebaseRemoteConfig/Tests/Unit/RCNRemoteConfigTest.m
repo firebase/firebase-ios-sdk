@@ -49,8 +49,9 @@
                                completionHandler:(FIRAInteropUserPropertiesCallback)block;
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                         fetchTypeHeader:(NSString *)fetchTypeHeader
-                                      completionHandler:
-                                          (RCNConfigFetcherCompletion)fetcherCompletion;
+                                      completionHandler:(void (^)(NSData *data,
+                                                                  NSURLResponse *response,
+                                                                  NSError *error))fetcherCompletion;
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber

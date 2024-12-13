@@ -32,8 +32,9 @@
 @interface RCNConfigFetch (ForTest)
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                         fetchTypeHeader:(NSString *)fetchTypeHeader
-                                      completionHandler:
-                                          (RCNConfigFetcherCompletion)fetcherCompletion;
+                                      completionHandler:(void (^)(NSData *data,
+                                                                  NSURLResponse *response,
+                                                                  NSError *error))fetcherCompletion;
 
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
