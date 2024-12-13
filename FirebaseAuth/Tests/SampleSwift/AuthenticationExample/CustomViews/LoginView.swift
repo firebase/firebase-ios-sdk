@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,162 +12,164 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
+import SwiftUI
 
-/// Login View presented when performing Email & Password Login Flow
-class LoginView: UIView {
-  var emailTextField: UITextField! {
-    didSet {
-      emailTextField.textContentType = .emailAddress
+import FirebaseAuth
+
+struct LoginView: View {
+  @Environment(\.dismiss) private var dismiss
+
+  @State private var email: String = ""
+  @State private var password: String = ""
+
+  // Properties for displaying error alerts.
+  @State private var showingAlert: Bool = false
+  @State private var error: Error?
+
+  private weak var delegate: (any LoginDelegate)?
+
+  init(delegate: (any LoginDelegate)? = nil) {
+    self.delegate = delegate
+  }
+
+  private func login() {
+    Task {
+      do {
+        _ = try await AppManager.shared
+          .auth()
+          .signIn(withEmail: email, password: password)
+        await MainActor.run {
+          dismiss()
+          delegate?.loginDidOccur(resolver: nil)
+        }
+        // TODO(ncooke3): Investigate possible improvements.
+//      } catch let error as AuthErrorCode
+//        where error.code == .secondFactorRequired {
+//        // error as? AuthErrorCode == nil because AuthErrorUtils returns generic
+//        /Errors
+//        // https://firebase.google.com/docs/auth/ios/totp-mfa#sign_in_users_with_a_second_factor
+      } catch {
+        let error = error as NSError
+        if error.code == AuthErrorCode.secondFactorRequired.rawValue {
+          let mfaKey = AuthErrorUserInfoMultiFactorResolverKey
+          if let resolver = error.userInfo[mfaKey] as? MultiFactorResolver {
+            // Multi-factor auth is required is to complete sign-in.
+            await MainActor.run {
+              dismiss()
+              delegate?.loginDidOccur(resolver: resolver)
+            }
+          }
+        }
+
+        print(error.localizedDescription)
+        self.error = error
+        self.showingAlert.toggle()
+      }
     }
   }
 
-  var passwordTextField: UITextField! {
-    didSet {
-      passwordTextField.textContentType = .password
+  private func createUser() {
+    Task {
+      do {
+        _ = try await AppManager.shared.auth().createUser(
+          withEmail: email,
+          password: password
+        )
+        // Sign-in was successful.
+        await MainActor.run {
+          dismiss()
+          delegate?.loginDidOccur(resolver: nil)
+        }
+      } catch {
+        print(error.localizedDescription)
+        self.error = error
+        self.showingAlert.toggle()
+      }
     }
   }
+}
 
-  var emailTopConstraint: NSLayoutConstraint!
-  var passwordTopConstraint: NSLayoutConstraint!
-
-  lazy var loginButton: UIButton = {
-    let button = UIButton()
-    button.setTitle("Login", for: .normal)
-    button.setTitleColor(.white, for: .normal)
-    button.setTitleColor(.highlightedLabel, for: .highlighted)
-    button.setBackgroundImage(UIColor.systemOrange.image, for: .normal)
-    button.setBackgroundImage(UIColor.systemOrange.highlighted.image, for: .highlighted)
-    button.clipsToBounds = true
-    button.layer.cornerRadius = 14
-    return button
-  }()
-
-  lazy var createAccountButton: UIButton = {
-    let button = UIButton()
-    button.setTitle("Create Account", for: .normal)
-    button.setTitleColor(.secondaryLabel, for: .normal)
-    button.setTitleColor(UIColor.secondaryLabel.highlighted, for: .highlighted)
-    return button
-  }()
-
-  convenience init() {
-    self.init(frame: .zero)
-    setupSubviews()
-  }
-
-  // MARK: - Subviews Setup
-
-  private func setupSubviews() {
-    backgroundColor = .systemBackground
-    clipsToBounds = true
-
-    setupFirebaseLogoImage()
-    setupEmailTextfield()
-    setupPasswordTextField()
-    setupLoginButton()
-    setupCreateAccountButton()
-  }
-
-  private func setupFirebaseLogoImage() {
-    let firebaseLogo = UIImage(named: "firebaseLogo")
-    let imageView = UIImageView(image: firebaseLogo)
-    imageView.contentMode = .scaleAspectFit
-    addSubview(imageView)
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -55),
-      imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 55),
-      imageView.widthAnchor.constraint(equalToConstant: 325),
-      imageView.heightAnchor.constraint(equalToConstant: 325),
-    ])
-  }
-
-  private func setupEmailTextfield() {
-    emailTextField = textField(placeholder: "Email", symbolName: "person.crop.circle")
-    emailTextField.translatesAutoresizingMaskIntoConstraints = false
-    addSubview(emailTextField)
-    NSLayoutConstraint.activate([
-      emailTextField.leadingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.leadingAnchor,
-        constant: 15
-      ),
-      emailTextField.trailingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.trailingAnchor,
-        constant: -15
-      ),
-      emailTextField.heightAnchor.constraint(equalToConstant: 45),
-    ])
-
-    let constant: CGFloat = UIDevice.current.orientation.isLandscape ? 15 : 50
-    emailTopConstraint = emailTextField.topAnchor.constraint(
-      equalTo: safeAreaLayoutGuide.topAnchor,
-      constant: constant
-    )
-    emailTopConstraint.isActive = true
-  }
-
-  private func setupPasswordTextField() {
-    passwordTextField = textField(placeholder: "Password", symbolName: "lock.fill")
-    passwordTextField.translatesAutoresizingMaskIntoConstraints = false
-    addSubview(passwordTextField)
-    NSLayoutConstraint.activate([
-      passwordTextField.leadingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.leadingAnchor,
-        constant: 15
-      ),
-      passwordTextField.trailingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.trailingAnchor,
-        constant: -15
-      ),
-      passwordTextField.heightAnchor.constraint(equalToConstant: 45),
-    ])
-
-    let constant: CGFloat = UIDevice.current.orientation.isLandscape ? 5 : 20
-    passwordTopConstraint =
-      passwordTextField.topAnchor.constraint(
-        equalTo: emailTextField.bottomAnchor,
-        constant: constant
+extension LoginView {
+  var body: some View {
+    VStack(alignment: .leading) {
+      Text(
+        "Login or create an account using the Email/Password auth " +
+          "provider.\n\nEnsure that the Email/Password provider is " +
+          "enabled on the Firebase console for the given project."
       )
-    passwordTopConstraint.isActive = true
-  }
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.bottom)
 
-  private func setupLoginButton() {
-    addSubview(loginButton)
-    loginButton.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      loginButton.leadingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.leadingAnchor,
-        constant: 15
-      ),
-      loginButton.trailingAnchor.constraint(
-        equalTo: safeAreaLayoutGuide.trailingAnchor,
-        constant: -15
-      ),
-      loginButton.heightAnchor.constraint(equalToConstant: 45),
-      loginButton.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 5),
-    ])
-  }
+      TextField("Email", text: $email)
+        .textFieldStyle(SymbolTextFieldStyle(symbolName: "person.crop.circle"))
 
-  private func setupCreateAccountButton() {
-    addSubview(createAccountButton)
-    createAccountButton.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      createAccountButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-      createAccountButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 5),
-    ])
-  }
+      TextField("Password", text: $password)
+        .textFieldStyle(SymbolTextFieldStyle(symbolName: "lock.fill"))
+        .padding(.bottom)
 
-  // MARK: - Private Helpers
+      Group {
+        Button(action: login) {
+          Text("Login")
+            .bold()
+        }
+        .buttonStyle(CustomButtonStyle(backgroundColor: .orange, foregroundColor: .white))
 
-  private func textField(placeholder: String, symbolName: String) -> UITextField {
-    let textfield = UITextField()
-    textfield.backgroundColor = .secondarySystemBackground
-    textfield.layer.cornerRadius = 14
-    textfield.placeholder = placeholder
-    textfield.tintColor = .systemOrange
-    let symbol = UIImage(systemName: symbolName)
-    textfield.setImage(symbol)
-    return textfield
+        Button(action: createUser) {
+          Text("Create Account")
+            .bold()
+        }
+        .buttonStyle(CustomButtonStyle(backgroundColor: .primary, foregroundColor: .orange))
+      }
+      .disabled(email.isEmpty || password.isEmpty)
+
+      Spacer()
+    }
+    .padding()
+    .alert("Error", isPresented: $showingAlert) {
+      if let error {
+        Text(error.localizedDescription)
+      }
+      Button("OK", role: .cancel) {
+        showingAlert.toggle()
+      }
+    }
   }
+}
+
+private struct SymbolTextFieldStyle: TextFieldStyle {
+  let symbolName: String
+
+  func _body(configuration: TextField<Self._Label>) -> some View {
+    HStack {
+      Image(systemName: symbolName)
+        .foregroundColor(.orange)
+        .imageScale(.large)
+        .padding(.leading)
+      configuration
+        .padding([.vertical, .trailing])
+    }
+    .background(Color(uiColor: .secondarySystemBackground))
+    .cornerRadius(14)
+    .textInputAutocapitalization(.never)
+  }
+}
+
+private struct CustomButtonStyle: ButtonStyle {
+  let backgroundColor: Color
+  let foregroundColor: Color
+  func makeBody(configuration: Configuration) -> some View {
+    HStack {
+      Spacer()
+      configuration.label
+      Spacer()
+    }
+    .padding()
+    .background(backgroundColor, in: RoundedRectangle(cornerRadius: 14))
+    .foregroundStyle(foregroundColor)
+    .opacity(configuration.isPressed ? 0.5 : 1)
+  }
+}
+
+#Preview {
+  LoginView()
 }
