@@ -20,10 +20,14 @@
 @interface RCNConfigFetch (ExposedForTest)
 - (void)refreshInstallationsTokenWithFetchHeader:(NSString *)fetchTypeHeader
                                completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-                         updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
+                         updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                                           FIRRemoteConfigUpdate *update,
+                                                           NSError *error))updateCompletionHandler;
 - (void)doFetchCall:(NSString *)fetchTypeHeader
           completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-    updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
+    updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                      FIRRemoteConfigUpdate *update,
+                                      NSError *error))updateCompletionHandler;
 @end
 
 @implementation FetchMocks

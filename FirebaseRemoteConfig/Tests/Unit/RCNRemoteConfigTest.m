@@ -55,11 +55,15 @@
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
-                                  completionHandler:(RCNConfigFetchCompletion)completionHandler;
+                                  completionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                                              FIRRemoteConfigUpdate *update,
+                                                              NSError *error))completionHandler;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-        updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
+        updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                          FIRRemoteConfigUpdate *update,
+                                          NSError *error))updateCompletionHandler;
 - (NSString *)constructServerURL;
 - (NSURLSession *)currentNetworkSession;
 @end
