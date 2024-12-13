@@ -27,9 +27,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Completion handler invoked by NSSessionFetcher.
-typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response, NSError *error);
-
 /// Completion handler invoked after a fetch that contains the updated keys
 typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
                                          FIRRemoteConfigUpdate *update,

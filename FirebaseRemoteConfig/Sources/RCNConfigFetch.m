@@ -423,8 +423,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000040", @"Start config fetch.");
   __weak RCNConfigFetch *weakSelf = self;
-  RCNConfigFetcherCompletion fetcherCompletion = ^(NSData *data, NSURLResponse *response,
-                                                   NSError *error) {
+  __auto_type fetcherCompletion = ^(NSData *data, NSURLResponse *response, NSError *error) {
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000050",
                 @"config fetch completed. Error: %@ StatusCode: %ld", (error ? error : @"nil"),
                 (long)[((NSHTTPURLResponse *)response) statusCode]);
@@ -651,7 +650,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
                                         fetchTypeHeader:(NSString *)fetchTypeHeader
                                       completionHandler:
-                                          (RCNConfigFetcherCompletion)fetcherCompletion {
+                                          (void (^)(NSData *data,
+                                                    NSURLResponse *response,
+                                                    NSError *error))fetcherCompletion {
   NSURL *URL = [NSURL URLWithString:[self constructServerURL]];
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000046", @"%@",
               [NSString stringWithFormat:@"Making config request: %@", [URL absoluteString]]);
