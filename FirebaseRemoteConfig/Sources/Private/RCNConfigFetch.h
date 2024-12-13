@@ -27,11 +27,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Completion handler invoked after a fetch that contains the updated keys
-typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
-                                         FIRRemoteConfigUpdate *update,
-                                         NSError *error);
-
 @interface RCNConfigFetch : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -58,7 +53,9 @@ typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
 /// @param fetchAttemptNumber The number of the fetch attempt.
 /// @param completionHandler   Callback handler.
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
-                                  completionHandler:(RCNConfigFetchCompletion)completionHandler;
+                                  completionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                                              FIRRemoteConfigUpdate *update,
+                                                              NSError *error))completionHandler;
 
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;

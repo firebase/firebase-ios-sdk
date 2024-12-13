@@ -199,7 +199,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 #pragma mark - Fetch helpers
 
 - (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
-                                  completionHandler:(RCNConfigFetchCompletion)completionHandler {
+                                  completionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                                              FIRRemoteConfigUpdate *update,
+                                                              NSError *error))completionHandler {
   // Note: We expect the googleAppID to always be available.
   BOOL hasDeviceContextChanged = [Device remoteConfigHasDeviceContextChanged:_settings.deviceContext
                                                            projectIdentifier:_options.googleAppID];
@@ -246,7 +248,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 /// requests to work.(b/14751422).
 - (void)refreshInstallationsTokenWithFetchHeader:(NSString *)fetchTypeHeader
                                completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-                         updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler {
+                         updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                                           FIRRemoteConfigUpdate *update,
+                                                           NSError *error))updateCompletionHandler {
   FIRInstallations *installations = [FIRInstallations
       installationsWithApp:[FIRApp appNamed:[self FIRAppNameFromFullyQualifiedNamespace]]];
   if (!installations || !_options.GCMSenderID) {
@@ -344,7 +348,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
 - (void)doFetchCall:(NSString *)fetchTypeHeader
           completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-    updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler {
+    updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                      FIRRemoteConfigUpdate *update,
+                                      NSError *error))updateCompletionHandler {
   [self getAnalyticsUserPropertiesWithCompletionHandler:^(NSDictionary *userProperties) {
     dispatch_async(self->_lockQueue, ^{
       [self fetchWithUserProperties:userProperties
@@ -380,7 +386,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                         withUpdate:(FIRRemoteConfigUpdate *)update
                          withError:(NSError *)error
                  completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-           updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler {
+           updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                             FIRRemoteConfigUpdate *update,
+                                             NSError *error))updateCompletionHandler {
   if (completionHandler) {
     dispatch_async(dispatch_get_main_queue(), ^{
       completionHandler(status, error);
@@ -397,7 +405,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 - (void)fetchWithUserProperties:(NSDictionary *)userProperties
                 fetchTypeHeader:(NSString *)fetchTypeHeader
               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-        updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler {
+        updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+                                          FIRRemoteConfigUpdate *update,
+                                          NSError *error))updateCompletionHandler {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000061", @"Fetch with user properties initiated.");
 
   NSString *postRequestString = [_settings nextRequestWithUserProperties:userProperties];
