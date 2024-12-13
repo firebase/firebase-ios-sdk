@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
 
   s.description      = <<-DESC
   Not for public use.
-  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseRemoetConfig in a safe
+  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseRemoteConfig in a safe
   and reliable manner.
                        DESC
 
