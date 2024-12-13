@@ -1405,6 +1405,7 @@ func firebaseFirestoreCppTarget() -> Target {
       "FirebaseAppCheckInterop",
       "FirebaseCore",
       "leveldb",
+      "FirebaseFirestoreInternalWrapper",
       .product(name: "nanopb", package: "nanopb"),
     ],
     path: "Firestore/core/swift",

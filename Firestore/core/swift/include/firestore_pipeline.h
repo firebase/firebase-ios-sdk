@@ -15,7 +15,7 @@ class Firestore;
 
 class FirestorePipeline {
  public:
-  PipelineSource pipeline(std::shared_ptr<Firestore> firestore);
+  static PipelineSource pipeline(std::shared_ptr<Firestore> firestore);
 };
 
 }  // namespace api
