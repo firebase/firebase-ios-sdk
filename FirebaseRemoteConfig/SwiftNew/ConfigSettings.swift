@@ -179,7 +179,6 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
       .currentRealtimeThrottlingRetryIntervalSeconds
     realtimeRetryCount = _userDefaultsManager.realtimeRetryCount
 
-    // Swift implementation specific.
     _lastFetchError = RemoteConfigError(.unknown)
     exponentialBackoffRetryInterval = 0
     _fetchTimeout = 0
@@ -588,6 +587,6 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   @objc public func shouldThrottle() -> Bool {
     let now = Date().timeIntervalSince1970
     return lastFetchTimeInterval > 0 && lastFetchStatus != .success &&
-      (exponentialBackoffThrottleEndTime ?? 0) - now > 0
+      exponentialBackoffThrottleEndTime - now > 0
   }
 }
