@@ -127,9 +127,8 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// service.
   @objc public var realtimeExponentialBackoffRetryInterval: Double
 
-  /// Returns the time in seconds until the next request is allowed while in exponential backoff
-  /// mode
-  /// for the Realtime service.
+  /// Returns the time in seconds until the next request is allowed while in
+  /// exponential backoff mode for the Realtime service.
   public var realtimeExponentialBackoffThrottleEndTime: TimeInterval
 
   /// Realtime connection attempts.
@@ -269,10 +268,9 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   // MARK: - Update Database/Cache
 
-  /// If the last fetch was not successful, update the (exponential backoff) period that we wait
-  /// until
-  /// fetching again. Any subsequent fetch requests will be checked and allowed only if past this
-  /// throttle end time.
+  /// If the last fetch was not successful, update the (exponential backoff)
+  /// period that we wait until fetching again. Any subsequent fetch requests
+  /// will be checked and allowed only if past this throttle end time.
   @objc public func updateExponentialBackoffTime() {
     if _lastFetchStatus == .success {
       RCLog.debug("I-RCN000057", "Throttling: Entering exponential backoff mode.")
@@ -435,8 +433,8 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   /// Returns a fetch request with the latest device and config change.
   /// Whenever user issues a fetch api call, collect the latest request.
-  /// @param userProperties  User properties to set to config request.
-  /// @return                Config fetch request string
+  /// - Parameter userPropxerties: User properties to set to config request.
+  /// - Returns: Config fetch request string
   @objc public func nextRequest(withUserProperties userProperties: [String: Any]?) -> String {
     var request = "{"
     request += "app_instance_id:'\(configInstallationsIdentifier)'"
@@ -510,8 +508,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   /// Device conditions since last successful fetch from the backend. Device conditions including
   /// app version, iOS version, device localte, language, GMP project ID and Game project ID. Used
-  /// for
-  /// determing whether to throttle.
+  /// for determing whether to throttle.
   @objc public var deviceContext: [String: Any] {
     _deviceContext
   }
