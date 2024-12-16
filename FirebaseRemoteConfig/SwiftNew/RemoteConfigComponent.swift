@@ -65,6 +65,7 @@ extension RemoteConfigComponent: RemoteConfigProvider {
       return nil
     }
 
+    // Validate the required information is available.
     let errorPropertyName = if app.options.googleAppID.isEmpty {
       "googleAppID"
     } else if app.options.gcmSenderID.isEmpty {
@@ -74,13 +75,9 @@ extension RemoteConfigComponent: RemoteConfigProvider {
     } else { nil as String? }
 
     if let errorPropertyName {
-      NSException.raise(
-        NSExceptionName("com.firebase.config"),
-        format: "Firebase Remote Config is missing the required %@ property from the " +
-          "configured FirebaseApp and will not be able to function properly. " +
-          "Please fix this issue to ensure that Firebase is correctly configured.",
-        arguments: getVaList([errorPropertyName])
-      )
+      fatalError("Firebase Remote Config is missing the required \(errorPropertyName) property from the " +
+        "configured FirebaseApp and will not be able to function properly. " +
+        "Please fix this issue to ensure that Firebase is correctly configured.")
     }
 
     instancesLock.lock()

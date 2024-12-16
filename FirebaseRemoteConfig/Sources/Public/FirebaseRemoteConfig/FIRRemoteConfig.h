@@ -356,7 +356,7 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                    userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
-/// Register RolloutsStateSubcriber to FIRRemoteConfig instance
+/// Register `FIRRolloutsStateSubscriber` to `FIRRemoteConfig` instance
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
 
 @end
