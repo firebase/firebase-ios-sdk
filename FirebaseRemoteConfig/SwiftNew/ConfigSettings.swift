@@ -87,11 +87,11 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   open var deviceDataVersion: String!
 
   /// InstallationsID.
-  /// @note The property is atomic because it is accessed across multiple threads.
+  /// - Note: The property is atomic because it is accessed across multiple threads.
   @objc public var configInstallationsIdentifier: String!
 
   /// Installations token.
-  /// @note The property is atomic because it is accessed across multiple threads.
+  /// - Note: The property is atomic because it is accessed across multiple threads.
   @objc public var configInstallationsToken: String!
 
   /// Bundle Identifier
