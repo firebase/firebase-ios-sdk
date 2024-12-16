@@ -88,6 +88,10 @@ public extension RemoteConfig {
   /// Sets custom signals for this Remote Config instance.
   /// - Parameter customSignals: A dictionary mapping string keys to custom
   /// signals to be set for the app instance.
+  ///
+  /// When a new key is provided, a new key-value pair is added to the custom signals.
+  /// If an existing key is provided with a new value, the corresponding signal is updated.
+  /// If the value for a key is `nil`, the signal associated with that key is removed.
   func setCustomSignals(_ customSignals: [String: CustomSignalValue?]) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       let customSignals = customSignals.mapValues { $0?.toNSObject() ?? NSNull() }
