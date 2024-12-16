@@ -20,7 +20,6 @@
 
 @import FirebaseRemoteConfig;
 
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 // #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
