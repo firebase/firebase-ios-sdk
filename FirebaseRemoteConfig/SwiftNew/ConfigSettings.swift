@@ -435,7 +435,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// Whenever user issues a fetch api call, collect the latest request.
   /// @param userProperties  User properties to set to config request.
   /// @return                Config fetch request string
-  @objc public func nextRequest(withUserProperties userProperties: [String: Any]!) -> String {
+  @objc public func nextRequest(withUserProperties userProperties: [String: Any]?) -> String {
     var request = "{"
     request += "app_instance_id:'\(configInstallationsIdentifier)'"
     request += ", app_instance_id_token:'\(configInstallationsToken)'"
