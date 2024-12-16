@@ -23,7 +23,6 @@
 @class RCNConfigFetch;
 @class RCNConfigRealtime;
 @protocol FIRAnalyticsInterop;
-@protocol FIRRolloutsStateSubscriber;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,9 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Server and the Firebase service. This API is used internally by 2P teams.
 + (FIRRemoteConfig *)remoteConfigWithFIRNamespace:(NSString *)remoteConfigNamespace
     NS_SWIFT_NAME(remoteConfig(FIRNamespace:));
-
-/// Register RolloutsStateSubcriber to FIRRemoteConfig instance
-- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
 
 @end
 

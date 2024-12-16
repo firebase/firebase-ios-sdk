@@ -25,6 +25,8 @@
 @class FIRRemoteConfigValue;
 @protocol FIRAnalyticsInterop;
 
+@protocol FIRRolloutsStateSubscriber;
+
 /// The Firebase Remote Config service default namespace, to be used if the API method does not
 /// specify a different namespace. Use the default namespace if configuring from the Google Firebase
 /// service.
@@ -353,6 +355,9 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                   configContent:(RCNConfigContent *)configContent
                    userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+
+/// Register `FIRRolloutsStateSubscriber` to `FIRRemoteConfig` instance
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
 
 @end
 NS_ASSUME_NONNULL_END
