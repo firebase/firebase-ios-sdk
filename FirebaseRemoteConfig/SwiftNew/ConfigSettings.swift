@@ -74,25 +74,13 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   // MARK: - Data required by config request.
 
-  /// The Google App ID of the configured FIRApp.
-  open var googleAppID: String!
-
-  /// Device authentication ID required by config request.
-  open var deviceAuthID: String!
-
-  /// Secret Token required by config request.
-  open var secretToken: String!
-
-  /// Device data version of checkin information.
-  open var deviceDataVersion: String!
-
   /// InstallationsID.
   /// - Note: The property is atomic because it is accessed across multiple threads.
-  @objc public var configInstallationsIdentifier: String!
+  @objc public var configInstallationsIdentifier: String?
 
   /// Installations token.
   /// - Note: The property is atomic because it is accessed across multiple threads.
-  @objc public var configInstallationsToken: String!
+  @objc public var configInstallationsToken: String?
 
   /// Bundle Identifier
   public let bundleIdentifier: String
@@ -437,8 +425,8 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// - Returns: Config fetch request string
   @objc public func nextRequest(withUserProperties userProperties: [String: Any]?) -> String {
     var request = "{"
-    request += "app_instance_id:'\(configInstallationsIdentifier)'"
-    request += ", app_instance_id_token:'\(configInstallationsToken)'"
+    request += "app_instance_id:'\(configInstallationsIdentifier ?? "")'"
+    request += ", app_instance_id_token:'\(configInstallationsToken ?? "")'"
     request += ", app_id:'\(_googleAppID)'"
     request += ", country_code:'\(Device.remoteConfigDeviceCountry())'"
     request += ", language_code:'\(Device.remoteConfigDeviceLocale())'"
