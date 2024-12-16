@@ -421,7 +421,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   /// Returns a fetch request with the latest device and config change.
   /// Whenever user issues a fetch api call, collect the latest request.
-  /// - Parameter userPropxerties: User properties to set to config request.
+  /// - Parameter userProperties: User properties to set to config request.
   /// - Returns: Config fetch request string
   @objc public func nextRequest(withUserProperties userProperties: [String: Any]?) -> String {
     var request = "{"
