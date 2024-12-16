@@ -15,6 +15,8 @@
 import Foundation
 import GoogleUtilities
 
+// TODO(ncooke3): Once Obj-C tests are ported, all `public` access modifers can be removed.
+
 private let kRCNGroupPrefix = "frc.group."
 private let kRCNUserDefaultsKeyNamelastETag = "lastETag"
 private let kRCNUserDefaultsKeyNameLastSuccessfulFetchTime = "lastSuccessfulFetchTime"
