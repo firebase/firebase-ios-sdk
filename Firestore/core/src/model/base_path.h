@@ -158,7 +158,7 @@ class BasePath {
   util::ComparisonResult CompareTo(const T& rhs) const {
     size_t min_size = std::min(size(), rhs.size());
     for (size_t i = 0; i < min_size; ++i) {
-      auto cmp = compareSegments(segments_[i], rhs.segments_[i]);
+      auto cmp = CompareSegments(segments_[i], rhs.segments_[i]);
       if (!util::Same(cmp)) return cmp;
     }
     return util::Compare(size(), rhs.size());
@@ -185,29 +185,36 @@ class BasePath {
  private:
   SegmentsT segments_;
 
-  static util::ComparisonResult compareSegments(const std::string& lhs,
+  static const size_t kNumericIdPrefixLength = 4;
+  static const size_t kNumericIdSuffixLength = 2;
+  static const size_t kNumericIdTotalOverhead =
+      kNumericIdPrefixLength + kNumericIdSuffixLength;
+
+  static util::ComparisonResult CompareSegments(const std::string& lhs,
                                                 const std::string& rhs) {
-    bool isLhsNumeric = isNumericId(lhs);
-    bool isRhsNumeric = isNumericId(rhs);
+    bool isLhsNumeric = IsNumericId(lhs);
+    bool isRhsNumeric = IsNumericId(rhs);
 
     if (isLhsNumeric && !isRhsNumeric) {
       return util::ComparisonResult::Ascending;
     } else if (!isLhsNumeric && isRhsNumeric) {
       return util::ComparisonResult::Descending;
     } else if (isLhsNumeric && isRhsNumeric) {
-      return util::Compare(extractNumericId(lhs), extractNumericId(rhs));
+      return util::Compare(ExtractNumericId(lhs), ExtractNumericId(rhs));
     } else {
       return util::Compare(lhs, rhs);
     }
   }
 
-  static bool isNumericId(const std::string& segment) {
-    return segment.substr(0, 4) == "__id" &&
-           segment.substr(segment.size() - 2) == "__";
+  static bool IsNumericId(const std::string& segment) {
+    return segment.size() > kNumericIdTotalOverhead &&
+           segment.substr(0, kNumericIdPrefixLength) == "__id" &&
+           segment.substr(segment.size() - kNumericIdSuffixLength) == "__";
   }
 
-  static int64_t extractNumericId(const std::string& segment) {
-    return std::stol(segment.substr(4, segment.size() - 2));
+  static int64_t ExtractNumericId(const std::string& segment) {
+    return std::stol(segment.substr(kNumericIdPrefixLength,
+                                    segment.size() - kNumericIdSuffixLength));
   }
 };
 

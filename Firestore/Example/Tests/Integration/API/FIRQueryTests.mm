@@ -816,6 +816,7 @@
     @"__id-2__" : @{@"a" : @1},
     @"__id1_" : @{@"a" : @1},
     @"_id1__" : @{@"a" : @1},
+    @"__id" : @{@"a" : @1},
     @"__id9223372036854775807__" : @{@"a" : @1},
     @"__id-9223372036854775808__" : @{@"a" : @1},
   }];
@@ -823,7 +824,7 @@
   FIRQuery *query = [collRef queryOrderedByFieldPath:[FIRFieldPath documentID]];
   NSArray<NSString *> *expectedDocs = @[
     @"__id-9223372036854775808__", @"__id-2__", @"__id7__", @"__id12__",
-    @"__id9223372036854775807__", @"12", @"7", @"A", @"Aa", @"__id1_", @"_id1__", @"a"
+    @"__id9223372036854775807__", @"12", @"7", @"A", @"Aa", @"__id", @"__id1_", @"_id1__", @"a"
   ];
   FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
@@ -848,6 +849,7 @@
     @"__id-2__" : @{@"a" : @1},
     @"__id1_" : @{@"a" : @1},
     @"_id1__" : @{@"a" : @1},
+    @"__id" : @{@"a" : @1},
     @"__id9223372036854775807__" : @{@"a" : @1},
     @"__id-9223372036854775808__" : @{@"a" : @1},
   }];
@@ -881,6 +883,7 @@
     @"__id-2__" : @{@"a" : @1},
     @"__id1_" : @{@"a" : @1},
     @"_id1__" : @{@"a" : @1},
+    @"__id" : @{@"a" : @1},
     @"__id9223372036854775807__" : @{@"a" : @1},
     @"__id-9223372036854775808__" : @{@"a" : @1},
   }];
@@ -888,8 +891,8 @@
   [self checkOnlineAndOfflineQuery:[collRef queryOrderedByFieldPath:[FIRFieldPath documentID]]
                      matchesResult:@[
                        @"__id-9223372036854775808__", @"__id-2__", @"__id7__", @"__id12__",
-                       @"__id9223372036854775807__", @"12", @"7", @"A", @"Aa", @"__id1_", @"_id1__",
-                       @"a"
+                       @"__id9223372036854775807__", @"12", @"7", @"A", @"Aa", @"__id", @"__id1_",
+                       @"_id1__", @"a"
                      ]];
 }
 
