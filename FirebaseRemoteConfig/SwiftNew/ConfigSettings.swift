@@ -328,12 +328,12 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// Updates the metadata table with the current fetch status.
   /// @param fetchSuccess True if fetch was successful.
   @objc public func updateMetadata(withFetchSuccessStatus fetchSuccess: Bool,
-                                   templateVersion: String) {
+                                   templateVersion: String?) {
     RCLog.debug("I-RCN000056", "Updating metadata with fetch result.")
     updateFetchTime(success: fetchSuccess)
     _lastFetchStatus = fetchSuccess ? .success : .failure
     _lastFetchError = RemoteConfigError(fetchSuccess ? .unknown : .internalError)
-    if fetchSuccess {
+    if fetchSuccess, let templateVersion {
       updateLastFetchTimeInterval(Date().timeIntervalSince1970)
       // Note: We expect the googleAppID to always be available.
       _deviceContext = Device.remoteConfigDeviceContext(with: _googleAppID)
