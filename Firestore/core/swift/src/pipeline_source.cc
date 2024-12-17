@@ -11,6 +11,7 @@ namespace api {
 
 PipelineSource::PipelineSource(std::shared_ptr<Firestore> firestore)
     : firestore_(firestore) {
+  std::cout << "PipelineSource constructs" << std::endl;
 }
 
 Pipeline PipelineSource::GetCollection(std::string collection_path) {
