@@ -70,7 +70,7 @@ import Foundation
 
       guard
         assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID ||
-        assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID
+        assertion.factorID == PhoneMultiFactorInfo.PhoneMultiFactorID
       else {
         return
       }
