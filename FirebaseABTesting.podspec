@@ -40,7 +40,6 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   base_dir = "FirebaseABTesting/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
-   'Interop/Analytics/Public/*.h',
    'FirebaseCore/Extension/*.h',
   ]
   s.resource_bundles = {
@@ -53,6 +52,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.dependency 'FirebaseCore', '~> 11.7.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 11.7.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

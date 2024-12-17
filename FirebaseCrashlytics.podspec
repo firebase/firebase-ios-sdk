@@ -33,7 +33,6 @@ Pod::Spec.new do |s|
     'Crashlytics/third_party/**/*.{c,h,m,mm}',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'Interop/Analytics/Public/*.h',
   ]
 
   s.resource_bundles = {
@@ -63,6 +62,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'FirebaseSessions', '~> 11.0'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 11.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 11.7'
   s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleDataTransport', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'

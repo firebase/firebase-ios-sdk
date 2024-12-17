@@ -36,7 +36,6 @@ app update.
   base_dir = "FirebaseRemoteConfig/Sources/"
   s.source_files = [
     base_dir + '**/*.[mh]',
-    'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
@@ -57,6 +56,7 @@ app update.
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 11.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 11.7'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

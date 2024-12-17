@@ -40,7 +40,6 @@ device, and it is completely free.
     base_dir + 'Sources/**/*.{c,m,h}',
     base_dir + 'Sources/Protogen/nanopb/*.h',
     base_dir + 'Interop/*.h',
-    'Interop/Analytics/Public/*.h',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
@@ -62,6 +61,7 @@ device, and it is completely free.
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseInstallations', '~> 11.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 11.7'
   s.dependency 'FirebaseCore', '~> 11.7.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
   s.dependency 'GoogleUtilities/Reachability', '~> 8.0'

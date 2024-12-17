@@ -39,7 +39,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 	  base_dir + "Sources/Runtime/**/*.[cmh]",
 	  base_dir + "Sources/Util/**/*.[cmh]",
     base_dir + "Swift/Source/**/*.swift",
-    'Interop/Analytics/Public/*.h',
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
@@ -83,6 +82,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseCore', '~> 11.7.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'FirebaseABTesting', '~> 11.0'
+  s.dependency 'FirebaseAnalyticsInterop', '~> 11.7'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
   s.dependency 'nanopb', '~> 3.30910.0'
