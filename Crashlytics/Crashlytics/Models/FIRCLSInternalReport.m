@@ -17,9 +17,14 @@
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
+#import "Crashlytics/Crashlytics/Components/FIRCLSAppMemory.h"
+#import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#import "Crashlytics/Crashlytics/Handlers/FIRCLSSignal.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/Record/FIRCLSReportAdapter.h"
 
 NSString *const FIRCLSCustomFatalIndicatorFile = @"custom_fatal.clsrecord";
 NSString *const FIRCLSReportBinaryImageFile = @"binary_images.clsrecord";
@@ -75,7 +80,53 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 
   _identifier = [identifier copy];
 
+  [self _checkAndWriteOOMOfRequired];
+
   return self;
+}
+
+// Load the reports internal kv store
+- (NSDictionary<NSString *, NSString *> *)_loadInternalBreadcrumbs {
+  NSString *path = [self.path stringByAppendingPathComponent:FIRCLSReportInternalIncrementalKVFile];
+  NSArray *sections = FIRCLSFileReadSections(path.UTF8String, true, ^NSObject *(id obj) {
+    NSDictionary *dict = [obj objectForKey:@"kv"];
+    NSString *key = FIRCLSFileHexDecodeString(((NSString *)dict[@"key"]).UTF8String);
+    NSString *value = FIRCLSFileHexDecodeString(((NSString *)dict[@"value"]).UTF8String);
+    return (key && value) ? @{key : value} : @{};
+  });
+  NSMutableDictionary *res = [NSMutableDictionary dictionary];
+  for (NSDictionary *kv in sections) {
+    [res addEntriesFromDictionary:kv];
+  }
+  return [res copy];
+}
+
+// An OOM is pretty simple.
+// If the data in this report shows an OOM,
+// then write an exception file to disk.
+// That will be picked up by the normal reporting system.
+//
+// NOTE:
+// I'd like to write a signal SIGKILL file, or some other
+// kind of OOM file, but up to now I have not been able to have
+// it show up in the Firebase crashlytics console. As a matter of fact,
+// this one doesn't show up either. There must be something blocking
+// it server side.
+// see: https://github.com/firebase/firebase-ios-sdk/discussions/12897
+- (void)_checkAndWriteOOMOfRequired {
+  NSString *path = [self pathForContentFile:FIRCLSReportExceptionFile];
+  if ([NSFileManager.defaultManager fileExistsAtPath:path]) {
+    return;
+  }
+
+  // first check if we need to build one
+  // we look for all internal breabcrumbs
+  NSDictionary<NSString *, NSString *> *breadcrumbs = [self _loadInternalBreadcrumbs];
+  FIRCLSAppMemory *memoryInfo = [[FIRCLSAppMemory alloc] initWithJSONObject:breadcrumbs];
+  if (memoryInfo.isOutOfMemory) {
+    FIRCLSInfoLog(@"Writing OOM record to %@", path);
+    FIRCLSExceptionRecordOutOfMemoryTerminationAtPath(path.UTF8String);
+  }
 }
 
 /**
