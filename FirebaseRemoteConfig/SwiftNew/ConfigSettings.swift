@@ -30,7 +30,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 /// It also handles all metadata. This class is not thread safe and does not
 /// inherently allow for synchronized access. Callers are responsible for synchronization
 /// (currently using serial dispatch queues).
-@objc(RCNConfigSettings) open class ConfigSettings: NSObject {
+@objc(RCNConfigSettings) public class ConfigSettings: NSObject {
   // MARK: - Private Properties
 
   /// A list of successful fetch timestamps in seconds.
