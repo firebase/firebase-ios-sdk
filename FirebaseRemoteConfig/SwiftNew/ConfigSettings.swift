@@ -483,17 +483,6 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
     }
   }
 
-  // TODO(ncooke3): Preserved TODO- Not used anymore. Safe to remove.
-  /// A list of successful fetch timestamps in milliseconds.
-  open var successFetchTimes: [TimeInterval] {
-    _successFetchTimes
-  }
-
-  /// A list of failed fetch timestamps in milliseconds.
-  open var failureFetchTimes: [TimeInterval] {
-    _failureFetchTimes
-  }
-
   /// Device conditions since last successful fetch from the backend. Device conditions including
   /// app version, iOS version, device localte, language, GMP project ID and Game project ID. Used
   /// for determing whether to throttle.
