@@ -74,10 +74,12 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   // MARK: - Data required by config request.
 
+  // TODO(ncooke3): This property was atomic in ObjC.
   /// InstallationsID.
   /// - Note: The property is atomic because it is accessed across multiple threads.
   @objc public var configInstallationsIdentifier: String?
 
+  // TODO(ncooke3): This property was atomic in ObjC.
   /// Installations token.
   /// - Note: The property is atomic because it is accessed across multiple threads.
   @objc public var configInstallationsToken: String?
@@ -93,6 +95,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   // MARK: - Throttling Properties
 
+  // TODO(ncooke3): This property was atomic in ObjC.
   /// Throttling intervals are based on https://cloud.google.com/storage/docs/exponential-backoff
   /// Returns true if client has fetched config and has not got back from server. This is used to
   /// determine whether there is another config task infight when fetching.
