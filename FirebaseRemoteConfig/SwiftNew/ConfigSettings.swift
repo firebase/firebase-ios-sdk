@@ -433,27 +433,26 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
     if let userProperties, !userProperties.isEmpty {
       // Extract first open time from user properties and send as a separate field
+      var remainingUserProperties = userProperties
       if let firstOpenTime = userProperties[kRCNAnalyticsFirstOpenTimePropertyName] as? NSNumber {
         let date = Date(timeIntervalSince1970: firstOpenTime.doubleValue / 1000)
         let formatter = ISO8601DateFormatter()
         let firstOpenTimeISOString = formatter.string(from: date)
         request += ", first_open_time:'\(firstOpenTimeISOString)'"
 
-        var remainingUserProperties = userProperties
         remainingUserProperties.removeValue(forKey: kRCNAnalyticsFirstOpenTimePropertyName)
-
-        if !remainingUserProperties.isEmpty {
-          do {
-            let jsonData = try JSONSerialization.data(
-              withJSONObject: remainingUserProperties,
-              options: []
-            )
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-              request += ", analytics_user_properties:\(jsonString)"
-            }
-          } catch {
-            // Ignore JSON serialization error.
+      }
+      if !remainingUserProperties.isEmpty {
+        do {
+          let jsonData = try JSONSerialization.data(
+            withJSONObject: remainingUserProperties,
+            options: []
+          )
+          if let jsonString = String(data: jsonData, encoding: .utf8) {
+            request += ", analytics_user_properties:\(jsonString)"
           }
+        } catch {
+          // Ignore JSON serialization error.
         }
       }
     }
