@@ -26,6 +26,8 @@ public final class GenerativeModel {
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
 
+  let location: String
+
   /// Configuration parameters used for the MultiModalModel.
   let generationConfig: GenerationConfig?
 
@@ -61,6 +63,7 @@ public final class GenerativeModel {
   init(name: String,
        projectID: String,
        apiKey: String,
+       location: String = "us-central1",
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
        tools: [Tool]?,
@@ -78,6 +81,7 @@ public final class GenerativeModel {
       auth: auth,
       urlSession: urlSession
     )
+    self.location = location
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings
     self.tools = tools
@@ -125,6 +129,7 @@ public final class GenerativeModel {
     try content.throwIfError()
     let response: GenerateContentResponse
     let generateContentRequest = GenerateContentRequest(model: modelResourceName,
+                                                        location: location,
                                                         contents: content,
                                                         generationConfig: generationConfig,
                                                         safetySettings: safetySettings,
@@ -182,6 +187,7 @@ public final class GenerativeModel {
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     try content.throwIfError()
     let generateContentRequest = GenerateContentRequest(model: modelResourceName,
+                                                        location: location,
                                                         contents: content,
                                                         generationConfig: generationConfig,
                                                         safetySettings: safetySettings,
@@ -253,6 +259,7 @@ public final class GenerativeModel {
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
     let countTokensRequest = CountTokensRequest(
       model: modelResourceName,
+      location: location,
       contents: content,
       systemInstruction: systemInstruction,
       tools: tools,
