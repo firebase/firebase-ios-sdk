@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,32 +15,15 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-protocol GenerativeAIRequest: Encodable {
-  associatedtype Response: Decodable
-
-  var url: URL { get }
-
-  var options: RequestOptions { get }
-}
-
-/// Configuration parameters for sending requests to the backend.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct RequestOptions {
-  /// The request’s timeout interval in seconds; if not specified uses the default value for a
-  /// `URLRequest`.
-  let timeout: TimeInterval
-
-  /// The API version to use in requests to the backend.
-  let apiVersion = "v1beta"
-
-  /// Initializes a request options object.
-  ///
-  /// - Parameters:
-  ///   - timeout The request’s timeout interval in seconds; defaults to 180 seconds.
-  public init(timeout: TimeInterval = 180.0) {
-    self.timeout = timeout
-  }
+struct ImageGenerationOutputOptions {
+  let mimeType: String
+  let compressionQuality: Int?
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension RequestOptions: Equatable {}
+extension ImageGenerationOutputOptions: Equatable {}
+
+// MARK: - Codable Conformance
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ImageGenerationOutputOptions: Encodable {}
