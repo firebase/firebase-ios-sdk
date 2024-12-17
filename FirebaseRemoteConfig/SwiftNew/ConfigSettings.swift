@@ -42,14 +42,14 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// Device conditions since last successful fetch from the backend. Device conditions including
   /// app version, iOS version, device locale, language, GMP project ID and Game project ID.
   /// Used for determining whether to throttle.
-  private var _deviceContext: [String: Any] = [:]
+  @objc public private(set) var deviceContext: [String: String] = [:]
 
   /// Custom variables (aka App context digest). This is the pending custom variables
   /// request before fetching.
-  private var _customVariables: [String: Any] = [:]
+  private var _customVariables: [String: Sendable] = [:]
 
   /// Last fetch status.
-  private var _lastFetchStatus: RemoteConfigFetchStatus = .noFetchYet
+  @objc public var lastFetchStatus: RemoteConfigFetchStatus = .noFetchYet
 
   /// Last fetch Error.
   private var _lastFetchError: RemoteConfigError
@@ -84,12 +84,6 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   /// Bundle Identifier
   public let bundleIdentifier: String
-
-  /// Last fetch status.
-  @objc public var lastFetchStatus: RemoteConfigFetchStatus {
-    get { _lastFetchStatus }
-    set { _lastFetchStatus = newValue }
-  }
 
   /// Last fetched template version.
   @objc public var lastFetchedTemplateVersion: String
@@ -140,7 +134,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
       )
     }
     _minimumFetchInterval = ConfigConstants.defaultMinimumFetchInterval
-    _deviceContext = [:]
+    deviceContext = [:]
     _customVariables = [:]
     _successFetchTimes = []
     _failureFetchTimes = []
@@ -228,9 +222,9 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
         // TODO: Remove (all metadata in general) once ready to
         // migrate to user defaults completely.
         if let deviceContext = metadata[RCNKeyDeviceContext] as? [String: String] {
-          self._deviceContext = deviceContext
+          self.deviceContext = deviceContext
         }
-        if let customVariables = metadata[RCNKeyAppContext] as? [String: Any] {
+        if let customVariables = metadata[RCNKeyAppContext] as? [String: Sendable] {
           self._customVariables = customVariables
         }
         if let successFetchTimes = metadata[RCNKeySuccessFetchTime] as? [TimeInterval] {
@@ -240,7 +234,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
           self._failureFetchTimes = failureFetchTimes
         }
         if let lastFetchStatus = metadata[RCNKeyLastFetchStatus] as? RemoteConfigFetchStatus {
-          self._lastFetchStatus = lastFetchStatus
+          self.lastFetchStatus = lastFetchStatus
         }
         if let lastFetchError = metadata[RCNKeyLastFetchError] as? RemoteConfigError {
           self._lastFetchError = lastFetchError
@@ -260,7 +254,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// period that we wait until fetching again. Any subsequent fetch requests
   /// will be checked and allowed only if past this throttle end time.
   @objc public func updateExponentialBackoffTime() {
-    if _lastFetchStatus == .success {
+    if lastFetchStatus == .success {
       RCLog.debug("I-RCN000057", "Throttling: Entering exponential backoff mode.")
       exponentialBackoffRetryInterval = Double(kRCNExponentialBackoffMinimumInterval)
     } else {
@@ -331,12 +325,12 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
                                    templateVersion: String?) {
     RCLog.debug("I-RCN000056", "Updating metadata with fetch result.")
     updateFetchTime(success: fetchSuccess)
-    _lastFetchStatus = fetchSuccess ? .success : .failure
+    lastFetchStatus = fetchSuccess ? .success : .failure
     _lastFetchError = RemoteConfigError(fetchSuccess ? .unknown : .internalError)
     if fetchSuccess, let templateVersion {
       updateLastFetchTimeInterval(Date().timeIntervalSince1970)
       // Note: We expect the googleAppID to always be available.
-      _deviceContext = Device.remoteConfigDeviceContext(with: _googleAppID)
+      deviceContext = Device.remoteConfigDeviceContext(with: _googleAppID)
       lastFetchedTemplateVersion = templateVersion
       _userDefaultsManager.lastFetchedTemplateVersion = templateVersion
     }
@@ -360,7 +354,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
       RCLog.error("I-RCN000028", "Invalid custom variables to be serialized.")
       return
     }
-    guard JSONSerialization.isValidJSONObject(_deviceContext) else {
+    guard JSONSerialization.isValidJSONObject(deviceContext) else {
       RCLog.error("I-RCN000029", "Invalid device context to be serialized.")
       return
     }
@@ -375,7 +369,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
     let serializedAppContext = try? JSONSerialization.data(withJSONObject: _customVariables,
                                                            options: [.prettyPrinted])
-    let serializedDeviceContext = try? JSONSerialization.data(withJSONObject: _deviceContext,
+    let serializedDeviceContext = try? JSONSerialization.data(withJSONObject: deviceContext,
                                                               options: [.prettyPrinted])
     // The digestPerNamespace is not used and only meant for backwards DB compatibility.
     let serializedDigestPerNamespace = try? JSONSerialization.data(withJSONObject: [:],
@@ -402,7 +396,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
       RCNKeyAppContext: serializedAppContext,
       RCNKeySuccessFetchTime: serializedSuccessTime,
       RCNKeyFailureFetchTime: serializedFailureTime,
-      RCNKeyLastFetchStatus: _lastFetchStatus.rawValue,
+      RCNKeyLastFetchStatus: lastFetchStatus.rawValue,
       RCNKeyLastFetchError: _lastFetchError.errorCode,
       RCNKeyLastApplyTime: _lastApplyTimeInterval,
       RCNKeyLastSetDefaultsTime: _lastSetDefaultsTimeInterval,
@@ -478,26 +472,8 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
         .updateMetadata(
           withOption: .fetchStatus,
           namespace: _FIRNamespace,
-          values: [_lastFetchStatus, _lastFetchError]
+          values: [lastFetchStatus, _lastFetchError]
         )
-    }
-  }
-
-  /// Device conditions since last successful fetch from the backend. Device conditions including
-  /// app version, iOS version, device localte, language, GMP project ID and Game project ID. Used
-  /// for determing whether to throttle.
-  @objc public var deviceContext: [String: Any] {
-    _deviceContext
-  }
-
-  // TODO(ncooke3): Maybe just add a didSet
-  /// Custom variable (aka App context digest). This is the pending custom variables request before
-  /// fetching.
-  open var customVariables: [String: Any] {
-    get { _customVariables }
-    set {
-      _customVariables = newValue
-      updateMetadataTable()
     }
   }
 
