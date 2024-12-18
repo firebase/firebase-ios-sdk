@@ -33,7 +33,7 @@
 		DEC2E5DF2A9583CA0090260A /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2E5DE2A9583CA0090260A /* AppManager.swift */; };
 		DEC2E5E42A966DE20090260A /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */; };
 		DED37F632AB0C4F7003A67E4 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */; };
-		DEE261C52C21E9F500EECAC5 /* RecaptchaEnterprise in Frameworks */ = {isa = PBXBuildFile; productRef = DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */; };
+		DEE261C52C21E9F500EECAC5 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		EA02F68524A000E00079D000 /* UserActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68424A000E00079D000 /* UserActions.swift */; };
 		EA02F68D24A063E90079D000 /* LoginDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68C24A063E90079D000 /* LoginDelegate.swift */; };
 		EA062D5D24A0FEB6006714D3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA062D5C24A0FEB6006714D3 /* README.md */; };
@@ -48,6 +48,7 @@
 		EA217895248979E200736757 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EA217894248979E200736757 /* LaunchScreen.storyboard */; };
 		EA527CAA24A0766D00ADB9A2 /* OtherAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA527CA924A0766D00ADB9A2 /* OtherAuthViewController.swift */; };
 		EA527CAC24A0EE9600ADB9A2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA527CAB24A0EE9600ADB9A2 /* LoginView.swift */; };
+		EA9ADF2A2D13260E00C42E35 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EA9ADF292D13260E00C42E35 /* FirebaseAnalytics */; };
 		EAB3A1792494433500385291 /* DataSourceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB3A1782494433500385291 /* DataSourceProvider.swift */; };
 		EAB3A17C2494628200385291 /* UserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB3A17B2494628200385291 /* UserViewController.swift */; };
 		EAD8BD402CE535C400E23E30 /* MFALoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD8BD3F2CE535C400E23E30 /* MFALoginView.swift */; };
@@ -159,8 +160,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEE261C52C21E9F500EECAC5 /* RecaptchaEnterprise in Frameworks */,
+				DEE261C52C21E9F500EECAC5 /* (null) in Frameworks */,
 				DE8B63772BEC302200607B82 /* FacebookLogin in Frameworks */,
+				EA9ADF2A2D13260E00C42E35 /* FirebaseAnalytics in Frameworks */,
 				DE8B63742BEC2FB900607B82 /* GoogleSignInSwift in Frameworks */,
 				DE8B636F2BEC2DC300607B82 /* FirebaseAuth in Frameworks */,
 				DE8B63722BEC2FB900607B82 /* GoogleSignIn in Frameworks */,
@@ -393,7 +395,7 @@
 				DE8B63712BEC2FB900607B82 /* GoogleSignIn */,
 				DE8B63732BEC2FB900607B82 /* GoogleSignInSwift */,
 				DE8B63762BEC302200607B82 /* FacebookLogin */,
-				DEE261C42C21E9F500EECAC5 /* RecaptchaEnterprise */,
+				EA9ADF292D13260E00C42E35 /* FirebaseAnalytics */,
 			);
 			productName = "Swifty Auth";
 			productReference = EAE4CBC124855E3A00245E92 /* AuthenticationExample.app */;
@@ -1033,6 +1035,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DE8B63782BEC342000607B82 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
 			productName = GTMSessionFetcher;
+		};
+		EA9ADF292D13260E00C42E35 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE8B636D2BEC2DC300607B82 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
