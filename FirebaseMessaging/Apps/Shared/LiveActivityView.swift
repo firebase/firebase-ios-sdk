@@ -66,14 +66,14 @@ struct LiveActivityView: View {
       let ptsToken = Activity<SampleLiveActivityAttributes>.pushToStartToken
 
       if ptsToken != nil {
-        let ptsTokenString = getFormatedToken(token: ptsToken!)
+        let ptsTokenString = getFormattedToken(token: ptsToken!)
         activityTokenDict["PTS"] = ptsTokenString
       } else {
         activityTokenDict["PTS"] = "Not available yet.!"
         Task {
           for await ptsToken in Activity<SampleLiveActivityAttributes>
             .pushToStartTokenUpdates {
-            let ptsTokenString = getFormatedToken(token: ptsToken)
+            let ptsTokenString = getFormattedToken(token: ptsToken)
             activityTokenDict["PTS"] = ptsTokenString
             refreshAcitivtyList()
           }
@@ -83,7 +83,7 @@ struct LiveActivityView: View {
       let activities = Activity<SampleLiveActivityAttributes>.activities
       for activity in activities {
         if activity.pushToken != nil {
-          let activityToken = getFormatedToken(token: activity.pushToken!)
+          let activityToken = getFormattedToken(token: activity.pushToken!)
           activityTokenDict[activity.id] = activityToken
         } else {
           activityTokenDict[activity.id] = "Not available yet!"
@@ -92,7 +92,7 @@ struct LiveActivityView: View {
     }
   }
 
-  func getFormatedToken(token: Data) -> String {
+  func getFormattedToken(token: Data) -> String {
     return token.reduce("") {
       $0 + String(format: "%02x", $1)
     }
@@ -114,7 +114,7 @@ struct LiveActivityView: View {
       if activity != nil {
         Task {
           for await pushToken in activity!.pushTokenUpdates {
-            let activityToken = getFormatedToken(token: pushToken)
+            let activityToken = getFormattedToken(token: pushToken)
             activityTokenDict[activity!.id] = activityToken
             refreshAcitivtyList()
           }
