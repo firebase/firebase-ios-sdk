@@ -330,9 +330,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
     if (![newCustomSignals isEqualToDictionary:self->_settings.customSignals]) {
       self->_settings.customSignals = newCustomSignals;
     }
-    // Log the final updated custom signals.
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078", @"Updated custom signals: %@",
-                newCustomSignals);
+    // Log the keys of the updated custom signals.
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078", @"Keys of updated custom signals: %@",
+                [newCustomSignals allKeys]);
 
     if (completionHandler) {
       dispatch_async(dispatch_get_main_queue(), ^{

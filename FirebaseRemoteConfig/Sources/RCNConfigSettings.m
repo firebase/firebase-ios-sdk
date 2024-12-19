@@ -458,9 +458,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                                                        [[NSString alloc]
                                                            initWithData:jsonData
                                                                encoding:NSUTF8StringEncoding]]];
-      // Log the custom signals during fetch.
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078", @"Fetching with custom signals: %@",
-                  customSignals);
+      // Log the keys of the custom signals sent during fetch.
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078",
+                  @"Keys of custom signals during fetch: %@", [customSignals allKeys]);
     }
   }
   ret = [ret stringByAppendingString:@"}"];
