@@ -47,6 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign) NSString *lastFetchedTemplateVersion;
 /// Last active template version.
 @property(nonatomic, assign) NSString *lastActiveTemplateVersion;
+/// A dictionary to hold the latest custom signals set by the developer.
+@property(nonatomic, readwrite, strong) NSDictionary<NSString *, NSString *> *customSignals;
 
 /// Designated initializer.
 - (instancetype)initWithAppName:(NSString *)appName

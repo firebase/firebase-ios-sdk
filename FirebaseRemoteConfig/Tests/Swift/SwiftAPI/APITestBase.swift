@@ -57,6 +57,7 @@ class APITestBase: XCTestCase {
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
+    config.settings.customSignals = [:]
 
     let jsonData = try JSONSerialization.data(
       withJSONObject: Constants.jsonValue
