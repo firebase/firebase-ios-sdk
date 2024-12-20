@@ -21,7 +21,9 @@ import FirebaseRemoteConfigInterop
 // TODO(ncooke3): Once Obj-C tests are ported, all `public` access modifers can be removed.
 
 // TODO(ncooke3): Move to another pod.
-@objc protocol FIRAnalyticsInterop {}
+@objc(AnalyticsInterop) public protocol FIRAnalyticsInterop {
+  func getUserProperties(callback: @escaping ([String : Any]) -> Void)
+}
 
 /// Provides and creates instances of Remote Config based on the namespace provided. Used in the
 /// interop registration process to keep track of RC instances for each `FIRApp` instance.
