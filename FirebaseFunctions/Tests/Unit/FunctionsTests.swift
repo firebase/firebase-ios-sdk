@@ -359,7 +359,7 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  //TODO -- Remove after testing phase finsh.
+  // TODO: -- Remove after testing phase finsh.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func testStreamDownload() async {
     let url = URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!
@@ -374,7 +374,7 @@ class FunctionsTests: XCTestCase {
       print("Failed to download stream: \(error)")
     }
   }
-  
+
   func testGenerateStreamContent() async {
     do {
       let stream = try await functions?.httpsCallable("testStream").stream("GenContent")
@@ -389,4 +389,3 @@ class FunctionsTests: XCTestCase {
     }
   }
 }
-
