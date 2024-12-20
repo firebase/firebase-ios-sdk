@@ -293,7 +293,7 @@ enum FunctionsConstants {
     let origin = String(format: "\(prefix)\(host):%li", port)
     emulatorOrigin = origin
   }
-
+  
   @available(iOS 13.0, *)
   open func stream(_ data: Any? = nil, withURL url: URL) throws -> AsyncStream<String> {
     var request = URLRequest(url: url)
@@ -476,6 +476,128 @@ enum FunctionsConstants {
   }
 
   private func callFunction(url: URL,
+                            withObject data: Any?,
+                            options: HTTPSCallableOptions?,
+                            timeout: TimeInterval,
+                            context: FunctionsContext,
+                            completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+    let fetcher: GTMSessionFetcher
+    do {
+      fetcher = try makeFetcher(
+        url: url,
+        data: data,
+        options: options,
+        timeout: timeout,
+        context: context
+      )
+    } catch {
+      DispatchQueue.main.async {
+        completion(.failure(error))
+      }
+      return
+    }
+
+    fetcher.beginFetch { [self] data, error in
+      let result: Result<HTTPSCallableResult, any Error>
+      do {
+        result = try .success(callableResultFromResponse(data: data, error: error))
+      } catch {
+        result = .failure(error)
+      }
+
+      DispatchQueue.main.async {
+        completion(result)
+      }
+    }
+  }
+  
+  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
+  func stream(at url: URL,
+                    withObject data: Any?,
+                    options: HTTPSCallableOptions?,
+                    timeout: TimeInterval) async throws -> AsyncStream<HTTPSCallableResult> {
+    let context = try await contextProvider.context(options: options)
+    let fetcher = try makeFetcher(
+      url: url,
+      data: data,
+      options: options,
+      timeout: timeout,
+      context: context
+    )
+
+    do {
+      let rawData = try await fetcher.beginFetch()
+      return try callableResultFromResponse(data: rawData, error: nil)
+    } catch {
+      // This method always throws when `error` is not `nil`, but ideally,
+      // it should be refactored so it looks less confusing.
+      return try callableResultFromResponse(data: nil, error: error)
+    }
+  
+  }
+
+  @available(iOS 13.0, *)
+  func callableResultFromResponse(data: Data?, error: Error?) throws -> AsyncStream<HTTPSCallableResult> {
+    
+    var result = AsyncStream<HTTPSCallableResult> { continuation in
+      Task {
+        do {
+          let (data, response) = try await URLSession.shared.data(for: request)
+          if let httpResponse = response as? HTTPURLResponse {
+            switch httpResponse.statusCode {
+            case 200:
+              if let responseString = String(data: data, encoding: .utf8) {
+                let lines = responseString.split(separator: "\n")
+                for line in lines {
+                  continuation.yield(String(line))
+                }
+                continuation.finish()
+              } else {
+                print("Error: Couldn't decode response")
+                throw error
+              }
+            default:
+              print(
+                "Falling back to default error handler: Error: \(httpResponse.statusCode)"
+              )
+              throw error
+            }
+          } else {
+            print("Error: Couldn't get HTTP response")
+            throw error
+          }
+        } catch {
+          print("Error: \(error)")
+          throw error
+        }
+      }
+    }
+    return result
+   }
+  
+   func stream(at url: URL,
+                    withObject data: Any?,
+                    options: HTTPSCallableOptions?,
+                    timeout: TimeInterval,
+                    completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+    // Get context first.
+    contextProvider.getContext(options: options) { context, error in
+      // Note: context is always non-nil since some checks could succeed, we're only failing if
+      // there's an error.
+      if let error {
+        completion(.failure(error))
+      } else {
+        self.callFunction(url: url,
+                          withObject: data,
+                          options: options,
+                          timeout: timeout,
+                          context: context,
+                          completion: completion)
+      }
+    }
+  }
+
+    private func stream(url: URL,
                             withObject data: Any?,
                             options: HTTPSCallableOptions?,
                             timeout: TimeInterval,
