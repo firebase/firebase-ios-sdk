@@ -144,6 +144,7 @@ extension Auth: AuthInterop {
 ///
 /// This class is thread-safe.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@preconcurrency
 @objc(FIRAuth) open class Auth: NSObject {
   /// Gets the auth object for the default Firebase app.
   ///
