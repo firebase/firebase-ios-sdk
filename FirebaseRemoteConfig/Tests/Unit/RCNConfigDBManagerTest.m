@@ -19,13 +19,12 @@
 
 #import <sqlite3.h>
 
+@import FirebaseRemoteConfig;
+
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
-
-#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
 typedef void (^RCNDBCompletion)(BOOL success, NSDictionary *result);
 typedef void (^RCNDBDictCompletion)(NSDictionary *result);

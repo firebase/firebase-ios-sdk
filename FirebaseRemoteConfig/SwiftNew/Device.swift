@@ -208,8 +208,8 @@ import GoogleUtilities
   }
 
   @objc public static func remoteConfigDeviceContext(with projectIdentifier: String?)
-    -> [String: Any] {
-    var deviceContext: [String: Any] = [:]
+    -> [String: String] {
+    var deviceContext: [String: String] = [:]
     deviceContext[RCNDeviceContextKeyVersion] = remoteConfigAppVersion()
     deviceContext[RCNDeviceContextKeyBuild] = remoteConfigAppBuildVersion()
     deviceContext[RCNDeviceContextKeyOSVersion] = GULAppEnvironmentUtil.systemVersion()
