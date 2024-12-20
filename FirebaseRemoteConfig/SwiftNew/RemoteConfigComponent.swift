@@ -22,7 +22,7 @@ import FirebaseRemoteConfigInterop
 
 // TODO(ncooke3): Move to another pod.
 @objc(AnalyticsInterop) public protocol FIRAnalyticsInterop {
-  func getUserProperties(callback: @escaping ([String : Any]) -> Void)
+  func getUserProperties(callback: @escaping ([String: Any]) -> Void)
 }
 
 /// Provides and creates instances of Remote Config based on the namespace provided. Used in the
