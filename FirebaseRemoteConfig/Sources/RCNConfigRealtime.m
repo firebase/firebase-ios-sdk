@@ -21,7 +21,6 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 /// URL params
