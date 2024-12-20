@@ -294,50 +294,6 @@ enum FunctionsConstants {
     emulatorOrigin = origin
   }
 
-  @available(iOS 13.0, *)
-  open func stream(_ data: Any? = nil, withURL url: URL) throws -> AsyncStream<String> {
-    var request = URLRequest(url: url)
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
-    request.httpMethod = "POST"
-    request.httpBody = try? JSONSerialization.data(withJSONObject: ["data": data], options: [])
-    let error = NSError()
-    let stream = AsyncStream(String.self) { continuation in
-      Task {
-        do {
-          let (data, response) = try await URLSession.shared.data(for: request)
-          if let httpResponse = response as? HTTPURLResponse {
-            switch httpResponse.statusCode {
-            case 200:
-              if let responseString = String(data: data, encoding: .utf8) {
-                let lines = responseString.split(separator: "\n")
-                for line in lines {
-                  continuation.yield(String(line))
-                }
-                continuation.finish()
-              } else {
-                print("Error: Couldn't decode response")
-                throw error
-              }
-            default:
-              print(
-                "Falling back to default error handler: Error: \(httpResponse.statusCode)"
-              )
-              throw error
-            }
-          } else {
-            print("Error: Couldn't get HTTP response")
-            throw error
-          }
-        } catch {
-          print("Error: \(error)")
-          throw error
-        }
-      }
-    }
-    return stream
-  }
-
   // MARK: - Private Funcs (or Internal for tests)
 
   /// Solely used to have one precondition and one location where we fetch from the container. This
