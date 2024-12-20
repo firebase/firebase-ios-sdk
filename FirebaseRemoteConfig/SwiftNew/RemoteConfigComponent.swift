@@ -21,7 +21,9 @@ import FirebaseRemoteConfigInterop
 // TODO(ncooke3): Once Obj-C tests are ported, all `public` access modifers can be removed.
 
 // TODO(ncooke3): Move to another pod.
-@objc protocol FIRAnalyticsInterop {}
+@objc(AnalyticsInterop) public protocol FIRAnalyticsInterop {
+  func getUserProperties(callback: @escaping ([String: Any]) -> Void)
+}
 
 /// Provides and creates instances of Remote Config based on the namespace provided. Used in the
 /// interop registration process to keep track of RC instances for each `FIRApp` instance.
@@ -75,9 +77,21 @@ extension RemoteConfigComponent: RemoteConfigProvider {
     } else { nil as String? }
 
     if let errorPropertyName {
-      fatalError("Firebase Remote Config is missing the required \(errorPropertyName) property from the " +
-        "configured FirebaseApp and will not be able to function properly. " +
-        "Please fix this issue to ensure that Firebase is correctly configured.")
+      // TODO(ncooke): The ObjC unit tests depend on this throwing an exception
+      // (which can be caught in ObjC but not as easily in Swift). Once unit
+      // tests are ported, move to fatalError and document behavior change in
+      // release notes.
+//      fatalError("Firebase Remote Config is missing the required \(errorPropertyName) property
+//      from the " +
+//                 "configured FirebaseApp and will not be able to function properly. " +
+//                 "Please fix this issue to ensure that Firebase is correctly configured.")
+      NSException.raise(
+        NSExceptionName("com.firebase.config"),
+        format: "Firebase Remote Config is missing the required %@ property from the " +
+          "configured FirebaseApp and will not be able to function properly. " +
+          "Please fix this issue to ensure that Firebase is correctly configured.",
+        arguments: getVaList([errorPropertyName])
+      )
     }
 
     instancesLock.lock()

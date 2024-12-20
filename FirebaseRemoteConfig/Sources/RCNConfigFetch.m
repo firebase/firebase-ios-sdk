@@ -20,7 +20,6 @@
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
