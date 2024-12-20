@@ -379,7 +379,7 @@ class FunctionsTests: XCTestCase {
     do {
       let stream = try await functions?.httpsCallable("testStream").stream("GenContent")
       if let stream = stream {
-        for await line in stream {
+        for try await line in stream {
           print(line)
         }
       }

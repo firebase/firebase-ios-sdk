@@ -513,67 +513,46 @@ enum FunctionsConstants {
   
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func stream(at url: URL,
-                    withObject data: Any?,
-                    options: HTTPSCallableOptions?,
-                    timeout: TimeInterval) async throws -> AsyncStream<HTTPSCallableResult> {
-    let context = try await contextProvider.context(options: options)
-    let fetcher = try makeFetcher(
-      url: url,
-      data: data,
-      options: options,
-      timeout: timeout,
-      context: context
-    )
+                      withObject data: Any?,
+                      options: HTTPSCallableOptions?,
+                      timeout: TimeInterval) async throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+      let context = try await contextProvider.context(options: options)
+      let fetcher = try makeFetcher(
+        url: url,
+        data: data,
+        options: options,
+        timeout: timeout,
+        context: context
+      )
 
-    do {
-      let rawData = try await fetcher.beginFetch()
-      return try callableResultFromResponse(data: rawData, error: nil)
-    } catch {
-      // This method always throws when `error` is not `nil`, but ideally,
-      // it should be refactored so it looks less confusing.
-      return try callableResultFromResponse(data: nil, error: error)
+      do {
+        let rawData = try await fetcher.beginFetch()
+        return try callableResultFromResponse(data: rawData, error: nil)
+      } catch {
+        // This method always throws when `error` is not `nil`, but ideally,
+        // it should be refactored so it looks less confusing.
+        return try callableResultFromResponse(data: nil, error: error)
+      }
+    
     }
-  
-  }
 
   @available(iOS 13.0, *)
-  func callableResultFromResponse(data: Data?, error: Error?) throws -> AsyncStream<HTTPSCallableResult> {
-    
-    var result = AsyncStream<HTTPSCallableResult> { continuation in
-      Task {
-        do {
-          let (data, response) = try await URLSession.shared.data(for: request)
-          if let httpResponse = response as? HTTPURLResponse {
-            switch httpResponse.statusCode {
-            case 200:
-              if let responseString = String(data: data, encoding: .utf8) {
-                let lines = responseString.split(separator: "\n")
-                for line in lines {
-                  continuation.yield(String(line))
+  func callableResultFromResponse(data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+      
+        return AsyncThrowingStream<HTTPSCallableResult, Error> { continuation in
+            Task {
+                do {
+                    let processedData = try processedResponseData(from: data, error: error)
+                    let json = try responseDataJSON(from: processedData)
+                    let payload = try JSONSerialization.jsonObject(with: processedData, options: [])
+                    continuation.yield(HTTPSCallableResult(data: payload as Any))
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
                 }
-                continuation.finish()
-              } else {
-                print("Error: Couldn't decode response")
-                throw error
-              }
-            default:
-              print(
-                "Falling back to default error handler: Error: \(httpResponse.statusCode)"
-              )
-              throw error
             }
-          } else {
-            print("Error: Couldn't get HTTP response")
-            throw error
-          }
-        } catch {
-          print("Error: \(error)")
-          throw error
         }
-      }
     }
-    return result
-   }
   
    func stream(at url: URL,
                     withObject data: Any?,
