@@ -372,6 +372,51 @@ class AuthBackendTests: RPCBaseTests {
     }
   }
 
+  /// Test Blocking Function Error Response flow
+  func testBlockingFunctionError() async throws {
+    let kErrorMessageBlocking = "BLOCKING_FUNCTION_ERROR_RESPONSE"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageBlocking, error: responseError)
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.blockingCloudFunctionError.rawValue)
+    }
+  }
+
+  /// Test Blocking Function Error Response flow - including JSON parsing.
+  /// Regression Test for #14052
+  func testBlockingFunctionErrorWithJSON() async throws {
+    let kErrorMessageBlocking = "BLOCKING_FUNCTION_ERROR_RESPONSE"
+    let stringWithJSON = "BLOCKING_FUNCTION_ERROR_RESPONSE : ((HTTP request to" +
+      "http://127.0.0.1:9999/project-id/us-central1/beforeUserCreated returned HTTP error 400:" +
+      " {\"error\":{\"details\":{\"code\":\"invalid-email\"},\"message\":\"invalid " +
+      "email\",\"status\":\"INVALID_ARGUMENT\"}}))"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessageBlocking + " : " + stringWithJSON,
+        error: responseError
+      )
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.blockingCloudFunctionError.rawValue)
+      XCTAssertEqual(rpcError.localizedDescription, "invalid email")
+    }
+  }
+
   /** @fn testDecodableErrorResponseWithUnknownMessage
       @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
           response deserialized by @c NSJSONSerialization represents a valid error response (and an
