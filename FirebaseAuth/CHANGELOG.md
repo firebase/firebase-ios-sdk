@@ -3,6 +3,7 @@
 - [fixed] Updated most decoders to be consistent with Firebase 10's behavior
   for decoding `nil` values. (#14212)
 - [fixed] Address Xcode 16.2 concurrency compile time issues. (#14279)
+- [fixed] Fix handling of cloud blocking function errors. (#14052)
 
 # 11.6.0
 - [added] Added reCAPTCHA Enterprise support for app verification during phone
