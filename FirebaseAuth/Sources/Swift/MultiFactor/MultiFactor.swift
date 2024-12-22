@@ -67,6 +67,19 @@ import Foundation
                      displayName: String?,
                      completion: ((Error?) -> Void)?) {
       // TODO: Refactor classes so this duplicated code isn't necessary for phone and totp.
+
+      guard
+        assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID ||
+        assertion.factorID == PhoneMultiFactorInfo.PhoneMultiFactorID
+      else {
+        return
+      }
+
+      guard let user = user, let auth = user.auth else {
+        fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
+      }
+
+      var request: FinalizeMFAEnrollmentRequest? = nil
       if assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID {
         guard let totpAssertion = assertion as? TOTPMultiFactorAssertion else {
           fatalError("Auth Internal Error: Failed to find TOTPMultiFactorAssertion")
@@ -74,92 +87,59 @@ import Foundation
         switch totpAssertion.secretOrID {
         case .enrollmentID: fatalError("Missing secret in totpAssertion")
         case let .secret(secret):
-          guard let user = user, let auth = user.auth else {
-            fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
-          }
           let finalizeMFATOTPRequestInfo =
             AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: secret.sessionInfo,
                                                           verificationCode: totpAssertion
                                                             .oneTimePassword)
-          let request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
-                                                     displayName: displayName,
-                                                     totpVerificationInfo: finalizeMFATOTPRequestInfo,
-                                                     requestConfiguration: user
-                                                       .requestConfiguration)
-          Task {
-            do {
-              let response = try await auth.backend.call(with: request)
-              do {
-                let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                         accessTokenExpirationDate: nil,
-                                                         refreshToken: response.refreshToken,
-                                                         anonymous: false)
-                try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-                if let completion {
-                  DispatchQueue.main.async {
-                    completion(nil)
-                  }
-                }
-              } catch {
-                DispatchQueue.main.async {
-                  if let completion {
-                    completion(error)
-                  }
-                }
-              }
-            } catch {
-              if let completion {
-                completion(error)
-              }
+          request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
+                                                 displayName: displayName,
+                                                 totpVerificationInfo: finalizeMFATOTPRequestInfo,
+                                                 requestConfiguration: user
+                                                   .requestConfiguration)
+        }
+      } else if assertion.factorID == PhoneMultiFactorInfo.PhoneMultiFactorID {
+        let phoneAssertion = assertion as? PhoneMultiFactorAssertion
+        guard let credential = phoneAssertion?.authCredential else {
+          fatalError("Internal Error: Missing credential")
+        }
+        switch credential.credentialKind {
+        case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+        case let .verification(verificationID, code):
+          let finalizeMFAPhoneRequestInfo =
+            AuthProtoFinalizeMFAPhoneRequestInfo(
+              sessionInfo: verificationID,
+              verificationCode: code
+            )
+          request = FinalizeMFAEnrollmentRequest(
+            idToken: self.user?.rawAccessToken(),
+            displayName: displayName,
+            phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
+            requestConfiguration: user.requestConfiguration
+          )
+        }
+      }
+
+      guard let request else {
+        // Assertion is not a phone assertion or TOTP assertion.
+        return
+      }
+
+      Task {
+        do {
+          let response = try await auth.backend.call(with: request)
+          let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                   accessTokenExpirationDate: nil,
+                                                   refreshToken: response.refreshToken,
+                                                   anonymous: false)
+          try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+          if let completion {
+            DispatchQueue.main.async {
+              completion(nil)
             }
           }
-        }
-        return
-      } else if assertion.factorID != PhoneMultiFactorInfo.PhoneMultiFactorID {
-        return
-      }
-      let phoneAssertion = assertion as? PhoneMultiFactorAssertion
-      guard let credential = phoneAssertion?.authCredential else {
-        fatalError("Internal Error: Missing credential")
-      }
-      switch credential.credentialKind {
-      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
-      case let .verification(verificationID, code):
-        let finalizeMFAPhoneRequestInfo =
-          AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
-        guard let user = user, let auth = user.auth else {
-          fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
-        }
-        let request = FinalizeMFAEnrollmentRequest(
-          idToken: self.user?.rawAccessToken(),
-          displayName: displayName,
-          phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
-          requestConfiguration: user.requestConfiguration
-        )
-
-        Task {
-          do {
-            let response = try await auth.backend.call(with: request)
-            do {
-              let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                       accessTokenExpirationDate: nil,
-                                                       refreshToken: response.refreshToken,
-                                                       anonymous: false)
-              try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-              if let completion {
-                DispatchQueue.main.async {
-                  completion(nil)
-                }
-              }
-            } catch {
-              DispatchQueue.main.async {
-                if let completion {
-                  completion(error)
-                }
-              }
-            }
-          } catch {
-            if let completion {
+        } catch {
+          if let completion {
+            DispatchQueue.main.async {
               completion(error)
             }
           }
