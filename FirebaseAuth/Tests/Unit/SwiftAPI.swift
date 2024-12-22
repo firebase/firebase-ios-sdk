@@ -41,7 +41,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: String = codeSettings.iOSBundleID,
        let _: String = codeSettings.androidPackageName,
        let _: String = codeSettings.androidMinimumVersion,
-       let _: String = codeSettings.dynamicLinkDomain {}
+       let _: String = codeSettings.dynamicLinkDomain,
+       let _: String = codeSettings.linkDomain {}
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -276,6 +277,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.tenantIDMismatch
     _ = AuthErrorCode.unsupportedTenantOperation
     _ = AuthErrorCode.invalidDynamicLinkDomain
+    _ = AuthErrorCode.invalidHostingLinkDomain
     _ = AuthErrorCode.rejectedCredential
     _ = AuthErrorCode.gameKitNotLinked
     _ = AuthErrorCode.secondFactorRequired
