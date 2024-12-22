@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,21 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Public/FirebaseFirestore/FIRInterface.h"
+
+#import "Firestore/core/src/api/used_by_objective_c.h"
+#include "Firestore/core/src/util/string_apple.h"
+
+using firebase::firestore::util::MakeString;
+
 NS_ASSUME_NONNULL_BEGIN
 
-/** Returns the current version of Firebase. */
+@implementation FIRInterface
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-NS_SWIFT_NAME(FirebaseVersion())
-NSString* FIRFirebaseVersion(void);
-
-#ifdef __cplusplus
++ (void)print:(NSString *)content {
+  CppInterfaceCalledByObjectiveC::print(MakeString(content));
 }
-#endif
+
+@end
 
 NS_ASSUME_NONNULL_END
