@@ -23,11 +23,26 @@
 // #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
-#import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+@import FirebaseRemoteConfig;
+
+static NSString *const kAnalyticsOriginPersonalization = @"fp";
+
+static NSString *const kExternalEvent = @"personalization_assignment";
+static NSString *const kExternalRcParameterParam = @"arm_key";
+static NSString *const kExternalArmValueParam = @"arm_value";
+static NSString *const kPersonalizationId = @"personalizationId";
+static NSString *const kExternalPersonalizationIdParam = @"personalization_id";
+static NSString *const kArmIndex = @"armIndex";
+static NSString *const kExternalArmIndexParam = @"arm_index";
+static NSString *const kGroup = @"group";
+static NSString *const kExternalGroupParam = @"group";
+
+static NSString *const kInternalEvent = @"_fpc";
+static NSString *const kChoiceId = @"choiceId";
+static NSString *const kInternalChoiceIdParam = @"_fpid";
 
 @interface RCNConfigFetch (ForTest)
 - (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
@@ -118,8 +133,7 @@
 
 - (void)testNonPersonalizationKey {
   [_fakeLogs removeAllObjects];
-
-  [_personalization logArmActive:@"key3" config:_configContainer];
+  [_personalization logArmActiveWithRcParameter:@"key3" config:_configContainer];
 
   OCMVerify(never(),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
@@ -134,7 +148,7 @@
 - (void)testSinglePersonalizationKey {
   [_fakeLogs removeAllObjects];
 
-  [_personalization logArmActive:@"key1" config:_configContainer];
+  [_personalization logArmActiveWithRcParameter:@"key1" config:_configContainer];
 
   OCMVerify(times(2),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
@@ -161,9 +175,9 @@
 - (void)testMultiplePersonalizationKeys {
   [_fakeLogs removeAllObjects];
 
-  [_personalization logArmActive:@"key1" config:_configContainer];
-  [_personalization logArmActive:@"key2" config:_configContainer];
-  [_personalization logArmActive:@"key1" config:_configContainer];
+  [_personalization logArmActiveWithRcParameter:@"key1" config:_configContainer];
+  [_personalization logArmActiveWithRcParameter:@"key2" config:_configContainer];
+  [_personalization logArmActiveWithRcParameter:@"key1" config:_configContainer];
 
   OCMVerify(times(4),
             [_analyticsMock logEventWithOrigin:kAnalyticsOriginPersonalization
