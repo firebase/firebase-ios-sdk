@@ -902,7 +902,7 @@
     @"doubleMin" : @{@"value" : @((double)LLONG_MIN - 100)},
     @"intMax" : @{@"value" : @LLONG_MAX},
     @"doubleMax" : @{@"value" : @((double)LLONG_MAX + 100)},
-    @"NaN" : @{@"value" :[NSNumber numberWithFloat:NAN]},
+    @"NaN" : @{@"value" : [NSNumber numberWithFloat:NAN]},
     @"integerMax" : @{@"value" : @(INT_MAX)},
     @"integerMin" : @{@"value" : @(INT_MAX)},
     @"negativeInfinity" : @{@"value" : @(-INFINITY)},
