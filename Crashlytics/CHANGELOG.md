@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Updated `upload-symbols` to version 3.20, wait for `debug.dylib` DWARF content getting generated when build with `--build-phase` option. Added `debug.dylib` DWARF content to run script input file list for user who enabled user script sandboxing (#14054).
+
 # 11.5.0
 - [changed] Updated `upload-symbols` to version 3.19, removed all methods require CFRelease and switch to modern classes (#13420).
 
