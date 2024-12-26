@@ -22,7 +22,6 @@
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
-#import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
@@ -191,7 +190,7 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
       RCNPersonalization *personalization =
           [[RCNPersonalization alloc] initWithAnalytics:analytics];
       [self addListener:^(NSString *key, NSDictionary *config) {
-        [personalization logArmActive:key config:config];
+        [personalization logArmActiveWithRcParameter:key config:config];
       }];
     }
   }
