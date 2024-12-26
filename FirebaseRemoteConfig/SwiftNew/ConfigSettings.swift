@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-import GoogleUtilities
+@_implementationOnly import GoogleUtilities
 
 // TODO(ncooke3): Once Obj-C tests are ported, all `public` access modifers can be removed.
 

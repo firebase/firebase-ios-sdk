@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+// TODO(ncooke3): Remove unneeded forward declarations after Swift migration.
+
 @class FIRApp;
 @class FIRRemoteConfigUpdate;
 @class RCNConfigDBManager;
@@ -23,6 +25,7 @@
 @class FIROptions;
 @class RCNConfigSettings;
 @class FIRRemoteConfigValue;
+@class RCNConfigFetch;
 @protocol FIRAnalyticsInterop;
 
 @protocol FIRRolloutsStateSubscriber;
@@ -354,7 +357,8 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
                    userDefaults:(nullable NSUserDefaults *)userDefaults
-                      analytics:(nullable id<FIRAnalyticsInterop>)analytics;
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics
+                    configFetch:(nullable RCNConfigFetch *)configFetch;
 
 /// Register `FIRRolloutsStateSubscriber` to `FIRRemoteConfig` instance
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;

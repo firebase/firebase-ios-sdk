@@ -20,7 +20,6 @@
 @import FirebaseRemoteConfig;
 
 // #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
@@ -163,14 +162,14 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     dispatch_queue_t queue = dispatch_queue_create(
         [[NSString stringWithFormat:@"testqueue: %d", i] cStringUsingEncoding:NSUTF8StringEncoding],
         DISPATCH_QUEUE_SERIAL);
-    _configFetch[i] = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
-                                                                   DBManager:_DBManager
-                                                                    settings:settings
-                                                                   analytics:nil
-                                                                  experiment:nil
-                                                                       queue:queue
-                                                                   namespace:fullyQualifiedNamespace
-                                                                     options:currentOptions]);
+    _configFetch[i] = [[RCNConfigFetch alloc] initWithContent:configContent
+                                                    DBManager:_DBManager
+                                                     settings:settings
+                                                    analytics:nil
+                                                   experiment:nil
+                                                        queue:queue
+                                                    namespace:fullyQualifiedNamespace
+                                                      options:currentOptions];
   }
 }
 

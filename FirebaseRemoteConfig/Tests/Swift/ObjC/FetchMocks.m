@@ -14,7 +14,8 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+@import FirebaseRemoteConfig;
+
 #import "FirebaseRemoteConfig/Tests/Swift/ObjC/FetchMocks.h"
 
 @interface RCNConfigFetch (ExposedForTest)

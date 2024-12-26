@@ -21,7 +21,6 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 // #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
@@ -44,20 +43,21 @@ static NSString *const kInternalEvent = @"_fpc";
 static NSString *const kChoiceId = @"choiceId";
 static NSString *const kInternalChoiceIdParam = @"_fpid";
 
-@interface RCNConfigFetch (ForTest)
-- (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
-                                        fetchTypeHeader:(NSString *)fetchTypeHeader
-                                      completionHandler:(void (^)(NSData *data,
-                                                                  NSURLResponse *response,
-                                                                  NSError *error))fetcherCompletion;
-
-- (void)fetchWithUserProperties:(NSDictionary *)userProperties
-                fetchTypeHeader:(NSString *)fetchTypeHeader
-              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
-        updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
-                                          FIRRemoteConfigUpdate *update,
-                                          NSError *error))updateCompletionHandler;
-@end
+//@interface RCNConfigFetch (ForTest)
+//- (NSURLSessionDataTask *)URLSessionDataTaskWithContent:(NSData *)content
+//                                        fetchTypeHeader:(NSString *)fetchTypeHeader
+//                                      completionHandler:(void (^)(NSData *data,
+//                                                                  NSURLResponse *response,
+//                                                                  NSError
+//                                                                  *error))fetcherCompletion;
+//
+//- (void)fetchWithUserProperties:(NSDictionary *)userProperties
+//                fetchTypeHeader:(NSString *)fetchTypeHeader
+//              completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+//        updateCompletionHandler:(void (^)(FIRRemoteConfigFetchStatus status,
+//                                          FIRRemoteConfigUpdate *update,
+//                                          NSError *error))updateCompletionHandler;
+//@end
 
 @interface RCNPersonalizationTest : XCTestCase {
   NSDictionary *_configContainer;
@@ -124,7 +124,7 @@ static NSString *const kInternalChoiceIdParam = @"_fpid";
             DBManager:DBManager
         configContent:configContent
             analytics:_analyticsMock]);
-  [_configInstance setValue:[RCNPersonalizationTest mockFetchRequest] forKey:@"_configFetch"];
+  //  [_configInstance setValue:[RCNPersonalizationTest mockFetchRequest] forKey:@"_configFetch"];
 }
 
 - (void)tearDown {
@@ -259,51 +259,52 @@ static NSString *const kInternalChoiceIdParam = @"_fpid";
   [_configInstance configValueForKey:@"key2"];
 }
 
-+ (id)mockFetchRequest {
-  id configFetch = OCMClassMock([RCNConfigFetch class]);
-  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
-      .ignoringNonObjectArgs()
-      .andDo(^(NSInvocation *invocation) {
-        __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
-        [invocation getArgument:&handler atIndex:3];
-        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
-                             fetchTypeHeader:@"Base/1"
-                           completionHandler:handler
-                     updateCompletionHandler:nil];
-      });
-  OCMExpect([configFetch
-                URLSessionDataTaskWithContent:[OCMArg any]
-                              fetchTypeHeader:@"Base/1"
-                            completionHandler:[RCNPersonalizationTest mockResponseHandler]])
-      .andReturn(nil);
-  return configFetch;
-}
+//+ (id)mockFetchRequest {
+//  id configFetch = OCMClassMock([RCNConfigFetch class]);
+//  OCMStub([configFetch fetchConfigWithExpirationDuration:0 completionHandler:OCMOCK_ANY])
+//      .ignoringNonObjectArgs()
+//      .andDo(^(NSInvocation *invocation) {
+//        __unsafe_unretained FIRRemoteConfigFetchCompletion handler;
+//        [invocation getArgument:&handler atIndex:3];
+//        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
+//                             fetchTypeHeader:@"Base/1"
+//                           completionHandler:handler
+//                     updateCompletionHandler:nil];
+//      });
+//  OCMExpect([configFetch
+//                URLSessionDataTaskWithContent:[OCMArg any]
+//                              fetchTypeHeader:@"Base/1"
+//                            completionHandler:[RCNPersonalizationTest mockResponseHandler]])
+//      .andReturn(nil);
+//  return configFetch;
+//}
 
-+ (id)mockResponseHandler {
-  NSDictionary *response = @{
-    RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
-    RCNFetchResponseKeyEntries : @{@"key1" : @"value1", @"key2" : @"value2", @"key3" : @"value3"},
-    RCNFetchResponseKeyPersonalizationMetadata : @{
-      @"key1" : @{
-        kPersonalizationId : @"p13n1",
-        kArmIndex : @0,
-        kChoiceId : @"id1",
-        kGroup : @"BASELINE"
-      },
-      @"key2" :
-          @{kPersonalizationId : @"p13n2", kArmIndex : @1, kChoiceId : @"id2", kGroup : @"P13N"}
-    }
-
-  };
-  return [OCMArg invokeBlockWithArgs:[NSJSONSerialization dataWithJSONObject:response
-                                                                     options:0
-                                                                       error:nil],
-                                     [[NSHTTPURLResponse alloc]
-                                          initWithURL:[NSURL URLWithString:@"https://firebase.com"]
-                                           statusCode:200
-                                          HTTPVersion:nil
-                                         headerFields:@{@"etag" : @"etag1"}],
-                                     [NSNull null], nil];
-}
+//+ (id)mockResponseHandler {
+//  NSDictionary *response = @{
+//    RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
+//    RCNFetchResponseKeyEntries : @{@"key1" : @"value1", @"key2" : @"value2", @"key3" : @"value3"},
+//    RCNFetchResponseKeyPersonalizationMetadata : @{
+//      @"key1" : @{
+//        kPersonalizationId : @"p13n1",
+//        kArmIndex : @0,
+//        kChoiceId : @"id1",
+//        kGroup : @"BASELINE"
+//      },
+//      @"key2" :
+//          @{kPersonalizationId : @"p13n2", kArmIndex : @1, kChoiceId : @"id2", kGroup : @"P13N"}
+//    }
+//
+//  };
+//  return [OCMArg invokeBlockWithArgs:[NSJSONSerialization dataWithJSONObject:response
+//                                                                     options:0
+//                                                                       error:nil],
+//                                     [[NSHTTPURLResponse alloc]
+//                                          initWithURL:[NSURL
+//                                          URLWithString:@"https://firebase.com"]
+//                                           statusCode:200
+//                                          HTTPVersion:nil
+//                                         headerFields:@{@"etag" : @"etag1"}],
+//                                     [NSNull null], nil];
+//}
 
 @end

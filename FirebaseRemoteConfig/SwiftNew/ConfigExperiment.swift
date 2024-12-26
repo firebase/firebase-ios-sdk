@@ -18,8 +18,14 @@ import Foundation
 // TODO(ncooke3): Once everything is ported, the `@objc` and `public` access
 // can be removed.
 
+@objc(RCNConfigExperimentFake) public class ConfigExperimentFake: ConfigExperiment {
+  override public func updateExperiments(handler: (((any Error)?) -> Void)? = nil) {
+    handler?(nil)
+  }
+}
+
 /// Handles experiment information update and persistence.
-@objc(RCNConfigExperiment) public final class ConfigExperiment: NSObject {
+@objc(RCNConfigExperiment) public class ConfigExperiment: NSObject {
   private static let experimentMetadataKeyLastStartTime = "last_experiment_start_time"
   private static let serviceOrigin = "frc"
 
