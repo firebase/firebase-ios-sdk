@@ -35,7 +35,7 @@ private let kInternalChoiceIdParam = "_fpid"
 @objc(RCNPersonalization)
 public class Personalization: NSObject {
   /// Analytics connector.
-  weak var analytics: FIRAnalyticsInterop?
+  var analytics: FIRAnalyticsInterop?
 
   private var loggedChoiceIds = [String: String]()
 
