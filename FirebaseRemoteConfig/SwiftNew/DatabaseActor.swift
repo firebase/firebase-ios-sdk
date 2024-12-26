@@ -23,8 +23,7 @@ private let RCNDatabaseName = "RemoteConfig.sqlite3"
 // Actor for database operations
 actor DatabaseActor {
   private var database: OpaquePointer?
-  private var isNewDatabase: Bool = false
-  private let dbPath: String
+  let dbPath: String
 
   init(dbPath: String) {
     self.dbPath = dbPath
@@ -220,8 +219,8 @@ actor DatabaseActor {
       return logError(withSQL: sql, finalizeStatement: statement, returnValue: false)
     }
     if bindText(statement, 1, key) != SQLITE_OK ||
-      sqlite3_bind_blob(statement, 2, (value as NSData).bytes, Int32(value.count), nil) != SQLITE_OK
-    {
+      sqlite3_bind_blob(statement, 2, (value as NSData).bytes, Int32(value.count), nil) !=
+      SQLITE_OK {
       return logError(withSQL: sql, finalizeStatement: statement, returnValue: false)
     }
     if sqlite3_step(statement) != SQLITE_DONE {
@@ -537,7 +536,7 @@ actor DatabaseActor {
     return results
   }
 
-  func loadRolloutTable(fromKey key: String) -> [[String: Any]] {
+  func loadRolloutTable(fromKey key: String) -> [[String: Sendable]] {
     let sql = "SELECT value FROM rollout WHERE key = ?"
     var statement: OpaquePointer?
     if sqlite3_prepare_v2(database, sql, -1, &statement, nil) != SQLITE_OK {
@@ -559,11 +558,11 @@ actor DatabaseActor {
     if let data = results.first {
       // Convert from NSData to NSArray
       if let rollout = try? JSONSerialization
-        .jsonObject(with: data, options: []) as? [[String: Any]] {
+        .jsonObject(with: data, options: []) as? [[String: Sendable]] {
         return rollout
       } else {
         RCLog.error("I-RCN000011",
-                    "Failed to convert NSData to NSAarry for Rollout Metadata")
+                    "Failed to convert NSData to NSArray for Rollout Metadata")
       }
     }
 
@@ -659,7 +658,6 @@ actor DatabaseActor {
     }
     let fileManager = FileManager.default
     if !fileManager.fileExists(atPath: filePath) {
-      isNewDatabase = true
       do {
         try fileManager.createDirectory(
           atPath: URL(fileURLWithPath: filePath).deletingLastPathComponent().path,
@@ -764,11 +762,57 @@ actor DatabaseActor {
       executeQuery(createRollout)
   }
 
-  func removeDatabase(atPath path: String) {
+  // MARK: - Delete
+
+  func deleteRecord(fromMainTableWithNamespace namespace: String,
+                    bundleIdentifier: String,
+                    fromSource source: DBSource) {
+    let params = [bundleIdentifier, namespace]
+    let sql =
+      if source == .default {
+        "DELETE FROM main_default WHERE bundle_identifier = ? and namespace = ?"
+      } else if source == .active {
+        "DELETE FROM main_active WHERE bundle_identifier = ? and namespace = ?"
+      } else {
+        "DELETE FROM main WHERE bundle_identifier = ? and namespace = ?"
+      }
+    executeQuery(sql, withParams: params)
+  }
+
+  func deleteRecord(withBundleIdentifier bundleIdentifier: String,
+                    namespace: String) {
+    let sql = "DELETE FROM fetch_metadata_v2 WHERE bundle_identifier = ? and namespace = ?"
+    let params = [bundleIdentifier, namespace]
+    executeQuery(sql, withParams: params)
+  }
+
+  func deleteAllRecords(fromTableWithSource source: DBSource) {
+    let sql =
+      if source == .default {
+        "DELETE FROM main_default"
+      } else if source == .active {
+        "DELETE FROM main_active"
+      } else {
+        "DELETE FROM main"
+      }
+    executeQuery(sql)
+  }
+
+  func deleteExperimentTable(forKey key: String) {
+    let params = [key]
+    let sql = "DELETE FROM experiment WHERE key = ?"
+    executeQuery(sql, withParams: params)
+  }
+
+  func closeDatabase(atPath path: String) {
     if sqlite3_close(database) != SQLITE_OK {
       logDatabaseError()
     }
     database = nil
+  }
+
+  func removeDatabase(atPath path: String) {
+    closeDatabase(atPath: path)
 
     do {
       try FileManager.default.removeItem(atPath: path)
@@ -778,17 +822,24 @@ actor DatabaseActor {
     }
   }
 
+  @discardableResult
   func executeQuery(_ sql: String) -> Bool {
     var error: UnsafeMutablePointer<Int8>?
     if sqlite3_exec(database, sql, nil, nil, &error) != SQLITE_OK {
-      RCLog.error("I-RCN000012",
-                  "Failed to execute query with error \(error!).")
+      if let error {
+        RCLog.error("I-RCN000012",
+                    "Failed to execute query with error \(error).")
+      } else {
+        RCLog.error("I-RCN000012",
+                    "Failed to execute query with no error.")
+      }
       sqlite3_free(error)
       return false
     }
     return true
   }
 
+  @discardableResult
   func executeQuery(_ sql: String, withParams params: [String]) -> Bool {
     var statement: OpaquePointer? = nil
     defer { sqlite3_finalize(statement) }
