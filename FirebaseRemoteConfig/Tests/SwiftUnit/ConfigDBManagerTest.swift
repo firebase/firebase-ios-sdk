@@ -43,12 +43,12 @@ class ConfigDBManagerTest: XCTestCase {
     XCTAssertTrue(isNew)
   }
 
-  func testLoadMainTableWithBundleIdentifier() {
+  func testLoadMainTableWithBundleIdentifier() throws {
     let config = [
       "key1": "value1",
       "key2": "value2",
     ]
-    let data = try! JSONSerialization.data(withJSONObject: config, options: [])
+    let data = try JSONSerialization.data(withJSONObject: config, options: [])
     let rcValue = RemoteConfigValue(data: data, source: .remote)
     let namespace = "namespace"
 
@@ -79,14 +79,14 @@ class ConfigDBManagerTest: XCTestCase {
     waitForExpectations()
   }
 
-  func testLoadMetadataTableWithBundleIdentifier() {
+  func testLoadMetadataTableWithBundleIdentifier() throws {
     let exp = expectation(description: #function)
     let deviceContext = ["device": "info"]
     let appContext = ["app": "info"]
     let digestPerNamespace = ["digest": "info"]
-    let deviceContextData = try! JSONSerialization.data(withJSONObject: deviceContext, options: [])
-    let appContextData = try! JSONSerialization.data(withJSONObject: appContext, options: [])
-    let digestPerNamespaceData = try! JSONSerialization.data(withJSONObject: digestPerNamespace,
+    let deviceContextData = try JSONSerialization.data(withJSONObject: deviceContext, options: [])
+    let appContextData = try JSONSerialization.data(withJSONObject: appContext, options: [])
+    let digestPerNamespaceData = try JSONSerialization.data(withJSONObject: digestPerNamespace,
                                                              options: [])
     let columnNameToValue = [
       RCNKeyBundleIdentifier: bundleID,
@@ -95,8 +95,8 @@ class ConfigDBManagerTest: XCTestCase {
       RCNKeyDigestPerNamespace: digestPerNamespaceData,
       RCNKeyDeviceContext: deviceContextData,
       RCNKeyAppContext: appContextData,
-      RCNKeySuccessFetchTime: try! JSONSerialization.data(withJSONObject: [], options: []),
-      RCNKeyFailureFetchTime: try! JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeySuccessFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeyFailureFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
       RCNKeyLastFetchStatus: 0,
       RCNKeyLastFetchError: 0,
       RCNKeyLastApplyTime: Date().timeIntervalSince1970,
@@ -122,8 +122,8 @@ class ConfigDBManagerTest: XCTestCase {
     waitForExpectations()
   }
 
-  func testUpdateMetadataTable() async {
-    await insertMetadata()
+  func testUpdateMetadataTable() async throws {
+    try await insertMetadata()
     let values: [Any] = [1, 1] // Fetch Failure status.
 
     let success = await dbManager.databaseActor.updateMetadataTable(withOption: .fetchStatus,
@@ -164,8 +164,8 @@ class ConfigDBManagerTest: XCTestCase {
     waitForExpectations()
   }
 
-  func testDeleteRecordsFromMainTableForNamespace() async {
-    await insertMainTableValue()
+  func testDeleteRecordsFromMainTableForNamespace() async throws {
+    try await insertMainTableValue()
 
     await dbManager.databaseActor.deleteRecord(fromMainTableWithNamespace: namespace,
                                                bundleIdentifier: bundleID,
@@ -177,16 +177,16 @@ class ConfigDBManagerTest: XCTestCase {
     XCTAssertNil(fetched[namespace]?["key"])
   }
 
-  func testDeleteAllRecordsFromMetadataTable() async {
-    await insertMetadata()
+  func testDeleteAllRecordsFromMetadataTable() async throws {
+    try await insertMetadata()
     await dbManager.databaseActor.deleteRecord(withBundleIdentifier: bundleID, namespace: namespace)
     let result = await dbManager.databaseActor.loadMetadataTable(withBundleIdentifier: bundleID,
                                                                  namespace: namespace)
     XCTAssertTrue(result.isEmpty)
   }
 
-  func testDeleteAllRecordsFromMainTable() async {
-    await insertMainTableValue()
+  func testDeleteAllRecordsFromMainTable() async throws {
+    try await insertMainTableValue()
 
     await dbManager.databaseActor.deleteAllRecords(fromTableWithSource: .fetched)
     let fetched = await dbManager.databaseActor.loadMainTable(
@@ -196,7 +196,7 @@ class ConfigDBManagerTest: XCTestCase {
     XCTAssertTrue(fetched.isEmpty)
   }
 
-  func testInsertExperimentTable() {
+  func testInsertExperimentTable() throws {
     let exp = expectation(description: #function)
     let experiment: [String: Any?] = [
       "experimentId": "experiment",
@@ -209,7 +209,7 @@ class ConfigDBManagerTest: XCTestCase {
       "assignmentTimeoutMillis": 45000,
       "clearEvent": nil,
     ]
-    let experimentData = try! JSONSerialization.data(withJSONObject: experiment, options: [])
+    let experimentData = try JSONSerialization.data(withJSONObject: experiment, options: [])
 
     dbManager.insertExperimentTable(withKey: ConfigConstants.experimentTableKeyPayload,
                                     value: experimentData) { success, _ in
@@ -230,10 +230,10 @@ class ConfigDBManagerTest: XCTestCase {
     waitForExpectations()
   }
 
-  func testUpdateExperimentMetadata() {
+  func testUpdateExperimentMetadata() throws {
     let exp = expectation(description: #function)
     let metadata = ["lastStartTime": 123]
-    let metadataData = try! JSONSerialization.data(withJSONObject: metadata, options: [])
+    let metadataData = try JSONSerialization.data(withJSONObject: metadata, options: [])
 
     dbManager.insertExperimentTable(withKey: ConfigConstants.experimentTableKeyMetadata,
                                     value: metadataData) { success, _ in
@@ -269,8 +269,8 @@ class ConfigDBManagerTest: XCTestCase {
     waitForExpectations()
   }
 
-  func testDeleteExperimentTableForKey() async {
-    await insertExperiment()
+  func testDeleteExperimentTableForKey() async throws {
+    try await insertExperiment()
     await dbManager.databaseActor
       .deleteExperimentTable(forKey: ConfigConstants.experimentTableKeyPayload)
 
@@ -347,10 +347,10 @@ class ConfigDBManagerTest: XCTestCase {
     try? FileManager.default.removeItem(atPath: filePath)
   }
 
-  func insertMetadata() async {
-    let deviceContextData = try! JSONSerialization.data(withJSONObject: [:], options: [])
-    let appContextData = try! JSONSerialization.data(withJSONObject: [:], options: [])
-    let digestPerNamespaceData = try! JSONSerialization.data(withJSONObject: [:], options: [])
+  func insertMetadata() async throws {
+    let deviceContextData = try JSONSerialization.data(withJSONObject: [:], options: [])
+    let appContextData = try JSONSerialization.data(withJSONObject: [:], options: [])
+    let digestPerNamespaceData = try JSONSerialization.data(withJSONObject: [:], options: [])
     let columnNameToValue = [
       RCNKeyBundleIdentifier: bundleID,
       RCNKeyNamespace: namespace,
@@ -358,8 +358,8 @@ class ConfigDBManagerTest: XCTestCase {
       RCNKeyDigestPerNamespace: digestPerNamespaceData,
       RCNKeyDeviceContext: deviceContextData,
       RCNKeyAppContext: appContextData,
-      RCNKeySuccessFetchTime: try! JSONSerialization.data(withJSONObject: [], options: []),
-      RCNKeyFailureFetchTime: try! JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeySuccessFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeyFailureFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
       RCNKeyLastFetchStatus: 0,
       RCNKeyLastFetchError: 0,
       RCNKeyLastApplyTime: Date().timeIntervalSince1970,
@@ -369,12 +369,12 @@ class ConfigDBManagerTest: XCTestCase {
     XCTAssertTrue(success)
   }
 
-  private func insertMainTableValue() async {
+  private func insertMainTableValue() async throws {
     let config = [
       "key1": "value1",
       "key2": "value2",
     ]
-    let data = try! JSONSerialization.data(withJSONObject: config, options: [])
+    let data = try JSONSerialization.data(withJSONObject: config, options: [])
     let rcValue = RemoteConfigValue(data: data, source: .remote)
 
     let success = await dbManager.databaseActor.insertMainTable(
@@ -384,11 +384,11 @@ class ConfigDBManagerTest: XCTestCase {
     XCTAssertTrue(success)
   }
 
-  private func insertExperiment() async {
+  private func insertExperiment() async throws {
     let experiment: [String: Any] = [
       "experimentId": "experiment",
     ]
-    let experimentData = try! JSONSerialization.data(withJSONObject: experiment, options: [])
+    let experimentData = try JSONSerialization.data(withJSONObject: experiment, options: [])
     let success = await dbManager.databaseActor.insertExperimentTable(
       withKey: ConfigConstants.experimentTableKeyPayload,
       value: experimentData
