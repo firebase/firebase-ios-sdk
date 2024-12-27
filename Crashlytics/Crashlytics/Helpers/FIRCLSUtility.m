@@ -185,7 +185,7 @@ NSString* FIRCLSNSDataToNSString(NSData* data) {
   // null terminator
   length = [data length];
   size = (length * 2) + 1;
-  buffer = malloc(sizeof(char) * size);
+  buffer = calloc(1, sizeof(char) * size);
 
   if (!buffer) {
     FIRCLSErrorLog(@"Unable to malloc in FIRCLSNSDataToNSString");
