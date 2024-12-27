@@ -98,8 +98,9 @@ class APITestBase: XCTestCase {
         config.configRealtime = RealtimeMocks.mockRealtime(config.configRealtime)
       }
       fakeConsole = FakeConsole()
-      config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
-      config.configFetch.disableNetworkSessionRecreation = true
+      config.configFetch.configuredFetchSessionProvider = { _ in
+        URLSessionMock(with: self.fakeConsole)
+      }
 
       fakeConsole.config = [Constants.key1: Constants.value1,
                             Constants.jsonKey: jsonValue,
