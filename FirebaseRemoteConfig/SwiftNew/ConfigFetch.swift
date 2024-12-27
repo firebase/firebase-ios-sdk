@@ -103,11 +103,11 @@ extension Installations: InstallationsProtocol {}
   /// Guard the read/write operation.
   private let lockQueue: DispatchQueue
 
-  private let installations: (any InstallationsProtocol)?
+  public var installations: (any InstallationsProtocol)?
 
   /// Provide fetchSession for tests to override.
   /// - Note: Managed internally by the fetch instance.
-  @objc public var fetchSession: any RCNConfigFetchSession
+  public var fetchSession: any RCNConfigFetchSession
 
   private let namespace: String
 
@@ -180,8 +180,13 @@ extension Installations: InstallationsProtocol {}
     super.init()
   }
 
+  public var disableNetworkSessionRecreation: Bool = false
+
   /// Add the ability to update NSURLSession's timeout after a session has already been created.
   @objc public func recreateNetworkSession() {
+    if disableNetworkSessionRecreation {
+      return
+    }
     fetchSession.invalidateAndCancel()
     fetchSession = configuredFetchSessionProvider(settings)
   }
