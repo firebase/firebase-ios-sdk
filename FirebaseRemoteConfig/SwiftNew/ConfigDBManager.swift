@@ -52,12 +52,12 @@ open class ConfigDBManager: NSObject {
   /// Shared Singleton Instance
   @objc public static let sharedInstance = ConfigDBManager()
 
-  private let databaseActor: DatabaseActor
-
-  @objc public var isNewDatabase: Bool = false
+  let databaseActor: DatabaseActor
+  @objc public var isNewDatabase: Bool
 
   @objc public init(dbPath: String = remoteConfigPathForDatabase()) {
     databaseActor = DatabaseActor(dbPath: dbPath)
+    isNewDatabase = !FileManager.default.fileExists(atPath: dbPath)
     super.init()
   }
 
@@ -306,51 +306,31 @@ open class ConfigDBManager: NSObject {
   func deleteRecord(fromMainTableWithNamespace namespace: String,
                     bundleIdentifier: String,
                     fromSource source: DBSource) {
-    let params = [bundleIdentifier, namespace]
-    let sql =
-      if source == .default {
-        "DELETE FROM main_default WHERE bundle_identifier = ? and namespace = ?"
-      } else if source == .active {
-        "DELETE FROM main_active WHERE bundle_identifier = ? and namespace = ?"
-      } else {
-        "DELETE FROM main WHERE bundle_identifier = ? and namespace = ?"
-      }
     Task {
-      await self.databaseActor.executeQuery(sql, withParams: params)
+      await self.databaseActor
+        .deleteRecord(
+          fromMainTableWithNamespace: namespace,
+          bundleIdentifier: bundleIdentifier,
+          fromSource: source
+        )
     }
   }
 
   @objc public
   func deleteRecord(withBundleIdentifier bundleIdentifier: String,
                     namespace: String) {
-    let sql = "DELETE FROM fetch_metadata_v2 WHERE bundle_identifier = ? and namespace = ?"
-    let params = [bundleIdentifier, namespace]
     Task {
-      await self.databaseActor.executeQuery(sql, withParams: params)
-    }
-  }
-
-  @objc public
-  func deleteAllRecords(fromTableWithSource source: DBSource) {
-    let sql =
-      if source == .default {
-        "DELETE FROM main_default"
-      } else if source == .active {
-        "DELETE FROM main_active"
-      } else {
-        "DELETE FROM main"
-      }
-    Task {
-      await self.databaseActor.executeQuery(sql)
+      await self.databaseActor.deleteRecord(
+        withBundleIdentifier: bundleIdentifier,
+        namespace: namespace
+      )
     }
   }
 
   @objc public
   func deleteExperimentTable(forKey key: String) {
-    let params = [key]
-    let sql = "DELETE FROM experiment WHERE key = ?"
     Task {
-      await self.databaseActor.executeQuery(sql, withParams: params)
+      await self.databaseActor.deleteExperimentTable(forKey: key)
     }
   }
 
