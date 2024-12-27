@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
+import FirebaseRemoteConfig
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FetchMocks : NSObject
-+ (RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch;
-@end
-
-NS_ASSUME_NONNULL_END
+@objc(RCNConfigExperimentFake) public class ConfigExperimentFake: ConfigExperiment {
+  override public func updateExperiments(handler: (((any Error)?) -> Void)? = nil) {
+    handler?(nil)
+  }
+}

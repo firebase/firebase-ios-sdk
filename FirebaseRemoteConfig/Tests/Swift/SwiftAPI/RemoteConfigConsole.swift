@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
+import Foundation
 
 class RemoteConfigConsole {
   private let projectID: String
@@ -166,7 +167,9 @@ class RemoteConfigConsole {
 
     let semaphore = DispatchSemaphore(value: 0)
 
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+    let task: URLSessionDataTask = URLSession.shared.dataTask(
+      with: request
+    ) { data, response, error in
       // Signal the semaphore when this scope is escaped.
       defer { semaphore.signal() }
 

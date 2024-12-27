@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
+import FirebaseInstallations
 import FirebaseRemoteConfig
 
 #if SWIFT_PACKAGE
@@ -20,6 +21,16 @@ import FirebaseRemoteConfig
 #endif
 
 import XCTest
+
+class InstallationsFake: InstallationsProtocol {
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, (any Error)?) -> Void) {
+    completion(nil, nil)
+  }
+
+  func installationID(completion: @escaping (String?, (any Error)?) -> Void) {
+    completion("fake_installation_id", nil)
+  }
+}
 
 class APITestBase: XCTestCase {
   static var useFakeConfig: Bool!
@@ -81,7 +92,7 @@ class APITestBase: XCTestCase {
     if APITests.useFakeConfig {
       if !APITests.mockedFetch {
         APITests.mockedFetch = true
-        config.configFetch = FetchMocks.mockFetch(config.configFetch)
+        config.configFetch.installations = InstallationsFake()
       }
       if !APITests.mockedRealtime {
         APITests.mockedRealtime = true
@@ -89,6 +100,7 @@ class APITestBase: XCTestCase {
       }
       fakeConsole = FakeConsole()
       config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
+      config.configFetch.disableNetworkSessionRecreation = true
 
       fakeConsole.config = [Constants.key1: Constants.value1,
                             Constants.jsonKey: jsonValue,

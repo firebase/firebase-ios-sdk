@@ -19,7 +19,6 @@
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 
@@ -145,7 +144,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                       DBManager:(RCNConfigDBManager *)DBManager
                   configContent:(RCNConfigContent *)configContent
                    userDefaults:(nullable NSUserDefaults *)userDefaults
-                      analytics:(nullable id<FIRAnalyticsInterop>)analytics {
+                      analytics:(nullable id<FIRAnalyticsInterop>)analytics
+                    configFetch:(nullable RCNConfigFetch *)configFetch {
   self = [super init];
   if (self) {
     _appName = appName;
@@ -169,14 +169,18 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
     // Initialize with default config settings.
     [self setDefaultConfigSettings];
-    _configFetch = [[RCNConfigFetch alloc] initWithContent:_configContent
-                                                 DBManager:_DBManager
-                                                  settings:_settings
-                                                 analytics:analytics
-                                                experiment:_configExperiment
-                                                     queue:_queue
-                                                 namespace:_FIRNamespace
-                                                   options:options];
+    if (configFetch) {
+      _configFetch = configFetch;
+    } else {
+      _configFetch = [[RCNConfigFetch alloc] initWithContent:_configContent
+                                                   DBManager:_DBManager
+                                                    settings:_settings
+                                                   analytics:analytics
+                                                  experiment:_configExperiment
+                                                       queue:_queue
+                                                   namespace:_FIRNamespace
+                                                     options:options];
+    }
 
     _configRealtime = [[RCNConfigRealtime alloc] init:_configFetch
                                              settings:_settings
@@ -209,7 +213,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                      DBManager:DBManager
                  configContent:configContent
                   userDefaults:nil
-                     analytics:analytics];
+                     analytics:analytics
+                   configFetch:nil];
 }
 
 // Initialize with default config settings.
@@ -356,7 +361,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
 #pragma mark - fetch
 
-- (void)fetchWithCompletionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
+- (void)fetchWithCompletionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                      NSError *_Nullable error))completionHandler {
   dispatch_async(_queue, ^{
     [self fetchWithExpirationDuration:self->_settings.minimumFetchInterval
                     completionHandler:completionHandler];
@@ -364,8 +370,9 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 }
 
 - (void)fetchWithExpirationDuration:(NSTimeInterval)expirationDuration
-                  completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler {
-  FIRRemoteConfigFetchCompletion completionHandlerCopy = nil;
+                  completionHandler:(void (^_Nullable)(FIRRemoteConfigFetchStatus status,
+                                                       NSError *_Nullable error))completionHandler {
+  void (^completionHandlerCopy)(FIRRemoteConfigFetchStatus, NSError *_Nullable) = nil;
   if (completionHandler) {
     completionHandlerCopy = [completionHandler copy];
   }
