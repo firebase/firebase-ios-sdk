@@ -197,7 +197,7 @@ open class ConfigDBManager: NSObject {
                 completionHandler handler: ((Bool, [String: [String: RemoteConfigValue]],
                                              [String: [String: RemoteConfigValue]],
                                              [String: [String: RemoteConfigValue]],
-                                             [String: Any]) -> Void)? = nil) {
+                                             [String: [[String: Sendable]]]) -> Void)? = nil) {
     Task {
       let fetchedConfig = await self.databaseActor.loadMainTable(
         withBundleIdentifier: bundleIdentifier,
