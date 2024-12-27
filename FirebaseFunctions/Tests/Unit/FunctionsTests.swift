@@ -30,7 +30,7 @@ class FunctionsTests: XCTestCase {
   var functionsCustomDomain: Functions?
   let fetcherService = GTMSessionFetcherService()
   let appCheckFake = FIRAppCheckFake()
-
+  
   override func setUp() {
     super.setUp()
     functions = Functions(
@@ -47,13 +47,13 @@ class FunctionsTests: XCTestCase {
                                       messaging: nil, appCheck: nil,
                                       fetcherService: fetcherService)
   }
-
+  
   override func tearDown() {
     functions = nil
     functionsCustomDomain = nil
     super.tearDown()
   }
-
+  
   func testFunctionsInstanceIsStablePerApp() throws {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
@@ -62,30 +62,30 @@ class FunctionsTests: XCTestCase {
     var functions1 = Functions.functions()
     var functions2 = Functions.functions(app: FirebaseApp.app()!)
     XCTAssertEqual(functions1, functions2)
-
+    
     FirebaseApp.configure(name: "test", options: options)
     let app2 = try XCTUnwrap(FirebaseApp.app(name: "test"))
     functions2 = Functions.functions(app: app2, region: "us-central2")
     XCTAssertNotEqual(functions1, functions2)
-
+    
     functions1 = Functions.functions(app: app2, region: "us-central2")
     XCTAssertEqual(functions1, functions2)
-
+    
     functions1 = Functions.functions(customDomain: "test_domain")
     functions2 = Functions.functions(region: "us-central1")
     XCTAssertNotEqual(functions1, functions2)
-
+    
     functions2 = Functions.functions(app: FirebaseApp.app()!, customDomain: "test_domain")
     XCTAssertEqual(functions1, functions2)
   }
-
+  
   func testFunctionURLForName() throws {
     XCTAssertEqual(
       functions?.functionURL(for: "my-endpoint")?.absoluteString,
       "https://my-region-my-project.cloudfunctions.net/my-endpoint"
     )
   }
-
+  
   func testFunctionURLForNameEmulator() throws {
     functionsCustomDomain?.useEmulator(withHost: "localhost", port: 5005)
     XCTAssertEqual(
@@ -93,7 +93,7 @@ class FunctionsTests: XCTestCase {
       "http://localhost:5005/my-project/my-region/my-endpoint"
     )
   }
-
+  
   func testFunctionURLForNameRegionWithEmulatorWithScheme() throws {
     functionsCustomDomain?.useEmulator(withHost: "http://localhost", port: 5005)
     XCTAssertEqual(
@@ -101,19 +101,19 @@ class FunctionsTests: XCTestCase {
       "http://localhost:5005/my-project/my-region/my-endpoint"
     )
   }
-
+  
   func testFunctionURLForNameCustomDomain() throws {
     XCTAssertEqual(
       functionsCustomDomain?.functionURL(for: "my-endpoint")?.absoluteString,
       "https://mydomain.com/my-endpoint"
     )
   }
-
+  
   func testSetEmulatorSettings() throws {
     functions?.useEmulator(withHost: "localhost", port: 1000)
     XCTAssertEqual("http://localhost:1000", functions?.emulatorOrigin)
   }
-
+  
   /// Test that Functions instances get deallocated.
   func testFunctionsLifecycle() throws {
     weak var weakApp: FirebaseApp?
@@ -131,9 +131,9 @@ class FunctionsTests: XCTestCase {
     XCTAssertNil(weakApp)
     XCTAssertNil(weakFunctions)
   }
-
+  
   // MARK: - App Check Integration
-
+  
   func testCallFunctionWhenUsingLimitedUseAppCheckTokenThenTokenSuccess() {
     // Given
     // Stub returns of two different kinds of App Check tokens. Only the
@@ -143,7 +143,7 @@ class FunctionsTests: XCTestCase {
       token: "limited_use_valid_token",
       error: nil
     )
-
+    
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
@@ -153,10 +153,10 @@ class FunctionsTests: XCTestCase {
       testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
       httpRequestExpectation.fulfill()
     }
-
+    
     // When
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-
+    
     // Then
     let completionExpectation = expectation(description: "completionExpectation")
     functions?
@@ -165,15 +165,15 @@ class FunctionsTests: XCTestCase {
         guard let result = result else {
           return XCTFail("Unexpected error: \(error!).")
         }
-
+        
         XCTAssertEqual(result.data as! String, "May the force be with you!")
-
+        
         completionExpectation.fulfill()
       }
-
+    
     waitForExpectations(timeout: 1.5)
   }
-
+  
   func testCallFunctionWhenLimitedUseAppCheckTokenDisabledThenCallWithoutToken() {
     // Given
     let limitedUseDummyToken = "limited use dummy token"
@@ -181,7 +181,7 @@ class FunctionsTests: XCTestCase {
       token: limitedUseDummyToken,
       error: NSError(domain: #function, code: -1)
     )
-
+    
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       // Assert that header does not contain an AppCheck token.
@@ -190,14 +190,14 @@ class FunctionsTests: XCTestCase {
           XCTAssertNotEqual(value, limitedUseDummyToken)
         }
       }
-
+      
       testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
       httpRequestExpectation.fulfill()
     }
-
+    
     // When
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: false)
-
+    
     // Then
     let completionExpectation = expectation(description: "completionExpectation")
     functions?
@@ -206,36 +206,36 @@ class FunctionsTests: XCTestCase {
         guard let result = result else {
           return XCTFail("Unexpected error: \(error!).")
         }
-
+        
         XCTAssertEqual(result.data as! String, "May the force be with you!")
-
+        
         completionExpectation.fulfill()
       }
-
+    
     waitForExpectations(timeout: 1.5)
   }
-
+  
   func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithoutToken() {
     // Given
     appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
       token: "dummy token",
       error: NSError(domain: #function, code: -1)
     )
-
+    
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       // Assert that header does not contain an AppCheck token.
       fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, _ in
         XCTAssertNotEqual(key, "X-Firebase-AppCheck")
       }
-
+      
       testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
       httpRequestExpectation.fulfill()
     }
-
+    
     // When
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-
+    
     // Then
     let completionExpectation = expectation(description: "completionExpectation")
     functions?
@@ -244,15 +244,15 @@ class FunctionsTests: XCTestCase {
         guard let result = result else {
           return XCTFail("Unexpected error: \(error!).")
         }
-
+        
         XCTAssertEqual(result.data as! String, "May the force be with you!")
-
+        
         completionExpectation.fulfill()
       }
-
+    
     waitForExpectations(timeout: 1.5)
   }
-
+  
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
     // Stub returns of two different kinds of App Check tokens. Only the
     // shared use token should be present in Functions's request header.
@@ -261,13 +261,13 @@ class FunctionsTests: XCTestCase {
       token: "limited_use_valid_token",
       error: nil
     )
-
+    
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
       code: -1,
       userInfo: nil
     )
-
+    
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
@@ -276,7 +276,7 @@ class FunctionsTests: XCTestCase {
       testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
     }
-
+    
     let completionExpectation = expectation(description: "completionExpectation")
     functions?
       .httpsCallable("fake_func")
@@ -284,22 +284,22 @@ class FunctionsTests: XCTestCase {
         guard let error = error else {
           return XCTFail("Unexpected success: \(result!).")
         }
-
+        
         XCTAssertEqual(error as NSError, networkError)
-
+        
         completionExpectation.fulfill()
       }
-
+    
     waitForExpectations(timeout: 1.5)
   }
-
+  
   func testAsyncCallFunctionWhenAppCheckIsNotInstalled() async {
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
       code: -1,
       userInfo: nil
     )
-
+    
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
@@ -308,7 +308,7 @@ class FunctionsTests: XCTestCase {
       testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
     }
-
+    
     do {
       _ = try await functionsCustomDomain?
         .callFunction(
@@ -321,17 +321,17 @@ class FunctionsTests: XCTestCase {
     } catch {
       XCTAssertEqual(error as NSError, networkError)
     }
-
+    
     await fulfillment(of: [httpRequestExpectation], timeout: 1.5)
   }
-
+  
   func testCallFunctionWhenAppCheckIsNotInstalled() {
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
       code: -1,
       userInfo: nil
     )
-
+    
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
@@ -340,7 +340,7 @@ class FunctionsTests: XCTestCase {
       testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
     }
-
+    
     let completionExpectation = expectation(description: "completionExpectation")
     functionsCustomDomain?.callFunction(
       at: URL(string: "https://example.com/fake_func")!,
@@ -358,18 +358,76 @@ class FunctionsTests: XCTestCase {
     }
     waitForExpectations(timeout: 1.5)
   }
-
+  
+  
   func testGenerateStreamContent() async {
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+    let genStream = "genStream"
+    let query = "Why is the sky blue"
+    let errorMessage = "Stream does not contain expected message"
+                                      
     do {
-      let stream = try await functions?.httpsCallable("testStream").stream("GenContent")
+      let stream = try await functions?.httpsCallable(genStream, options: options).stream(
+        query
+      )
       if let stream = stream {
         for try await line in stream {
-          print(line)
+
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                          {"message":{"chunk":"hello"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                           {"message":{"chunk":"world"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                           {"message":{"chunk":"this"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                           {"message":{"chunk":"cool"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                          {"result":"hello world this is cool"}
+                                                          """), errorMessage)
         }
       }
-      print(stream as Any)
     } catch {
-      print("Failed to download stream: \(error)")
+      XCTExpectFailure("Failed to download stream: \(error)")
+    }
+  }
+  func testGenerateStreamContentCanceled() async {
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+    let genStream = "genStream"
+    let query = "Why is the sky blue"
+    let errorMessage = "Stream does not contain expected message"
+                                      
+    do {
+      let stream = try await functions?.httpsCallable(genStream, options: options).stream(
+        query
+      )
+      if let stream = stream {
+        for try await line in stream {
+          
+          
+          
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                          {"message":{"chunk":"hello"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                           {"message":{"chunk":"world"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                           {"message":{"chunk":"this"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                           {"message":{"chunk":"cool"}}
+                                                          """), errorMessage)
+          XCTAssertTrue((line.data as AnyObject).contains("""
+                                                          {"result":"hello world this is cool"}
+                                                          """), errorMessage)
+        }
+      }
+    } catch {
+      XCTExpectFailure("Failed to download stream: \(error)")
     }
   }
 }

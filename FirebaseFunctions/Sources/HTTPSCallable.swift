@@ -32,6 +32,8 @@ open class HTTPSCallableResult: NSObject {
 /**
  * A `HTTPSCallable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
  */
+
+
 @objc(FIRHTTPSCallable)
 open class HTTPSCallable: NSObject {
   // MARK: - Private Properties
@@ -48,7 +50,12 @@ open class HTTPSCallable: NSObject {
   @objc open var timeoutInterval: TimeInterval = 70
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
+   //Remove after genStream if deployed
+#if DEBUG
+    self.url =  URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!
+    #else
     self.url = url
+#endif
     self.options = options
   }
 
@@ -134,8 +141,8 @@ open class HTTPSCallable: NSObject {
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func stream(_ data: Any? = nil) async throws
-    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-    try await functions
-      .stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
+  -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+      try await functions
+        .stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 }

@@ -41,7 +41,7 @@ enum FunctionsConstants {
 /// `Functions` is the client for Cloud Functions for a Firebase project.
 @objc(FIRFunctions) open class Functions: NSObject {
   // MARK: - Private Variables
-
+  
   /// The network client to use for http requests.
   private let fetcherService: GTMSessionFetcherService
   /// The projectID to use for all function references.
@@ -50,25 +50,25 @@ enum FunctionsConstants {
   private let serializer = FunctionsSerializer()
   /// A factory for getting the metadata to include with function calls.
   private let contextProvider: FunctionsContextProvider
-
+  
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
   private static var instances: [String: [Functions]] = [:]
-
+  
   /// Lock to manage access to the instances array to avoid race conditions.
   private static var instancesLock: os_unfair_lock = .init()
-
+  
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
-
+  
   /// The region to use for all function references.
   let region: String
-
+  
   // MARK: - Public APIs
-
+  
   /// The current emulator origin, or `nil` if it is not set.
   open private(set) var emulatorOrigin: String?
-
+  
   /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
   /// already exists.
   /// - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
@@ -79,7 +79,7 @@ enum FunctionsConstants {
       customDomain: nil
     )
   }
-
+  
   /// Creates a Cloud Functions client with the given app, or returns a pre-existing
   /// instance if one already exists.
   /// - Parameter app: The app for the Firebase project.
@@ -87,7 +87,7 @@ enum FunctionsConstants {
   @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
   }
-
+  
   /// Creates a Cloud Functions client with the default app and given region.
   ///  - Parameter region: The region for the HTTP trigger, such as `us-central1`.
   ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
@@ -95,7 +95,7 @@ enum FunctionsConstants {
   @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
     return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
   }
-
+  
   ///  Creates a Cloud Functions client with the given custom domain or returns a pre-existing
   ///  instance if one already exists.
   ///  - Parameter customDomain: A custom domain for the HTTP trigger, such as
@@ -106,7 +106,7 @@ enum FunctionsConstants {
     return functions(app: FirebaseApp.app(),
                      region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
-
+  
   ///  Creates a Cloud Functions client with the given app and region, or returns a pre-existing
   ///  instance if one already exists.
   ///  - Parameters:
@@ -117,7 +117,7 @@ enum FunctionsConstants {
                                                            region: String) -> Functions {
     return functions(app: app, region: region, customDomain: nil)
   }
-
+  
   /// Creates a Cloud Functions client with the given app and custom domain, or returns a
   /// pre-existing
   /// instance if one already exists.
@@ -127,17 +127,17 @@ enum FunctionsConstants {
   ///  - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
   @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
                                                                  customDomain: String)
-    -> Functions {
+  -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name.
   /// - Parameter name: The name of the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
   @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     HTTPSCallable(functions: self, url: functionURL(for: name)!)
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name and configuration
   /// options.
   /// - Parameters:
@@ -146,17 +146,17 @@ enum FunctionsConstants {
   /// - Returns: A reference to a Callable HTTPS trigger.
   @objc(HTTPSCallableWithName:options:) public func httpsCallable(_ name: String,
                                                                   options: HTTPSCallableOptions)
-    -> HTTPSCallable {
+  -> HTTPSCallable {
     HTTPSCallable(functions: self, url: functionURL(for: name)!, options: options)
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name.
   /// - Parameter url: The URL of the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
   @objc(HTTPSCallableWithURL:) open func httpsCallable(_ url: URL) -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url)
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name and configuration
   /// options.
   /// - Parameters:
@@ -165,10 +165,10 @@ enum FunctionsConstants {
   /// - Returns: A reference to a Callable HTTPS trigger.
   @objc(HTTPSCallableWithURL:options:) public func httpsCallable(_ url: URL,
                                                                  options: HTTPSCallableOptions)
-    -> HTTPSCallable {
+  -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url, options: options)
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an
   /// `Encodable`
   /// request and the type of a `Decodable` response.
@@ -180,22 +180,23 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
+  @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-    Response: Decodable>(_ name: String,
-                         requestAs: Request.Type = Request.self,
-                         responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                         ),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                         ))
-    -> Callable<Request, Response> {
+                          Response: Decodable>(_ name: String,
+                                               requestAs: Request.Type = Request.self,
+                                               responseAs: Response.Type = Response.self,
+                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                                               ),
+                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                                               ))
+  -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(name),
       encoder: encoder,
       decoder: decoder
     )
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an
   /// `Encodable`
   /// request and the type of a `Decodable` response.
@@ -208,23 +209,24 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
+  @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-    Response: Decodable>(_ name: String,
-                         options: HTTPSCallableOptions,
-                         requestAs: Request.Type = Request.self,
-                         responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                         ),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                         ))
-    -> Callable<Request, Response> {
+                          Response: Decodable>(_ name: String,
+                                               options: HTTPSCallableOptions,
+                                               requestAs: Request.Type = Request.self,
+                                               responseAs: Response.Type = Response.self,
+                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                                               ),
+                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                                               ))
+  -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(name, options: options),
       encoder: encoder,
       decoder: decoder
     )
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an
   /// `Encodable`
   /// request and the type of a `Decodable` response.
@@ -236,22 +238,23 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
+  @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-    Response: Decodable>(_ url: URL,
-                         requestAs: Request.Type = Request.self,
-                         responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                         ),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                         ))
-    -> Callable<Request, Response> {
+                          Response: Decodable>(_ url: URL,
+                                               requestAs: Request.Type = Request.self,
+                                               responseAs: Response.Type = Response.self,
+                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                                               ),
+                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                                               ))
+  -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(url),
       encoder: encoder,
       decoder: decoder
     )
   }
-
+  
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an
   /// `Encodable`
   /// request and the type of a `Decodable` response.
@@ -264,23 +267,24 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
+  @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-    Response: Decodable>(_ url: URL,
-                         options: HTTPSCallableOptions,
-                         requestAs: Request.Type = Request.self,
-                         responseAs: Response.Type = Response.self,
-                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                         ),
-                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                         ))
-    -> Callable<Request, Response> {
+                          Response: Decodable>(_ url: URL,
+                                               options: HTTPSCallableOptions,
+                                               requestAs: Request.Type = Request.self,
+                                               responseAs: Response.Type = Response.self,
+                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                                               ),
+                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                                               ))
+  -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(url, options: options),
       encoder: encoder,
       decoder: decoder
     )
   }
-
+  
   /**
    * Changes this instance to point to a Cloud Functions emulator running locally.
    * See https://firebase.google.com/docs/functions/local-emulator
@@ -293,9 +297,9 @@ enum FunctionsConstants {
     let origin = String(format: "\(prefix)\(host):%li", port)
     emulatorOrigin = origin
   }
-
+  
   // MARK: - Private Funcs (or Internal for tests)
-
+  
   /// Solely used to have one precondition and one location where we fetch from the container. This
   /// previously was avoided due to default arguments but that doesn't work well with Obj-C
   /// compatibility.
@@ -305,10 +309,10 @@ enum FunctionsConstants {
       fatalError("`FirebaseApp.configure()` needs to be called before using Functions.")
     }
     os_unfair_lock_lock(&instancesLock)
-
+    
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
-
+    
     if let associatedInstances = instances[app.name] {
       for instance in associatedInstances {
         // Domains may be nil, so handle with care.
@@ -329,7 +333,7 @@ enum FunctionsConstants {
     instances[app.name] = existingInstances + [newInstance]
     return newInstance
   }
-
+  
   @objc init(projectID: String,
              region: String,
              customDomain: String?,
@@ -346,7 +350,7 @@ enum FunctionsConstants {
                                                appCheck: appCheck)
     self.fetcherService = fetcherService
   }
-
+  
   /// Using the component system for initialization.
   convenience init(app: FirebaseApp,
                    region: String,
@@ -357,7 +361,7 @@ enum FunctionsConstants {
                                                              in: app.container)
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
                                                            in: app.container)
-
+    
     guard let projectID = app.options.projectID else {
       fatalError("Firebase Functions requires the projectID to be set in the App's Options.")
     }
@@ -368,23 +372,23 @@ enum FunctionsConstants {
               messaging: messaging,
               appCheck: appCheck)
   }
-
+  
   func functionURL(for name: String) -> URL? {
     assert(!name.isEmpty, "Name cannot be empty")
-
+    
     // Check if we're using the emulator
     if let emulatorOrigin {
       return URL(string: "\(emulatorOrigin)/\(projectID)/\(region)/\(name)")
     }
-
+    
     // Check the custom domain.
     if let customDomain {
       return URL(string: "\(customDomain)/\(name)")
     }
-
+    
     return URL(string: "https://\(region)-\(projectID).cloudfunctions.net/\(name)")
   }
-
+  
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func callFunction(at url: URL,
                     withObject data: Any?,
@@ -398,7 +402,7 @@ enum FunctionsConstants {
       timeout: timeout,
       context: context
     )
-
+    
     do {
       let rawData = try await fetcher.beginFetch()
       return try callableResultFromResponse(data: rawData, error: nil)
@@ -408,7 +412,7 @@ enum FunctionsConstants {
       return try callableResultFromResponse(data: nil, error: error)
     }
   }
-
+  
   func callFunction(at url: URL,
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
@@ -430,7 +434,7 @@ enum FunctionsConstants {
       }
     }
   }
-
+  
   private func callFunction(url: URL,
                             withObject data: Any?,
                             options: HTTPSCallableOptions?,
@@ -452,7 +456,7 @@ enum FunctionsConstants {
       }
       return
     }
-
+    
     fetcher.beginFetch { [self] data, error in
       let result: Result<HTTPSCallableResult, any Error>
       do {
@@ -460,117 +464,50 @@ enum FunctionsConstants {
       } catch {
         result = .failure(error)
       }
-
+      
       DispatchQueue.main.async {
         completion(result)
       }
     }
   }
-
+  
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func stream(at url: URL,
               withObject data: Any?,
               options: HTTPSCallableOptions?,
               timeout: TimeInterval) async throws
-    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+  -> AsyncThrowingStream<HTTPSCallableResult, Error> {
     let context = try await contextProvider.context(options: options)
-    let fetcher = try makeFetcher(
+    let fetcher = try makeFetcherForStreamableContent(
       url: url,
       data: data,
       options: options,
       timeout: timeout,
       context: context
     )
-
+    
     do {
       let rawData = try await fetcher.beginFetch()
-      return try callableResultFromResponse(data: rawData, error: nil)
+      return try callableResultFromResponseAsync(data: rawData, error: nil)
     } catch {
       // This method always throws when `error` is not `nil`, but ideally,
       // it should be refactored so it looks less confusing.
-      return try callableResultFromResponse(data: nil, error: error)
+      return try callableResultFromResponseAsync(data: nil, error: error)
     }
   }
-
+  
   @available(iOS 13.0, *)
-  func callableResultFromResponse(data: Data?,
-                                  error: Error?) throws -> AsyncThrowingStream<
-    HTTPSCallableResult,
-    Error
-  > {
-    return AsyncThrowingStream<HTTPSCallableResult, Error> { continuation in
-      Task {
-        do {
-          let processedData = try processedResponseData(from: data, error: error)
-          let json = try responseDataJSON(from: processedData)
-          let payload = try JSONSerialization.jsonObject(with: processedData, options: [])
-          continuation.yield(HTTPSCallableResult(data: payload as Any))
-          continuation.finish()
-        } catch {
-          continuation.finish(throwing: error)
-        }
-      }
-    }
-  }
-
-  func stream(at url: URL,
-              withObject data: Any?,
-              options: HTTPSCallableOptions?,
-              timeout: TimeInterval,
-              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    // Get context first.
-    contextProvider.getContext(options: options) { context, error in
-      // Note: context is always non-nil since some checks could succeed, we're only failing if
-      // there's an error.
-      if let error {
-        completion(.failure(error))
-      } else {
-        self.callFunction(url: url,
-                          withObject: data,
-                          options: options,
-                          timeout: timeout,
-                          context: context,
-                          completion: completion)
-      }
-    }
-  }
-
-  private func stream(url: URL,
-                      withObject data: Any?,
-                      options: HTTPSCallableOptions?,
-                      timeout: TimeInterval,
-                      context: FunctionsContext,
-                      completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let fetcher: GTMSessionFetcher
-    do {
-      fetcher = try makeFetcher(
-        url: url,
-        data: data,
-        options: options,
-        timeout: timeout,
-        context: context
-      )
-    } catch {
-      DispatchQueue.main.async {
-        completion(.failure(error))
-      }
-      return
-    }
-
-    fetcher.beginFetch { [self] data, error in
-      let result: Result<HTTPSCallableResult, any Error>
-      do {
-        result = try .success(callableResultFromResponse(data: data, error: error))
-      } catch {
-        result = .failure(error)
-      }
-
-      DispatchQueue.main.async {
-        completion(result)
-      }
-    }
-  }
-
+  func callableResultFromResponseAsync(data: Data?,
+                                       error: Error?) throws -> AsyncThrowingStream<
+                                        HTTPSCallableResult, Error
+                                          
+                                       > {
+                                         
+                                         let processedData = try processResponseDataForStreamableContent(from: data, error: error)
+                                         
+                                         return processedData
+                                       }
+  
   private func makeFetcher(url: URL,
                            data: Any?,
                            options: HTTPSCallableOptions?,
@@ -665,7 +602,89 @@ enum FunctionsConstants {
     // Case 4: `error` is `nil`; `data` is not `nil`; `data` doesn’t specify an error -> OK
     return data
   }
-
+  
+  
+  private func makeFetcherForStreamableContent(url: URL,
+                                               data: Any?,
+                                               options: HTTPSCallableOptions?,
+                                               timeout: TimeInterval,
+                                               context: FunctionsContext) throws -> GTMSessionFetcher {
+    let request = URLRequest(
+      url: url,
+      cachePolicy: .useProtocolCachePolicy,
+      timeoutInterval: timeout
+    )
+    let fetcher = fetcherService.fetcher(with: request)
+    
+    let data = data ?? NSNull()
+    let encoded = try serializer.encode(data)
+    let body = ["data": encoded]
+    let payload = try JSONSerialization.data(withJSONObject: body)
+    fetcher.bodyData = payload
+    
+    // Set the headers for starting a streaming session.
+    fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
+    fetcher.setRequestValue("text/event-stream", forHTTPHeaderField: "Accept")
+    fetcher.request?.httpMethod = "POST"
+    if let authToken = context.authToken {
+      let value = "Bearer \(authToken)"
+      fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
+    }
+    
+    if let fcmToken = context.fcmToken {
+      fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+    }
+    
+    if options?.requireLimitedUseAppCheckTokens == true {
+      if let appCheckToken = context.limitedUseAppCheckToken {
+        fetcher.setRequestValue(
+          appCheckToken,
+          forHTTPHeaderField: Constants.appCheckTokenHeader
+        )
+      }
+    } else if let appCheckToken = context.appCheckToken {
+      fetcher.setRequestValue(
+        appCheckToken,
+        forHTTPHeaderField: Constants.appCheckTokenHeader
+      )
+    }
+    //Remove after genStream is updated on the emulator or deployed
+#if DEBUG
+    fetcher.allowLocalhostRequest = true
+    fetcher.allowedInsecureSchemes = ["http"]
+#endif
+    // Override normal security rules if this is a local test.
+    if emulatorOrigin != nil {
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    }
+    
+    return fetcher
+  }
+  
+  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
+  private func processResponseDataForStreamableContent(from data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+    
+    return AsyncThrowingStream<HTTPSCallableResult, Error> { continuation in
+      Task {
+        do {
+          var processedData = try processedResponseData(from: data, error: error)
+          var processedString = String(data: processedData, encoding: .utf8)
+          
+          processedString = processedString?.replacingOccurrences(of: "data:", with: "")
+          processedString = processedString?.replacingOccurrences(of: "result:", with: "")
+          processedData = Data(processedString?.utf8 ?? "".utf8)
+          
+          continuation.yield(HTTPSCallableResult(data: (processedString ?? "") as String))
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: error)
+          throw error
+        }
+      }
+    }
+  }
+  
   private func responseDataJSON(from data: Data) throws -> Any {
     let responseJSONObject = try JSONSerialization.jsonObject(with: data)
 
