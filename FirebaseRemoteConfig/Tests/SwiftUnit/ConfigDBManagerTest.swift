@@ -87,16 +87,16 @@ class ConfigDBManagerTest: XCTestCase {
     let deviceContextData = try JSONSerialization.data(withJSONObject: deviceContext, options: [])
     let appContextData = try JSONSerialization.data(withJSONObject: appContext, options: [])
     let digestPerNamespaceData = try JSONSerialization.data(withJSONObject: digestPerNamespace,
-                                                             options: [])
-    let columnNameToValue = [
+                                                            options: [])
+    let columnNameToValue = try [
       RCNKeyBundleIdentifier: bundleID,
       RCNKeyNamespace: namespace,
       RCNKeyFetchTime: Date().timeIntervalSince1970,
       RCNKeyDigestPerNamespace: digestPerNamespaceData,
       RCNKeyDeviceContext: deviceContextData,
       RCNKeyAppContext: appContextData,
-      RCNKeySuccessFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
-      RCNKeyFailureFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeySuccessFetchTime: JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeyFailureFetchTime: JSONSerialization.data(withJSONObject: [], options: []),
       RCNKeyLastFetchStatus: 0,
       RCNKeyLastFetchError: 0,
       RCNKeyLastApplyTime: Date().timeIntervalSince1970,
@@ -351,15 +351,15 @@ class ConfigDBManagerTest: XCTestCase {
     let deviceContextData = try JSONSerialization.data(withJSONObject: [:], options: [])
     let appContextData = try JSONSerialization.data(withJSONObject: [:], options: [])
     let digestPerNamespaceData = try JSONSerialization.data(withJSONObject: [:], options: [])
-    let columnNameToValue = [
+    let columnNameToValue = try [
       RCNKeyBundleIdentifier: bundleID,
       RCNKeyNamespace: namespace,
       RCNKeyFetchTime: Date().timeIntervalSince1970,
       RCNKeyDigestPerNamespace: digestPerNamespaceData,
       RCNKeyDeviceContext: deviceContextData,
       RCNKeyAppContext: appContextData,
-      RCNKeySuccessFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
-      RCNKeyFailureFetchTime: try JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeySuccessFetchTime: JSONSerialization.data(withJSONObject: [], options: []),
+      RCNKeyFailureFetchTime: JSONSerialization.data(withJSONObject: [], options: []),
       RCNKeyLastFetchStatus: 0,
       RCNKeyLastFetchError: 0,
       RCNKeyLastApplyTime: Date().timeIntervalSince1970,
