@@ -107,13 +107,7 @@ extension Installations: InstallationsProtocol {}
 
   /// Provide fetchSession for tests to override.
   /// - Note: Managed internally by the fetch instance.
-  private var fetchSession: any RCNConfigFetchSession
-
-  public var configuredFetchSessionProvider: (ConfigSettings) -> RCNConfigFetchSession {
-    didSet {
-      fetchSession = configuredFetchSessionProvider(settings)
-    }
-  }
+  public var fetchSession: any RCNConfigFetchSession
 
   private let namespace: String
 
@@ -143,6 +137,8 @@ extension Installations: InstallationsProtocol {}
       installations: nil
     )
   }
+
+  private let configuredFetchSessionProvider: (ConfigSettings) -> RCNConfigFetchSession
 
   /// Designated initializer
   @objc public init(content: ConfigContent,
@@ -184,8 +180,13 @@ extension Installations: InstallationsProtocol {}
     super.init()
   }
 
+  public var disableNetworkSessionRecreation: Bool = false
+
   /// Add the ability to update NSURLSession's timeout after a session has already been created.
   @objc public func recreateNetworkSession() {
+    if disableNetworkSessionRecreation {
+      return
+    }
     fetchSession.invalidateAndCancel()
     fetchSession = configuredFetchSessionProvider(settings)
   }
