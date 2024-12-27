@@ -15,7 +15,7 @@
 import Foundation
 
 import FirebaseCore
-import GoogleUtilities
+@_implementationOnly import GoogleUtilities
 
 // TODO: convert to enum
 @objc public class Device: NSObject {

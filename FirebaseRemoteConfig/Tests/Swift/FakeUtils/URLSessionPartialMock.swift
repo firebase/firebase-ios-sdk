@@ -45,6 +45,10 @@ class URLSessionMock: URLSession, @unchecked Sendable {
   var response: URLResponse?
   var etag = ""
 
+  override func invalidateAndCancel() {
+    // Do nothing
+  }
+
   override func dataTask(with request: URLRequest,
                          completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void)
     -> URLSessionDataTask {
