@@ -56,13 +56,13 @@ private enum FetchResponseStatus: Int {
   case gatewayTimeout = 504
 }
 
-// MARK: - Used for Testing
+// MARK: - Dependency Injection Protocols
 
-@objc public protocol RCNMockURLSessionDataTaskProtocol {
+@objc public protocol RCNURLSessionDataTaskProtocol {
   func resume()
 }
 
-extension URLSessionDataTask: RCNMockURLSessionDataTaskProtocol {}
+extension URLSessionDataTask: RCNURLSessionDataTaskProtocol {}
 
 @objc public protocol RCNConfigFetchSession {
   var configuration: URLSessionConfiguration { get }
@@ -70,15 +70,15 @@ extension URLSessionDataTask: RCNMockURLSessionDataTaskProtocol {}
   @preconcurrency func dataTask(with request: URLRequest,
                                 completionHandler: @escaping @Sendable (Data?, URLResponse?,
                                                                         (any Error)?) -> Void)
-    -> RCNMockURLSessionDataTaskProtocol
+    -> RCNURLSessionDataTaskProtocol
 }
 
 extension URLSession: RCNConfigFetchSession {
   public func dataTask(with request: URLRequest,
                        completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?)
-                         -> Void) -> any RCNMockURLSessionDataTaskProtocol {
+                         -> Void) -> any RCNURLSessionDataTaskProtocol {
     let dataTask: URLSessionDataTask = dataTask(with: request, completionHandler: completionHandler)
-    return dataTask as RCNMockURLSessionDataTaskProtocol
+    return dataTask as RCNURLSessionDataTaskProtocol
   }
 }
 
@@ -335,8 +335,7 @@ extension Installations: InstallationsProtocol {}
   }
 
   /// Refresh installation ID token before fetching config. installation ID is now mandatory for
-  /// fetch
-  /// requests to work.(b/14751422).
+  /// fetch requests to work.(b/14751422).
   private func refreshInstallationsToken(withFetchHeader fetchTypeHeader: String,
                                          completionHandler: (
                                            (RemoteConfigFetchStatus, Error?) -> Void
@@ -778,7 +777,7 @@ extension Installations: InstallationsProtocol {}
                                   completionHandler fetcherCompletion: @escaping (Data?,
                                                                                   URLResponse?,
                                                                                   Error?) -> Void)
-    -> RCNMockURLSessionDataTaskProtocol {
+    -> RCNURLSessionDataTaskProtocol {
     let url = URL(string: constructServerURL())!
     RCLog.debug("I-RCN000046", "Making config request: \(url.absoluteString)")
 

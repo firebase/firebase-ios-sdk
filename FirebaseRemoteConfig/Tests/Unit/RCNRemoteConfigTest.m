@@ -39,7 +39,7 @@
 
 @protocol FIRRolloutsStateSubscriber;
 
-@interface RCNMockURLSessionDataTask : NSObject <RCNMockURLSessionDataTaskProtocol>
+@interface RCNMockURLSessionDataTask : NSObject <RCNURLSessionDataTaskProtocol>
 @end
 
 @implementation RCNMockURLSessionDataTask
@@ -74,7 +74,7 @@
   return self;
 }
 
-- (id<RCNMockURLSessionDataTaskProtocol> _Nonnull)
+- (id<RCNURLSessionDataTaskProtocol> _Nonnull)
          dataTaskWith:(NSURLRequest *_Nonnull)request
     completionHandler:(void (^_Nonnull)(NSData *_Nullable,
                                         NSURLResponse *_Nullable,
