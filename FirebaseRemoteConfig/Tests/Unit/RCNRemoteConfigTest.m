@@ -18,6 +18,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+// Import Swift testing fakes.
+#import "FirebaseRemoteConfig_Unit_unit-Swift.h"
+
 @import FirebaseRemoteConfig;
 @import FirebaseCore;
 @import FirebaseABTesting;
