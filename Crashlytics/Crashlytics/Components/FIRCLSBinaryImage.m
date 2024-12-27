@@ -409,7 +409,7 @@ static void FIRCLSBinaryImageChanged(bool added,
   // fill imageDetails fields using slice & vmaddr_slide
   FIRCLSBinaryImageFillInImageDetails(&imageDetails);
 
-  FIRCLSImageChange* change = malloc(sizeof(FIRCLSImageChange));
+  FIRCLSImageChange* change = calloc(1, sizeof(FIRCLSImageChange));
   if (!change) return;
   change->added = added;
   change->details = imageDetails;

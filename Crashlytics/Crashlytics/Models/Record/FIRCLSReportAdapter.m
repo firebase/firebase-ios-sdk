@@ -171,7 +171,7 @@
 
   NSArray<NSString *> *clsRecords = [self clsRecordFilePaths];
   google_crashlytics_FilesPayload_File *files =
-      malloc(sizeof(google_crashlytics_FilesPayload_File) * clsRecords.count);
+      calloc(1, sizeof(google_crashlytics_FilesPayload_File) * clsRecords.count);
 
   if (files == NULL) {
     // files and files_count are initialized to NULL and 0 by default.
@@ -271,7 +271,7 @@ pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   // For bytes, it is just a strict memeory copy of the data in NSData.
   // The whole structure will be freed as a part of process for deallocing report in dealloc() of
   // this class
-  pb_bytes_array_t *pbBytes = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
+  pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));
   if (pbBytes == NULL) {
     return NULL;
   }

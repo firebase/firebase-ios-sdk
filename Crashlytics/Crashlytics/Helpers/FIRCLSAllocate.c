@@ -175,7 +175,7 @@ void* FIRCLSAllocatorSafeAllocateFromRegion(FIRCLSAllocationRegion* region, size
     // this shouldn't happen unless we make a mistake with our size pre-computations
     if ((uintptr_t)originalCursor - (uintptr_t)region->start + size > region->size) {
       FIRCLSSDKLog("Unable to allocate sufficient memory, falling back to malloc\n");
-      void* ptr = malloc(size);
+      void* ptr = calloc(1, size);
       if (!ptr) {
         FIRCLSSDKLog("Unable to malloc in FIRCLSAllocatorSafeAllocateFromRegion\n");
         return NULL;
@@ -197,7 +197,7 @@ void* FIRCLSAllocatorSafeAllocate(FIRCLSAllocatorRef allocator,
   if (!allocator) {
     // fall back to malloc in this case
     FIRCLSSDKLog("Allocator invalid, falling back to malloc\n");
-    void* ptr = malloc(size);
+    void* ptr = calloc(1, size);
     if (!ptr) {
       FIRCLSSDKLog("Unable to malloc in FIRCLSAllocatorSafeAllocate\n");
       return NULL;
@@ -207,7 +207,7 @@ void* FIRCLSAllocatorSafeAllocate(FIRCLSAllocatorRef allocator,
 
   if (allocator->protectionEnabled) {
     FIRCLSSDKLog("Allocator already protected, falling back to malloc\n");
-    void* ptr = malloc(size);
+    void* ptr = calloc(1, size);
     if (!ptr) {
       FIRCLSSDKLog("Unable to malloc in FIRCLSAllocatorSafeAllocate\n");
       return NULL;
