@@ -236,7 +236,7 @@
   }
 }
 
-/** Mallocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
+/** Callocs a pb_bytes_array and copies the given NSString's bytes into the bytes array.
  * @note Memory needs to be freed manually, through pb_free or pb_release.
  * @param string The string to encode as pb_bytes.
  */
@@ -251,12 +251,12 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
   return FIRCLSEncodeData(stringBytes);
 }
 
-/** Mallocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
+/** Callocs a pb_bytes_array and copies the given NSData bytes into the bytes array.
  * @note Memory needs to be free manually, through pb_free or pb_release.
  * @param data The data to copy into the new bytes array.
  */
 pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
-  // We have received couple security tickets before for using malloc here.
+  // We have received couple security tickets before for using calloc here.
   // Here is a short explaination on how it is calculated so buffer overflow is prevented:
   // We will alloc an amount of memeory for struct `pb_bytes_array_t`, this struct contains two
   // attributes:
