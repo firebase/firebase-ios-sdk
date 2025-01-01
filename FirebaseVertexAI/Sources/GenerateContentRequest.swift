@@ -18,6 +18,7 @@ import Foundation
 struct GenerateContentRequest {
   /// Model name.
   let model: String
+  let location: String
   let contents: [ModelContent]
   let generationConfig: GenerationConfig?
   let safetySettings: [SafetySetting]?
@@ -45,7 +46,7 @@ extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
   var url: URL {
-    let modelURL = "\(Constants.baseURL)/\(options.apiVersion)/\(model)"
+    let modelURL = "https://\(location)-\(Constants.baseURL)/\(options.apiVersion)/\(model)"
     if isStreaming {
       return URL(string: "\(modelURL):streamGenerateContent?alt=sse")!
     } else {
