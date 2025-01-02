@@ -26,15 +26,11 @@ import Foundation
 // TODO(ncooke3): Once Obj-C tests are ported, all `public` access modifers can be removed.
 
 #if RCN_STAGING_SERVER
-  private let serverURLDomain = "https://staging-firebaseremoteconfig.sandbox.googleapis.com"
+  private let serverURLDomain = "staging-firebaseremoteconfig.sandbox.googleapis.com"
 #else
-  private let serverURLDomain = "https://firebaseremoteconfig.googleapis.com"
+  private let serverURLDomain = "firebaseremoteconfig.googleapis.com"
 #endif
-private let serverURLVersion = "/v1"
-private let serverURLProjects = "/projects/"
-private let serverURLNamespaces = "/namespaces/"
-private let serverURLQuery = ":fetch?"
-private let serverURLKey = "key="
+
 private let requestJSONKeyAppID = "app_id"
 
 private let eTagHeaderName = "Etag"
@@ -67,9 +63,9 @@ extension URLSessionDataTask: RCNURLSessionDataTaskProtocol {}
 @objc public protocol RCNConfigFetchSession {
   var configuration: URLSessionConfiguration { get }
   func invalidateAndCancel()
-  @preconcurrency func dataTask(with request: URLRequest,
-                                completionHandler: @escaping @Sendable (Data?, URLResponse?,
-                                                                        (any Error)?) -> Void)
+  @preconcurrency
+  func dataTask(with request: URLRequest,
+                completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void)
     -> RCNURLSessionDataTaskProtocol
 }
 
@@ -81,13 +77,6 @@ extension URLSession: RCNConfigFetchSession {
     return dataTask as RCNURLSessionDataTaskProtocol
   }
 }
-
-@objc(FIRInstallationsProtocol) public protocol InstallationsProtocol {
-  func installationID(completion: @escaping (String?, (any Error)?) -> Void)
-  func authToken(completion: @escaping (InstallationsAuthTokenResult?, (any Error)?) -> Void)
-}
-
-extension Installations: InstallationsProtocol {}
 
 // MARK: - ConfigFetch
 
@@ -282,16 +271,14 @@ extension Installations: InstallationsProtocol {}
   // MARK: - Fetch Helpers
 
   /// Fetches config data immediately, keyed by namespace. Completion block will be called on the
-  /// main
-  /// queue.
+  /// main queue.
   /// - Parameters:
   ///   - fetchAttemptNumber: The number of the fetch attempt.
   ///   - completionHandler: Callback handler.
-  @objc public func realtimeFetchConfigWithNoExpirationDuration(_ fetchAttemptNumber: Int,
-                                                                completionHandler: @escaping (RemoteConfigFetchStatus,
-                                                                                              RemoteConfigUpdate?,
-                                                                                              Error?)
-                                                                  -> Void) {
+  @objc public func realtimeFetchConfig(fetchAttemptNumber: Int,
+                                        completionHandler: @escaping (RemoteConfigFetchStatus,
+                                                                      RemoteConfigUpdate?,
+                                                                      Error?) -> Void) {
     // Note: We expect the googleAppID to always be available.
     let hasDeviceContextChanged = Device.remoteConfigHasDeviceContextChanged(
       settings.deviceContext,
@@ -397,7 +384,7 @@ extension Installations: InstallationsProtocol {}
 
             // Update config settings with the IID and token.
             strongSelf.settings.configInstallationsToken = tokenResult?.authToken
-            strongSelf.settings.configInstallationsIdentifier = identifier
+            strongSelf.settings.configInstallationsIdentifier = identifier ?? ""
 
             // NOTE(ncooke3): Confirmed that identifier is nil.
             if let error {
@@ -424,7 +411,7 @@ extension Installations: InstallationsProtocol {}
             RCLog
               .info(
                 "I-RCN000022",
-                "Success to get iid : \(strongSelf.settings.configInstallationsIdentifier ?? "null")."
+                "Success to get iid : \(strongSelf.settings.configInstallationsIdentifier)."
               )
             strongSelf.doFetchCall(
               fetchTypeHeader: fetchTypeHeader,
@@ -741,29 +728,6 @@ extension Installations: InstallationsProtocol {}
     dataTask.resume()
   }
 
-  private func constructServerURL() -> String {
-    var serverURLStr = serverURLDomain
-    serverURLStr += serverURLVersion
-    serverURLStr += serverURLProjects
-    serverURLStr += options.projectID ?? ""
-    serverURLStr += serverURLNamespaces
-
-    // Get the namespace from the fully qualified namespace string of "namespace:FIRAppName".
-    serverURLStr += namespace.components(separatedBy: ":")[0]
-    serverURLStr += serverURLQuery
-
-    if let apiKey = options.apiKey {
-      serverURLStr += serverURLKey
-      serverURLStr += apiKey
-    } else {
-      RCLog.error("I-RCN000071",
-                  "Missing `APIKey` from `FirebaseOptions`, please ensure the configured " +
-                    "`FirebaseApp` is configured with `FirebaseOptions` that contains an `APIKey`.")
-    }
-
-    return serverURLStr
-  }
-
   private static func newFetchSession(settings: ConfigSettings) -> URLSession {
     let config = URLSessionConfiguration.default
     config.timeoutIntervalForRequest = settings.fetchTimeout
@@ -778,7 +742,12 @@ extension Installations: InstallationsProtocol {}
                                                                                   URLResponse?,
                                                                                   Error?) -> Void)
     -> RCNURLSessionDataTaskProtocol {
-    let url = URL(string: constructServerURL())!
+    let url = Utils.constructServerURL(
+      domain: serverURLDomain,
+      apiKey: options.apiKey,
+      optionsID: options.projectID ?? "",
+      namespace: namespace
+    )
     RCLog.debug("I-RCN000046", "Making config request: \(url.absoluteString)")
 
     let timeoutInterval = fetchSession.configuration.timeoutIntervalForResource

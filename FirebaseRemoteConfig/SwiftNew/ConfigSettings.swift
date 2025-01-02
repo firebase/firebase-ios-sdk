@@ -77,7 +77,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   // TODO(ncooke3): This property was atomic in ObjC.
   /// InstallationsID.
   /// - Note: The property is atomic because it is accessed across multiple threads.
-  @objc public var configInstallationsIdentifier: String?
+  @objc public var configInstallationsIdentifier = ""
 
   // TODO(ncooke3): This property was atomic in ObjC.
   /// Installations token.
@@ -317,7 +317,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
 
   /// Returns the difference between the Realtime backoff end time and the current time in a
   /// NSTimeInterval format.
-  @objc public func getRealtimeBackoffInterval() -> TimeInterval {
+  @objc public func realtimeBackoffInterval() -> TimeInterval {
     let now = Date().timeIntervalSince1970
     return realtimeExponentialBackoffThrottleEndTime - now
   }
@@ -422,7 +422,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// - Returns: Config fetch request string
   @objc public func nextRequest(withUserProperties userProperties: [String: Any]?) -> String {
     var request = "{"
-    request += "app_instance_id:'\(configInstallationsIdentifier ?? "")'"
+    request += "app_instance_id:'\(configInstallationsIdentifier)'"
     request += ", app_instance_id_token:'\(configInstallationsToken ?? "")'"
     request += ", app_id:'\(_googleAppID)'"
     request += ", country_code:'\(Device.remoteConfigDeviceCountry())'"
