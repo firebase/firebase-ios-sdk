@@ -26,8 +26,9 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     let _: String = FirebaseRemoteConfig.NamespaceGoogleMobilePlatform
     let _: String = FirebaseRemoteConfig.RemoteConfigThrottledEndTimeInSecondsKey
 
-    // TODO(ncooke3): This should probably not be initializable.
-    FirebaseRemoteConfig.ConfigUpdateListenerRegistration().remove()
+    func testRemoveListener(registration: ConfigUpdateListenerRegistration) {
+      registration.remove()
+    }
 
     let fetchStatus: FirebaseRemoteConfig.RemoteConfigFetchStatus? = nil
     switch fetchStatus! {

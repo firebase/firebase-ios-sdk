@@ -17,6 +17,13 @@ import FirebaseInstallations
 import Foundation
 @_implementationOnly import GoogleUtilities
 
+#if canImport(UIKit) // iOS/tvOS/watchOS
+  import UIKit
+#endif
+#if canImport(AppKit) // macOS
+  import AppKit
+#endif
+
 // URL params
 private let serverURLDomain = "firebaseremoteconfigrealtime.googleapis.com"
 
@@ -355,18 +362,26 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   }
 
   private func backgroundChangeListener() {
-    notificationCenter.addObserver(
-      self,
-      selector: #selector(willEnterForeground),
-      name: UIApplication.willEnterForegroundNotification,
-      object: nil
-    )
-    notificationCenter.addObserver(
-      self,
-      selector: #selector(didEnterBackground),
-      name: UIApplication.didEnterBackgroundNotification,
-      object: nil
-    )
+    #if canImport(UIKit)
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(willEnterForeground),
+                                             name: UIApplication
+                                               .willEnterForegroundNotification,
+                                             object: nil)
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(didEnterBackground),
+                                             name: UIApplication.didEnterBackgroundNotification,
+                                             object: nil)
+    #elseif canImport(AppKit)
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(willEnterForeground),
+                                             name: NSApplication.willBecomeActiveNotification,
+                                             object: nil)
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(didEnterBackground),
+                                             name: NSApplication.didResignActiveNotification,
+                                             object: nil)
+    #endif
   }
 
   @objc private func willEnterForeground() {
