@@ -50,7 +50,6 @@ open class HTTPSCallable: NSObject {
   @objc open var timeoutInterval: TimeInterval = 70
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
-   //Remove after genStream if deployed
     self.url = url
     self.options = options
   }
