@@ -5,8 +5,10 @@
 #ifndef FIREBASE_PIPELINE_H
 #define FIREBASE_PIPELINE_H
 
+#include <functional>
 #include <memory>
 #include <vector>
+#include "pipeline_result.h"
 #include "stage.h"
 
 namespace firebase {
@@ -29,7 +31,12 @@ class Pipeline {
  public:
   Pipeline(std::shared_ptr<Firestore> firestore, Stage stage);
 
-  std::shared_ptr<PipelineSnapshotListener> GetPipelineResult();
+  void GetPipelineResult(
+      std::function<void(PipelineResult, bool)> callback) const;
+
+  std::shared_ptr<Firestore> GetFirestore() const {
+    return firestore_;
+  }
 
  private:
   std::shared_ptr<Firestore> firestore_;

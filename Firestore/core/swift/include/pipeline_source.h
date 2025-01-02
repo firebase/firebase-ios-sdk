@@ -21,7 +21,7 @@ class PipelineSource {
  public:
   PipelineSource(std::shared_ptr<Firestore> firestore);
 
-  Pipeline GetCollection(std::string collection_path);
+  Pipeline GetCollection(std::string collection_path) const;
 
  private:
   std::shared_ptr<Firestore> firestore_;

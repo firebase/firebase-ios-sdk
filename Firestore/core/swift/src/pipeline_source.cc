@@ -14,7 +14,7 @@ PipelineSource::PipelineSource(std::shared_ptr<Firestore> firestore)
   std::cout << "PipelineSource constructs" << std::endl;
 }
 
-Pipeline PipelineSource::GetCollection(std::string collection_path) {
+Pipeline PipelineSource::GetCollection(std::string collection_path) const {
   return {firestore_, Collection{collection_path}};
 }
 

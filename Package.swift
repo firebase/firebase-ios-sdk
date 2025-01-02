@@ -1407,6 +1407,7 @@ func firebaseFirestoreCppTarget() -> Target {
       "leveldb",
       "FirebaseFirestoreInternalWrapper",
       .product(name: "nanopb", package: "nanopb"),
+      .product(name: "gRPC-cpp", package: "grpc-ios"),
     ],
     path: "Firestore/core/swift",
     publicHeadersPath: "include", // Path to the public headers

@@ -20,6 +20,7 @@
 #import "collection_stage.h"
 #import "firestore_pipeline.h"
 #import "pipeline.h"
+#import "pipeline_result.h"
 #import "pipeline_source.h"
 #import "stage.h"
 #import "used_by_swift.h"
