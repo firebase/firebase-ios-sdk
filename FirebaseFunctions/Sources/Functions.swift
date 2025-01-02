@@ -619,9 +619,9 @@ enum FunctionsConstants {
     let data = data ?? NSNull()
     let encoded = try serializer.encode(data)
     let body = ["data": encoded]
-    let payload = try JSONSerialization.data(withJSONObject: body)
+    let payload = try JSONSerialization.data(withJSONObject: body, options: [.fragmentsAllowed])
     fetcher.bodyData = payload
-    
+   
     // Set the headers for starting a streaming session.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
     fetcher.setRequestValue("text/event-stream", forHTTPHeaderField: "Accept")
@@ -663,27 +663,49 @@ enum FunctionsConstants {
   }
   
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
-  private func processResponseDataForStreamableContent(from data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-    
-    return AsyncThrowingStream<HTTPSCallableResult, Error> { continuation in
-      Task {
-        do {
-          var processedData = try processedResponseData(from: data, error: error)
-          var processedString = String(data: processedData, encoding: .utf8)
-          
-          processedString = processedString?.replacingOccurrences(of: "data:", with: "")
-          processedString = processedString?.replacingOccurrences(of: "result:", with: "")
-          processedData = Data(processedString?.utf8 ?? "".utf8)
-          
-          continuation.yield(HTTPSCallableResult(data: (processedString ?? "") as String))
-          continuation.finish()
-        } catch {
-          continuation.finish(throwing: error)
-          throw error
-        }
-      }
+    private func processResponseDataForStreamableContent(from data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+     
+      return AsyncThrowingStream { continuation in
+              Task {
+                do {
+                  if let error = error {
+                    throw error
+                  }
+                  
+                  guard let data = data else {
+                    throw NSError(domain: "Error", code: -1, userInfo: nil)
+                  }
+                  
+                  let dataChunk = String(data: data, encoding: .utf8)
+                  
+                  var resultArray = [String]()
+                  
+                  let dataChunkToJson =  dataChunk!.split(separator:"\n").map {
+                    String($0.dropFirst(6))
+                  }
+                  
+                  resultArray.append(contentsOf: dataChunkToJson)
+
+                  for dataChunk in resultArray{
+                    
+                    let json =  try callableResultFromResponse(
+                      data: dataChunk.data(using: .utf8, allowLossyConversion: true),
+                      error: error
+                    )
+                    continuation.yield(HTTPSCallableResult(data: json.data))
+                  }
+                      continuation.finish()
+                  } catch {
+                      continuation.finish(throwing: error)
+                  }
+              }
+          }
     }
-  }
+  
+  
+  
+ 
+
   
   private func responseDataJSON(from data: Data) throws -> Any {
     let responseJSONObject = try JSONSerialization.jsonObject(with: data)
@@ -694,11 +716,11 @@ enum FunctionsConstants {
     }
 
     // `result` is checked for backwards compatibility:
-    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] else {
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"] else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
       throw FunctionsError(.internal, userInfo: userInfo)
     }
-
+    
     return dataJSON
   }
 }

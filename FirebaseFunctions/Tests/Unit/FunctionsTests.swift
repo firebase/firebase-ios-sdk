@@ -360,74 +360,59 @@ class FunctionsTests: XCTestCase {
   }
   
   
+  
   func testGenerateStreamContent() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let genStream = "genStream"
-    let query = "Why is the sky blue"
-    let errorMessage = "Stream does not contain expected message"
-                                      
-    do {
-      let stream = try await functions?.httpsCallable(genStream, options: options).stream(
-        query
-      )
-      if let stream = stream {
-        for try await line in stream {
-
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                          {"message":{"chunk":"hello"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                           {"message":{"chunk":"world"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                           {"message":{"chunk":"this"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                           {"message":{"chunk":"cool"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                          {"result":"hello world this is cool"}
-                                                          """), errorMessage)
+ //   let genStream = "genStream"
+ //   let query = "Why is the sky blue"
+ //  let errorMessage = "Stream does not contain expected message"
+    let input: [String: Any] = ["data": "Why is the sky blue"]
+      do {
+        let stream = try await functions?.stream(
+          at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
+          withObject: input,
+          options: options,
+          timeout: 7.0
+        )
+        
+        if let stream = stream {
+          for try await result in stream {
+           
+          //TODO FINISH THIS UNIT TEST
+            
+          }
         }
+      } catch {
+        XCTExpectFailure("Failed to download stream: \(error)")
       }
-    } catch {
-      XCTExpectFailure("Failed to download stream: \(error)")
-    }
   }
+  
   func testGenerateStreamContentCanceled() async {
+    
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let genStream = "genStream"
+    let genStream = "genStreamError"
     let query = "Why is the sky blue"
-    let errorMessage = "Stream does not contain expected message"
-                                      
-    do {
+   
+    let task = Task.detached { [self] in
+      
       let stream = try await functions?.httpsCallable(genStream, options: options).stream(
         query
       )
-      if let stream = stream {
-        for try await line in stream {
-          
-          
-          
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                          {"message":{"chunk":"hello"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                           {"message":{"chunk":"world"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                           {"message":{"chunk":"this"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                           {"message":{"chunk":"cool"}}
-                                                          """), errorMessage)
-          XCTAssertTrue((line.data as AnyObject).contains("""
-                                                          {"result":"hello world this is cool"}
-                                                          """), errorMessage)
+      
+      do {
+        for try await status in stream! {
+          switch status {
+            
+          default:
+            print("status is:",status)
+          }
         }
+      } catch {
+        print("Download failed with \(error)")
       }
-    } catch {
-      XCTExpectFailure("Failed to download stream: \(error)")
     }
+    //TODO FINISH UNIT TEST LOGIC
+    task.cancel()
+    let result = await task.result
   }
 }

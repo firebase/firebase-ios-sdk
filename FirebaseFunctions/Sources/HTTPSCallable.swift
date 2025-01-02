@@ -51,11 +51,7 @@ open class HTTPSCallable: NSObject {
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
    //Remove after genStream if deployed
-#if DEBUG
-    self.url =  URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!
-    #else
     self.url = url
-#endif
     self.options = options
   }
 
