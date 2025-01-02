@@ -718,10 +718,6 @@ enum FunctionsConstants {
     }
   
   
-  
- 
-
-  
   private func responseDataJSON(from data: Data) throws -> Any {
     let responseJSONObject = try JSONSerialization.jsonObject(with: data)
 
