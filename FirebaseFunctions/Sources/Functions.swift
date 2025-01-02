@@ -694,6 +694,7 @@ enum FunctionsConstants {
                   
                   var resultArray = [String]()
                   
+                  //We remove the "data :" field so it can be safely parsed to Json.
                   let dataChunkToJson =  dataChunk!.split(separator:"\n").map {
                     String($0.dropFirst(6))
                   }
@@ -729,7 +730,8 @@ enum FunctionsConstants {
       throw FunctionsError(.internal, userInfo: userInfo)
     }
 
-    // `result` is checked for backwards compatibility:
+    // `result` is checked for backwards compatibility,
+    // `message` is checked for StramableContent:
     guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"] else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
       throw FunctionsError(.internal, userInfo: userInfo)
