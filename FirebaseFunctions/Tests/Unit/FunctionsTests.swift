@@ -377,7 +377,10 @@ class FunctionsTests: XCTestCase {
         
         if let stream = stream {
           for try await result in stream {
-          //TODO FINISH THIS UNIT TEST
+            let data = result.data as! Data
+            let dataChunk = String(data: data, encoding: .utf8)
+            
+            var resultArray = [String]()
           }
         }
       } catch {
@@ -402,11 +405,11 @@ class FunctionsTests: XCTestCase {
           switch status {
             
           default:
-            print("status is:",status)
+            break
           }
         }
       } catch {
-        print("Download failed with \(error)")
+        XCTExpectFailure("Failed to download stream: \(error)")
       }
     }
     //TODO FINISH UNIT TEST LOGIC
