@@ -662,6 +662,20 @@ enum FunctionsConstants {
     return fetcher
   }
   
+  /**
+   Processes the response data for streamable content.
+
+   This function takes optional `Data` and `Error` parameters, processes the data, and returns an `AsyncThrowingStream` of `HTTPSCallableResult` objects. It handles errors and ensures that the data is properly parsed and yielded to the stream.
+
+   - Parameters:
+      - data: The optional `Data` object containing the response data.
+      - error: The optional `Error` object containing any error that occurred during the data retrieval.
+
+   - Returns: An `AsyncThrowingStream` of `HTTPSCallableResult` objects.
+
+   - Throws: An error if the data is nil or if there is an error during the processing of the data.
+   */
+  
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
     private func processResponseDataForStreamableContent(from data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
      
