@@ -14,22 +14,18 @@ public class Pipeline {
   }
 
   @discardableResult
-  public func GetPipelineResult() async throws -> PipelineResult {
-//    return try await withCheckedThrowingContinuation { continuation in
-//
-//      let callback: (
-//        firebase.firestore.api.PipelineResult,
-//        Bool
-//      ) -> Void = { result, isSucceed in
-//        if isSucceed {
-//          continuation.resume(returning: PipelineResult(result))
-//        } else {
-//          continuation.resume(throwing: "ERROR!" as! Error)
-//        }
-//              }
-
-    // cppPtr.fetchDataWithCppCallback(callback)
-    return PipelineResult(firebase.firestore.api.PipelineResult
-      .GetTestResult(cppPtr.GetFirestore()))
+  public func GetPipelineResult() async throws -> [PipelineResult] {
+    return try await withCheckedThrowingContinuation { continuation in
+      let listener = Query.wrapPipelineCallback(firestore: cppPtr.GetFirestore()) {
+        result, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          // Our callbacks guarantee that we either return an error or a progress event.
+          continuation.resume(returning: PipelineResult.convertToArrayFromCppVector(result))
+        }
+      }
+      cppPtr.GetPipelineResult(listener)
+    }
   }
 }

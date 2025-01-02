@@ -63,6 +63,8 @@
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/swift/include/pipeline.h"
+#include "Firestore/core/swift/include/pipeline_result.h"
 #include "absl/strings/match.h"
 
 namespace nanopb = firebase::firestore::nanopb;
@@ -71,6 +73,8 @@ using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::google_firestore_v1_Value_fields;
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::MakeListenSource;
+using firebase::firestore::api::PipelineResult;
+using firebase::firestore::api::PipelineSnapshotListener;
 using firebase::firestore::api::Query;
 using firebase::firestore::api::QueryListenerRegistration;
 using firebase::firestore::api::QuerySnapshot;
@@ -173,6 +177,35 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 - (void)getDocumentsWithCompletion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                              NSError *_Nullable error))completion {
   _query.GetDocuments(Source::Default, [self wrapQuerySnapshotBlock:completion]);
+}
+
++ (PipelineSnapshotListener)
+    wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
+              completion:(void (^)(std::shared_ptr<std::vector<PipelineResult>> result,
+                                   NSError *_Nullable error))completion {
+  class Converter : public EventListener<std::vector<PipelineResult>> {
+   public:
+    explicit Converter(std::shared_ptr<api::Firestore> firestore, PipelineBlock completion)
+        : firestore_(firestore), completion_(completion) {
+    }
+
+    void OnEvent(StatusOr<std::vector<PipelineResult>> maybe_snapshot) override {
+      if (maybe_snapshot.ok()) {
+        completion_(
+            std::make_shared<std::vector<PipelineResult>>(
+                std::initializer_list<PipelineResult>{PipelineResult::GetTestResult(firestore_)}),
+            nullptr);
+      } else {
+        completion_(nullptr, MakeNSError(maybe_snapshot.status()));
+      }
+    }
+
+   private:
+    std::shared_ptr<api::Firestore> firestore_;
+    PipelineBlock completion_;
+  };
+
+  return absl::make_unique<Converter>(firestore, completion);
 }
 
 - (void)getDocumentsWithSource:(FIRFirestoreSource)publicSource
@@ -512,6 +545,29 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 }
 
 - (QuerySnapshotListener)wrapQuerySnapshotBlock:(FIRQuerySnapshotBlock)block {
+  class Converter : public EventListener<QuerySnapshot> {
+   public:
+    explicit Converter(FIRQuerySnapshotBlock block) : block_(block) {
+    }
+
+    void OnEvent(StatusOr<QuerySnapshot> maybe_snapshot) override {
+      if (maybe_snapshot.ok()) {
+        FIRQuerySnapshot *result =
+            [[FIRQuerySnapshot alloc] initWithSnapshot:std::move(maybe_snapshot).ValueOrDie()];
+        block_(result, nil);
+      } else {
+        block_(nil, MakeNSError(maybe_snapshot.status()));
+      }
+    }
+
+   private:
+    FIRQuerySnapshotBlock block_;
+  };
+
+  return absl::make_unique<Converter>(block);
+}
+
++ (QuerySnapshotListener)wrapPipelineCallbackBlock:(FIRQuerySnapshotBlock)block {
   class Converter : public EventListener<QuerySnapshot> {
    public:
     explicit Converter(FIRQuerySnapshotBlock block) : block_(block) {

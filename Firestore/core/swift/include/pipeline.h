@@ -31,8 +31,7 @@ class Pipeline {
  public:
   Pipeline(std::shared_ptr<Firestore> firestore, Stage stage);
 
-  void GetPipelineResult(
-      std::function<void(PipelineResult, bool)> callback) const;
+  void GetPipelineResult(PipelineSnapshotListener callback) const;
 
   std::shared_ptr<Firestore> GetFirestore() const {
     return firestore_;
