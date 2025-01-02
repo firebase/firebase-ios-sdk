@@ -377,9 +377,7 @@ class FunctionsTests: XCTestCase {
         
         if let stream = stream {
           for try await result in stream {
-           
           //TODO FINISH THIS UNIT TEST
-            
           }
         }
       } catch {
