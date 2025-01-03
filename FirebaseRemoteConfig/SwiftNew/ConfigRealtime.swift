@@ -455,7 +455,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   /// Perform fetch and handle developers callbacks.
   @objc(autoFetch:targetVersion:) public
   func autoFetch(attempts: Int, targetVersion: Int) {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self else { return }
       guard attempts > 0 else {
         let error = NSError(domain: RemoteConfigUpdateErrorDomain,
                             code: RemoteConfigUpdateError.notFetched.rawValue,
@@ -612,13 +613,15 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   @objc public
   func beginRealtimeStream() {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self else { return }
       guard self.settings.realtimeBackoffInterval() <= 0.0 else {
         self.retryHTTPConnection()
         return
       }
       if self.canMakeConnection() {
-        self.createRequestBody { requestBody in
+        self.createRequestBody { [weak self] requestBody in
+          guard let self else { return }
           var request = self.request
           request.httpBody = requestBody
           self.isRequestInProgress = true
@@ -631,7 +634,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   @objc public
   func pauseRealtimeStream() {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self else { return }
       if let task = self.dataTask {
         task.cancel()
         self.dataTask = nil
@@ -643,7 +647,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   @objc public func addConfigUpdateListener(_ listener: @Sendable @escaping (RemoteConfigUpdate?,
                                                                              Error?) -> Void)
     -> ConfigUpdateListenerRegistration {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self else { return }
       let temp = self.listeners.mutableCopy() as! NSMutableOrderedSet
       temp.add(listener)
       self.listeners = temp
@@ -654,7 +659,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   @objc public func removeConfigUpdateListener(_ listener: @escaping (RemoteConfigUpdate?, Error?)
     -> Void) {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self else { return }
       let temp: NSMutableOrderedSet = self.listeners.mutableCopy() as! NSMutableOrderedSet
       temp.remove(listener)
       self.listeners = temp
