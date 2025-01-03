@@ -476,10 +476,6 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   /// the wire. Auto-fetches and runs callback for each new notification.
   public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
                          didReceive data: Data) {
-    if !session.isEqual(self.session) {
-      return
-    }
-
     let strData = String(data: data, encoding: .utf8) ?? ""
     // If response data contains the API enablement link, return the entire
     // message to the user in the form of a error.
@@ -552,10 +548,6 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
                          didReceive response: URLResponse,
                          completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-    if !session.isEqual(self.session) {
-      completionHandler(.cancel) // Cancel if not current session
-      return
-    }
     isRequestInProgress = false
     if let httpResponse = response as? HTTPURLResponse {
       let statusCode = httpResponse.statusCode
@@ -610,9 +602,6 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   /// Delegate to handle session invalidation.
   public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-    if !session.isEqual(self.session) {
-      return
-    }
     if !isRequestInProgress {
       if let _ = error {
         settings.updateRealtimeExponentialBackoffTime()
