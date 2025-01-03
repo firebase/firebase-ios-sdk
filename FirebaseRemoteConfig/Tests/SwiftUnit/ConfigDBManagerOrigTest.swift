@@ -579,7 +579,6 @@ class ConfigDBManagerOrigTest: XCTestCase {
   func testLoadEmptyRollout() {
     let expectation = expectation(description: "Load empty rollout in database successfully")
     let bundleIdentifier = Bundle.main.bundleIdentifier!
-    let emptyRollout: [[String: Any]] = [] // Use an empty array literal
 
     dbManager
       .loadMain(withBundleIdentifier: bundleIdentifier) { success, _, _, _, rolloutMetadata in
