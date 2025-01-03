@@ -136,8 +136,8 @@ open class HTTPSCallable: NSObject {
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func stream(_ data: Any? = nil) async throws
-  -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-      try await functions
-        .stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
+    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+    try await functions
+      .stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 }

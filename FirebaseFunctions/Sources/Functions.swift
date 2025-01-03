@@ -182,14 +182,14 @@ enum FunctionsConstants {
   /// Functions invocations.
   @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-                          Response: Decodable>(_ name: String,
-                                               requestAs: Request.Type = Request.self,
-                                               responseAs: Response.Type = Response.self,
-                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                                               ),
-                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                                               ))
-  -> Callable<Request, Response> {
+    Response: Decodable>(_ name: String,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(name),
       encoder: encoder,
@@ -211,15 +211,15 @@ enum FunctionsConstants {
   /// Functions invocations.
   @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-                          Response: Decodable>(_ name: String,
-                                               options: HTTPSCallableOptions,
-                                               requestAs: Request.Type = Request.self,
-                                               responseAs: Response.Type = Response.self,
-                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                                               ),
-                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                                               ))
-  -> Callable<Request, Response> {
+    Response: Decodable>(_ name: String,
+                         options: HTTPSCallableOptions,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(name, options: options),
       encoder: encoder,
@@ -240,14 +240,14 @@ enum FunctionsConstants {
   /// Functions invocations.
   @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-                          Response: Decodable>(_ url: URL,
-                                               requestAs: Request.Type = Request.self,
-                                               responseAs: Response.Type = Response.self,
-                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                                               ),
-                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                                               ))
-  -> Callable<Request, Response> {
+    Response: Decodable>(_ url: URL,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(url),
       encoder: encoder,
@@ -269,15 +269,15 @@ enum FunctionsConstants {
   /// Functions invocations.
   @available(iOS 13.0, *)
   open func httpsCallable<Request: Encodable,
-                          Response: Decodable>(_ url: URL,
-                                               options: HTTPSCallableOptions,
-                                               requestAs: Request.Type = Request.self,
-                                               responseAs: Response.Type = Response.self,
-                                               encoder: FirebaseDataEncoder = FirebaseDataEncoder(
-                                               ),
-                                               decoder: FirebaseDataDecoder = FirebaseDataDecoder(
-                                               ))
-  -> Callable<Request, Response> {
+    Response: Decodable>(_ url: URL,
+                         options: HTTPSCallableOptions,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(url, options: options),
       encoder: encoder,
@@ -499,15 +499,18 @@ enum FunctionsConstants {
   @available(iOS 13.0, *)
   func callableResultFromResponseAsync(data: Data?,
                                        error: Error?) throws -> AsyncThrowingStream<
-                                        HTTPSCallableResult, Error
-                                          
-                                       > {
-                                         
-                                         let processedData = try processResponseDataForStreamableContent(from: data, error: error)
-                                         
-                                         return processedData
-                                       }
-  
+    HTTPSCallableResult, Error
+
+  > {
+    let processedData =
+      try processResponseDataForStreamableContent(
+        from: data,
+        error: error
+      )
+
+    return processedData
+  }
+
   private func makeFetcher(url: URL,
                            data: Any?,
                            options: HTTPSCallableOptions?,
@@ -648,11 +651,11 @@ enum FunctionsConstants {
         forHTTPHeaderField: Constants.appCheckTokenHeader
       )
     }
-    //Remove after genStream is updated on the emulator or deployed
-#if DEBUG
-    fetcher.allowLocalhostRequest = true
-    fetcher.allowedInsecureSchemes = ["http"]
-#endif
+    // Remove after genStream is updated on the emulator or deployed
+    #if DEBUG
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    #endif
     // Override normal security rules if this is a local test.
     if emulatorOrigin != nil {
       fetcher.allowLocalhostRequest = true
@@ -677,51 +680,55 @@ enum FunctionsConstants {
    */
   
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
-    private func processResponseDataForStreamableContent(from data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-      var resultArray = [String]()
-      return AsyncThrowingStream { continuation in
-              Task {
-                do {
-                  if let error = error {
-                    throw error
-                  }
-                  
-                  guard let data = data else {
-                    throw NSError(domain:FunctionsErrorDomain.description, code: -1, userInfo: nil)
-                  }
-                  
-                  if let dataChunk = String(data: data, encoding: .utf8){
-                    //We remove the "data :" field so it can be safely parsed to Json.
-                    let dataChunkToJson =  dataChunk.split(separator:"\n").map {
-                      String($0.dropFirst(6))
-                    }
-                    resultArray.append(contentsOf: dataChunkToJson)
-                  }else{
-                    throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
-                  }
-              
-                  for dataChunk in resultArray{
-                    
-                    let json =  try callableResultFromResponse(
-                      data: dataChunk.data(using: .utf8, allowLossyConversion: true),
-                      error: error
-                    )
-                    continuation.yield(HTTPSCallableResult(data: json.data))
-                  }
-                  
-                  continuation.onTermination = { @Sendable _ in
-                    //Callback for cancelling the stream
-                    continuation.finish()
-                              }
-                  //Close the stream once it's done
-                      continuation.finish()
-                  } catch {
-                      continuation.finish(throwing: error)
-                  }
-              }
+  private func processResponseDataForStreamableContent(from data: Data?,
+                                                       error: Error?) throws -> AsyncThrowingStream<
+    HTTPSCallableResult,
+    Error
+  > {
+   
+    return AsyncThrowingStream { continuation in
+      Task {
+        var resultArray = [String]()
+        do {
+          if let error = error {
+            throw error
           }
+
+          guard let data = data else {
+            throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
+          }
+
+          if let dataChunk = String(data: data, encoding: .utf8) {
+            // We remove the "data :" field so it can be safely parsed to Json.
+            let dataChunkToJson = dataChunk.split(separator: "\n").map {
+              String($0.dropFirst(6))
+            }
+            resultArray.append(contentsOf: dataChunkToJson)
+          } else {
+            throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
+          }
+
+          for dataChunk in resultArray {
+            let json = try callableResultFromResponse(
+              data: dataChunk.data(using: .utf8, allowLossyConversion: true),
+              error: error
+            )
+            continuation.yield(HTTPSCallableResult(data: json.data))
+          }
+
+          continuation.onTermination = { @Sendable _ in
+            // Callback for cancelling the stream
+            continuation.finish()
+          }
+          // Close the stream once it's done
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
     }
-  
+  }
+
   private func responseDataJSON(from data: Data) throws -> Any {
     let responseJSONObject = try JSONSerialization.jsonObject(with: data)
 
@@ -732,7 +739,8 @@ enum FunctionsConstants {
 
     // `result` is checked for backwards compatibility,
     // `message` is checked for StramableContent:
-    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"] else {
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"]
+    else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
       throw FunctionsError(.internal, userInfo: userInfo)
     }

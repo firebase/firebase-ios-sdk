@@ -376,15 +376,14 @@ class FunctionsTests: XCTestCase {
       //Fisrt chunk of the stream comes as NSDictionary
       if let stream = stream {
         for try await result in stream {
-          if let dataChunk = result.data as? NSDictionary{
-            
-            
+          if let dataChunk = result.data as? NSDictionary {
             for (key, value) in dataChunk {
               response.append("\(key) \(value)")
             }
-          }else {
-            //Last chunk is a the concatened result so we have to parse it as String else will fail.
-            if ((result.data as? String) != nil){
+          } else {
+            // Last chunk is a the concatened result so we have to parse it as String else will
+            // fail.
+            if (result.data as? String) != nil {
               response.append(result.data as! String)
             }
           }
@@ -397,7 +396,7 @@ class FunctionsTests: XCTestCase {
             "chunk this",
             "chunk is",
             "chunk cool",
-            "hello world this is cool"
+            "hello world this is cool",
           ]
         )
       }
@@ -405,12 +404,12 @@ class FunctionsTests: XCTestCase {
       XCTExpectFailure("Failed to download stream: \(error)")
     }
   }
-  
+
   func testGenerateStreamContentCanceled() async {
     var response = [String]()
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
-    
+
     let task = Task.detached { [self] in
       let stream = try await functions?.stream(
         at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
@@ -418,32 +417,31 @@ class FunctionsTests: XCTestCase {
         options: options,
         timeout: 4.0
       )
-      //Fisrt chunk of the stream comes as NSDictionary
+      // Fisrt chunk of the stream comes as NSDictionary
       if let stream = stream {
         for try await result in stream {
-          if let dataChunk = result.data as? NSDictionary{
-            
+          if let dataChunk = result.data as? NSDictionary {
             for (key, value) in dataChunk {
               response.append("\(key) \(value)")
             }
-            //Last chunk is a the concatened result so we have to parse it as String else will fail.
-          }else {
-            if ((result.data as? String) != nil){
+            // Last chunk is a the concatened result so we have to parse it as String else will
+            // fail.
+          } else {
+            if (result.data as? String) != nil {
               response.append(result.data as! String)
             }
           }
         }
-        //Since we cancel the call we are expecting an empty array.
+        // Since we cancel the call we are expecting an empty array.
         XCTAssertEqual(
           response,
           []
         )
       }
     }
-    //We cancel the task and we expect a nul respone even if the stream was initiaded.
+    // We cancel the task and we expect a nul respone even if the stream was initiaded.
     task.cancel()
     let result = await task.result
     XCTAssertNotNil(result)
   }
-  
 }
