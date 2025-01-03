@@ -31,43 +31,48 @@ void Pipeline::GetPipelineResult(PipelineSnapshotListener callback) const {
       /*include_document_metadata_changes=*/true,
       /*wait_for_sync_when_online=*/true);
 
-  class ListenOnce : public EventListener<std::vector<PipelineResult>> {
-   public:
-    ListenOnce(PipelineSnapshotListener listener)
-        : listener_(std::move(listener)) {
-    }
+  callback->OnEvent(StatusOr<std::vector<PipelineResult>>(
+      {(PipelineResult::GetTestResult(firestore_))}));
 
-    void OnEvent(
-        StatusOr<std::vector<PipelineResult>> maybe_snapshot) override {
-      if (!maybe_snapshot.ok()) {
-        listener_->OnEvent(std::move(maybe_snapshot));
-        return;
-      }
-
-      std::vector<PipelineResult> snapshot =
-          std::move(maybe_snapshot).ValueOrDie();
-
-      // Remove query first before passing event to user to avoid user actions
-      // affecting the now stale query.
-      std::unique_ptr<ListenerRegistration> registration =
-          registration_promise_.get_future().get();
-      registration->Remove();
-
-      listener_->OnEvent(std::move(snapshot));
-    };
-
-    void Resolve(std::unique_ptr<ListenerRegistration> registration) {
-      registration_promise_.set_value(std::move(registration));
-    }
-
-   private:
-    PipelineSnapshotListener listener_;
-
-    std::promise<std::unique_ptr<ListenerRegistration>> registration_promise_;
-  };
-
-  auto listener = absl::make_unique<ListenOnce>(std::move(callback));
-  auto* listener_unowned = listener.get();
+  //  class ListenOnce : public EventListener<std::vector<PipelineResult>> {
+  //   public:
+  //    ListenOnce(PipelineSnapshotListener listener)
+  //        : listener_(std::move(listener)) {
+  //    }
+  //
+  //    void OnEvent(
+  //        StatusOr<std::vector<PipelineResult>> maybe_snapshot) override {
+  //      if (!maybe_snapshot.ok()) {
+  //        listener_->OnEvent(std::move(maybe_snapshot));
+  //        return;
+  //      }
+  //
+  //      std::vector<PipelineResult> snapshot =
+  //          std::move(maybe_snapshot).ValueOrDie();
+  //
+  //      // Remove query first before passing event to user to avoid user
+  //      actions
+  //      // affecting the now stale query.
+  //      std::unique_ptr<ListenerRegistration> registration =
+  //          registration_promise_.get_future().get();
+  //      registration->Remove();
+  //
+  //      listener_->OnEvent(std::move(snapshot));
+  //    };
+  //
+  //    void Resolve(std::unique_ptr<ListenerRegistration> registration) {
+  //      registration_promise_.set_value(std::move(registration));
+  //    }
+  //
+  //   private:
+  //    PipelineSnapshotListener listener_;
+  //
+  //    std::promise<std::unique_ptr<ListenerRegistration>>
+  //    registration_promise_;
+  //  };
+  //
+  //  auto listener = absl::make_unique<ListenOnce>(std::move(callback));
+  //  auto* listener_unowned = listener.get();
 
   //  std::unique_ptr<ListenerRegistration> registration =
   //      AddSnapshotListener(std::move(options), std::move(listener));
