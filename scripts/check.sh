@@ -283,7 +283,7 @@ fi
 set -x
 
 # Print the versions of tools being used.
-python3 --version
+python --version
 
 # Check lint errors.
 "${top_dir}/scripts/check_whitespace.sh"
