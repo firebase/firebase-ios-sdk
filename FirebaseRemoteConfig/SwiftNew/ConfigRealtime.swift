@@ -393,7 +393,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   }
 
   @objc private func didEnterBackground() {
-    realtimeLockQueue.async{ [weak self] in
+    realtimeLockQueue.async { [weak self] in
       guard let self else { return }
       self.pauseRealtimeStream()
       self.isInBackground = true
@@ -528,7 +528,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   }
 
   func isStatusCodeRetryable(_ statusCode: Int) -> Bool {
-    return statusCode == fetchResponseHTTPStatusTooManyRequests  ||
+    return statusCode == fetchResponseHTTPStatusTooManyRequests ||
       statusCode == fetchResponseHTTPStatusCodeServiceUnavailable ||
       statusCode == fetchResponseHTTPStatusCodeBadGateway ||
       statusCode == fetchResponseHTTPStatusCodeGatewayTimeout
