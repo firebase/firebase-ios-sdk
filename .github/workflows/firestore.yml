@@ -15,6 +15,7 @@
 name: firestore
 
 on:
+  workflow_dispatch:
   pull_request:
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
