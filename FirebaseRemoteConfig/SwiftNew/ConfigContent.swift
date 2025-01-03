@@ -171,10 +171,10 @@ class ConfigContent: NSObject {
       self._defaultConfig.store(newValue: defaults)
       self
         ._fetchedRolloutMetadata =
-        rolloutMetadata[ConfigConstants.rolloutTableKeyFetchedMetadata] as? [[String: Any]] ?? []
+        rolloutMetadata[ConfigConstants.rolloutTableKeyFetchedMetadata] ?? []
       self
         ._activeRolloutMetadata =
-        rolloutMetadata[ConfigConstants.rolloutTableKeyActiveMetadata] as? [[String: Any]] ?? []
+        rolloutMetadata[ConfigConstants.rolloutTableKeyActiveMetadata] ?? []
       self.dispatchGroup.leave()
     }
 

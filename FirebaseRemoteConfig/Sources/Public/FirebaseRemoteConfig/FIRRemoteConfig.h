@@ -26,6 +26,8 @@
 @class RCNConfigSettings;
 @class FIRRemoteConfigValue;
 @class RCNConfigFetch;
+@class RCNConfigRealtime;
+@class FIRConfigUpdateListenerRegistration;
 @protocol FIRAnalyticsInterop;
 
 @protocol FIRRolloutsStateSubscriber;
@@ -41,24 +43,6 @@ extern NSString *const _Nonnull FIRNamespaceGoogleMobilePlatform NS_SWIFT_NAME(
 /// measured in seconds.
 extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_SWIFT_NAME(
     RemoteConfigThrottledEndTimeInSecondsKey);
-
-/**
- * Listener registration returned by `addOnConfigUpdateListener`. Calling its method `remove` stops
- * the associated listener from receiving config updates and unregisters itself.
- *
- * If remove is called and no other listener registrations remain, the connection to the real-time
- * RC backend is closed. Subsequently calling `addOnConfigUpdateListener` will re-open the
- * connection.
- */
-NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
-@interface FIRConfigUpdateListenerRegistration : NSObject
-/**
- * Removes the listener associated with this `ConfigUpdateListenerRegistration`. After the
- * initial call, subsequent calls have no effect.
- */
-- (void)remove;
-@end
 
 /// Indicates whether updated data was successfully fetched.
 typedef NS_ENUM(NSInteger, FIRRemoteConfigFetchStatus) {
@@ -418,6 +402,7 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
 
 // TODO: Below here is temporary public for Swift port
 
+@property(nonatomic, readwrite, strong, nonnull) RCNConfigRealtime *configRealtime;
 @property(nonatomic, readonly, strong) RCNConfigSettings *settings;
 
 /// Initialize a FIRRemoteConfig instance with all the required parameters directly. This exists so
@@ -436,7 +421,8 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                   configContent:(RCNConfigContent *)configContent
                    userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                    configFetch:(nullable RCNConfigFetch *)configFetch;
+                    configFetch:(nullable RCNConfigFetch *)configFetch
+                 configRealtime:(nullable RCNConfigRealtime *)configRealtime;
 
 /// Register `FIRRolloutsStateSubscriber` to `FIRRemoteConfig` instance
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;

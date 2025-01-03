@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
+import FirebaseInstallations
+import Foundation
 
-NS_ASSUME_NONNULL_BEGIN
+/// Enable faking Installations for fetch and realtime testing.
+@objc(FIRInstallationsProtocol) public protocol InstallationsProtocol {
+  func installationID(completion: @escaping (String?, (any Error)?) -> Void)
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, (any Error)?) -> Void)
+}
 
-@interface RealtimeMocks : NSObject
-+ (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)realtime;
-@end
-
-NS_ASSUME_NONNULL_END
+extension Installations: InstallationsProtocol {}

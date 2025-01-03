@@ -116,14 +116,15 @@ static NSString *const kInternalChoiceIdParam = @"_fpid";
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:DBManager];
 
   // Create a mock FIRRemoteConfig instance.
-  _configInstance = OCMPartialMock([[FIRRemoteConfig alloc]
-      initWithAppName:@"testApp"
-           FIROptions:[[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:test"
-                                                  GCMSenderID:@"testSender"]
-            namespace:@"namespace"
-            DBManager:DBManager
-        configContent:configContent
-            analytics:_analyticsMock]);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"1:123:ios:test"
+                                                    GCMSenderID:@"testSender"];
+  options.APIKey = @"test API key";
+  _configInstance = OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:@"testApp"
+                                                                 FIROptions:options
+                                                                  namespace:@"namespace"
+                                                                  DBManager:DBManager
+                                                              configContent:configContent
+                                                                  analytics:_analyticsMock]);
   //  [_configInstance setValue:[RCNPersonalizationTest mockFetchRequest] forKey:@"_configFetch"];
 }
 

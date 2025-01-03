@@ -20,7 +20,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
 
@@ -145,7 +144,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                   configContent:(RCNConfigContent *)configContent
                    userDefaults:(nullable NSUserDefaults *)userDefaults
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics
-                    configFetch:(nullable RCNConfigFetch *)configFetch {
+                    configFetch:(nullable RCNConfigFetch *)configFetch
+                 configRealtime:(nullable RCNConfigRealtime *)configRealtime {
   self = [super init];
   if (self) {
     _appName = appName;
@@ -181,11 +181,15 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                                    namespace:_FIRNamespace
                                                      options:options];
     }
-
-    _configRealtime = [[RCNConfigRealtime alloc] init:_configFetch
-                                             settings:_settings
-                                            namespace:_FIRNamespace
-                                              options:options];
+    if (configRealtime) {
+      _configRealtime = configRealtime;
+    } else {
+      _configRealtime = [[RCNConfigRealtime alloc] initWithConfigFetch:_configFetch
+                                                              settings:_settings
+                                                             namespace:_FIRNamespace
+                                                               options:options
+                                                         installations:nil];
+    }
 
     [_settings loadConfigFromMetadataTable];
 
@@ -214,7 +218,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                  configContent:configContent
                   userDefaults:nil
                      analytics:analytics
-                   configFetch:nil];
+                   configFetch:nil
+                configRealtime:nil];
 }
 
 // Initialize with default config settings.
