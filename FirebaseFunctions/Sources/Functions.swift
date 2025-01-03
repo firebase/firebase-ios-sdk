@@ -678,7 +678,7 @@ enum FunctionsConstants {
   
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
     private func processResponseDataForStreamableContent(from data: Data?, error: Error?) throws -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-     
+      var resultArray = [String]()
       return AsyncThrowingStream { continuation in
               Task {
                 do {
@@ -687,20 +687,19 @@ enum FunctionsConstants {
                   }
                   
                   guard let data = data else {
-                    throw NSError(domain: "Error", code: -1, userInfo: nil)
+                    throw NSError(domain:FunctionsErrorDomain.description, code: -1, userInfo: nil)
                   }
                   
-                  let dataChunk = String(data: data, encoding: .utf8)
-                  
-                  var resultArray = [String]()
-                  
-                  //We remove the "data :" field so it can be safely parsed to Json.
-                  let dataChunkToJson =  dataChunk!.split(separator:"\n").map {
-                    String($0.dropFirst(6))
+                  if let dataChunk = String(data: data, encoding: .utf8){
+                    //We remove the "data :" field so it can be safely parsed to Json.
+                    let dataChunkToJson =  dataChunk.split(separator:"\n").map {
+                      String($0.dropFirst(6))
+                    }
+                    resultArray.append(contentsOf: dataChunkToJson)
+                  }else{
+                    throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
                   }
-                  
-                  resultArray.append(contentsOf: dataChunkToJson)
-
+              
                   for dataChunk in resultArray{
                     
                     let json =  try callableResultFromResponse(
@@ -709,6 +708,12 @@ enum FunctionsConstants {
                     )
                     continuation.yield(HTTPSCallableResult(data: json.data))
                   }
+                  
+                  continuation.onTermination = { @Sendable _ in
+                    //Callback for cancelling the stream
+                    continuation.finish()
+                              }
+                  //Close the stream once it's done
                       continuation.finish()
                   } catch {
                       continuation.finish(throwing: error)
@@ -716,7 +721,6 @@ enum FunctionsConstants {
               }
           }
     }
-  
   
   private func responseDataJSON(from data: Data) throws -> Any {
     let responseJSONObject = try JSONSerialization.jsonObject(with: data)
