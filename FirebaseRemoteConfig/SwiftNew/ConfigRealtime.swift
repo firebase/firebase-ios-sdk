@@ -43,7 +43,7 @@ private let iOSBundleIdentifierHeaderName = "X-Ios-Bundle-Identifier"
 
 // Retryable HTTP status code.
 private let fetchResponseHTTPStatusOK = 200
-private let fetchResponseHTTPStatusClientTimeout = 429
+private let fetchResponseHTTPStatusTooManyRequests = 429
 private let fetchResponseHTTPStatusCodeBadGateway = 502
 private let fetchResponseHTTPStatusCodeServiceUnavailable = 503
 private let fetchResponseHTTPStatusCodeGatewayTimeout = 504
@@ -311,7 +311,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
       namespace:'\(Utils.namespaceOnly(self.namespace))',
       lastKnownVersionNumber:'\(self.configFetch.templateVersionNumber)',
       appId:'\(self.options.googleAppID)',
-      sdkVersion:'\(RemoteConfig.sdkVersion())',
+      sdkVersion:'\(Device.remoteConfigPodVersion())',
       appInstanceId:'\(self.settings.configInstallationsIdentifier)'
       }
       """
@@ -385,14 +385,16 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   }
 
   @objc private func willEnterForeground() {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self else { return }
       self.isInBackground = false
       self.beginRealtimeStream()
     }
   }
 
   @objc private func didEnterBackground() {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async{ [weak self] in
+      guard let self else { return }
       self.pauseRealtimeStream()
       self.isInBackground = true
     }
@@ -526,7 +528,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   }
 
   func isStatusCodeRetryable(_ statusCode: Int) -> Bool {
-    return statusCode == fetchResponseHTTPStatusClientTimeout ||
+    return statusCode == fetchResponseHTTPStatusTooManyRequests  ||
       statusCode == fetchResponseHTTPStatusCodeServiceUnavailable ||
       statusCode == fetchResponseHTTPStatusCodeBadGateway ||
       statusCode == fetchResponseHTTPStatusCodeGatewayTimeout
@@ -656,12 +658,5 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         self.pauseRealtimeStream()
       }
     }
-  }
-}
-
-extension RemoteConfig {
-  static func sdkVersion() -> String {
-    return Bundle(identifier: "org.cocoapods.FirebaseRemoteConfig")?
-      .infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0.0"
   }
 }
