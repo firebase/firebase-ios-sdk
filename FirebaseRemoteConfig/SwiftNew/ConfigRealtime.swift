@@ -417,6 +417,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         }
         if status == .success {
           if Int(self.configFetch.templateVersionNumber) ?? 0 >= targetVersion {
+            // Only notify listeners if there is a change.
             if let update = update, !update.updatedKeys.isEmpty {
               self.realtimeLockQueue.async { [weak self] in
                 guard let self else { return }
@@ -443,12 +444,15 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   @objc(scheduleFetch:targetVersion:) public
   func scheduleFetch(remainingAttempts: Int, targetVersion: Int) {
+    // Needs fetch to occur between 0 - 3 seconds. Randomize to not cause DDoS
+    // alerts in backend.
     let delay = TimeInterval.random(in: 0 ... 3) // Random delay between 0 and 3 seconds
     realtimeLockQueue.asyncAfter(deadline: .now() + delay) {
       self.fetchLatestConfig(remainingAttempts: remainingAttempts, targetVersion: targetVersion)
     }
   }
 
+  /// Perform fetch and handle developers callbacks.
   @objc(autoFetch:targetVersion:) public
   func autoFetch(attempts: Int, targetVersion: Int) {
     realtimeLockQueue.async {
@@ -468,6 +472,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   // MARK: - URLSessionDataDelegate
 
+  /// Delegate to asynchronously handle every new notification that comes over
+  /// the wire. Auto-fetches and runs callback for each new notification.
   public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
                          didReceive data: Data) {
     if !session.isEqual(self.session) {
@@ -475,6 +481,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     }
 
     let strData = String(data: data, encoding: .utf8) ?? ""
+    // If response data contains the API enablement link, return the entire
+    // message to the user in the form of a error.
     if strData.contains(serverForbiddenStatusCode) {
       let error = NSError(domain: RemoteConfigUpdateErrorDomain,
                           code: RemoteConfigUpdateError.streamError.rawValue,
@@ -496,7 +504,13 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
           evaluateStreamResponse(response)
         }
       } catch {
-        propagateErrors(error)
+        let wrappedError = NSError(domain: RemoteConfigUpdateErrorDomain,
+                            code: RemoteConfigUpdateError.messageInvalid.rawValue,
+                            userInfo: [
+                              NSLocalizedDescriptionKey: "Unable to parse ConfigUpdate. \(strData)",
+                              NSUnderlyingErrorKey: error
+                            ])
+        propagateErrors(wrappedError)
         return
       }
     }
@@ -534,6 +548,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
       statusCode == fetchResponseHTTPStatusCodeGatewayTimeout
   }
 
+  /// Delegate to handle initial reply from the server.
   public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
                          didReceive response: URLResponse,
                          completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
@@ -571,6 +586,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
           completionHandler(.cancel) // cancel the failing task
         }
       } else {
+        // On success, reset retry parameters.
         remainingRetryCount = maxRetries
         settings.realtimeRetryCount = 0
         completionHandler(.allow)
@@ -578,6 +594,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     }
   }
 
+  /// Delegate to handle data task completion.
   public func urlSession(_ session: URLSession, task: URLSessionTask,
                          didCompleteWithError error: Error?) {
     if !session.isEqual(self.session) {
@@ -591,6 +608,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     retryHTTPConnection()
   }
 
+  /// Delegate to handle session invalidation.
   public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
     if !session.isEqual(self.session) {
       return
@@ -609,11 +627,11 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
   @objc public
   func beginRealtimeStream() {
     realtimeLockQueue.async {
+      guard self.settings.realtimeBackoffInterval() <= 0.0 else {
+        self.retryHTTPConnection()
+        return
+      }
       if self.canMakeConnection() {
-        guard self.settings.realtimeBackoffInterval() <= 0.0 else {
-          self.retryHTTPConnection()
-          return
-        }
         self.createRequestBody { requestBody in
           var request = self.request
           request.httpBody = requestBody
