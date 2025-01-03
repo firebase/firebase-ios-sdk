@@ -79,8 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const std::shared_ptr<firebase::firestore::util::AsyncQueue> &)workerQueue;
 
-@property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
-
 @property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
 @property(nonatomic, strong, readonly) FSTUserDataReader *dataReader;
 

@@ -115,4 +115,8 @@ public extension Firestore {
       }
     }
   }
+
+  func pipeline() -> PipelineSource {
+    return PipelineSource(firebase.firestore.api.FirestorePipeline.pipeline(wrapped))
+  }
 }

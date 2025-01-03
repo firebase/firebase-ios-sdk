@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <memory>
 
 #import "FIRListenerRegistration.h"
 
@@ -29,6 +30,16 @@
 @class FIRTransactionOptions;
 @class FIRWriteBatch;
 @class FIRPersistentCacheIndexManager;
+
+namespace firebase {
+namespace firestore {
+namespace api {
+class Firestore;
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
+
+namespace api = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -90,6 +101,8 @@ NS_SWIFT_NAME(Firestore)
  * @return The named `Firestore` instance.
  */
 + (instancetype)firestoreForDatabase:(NSString *)database NS_SWIFT_NAME(firestore(database:));
+
+@property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
 /**
  * Custom settings used to configure this `Firestore` object.
