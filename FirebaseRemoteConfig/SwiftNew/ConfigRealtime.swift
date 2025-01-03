@@ -562,8 +562,6 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
         if isStatusCodeRetryable(statusCode) {
           retryHTTPConnection()
-          completionHandler(.cancel) // cancel the failing task
-
         } else {
           let error = NSError(
             domain: RemoteConfigUpdateErrorDomain,
@@ -575,14 +573,13 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
           )
           RCLog.error("I-RCN000021", "Cannot establish connection. Error: \(error)")
           propagateErrors(error)
-          completionHandler(.cancel) // cancel the failing task
         }
       } else {
         // On success, reset retry parameters.
         remainingRetryCount = maxRetries
         settings.realtimeRetryCount = 0
-        completionHandler(.allow)
       }
+      completionHandler(.allow)
     }
   }
 
