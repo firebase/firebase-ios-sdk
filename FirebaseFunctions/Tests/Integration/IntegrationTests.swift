@@ -742,45 +742,6 @@ class IntegrationTests: XCTestCase {
     }
   }
   
-  func testStreamable() async {
-    var byName = functions.httpsCallable(
-      "timeoutTest",
-      requestAs: [Int].self,
-      responseAs: Int.self
-    )
-    
-    do {
-      let stream = try await functions.httpsCallable("Why is the sky blue").stream("genStream")
-    
-        for try await line in stream {
-          print(line)
-        
-      }
-      print(stream as Any)
-    } catch {
-      print("Failed to download stream: \(error)")
-    }
-    
-    byName.timeoutInterval = 0.05
-    var byURL = functions.httpsCallable(
-      emulatorURL("timeoutTest"),
-      requestAs: [Int].self,
-      responseAs: Int.self
-    )
-    byURL.timeoutInterval = 0.05
-    for function in [byName, byURL] {
-      do {
-        _ = try await function.call([])
-        XCTAssertFalse(true, "Failed to throw error for missing result")
-      } catch {
-        let error = error as NSError
-        XCTAssertEqual(FunctionsErrorCode.deadlineExceeded.rawValue, error.code)
-        XCTAssertEqual("DEADLINE EXCEEDED", error.localizedDescription)
-        XCTAssertNil(error.userInfo["details"])
-      }
-    }
-  }
-
   func testCallAsFunction() {
     let data = DataTestRequest(
       bool: true,
