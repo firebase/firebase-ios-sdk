@@ -260,6 +260,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         guard let self = self else { return }
         // Dispatch to the RC serial queue to update settings on the queue.
         self.realtimeLockQueue.async {
+          /// Update config settings with the IID and token.
           self.settings.configInstallationsToken = tokenResult.authToken
           self.settings.configInstallationsIdentifier = identifier ?? ""
           if let error = error {
@@ -333,11 +334,12 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   func canMakeConnection() -> Bool {
     let noRunningConnection = dataTask == nil || dataTask?.state != .running
-    return noRunningConnection && listeners.count == 0 && !isInBackground && !isRealtimeDisabled
+    return noRunningConnection && listeners.count > 0 && !isInBackground && !isRealtimeDisabled
   }
 
   func retryHTTPConnection() {
-    realtimeLockQueue.async {
+    realtimeLockQueue.async { [weak self] in
+      guard let self, !self.isInBackground else { return }
       guard self.remainingRetryCount > 0 else {
         let error = NSError(domain: RemoteConfigUpdateErrorDomain,
                             code: RemoteConfigUpdateError.streamError.rawValue,
@@ -391,8 +393,8 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
   @objc private func didEnterBackground() {
     realtimeLockQueue.async {
-      self.isInBackground = true
       self.pauseRealtimeStream()
+      self.isInBackground = true
     }
   }
 
