@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/util/thread_safe_memoizer.h"
 
+#include <memory>  // NOLINT(build/c++11)
 #include <thread>  // NOLINT(build/c++11)
 #include "gtest/gtest.h"
 
@@ -32,7 +33,7 @@ TEST(ThreadSafeMemoizerTest, MultiThreadedMemoization) {
     // If the lambda gets executed multiple times, threads will see incremented
     // `global_int`.
     global_int++;
-    return global_int.load();
+    return std::make_unique<int>(global_int.load());
   };
 
   const int num_threads = 5;

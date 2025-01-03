@@ -114,8 +114,6 @@ class Filter {
  protected:
   class Rep {
    public:
-    Rep();
-
     virtual ~Rep() = default;
 
     virtual Type type() const {
@@ -160,7 +158,7 @@ class Filter {
      * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
      * member variable, which is not copyable).
      */
-    mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<FieldFilter>>>
+    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>>
         memoized_flattened_filters_;
   };
 

@@ -143,12 +143,12 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
 
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
-  return memoized_flattened_filters_->memoize([&]() {
-    std::vector<FieldFilter> flattened_filters;
+  return memoized_flattened_filters_.memoize([&]() {
+    auto flattened_filters = std::make_unique<std::vector<FieldFilter>>();
     for (const auto& filter : filters())
       std::copy(filter.GetFlattenedFilters().begin(),
                 filter.GetFlattenedFilters().end(),
-                std::back_inserter(flattened_filters));
+                std::back_inserter(*flattened_filters));
     return flattened_filters;
   });
 }

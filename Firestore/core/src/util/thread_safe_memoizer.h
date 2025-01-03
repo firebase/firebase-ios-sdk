@@ -18,8 +18,7 @@
 #define FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 
 #include <functional>
-#include <mutex>  // NOLINT(build/c++11)
-#include <vector>
+#include <memory>
 
 namespace firebase {
 namespace firestore {
@@ -36,43 +35,47 @@ class ThreadSafeMemoizer {
  public:
   ThreadSafeMemoizer() = default;
 
-  ~ThreadSafeMemoizer() {
-    // Call `std::call_once` in order to synchronize with the "active"
-    // invocation of `memoize()`. Without this synchronization, there is a data
-    // race between this destructor, which "reads" `memoized_value_` to destroy
-    // it, and the write to `memoized_value_` done by the "active" invocation of
-    // `memoize()`.
-    std::call_once(once_, [&]() {});
+  ThreadSafeMemoizer(const ThreadSafeMemoizer&) {
   }
 
-  // This class cannot be copied or moved, because it has `std::once_flag`
-  // member.
-  ThreadSafeMemoizer(const ThreadSafeMemoizer&) = delete;
-  ThreadSafeMemoizer(ThreadSafeMemoizer&&) = delete;
-  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer&) = delete;
-  ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&&) = delete;
+  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer&) {
+    return *this;
+  }
+
+  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) = default;
+  ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) = default;
+
+  ~ThreadSafeMemoizer() {
+    delete memoized_.load();
+  }
 
   /**
    * Memoize a value.
    *
-   * The std::function object specified by the first invocation of this
-   * function (the "active" invocation) will be invoked synchronously.
-   * None of the std::function objects specified by the subsequent
-   * invocations of this function (the "passive" invocations) will be
-   * invoked. All invocations, both "active" and "passive", will return a
-   * reference to the std::vector created by copying the return value from
-   * the std::function specified by the "active" invocation. It is,
-   * therefore, the "active" invocation's job to return the std::vector
-   * to memoize.
+   * If there is no memoized value then the given function is called to create
+   * the value, returning a reference to the created value and storing the
+   * pointer to the created value. On the other hand, if there _is_ a memoized
+   * value from a previous invocation then a reference to that object is
+   * returned and the given function is not called. Note that the given function
+   * may be called more than once and, therefore, must be idempotent.
    */
-  const T& memoize(std::function<T()> func) {
-    std::call_once(once_, [&]() { memoized_value_ = func(); });
-    return memoized_value_;
+  const T& memoize(std::function<std::unique_ptr<T>()> func) {
+    while (true) {
+      T* old_memoized = memoized_.load();
+      if (old_memoized) {
+        return *old_memoized;
+      }
+
+      std::unique_ptr<T> new_memoized = func();
+
+      if (memoized_.compare_exchange_strong(old_memoized, new_memoized.get())) {
+        return *new_memoized.release();
+      }
+    }
   }
 
  private:
-  std::once_flag once_;
-  T memoized_value_;
+  std::atomic<T*> memoized_ = {nullptr};
 };
 
 }  // namespace util

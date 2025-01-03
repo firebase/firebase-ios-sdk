@@ -295,20 +295,16 @@ class Query {
   // member variable, which is not copyable).
 
   // The memoized list of sort orders.
-  mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<OrderBy>>>
-      memoized_normalized_order_bys_{
-          std::make_shared<util::ThreadSafeMemoizer<std::vector<OrderBy>>>()};
+  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>>
+      memoized_normalized_order_bys_;
 
   // The corresponding Target of this Query instance.
-  mutable std::shared_ptr<util::ThreadSafeMemoizer<Target>> memoized_target_{
-      std::make_shared<util::ThreadSafeMemoizer<Target>>()};
+  mutable util::ThreadSafeMemoizer<Target> memoized_target_;
 
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  mutable std::shared_ptr<util::ThreadSafeMemoizer<Target>>
-      memoized_aggregate_target_{
-          std::make_shared<util::ThreadSafeMemoizer<Target>>()};
+  mutable util::ThreadSafeMemoizer<Target> memoized_aggregate_target_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

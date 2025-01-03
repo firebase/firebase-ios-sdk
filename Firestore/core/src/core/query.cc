@@ -92,9 +92,9 @@ absl::optional<Operator> Query::FindOpInsideFilters(
 }
 
 const std::vector<OrderBy>& Query::normalized_order_bys() const {
-  return memoized_normalized_order_bys_->memoize([&]() {
+  return memoized_normalized_order_bys_.memoize([&]() {
     // Any explicit order by fields should be added as is.
-    std::vector<OrderBy> result = explicit_order_bys_;
+    auto result = std::make_unique<std::vector<OrderBy>>(explicit_order_bys_);
     std::set<FieldPath> fieldsNormalized;
     for (const OrderBy& order_by : explicit_order_bys_) {
       fieldsNormalized.insert(order_by.field());
@@ -117,14 +117,14 @@ const std::vector<OrderBy>& Query::normalized_order_bys() const {
     for (const model::FieldPath& field : inequality_fields) {
       if (fieldsNormalized.find(field) == fieldsNormalized.end() &&
           !field.IsKeyFieldPath()) {
-        result.push_back(OrderBy(field, last_direction));
+        result->push_back(OrderBy(field, last_direction));
       }
     }
 
     // Add the document key field to the last if it is not explicitly ordered.
     if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
         fieldsNormalized.end()) {
-      result.push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
+      result->push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
     }
 
     return result;
@@ -297,13 +297,15 @@ std::string Query::ToString() const {
 }
 
 const Target& Query::ToTarget() const& {
-  return memoized_target_->memoize(
-      [&]() { return ToTarget(normalized_order_bys()); });
+  return memoized_target_.memoize([&]() {
+    return std::make_unique<Target>(ToTarget(normalized_order_bys()));
+  });
 }
 
 const Target& Query::ToAggregateTarget() const& {
-  return memoized_aggregate_target_->memoize(
-      [&]() { return ToTarget(explicit_order_bys_); });
+  return memoized_aggregate_target_.memoize([&]() {
+    return std::make_unique<Target>(ToTarget(explicit_order_bys_));
+  });
 }
 
 Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
