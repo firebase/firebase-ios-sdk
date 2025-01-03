@@ -501,11 +501,11 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         }
       } catch {
         let wrappedError = NSError(domain: RemoteConfigUpdateErrorDomain,
-                            code: RemoteConfigUpdateError.messageInvalid.rawValue,
-                            userInfo: [
-                              NSLocalizedDescriptionKey: "Unable to parse ConfigUpdate. \(strData)",
-                              NSUnderlyingErrorKey: error
-                            ])
+                                   code: RemoteConfigUpdateError.messageInvalid.rawValue,
+                                   userInfo: [
+                                     NSLocalizedDescriptionKey: "Unable to parse ConfigUpdate. \(strData)",
+                                     NSUnderlyingErrorKey: error,
+                                   ])
         propagateErrors(wrappedError)
         return
       }
