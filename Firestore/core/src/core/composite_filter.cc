@@ -23,6 +23,7 @@
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_format.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/str_join.h"
 
 namespace firebase {
@@ -144,7 +145,7 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
   return memoized_flattened_filters_.memoize([&]() {
-    auto flattened_filters = std::make_unique<std::vector<FieldFilter>>();
+    auto flattened_filters = absl::make_unique<std::vector<FieldFilter>>();
     for (const auto& filter : filters())
       std::copy(filter.GetFlattenedFilters().begin(),
                 filter.GetFlattenedFilters().end(),

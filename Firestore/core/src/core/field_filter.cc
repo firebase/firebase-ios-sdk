@@ -32,6 +32,7 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/algorithm/container.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
 
@@ -125,7 +126,7 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
 const std::vector<FieldFilter>& FieldFilter::Rep::GetFlattenedFilters() const {
   // This is already a field filter, so we return a vector of size one.
   return memoized_flattened_filters_.memoize([&]() {
-    auto filters = std::make_unique<std::vector<FieldFilter>>();
+    auto filters = absl::make_unique<std::vector<FieldFilter>>();
     filters->push_back(FieldFilter(std::make_shared<const Rep>(*this)));
     return filters;
   });

@@ -30,6 +30,7 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/algorithm/container.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
@@ -94,7 +95,7 @@ absl::optional<Operator> Query::FindOpInsideFilters(
 const std::vector<OrderBy>& Query::normalized_order_bys() const {
   return memoized_normalized_order_bys_.memoize([&]() {
     // Any explicit order by fields should be added as is.
-    auto result = std::make_unique<std::vector<OrderBy>>(explicit_order_bys_);
+    auto result = absl::make_unique<std::vector<OrderBy>>(explicit_order_bys_);
     std::set<FieldPath> fieldsNormalized;
     for (const OrderBy& order_by : explicit_order_bys_) {
       fieldsNormalized.insert(order_by.field());
@@ -298,13 +299,13 @@ std::string Query::ToString() const {
 
 const Target& Query::ToTarget() const& {
   return memoized_target_.memoize([&]() {
-    return std::make_unique<Target>(ToTarget(normalized_order_bys()));
+    return absl::make_unique<Target>(ToTarget(normalized_order_bys()));
   });
 }
 
 const Target& Query::ToAggregateTarget() const& {
   return memoized_aggregate_target_.memoize([&]() {
-    return std::make_unique<Target>(ToTarget(explicit_order_bys_));
+    return absl::make_unique<Target>(ToTarget(explicit_order_bys_));
   });
 }
 
