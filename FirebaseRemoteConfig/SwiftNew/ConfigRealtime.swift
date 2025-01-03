@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,9 +64,7 @@ private let maxRetries = 7
 /// the associated listener from receiving config updates and unregisters itself.
 ///
 /// If `remove` is called and no other listener registrations remain, the connection to the
-/// real-time
-/// connection.
-
+/// real-time connection.
 @objc(FIRConfigUpdateListenerRegistration) public
 final class ConfigUpdateListenerRegistration: NSObject, Sendable {
   let completionHandler: @Sendable (RemoteConfigUpdate?, Error?) -> Void
@@ -109,7 +107,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
        settings: ConfigSettings,
        namespace: String,
        options: FirebaseOptions,
-       installations: InstallationsProtocol?) {
+       installations: InstallationsProtocol? = nil) {
     self.configFetch = configFetch
     self.settings = settings
     self.options = options
