@@ -75,7 +75,7 @@ import Foundation
         return
       }
 
-      guard let user = user, let auth = user.auth else {
+      guard let user, let auth = user.auth else {
         fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
       }
 
@@ -91,7 +91,7 @@ import Foundation
             AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: secret.sessionInfo,
                                                           verificationCode: totpAssertion
                                                             .oneTimePassword)
-          request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
+          request = FinalizeMFAEnrollmentRequest(idToken: user.rawAccessToken(),
                                                  displayName: displayName,
                                                  totpVerificationInfo: finalizeMFATOTPRequestInfo,
                                                  requestConfiguration: user
@@ -111,7 +111,7 @@ import Foundation
               verificationCode: code
             )
           request = FinalizeMFAEnrollmentRequest(
-            idToken: self.user?.rawAccessToken(),
+            idToken: user.rawAccessToken(),
             displayName: displayName,
             phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
             requestConfiguration: user.requestConfiguration
