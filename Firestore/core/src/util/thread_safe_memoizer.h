@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 #define FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 
+#include <atomic>
 #include <functional>
 #include <memory>
 
