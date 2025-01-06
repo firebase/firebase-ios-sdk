@@ -35,7 +35,7 @@ class AuthUserDefaults {
     storage = UserDefaults()
   }
 
-  func data(forKey key: String) throws -> Data? {
+  func data(forKey key: String) -> Data? {
     guard let allData = storage.persistentDomain(forName: persistentDomainName)
     else { return nil }
     if let data = allData[key] as? Data {
@@ -44,13 +44,13 @@ class AuthUserDefaults {
     return nil
   }
 
-  func setData(_ data: Data, forKey key: String) throws {
+  func setData(_ data: Data, forKey key: String) {
     var allData = storage.persistentDomain(forName: persistentDomainName) ?? [:]
     allData[key] = data
     storage.setPersistentDomain(allData, forName: persistentDomainName)
   }
 
-  func removeData(forKey key: String) throws {
+  func removeData(forKey key: String) {
     guard var allData = storage.persistentDomain(forName: persistentDomainName) else { return }
     allData.removeValue(forKey: key)
     storage.setPersistentDomain(allData, forName: persistentDomainName)

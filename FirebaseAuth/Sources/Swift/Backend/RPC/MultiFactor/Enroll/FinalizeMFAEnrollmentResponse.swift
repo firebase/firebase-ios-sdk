@@ -21,7 +21,7 @@ struct FinalizeMFAEnrollmentResponse: AuthRPCResponse {
   private(set) var phoneSessionInfo: AuthProtoFinalizeMFAPhoneResponseInfo?
   private(set) var totpSessionInfo: AuthProtoFinalizeMFATOTPEnrollmentResponseInfo?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
 

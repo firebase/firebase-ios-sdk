@@ -100,14 +100,14 @@ class VerifyCustomTokenTests: RPCBaseTests {
     let kIsNewUserKey = "isNewUser"
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         kIDTokenKey: kTestIDToken,
         kExpiresInKey: kTestExpiresIn,
         kRefreshTokenKey: kTestRefreshToken,
         kIsNewUserKey: true,
       ])
     }
-    let rpcResponse = try await AuthBackend.call(with: makeVerifyCustomTokenRequest())
+    let rpcResponse = try await authBackend.call(with: makeVerifyCustomTokenRequest())
     XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)

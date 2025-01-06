@@ -40,7 +40,7 @@ struct EmailLinkSignInResponse: AuthRPCResponse, AuthMFAResponse {
   /// Info on which multi-factor authentication providers are enabled.
   private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     idToken = dictionary["idToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false

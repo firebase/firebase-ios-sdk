@@ -32,7 +32,7 @@ class AuthUserDefaultsTests: XCTestCase {
       @brief Tests reading non-existing storage item.
    */
   func testReadNonexisting() throws {
-    XCTAssertNil(try storage.data(forKey: kKey))
+    XCTAssertNil(storage.data(forKey: kKey))
   }
 
   /** @fn testWriteRead
@@ -40,7 +40,7 @@ class AuthUserDefaultsTests: XCTestCase {
    */
   func testWriteRead() throws {
     try storage.setData(dataFromString(kData), forKey: kKey)
-    XCTAssertEqual(try storage.data(forKey: kKey), try dataFromString(kData))
+    XCTAssertEqual(storage.data(forKey: kKey), try dataFromString(kData))
   }
 
   /** @fn testOverwrite
@@ -50,7 +50,7 @@ class AuthUserDefaultsTests: XCTestCase {
     let kOtherData = "OTHER_DATA"
     try storage.setData(dataFromString(kData), forKey: kKey)
     try storage.setData(dataFromString(kOtherData), forKey: kKey)
-    XCTAssertEqual(try storage.data(forKey: kKey), try dataFromString(kOtherData))
+    XCTAssertEqual(storage.data(forKey: kKey), try dataFromString(kOtherData))
   }
 
   /** @fn testRemove
@@ -67,7 +67,7 @@ class AuthUserDefaultsTests: XCTestCase {
   func testServices() throws {
     try storage.setData(dataFromString(kData), forKey: kKey)
     storage = AuthUserDefaults(service: "Other service")
-    XCTAssertNil(try storage.data(forKey: kKey))
+    XCTAssertNil(storage.data(forKey: kKey))
   }
 
   /** @fn testStandardUserDefaults

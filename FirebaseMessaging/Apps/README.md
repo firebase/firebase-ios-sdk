@@ -7,7 +7,7 @@ the sample code. The one inside the AdvancedSample folder is a test app
 based on the test app in the Sample folder. Both Apps share most of the
 code in the main target. The AdvancedSample app provides advanced app
 extensions features, such as Notification Service Extension, Shared
-Extension, App Clips and a watchOS app. The advanced sample app has more
+Extension, App Clips, Live Activities and a watchOS app. The advanced sample app has more
 targets than the Sample app and requires your own provisioning profiles and
 certificates for each extension target to be setup so that it can be run on
 a real device.

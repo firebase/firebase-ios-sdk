@@ -67,7 +67,7 @@ class PasswordlessViewController: OtherAuthViewController {
         print("User verified with passwordless email.")
 
         self.navigationController?.dismiss(animated: true) {
-          self.delegate?.loginDidOccur()
+          self.delegate?.loginDidOccur(resolver: nil)
         }
       } else {
         print("User could not be verified by passwordless email")

@@ -35,7 +35,7 @@ struct CreateAuthURIResponse: AuthRPCResponse {
   /// A list of sign-in methods available for the passed identifier.
   var signinMethods: [String] = []
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     providerID = dictionary["providerId"] as? String
     authURI = dictionary["authUri"] as? String
     registered = dictionary["registered"] as? Bool ?? false

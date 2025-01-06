@@ -51,7 +51,7 @@ class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kEmailLinkSigninEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [
       kEmailKey: email,
       kOOBCodeKey: oobCode,

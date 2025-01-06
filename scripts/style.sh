@@ -153,6 +153,9 @@ s%^./%%
 # Generated source
 \%/Firestore/core/src/util/config.h% d
 
+# Generated Code for Data Connect sample
+\%/Examples/FriendlyFlix/app/FriendlyFlixSDK/% d
+
 # Sources pulled in by travis bundler, with and without a leading slash
 \%^/?vendor/bundle/% d
 

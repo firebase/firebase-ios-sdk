@@ -72,7 +72,7 @@ import Foundation
       )
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.auth.backend.call(with: request)
           let user = try await self.auth.completeSignIn(withAccessToken: response.idToken,
                                                         accessTokenExpirationDate: nil,
                                                         refreshToken: response.refreshToken,
@@ -80,7 +80,7 @@ import Foundation
           let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
           let decoratedCallback = self.auth
             .signInFlowAuthDataResultCallback(byDecorating: completion)
-          decoratedCallback(result, nil)
+          decoratedCallback(.success(result))
         } catch {
           if let completion {
             completion(nil, error)

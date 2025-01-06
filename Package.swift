@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.5.0"
+let firebaseVersion = "11.7.0"
 
 let package = Package(
   name: "Firebase",
@@ -1505,8 +1505,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.5.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "32df6c2cfce97249ad4c333bade9af5c2301a2b35c285980355320a3398d5aef"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.6.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "ad9d6cf31120ba0a91dbb9ccbe7ad08276a88565f6c79216929ec93a7d436459"
       )
     }
   }()

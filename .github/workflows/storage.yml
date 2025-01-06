@@ -25,7 +25,7 @@ jobs:
         language: [Swift, ObjC]
         include:
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: ${{ matrix.os }}
@@ -96,22 +96,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: macOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -139,8 +139,8 @@ jobs:
           #- os: macos-13
           #  xcode: Xcode_14.2 # TODO: the legacy ObjC quickstart doesn't build with Xcode 15.
           - swift: swift
-            os: macos-14
-            xcode: Xcode_15.3
+            os: macos-15
+            xcode: Xcode_16.1
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -195,15 +195,14 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-14]
-        include:
+        build-env:
           - os: macos-14
             xcode: Xcode_15.3
             tests: --skip-tests
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
             tests: --test-specs=unit
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -212,10 +211,10 @@ jobs:
     - name: Xcodes
       run: ls -l /Applications/Xcode*
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Build and test
       run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec ${{ matrix.tests }} \
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec ${{ matrix.build-env.tests }} \
          --platforms=${{ matrix.target }}
 
   storage-cron-only:
@@ -224,13 +223,12 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        os: [macos-14]
-        include:
+        build-env:
           - os: macos-14
             xcode: Xcode_15.3
-          - os: macos-14
-            xcode: Xcode_16
-    runs-on: ${{ matrix.os }}
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v4
@@ -238,6 +236,6 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: PodLibLint Storage Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests

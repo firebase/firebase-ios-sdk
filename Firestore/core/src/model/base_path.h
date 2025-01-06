@@ -150,8 +150,18 @@ class BasePath {
            std::equal(begin(), end(), potential_child.begin());
   }
 
+  /**
+   * Compares the current path against another Path object. Paths are compared
+   * segment by segment, prioritizing numeric IDs (e.g., "__id123__") in numeric
+   * ascending order, followed by string segments in lexicographical order.
+   */
   util::ComparisonResult CompareTo(const T& rhs) const {
-    return util::CompareContainer(segments_, rhs.segments_);
+    size_t min_size = std::min(size(), rhs.size());
+    for (size_t i = 0; i < min_size; ++i) {
+      auto cmp = CompareSegments(segments_[i], rhs.segments_[i]);
+      if (!util::Same(cmp)) return cmp;
+    }
+    return util::Compare(size(), rhs.size());
   }
 
   friend bool operator==(const BasePath& lhs, const BasePath& rhs) {
@@ -174,6 +184,38 @@ class BasePath {
 
  private:
   SegmentsT segments_;
+
+  static const size_t kNumericIdPrefixLength = 4;
+  static const size_t kNumericIdSuffixLength = 2;
+  static const size_t kNumericIdTotalOverhead =
+      kNumericIdPrefixLength + kNumericIdSuffixLength;
+
+  static util::ComparisonResult CompareSegments(const std::string& lhs,
+                                                const std::string& rhs) {
+    bool isLhsNumeric = IsNumericId(lhs);
+    bool isRhsNumeric = IsNumericId(rhs);
+
+    if (isLhsNumeric && !isRhsNumeric) {
+      return util::ComparisonResult::Ascending;
+    } else if (!isLhsNumeric && isRhsNumeric) {
+      return util::ComparisonResult::Descending;
+    } else if (isLhsNumeric && isRhsNumeric) {
+      return util::Compare(ExtractNumericId(lhs), ExtractNumericId(rhs));
+    } else {
+      return util::Compare(lhs, rhs);
+    }
+  }
+
+  static bool IsNumericId(const std::string& segment) {
+    return segment.size() > kNumericIdTotalOverhead &&
+           segment.substr(0, kNumericIdPrefixLength) == "__id" &&
+           segment.substr(segment.size() - kNumericIdSuffixLength) == "__";
+  }
+
+  static int64_t ExtractNumericId(const std::string& segment) {
+    return std::stol(segment.substr(kNumericIdPrefixLength,
+                                    segment.size() - kNumericIdSuffixLength));
+  }
 };
 
 }  // namespace impl

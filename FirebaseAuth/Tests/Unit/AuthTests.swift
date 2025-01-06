@@ -45,19 +45,20 @@ class AuthTests: RPCBaseTests {
     #else
       let keychainStorageProvider = AuthKeychainStorageReal()
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
-    auth = Auth(
-      app: FirebaseApp.app(name: name)!,
-      keychainStorageProvider: keychainStorageProvider
-    )
 
-    // Set authDispatcherCallback implementation in order to save the token refresh task for later
-    // execution.
-    AuthDispatcher.shared.dispatchAfterImplementation = { delay, queue, task in
+    // Stub the implementation to save the token refresh task for later execution.
+    let authDispatcher = AuthDispatcher { delay, queue, task in
       XCTAssertNotNil(task)
       XCTAssertGreaterThan(delay, 0)
       XCTAssertEqual(kAuthGlobalWorkQueue, queue)
       self.authDispatcherCallback = task
     }
+    auth = Auth(
+      app: FirebaseApp.app(name: name)!,
+      keychainStorageProvider: keychainStorageProvider,
+      backend: authBackend,
+      authDispatcher: authDispatcher
+    )
     // Wait until Auth initialization completes
     waitForAuthGlobalWorkQueueDrain()
   }
@@ -83,7 +84,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.endpoint, "createAuthUri")
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
-      try self.rpcIssuer.respond(withJSON: ["signinMethods": allSignInMethods])
+      return try self.rpcIssuer.respond(withJSON: ["signinMethods": allSignInMethods])
     }
 
     auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
@@ -105,7 +106,7 @@ class AuthTests: RPCBaseTests {
 
     rpcIssuer.respondBlock = {
       let message = "TOO_MANY_ATTEMPTS_TRY_LATER"
-      try self.rpcIssuer.respond(serverErrorMessage: message)
+      return try self.rpcIssuer.respond(serverErrorMessage: message)
     }
     auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
       XCTAssertTrue(Thread.isMainThread)
@@ -136,9 +137,9 @@ class AuthTests: RPCBaseTests {
         XCTAssertEqual(request.verificationID, kVerificationID)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "isNewUser": true,
-                                              "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "isNewUser": true,
+                                                     "refreshToken": self.kRefreshToken])
       }
 
       try auth?.signOut()
@@ -240,10 +241,10 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.oobCode, fakeCode)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "email": self.kEmail,
-                                            "isNewUser": true,
-                                            "refreshToken": self.kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "email": self.kEmail,
+                                                   "isNewUser": true,
+                                                   "refreshToken": self.kRefreshToken])
     }
     try auth?.signOut()
     auth?.signIn(withEmail: kEmail, link: link) { authResult, error in
@@ -308,10 +309,10 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "email": self.kEmail,
-                                              "isNewUser": true,
-                                              "refreshToken": kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "email": self.kEmail,
+                                                     "isNewUser": true,
+                                                     "refreshToken": kRefreshToken])
       }
 
       try auth?.signOut()
@@ -361,7 +362,7 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
+        return try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
       }
       rpcIssuer.nextRespondBlock = {
         // 4. Validate again the created Request instance after the recaptcha retry.
@@ -373,10 +374,10 @@ class AuthTests: RPCBaseTests {
         request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
         // 5. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "email": self.kEmail,
-                                              "isNewUser": true,
-                                              "refreshToken": kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "email": self.kEmail,
+                                                     "isNewUser": true,
+                                                     "refreshToken": kRefreshToken])
       }
 
       try auth?.signOut()
@@ -424,10 +425,10 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "email": self.kEmail,
-                                            "isNewUser": true,
-                                            "refreshToken": kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "email": self.kEmail,
+                                                   "isNewUser": true,
+                                                   "refreshToken": kRefreshToken])
     }
 
     try auth?.signOut()
@@ -494,7 +495,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     try auth?.signOut()
     auth?
@@ -548,9 +549,9 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["email": self.kEmail,
-                                            "requestType": verifyEmailRequestType,
-                                            "newEmail": kNewEmail])
+      return try self.rpcIssuer.respond(withJSON: ["email": self.kEmail,
+                                                   "requestType": verifyEmailRequestType,
+                                                   "newEmail": kNewEmail])
     }
     try auth?.signOut()
     auth?.checkActionCode(kFakeOobCode) { info, error in
@@ -600,7 +601,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     try auth?.signOut()
     auth?.applyActionCode(kFakeOobCode) { error in
@@ -649,7 +650,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.oobCode, self.kFakeOobCode)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["email": self.kEmail])
+      return try self.rpcIssuer.respond(withJSON: ["email": self.kEmail])
     }
     try auth?.signOut()
     auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
@@ -705,9 +706,9 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.email, self.kEmail)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "isNewUser": true,
-                                            "refreshToken": self.kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "isNewUser": true,
+                                                   "refreshToken": self.kRefreshToken])
     }
     try auth?.signOut()
     let emailCredential = EmailAuthProvider.credential(
@@ -777,9 +778,9 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.email, self.kEmail)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "isNewUser": true,
-                                            "refreshToken": self.kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "isNewUser": true,
+                                                   "refreshToken": self.kRefreshToken])
     }
     try auth?.signOut()
     let emailCredential = EmailAuthProvider.credential(withEmail: kEmail, password: kFakePassword)
@@ -875,14 +876,14 @@ class AuthTests: RPCBaseTests {
         XCTAssertTrue(request.returnSecureToken)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                              "refreshToken": self.kRefreshToken,
-                                              "federatedId": self.kGoogleID,
-                                              "providerId": GoogleAuthProvider.id,
-                                              "localId": self.kLocalID,
-                                              "displayName": self.kDisplayName,
-                                              "rawUserInfo": self.kGoogleProfile,
-                                              "username": self.kUserName])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "refreshToken": self.kRefreshToken,
+                                                     "federatedId": self.kGoogleID,
+                                                     "providerId": GoogleAuthProvider.id,
+                                                     "localId": self.kLocalID,
+                                                     "displayName": self.kDisplayName,
+                                                     "rawUserInfo": self.kGoogleProfile,
+                                                     "username": self.kUserName])
       }
       try auth.signOut()
       auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
@@ -918,7 +919,7 @@ class AuthTests: RPCBaseTests {
         XCTAssertTrue(request.returnSecureToken)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
+        return try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
       }
       try auth.signOut()
       auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
@@ -952,15 +953,15 @@ class AuthTests: RPCBaseTests {
         XCTAssertTrue(request.returnSecureToken)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                              "refreshToken": self.kRefreshToken,
-                                              "federatedId": self.kGoogleID,
-                                              "providerId": GoogleAuthProvider.id,
-                                              "localId": self.kLocalID,
-                                              "displayName": self.kGoogleDisplayName,
-                                              "rawUserInfo": self.kGoogleProfile,
-                                              "username": self.kUserName,
-                                              "needConfirmation": true])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "refreshToken": self.kRefreshToken,
+                                                     "federatedId": self.kGoogleID,
+                                                     "providerId": GoogleAuthProvider.id,
+                                                     "localId": self.kLocalID,
+                                                     "displayName": self.kGoogleDisplayName,
+                                                     "rawUserInfo": self.kGoogleProfile,
+                                                     "username": self.kUserName,
+                                                     "needConfirmation": true])
       }
       try auth.signOut()
       let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
@@ -996,14 +997,14 @@ class AuthTests: RPCBaseTests {
         XCTAssertTrue(request.returnSecureToken)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                              "refreshToken": self.kRefreshToken,
-                                              "federatedId": self.kGoogleID,
-                                              "providerId": GoogleAuthProvider.id,
-                                              "localId": self.kLocalID,
-                                              "displayName": self.kGoogleDisplayName,
-                                              "rawUserInfo": self.kGoogleProfile,
-                                              "username": self.kUserName])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "refreshToken": self.kRefreshToken,
+                                                     "federatedId": self.kGoogleID,
+                                                     "providerId": GoogleAuthProvider.id,
+                                                     "localId": self.kLocalID,
+                                                     "displayName": self.kGoogleDisplayName,
+                                                     "rawUserInfo": self.kGoogleProfile,
+                                                     "username": self.kUserName])
       }
       try auth.signOut()
       auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
@@ -1042,14 +1043,14 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                            "refreshToken": self.kRefreshToken,
-                                            "federatedId": self.kGoogleID,
-                                            "providerId": GoogleAuthProvider.id,
-                                            "localId": self.kLocalID,
-                                            "displayName": self.kGoogleDisplayName,
-                                            "rawUserInfo": self.kGoogleProfile,
-                                            "username": self.kGoogleDisplayName])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "federatedId": self.kGoogleID,
+                                                   "providerId": GoogleAuthProvider.id,
+                                                   "localId": self.kLocalID,
+                                                   "displayName": self.kGoogleDisplayName,
+                                                   "rawUserInfo": self.kGoogleProfile,
+                                                   "username": self.kGoogleDisplayName])
     }
     try auth.signOut()
     let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
@@ -1094,7 +1095,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(serverErrorMessage: "EMAIL_EXISTS")
+      return try self.rpcIssuer.respond(serverErrorMessage: "EMAIL_EXISTS")
     }
     try auth.signOut()
     let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
@@ -1138,16 +1139,16 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                            "refreshToken": self.kRefreshToken,
-                                            "federatedId": self.kGoogleID,
-                                            "providerId": AuthProviderID.apple.rawValue,
-                                            "localId": self.kLocalID,
-                                            "displayName": self.kGoogleDisplayName,
-                                            "rawUserInfo": self.kGoogleProfile,
-                                            "firstName": kFirst,
-                                            "lastName": kLast,
-                                            "username": self.kGoogleDisplayName])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "federatedId": self.kGoogleID,
+                                                   "providerId": AuthProviderID.apple.rawValue,
+                                                   "localId": self.kLocalID,
+                                                   "displayName": self.kGoogleDisplayName,
+                                                   "rawUserInfo": self.kGoogleProfile,
+                                                   "firstName": kFirst,
+                                                   "lastName": kLast,
+                                                   "username": self.kGoogleDisplayName])
     }
     try auth.signOut()
     let appleCredential = OAuthProvider.appleCredential(withIDToken: kAppleIDToken,
@@ -1193,10 +1194,10 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "email": self.kEmail,
-                                            "isNewUser": true,
-                                            "refreshToken": self.kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "email": self.kEmail,
+                                                   "isNewUser": true,
+                                                   "refreshToken": self.kRefreshToken])
     }
     try auth?.signOut()
     auth?.signInAnonymously { authResult, error in
@@ -1256,10 +1257,10 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "email": self.kEmail,
-                                            "isNewUser": false,
-                                            "refreshToken": self.kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "email": self.kEmail,
+                                                   "isNewUser": false,
+                                                   "refreshToken": self.kRefreshToken])
     }
     try auth?.signOut()
     auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
@@ -1326,10 +1327,10 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "email": self.kEmail,
-                                              "isNewUser": true,
-                                              "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "email": self.kEmail,
+                                                     "isNewUser": true,
+                                                     "refreshToken": self.kRefreshToken])
       }
       try auth?.signOut()
       auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
@@ -1374,7 +1375,7 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
+        return try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
       }
       rpcIssuer.nextRespondBlock = {
         // 4. Validate again the created Request instance after the recaptcha retry.
@@ -1386,10 +1387,10 @@ class AuthTests: RPCBaseTests {
         request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
         // 5. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "email": self.kEmail,
-                                              "isNewUser": true,
-                                              "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "email": self.kEmail,
+                                                     "isNewUser": true,
+                                                     "refreshToken": self.kRefreshToken])
       }
 
       try auth?.signOut()
@@ -1431,10 +1432,10 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                            "email": self.kEmail,
-                                            "isNewUser": true,
-                                            "refreshToken": self.kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                   "email": self.kEmail,
+                                                   "isNewUser": true,
+                                                   "refreshToken": self.kRefreshToken])
     }
     try auth?.signOut()
     auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
@@ -1531,7 +1532,7 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        _ = try self.rpcIssuer.respond(withJSON: [:])
+        return try self.rpcIssuer.respond(withJSON: [:])
       }
       auth?.sendPasswordReset(withEmail: kEmail) { error in
         // 4. After the response triggers the callback, verify success.
@@ -1560,7 +1561,7 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
+        return try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
       }
       rpcIssuer.nextRespondBlock = {
         // 4. Validate again the created Request instance after the recaptcha retry.
@@ -1570,10 +1571,10 @@ class AuthTests: RPCBaseTests {
         request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
         // 5. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "email": self.kEmail,
-                                              "isNewUser": true,
-                                              "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "email": self.kEmail,
+                                                     "isNewUser": true,
+                                                     "refreshToken": self.kRefreshToken])
       }
 
       auth?.sendPasswordReset(withEmail: kEmail) { error in
@@ -1600,7 +1601,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
       // 3. Send the response from the fake backend.
-      _ = try self.rpcIssuer.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     auth?.sendPasswordReset(withEmail: kEmail) { error in
       // 4. After the response triggers the callback, verify success.
@@ -1650,7 +1651,7 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        _ = try self.rpcIssuer.respond(withJSON: [:])
+        return try self.rpcIssuer.respond(withJSON: [:])
       }
       auth?.sendSignInLink(toEmail: kEmail,
                            actionCodeSettings: fakeActionCodeSettings()) { error in
@@ -1682,7 +1683,7 @@ class AuthTests: RPCBaseTests {
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
 
         // 3. Send the response from the fake backend.
-        _ = try self.rpcIssuer.respond(withJSON: [:])
+        return try self.rpcIssuer.respond(withJSON: [:])
       }
       rpcIssuer.nextRespondBlock = {
         // 4. Validate again the created Request instance after the recaptcha retry.
@@ -1692,10 +1693,10 @@ class AuthTests: RPCBaseTests {
         request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
                                       recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
         // 5. Send the response from the fake backend.
-        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                              "email": self.kEmail,
-                                              "isNewUser": true,
-                                              "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                                     "email": self.kEmail,
+                                                     "isNewUser": true,
+                                                     "refreshToken": self.kRefreshToken])
       }
 
       auth?.sendSignInLink(toEmail: kEmail,
@@ -1725,7 +1726,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.handleCodeInApp)
 
       // 3. Send the response from the fake backend.
-      _ = try self.rpcIssuer.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     auth?.sendSignInLink(toEmail: kEmail,
                          actionCodeSettings: fakeActionCodeSettings()) { error in
@@ -1796,7 +1797,7 @@ class AuthTests: RPCBaseTests {
       let kFakeErrorDomain = "fakeDomain"
       let kFakeErrorCode = -1
       let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-      try self.rpcIssuer.respond(withData: nil, error: responseError)
+      return (nil, responseError)
     }
     // Clear fake so we can inject error
     rpcIssuer.fakeGetAccountProviderJSON = nil
@@ -1915,7 +1916,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertEqual(request.tokenType, .authorizationCode)
 
       // Send the response from the fake backend.
-      _ = try self.rpcIssuer.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     auth?.revokeToken(withAuthorizationCode: code) { error in
       // Verify callback success.
@@ -1931,17 +1932,17 @@ class AuthTests: RPCBaseTests {
   func testRevokeTokenMissingCallback() throws {
     try waitForSignInWithAccessToken()
     let code = "code"
-    let issuer = rpcIssuer
+    let issuer = try XCTUnwrap(rpcIssuer)
 
-    issuer?.respondBlock = {
-      let request = try XCTUnwrap(issuer?.request as? RevokeTokenRequest)
+    issuer.respondBlock = {
+      let request = try XCTUnwrap(issuer.request as? RevokeTokenRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertEqual(request.providerID, AuthProviderID.apple.rawValue)
       XCTAssertEqual(request.token, code)
       XCTAssertEqual(request.tokenType, .authorizationCode)
 
       // Send the response from the fake backend.
-      _ = try issuer?.respond(withJSON: [:])
+      return try issuer.respond(withJSON: [:])
     }
     auth?.revokeToken(withAuthorizationCode: code)
   }
@@ -2401,11 +2402,11 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
-                                            "email": self.kEmail,
-                                            "isNewUser": true,
-                                            "expiresIn": "3600",
-                                            "refreshToken": kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
+                                                   "email": self.kEmail,
+                                                   "isNewUser": true,
+                                                   "expiresIn": "3600",
+                                                   "refreshToken": kRefreshToken])
     }
     auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.

@@ -30,7 +30,7 @@ struct VerifyCustomTokenResponse: AuthRPCResponse {
   /// Flag indicating that the user signing in is a new user and not a returning user.
   var isNewUser: Bool = false
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     if let dateString = dictionary["expiresIn"] as? NSString {
       approximateExpirationDate = Date(timeIntervalSinceNow: dateString.doubleValue)
