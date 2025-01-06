@@ -32,14 +32,13 @@ open class HTTPSCallableResult: NSObject {
 /**
  * A `HTTPSCallable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
  */
-
-
 @objc(FIRHTTPSCallable)
 open class HTTPSCallable: NSObject {
   // MARK: - Private Properties
 
   // The functions client to use for making calls.
   private let functions: Functions
+
   private let url: URL
 
   private let options: HTTPSCallableOptions?
@@ -48,6 +47,7 @@ open class HTTPSCallable: NSObject {
 
   /// The timeout to use when calling the function. Defaults to 70 seconds.
   @objc open var timeoutInterval: TimeInterval = 70
+
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
     self.url = url
@@ -132,12 +132,5 @@ open class HTTPSCallable: NSObject {
   open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
     try await functions
       .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
-  }
-
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  open func stream(_ data: Any? = nil) async throws
-    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-    try await functions
-      .stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 }
