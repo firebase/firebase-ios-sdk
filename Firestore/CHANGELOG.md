@@ -1,5 +1,6 @@
 # Unreleased
 - [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
+- [fixed] Fixed use-after-free bug when internally formatting strings. (#14306)
 
 # 11.6.0
 - [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is

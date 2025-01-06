@@ -17,6 +17,7 @@
 #include "Firestore/core/src/util/string_format.h"
 
 #include "absl/strings/string_view.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -72,12 +73,16 @@ TEST(StringFormatTest, Bool) {
   EXPECT_EQ("Hello false", StringFormat("Hello %s", false));
 }
 
-TEST(StringFormatTest, Pointer) {
-  // pointers implicitly convert to bool. Make sure this doesn't happen in
-  // this API.
-  int value = 4;
-  EXPECT_NE("Hello true", StringFormat("Hello %s", &value));
+TEST(StringFormatTest, NullPointer) {
+  // pointers implicitly convert to bool. Make sure this doesn't happen here.
   EXPECT_EQ("Hello null", StringFormat("Hello %s", nullptr));
+}
+
+TEST(StringFormatTest, NonNullPointer) {
+  // pointers implicitly convert to bool. Make sure this doesn't happen here.
+  int value = 4;
+  EXPECT_THAT(StringFormat("Hello %s", &value),
+              testing::MatchesRegex("Hello (0x)?[0123456789abcdefABCDEF]+"));
 }
 
 TEST(StringFormatTest, Mixed) {
