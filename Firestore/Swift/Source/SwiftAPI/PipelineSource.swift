@@ -7,13 +7,13 @@
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class PipelineSource {
-  let cppPtr: firebase.firestore.api.PipelineSource
+  let cppObj: firebase.firestore.api.PipelineSource
 
   public init(_ cppSource: firebase.firestore.api.PipelineSource) {
-    cppPtr = cppSource
+    cppObj = cppSource
   }
 
   public func GetCollection(_ path: String) -> Pipeline {
-    return Pipeline(cppPtr.GetCollection(std.string(path)))
+    return Pipeline(cppObj.GetCollection(std.string(path)))
   }
 }

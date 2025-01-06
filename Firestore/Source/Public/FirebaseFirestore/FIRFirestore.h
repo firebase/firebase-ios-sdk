@@ -39,7 +39,7 @@ class Firestore;
 }  // namespace firestore
 }  // namespace firebase
 
-namespace api = firebase::firestore::api;
+namespace cppApi = firebase::firestore::api;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -102,7 +102,7 @@ NS_SWIFT_NAME(Firestore)
  */
 + (instancetype)firestoreForDatabase:(NSString *)database NS_SWIFT_NAME(firestore(database:));
 
-@property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
+@property(nonatomic, assign, readonly) std::shared_ptr<cppApi::Firestore> cppFirestorePtr;
 
 /**
  * Custom settings used to configure this `Firestore` object.

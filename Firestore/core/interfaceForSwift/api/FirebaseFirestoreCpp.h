@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_USED_BY_SWIFT_H
-#define FIREBASE_USED_BY_SWIFT_H
+#ifndef FIREBASE_FIREBASEFIRESTORECPP_H
+#define FIREBASE_FIREBASEFIRESTORECPP_H
 
-#include <string>
+#import "collection_stage.h"
+#import "firestore_pipeline.h"
+#import "pipeline.h"
+#import "pipeline_result.h"
+#import "pipeline_source.h"
+#import "stage.h"
 
-class CppInterfaceCalledByObjectiveC {
- public:
-  static void print(std::string content);
-};
-
-#endif  // FIREBASE_USED_BY_SWIFT_H
+#endif  // FIREBASE_FIREBASEFIRESTORECPP_H

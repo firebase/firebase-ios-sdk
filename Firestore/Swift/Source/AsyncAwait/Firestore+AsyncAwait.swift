@@ -16,6 +16,7 @@
 
 #if SWIFT_PACKAGE
   @_exported import FirebaseFirestoreInternalWrapper
+  import FirebaseFirestoreCpp
 #else
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
@@ -117,6 +118,6 @@ public extension Firestore {
   }
 
   func pipeline() -> PipelineSource {
-    return PipelineSource(firebase.firestore.api.FirestorePipeline.pipeline(wrapped))
+    return PipelineSource(firebase.firestore.api.FirestorePipeline.pipeline(cppFirestorePtr))
   }
 }

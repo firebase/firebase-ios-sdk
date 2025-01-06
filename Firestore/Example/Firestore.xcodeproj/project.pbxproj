@@ -2184,8 +2184,8 @@
 			files = (
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
-				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				DFA186FE5BBFB484C2A60439 /* Pods_Firestore_Example_iOS.framework in Frameworks */,
+				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2194,9 +2194,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
+				45CA70C602DD3DDAEF05DCAA /* Pods_Firestore_Tests_iOS.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
-				45CA70C602DD3DDAEF05DCAA /* Pods_Firestore_Tests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2205,9 +2205,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EDD3B4620BF247500C33877 /* Foundation.framework in Frameworks */,
+				0E24350AA378A5A8D9927B9D /* Pods_Firestore_FuzzTests_iOS.framework in Frameworks */,
 				6EDD3B4820BF247500C33877 /* UIKit.framework in Frameworks */,
 				6EDD3B4920BF247500C33877 /* XCTest.framework in Frameworks */,
-				0E24350AA378A5A8D9927B9D /* Pods_Firestore_FuzzTests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2224,9 +2224,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE03B2D61F2149D600A30B9C /* Foundation.framework in Frameworks */,
+				8F59A2CC5A9E99BB2DEA7F91 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */,
 				DE03B2D51F2149D600A30B9C /* UIKit.framework in Frameworks */,
 				DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */,
-				8F59A2CC5A9E99BB2DEA7F91 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2623,8 +2623,6 @@
 			children = (
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
-				6003F591195388D20070C39A /* UIKit.framework */,
-				6003F5AF195388D20070C39A /* XCTest.framework */,
 				8F598CD89DBDF6EE959C7F82 /* Pods_Firestore_Benchmarks_iOS.framework */,
 				27A5406BD14580197A127B93 /* Pods_Firestore_Example_iOS.framework */,
 				75532670EC61672D0CF0D743 /* Pods_Firestore_Example_macOS.framework */,
@@ -2636,6 +2634,8 @@
 				BAAC6F56A47F795224077898 /* Pods_Firestore_Tests_iOS.framework */,
 				11DF548295F98F22C70127D8 /* Pods_Firestore_Tests_macOS.framework */,
 				46E38E88A7A020F4E721E373 /* Pods_Firestore_Tests_tvOS.framework */,
+				6003F591195388D20070C39A /* UIKit.framework */,
+				6003F5AF195388D20070C39A /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

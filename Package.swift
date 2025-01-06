@@ -1399,24 +1399,49 @@ func firestoreWrapperTarget() -> Target {
 }
 
 func firebaseFirestoreCppTarget() -> Target {
-  return .target(
-    name: "FirebaseFirestoreCpp",
-    dependencies: [
-      "FirebaseAppCheckInterop",
-      "FirebaseCore",
-      "leveldb",
-      "FirebaseFirestoreInternalWrapper",
-      .product(name: "nanopb", package: "nanopb"),
-      .product(name: "gRPC-cpp", package: "grpc-ios"),
-    ],
-    path: "Firestore/core/swift",
-    publicHeadersPath: "include", // Path to the public headers
-    cxxSettings: [
-      .headerSearchPath("../../../"),
-      .headerSearchPath("../../Protos/nanopb"),
-      .headerSearchPath("include"), // Ensure the header search path is correct
-    ]
-  )
+  if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+    return .target(
+      name: "FirebaseFirestoreCpp",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "leveldb",
+        "FirebaseFirestoreInternalWrapper",
+        .product(name: "nanopb", package: "nanopb"),
+        .product(name: "gRPC-cpp", package: "grpc-ios"),
+      ],
+      path: "Firestore/core/interfaceForSwift",
+      publicHeadersPath: "api", // Path to the public headers
+      cxxSettings: [
+        .headerSearchPath("../../../"),
+        .headerSearchPath("../../Protos/nanopb"),
+        .headerSearchPath("api"), // Ensure the header search path is correct
+      ]
+    )
+  } else {
+    return .target(
+      name: "FirebaseFirestoreCpp",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "leveldb",
+        "FirebaseFirestoreInternalWrapper",
+        .product(name: "nanopb", package: "nanopb"),
+        .product(
+          name: "gRPC-C++",
+          package: "grpc-binary",
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+        ),
+      ],
+      path: "Firestore/core/interfaceForSwift",
+      publicHeadersPath: "api", // Path to the public headers
+      cxxSettings: [
+        .headerSearchPath("../../../"),
+        .headerSearchPath("../../Protos/nanopb"),
+        .headerSearchPath("api"), // Ensure the header search path is correct
+      ]
+    )
+  }
 }
 
 func firestoreTargets() -> [Target] {
@@ -1452,7 +1477,7 @@ func firestoreTargets() -> [Target] {
           "core/CMakeLists.txt",
           "core/src/util/config_detected.h.in",
           "core/test/",
-          "core/swift/",
+          "core/interfaceForSwift/",
           "fuzzing/",
           "test.sh",
           // Swift PM doesn't recognize hpp files, so we're relying on search paths

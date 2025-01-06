@@ -63,8 +63,8 @@
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
-#include "Firestore/core/swift/include/pipeline.h"
-#include "Firestore/core/swift/include/pipeline_result.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 #include "absl/strings/match.h"
 
 namespace nanopb = firebase::firestore::nanopb;
@@ -236,7 +236,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 - (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
                                                              listener:
                                                                  (FIRQuerySnapshotBlock)listener {
-  std::shared_ptr<Firestore> firestore = self.firestore.wrapped;
+  std::shared_ptr<Firestore> firestore = self.firestore.cppFirestorePtr;
   const core::Query &query = self.query;
 
   // Convert from ViewSnapshots to QuerySnapshots.

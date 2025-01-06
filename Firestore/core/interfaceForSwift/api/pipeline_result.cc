@@ -1,5 +1,5 @@
 
-#include "Firestore/core/swift/include/pipeline_result.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 namespace firebase {

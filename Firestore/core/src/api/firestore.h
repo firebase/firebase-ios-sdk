@@ -29,7 +29,7 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/byte_stream.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "Firestore/core/swift/include/pipeline_source.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_source.h"
 
 namespace firebase {
 namespace firestore {

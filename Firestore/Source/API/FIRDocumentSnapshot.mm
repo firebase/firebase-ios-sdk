@@ -87,9 +87,9 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentSnapshot wrapped;
   if (document.has_value()) {
     wrapped =
-        DocumentSnapshot::FromDocument(firestore.wrapped, document.value(), std::move(metadata));
+        DocumentSnapshot::FromDocument(firestore.cppFirestorePtr, document.value(), std::move(metadata));
   } else {
-    wrapped = DocumentSnapshot::FromNoDocument(firestore.wrapped, std::move(documentKey),
+    wrapped = DocumentSnapshot::FromNoDocument(firestore.cppFirestorePtr, std::move(documentKey),
                                                std::move(metadata));
   }
   _serializer.reset(new Serializer(firestore.databaseID));

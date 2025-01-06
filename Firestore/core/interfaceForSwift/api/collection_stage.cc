@@ -1,4 +1,4 @@
-#include "Firestore/core/swift/include/collection_stage.h"
+#include "Firestore/core/interfaceForSwift/api/collection_stage.h"
 #include <iostream>
 
 namespace firebase {

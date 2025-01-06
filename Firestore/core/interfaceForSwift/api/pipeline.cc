@@ -1,4 +1,4 @@
-#include "Firestore/core/swift/include/pipeline.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline.h"
 
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
@@ -10,7 +10,7 @@
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/view_snapshot.h"
-#include "Firestore/core/swift/include/pipeline_result.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 
 namespace firebase {
 namespace firestore {

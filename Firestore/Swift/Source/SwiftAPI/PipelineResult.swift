@@ -4,13 +4,16 @@
 //
 //  Created by Cheryl Lin on 2024-12-18.
 //
+#if SWIFT_PACKAGE
+ import FirebaseFirestoreCpp
+#endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class PipelineResult {
-  let cppPtr: firebase.firestore.api.PipelineResult
+  let cppObj: firebase.firestore.api.PipelineResult
 
   public init(_ cppSource: firebase.firestore.api.PipelineResult) {
-    cppPtr = cppSource
+    cppObj = cppSource
   }
 
   static func convertToArrayFromCppVector(_ vectorPtr: PipelineResultVectorPtr)

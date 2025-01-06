@@ -531,7 +531,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRFirestore (Internal)
 
-- (std::shared_ptr<Firestore>)wrapped {
+- (std::shared_ptr<Firestore>)cppFirestorePtr {
   return _firestore;
 }
 

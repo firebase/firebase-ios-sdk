@@ -1,4 +1,4 @@
-#include "Firestore/core/swift/include/stage.h"
+#include "Firestore/core/interfaceForSwift/api/stage.h"
 
 namespace firebase {
 namespace firestore {

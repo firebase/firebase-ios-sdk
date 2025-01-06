@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
       DocumentViewChange(doc2New, DocumentViewChange::Type::Modified),
   };
 
-  std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;
+  std::shared_ptr<Firestore> firestore = FSTTestFirestore().cppFirestorePtr;
   core::Query query = Query("foo");
   ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
                             /*mutated_keys=*/DocumentKeySet(),
