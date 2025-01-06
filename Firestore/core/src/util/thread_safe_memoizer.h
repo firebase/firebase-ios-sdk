@@ -34,49 +34,54 @@ namespace util {
 template <typename T>
 class ThreadSafeMemoizer {
  public:
-  ThreadSafeMemoizer() = default;
-
-  ThreadSafeMemoizer(const ThreadSafeMemoizer&) {
+  ThreadSafeMemoizer()
+      : memoized_(new std::atomic<T*>(nullptr), MemoizedValueDeleter) {
   }
 
-  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer&) {
-    return *this;
-  }
-
+  ThreadSafeMemoizer(const ThreadSafeMemoizer& other) = default;
+  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer& other) = default;
   ThreadSafeMemoizer(ThreadSafeMemoizer&& other) = default;
   ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) = default;
-
-  ~ThreadSafeMemoizer() {
-    delete memoized_.load();
-  }
 
   /**
    * Memoize a value.
    *
-   * If there is no memoized value then the given function is called to create
-   * the value, returning a reference to the created value and storing the
-   * pointer to the created value. On the other hand, if there _is_ a memoized
-   * value from a previous invocation then a reference to that object is
-   * returned and the given function is not called. Note that the given function
-   * may be called more than once and, therefore, must be idempotent.
+   * If there is _no_ memoized value then the given function is called to create
+   * the object to memoize. The created object is then stored for use in future
+   * invocations as the "memoized value". Finally, a reference to the created
+   * object is returned.
+   *
+   * On the other hand, if there _is_ a memoized value, then a reference to that
+   * memoized value object is returned and the given function is _not_ called.
+   *
+   * The given function *must* be idempotent because it _may_ be called more
+   * than once due to the semantics of std::atomic::compare_exchange_weak().
+   *
+   * No reference to the given function is retained by this object, and the
+   * function be called synchronously, if it is called at all.
    */
   const T& memoize(std::function<std::unique_ptr<T>()> func) {
     while (true) {
-      T* old_memoized = memoized_.load();
+      T* old_memoized = memoized_->load();
       if (old_memoized) {
         return *old_memoized;
       }
 
       std::unique_ptr<T> new_memoized = func();
 
-      if (memoized_.compare_exchange_strong(old_memoized, new_memoized.get())) {
+      if (memoized_->compare_exchange_weak(old_memoized, new_memoized.get())) {
         return *new_memoized.release();
       }
     }
   }
 
  private:
-  std::atomic<T*> memoized_ = {nullptr};
+  std::shared_ptr<std::atomic<T*>> memoized_;
+
+  static void MemoizedValueDeleter(std::atomic<T*>* value) {
+    delete value->load();
+    delete value;
+  }
 };
 
 }  // namespace util
