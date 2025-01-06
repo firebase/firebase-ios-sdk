@@ -79,6 +79,40 @@ import Foundation
         fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
       }
 
+      let request = Self.enrollmentFinalizationRequest(
+        with: assertion,
+        displayName: displayName,
+        user: user,
+        auth: auth
+      )
+
+      Task {
+        do {
+          let response = try await auth.backend.call(with: request)
+          let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                   accessTokenExpirationDate: nil,
+                                                   refreshToken: response.refreshToken,
+                                                   anonymous: false)
+          try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+          if let completion {
+            DispatchQueue.main.async {
+              completion(nil)
+            }
+          }
+        } catch {
+          if let completion {
+            DispatchQueue.main.async {
+              completion(error)
+            }
+          }
+        }
+      }
+    }
+
+    private static func enrollmentFinalizationRequest(with assertion: MultiFactorAssertion,
+                                                      displayName: String?,
+                                                      user: User,
+                                                      auth: Auth) -> FinalizeMFAEnrollmentRequest {
       var request: FinalizeMFAEnrollmentRequest? = nil
       if assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID {
         guard let totpAssertion = assertion as? TOTPMultiFactorAssertion else {
@@ -121,30 +155,10 @@ import Foundation
 
       guard let request else {
         // Assertion is not a phone assertion or TOTP assertion.
-        return
+        fatalError("Internal Error: Unsupported assertion with factor ID: \(assertion.factorID).")
       }
 
-      Task {
-        do {
-          let response = try await auth.backend.call(with: request)
-          let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                   accessTokenExpirationDate: nil,
-                                                   refreshToken: response.refreshToken,
-                                                   anonymous: false)
-          try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-          if let completion {
-            DispatchQueue.main.async {
-              completion(nil)
-            }
-          }
-        } catch {
-          if let completion {
-            DispatchQueue.main.async {
-              completion(error)
-            }
-          }
-        }
-      }
+      return request
     }
 
     /// Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
