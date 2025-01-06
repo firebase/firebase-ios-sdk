@@ -71,7 +71,7 @@ class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
                useIdentityPlatform: true)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     let body: [String: AnyHashable] = [
       kProviderIDKey: providerID,
       kTokenTypeKey: "\(tokenType.rawValue)",

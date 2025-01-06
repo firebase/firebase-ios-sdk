@@ -30,11 +30,23 @@ if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
 fi
 
+xcode_version=$(xcodebuild -version | grep Xcode)
+xcode_version="${xcode_version/Xcode /}"
+xcode_major="${xcode_version/.*/}"
+
+if [[ "$xcode_major" -lt 15 ]]; then
+  device_name="iPhone 14"
+elif [[ "$xcode_major" -lt 16 ]]; then
+  device_name="iPhone 15"
+else
+  device_name="iPhone 16"
+fi
+
 (
 xcodebuild \
 -project ${SAMPLE}Example.xcodeproj \
 -scheme  ${SAMPLE}Example${SWIFT_SUFFIX} \
--destination 'platform=iOS Simulator,name=iPhone 14' "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase' \
+-destination "platform=iOS Simulator,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase' \
 build \
 ) || EXIT_STATUS=$?
 

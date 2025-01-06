@@ -87,7 +87,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertEqual(requestDictionary[kDisplayNameKey], kDisplayName)
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         "idToken": self.kIDToken,
         "refreshToken": kRefreshToken,
         "localId": kLocalID,
@@ -99,7 +99,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
         "displayName": kDisplayName,
       ])
     }
-    let rpcResponse = try await AuthBackend.call(with: request)
+    let rpcResponse = try await authBackend.call(with: request)
     XCTAssertNotNil(rpcResponse)
 
     XCTAssertEqual(rpcResponse.idToken, kIDToken)

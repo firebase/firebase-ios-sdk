@@ -29,14 +29,18 @@
   [super setUp];
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:YES];
+#ifdef UNSWIZZLE_AVAILABLE
   [[FPRClient sharedInstance] disableInstrumentation];
+#endif  // UNSWIZZLE_AVAILABLE
 }
 
 + (void)tearDown {
   [super tearDown];
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:NO];
+#ifdef UNSWIZZLE_AVAILABLE
   [[FPRClient sharedInstance] disableInstrumentation];
+#endif  // UNSWIZZLE_AVAILABLE
 }
 
 /** Validates counterlist object creation. */

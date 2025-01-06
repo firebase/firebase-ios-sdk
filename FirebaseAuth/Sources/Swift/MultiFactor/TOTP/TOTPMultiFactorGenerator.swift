@@ -31,8 +31,7 @@ import Foundation
     @objc(generateSecretWithMultiFactorSession:completion:)
     open class func generateSecret(with session: MultiFactorSession,
                                    completion: @escaping (TOTPSecret?, Error?) -> Void) {
-      guard let currentUser = session.currentUser,
-            let requestConfiguration = currentUser.auth?.requestConfiguration else {
+      guard let currentUser = session.currentUser, let auth = currentUser.auth else {
         let error = AuthErrorUtils.error(code: AuthErrorCode.internalError,
                                          userInfo: [NSLocalizedDescriptionKey:
                                            "Invalid ID token."])
@@ -42,10 +41,10 @@ import Foundation
       let totpEnrollmentInfo = AuthProtoStartMFATOTPEnrollmentRequestInfo()
       let request = StartMFAEnrollmentRequest(idToken: session.idToken,
                                               totpEnrollmentInfo: totpEnrollmentInfo,
-                                              requestConfiguration: requestConfiguration)
+                                              requestConfiguration: auth.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           if let totpSessionInfo = response.totpSessionInfo {
             let secret = TOTPSecret(secretKey: totpSessionInfo.sharedSecretKey,
                                     hashingAlgorithm: totpSessionInfo.hashingAlgorithm,

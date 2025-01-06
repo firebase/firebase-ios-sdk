@@ -36,7 +36,7 @@ class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
                useIdentityPlatform: true)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let idToken = idToken {
       postBody["idToken"] = idToken

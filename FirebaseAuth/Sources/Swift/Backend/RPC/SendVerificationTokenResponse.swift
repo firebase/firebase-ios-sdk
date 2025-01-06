@@ -15,9 +15,9 @@
 import Foundation
 
 struct SendVerificationCodeResponse: AuthRPCResponse {
-  var verificationID: String?
+  let verificationID: String?
 
-  mutating func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     verificationID = dictionary["sessionInfo"] as? String
   }
 }

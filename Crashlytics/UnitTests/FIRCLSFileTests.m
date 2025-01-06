@@ -217,7 +217,7 @@
                              filePath:(NSString *)filePath
                                length:(size_t)length
                              buffered:(BOOL)buffered {
-  char *longString = malloc(length * sizeof(char));
+  char *longString = calloc(1, length * sizeof(char));
 
   memset(longString, 'a', length);  // fill it with 'a' characters
   longString[length - 1] = 0;       // null terminate
@@ -432,7 +432,7 @@
 
 - (void)testLoggingInputLongerThanBuffer {
   size_t inputLength = (FIRCLSWriteBufferLength + 2) * sizeof(char);
-  char *input = malloc(inputLength);
+  char *input = calloc(1, inputLength);
   for (size_t i = 0; i < inputLength - 1; i++) {
     input[i] = i % 26 + 'a';
   }

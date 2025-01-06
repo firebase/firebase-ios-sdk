@@ -18,6 +18,7 @@ import Foundation
 extension UserInfoImpl: NSSecureCoding {}
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@objc(FIRUserInfoImpl) // objc Needed for decoding old versions
 class UserInfoImpl: NSObject, UserInfo {
   /// A convenience factory method for constructing a `UserInfo` instance from data
   /// returned by the getAccountInfo endpoint.
@@ -87,17 +88,16 @@ class UserInfoImpl: NSObject, UserInfo {
   }
 
   required convenience init?(coder: NSCoder) {
-    guard let providerID = coder.decodeObject(
+    let providerID = coder.decodeObject(
       of: [NSString.self],
       forKey: UserInfoImpl.kProviderIDCodingKey
-    ) as? String,
-      let userID = coder.decodeObject(
-        of: [NSString.self],
-        forKey: UserInfoImpl.kUserIDCodingKey
-      ) as? String
-    else {
-      return nil
-    }
+    ) as? String ?? ""
+    // Not all providers have a corresponding user ID (e.g. phone auth), so
+    // fall back to an empty string.
+    let userID = coder.decodeObject(
+      of: [NSString.self],
+      forKey: UserInfoImpl.kUserIDCodingKey
+    ) as? String ?? ""
     let displayName = coder.decodeObject(
       of: [NSString.self],
       forKey: UserInfoImpl.kDisplayNameCodingKey

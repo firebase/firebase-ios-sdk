@@ -401,11 +401,9 @@ enum FunctionsConstants {
 
     do {
       let rawData = try await fetcher.beginFetch()
-      return try callableResultFromResponse(data: rawData, error: nil)
+      return try callableResult(fromResponseData: rawData)
     } catch {
-      // This method always throws when `error` is not `nil`, but ideally,
-      // it should be refactored so it looks less confusing.
-      return try callableResultFromResponse(data: nil, error: error)
+      throw processedError(fromResponseError: error)
     }
   }
 
@@ -455,10 +453,16 @@ enum FunctionsConstants {
 
     fetcher.beginFetch { [self] data, error in
       let result: Result<HTTPSCallableResult, any Error>
-      do {
-        result = try .success(callableResultFromResponse(data: data, error: error))
-      } catch {
-        result = .failure(error)
+      if let error {
+        result = .failure(processedError(fromResponseError: error))
+      } else if let data {
+        do {
+          result = try .success(callableResult(fromResponseData: data))
+        } catch {
+          result = .failure(error)
+        }
+      } else {
+        result = .failure(FunctionsError(.internal))
       }
 
       DispatchQueue.main.async {
@@ -617,9 +621,23 @@ enum FunctionsConstants {
     return fetcher
   }
 
-  private func callableResultFromResponse(data: Data?,
-                                          error: (any Error)?) throws -> HTTPSCallableResult {
-    let processedData = try processedResponseData(from: data, error: error)
+  private func processedError(fromResponseError error: any Error) -> any Error {
+    let error = error as NSError
+    let localError: (any Error)? = if error.domain == kGTMSessionFetcherStatusDomain {
+      FunctionsError(
+        httpStatusCode: error.code,
+        body: error.userInfo["data"] as? Data,
+        serializer: serializer
+      )
+    } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
+      FunctionsError(.deadlineExceeded)
+    } else { nil }
+
+    return localError ?? error
+  }
+
+  private func callableResult(fromResponseData data: Data) throws -> HTTPSCallableResult {
+    let processedData = try processedData(fromResponseData: data)
     let json = try responseDataJSON(from: processedData)
     // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
     let payload = try serializer.decode(json)
@@ -627,36 +645,12 @@ enum FunctionsConstants {
     return HTTPSCallableResult(data: payload as Any)
   }
 
-  private func processedResponseData(from data: Data?, error: (any Error)?) throws -> Data {
-    // Case 1: `error` is not `nil` -> always throws
-    if let error = error as NSError? {
-      let localError: (any Error)?
-      if error.domain == kGTMSessionFetcherStatusDomain {
-        localError = FunctionsError(
-          httpStatusCode: error.code,
-          body: data ?? error.userInfo["data"] as? Data,
-          serializer: serializer
-        )
-      } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
-        localError = FunctionsError(.deadlineExceeded)
-      } else {
-        localError = nil
-      }
-
-      throw localError ?? error
-    }
-
-    // Case 2: `data` is `nil` -> always throws
-    guard let data else {
-      throw FunctionsError(.internal)
-    }
-
-    // Case 3: `data` is not `nil` but might specify a custom error -> throws conditionally
+  private func processedData(fromResponseData data: Data) throws -> Data {
+    // `data` might specify a custom error. If so, throw the error.
     if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
       throw bodyError
     }
 
-    // Case 4: `error` is `nil`; `data` is not `nil`; `data` doesn’t specify an error -> OK
     return data
   }
   

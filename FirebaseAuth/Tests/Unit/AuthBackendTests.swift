@@ -41,7 +41,7 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withEncodingError: encodingError)
 
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -50,13 +50,7 @@ class AuthBackendTests: RPCBaseTests {
 
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCRequestEncodingError.rawValue)
-
-      let underlyingUnderlying = try XCTUnwrap(underlyingError
-        .userInfo[NSUnderlyingErrorKey] as? NSError)
-      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.JSONSerializationError.rawValue)
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
     }
@@ -71,7 +65,7 @@ class AuthBackendTests: RPCBaseTests {
   func testBodyDataSerializationError() async throws {
     let request = FakeRequest(withRequestBody: ["unencodable": self])
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -96,10 +90,10 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(withData: nil, error: responseError)
+      return (nil, responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -128,10 +122,10 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(withData: data, error: responseError)
+      return (data, error: responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -165,10 +159,10 @@ class AuthBackendTests: RPCBaseTests {
     let data = "<xml>Some non-JSON value.</xml>".data(using: .utf8)
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withData: data, error: nil)
+      (data, nil)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -207,10 +201,10 @@ class AuthBackendTests: RPCBaseTests {
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withData: data, error: responseError)
+      (data, responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -249,10 +243,10 @@ class AuthBackendTests: RPCBaseTests {
     let data = "[]".data(using: .utf8)
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withData: data, error: nil)
+      (data, nil)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -283,11 +277,11 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageCaptchaRequired,
-                                 error: responseError)
+      return try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageCaptchaRequired,
+                                        error: responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -323,13 +317,13 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     rpcIssuer.respondBlock = {
       let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
-      try self.rpcIssuer.respond(
+      return try self.rpcIssuer.respond(
         serverErrorMessage: kErrorMessageCaptchaCheckFailed,
         error: responseError
       )
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -356,7 +350,7 @@ class AuthBackendTests: RPCBaseTests {
                                  error: responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -375,6 +369,51 @@ class AuthBackendTests: RPCBaseTests {
         .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
       XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequiredInvalidPassword)
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
+  }
+
+  /// Test Blocking Function Error Response flow
+  func testBlockingFunctionError() async throws {
+    let kErrorMessageBlocking = "BLOCKING_FUNCTION_ERROR_RESPONSE"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageBlocking, error: responseError)
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.blockingCloudFunctionError.rawValue)
+    }
+  }
+
+  /// Test Blocking Function Error Response flow - including JSON parsing.
+  /// Regression Test for #14052
+  func testBlockingFunctionErrorWithJSON() async throws {
+    let kErrorMessageBlocking = "BLOCKING_FUNCTION_ERROR_RESPONSE"
+    let stringWithJSON = "BLOCKING_FUNCTION_ERROR_RESPONSE : ((HTTP request to" +
+      "http://127.0.0.1:9999/project-id/us-central1/beforeUserCreated returned HTTP error 400:" +
+      " {\"error\":{\"details\":{\"code\":\"invalid-email\"},\"message\":\"invalid " +
+      "email\",\"status\":\"INVALID_ARGUMENT\"}}))"
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessageBlocking + " : " + stringWithJSON,
+        error: responseError
+      )
+    }
+    do {
+      let _ = try await authBackend.call(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.blockingCloudFunctionError.rawValue)
+      XCTAssertEqual(rpcError.localizedDescription, "invalid email")
     }
   }
 
@@ -398,7 +437,7 @@ class AuthBackendTests: RPCBaseTests {
                                  error: responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -433,10 +472,10 @@ class AuthBackendTests: RPCBaseTests {
     let request = FakeRequest(withRequestBody: [:])
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     rpcIssuer.respondBlock = {
-      let _ = try self.rpcIssuer.respond(withJSON: [:], error: responseError)
+      try self.rpcIssuer.respond(withJSON: [:], error: responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -473,7 +512,7 @@ class AuthBackendTests: RPCBaseTests {
       try self.rpcIssuer.respond(serverErrorMessage: customErrorMessage, error: responseError)
     }
     do {
-      let _ = try await AuthBackend.call(with: FakeRequest(withRequestBody: [:]))
+      let _ = try await authBackend.call(with: FakeRequest(withRequestBody: [:]))
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -497,7 +536,7 @@ class AuthBackendTests: RPCBaseTests {
     }
     do {
       let request = FakeDecodingErrorRequest(withRequestBody: [:])
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -528,7 +567,7 @@ class AuthBackendTests: RPCBaseTests {
       // value it was given.
       try self.rpcIssuer.respond(withJSON: [kTestKey: kTestValue])
     }
-    let rpcResponse = try await AuthBackend.call(with: FakeRequest(withRequestBody: [:]))
+    let rpcResponse = try await authBackend.call(with: FakeRequest(withRequestBody: [:]))
     XCTAssertEqual(try XCTUnwrap(rpcResponse.receivedValue), kTestValue)
   }
 
@@ -593,7 +632,7 @@ class AuthBackendTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      _ = try? await AuthBackend.call(with: request)
+      _ = try? await authBackend.call(with: request)
 
       // Then
       let expectedHeader = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload.headerValue()
@@ -620,7 +659,7 @@ class AuthBackendTests: RPCBaseTests {
         // Just force return from async call.
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      _ = try? await AuthBackend.call(with: request)
+      _ = try? await authBackend.call(with: request)
 
       let completeRequest = await rpcIssuer.completeRequest.value
       let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-AppCheck")
@@ -650,7 +689,7 @@ class AuthBackendTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      _ = try? await AuthBackend.call(with: request)
+      _ = try? await authBackend.call(with: request)
 
       // Then
       let completeRequest = await rpcIssuer.completeRequest.value
@@ -670,11 +709,17 @@ class AuthBackendTests: RPCBaseTests {
       return try! XCTUnwrap(URL(string: kFakeRequestURL))
     }
 
-    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-      if let encodingError {
-        throw encodingError
+    var unencodedHTTPRequestBody: [String: AnyHashable]? {
+      if encodingError == nil {
+        return requestBody
       }
-      return requestBody
+      // Else, return an unencodable request body that will cause an error to be thrown.
+      struct UnencodableObject: Hashable {
+        static func == (lhs: UnencodableObject, rhs: UnencodableObject) -> Bool {
+          true
+        }
+      }
+      return ["foo": UnencodableObject()]
     }
 
     static func makeRequestConfiguration() -> AuthRequestConfiguration {
@@ -683,8 +728,6 @@ class AuthBackendTests: RPCBaseTests {
         appID: kFakeAppID
       )
     }
-
-    var containsPostBody: Bool { return true }
 
     private let configuration: AuthRequestConfiguration
 
@@ -713,7 +756,7 @@ class AuthBackendTests: RPCBaseTests {
 
   private struct FakeResponse: AuthRPCResponse {
     var receivedValue: String?
-    mutating func setFields(dictionary: [String: AnyHashable]) throws {
+    init(dictionary: [String: AnyHashable]) throws {
       receivedValue = dictionary["TestKey"] as? String
     }
   }
@@ -724,8 +767,8 @@ class AuthBackendTests: RPCBaseTests {
       return fakeRequest.requestURL()
     }
 
-    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-      return try fakeRequest.unencodedHTTPRequestBody()
+    var unencodedHTTPRequestBody: [String: AnyHashable]? {
+      fakeRequest.unencodedHTTPRequestBody
     }
 
     func requestConfiguration() -> FirebaseAuth.AuthRequestConfiguration {
@@ -739,7 +782,7 @@ class AuthBackendTests: RPCBaseTests {
   }
 
   private struct FakeDecodingErrorResponse: AuthRPCResponse {
-    mutating func setFields(dictionary: [String: AnyHashable]) throws {
+    init(dictionary: [String: AnyHashable]) throws {
       throw NSError(domain: "dummy", code: -1)
     }
   }

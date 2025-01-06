@@ -48,7 +48,6 @@ class GetRecaptchaConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetRecaptchaConfigResponse
 
   required init(requestConfiguration: AuthRequestConfiguration) {
-    requestConfiguration.httpMethod = "GET"
     super.init(
       endpoint: kGetRecaptchaConfigEndpoint,
       requestConfiguration: requestConfiguration,
@@ -56,11 +55,9 @@ class GetRecaptchaConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-    return [:]
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
+    nil
   }
-
-  override var containsPostBody: Bool { return false }
 
   override func queryParams() -> String {
     var queryParams = "&\(kClientTypeKey)=\(clientType)&\(kVersionKey)=\(kRecaptchaVersion)"

@@ -126,8 +126,8 @@ NS_SWIFT_NAME(Crashlytics)
  * relayed to Crashlytics on a subsequent launch of your application.
  *
  * @param error Non-fatal error to be recorded
- * @param userInfo Additional keys and values to send with the logged error. These parameters are
- * added to Crashlytics global list of keys and values that live with the session.
+ * @param userInfo Additional keys and values to send with the logged error. These keys and values
+ * are added to the error, in addition to the Crashlytics global list of keys and values.
  */
 - (void)recordError:(NSError *)error
            userInfo:(nullable NSDictionary<NSString *, id> *)userInfo

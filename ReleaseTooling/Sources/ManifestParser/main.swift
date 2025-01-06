@@ -42,15 +42,12 @@ struct ManifestParser: ParsableCommand {
           })
   var outputFilePath: URL
 
-  @Option(parsing: .upToNextOption, help: "Podspec files that will not be included.")
-  var excludedSpecs: [String]
-
   @Flag(help: "Parsing mode for manifest")
   var mode: ParsingMode
 
   func parsePodNames(_ manifest: Manifest) throws {
     var output: [String] = []
-    for pod in manifest.pods {
+    for pod in manifest.pods.filter({ $0.releasing }) {
       output.append(pod.name)
     }
     do {
@@ -69,9 +66,7 @@ struct ManifestParser: ParsableCommand {
       try parsePodNames(FirebaseManifest.shared)
     case .forGHAMatrixGeneration:
       guard let sdkRepoURL = SDKRepoURL else {
-        throw fatalError(
-          "--sdk-repo-url should be specified when --for-gha-matrix-generation is on."
-        )
+        fatalError("--sdk-repo-url should be specified when --for-gha-matrix-generation is on.")
       }
       let specCollector = GHAMatrixSpecCollector(
         SDKRepoURL: sdkRepoURL,

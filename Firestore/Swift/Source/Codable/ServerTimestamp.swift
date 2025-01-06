@@ -105,3 +105,5 @@ public struct ServerTimestamp<Value>: Codable
 extension ServerTimestamp: Equatable where Value: Equatable {}
 
 extension ServerTimestamp: Hashable where Value: Hashable {}
+
+extension ServerTimestamp: Sendable where Value: Sendable {}

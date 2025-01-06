@@ -24,14 +24,17 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseInAppMessaging.podspec]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
-    runs-on: ${{ matrix.os }}
+        build-env:
+          - os: macos-14
+            xcode: Xcode_15.2
+          - os: macos-15
+            xcode: Xcode_16.1
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: FirebaseInAppMessaging
@@ -42,13 +45,13 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
 # TODO(#12770): Update to macos-14 when tests are updated for Xcode 15.
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       matrix:
 # TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
 #        platform: [iOS, iPad]
         platform: [iOS]
-
+        xcode: [Xcode_14.2]
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -57,6 +60,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Prereqs
       run: scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
     - name: Build and test
@@ -97,7 +102,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.4
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -139,7 +144,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
     - uses: actions/checkout@v4

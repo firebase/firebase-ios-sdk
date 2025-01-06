@@ -16,6 +16,18 @@ import Foundation
 
 private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
 
+/// The key for the "clientType" value in the request.
+private let kClientType = "clientType"
+
+/// The key for the reCAPTCHAToken parameter in the request.
+private let kreCAPTCHATokenKey = "recaptchaToken"
+
+/// The key for the "captchaResponse" value in the request.
+private let kCaptchaResponseKey = "captchaResponse"
+
+/// The key for the "recaptchaVersion" value in the request.
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
@@ -64,7 +76,7 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [:]
     if let idToken = idToken {
       body["idToken"] = idToken
@@ -78,5 +90,16 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
       body[kTenantIDKey] = tenantID
     }
     return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    // reCAPTCHA check is only available for phone based MFA
+    if let phoneEnrollmentInfo {
+      phoneEnrollmentInfo.injectRecaptchaFields(
+        recaptchaResponse: recaptchaResponse,
+        recaptchaVersion: recaptchaVersion,
+        clientType: clientType
+      )
+    }
   }
 }

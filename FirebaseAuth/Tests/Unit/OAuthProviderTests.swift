@@ -282,6 +282,10 @@ import FirebaseCore
         .replacingOccurrences(of: ")", with: "")
       FirebaseApp.configure(name: strippedName, options: options)
       OAuthProviderTests.auth = Auth.auth(app: FirebaseApp.app(name: strippedName)!)
+      OAuthProviderTests.auth = Auth(
+        app: FirebaseApp.app(name: strippedName)!,
+        backend: authBackend
+      )
       OAuthProviderTests.auth?.mainBundleUrlTypes =
         [["CFBundleURLSchemes": [scheme]]]
     }
@@ -297,22 +301,20 @@ import FirebaseCore
       // 1. Setup fakes and parameters for getCredential.
       if !OAuthProviderTests.testEmulator {
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
-        rpcIssuer?.projectConfigRequester = { request in
+        rpcIssuer.projectConfigRequester = { request in
           // 3. Validate the created Request instance.
           XCTAssertEqual(request.apiKey, OAuthProviderTests.kFakeAPIKey)
           XCTAssertEqual(request.endpoint, "getProjectConfig")
           // 4. Fulfill the expectation.
           projectConfigExpectation.fulfill()
-          kAuthGlobalWorkQueue.async {
-            do {
-              // 5. Send the response from the fake backend.
-              try self.rpcIssuer?
-                .respond(withJSON: ["authorizedDomains": [
-                  OAuthProviderTests.kFakeAuthorizedWebDomain,
-                  OAuthProviderTests.kFakeAuthorizedDomain]])
-            } catch {
-              XCTFail("Failure sending response: \(error)")
-            }
+          do {
+            // 5. Send the response from the fake backend.
+            return try self.rpcIssuer.respond(withJSON: ["authorizedDomains": [
+              OAuthProviderTests.kFakeAuthorizedWebDomain,
+              OAuthProviderTests.kFakeAuthorizedDomain]])
+          } catch {
+            XCTFail("Failure sending response: \(error)")
+            return (nil, nil)
           }
         }
       }

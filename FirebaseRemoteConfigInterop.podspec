@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfigInterop'
-  s.version          = '11.5.0'
+  s.version          = '11.7.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Remote Config functionality.'
 
   s.description      = <<-DESC
   Not for public use.
-  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseRemoetConfig in a safe
+  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseRemoteConfig in a safe
   and reliable manner.
                        DESC
 

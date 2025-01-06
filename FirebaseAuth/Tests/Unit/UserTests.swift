@@ -33,12 +33,13 @@ class UserTests: RPCBaseTests {
   let kVerificationID = "55432"
   let kPhoneNumber = "555-1234"
 
-  static var auth: Auth?
+  var auth: Auth?
 
-  override class func setUp() {
+  override func setUp() {
+    super.setUp()
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kFakeAPIKey
+    options.apiKey = Self.kFakeAPIKey
     options.projectID = "myUserProjectID"
     FirebaseApp.configure(name: "test-UserTests", options: options)
     #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
@@ -48,13 +49,17 @@ class UserTests: RPCBaseTests {
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: "test-UserTests")!,
-      keychainStorageProvider: keychainStorageProvider
+      keychainStorageProvider: keychainStorageProvider,
+      backend: authBackend
     )
   }
 
   override func tearDown() {
     // Verifies that no tasks are left suspended on the AuthSerialTaskQueue.
-    try? UserTests.auth?.signOut()
+    try? auth?.signOut()
+    auth = nil
+    FirebaseApp.resetApps()
+    super.tearDown()
   }
 
   /** @fn testUserPropertiesAndNSSecureCoding
@@ -406,7 +411,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_EMAIL")
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_EMAIL")
         }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -415,7 +420,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -432,7 +437,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
         }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -441,7 +446,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is no longer signed in..
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -457,12 +462,12 @@ class UserTests: RPCBaseTests {
     func testUpdatePhoneSuccess() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken])
           }
           self.expectVerifyPhoneNumberRequest()
           self.rpcIssuer?.fakeGetAccountProviderJSON = [[
@@ -491,11 +496,11 @@ class UserTests: RPCBaseTests {
     func testUpdatePhoneNumberFailure() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
+            try self.rpcIssuer.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
           }
           self.expectVerifyPhoneNumberRequest()
 
@@ -523,11 +528,11 @@ class UserTests: RPCBaseTests {
     func testUpdatePhoneNumberFailureAutoSignOut() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           self.expectVerifyPhoneNumberRequest()
 
@@ -540,7 +545,7 @@ class UserTests: RPCBaseTests {
             let error = try! XCTUnwrap(rawError)
             XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
             // User is no longer signed in.
-            XCTAssertNil(UserTests.auth?.currentUser)
+            XCTAssertNil(self.auth?.currentUser)
             expectation.fulfill()
           }
         }
@@ -570,7 +575,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+          try self.rpcIssuer.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
         }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -579,7 +584,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -596,7 +601,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
+          try self.rpcIssuer.respond(serverErrorMessage: "WEAK_PASSWORD")
         }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -605,7 +610,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -623,7 +628,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
         }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -632,7 +637,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -649,8 +654,8 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken])
         }
         let profileChange = user.createProfileChangeRequest()
         profileChange.photoURL = URL(string: self.kTestPhotoURL)
@@ -676,7 +681,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+          try self.rpcIssuer.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
         }
         let profileChange = user.createProfileChangeRequest()
         profileChange.displayName = self.kNewDisplayName
@@ -688,7 +693,7 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(user.email, self.kEmail)
           XCTAssertEqual(user.displayName, self.kDisplayName)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -705,7 +710,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_NOT_FOUND")
         }
         let profileChange = user.createProfileChangeRequest()
         profileChange.displayName = self.kNewDisplayName
@@ -716,7 +721,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -811,7 +816,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "QUOTA_EXCEEDED")
+          try self.rpcIssuer.respond(serverErrorMessage: "QUOTA_EXCEEDED")
         }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
@@ -821,7 +826,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.quotaExceeded.rawValue)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -838,7 +843,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
@@ -848,7 +853,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
           // User is no longer signed in.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -865,8 +870,8 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken])
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -878,7 +883,7 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(result.user.email, user.email)
           XCTAssertEqual(result.additionalUserInfo?.isNewUser, false)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -894,14 +899,14 @@ class UserTests: RPCBaseTests {
     signInWithGoogleCredential { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken,
-                                                 "federatedId": self.kGoogleID,
-                                                 "providerId": GoogleAuthProvider.id,
-                                                 "localId": self.kLocalID,
-                                                 "displayName": self.kGoogleDisplayName,
-                                                 "rawUserInfo": self.kGoogleProfile,
-                                                 "username": self.kUserName])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken,
+                                                "federatedId": self.kGoogleID,
+                                                "providerId": GoogleAuthProvider.id,
+                                                "localId": self.kLocalID,
+                                                "displayName": self.kGoogleDisplayName,
+                                                "rawUserInfo": self.kGoogleProfile,
+                                                "username": self.kUserName])
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -914,7 +919,7 @@ class UserTests: RPCBaseTests {
           }
           XCTAssertNil(error)
           // Verify that the current user is unchanged.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           // Verify that the current user and reauthenticated user are not same pointers.
           XCTAssertNotEqual(user, reauthenticatedAuthResult?.user)
           // Verify that anyway the current user and reauthenticated user have same IDs.
@@ -933,7 +938,7 @@ class UserTests: RPCBaseTests {
       }
     }
     waitForExpectations(timeout: 5)
-    try assertUserGoogle(UserTests.auth?.currentUser)
+    try assertUserGoogle(auth?.currentUser)
   }
 
   /** @fn testReauthenticateFailure
@@ -945,8 +950,8 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken])
         }
         self.setFakeGetAccountProvider(withLocalID: "A different Local ID")
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
@@ -958,7 +963,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -976,7 +981,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_NOT_FOUND")
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -987,7 +992,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1001,20 +1006,20 @@ class UserTests: RPCBaseTests {
   func testLinkAndRetrieveDataSuccess() throws {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    let auth = try XCTUnwrap(UserTests.auth)
+    let auth = try XCTUnwrap(self.auth)
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
         self.setFakeGoogleGetAccountProvider()
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken,
-                                                 "federatedId": self.kGoogleID,
-                                                 "providerId": GoogleAuthProvider.id,
-                                                 "localId": self.kLocalID,
-                                                 "displayName": self.kGoogleDisplayName,
-                                                 "rawUserInfo": self.kGoogleProfile,
-                                                 "username": self.kUserName])
+          try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                "refreshToken": self.kRefreshToken,
+                                                "federatedId": self.kGoogleID,
+                                                "providerId": GoogleAuthProvider.id,
+                                                "localId": self.kLocalID,
+                                                "displayName": self.kGoogleDisplayName,
+                                                "rawUserInfo": self.kGoogleProfile,
+                                                "username": self.kUserName])
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1057,7 +1062,7 @@ class UserTests: RPCBaseTests {
       do {
         self.setFakeGetAccountProvider()
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+          try self.rpcIssuer.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1069,7 +1074,7 @@ class UserTests: RPCBaseTests {
           // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kFacebookEmail)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1100,7 +1105,7 @@ class UserTests: RPCBaseTests {
             XCTFail("Expected to throw providerAlreadyLinked error.")
           }
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1120,7 +1125,7 @@ class UserTests: RPCBaseTests {
       do {
         self.setFakeGetAccountProvider()
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+          try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
         }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -1130,7 +1135,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userDisabled.rawValue)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -1145,7 +1150,7 @@ class UserTests: RPCBaseTests {
   func testLinkEmailAndRetrieveDataSuccess() throws {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    let auth = try XCTUnwrap(UserTests.auth)
+    let auth = try XCTUnwrap(self.auth)
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
@@ -1155,9 +1160,12 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(request?.email, self.kEmail)
           XCTAssertEqual(request?.password, self.kFakePassword)
           XCTAssertNil(request?.displayName)
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          let (data, error) = try self.rpcIssuer.respond(withJSON: [
+            "idToken": RPCBaseTests.kFakeAccessToken,
+            "refreshToken": self.kRefreshToken,
+          ])
           self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+          return (data, error)
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1195,9 +1203,12 @@ class UserTests: RPCBaseTests {
           XCTAssertNotNil(request)
           XCTAssertEqual(request?.email, self.kEmail)
           XCTAssertEqual(request?.password, self.kFakePassword)
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
+          let (data, error) = try self.rpcIssuer.respond(withJSON: [
+            "idToken": RPCBaseTests.kFakeAccessToken,
+            "refreshToken": self.kRefreshToken,
+          ])
           self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+          return (data, error)
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1213,7 +1224,7 @@ class UserTests: RPCBaseTests {
               XCTFail("Expected to throw providerAlreadyLinked error.")
             }
             // User is still signed in.
-            XCTAssertEqual(UserTests.auth?.currentUser, user)
+            XCTAssertEqual(self.auth?.currentUser, user)
             expectation.fulfill()
           }
         }
@@ -1237,7 +1248,7 @@ class UserTests: RPCBaseTests {
           XCTAssertNotNil(request)
           XCTAssertEqual(request?.email, self.kEmail)
           XCTAssertEqual(request?.password, self.kFakePassword)
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1247,7 +1258,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.tooManyRequests.rawValue)
           // User is still signed in.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(self.auth?.currentUser, user)
           expectation.fulfill()
         }
       }
@@ -1267,7 +1278,7 @@ class UserTests: RPCBaseTests {
       do {
         self.rpcIssuer.respondBlock = {
           XCTAssertNotNil(self.rpcIssuer?.request as? SignUpNewUserRequest)
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1277,7 +1288,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
           // User is signed out.
-          XCTAssertNil(UserTests.auth?.currentUser)
+          XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
       }
@@ -1287,16 +1298,12 @@ class UserTests: RPCBaseTests {
 
   #if os(iOS)
     private class FakeOAuthProvider: OAuthProvider {
-      override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                                      completion: ((AuthCredential?, Error?) -> Void)? = nil) {
-        if let completion {
-          let credential = OAuthCredential(
-            withProviderID: GoogleAuthProvider.id,
-            sessionID: UserTests.kOAuthSessionID,
-            OAuthResponseURLString: UserTests.kOAuthRequestURI
-          )
-          completion(credential, nil)
-        }
+      override func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+        return OAuthCredential(
+          withProviderID: GoogleAuthProvider.id,
+          sessionID: UserTests.kOAuthSessionID,
+          OAuthResponseURLString: UserTests.kOAuthRequestURI
+        )
       }
     }
 
@@ -1307,13 +1314,13 @@ class UserTests: RPCBaseTests {
     func testLinkProviderFailure() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithFacebookCredential { user in
         XCTAssertNotNil(user)
         do {
           self.setFakeGetAccountProvider()
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           user.link(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                     uiDelegate: nil) { linkAuthResult, rawError in
@@ -1322,7 +1329,7 @@ class UserTests: RPCBaseTests {
             let error = try! XCTUnwrap(rawError)
             XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
             // User is signed out.
-            XCTAssertNil(UserTests.auth?.currentUser)
+            XCTAssertNil(self.auth?.currentUser)
             expectation.fulfill()
           }
         }
@@ -1336,13 +1343,13 @@ class UserTests: RPCBaseTests {
     func testReauthenticateWithProviderFailure() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithFacebookCredential { user in
         XCTAssertNotNil(user)
         do {
           self.setFakeGetAccountProvider()
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           user.reauthenticate(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                               uiDelegate: nil) { linkAuthResult, rawError in
@@ -1351,7 +1358,7 @@ class UserTests: RPCBaseTests {
             let error = try! XCTUnwrap(rawError)
             XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
             // User is still signed in.
-            XCTAssertEqual(UserTests.auth?.currentUser, user)
+            XCTAssertEqual(self.auth?.currentUser, user)
             expectation.fulfill()
           }
         }
@@ -1365,15 +1372,15 @@ class UserTests: RPCBaseTests {
     func testLinkPhoneAuthCredentialSuccess() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         XCTAssertNotNil(user)
         self.expectVerifyPhoneNumberRequest(isLink: true)
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken])
           }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
@@ -1410,15 +1417,15 @@ class UserTests: RPCBaseTests {
     func testUnlinkPhoneAuthCredentialSuccess() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         XCTAssertNotNil(user)
         self.expectVerifyPhoneNumberRequest(isLink: true)
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken])
           }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
@@ -1455,8 +1462,8 @@ class UserTests: RPCBaseTests {
               XCTAssertNil(request.providers)
               XCTAssertNil(request.deleteAttributes)
               XCTAssertEqual(try XCTUnwrap(request.deleteProviders?.first), PhoneAuthProvider.id)
-              try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                     "refreshToken": self.kRefreshToken])
+              return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                           "refreshToken": self.kRefreshToken])
             }
             user.unlink(fromProvider: PhoneAuthProvider.id) { user, error in
               XCTAssertNil(error)
@@ -1506,17 +1513,17 @@ class UserTests: RPCBaseTests {
     func testlinkPhoneCredentialAlreadyExistsError() throws {
       setFakeGetAccountProvider()
       let expectation = self.expectation(description: #function)
-      let auth = try XCTUnwrap(UserTests.auth)
+      let auth = try XCTUnwrap(self.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         XCTAssertNotNil(user)
         self.expectVerifyPhoneNumberRequest(isLink: true)
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                   "refreshToken": self.kRefreshToken,
-                                                   "phoneNumber": self.kTestPhoneNumber,
-                                                   "temporaryProof": "Fake Temporary Proof"])
+            try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                  "refreshToken": self.kRefreshToken,
+                                                  "phoneNumber": self.kTestPhoneNumber,
+                                                  "temporaryProof": "Fake Temporary Proof"])
           }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
@@ -1622,9 +1629,9 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(request.deleteAttributes)
         XCTAssertNil(request.deleteProviders)
 
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "email": self.kNewEmail,
-                                               "refreshToken": self.kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "email": self.kNewEmail,
+                                                     "refreshToken": self.kRefreshToken])
       }
       if changeEmail {
         user.updateEmail(to: kNewEmail) { error in
@@ -1659,21 +1666,22 @@ class UserTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
       do {
         // 3. Send the response from the fake backend.
-        try self.rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
-                                               "isNewUser": true,
-                                               "refreshToken": kRefreshToken])
+        return try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
+                                                     "isNewUser": true,
+                                                     "refreshToken": kRefreshToken])
       } catch {
         XCTFail("Failure sending response: \(error)")
+        return (nil, nil)
       }
     }
     // 1. After setting up fakes, sign out and sign in.
     do {
-      try UserTests.auth?.signOut()
+      try auth?.signOut()
     } catch {
       XCTFail("Sign out failed: \(error)")
       return
     }
-    UserTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -1706,20 +1714,20 @@ class UserTests: RPCBaseTests {
       )
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                             "providerId": GoogleAuthProvider.id,
-                                             "refreshToken": self.kRefreshToken,
-                                             "localId": self.kLocalID,
-                                             "displayName": self.kDisplayName,
-                                             "rawUserInfo": self.kGoogleProfile,
-                                             "username": self.kUserName])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "providerId": GoogleAuthProvider.id,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "localId": self.kLocalID,
+                                                   "displayName": self.kDisplayName,
+                                                   "rawUserInfo": self.kGoogleProfile,
+                                                   "username": self.kUserName])
     }
 
     do {
-      try UserTests.auth?.signOut()
+      try auth?.signOut()
       let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
                                                            accessToken: kGoogleAccessToken)
-      UserTests.auth?.signIn(with: googleCredential) { authResult, error in
+      auth?.signIn(with: googleCredential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         guard let user = authResult?.user else {
@@ -1772,21 +1780,21 @@ class UserTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                             "refreshToken": self.kRefreshToken,
-                                             "federatedId": self.kFacebookID,
-                                             "providerId": FacebookAuthProvider.id,
-                                             "localId": self.kLocalID,
-                                             "displayName": self.kDisplayName,
-                                             "rawUserInfo": self.kGoogleProfile,
-                                             "username": self.kUserName])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "federatedId": self.kFacebookID,
+                                                   "providerId": FacebookAuthProvider.id,
+                                                   "localId": self.kLocalID,
+                                                   "displayName": self.kDisplayName,
+                                                   "rawUserInfo": self.kGoogleProfile,
+                                                   "username": self.kUserName])
     }
 
     do {
-      try UserTests.auth?.signOut()
+      try auth?.signOut()
       let facebookCredential = FacebookAuthProvider
         .credential(withAccessToken: kFacebookAccessToken)
-      UserTests.auth?.signIn(with: facebookCredential) { authResult, error in
+      auth?.signIn(with: facebookCredential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         guard let user = authResult?.user else {
@@ -1832,14 +1840,14 @@ class UserTests: RPCBaseTests {
       XCTAssertNil(request.idToken)
 
       // Send the response from the fake backend.
-      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                             "isNewUser": true,
-                                             "refreshToken": kRefreshToken])
+      return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "isNewUser": true,
+                                                   "refreshToken": kRefreshToken])
     }
 
     do {
-      try UserTests.auth?.signOut()
-      UserTests.auth?.signIn(
+      try auth?.signOut()
+      auth?.signIn(
         withEmail: kEmail,
         link: "https://www.google.com?oobCode=aCode&mode=signIn"
       ) { authResult, error in
