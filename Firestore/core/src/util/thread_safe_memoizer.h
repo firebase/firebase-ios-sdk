@@ -28,8 +28,6 @@ namespace util {
 /**
  * Stores a memoized value in a manner that is safe to be shared between
  * multiple threads.
- *
- * TODO(b/299933587) Make `ThreadSafeMemoizer` copyable and moveable.
  */
 template <typename T>
 class ThreadSafeMemoizer {
