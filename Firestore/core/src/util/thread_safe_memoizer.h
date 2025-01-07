@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <memory>
+#include <utility>
 
 namespace firebase {
 namespace firestore {
@@ -203,7 +204,6 @@ class ThreadSafeMemoizer {
     memoize_store(memoized, std::shared_ptr<T>());
   }
 };
-
 }  // namespace cpp20_atomic_shared_ptr/cpp11_atomic_free_functions
 }  // namespace util
 }  // namespace firestore
