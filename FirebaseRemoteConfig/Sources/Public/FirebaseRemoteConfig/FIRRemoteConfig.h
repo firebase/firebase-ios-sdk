@@ -38,6 +38,7 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
  * RC backend is closed. Subsequently calling `addOnConfigUpdateListener` will re-open the
  * connection.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
 /**

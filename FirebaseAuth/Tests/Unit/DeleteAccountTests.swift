@@ -61,10 +61,12 @@ class DeleteAccountTests: RPCBaseTests {
       @brief This test checks for a successful response
    */
   func testSuccessfulDeleteAccountResponse() async throws {
-    rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [:])
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
+
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: [:])
     }
-    let rpcResponse = try await AuthBackend.call(with: makeDeleteAccountRequest())
+    let rpcResponse = try await authBackend.call(with: makeDeleteAccountRequest())
     XCTAssertNotNil(rpcResponse)
   }
 

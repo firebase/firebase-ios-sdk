@@ -172,6 +172,11 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
       FIRMessagingLoggerDebug(kFIRMessagingMessageCodeInternal001, @"%@", failureReason);
       responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
                                         failureReason:failureReason];
+    } else {
+      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenFetchOperationRequestError,
+                              @"Token fetch got an error from server: %@", errorValue);
+      responseError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeUnknown
+                                        failureReason:errorValue];
     }
   }
   if (!responseError) {

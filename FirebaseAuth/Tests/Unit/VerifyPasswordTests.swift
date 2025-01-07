@@ -161,7 +161,7 @@ class VerifyPasswordTests: RPCBaseTests {
     let kTestPhotoUrl = "www.example.com"
 
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         kLocalIDKey: kTestLocalID,
         kEmailKey: kTestEmail,
         kDisplayNameKey: kTestDisplayName,
@@ -171,7 +171,7 @@ class VerifyPasswordTests: RPCBaseTests {
         kPhotoUrlKey: kTestPhotoUrl,
       ])
     }
-    let rpcResponse = try await AuthBackend.call(with: makeVerifyPasswordRequest())
+    let rpcResponse = try await authBackend.call(with: makeVerifyPasswordRequest())
     XCTAssertEqual(rpcResponse.email, kTestEmail)
     XCTAssertEqual(rpcResponse.localID, kTestLocalID)
     XCTAssertEqual(rpcResponse.displayName, kTestDisplayName)

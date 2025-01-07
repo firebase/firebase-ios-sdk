@@ -19,6 +19,7 @@ enum OtherAuthMethod: String {
   case Passwordless = "Email Link/Passwordless"
   case PhoneNumber = "Phone Auth"
   case Custom = "a Custom Auth System"
+  case MfaLogin = "Multifactor Authentication"
 
   var navigationTitle: String { "Sign in using \(rawValue)" }
 
@@ -30,6 +31,8 @@ enum OtherAuthMethod: String {
       return "Enter Phone Number"
     case .Custom:
       return "Enter Custom Auth Token"
+    case .MfaLogin:
+      return "Choose a Second Factor to Continue"
     }
   }
 
@@ -41,6 +44,8 @@ enum OtherAuthMethod: String {
       return "phone.circle"
     case .Custom:
       return "lock.shield"
+    case .MfaLogin:
+      return "phone.circle"
     }
   }
 
@@ -48,6 +53,8 @@ enum OtherAuthMethod: String {
     switch self {
     case .PhoneNumber:
       return "Example input for +1 (123)456-7890 would be 11234567890"
+    case .MfaLogin:
+      return "Enter the index of the selected factor to continue"
     default:
       return nil
     }
@@ -61,6 +68,8 @@ enum OtherAuthMethod: String {
       return "Send Verification Code"
     case .Custom:
       return "Login"
+    case .MfaLogin:
+      return "Send Verification Code"
     }
   }
 
@@ -72,7 +81,15 @@ enum OtherAuthMethod: String {
       return phoneNumberInfoText
     case .Custom:
       return customAuthInfoText
+    case .MfaLogin:
+      return mfaLoginInfoText
     }
+  }
+
+  private var mfaLoginInfoText: String {
+    """
+    MFA placeholder
+    """
   }
 
   private var passwordlessInfoText: String {

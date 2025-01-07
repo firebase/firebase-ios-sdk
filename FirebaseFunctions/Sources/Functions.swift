@@ -385,6 +385,28 @@ enum FunctionsConstants {
     return URL(string: "https://\(region)-\(projectID).cloudfunctions.net/\(name)")
   }
 
+  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
+  func callFunction(at url: URL,
+                    withObject data: Any?,
+                    options: HTTPSCallableOptions?,
+                    timeout: TimeInterval) async throws -> HTTPSCallableResult {
+    let context = try await contextProvider.context(options: options)
+    let fetcher = try makeFetcher(
+      url: url,
+      data: data,
+      options: options,
+      timeout: timeout,
+      context: context
+    )
+
+    do {
+      let rawData = try await fetcher.beginFetch()
+      return try callableResult(fromResponseData: rawData)
+    } catch {
+      throw processedError(fromResponseError: error)
+    }
+  }
+
   func callFunction(at url: URL,
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
@@ -413,23 +435,59 @@ enum FunctionsConstants {
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
-    let request = URLRequest(url: url,
-                             cachePolicy: .useProtocolCachePolicy,
-                             timeoutInterval: timeout)
-    let fetcher = fetcherService.fetcher(with: request)
-
+    let fetcher: GTMSessionFetcher
     do {
-      let data = data ?? NSNull()
-      let encoded = try serializer.encode(data)
-      let body = ["data": encoded]
-      let payload = try JSONSerialization.data(withJSONObject: body)
-      fetcher.bodyData = payload
+      fetcher = try makeFetcher(
+        url: url,
+        data: data,
+        options: options,
+        timeout: timeout,
+        context: context
+      )
     } catch {
       DispatchQueue.main.async {
         completion(.failure(error))
       }
       return
     }
+
+    fetcher.beginFetch { [self] data, error in
+      let result: Result<HTTPSCallableResult, any Error>
+      if let error {
+        result = .failure(processedError(fromResponseError: error))
+      } else if let data {
+        do {
+          result = try .success(callableResult(fromResponseData: data))
+        } catch {
+          result = .failure(error)
+        }
+      } else {
+        result = .failure(FunctionsError(.internal))
+      }
+
+      DispatchQueue.main.async {
+        completion(result)
+      }
+    }
+  }
+
+  private func makeFetcher(url: URL,
+                           data: Any?,
+                           options: HTTPSCallableOptions?,
+                           timeout: TimeInterval,
+                           context: FunctionsContext) throws -> GTMSessionFetcher {
+    let request = URLRequest(
+      url: url,
+      cachePolicy: .useProtocolCachePolicy,
+      timeoutInterval: timeout
+    )
+    let fetcher = fetcherService.fetcher(with: request)
+
+    let data = data ?? NSNull()
+    let encoded = try serializer.encode(data)
+    let body = ["data": encoded]
+    let payload = try JSONSerialization.data(withJSONObject: body)
+    fetcher.bodyData = payload
 
     // Set the headers.
     fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -462,55 +520,39 @@ enum FunctionsConstants {
       fetcher.allowedInsecureSchemes = ["http"]
     }
 
-    fetcher.beginFetch { [self] data, error in
-      let result: Result<HTTPSCallableResult, any Error>
-      do {
-        let data = try responseData(data: data, error: error)
-        let json = try responseDataJSON(from: data)
-        // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
-        let payload = try serializer.decode(json)
-        // TODO: Remove `as Any` once `decode(_:)` is refactored
-        result = .success(HTTPSCallableResult(data: payload as Any))
-      } catch {
-        result = .failure(error)
-      }
-
-      DispatchQueue.main.async {
-        completion(result)
-      }
-    }
+    return fetcher
   }
 
-  private func responseData(data: Data?, error: (any Error)?) throws -> Data {
-    // Case 1: `error` is not `nil` -> always throws
-    if let error = error as NSError? {
-      let localError: (any Error)?
-      if error.domain == kGTMSessionFetcherStatusDomain {
-        localError = FunctionsError(
-          httpStatusCode: error.code,
-          body: data,
-          serializer: serializer
-        )
-      } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
-        localError = FunctionsError(.deadlineExceeded)
-      } else {
-        localError = nil
-      }
+  private func processedError(fromResponseError error: any Error) -> any Error {
+    let error = error as NSError
+    let localError: (any Error)? = if error.domain == kGTMSessionFetcherStatusDomain {
+      FunctionsError(
+        httpStatusCode: error.code,
+        body: error.userInfo["data"] as? Data,
+        serializer: serializer
+      )
+    } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {
+      FunctionsError(.deadlineExceeded)
+    } else { nil }
 
-      throw localError ?? error
-    }
+    return localError ?? error
+  }
 
-    // Case 2: `data` is `nil` -> always throws
-    guard let data else {
-      throw FunctionsError(.internal)
-    }
+  private func callableResult(fromResponseData data: Data) throws -> HTTPSCallableResult {
+    let processedData = try processedData(fromResponseData: data)
+    let json = try responseDataJSON(from: processedData)
+    // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
+    let payload = try serializer.decode(json)
+    // TODO: Remove `as Any` once `decode(_:)` is refactored
+    return HTTPSCallableResult(data: payload as Any)
+  }
 
-    // Case 3: `data` is not `nil` but might specify a custom error -> throws conditionally
+  private func processedData(fromResponseData data: Data) throws -> Data {
+    // `data` might specify a custom error. If so, throw the error.
     if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
       throw bodyError
     }
 
-    // Case 4: `error` is `nil`; `data` is not `nil`; `data` doesn’t specify an error -> OK
     return data
   }
 

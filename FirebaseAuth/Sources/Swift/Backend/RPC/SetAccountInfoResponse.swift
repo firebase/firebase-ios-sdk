@@ -14,33 +14,31 @@
 
 import Foundation
 
-/// Represents the provider user info part of the response from the setAccountInfo endpoint.
-/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
-class SetAccountInfoResponseProviderUserInfo {
-  /// The ID of the identity provider.
-  var providerID: String?
-
-  /// The user's display name at the identity provider.
-  var displayName: String?
-
-  /// The user's photo URL at the identity provider.
-  var photoURL: URL?
-
-  /// Designated initializer.
-  /// - Parameter dictionary: The provider user info data from endpoint.
-  init(dictionary: [String: Any]) {
-    providerID = dictionary["providerId"] as? String
-    displayName = dictionary["displayName"] as? String
-    if let photoURL = dictionary["photoUrl"] as? String {
-      self.photoURL = URL(string: photoURL)
-    }
-  }
-}
-
 /// Represents the response from the setAccountInfo endpoint.
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
-class SetAccountInfoResponse: AuthRPCResponse {
-  required init() {}
+struct SetAccountInfoResponse: AuthRPCResponse {
+  /// Represents the provider user info part of the response from the setAccountInfo endpoint.
+  /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
+  struct ProviderUserInfo {
+    /// The ID of the identity provider.
+    var providerID: String?
+
+    /// The user's display name at the identity provider.
+    var displayName: String?
+
+    /// The user's photo URL at the identity provider.
+    var photoURL: URL?
+
+    /// Designated initializer.
+    /// - Parameter dictionary: The provider user info data from endpoint.
+    init(dictionary: [String: Any]) {
+      providerID = dictionary["providerId"] as? String
+      displayName = dictionary["displayName"] as? String
+      if let photoURL = dictionary["photoUrl"] as? String {
+        self.photoURL = URL(string: photoURL)
+      }
+    }
+  }
 
   /// The email or the user.
   var email: String?
@@ -49,7 +47,7 @@ class SetAccountInfoResponse: AuthRPCResponse {
   var displayName: String?
 
   /// The user's profiles at the associated identity providers.
-  var providerUserInfo: [SetAccountInfoResponseProviderUserInfo]?
+  var providerUserInfo: [Self.ProviderUserInfo]?
 
   /// Either an authorization code suitable for performing an STS token exchange, or the
   /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
@@ -62,7 +60,7 @@ class SetAccountInfoResponse: AuthRPCResponse {
   /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
     idToken = dictionary["idToken"] as? String

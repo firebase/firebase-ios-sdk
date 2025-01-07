@@ -52,6 +52,38 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
+  func testLogAndFlushAsync() throws {
+    // Given
+    let heartbeatController = HeartbeatController(id: #function)
+    let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
+    let expectation = self.expectation(description: #function)
+    // When
+    heartbeatController.log("dummy_agent")
+    heartbeatController.flushAsync { payload in
+      // Then
+      do {
+        try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          payload.headerValue(),
+          """
+          {
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["\(expectedDate)"]
+              }
+            ]
+          }
+          """
+        )
+        expectation.fulfill()
+      } catch {
+        XCTFail("Unexpected error: \(error)")
+      }
+    }
+    waitForExpectations(timeout: 1.0)
+  }
+
   /// This test may flake if it is executed during the transition from one day to the next.
   func testDoNotLogMoreThanOnceInACalendarDay() throws {
     // Given
@@ -200,8 +232,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
     // Given
-    var testdate = date
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { testdate })
+    let testDate = AdjustableDate(date: date)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { testDate.date })
 
     // When
     // Iterate over 35 days and log a heartbeat each day.
@@ -220,7 +252,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
         heartbeatController.log("dummy_agent_3")
       }
 
-      testdate.addTimeInterval(60 * 60 * 24) // Advance the test date by 1 day.
+      testDate.date.addTimeInterval(60 * 60 * 24) // Advance the test date by 1 day.
     }
 
     // Then

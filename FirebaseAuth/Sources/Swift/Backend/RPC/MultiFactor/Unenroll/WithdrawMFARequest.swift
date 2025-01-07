@@ -23,8 +23,8 @@ private let kTenantIDKey = "tenantId"
 class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = WithdrawMFAResponse
 
-  var idToken: String?
-  var mfaEnrollmentID: String?
+  let idToken: String?
+  let mfaEnrollmentID: String?
 
   init(idToken: String?,
        mfaEnrollmentID: String?,
@@ -36,7 +36,7 @@ class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
                useIdentityPlatform: true)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let idToken = idToken {
       postBody["idToken"] = idToken

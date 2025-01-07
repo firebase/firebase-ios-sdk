@@ -86,7 +86,6 @@ import Foundation
   /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
   /// be configured.
   /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
-  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
   public init(providerID: String, auth: Auth = Auth.auth()) {
     if auth.requestConfiguration.emulatorHostAndPort == nil {
       if providerID == FacebookAuthProvider.id {
@@ -126,7 +125,6 @@ import Foundation
   /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
   /// be configured.
   /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
-  /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
   public convenience init(providerID: AuthProviderID, auth: Auth = Auth.auth()) {
     self.init(providerID: providerID.rawValue, auth: auth)
   }
@@ -339,6 +337,9 @@ import Foundation
     /// Used to obtain an auth credential via a mobile web flow.
     /// This method is available on iOS only.
     /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
+    /// - Parameter completionHandler: Optionally; a block which is invoked
+    /// asynchronously on the main thread when the mobile web flow is
+    /// completed.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
     @MainActor
@@ -412,7 +413,7 @@ import Foundation
   private func getHeadfulLiteUrl(eventID: String,
                                  sessionID: String) async throws -> URL? {
     let authDomain = try await AuthWebUtils
-      .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration)
+      .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration, backend: auth.backend)
     let bundleID = Bundle.main.bundleIdentifier
     let clientID = auth.app?.options.clientID
     let appID = auth.app?.options.googleAppID

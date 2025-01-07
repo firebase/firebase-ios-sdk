@@ -58,8 +58,8 @@ jobs:
       matrix:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
         target: [ios, tvos, macos --skip-tests --allow-warnings, watchos]
-        os: [macos-14]
-        xcode: [Xcode_16]
+        os: [macos-15]
+        xcode: [Xcode_16.1]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -107,9 +107,31 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        target: [iOS spm, tvOS spm, macOS spmbuildonly, catalyst spm, watchOS spm]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS spm
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS spm
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: iOS spm
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: tvOS spm
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: macOS spmbuildonly
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: watchOS spm
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: catalyst spm
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: visionOS spm
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -139,7 +161,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
@@ -163,7 +185,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
           FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift "$plist_secret"
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120
@@ -199,7 +221,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1

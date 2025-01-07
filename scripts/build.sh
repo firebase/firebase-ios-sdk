@@ -105,15 +105,17 @@ esac
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
-# Runs xcodebuild with the given flags, piping output to xcpretty
+# Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcpretty_cmd=(xcpretty)
+  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
+    && CheckUnexpectedFailures xcodebuild.log \
+    || result=$?
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -122,7 +124,9 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
+    xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
+      && CheckUnexpectedFailures xcodebuild.log \
+      || result=$?
   fi
 
   if [[ $result != 0 ]]; then
@@ -138,20 +142,41 @@ function ExportLogs() {
   python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
+function CheckUnexpectedFailures() {
+  local log_file=$1
+
+  if grep -Eq "[1-9]\d* failures \([1-9]\d* unexpected\)" "$log_file"; then
+    echo "xcodebuild failed with unexpected failures." 1>&2
+    return 65
+  fi
+}
+
 if [[ "$xcode_major" -lt 15 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 14'
+  )
+  watchos_flags=(
+    -sdk 'watchsimulator'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
   )
 elif [[ "$xcode_major" -lt 16 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 15'
   )
+  watchos_flags=(
+    -sdk 'watchsimulator'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
+  )
 else
   ios_flags=(
     -sdk 'iphonesimulator'
     -destination 'platform=iOS Simulator,name=iPhone 16'
+  )
+    watchos_flags=(
+    -sdk 'watchsimulator'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
   )
 fi
 
@@ -172,10 +197,6 @@ macos_flags=(
 tvos_flags=(
   -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
-)
-watchos_flags=(
-  -sdk 'watchsimulator'
-  -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
 )
 visionos_flags=(
   -sdk 'xrsimulator'
@@ -493,6 +514,16 @@ case "$product-$platform-$method" in
       -scheme "RemoteConfigSampleApp" \
       "${xcb_flags[@]}" \
       build
+    ;;
+
+  VertexIntegration-*-*)
+    RunXcodebuild \
+      -project 'FirebaseVertexAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
+      -scheme "VertexAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      -parallel-testing-enabled NO \
+      build \
+      test
     ;;
 
   VertexSample-*-*)

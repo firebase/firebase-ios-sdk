@@ -42,6 +42,7 @@ class RPCBaseTests: XCTestCase {
   let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
   let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
   let kTestPhoneNumber = "415-555-1234"
+  let kIdToken = "FAKE_ID_TOKEN"
   static let kOAuthSessionID = "sessionID"
   static let kOAuthRequestURI = "requestURI"
   let kGoogleIDToken = "GOOGLE_ID_TOKEN"
@@ -68,17 +69,16 @@ class RPCBaseTests: XCTestCase {
   let kTestIdentifier = "Identifier"
 
   var rpcIssuer: FakeBackendRPCIssuer!
-  var rpcImplementation: AuthBackendImplementation!
+  var authBackend: AuthBackend!
 
   override func setUp() {
     rpcIssuer = FakeBackendRPCIssuer()
-    AuthBackend.setTestRPCIssuer(issuer: rpcIssuer)
-    rpcImplementation = AuthBackend.implementation()
+    authBackend = AuthBackend(rpcIssuer: rpcIssuer)
   }
 
   override func tearDown() {
     rpcIssuer = nil
-    AuthBackend.resetRPCIssuer()
+    authBackend = nil
   }
 
   /** @fn checkRequest
@@ -92,16 +92,16 @@ class RPCBaseTests: XCTestCase {
     rpcIssuer.respondBlock = {
       XCTAssertEqual(self.rpcIssuer.requestURL?.absoluteString, expected)
       if checkPostBody {
-        XCTAssertFalse(request.containsPostBody)
+        XCTAssertNil(request.unencodedHTTPRequestBody)
       } else if let requestDictionary = self.rpcIssuer.decodedRequest as? [String: AnyHashable] {
         XCTAssertEqual(requestDictionary[key], value)
       } else {
         XCTFail("decodedRequest is not a dictionary")
       }
       // Dummy response to unblock await.
-      let _ = try self.rpcIssuer?.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
-    let _ = try await AuthBackend.call(with: request)
+    let _ = try await authBackend.call(with: request)
   }
 
   /** @fn checkBackendError
@@ -117,15 +117,15 @@ class RPCBaseTests: XCTestCase {
                          checkLocalizedDescription: String? = nil) async throws {
     rpcIssuer.respondBlock = {
       if let json = json {
-        _ = try self.rpcIssuer.respond(withJSON: json)
+        return try self.rpcIssuer.respond(withJSON: json)
       } else if let reason = reason {
-        _ = try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
+        return try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
       } else {
-        _ = try self.rpcIssuer.respond(serverErrorMessage: message)
+        return try self.rpcIssuer.respond(serverErrorMessage: message)
       }
     }
     do {
-      let _ = try await AuthBackend.call(with: request)
+      let _ = try await authBackend.call(with: request)
       XCTFail("Did not throw expected error")
       return
     } catch {

@@ -168,7 +168,7 @@ class VerifyAssertionTests: RPCBaseTests {
    */
   func testSuccessfulVerifyAssertionResponse() async throws {
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         self.kProviderIDKey: self.kTestProviderID,
         self.kIDTokenKey: self.kTestIDToken,
         self.kExpiresInKey: self.kTestExpiresIn,
@@ -180,7 +180,7 @@ class VerifyAssertionTests: RPCBaseTests {
         self.kRawUserInfoKey: self.profile,
       ])
     }
-    let rpcResponse = try await AuthBackend.call(with: makeVerifyAssertionRequest())
+    let rpcResponse = try await authBackend.call(with: makeVerifyAssertionRequest())
     XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     XCTAssertEqual(rpcResponse.verifiedProvider, [kTestProvider])
@@ -199,7 +199,7 @@ class VerifyAssertionTests: RPCBaseTests {
    */
   func testSuccessfulVerifyAssertionResponseWithTextData() async throws {
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         self.kProviderIDKey: self.kTestProviderID,
         self.kIDTokenKey: self.kTestIDToken,
         self.kExpiresInKey: self.kTestExpiresIn,
@@ -211,7 +211,7 @@ class VerifyAssertionTests: RPCBaseTests {
         self.kRawUserInfoKey: self.convertToJson(self.profile),
       ])
     }
-    let rpcResponse = try await AuthBackend.call(with: makeVerifyAssertionRequest())
+    let rpcResponse = try await authBackend.call(with: makeVerifyAssertionRequest())
     XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     XCTAssertEqual(rpcResponse.verifiedProvider, [kTestProvider])

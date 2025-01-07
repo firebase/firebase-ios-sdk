@@ -206,13 +206,13 @@ class SetAccountInfoTests: RPCBaseTests {
     let kTestRefreshToken = "REFRESH_TOKEN"
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON:
+      try self.rpcIssuer.respond(withJSON:
         [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
          kIDTokenKey: kTestIDToken,
          kExpiresInKey: kTestExpiresIn,
          kRefreshTokenKey: kTestRefreshToken])
     }
-    let response = try await AuthBackend.call(with: setAccountInfoRequest())
+    let response = try await authBackend.call(with: setAccountInfoRequest())
     XCTAssertEqual(response.providerUserInfo?.first?.photoURL?.absoluteString, kTestPhotoURL)
     XCTAssertEqual(response.idToken, kTestIDToken)
     XCTAssertEqual(response.refreshToken, kTestRefreshToken)
@@ -221,6 +221,6 @@ class SetAccountInfoTests: RPCBaseTests {
   }
 
   private func setAccountInfoRequest() -> SetAccountInfoRequest {
-    return SetAccountInfoRequest(requestConfiguration: makeRequestConfiguration())
+    return SetAccountInfoRequest(accessToken: nil, requestConfiguration: makeRequestConfiguration())
   }
 }

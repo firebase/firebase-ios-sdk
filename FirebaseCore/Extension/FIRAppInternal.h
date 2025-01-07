@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIREBASECORE_FIRAPPINTERNAL_H
+#define FIREBASECORE_FIRAPPINTERNAL_H
+
 #import <FirebaseCore/FIRApp.h>
 
 @class FIRComponentContainer;
@@ -175,3 +178,5 @@ extern NSString *const FIRAuthStateDidChangeInternalNotificationUIDKey;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // FIREBASECORE_FIRAPPINTERNAL_H

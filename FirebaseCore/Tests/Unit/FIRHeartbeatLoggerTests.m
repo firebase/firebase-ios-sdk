@@ -125,6 +125,30 @@
               }];
 }
 
+- (void)testFlushingAsync_UsingV2API_WhenHeartbeatsAreStored_ReturnsNonEmptyPayload API_AVAILABLE(
+    ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
+  // Given
+  FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
+  // When
+  [heartbeatLogger log];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"async flush"];
+  [heartbeatLogger
+      flushHeartbeatsIntoPayloadWithCompletionHandler:^(FIRHeartbeatsPayload *heartbeatsPayload) {
+        // Then
+        [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
+                    isEqualToPayloadJSON:@{
+                      @"version" : @2,
+                      @"heartbeats" : @[
+                        @{@"agent" : @"dummy_agent",
+                          @"dates" : @[ expectedDate ]}
+                      ]
+                    }];
+        [expectation fulfill];
+      }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+}
+
 - (void)testFlushing_UsingV2API_WhenNoHeartbeatsAreStored_ReturnsEmptyPayload {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
@@ -132,6 +156,21 @@
   FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
   // Then
   [self assertHeartbeatsPayloadIsEmpty:heartbeatsPayload];
+}
+
+- (void)testFlushingAsync_UsingV2API_WhenNoHeartbeatsAreStored_ReturnsEmptyPayload API_AVAILABLE(
+    ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
+  // Given
+  FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
+  // When
+  XCTestExpectation *expectation = [self expectationWithDescription:@"async flush"];
+  [heartbeatLogger
+      flushHeartbeatsIntoPayloadWithCompletionHandler:^(FIRHeartbeatsPayload *heartbeatsPayload) {
+        // Then
+        [self assertHeartbeatsPayloadIsEmpty:heartbeatsPayload];
+        [expectation fulfill];
+      }];
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
 }
 
 - (void)testLogAndFlushUsingV1API_AndThenFlushAgainUsingV2API_FlushesHeartbeatInTheFirstFlush {

@@ -21,6 +21,9 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
 
+env:
+  FIREBASE_CI: true
+
 jobs:
   spm-package-resolved:
     env:
@@ -51,9 +54,8 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        os: [macos-14]
         include:
-          - os: macos-14
+          - os: macos-15
             xcode: Xcode_16
             test: spm
           - os: macos-14
@@ -89,11 +91,10 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        os: [macos-14]
         include:
           - os: macos-14
             xcode: Xcode_15.3
-          - os: macos-14
+          - os: macos-15
             xcode: Xcode_16
     runs-on: ${{ matrix.os }}
     steps:
@@ -121,9 +122,8 @@ jobs:
         # visionOS isn't buildable from here (even with Firestore source) because the test
         # targets need Analytics.
         target: [tvOS, macOS, catalyst]
-        os: [macos-14]
         include:
-          - os: macos-14
+          - os: macos-15
             xcode: Xcode_16
           - os: macos-14
             xcode: Xcode_15.3

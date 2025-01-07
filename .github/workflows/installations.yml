@@ -25,15 +25,14 @@ jobs:
       matrix:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
-        os: [macos-14]
-        include:
+        build-env:
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_15.2
             test-specs: unit,integration
-          - os: macos-14
-            xcode: Xcode_16
+          - os: macos-15
+            xcode: Xcode_16.1
             test-specs: unit
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -50,12 +49,12 @@ jobs:
       id: secrets
       run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Build and test
       run: |
        export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
-         --platforms=${{ matrix.target }} --test-specs=${{ matrix.test-specs }}
+         --platforms=${{ matrix.target }} --test-specs=${{ matrix.build-env.test-specs }}
 
   spm-package-resolved:
     env:
@@ -85,9 +84,31 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: tvOS
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: macOS
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: watchOS
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: catalyst
+          - os: macos-15
+            xcode: Xcode_16.1
+            target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

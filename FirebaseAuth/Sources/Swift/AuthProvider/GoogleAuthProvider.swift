@@ -36,9 +36,10 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRGoogleAuthCredential) class GoogleAuthCredential: AuthCredential, NSSecureCoding {
-  let idToken: String
-  let accessToken: String
+@objc(FIRGoogleAuthCredential) class GoogleAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
+  let idToken: String?
+  let accessToken: String?
 
   init(withIDToken idToken: String, accessToken: String) {
     self.idToken = idToken
@@ -53,7 +54,7 @@ import Foundation
 
   // MARK: Secure Coding
 
-  static var supportsSecureCoding = true
+  static let supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
     coder.encode(idToken, forKey: "idToken")
@@ -61,13 +62,8 @@ import Foundation
   }
 
   required init?(coder: NSCoder) {
-    guard let idToken = coder.decodeObject(of: NSString.self, forKey: "idToken") as? String,
-          let accessToken = coder.decodeObject(of: NSString.self, forKey: "accessToken") as? String
-    else {
-      return nil
-    }
-    self.idToken = idToken
-    self.accessToken = accessToken
+    idToken = coder.decodeObject(of: NSString.self, forKey: "idToken") as String?
+    accessToken = coder.decodeObject(of: NSString.self, forKey: "accessToken") as String?
     super.init(provider: GoogleAuthProvider.id)
   }
 }

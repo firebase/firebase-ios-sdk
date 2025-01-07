@@ -14,15 +14,12 @@
 
 import Foundation
 
-protocol AuthRPCResponse {
-  /// Bare initializer for a response.
-  init()
-
-  /// Sets the response instance from the decoded JSON response.
+protocol AuthRPCResponse: Sendable {
+  /// Initializes the response instance from the decoded JSON response.
   /// - Parameter dictionary: The dictionary decoded from HTTP JSON response.
   /// - Parameter error: An out field for an error which occurred constructing the request.
   /// - Returns: Whether the operation was successful or not.
-  func setFields(dictionary: [String: AnyHashable]) throws
+  init(dictionary: [String: AnyHashable]) throws
 
   /// This optional method allows response classes to create client errors given a short error
   /// message and a detail error message from the server.

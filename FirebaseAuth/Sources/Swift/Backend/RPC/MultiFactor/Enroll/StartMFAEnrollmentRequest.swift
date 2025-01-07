@@ -16,6 +16,18 @@ import Foundation
 
 private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
 
+/// The key for the "clientType" value in the request.
+private let kClientType = "clientType"
+
+/// The key for the reCAPTCHAToken parameter in the request.
+private let kreCAPTCHATokenKey = "recaptchaToken"
+
+/// The key for the "captchaResponse" value in the request.
+private let kCaptchaResponseKey = "captchaResponse"
+
+/// The key for the "recaptchaVersion" value in the request.
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
@@ -24,34 +36,47 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartMFAEnrollmentResponse
 
   let idToken: String?
-  private(set) var phoneEnrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
-  private(set) var totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?
+  let phoneEnrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
+  let totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?
 
-  init(idToken: String?,
-       enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
-       requestConfiguration: AuthRequestConfiguration) {
-    self.idToken = idToken
-    phoneEnrollmentInfo = enrollmentInfo
-    super.init(
-      endpoint: kStartMFAEnrollmentEndPoint,
-      requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true
+  convenience init(idToken: String?,
+                   enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
+                   requestConfiguration: AuthRequestConfiguration) {
+    self.init(
+      idToken: idToken,
+      enrollmentInfo: enrollmentInfo,
+      totpEnrollmentInfo: nil,
+      requestConfiguration: requestConfiguration
     )
   }
 
-  init(idToken: String?,
-       totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?,
-       requestConfiguration: AuthRequestConfiguration) {
+  convenience init(idToken: String?,
+                   totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?,
+                   requestConfiguration: AuthRequestConfiguration) {
+    self.init(
+      idToken: idToken,
+      enrollmentInfo: nil,
+      totpEnrollmentInfo: totpEnrollmentInfo,
+      requestConfiguration: requestConfiguration
+    )
+  }
+
+  private init(idToken: String?,
+               enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
+               totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?,
+               requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
+    phoneEnrollmentInfo = enrollmentInfo
     self.totpEnrollmentInfo = totpEnrollmentInfo
     super.init(
       endpoint: kStartMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true
+      useIdentityPlatform: true,
+      useStaging: false
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [:]
     if let idToken = idToken {
       body["idToken"] = idToken
@@ -65,5 +90,16 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
       body[kTenantIDKey] = tenantID
     }
     return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    // reCAPTCHA check is only available for phone based MFA
+    if let phoneEnrollmentInfo {
+      phoneEnrollmentInfo.injectRecaptchaFields(
+        recaptchaResponse: recaptchaResponse,
+        recaptchaVersion: recaptchaVersion,
+        clientType: clientType
+      )
+    }
   }
 }

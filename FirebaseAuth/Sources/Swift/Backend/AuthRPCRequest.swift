@@ -22,14 +22,11 @@ protocol AuthRPCRequest {
   /// Gets the request's full URL.
   func requestURL() -> URL
 
-  /// Returns whether the request contains a post body or not. Requests without a post body are
-  /// GET requests. A default implementation returns `true`.
-  var containsPostBody: Bool { get }
-
   /// Creates unencoded HTTP body representing the request.
-  /// - Throws: Any error which occurred constructing the request.
   /// - Returns: The HTTP body data representing the request before any encoding.
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable]
+  /// - Note: Requests with a post body are POST requests. Requests without a
+  /// post body are GET requests.
+  var unencodedHTTPRequestBody: [String: AnyHashable]? { get }
 
   /// The request configuration.
   func requestConfiguration() -> AuthRequestConfiguration
@@ -41,7 +38,6 @@ protocol AuthRPCRequest {
 // in Obj-C.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthRPCRequest {
-  var containsPostBody: Bool { return true }
   func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
     fatalError("Internal FirebaseAuth Error: unimplemented injectRecaptchaFields")
   }

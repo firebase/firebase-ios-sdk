@@ -14,9 +14,7 @@
 
 import Foundation
 
-class SignUpNewUserResponse: AuthRPCResponse {
-  required init() {}
-
+struct SignUpNewUserResponse: AuthRPCResponse {
   /// Either an authorization code suitable for performing an STS token exchange, or the
   /// access token from Secure Token Service, depending on whether  `returnSecureToken` is set
   /// on the request.
@@ -28,7 +26,7 @@ class SignUpNewUserResponse: AuthRPCResponse {
   /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     if let approximateExpirationDate = dictionary["expiresIn"] as? String {
       self

@@ -302,7 +302,7 @@
 
 - (void)testLargeLogLine {
   size_t strLength = 100 * 1024;  // Attempt to write 100k of data
-  char* longLine = malloc(strLength + 1);
+  char* longLine = calloc(1, strLength + 1);
   memset(longLine, 'a', strLength);
   longLine[strLength] = '\0';
   NSString* longStr = [[NSString alloc] initWithBytesNoCopy:longLine
