@@ -1,3 +1,11 @@
+# Unreleased
+- [fixed] Mark ConfigUpdateListenerRegistration Sendable. (#14215)
+- [feature] Added support for custom signal targeting in Remote Config. Use `setCustomSignals` API for setting custom signals and use them to build custom targeting conditions in Remote Config. (#13976)
+
+# 11.5.0
+- [fixed] Mark two internal properties as `atomic` to prevent concurrency
+  related crash. (#13898)
+
 # 11.0.0
 - [fixed] RemoteConfigValue stringValue is now `nonnull`. This may break some builds. (#10870)
 - [removed] **Breaking change**: The deprecated `FirebaseRemoteConfigSwift`
