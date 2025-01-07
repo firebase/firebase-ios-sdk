@@ -470,105 +470,106 @@ enum FunctionsConstants {
       }
     }
   }
-  
+
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
-    func stream(at url: URL,
-                withObject data: Any?,
-                options: HTTPSCallableOptions?,
-                timeout: TimeInterval) async throws
+  func stream(at url: URL,
+              withObject data: Any?,
+              options: HTTPSCallableOptions?,
+              timeout: TimeInterval) async throws
     -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-      let context = try await contextProvider.context(options: options)
-      let fetcher = try makeFetcherForStreamableContent(
-        url: url,
-        data: data,
-        options: options,
-        timeout: timeout,
-        context: context
-      )
-      
-      do {
-        let rawData = try await fetcher.beginFetch()
-        return try callableResultFromResponseAsync(data: rawData, error: nil)
-      } catch {
-        // This method always throws when `error` is not `nil`, but ideally,
-        // it should be refactored so it looks less confusing.
-        return try callableResultFromResponseAsync(data: nil, error: error)
-      }
+    let context = try await contextProvider.context(options: options)
+    let fetcher = try makeFetcherForStreamableContent(
+      url: url,
+      data: data,
+      options: options,
+      timeout: timeout,
+      context: context
+    )
+
+    do {
+      let rawData = try await fetcher.beginFetch()
+      return try callableResultFromResponseAsync(data: rawData, error: nil)
+    } catch {
+      // This method always throws when `error` is not `nil`, but ideally,
+      // it should be refactored so it looks less confusing.
+      return try callableResultFromResponseAsync(data: nil, error: error)
     }
+  }
 
   @available(iOS 13.0, *)
-    func callableResultFromResponseAsync(data: Data?,
-                                         error: Error?) throws -> AsyncThrowingStream<
-      HTTPSCallableResult, Error
+  func callableResultFromResponseAsync(data: Data?,
+                                       error: Error?) throws -> AsyncThrowingStream<
+    HTTPSCallableResult, Error
 
-    > {
-      let processedData =
-        try processResponseDataForStreamableContent(
-          from: data,
-          error: error
-        )
+  > {
+    let processedData =
+      try processResponseDataForStreamableContent(
+        from: data,
+        error: error
+      )
 
-      return processedData
+    return processedData
+  }
+
+  private func makeFetcherForStreamableContent(url: URL,
+                                               data: Any?,
+                                               options: HTTPSCallableOptions?,
+                                               timeout: TimeInterval,
+                                               context: FunctionsContext) throws
+    -> GTMSessionFetcher {
+    let request = URLRequest(
+      url: url,
+      cachePolicy: .useProtocolCachePolicy,
+      timeoutInterval: timeout
+    )
+    let fetcher = fetcherService.fetcher(with: request)
+
+    let data = data ?? NSNull()
+    let encoded = try serializer.encode(data)
+    let body = ["data": encoded]
+    let payload = try JSONSerialization.data(withJSONObject: body, options: [.fragmentsAllowed])
+    fetcher.bodyData = payload
+
+    // Set the headers for starting a streaming session.
+    fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
+    fetcher.setRequestValue("text/event-stream", forHTTPHeaderField: "Accept")
+    fetcher.request?.httpMethod = "POST"
+    if let authToken = context.authToken {
+      let value = "Bearer \(authToken)"
+      fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
     }
 
-    private func makeFetcherForStreamableContent(url: URL,
-                                                 data: Any?,
-                                                 options: HTTPSCallableOptions?,
-                                                 timeout: TimeInterval,
-                                                 context: FunctionsContext) throws -> GTMSessionFetcher {
-      let request = URLRequest(
-        url: url,
-        cachePolicy: .useProtocolCachePolicy,
-        timeoutInterval: timeout
-      )
-      let fetcher = fetcherService.fetcher(with: request)
-      
-      let data = data ?? NSNull()
-      let encoded = try serializer.encode(data)
-      let body = ["data": encoded]
-      let payload = try JSONSerialization.data(withJSONObject: body, options: [.fragmentsAllowed])
-      fetcher.bodyData = payload
-     
-      // Set the headers for starting a streaming session.
-      fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
-      fetcher.setRequestValue("text/event-stream", forHTTPHeaderField: "Accept")
-      fetcher.request?.httpMethod = "POST"
-      if let authToken = context.authToken {
-        let value = "Bearer \(authToken)"
-        fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
-      }
-      
-      if let fcmToken = context.fcmToken {
-        fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
-      }
-      
-      if options?.requireLimitedUseAppCheckTokens == true {
-        if let appCheckToken = context.limitedUseAppCheckToken {
-          fetcher.setRequestValue(
-            appCheckToken,
-            forHTTPHeaderField: Constants.appCheckTokenHeader
-          )
-        }
-      } else if let appCheckToken = context.appCheckToken {
+    if let fcmToken = context.fcmToken {
+      fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+    }
+
+    if options?.requireLimitedUseAppCheckTokens == true {
+      if let appCheckToken = context.limitedUseAppCheckToken {
         fetcher.setRequestValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
-      // Remove after genStream is updated on the emulator or deployed
-      #if DEBUG
-        fetcher.allowLocalhostRequest = true
-        fetcher.allowedInsecureSchemes = ["http"]
-      #endif
-      // Override normal security rules if this is a local test.
-      if emulatorOrigin != nil {
-        fetcher.allowLocalhostRequest = true
-        fetcher.allowedInsecureSchemes = ["http"]
-      }
-      
-      return fetcher
+    } else if let appCheckToken = context.appCheckToken {
+      fetcher.setRequestValue(
+        appCheckToken,
+        forHTTPHeaderField: Constants.appCheckTokenHeader
+      )
     }
-  
+    // Remove after genStream is updated on the emulator or deployed
+    #if DEBUG
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    #endif
+    // Override normal security rules if this is a local test.
+    if emulatorOrigin != nil {
+      fetcher.allowLocalhostRequest = true
+      fetcher.allowedInsecureSchemes = ["http"]
+    }
+
+    return fetcher
+  }
+
   private func makeFetcher(url: URL,
                            data: Any?,
                            options: HTTPSCallableOptions?,
@@ -653,76 +654,75 @@ enum FunctionsConstants {
 
     return data
   }
-  
+
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
-   private func processResponseDataForStreamableContent(from data: Data?,
-                                                        error: Error?) throws -> AsyncThrowingStream<
-     HTTPSCallableResult,
-     Error
-   > {
-    
-     return AsyncThrowingStream { continuation in
-       Task {
-         var resultArray = [String]()
-         do {
-           if let error = error {
-             throw error
-           }
+  private func processResponseDataForStreamableContent(from data: Data?,
+                                                       error: Error?) throws
+    -> AsyncThrowingStream<
+      HTTPSCallableResult,
+      Error
+    > {
+    return AsyncThrowingStream { continuation in
+      Task {
+        var resultArray = [String]()
+        do {
+          if let error = error {
+            throw error
+          }
 
-           guard let data = data else {
-             throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
-           }
+          guard let data = data else {
+            throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
+          }
 
-           if let dataChunk = String(data: data, encoding: .utf8) {
-             // We remove the "data :" field so it can be safely parsed to Json.
-             let dataChunkToJson = dataChunk.split(separator: "\n").map {
-               String($0.dropFirst(6))
-             }
-             resultArray.append(contentsOf: dataChunkToJson)
-           } else {
-             throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
-           }
+          if let dataChunk = String(data: data, encoding: .utf8) {
+            // We remove the "data :" field so it can be safely parsed to Json.
+            let dataChunkToJson = dataChunk.split(separator: "\n").map {
+              String($0.dropFirst(6))
+            }
+            resultArray.append(contentsOf: dataChunkToJson)
+          } else {
+            throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
+          }
 
-           for dataChunk in resultArray {
-             let json = try callableResult(
+          for dataChunk in resultArray {
+            let json = try callableResult(
               fromResponseData: dataChunk.data(
                 using: .utf8,
                 allowLossyConversion: true
               ) ?? Data()
-              
-             )
-             continuation.yield(HTTPSCallableResult(data: json.data))
-           }
+            )
+            continuation.yield(HTTPSCallableResult(data: json.data))
+          }
 
-           continuation.onTermination = { @Sendable _ in
-             // Callback for cancelling the stream
-             continuation.finish()
-           }
-           // Close the stream once it's done
-           continuation.finish()
-         } catch {
-           continuation.finish(throwing: error)
-         }
-       }
-     }
-   }
+          continuation.onTermination = { @Sendable _ in
+            // Callback for cancelling the stream
+            continuation.finish()
+          }
+          // Close the stream once it's done
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
+    }
+  }
 
   private func responseDataJSON(from data: Data) throws -> Any {
-      let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
 
-      guard let responseJSON = responseJSONObject as? NSDictionary else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-        throw FunctionsError(.internal, userInfo: userInfo)
-      }
-
-      // `result` is checked for backwards compatibility,
-      // `message` is checked for StramableContent:
-      guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"]
-      else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
-        throw FunctionsError(.internal, userInfo: userInfo)
-      }
-      
-      return dataJSON
+    guard let responseJSON = responseJSONObject as? NSDictionary else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.internal, userInfo: userInfo)
     }
+
+    // `result` is checked for backwards compatibility,
+    // `message` is checked for StramableContent:
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"]
+    else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
+
+    return dataJSON
+  }
 }

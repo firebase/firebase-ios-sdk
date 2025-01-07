@@ -741,7 +741,7 @@ class IntegrationTests: XCTestCase {
       }
     }
   }
-  
+
   func testCallAsFunction() {
     let data = DataTestRequest(
       bool: true,
