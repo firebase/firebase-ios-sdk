@@ -165,7 +165,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
       .currentRealtimeThrottlingRetryIntervalSeconds
     realtimeRetryCount = _userDefaultsManager.realtimeRetryCount
 
-    _lastFetchError = RemoteConfigError(.unknown)
+    _lastFetchError = .unknown
     exponentialBackoffRetryInterval = 0
     _fetchTimeout = 0
     exponentialBackoffThrottleEndTime = 0
@@ -326,10 +326,10 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   /// @param fetchSuccess True if fetch was successful.
   @objc public func updateMetadata(withFetchSuccessStatus fetchSuccess: Bool,
                                    templateVersion: String?) {
-    RCLog.debug("I-RCN000056", "Updating metadata with fetch result.")
+    RCLog.debug("I-RCN000056", "Updating metadata with fetch result: \(fetchSuccess).")
     updateFetchTime(success: fetchSuccess)
     lastFetchStatus = fetchSuccess ? .success : .failure
-    _lastFetchError = RemoteConfigError(fetchSuccess ? .unknown : .internalError)
+    _lastFetchError = fetchSuccess ? .unknown : .internalError
     if fetchSuccess, let templateVersion {
       updateLastFetchTimeInterval(Date().timeIntervalSince1970)
       // Note: We expect the googleAppID to always be available.
@@ -400,7 +400,7 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
       RCNKeySuccessFetchTime: serializedSuccessTime,
       RCNKeyFailureFetchTime: serializedFailureTime,
       RCNKeyLastFetchStatus: lastFetchStatus.rawValue,
-      RCNKeyLastFetchError: _lastFetchError.errorCode,
+      RCNKeyLastFetchError: _lastFetchError.rawValue,
       RCNKeyLastApplyTime: _lastApplyTimeInterval,
       RCNKeyLastSetDefaultsTime: _lastSetDefaultsTimeInterval,
     ]
@@ -466,10 +466,10 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
   // MARK: - Getter/Setter
 
   /// The reason that last fetch failed.
-  @objc public var lastFetchError: RemoteConfigError.Code {
-    get { _lastFetchError.code }
+  @objc public var lastFetchError: RemoteConfigError {
+    get { _lastFetchError }
     set {
-      _lastFetchError = RemoteConfigError(newValue)
+      _lastFetchError = newValue
       _DBManager
         .updateMetadata(
           withOption: .fetchStatus,

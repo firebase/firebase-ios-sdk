@@ -34,7 +34,7 @@ import Foundation
   private let experimentStartTimeDateFormatter: DateFormatter
 
   /// Designated initializer;
-  @objc public init(DBManager: ConfigDBManager,
+  @objc public init(dbManager: ConfigDBManager,
                     experimentController controller: ExperimentController?) {
     experimentPayloads = []
     experimentMetadata = [:]
@@ -48,7 +48,7 @@ import Foundation
       dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
       return dateFormatter
     }()
-    dbManager = DBManager
+    self.dbManager = dbManager
     experimentController = controller
     super.init()
     loadExperimentFromTable()

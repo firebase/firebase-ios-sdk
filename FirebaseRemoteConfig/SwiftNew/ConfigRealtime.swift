@@ -214,7 +214,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         onHandler: completionHandler,
         withStatus: .failure,
         withError: NSError(
-          domain: RemoteConfigErrorDomain,
+          domain: ConfigConstants.RemoteConfigErrorDomain,
           code: RemoteConfigError.internalError.rawValue,
           userInfo: [NSLocalizedDescriptionKey: errorDescription]
         )
@@ -236,7 +236,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         self.reportCompletion(
           onHandler: completionHandler,
           withStatus: .failure,
-          withError: NSError(domain: RemoteConfigErrorDomain,
+          withError: NSError(domain: ConfigConstants.RemoteConfigErrorDomain,
                              code: RemoteConfigError.internalError.rawValue,
                              userInfo: userInfo)
         )
@@ -248,7 +248,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
         self.isRequestInProgress = false
         reportCompletion(onHandler: completionHandler,
                          withStatus: .failure,
-                         withError: NSError(domain: RemoteConfigErrorDomain,
+                         withError: NSError(domain: ConfigConstants.RemoteConfigErrorDomain,
                                             code: RemoteConfigError.internalError.rawValue,
                                             userInfo: [
                                               NSLocalizedDescriptionKey: errorDescription,
@@ -273,7 +273,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
             self.reportCompletion(
               onHandler: completionHandler,
               withStatus: .failure,
-              withError: NSError(domain: RemoteConfigErrorDomain,
+              withError: NSError(domain: ConfigConstants.RemoteConfigErrorDomain,
                                  code: RemoteConfigError.internalError.rawValue,
                                  userInfo: userInfo)
             )
@@ -341,7 +341,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     realtimeLockQueue.async { [weak self] in
       guard let self, !self.isInBackground else { return }
       guard self.remainingRetryCount > 0 else {
-        let error = NSError(domain: RemoteConfigUpdateErrorDomain,
+        let error = NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
                             code: RemoteConfigUpdateError.streamError.rawValue,
                             userInfo: [
                               NSLocalizedDescriptionKey: "Unable to connect to the server. Check your connection and try again.",
@@ -458,7 +458,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     realtimeLockQueue.async { [weak self] in
       guard let self else { return }
       guard attempts > 0 else {
-        let error = NSError(domain: RemoteConfigUpdateErrorDomain,
+        let error = NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
                             code: RemoteConfigUpdateError.notFetched.rawValue,
                             userInfo: [
                               NSLocalizedDescriptionKey: "Unable to fetch the latest version of the template.",
@@ -481,7 +481,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     // If response data contains the API enablement link, return the entire
     // message to the user in the form of a error.
     if strData.contains(serverForbiddenStatusCode) {
-      let error = NSError(domain: RemoteConfigUpdateErrorDomain,
+      let error = NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
                           code: RemoteConfigUpdateError.streamError.rawValue,
                           userInfo: [NSLocalizedDescriptionKey: strData])
       RCLog.error("I-RCN000021", "Cannot establish connection. \(error)")
@@ -524,7 +524,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     }
     if isRealtimeDisabled {
       pauseRealtimeStream()
-      let error = NSError(domain: RemoteConfigUpdateErrorDomain,
+      let error = NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
                           code: RemoteConfigUpdateError.unavailable.rawValue,
                           userInfo: [
                             NSLocalizedDescriptionKey: "The server is temporarily unavailable. Try again in a few minutes.",
@@ -565,7 +565,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
           retryHTTPConnection()
         } else {
           let error = NSError(
-            domain: RemoteConfigUpdateErrorDomain,
+            domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
             code: RemoteConfigUpdateError.streamError.rawValue,
             userInfo: [
               NSLocalizedDescriptionKey:
