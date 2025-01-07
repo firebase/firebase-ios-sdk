@@ -896,6 +896,48 @@
                      ]];
 }
 
+- (void)testSnapshotListenerSortsUnicodeStringsInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a": @{@"value": @ "Łukasiewicz"},
+    @"b": @{@"value": @"Sierpiński"},
+    @"c": @{@"value": @"岩澤"},
+    @"d": @{@"value": @"🄟"},
+    @"e": @{@"value": @"Ｐ"},
+    @"f": @{@"value": @"︒"},
+    @"g": @{@"value": @"🐵"}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs =
+      @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g"];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsTheSameWayOnlineAndOffline {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a": @{@"value": @ "Łukasiewicz"},
+    @"b": @{@"value": @"Sierpiński"},
+    @"c": @{@"value": @"岩澤"},
+    @"d": @{@"value": @"🄟"},
+    @"e": @{@"value": @"Ｐ"},
+    @"f": @{@"value": @"︒"},
+    @"g": @{@"value": @"🐵"}
+
+  }];
+  
+  [self checkOnlineAndOfflineQuery:[collRef queryOrderedByField:@"value"]
+                     matchesResult:@[@"b", @"a", @"c", @"f", @"e", @"d", @"g"]];
+}
+
 - (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
   // Use .document() to get a random collection group name to use but ensure it starts with 'b'
   // for predictable ordering.
