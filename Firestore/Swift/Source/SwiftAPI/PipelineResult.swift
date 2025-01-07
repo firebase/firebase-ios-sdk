@@ -21,7 +21,7 @@
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class PipelineResult {
+public struct PipelineResult {
   let cppObj: firebase.firestore.api.PipelineResult
 
   public init(_ cppSource: firebase.firestore.api.PipelineResult) {
