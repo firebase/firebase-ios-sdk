@@ -20,7 +20,6 @@
 #include <atomic>
 #include <functional>
 #include <memory>
-#include <utility>
 
 namespace firebase {
 namespace firestore {
@@ -33,22 +32,19 @@ namespace util {
 template <typename T>
 class ThreadSafeMemoizer {
  public:
-  explicit ThreadSafeMemoizer(std::function<std::shared_ptr<T>()> func) : func_(std::move(func)) {
-  }
+  ThreadSafeMemoizer() = default;
 
-  ThreadSafeMemoizer(const ThreadSafeMemoizer& other) : func_(other.func_), memoized_(std::atomic_load(&other.memoized_)) {}
+  ThreadSafeMemoizer(const ThreadSafeMemoizer& other) : memoized_(std::atomic_load(&other.memoized_)) {}
 
   ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer& other) {
-    func_ = other.func_;
     std::atomic_store(&memoized_, std::atomic_load(&other.memoized_));
     return *this;
   }
 
-  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) noexcept : func_(std::move(other.func_)), memoized_(std::atomic_load(&other.memoized_)) {
+  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) noexcept : memoized_(std::atomic_load(&other.memoized_)) {
   }
 
   ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) noexcept {
-    func_ = std::move(other.func_);
     std::atomic_store(&memoized_, std::atomic_load(&other.memoized_));
     return *this;
   }
@@ -70,14 +66,14 @@ class ThreadSafeMemoizer {
    * No reference to the given function is retained by this object, and the
    * function be called synchronously, if it is called at all.
    */
-  const T& value() {
+  const T& value(const std::function<std::shared_ptr<T>()>& func) {
     std::shared_ptr<T> old_memoized = std::atomic_load(&memoized_);
     while (true) {
       if (old_memoized) {
         return *old_memoized;
       }
 
-      std::shared_ptr<T> new_memoized = func_();
+      std::shared_ptr<T> new_memoized = func();
 
       if (std::atomic_compare_exchange_weak(&memoized_, &old_memoized, new_memoized)) {
         return *new_memoized;
@@ -86,7 +82,6 @@ class ThreadSafeMemoizer {
   }
 
  private:
-  std::function<std::shared_ptr<T>()> func_;
   std::shared_ptr<T> memoized_;
 };
 

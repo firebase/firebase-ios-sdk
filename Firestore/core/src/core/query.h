@@ -149,7 +149,8 @@ class Query {
    * backend behavior.
    */
   const std::vector<OrderBy>& normalized_order_bys() const {
-    return normalized_order_bys_.value();
+    const auto func = std::bind(&Query::CalculateNormalizedOrderBys, this);
+    return memoized_normalized_order_bys_.value(func);
   }
 
   bool has_limit() const {
@@ -249,7 +250,8 @@ class Query {
    * and local store.
    */
   const Target& ToTarget() const& {
-    return target_.value();
+    const auto func = std::bind(&Query::CalculateTarget, this);
+    return memoized_target_.value(func);
   }
 
   /**
@@ -259,7 +261,8 @@ class Query {
    * normalized order-bys, they only contain explicit order-bys.
    */
   const Target& ToAggregateTarget() const& {
-    return aggregate_target_.value();
+    const auto func = std::bind(&Query::CalculateAggregateTarget, this);
+    return memoized_aggregate_target_.value(func);
   }
 
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
@@ -301,19 +304,18 @@ class Query {
   // member variable, which is not copyable).
 
   // The memoized list of sort orders.
-  std::shared_ptr<std::vector<OrderBy>> calculate_normalized_order_bys() const;
-  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>>
-      normalized_order_bys_{[&] {return calculate_normalized_order_bys(); }};
+  std::shared_ptr<std::vector<OrderBy>> CalculateNormalizedOrderBys() const;
+  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>> memoized_normalized_order_bys_;
 
   // The corresponding Target of this Query instance.
-  std::shared_ptr<Target> calculate_target() const;
-  mutable util::ThreadSafeMemoizer<Target> target_{[&] {return calculate_target(); }};
+  std::shared_ptr<Target> CalculateTarget() const;
+  mutable util::ThreadSafeMemoizer<Target> memoized_target_;
 
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  std::shared_ptr<Target> calculate_aggregate_target() const;
-  mutable util::ThreadSafeMemoizer<Target> aggregate_target_{[&] {return calculate_aggregate_target(); }};;
+  std::shared_ptr<Target> CalculateAggregateTarget() const;
+  mutable util::ThreadSafeMemoizer<Target> memoized_aggregate_target_;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

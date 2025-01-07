@@ -40,13 +40,13 @@ TEST(ThreadSafeMemoizerTest, MultiThreadedMemoization) {
   constexpr int expected_result = 78;
 
   // Create a thread safe memoizer and multiple threads.
-  ThreadSafeMemoizer<int> memoized_result(expensive_lambda);
+  ThreadSafeMemoizer<int> memoized_result;
   std::vector<std::thread> threads;
 
   for (int i = 0; i < num_threads; ++i) {
     threads.emplace_back(
-        [&memoized_result, expected_result] {
-          const int& actual_result = memoized_result.value();
+        [&memoized_result, expected_result, &expensive_lambda] {
+          const int& actual_result = memoized_result.value(expensive_lambda);
           // Verify that all threads get the same memoized result.
           EXPECT_EQ(actual_result, expected_result);
         });

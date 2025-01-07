@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/query.h"
 
 #include <algorithm>
+#include <memory>
 #include <ostream>
 
 #include "Firestore/core/src/core/bound.h"
@@ -92,7 +93,7 @@ absl::optional<Operator> Query::FindOpInsideFilters(
   return absl::nullopt;
 }
 
-std::shared_ptr<std::vector<OrderBy>> Query::calculate_normalized_order_bys() const {
+std::shared_ptr<std::vector<OrderBy>> Query::CalculateNormalizedOrderBys() const {
   auto result = std::make_shared<std::vector<OrderBy>>(explicit_order_bys_);
 
   std::set<FieldPath> fieldsNormalized;
@@ -295,11 +296,11 @@ std::string Query::ToString() const {
   return absl::StrCat("Query(canonical_id=", CanonicalId(), ")");
 }
 
-std::shared_ptr<Target> Query::calculate_target() const {
+std::shared_ptr<Target> Query::CalculateTarget() const {
   return std::make_shared<Target>(ToTarget(normalized_order_bys()));
 }
 
-std::shared_ptr<Target> Query::calculate_aggregate_target() const {
+std::shared_ptr<Target> Query::CalculateAggregateTarget() const {
   return std::make_shared<Target>(ToTarget(explicit_order_bys_));
 }
 
