@@ -21,6 +21,7 @@
 #include <mutex>  // NOLINT(build/c++11)
 #include <string>
 
+#include "Firestore/core/interfaceForSwift/api/pipeline_source.h"
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/api/settings.h"
@@ -29,7 +30,6 @@
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/byte_stream.h"
 #include "Firestore/core/src/util/status_fwd.h"
-#include "Firestore/core/interfaceForSwift/api/pipeline_source.h"
 
 namespace firebase {
 namespace firestore {

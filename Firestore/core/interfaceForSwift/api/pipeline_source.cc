@@ -1,7 +1,7 @@
 #include "Firestore/core/interfaceForSwift/api/pipeline_source.h"
+#include "Firestore/core/interfaceForSwift/api/collection_stage.h"
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/firestore.h"
-#include "Firestore/core/interfaceForSwift/api/collection_stage.h"
 
 namespace firebase {
 namespace firestore {

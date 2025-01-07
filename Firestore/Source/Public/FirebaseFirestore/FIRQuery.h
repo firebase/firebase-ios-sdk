@@ -29,24 +29,6 @@
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
 
-namespace firebase {
-namespace firestore {
-namespace api {
-class Firestore;
-class PipelineResult;
-}  // namespace api
-
-namespace core {
-template <typename T>
-class EventListener;
-}  // namespace core
-
-}  // namespace firestore
-}  // namespace firebase
-
-namespace api = firebase::firestore::api;
-namespace core = firebase::firestore::core;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -55,12 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
                                       NSError *_Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
-
-typedef void (^PipelineBlock)(std::shared_ptr<std::vector<api::PipelineResult>> result,
-                              NSError *_Nullable error)
-    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
-
-typedef std::shared_ptr<std::vector<api::PipelineResult>> PipelineResultVectorPtr;
 
 /**
  * A `Query` refers to a query which you can read or listen to. You can also construct
@@ -91,11 +67,6 @@ NS_SWIFT_NAME(Query)
     (void (^)(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion
     NS_SWIFT_NAME(getDocuments(completion:));
 
-+ (std::unique_ptr<core::EventListener<std::vector<api::PipelineResult>>>)
-    wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-              completion:(void (^)(std::shared_ptr<std::vector<api::PipelineResult>> result,
-                                   NSError *_Nullable error))completion
-    NS_SWIFT_NAME(wrapPipelineCallback(firestore:completion:));
 /**
  * Reads the documents matching this query.
  *

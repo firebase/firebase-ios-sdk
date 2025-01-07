@@ -4,13 +4,13 @@
 #include <memory>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/src/api/source.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/view_snapshot.h"
-#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 
 namespace firebase {
 namespace firestore {

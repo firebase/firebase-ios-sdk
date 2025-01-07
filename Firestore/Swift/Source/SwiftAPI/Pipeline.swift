@@ -6,7 +6,7 @@
 //
 
 #if SWIFT_PACKAGE
- import FirebaseFirestoreCpp
+  import FirebaseFirestoreCpp
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -20,7 +20,7 @@ public class Pipeline {
   @discardableResult
   public func GetPipelineResult() async throws -> [PipelineResult] {
     return try await withCheckedThrowingContinuation { continuation in
-      let listener = Query.wrapPipelineCallback(firestore: cppObj.GetFirestore()) {
+      let listener = CallbackWrapper.wrapPipelineCallback(firestore: cppObj.GetFirestore()) {
         result, error in
         if let error {
           continuation.resume(throwing: error)

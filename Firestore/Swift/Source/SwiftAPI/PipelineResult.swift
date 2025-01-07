@@ -5,7 +5,7 @@
 //  Created by Cheryl Lin on 2024-12-18.
 //
 #if SWIFT_PACKAGE
- import FirebaseFirestoreCpp
+  import FirebaseFirestoreCpp
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

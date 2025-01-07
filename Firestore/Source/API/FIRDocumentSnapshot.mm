@@ -86,8 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
                          metadata:(SnapshotMetadata)metadata {
   DocumentSnapshot wrapped;
   if (document.has_value()) {
-    wrapped =
-        DocumentSnapshot::FromDocument(firestore.cppFirestorePtr, document.value(), std::move(metadata));
+    wrapped = DocumentSnapshot::FromDocument(firestore.cppFirestorePtr, document.value(),
+                                             std::move(metadata));
   } else {
     wrapped = DocumentSnapshot::FromNoDocument(firestore.cppFirestorePtr, std::move(documentKey),
                                                std::move(metadata));
