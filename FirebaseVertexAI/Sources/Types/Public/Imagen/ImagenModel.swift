@@ -98,7 +98,7 @@ public final class ImagenModel {
       negativePrompt: generationConfig?.negativePrompt,
       aspectRatio: generationConfig?.aspectRatio?.rawValue,
       safetyFilterLevel: safetySettings?.safetyFilterLevel?.rawValue,
-      personGeneration: safetySettings?.personGeneration?.rawValue,
+      personGeneration: safetySettings?.personFilterLevel?.rawValue,
       outputOptions: generationConfig?.imageFormat.map {
         ImageGenerationOutputOptions(
           mimeType: $0.mimeType,
@@ -106,7 +106,7 @@ public final class ImagenModel {
         )
       },
       addWatermark: generationConfig?.addWatermark,
-      includeResponsibleAIFilterReason: safetySettings?.includeFilterReason ?? true
+      includeResponsibleAIFilterReason: true
     )
   }
 }

@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenSafetySettings {
-  let safetyFilterLevel: ImagenSafetyFilterLevel?
-  let personFilterLevel: ImagenPersonFilterLevel?
-
-  public init(safetyFilterLevel: ImagenSafetyFilterLevel? = nil,
-              personFilterLevel: ImagenPersonFilterLevel? = nil) {
-    self.safetyFilterLevel = safetyFilterLevel
-    self.personFilterLevel = personFilterLevel
+public struct ImagenPersonFilterLevel: ProtoEnum {
+  enum Kind: String {
+    case blockAll = "dont_allow"
+    case allowAdult = "allow_adult"
+    case allowAll = "allow_all"
   }
+
+  public static let blockAll = ImagenPersonFilterLevel(kind: .blockAll)
+  public static let allowAdult = ImagenPersonFilterLevel(kind: .allowAdult)
+  public static let allowAll = ImagenPersonFilterLevel(kind: .allowAll)
+
+  let rawValue: String
 }
