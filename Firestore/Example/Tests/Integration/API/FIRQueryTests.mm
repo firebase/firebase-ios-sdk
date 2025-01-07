@@ -898,7 +898,7 @@
 
 - (void)testSnapshotListenerSortsUnicodeStringsInTheSameOrderAsServer {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"a" : @{@"value" : @ "Łukasiewicz"},
+    @"a" : @{@"value" : @"Łukasiewicz"},
     @"b" : @{@"value" : @"Sierpiński"},
     @"c" : @{@"value" : @"岩澤"},
     @"d" : @{@"value" : @"🄟"},
@@ -919,22 +919,117 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
 
   [registration remove];
+
+  [self checkOnlineAndOfflineQuery:query matchesResult:expectedDocs];
 }
 
-- (void)testSnapshotListenerSortsUnicodeStringsTheSameWayOnlineAndOffline {
+- (void)testSnapshotListenerSortsUnicodeStringsInArrayInTheSameOrderAsServer {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"a" : @{@"value" : @ "Łukasiewicz"},
-    @"b" : @{@"value" : @"Sierpiński"},
-    @"c" : @{@"value" : @"岩澤"},
-    @"d" : @{@"value" : @"🄟"},
-    @"e" : @{@"value" : @"Ｐ"},
-    @"f" : @{@"value" : @"︒"},
-    @"g" : @{@"value" : @"🐵"}
+    @"a" : @{@"value" : @[ @"Łukasiewicz" ]},
+    @"b" : @{@"value" : @[ @"Sierpiński" ]},
+    @"c" : @{@"value" : @[ @"岩澤" ]},
+    @"d" : @{@"value" : @[ @"🄟" ]},
+    @"e" : @{@"value" : @[ @"Ｐ" ]},
+    @"f" : @{@"value" : @[ @"︒" ]},
+    @"g" : @{@"value" : @[ @"🐵" ]}
 
   }];
 
-  [self checkOnlineAndOfflineQuery:[collRef queryOrderedByField:@"value"]
-                     matchesResult:@[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ]];
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineQuery:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInMapInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"value" : @{@"foo" : @"Łukasiewicz"}},
+    @"b" : @{@"value" : @{@"foo" : @"Sierpiński"}},
+    @"c" : @{@"value" : @{@"foo" : @"岩澤"}},
+    @"d" : @{@"value" : @{@"foo" : @"🄟"}},
+    @"e" : @{@"value" : @{@"foo" : @"Ｐ"}},
+    @"f" : @{@"value" : @{@"foo" : @"︒"}},
+    @"g" : @{@"value" : @{@"foo" : @"🐵"}}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineQuery:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInMapKeyInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"value" : @{@"Łukasiewicz" : @"foo"}},
+    @"b" : @{@"value" : @{@"Sierpiński" : @"foo"}},
+    @"c" : @{@"value" : @{@"岩澤" : @"foo"}},
+    @"d" : @{@"value" : @{@"🄟" : @"foo"}},
+    @"e" : @{@"value" : @{@"Ｐ" : @"foo"}},
+    @"f" : @{@"value" : @{@"︒" : @"foo"}},
+    @"g" : @{@"value" : @{@"🐵" : @"foo"}}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineQuery:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInDocumentKeyInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"Łukasiewicz" : @{@"value" : @"foo"},
+    @"Sierpiński" : @{@"value" : @"foo"},
+    @"岩澤" : @{@"value" : @"foo"},
+    @"🄟" : @{@"value" : @"foo"},
+    @"Ｐ" : @{@"value" : @"foo"},
+    @"︒" : @{@"value" : @"foo"},
+    @"🐵" : @{@"value" : @"foo"}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  NSArray<NSString *> *expectedDocs =
+      @[ @"Sierpiński", @"Łukasiewicz", @"岩澤", @"︒", @"Ｐ", @"🄟", @"🐵" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineQuery:query matchesResult:expectedDocs];
 }
 
 - (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
