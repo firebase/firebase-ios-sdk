@@ -17,7 +17,7 @@ import XCTest
 @testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class ImageGenerationResponseTests: XCTestCase {
+final class ImagenGenerationResponseTests: XCTestCase {
   let decoder = JSONDecoder()
 
   func testDecodeResponse_oneBase64Image_noneFiltered() throws {
@@ -37,12 +37,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      ImagenGenerationResponse<ImagenInlineDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [image])
-    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertNil(response.filteredReason)
   }
 
   func testDecodeResponse_multipleBase64Images_noneFiltered() throws {
@@ -74,12 +74,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      ImagenGenerationResponse<ImagenInlineDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [image1, image2, image3])
-    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertNil(response.filteredReason)
   }
 
   func testDecodeResponse_multipleBase64Images_someFiltered() throws {
@@ -112,12 +112,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      ImagenGenerationResponse<ImagenInlineDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [image1, image2])
-    XCTAssertEqual(response.raiFilteredReason, raiFilteredReason)
+    XCTAssertEqual(response.filteredReason, raiFilteredReason)
   }
 
   func testDecodeResponse_multipleGCSImages_noneFiltered() throws {
@@ -143,12 +143,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenFileDataImage>.self,
+      ImagenGenerationResponse<ImagenFileDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [image1, image2])
-    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertNil(response.filteredReason)
   }
 
   func testDecodeResponse_noImages_allFiltered() throws {
@@ -169,12 +169,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      ImagenGenerationResponse<ImagenInlineDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [])
-    XCTAssertEqual(response.raiFilteredReason, raiFilteredReason)
+    XCTAssertEqual(response.filteredReason, raiFilteredReason)
   }
 
   func testDecodeResponse_noImagesAnd_noFilteredReason() throws {
@@ -182,12 +182,12 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      ImagenGenerationResponse<ImagenInlineDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [])
-    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertNil(response.filteredReason)
   }
 
   func testDecodeResponse_multipleFilterReasons_returnsFirst() throws {
@@ -208,13 +208,13 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenFileDataImage>.self,
+      ImagenGenerationResponse<ImagenFileDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [])
-    XCTAssertEqual(response.raiFilteredReason, raiFilteredReason1)
-    XCTAssertNotEqual(response.raiFilteredReason, raiFilteredReason2)
+    XCTAssertEqual(response.filteredReason, raiFilteredReason1)
+    XCTAssertNotEqual(response.filteredReason, raiFilteredReason2)
   }
 
   func testDecodeResponse_unknownPrediction() throws {
@@ -230,11 +230,11 @@ final class ImageGenerationResponseTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let response = try decoder.decode(
-      ImageGenerationResponse<ImagenInlineDataImage>.self,
+      ImagenGenerationResponse<ImagenInlineDataImage>.self,
       from: jsonData
     )
 
     XCTAssertEqual(response.images, [])
-    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertNil(response.filteredReason)
   }
 }

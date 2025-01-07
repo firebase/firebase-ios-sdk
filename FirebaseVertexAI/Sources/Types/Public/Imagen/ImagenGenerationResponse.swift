@@ -15,15 +15,15 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImageGenerationResponse<ImageType: ImagenImageRepresentable> {
-  public let images: [ImageType]
-  public let raiFilteredReason: String?
+public struct ImagenGenerationResponse<T: ImagenImageRepresentable> {
+  public let images: [T]
+  public let filteredReason: String?
 }
 
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationResponse: Decodable where ImageType: Decodable {
+extension ImagenGenerationResponse: Decodable where T: Decodable {
   enum CodingKeys: CodingKey {
     case predictions
   }
@@ -32,19 +32,19 @@ extension ImageGenerationResponse: Decodable where ImageType: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     guard container.contains(.predictions) else {
       images = []
-      raiFilteredReason = nil
+      filteredReason = nil
       // TODO(#14221): Log warning if no predictions.
       return
     }
     var predictionsContainer = try container.nestedUnkeyedContainer(forKey: .predictions)
 
-    var images = [ImageType]()
-    var raiFilteredReasons = [String]()
+    var images = [T]()
+    var filteredReasons = [String]()
     while !predictionsContainer.isAtEnd {
-      if let image = try? predictionsContainer.decode(ImageType.self) {
+      if let image = try? predictionsContainer.decode(T.self) {
         images.append(image)
-      } else if let filterReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
-        raiFilteredReasons.append(filterReason.raiFilteredReason)
+      } else if let filteredReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
+        filteredReasons.append(filteredReason.raiFilteredReason)
       } else if let _ = try? predictionsContainer.decode(JSONObject.self) {
         // TODO(#14221): Log or throw unsupported prediction type
       } else {
@@ -57,7 +57,7 @@ extension ImageGenerationResponse: Decodable where ImageType: Decodable {
     }
 
     self.images = images
-    raiFilteredReason = raiFilteredReasons.first
+    filteredReason = filteredReasons.first
     // TODO(#14221): Log if more than one RAI Filtered Reason; unexpected behaviour.
   }
 }

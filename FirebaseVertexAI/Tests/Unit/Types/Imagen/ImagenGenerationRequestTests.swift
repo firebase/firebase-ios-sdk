@@ -17,7 +17,7 @@ import XCTest
 @testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class ImageGenerationRequestTests: XCTestCase {
+final class ImagenGenerationRequestTests: XCTestCase {
   let encoder = JSONEncoder()
   let requestOptions = RequestOptions(timeout: 30.0)
   let modelName = "test-model-name"
@@ -44,7 +44,7 @@ final class ImageGenerationRequestTests: XCTestCase {
   }
 
   func testInitializeRequest_inlineDataImage() throws {
-    let request = ImageGenerationRequest<ImagenInlineDataImage>(
+    let request = ImagenGenerationRequest<ImagenInlineDataImage>(
       model: modelName,
       options: requestOptions,
       instances: [instance],
@@ -62,7 +62,7 @@ final class ImageGenerationRequestTests: XCTestCase {
   }
 
   func testInitializeRequest_fileDataImage() throws {
-    let request = ImageGenerationRequest<ImagenFileDataImage>(
+    let request = ImagenGenerationRequest<ImagenFileDataImage>(
       model: modelName,
       options: requestOptions,
       instances: [instance],
@@ -82,7 +82,7 @@ final class ImageGenerationRequestTests: XCTestCase {
   // MARK: - Encoding Tests
 
   func testEncodeRequest_inlineDataImage() throws {
-    let request = ImageGenerationRequest<ImagenInlineDataImage>(
+    let request = ImagenGenerationRequest<ImagenInlineDataImage>(
       model: modelName,
       options: RequestOptions(),
       instances: [instance],
@@ -110,7 +110,7 @@ final class ImageGenerationRequestTests: XCTestCase {
   }
 
   func testEncodeRequest_fileDataImage() throws {
-    let request = ImageGenerationRequest<ImagenFileDataImage>(
+    let request = ImagenGenerationRequest<ImagenFileDataImage>(
       model: modelName,
       options: RequestOptions(),
       instances: [instance],
