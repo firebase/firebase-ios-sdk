@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_CORE_QUERY_H_
 
+#include <functional>
 #include <iosfwd>
 #include <limits>
 #include <memory>
