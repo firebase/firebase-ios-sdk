@@ -66,7 +66,7 @@ final class IntegrationTests: XCTestCase {
       modelName: "imagen-3.0-fast-generate-001",
       safetySettings: ImagenSafetySettings(
         safetyFilterLevel: .blockLowAndAbove,
-        personGeneration: .blockAll
+        personFilterLevel: .blockAll
       )
     )
 
