@@ -1,5 +1,6 @@
-# Unreleased
+# 11.7.0
 - [fixed] Mark ConfigUpdateListenerRegistration Sendable. (#14215)
+- [fixed] Mark completion handlers as Sendable in RemoteConfig class. (#14257)
 
 # 11.5.0
 - [fixed] Mark two internal properties as `atomic` to prevent concurrency
