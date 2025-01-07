@@ -68,6 +68,11 @@ const ByteString& WriteStream::last_stream_token() const {
   return last_stream_token_;
 }
 
+void WriteStream::Start() {
+  handshake_complete_ = false;
+  Stream::Start();
+}
+
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
@@ -121,12 +126,9 @@ void WriteStream::NotifyStreamOpen() {
 
 void WriteStream::NotifyStreamClose(const Status& status) {
   callback_->OnWriteStreamClose(status);
-  // Delegate's logic might depend on whether handshake was completed, so only
-  // reset it after notifying.
-  handshake_complete_ = false;
 }
 
-Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
+Status WriteStream::NotifyFirstStreamResponse(const grpc::ByteBuffer& message) {
   ByteBufferReader reader{message};
   Message<google_firestore_v1_WriteResponse> response =
       write_serializer_.ParseResponse(&reader);
@@ -134,30 +136,46 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     return reader.status();
   }
 
-  LOG_DEBUG("%s response: %s", GetDebugDescription(), response.ToString());
+  LOG_DEBUG("%s first response: %s", GetDebugDescription(),
+            response.ToString());
 
   // Always capture the last stream token.
   set_last_stream_token(ByteString::Take(response->stream_token));
   response->stream_token = nullptr;
 
-  if (!handshake_complete()) {
-    // The first response is the handshake response
-    handshake_complete_ = true;
-    callback_->OnWriteStreamHandshakeComplete();
-  } else {
-    // A successful first write response means the stream is healthy.
-    // Note that we could consider a successful handshake healthy, however, the
-    // write itself might be causing an error we want to back off from.
-    backoff_.Reset();
+  // The first response is the handshake response
+  handshake_complete_ = true;
+  callback_->OnWriteStreamHandshakeComplete();
 
-    auto version = write_serializer_.DecodeCommitVersion(&reader, *response);
-    auto results = write_serializer_.DecodeMutationResults(&reader, *response);
-    if (!reader.ok()) {
-      return reader.status();
-    }
+  return Status::OK();
+}
 
-    callback_->OnWriteStreamMutationResult(version, std::move(results));
+Status WriteStream::NotifyNextStreamResponse(const grpc::ByteBuffer& message) {
+  ByteBufferReader reader{message};
+  Message<google_firestore_v1_WriteResponse> response =
+      write_serializer_.ParseResponse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
   }
+
+  LOG_DEBUG("%s next response: %s", GetDebugDescription(), response.ToString());
+
+  // Always capture the last stream token.
+  set_last_stream_token(ByteString::Take(response->stream_token));
+  response->stream_token = nullptr;
+
+  // A successful first write response means the stream is healthy.
+  // Note that we could consider a successful handshake healthy, however, the
+  // write itself might be causing an error we want to back off from.
+  backoff_.Reset();
+
+  auto version = write_serializer_.DecodeCommitVersion(&reader, *response);
+  auto results = write_serializer_.DecodeMutationResults(&reader, *response);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  callback_->OnWriteStreamMutationResult(version, std::move(results));
 
   return Status::OK();
 }

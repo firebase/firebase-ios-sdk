@@ -116,7 +116,10 @@ class WatchStream : public Stream {
   void TearDown(GrpcStream* grpc_stream) override;
 
   void NotifyStreamOpen() override;
-  util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override;
+  util::Status NotifyFirstStreamResponse(
+      const grpc::ByteBuffer& message) override;
+  util::Status NotifyNextStreamResponse(
+      const grpc::ByteBuffer& message) override;
   void NotifyStreamClose(const util::Status& status) override;
 
   std::string GetDebugName() const override {

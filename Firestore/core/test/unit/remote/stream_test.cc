@@ -108,14 +108,31 @@ class TestStream : public Stream {
     observed_states_.push_back("NotifyStreamOpen");
   }
 
-  util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override {
+  util::Status NotifyFirstStreamResponse(
+      const grpc::ByteBuffer& message) override {
     std::string str = ByteBufferToString(message);
     if (str.empty()) {
-      observed_states_.push_back("NotifyStreamResponse");
+      observed_states_.push_back("NotifyFirstStreamResponse");
     } else {
-      observed_states_.push_back(StringFormat("NotifyStreamResponse(%s)", str));
+      observed_states_.push_back(
+          StringFormat("NotifyFirstStreamResponse(%s)", str));
     }
+    return ResolveStreamResponse();
+  }
 
+  util::Status NotifyNextStreamResponse(
+      const grpc::ByteBuffer& message) override {
+    std::string str = ByteBufferToString(message);
+    if (str.empty()) {
+      observed_states_.push_back("NotifyNextStreamResponse");
+    } else {
+      observed_states_.push_back(
+          StringFormat("NotifyNextStreamResponse(%s)", str));
+    }
+    return ResolveStreamResponse();
+  }
+
+  util::Status ResolveStreamResponse() {
     if (fail_next_stream_read_) {
       fail_next_stream_read_ = false;
       // The parent stream will issue a finish operation and block until it's
@@ -294,8 +311,8 @@ TEST_F(StreamTest, ObserverReceivesStreamRead) {
     EXPECT_TRUE(firestore_stream->IsStarted());
     EXPECT_TRUE(firestore_stream->IsOpen());
     EXPECT_EQ(observed_states(),
-              States({"NotifyStreamOpen", "NotifyStreamResponse(foo)",
-                      "NotifyStreamResponse(bar)"}));
+              States({"NotifyStreamOpen", "NotifyFirstStreamResponse(foo)",
+                      "NotifyNextStreamResponse(bar)"}));
   });
 }
 

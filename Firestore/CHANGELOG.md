@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Internal change to stream implementation, to prepare for handshake. (#13792)
+
 # 11.6.0
 - [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is
   `Sendable` if `T` is `Sendable`. (#14042)
