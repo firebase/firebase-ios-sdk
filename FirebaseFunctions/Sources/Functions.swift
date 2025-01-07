@@ -684,9 +684,12 @@ enum FunctionsConstants {
            }
 
            for dataChunk in resultArray {
-             let json = try callableResultFromResponse(
-               data: dataChunk.data(using: .utf8, allowLossyConversion: true),
-               error: error
+             let json = try callableResult(
+              fromResponseData: dataChunk.data(
+                using: .utf8,
+                allowLossyConversion: true
+              ) ?? Data()
+              
              )
              continuation.yield(HTTPSCallableResult(data: json.data))
            }
