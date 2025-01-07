@@ -305,7 +305,8 @@ class Query {
 
   // The memoized list of sort orders.
   std::shared_ptr<std::vector<OrderBy>> CalculateNormalizedOrderBys() const;
-  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>> memoized_normalized_order_bys_;
+  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>>
+      memoized_normalized_order_bys_;
 
   // The corresponding Target of this Query instance.
   std::shared_ptr<Target> CalculateTarget() const;

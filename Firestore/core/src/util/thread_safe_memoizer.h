@@ -34,14 +34,17 @@ class ThreadSafeMemoizer {
  public:
   ThreadSafeMemoizer() = default;
 
-  ThreadSafeMemoizer(const ThreadSafeMemoizer& other) : memoized_(std::atomic_load(&other.memoized_)) {}
+  ThreadSafeMemoizer(const ThreadSafeMemoizer& other)
+      : memoized_(std::atomic_load(&other.memoized_)) {
+  }
 
   ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer& other) {
     std::atomic_store(&memoized_, std::atomic_load(&other.memoized_));
     return *this;
   }
 
-  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) noexcept : memoized_(std::atomic_load(&other.memoized_)) {
+  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) noexcept
+      : memoized_(std::atomic_load(&other.memoized_)) {
   }
 
   ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) noexcept {
@@ -75,7 +78,8 @@ class ThreadSafeMemoizer {
 
       std::shared_ptr<T> new_memoized = func();
 
-      if (std::atomic_compare_exchange_weak(&memoized_, &old_memoized, new_memoized)) {
+      if (std::atomic_compare_exchange_weak(&memoized_, &old_memoized,
+                                            new_memoized)) {
         return *new_memoized;
       }
     }

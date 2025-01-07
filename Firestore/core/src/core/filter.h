@@ -156,14 +156,16 @@ class Filter {
     virtual std::vector<Filter> GetFilters() const = 0;
 
    protected:
-    virtual std::shared_ptr<std::vector<FieldFilter>> CalculateFlattenedFilters() const = 0;
+    virtual std::shared_ptr<std::vector<FieldFilter>>
+    CalculateFlattenedFilters() const = 0;
 
    private:
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
      */
-    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>> memoized_flattened_filters_;
+    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>>
+        memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {

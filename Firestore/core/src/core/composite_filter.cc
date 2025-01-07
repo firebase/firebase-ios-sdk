@@ -142,7 +142,8 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
   return nullptr;
 }
 
-std::shared_ptr<std::vector<FieldFilter>> CompositeFilter::Rep::CalculateFlattenedFilters() const {
+std::shared_ptr<std::vector<FieldFilter>>
+CompositeFilter::Rep::CalculateFlattenedFilters() const {
   auto flattened_filters = std::make_shared<std::vector<FieldFilter>>();
   for (const auto& filter : filters())
     std::copy(filter.GetFlattenedFilters().begin(),

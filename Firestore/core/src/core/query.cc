@@ -92,9 +92,10 @@ absl::optional<Operator> Query::FindOpInsideFilters(
   return absl::nullopt;
 }
 
-std::shared_ptr<std::vector<OrderBy>> Query::CalculateNormalizedOrderBys() const {
+std::shared_ptr<std::vector<OrderBy>> Query::CalculateNormalizedOrderBys()
+    const {
+  // Any explicit order by fields should be added as is.
   auto result = std::make_shared<std::vector<OrderBy>>(explicit_order_bys_);
-
   std::set<FieldPath> fieldsNormalized;
   for (const OrderBy& order_by : explicit_order_bys_) {
     fieldsNormalized.insert(order_by.field());
@@ -111,21 +112,20 @@ std::shared_ptr<std::vector<OrderBy>> Query::CalculateNormalizedOrderBys() const
   // the same field, the field should be added only once. Note:
   // `std::set<model::FieldPath>` sorts the key field before other fields.
   // However, we want the key field to be sorted last.
-  const std::set<model::FieldPath> inequality_fields =
-      InequalityFilterFields();
+  const std::set<model::FieldPath> inequality_fields = InequalityFilterFields();
 
   for (const model::FieldPath& field : inequality_fields) {
     if (fieldsNormalized.find(field) == fieldsNormalized.end() &&
         !field.IsKeyFieldPath()) {
       result->push_back(OrderBy(field, last_direction));
-        }
+    }
   }
 
   // Add the document key field to the last if it is not explicitly ordered.
   if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
       fieldsNormalized.end()) {
     result->push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
-      }
+  }
 
   return result;
 }

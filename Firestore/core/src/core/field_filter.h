@@ -138,7 +138,8 @@ class FieldFilter : public Filter {
 
     bool MatchesComparison(util::ComparisonResult comparison) const;
 
-    std::shared_ptr<std::vector<FieldFilter>> CalculateFlattenedFilters() const override;
+    std::shared_ptr<std::vector<FieldFilter>> CalculateFlattenedFilters()
+        const override;
 
    private:
     friend class FieldFilter;
