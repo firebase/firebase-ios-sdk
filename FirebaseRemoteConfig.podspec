@@ -113,7 +113,6 @@ app update.
     swift_api.resources = 'FirebaseRemoteConfig/Tests/Swift/Defaults-testInfo.plist'
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/Swift/ObjC/Bridging-Header.h',
       'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('USE_REAL_CONSOLE') ? '-D USE_REAL_CONSOLE' : ''}",
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
@@ -136,7 +135,6 @@ app update.
     fake_console.resources = 'FirebaseRemoteConfig/Tests/Swift/Defaults-testInfo.plist'
     fake_console.requires_app_host = true
     fake_console.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfig/Tests/Swift/ObjC/Bridging-Header.h',
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
     fake_console.dependency 'OCMock'
