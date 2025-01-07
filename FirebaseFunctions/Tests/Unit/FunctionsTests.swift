@@ -362,6 +362,7 @@ class FunctionsTests: XCTestCase {
   func testGenerateStreamContent() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     var response = [String]()
+    let responseQueue = DispatchQueue(label: "responseQueue")
 
     let input: [String: Any] = ["data": "Why is the sky blue"]
     do {
@@ -371,18 +372,22 @@ class FunctionsTests: XCTestCase {
         options: options,
         timeout: 4.0
       )
-      // Fisrt chunk of the stream comes as NSDictionary
+      // First chunk of the stream comes as NSDictionary
       if let stream = stream {
         for try await result in stream {
           if let dataChunk = result.data as? NSDictionary {
             for (key, value) in dataChunk {
-              response.append("\(key) \(value)")
+              responseQueue.sync {
+                response.append("\(key) \(value)")
+              }
             }
           } else {
-            // Last chunk is a the concatened result so we have to parse it as String else will
+            // Last chunk is the concatenated result so we have to parse it as String else will
             // fail.
-            if (result.data as? String) != nil {
-              response.append(result.data as! String)
+            if let dataString = result.data as? String {
+              responseQueue.sync {
+                response.append(dataString)
+              }
             }
           }
         }
@@ -405,6 +410,7 @@ class FunctionsTests: XCTestCase {
 
   func testGenerateStreamContentCanceled() async {
     var response = [String]()
+    let responseQueue = DispatchQueue(label: "responseQueue")
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
 
@@ -415,18 +421,22 @@ class FunctionsTests: XCTestCase {
         options: options,
         timeout: 4.0
       )
-      // Fisrt chunk of the stream comes as NSDictionary
+      // First chunk of the stream comes as NSDictionary
       if let stream = stream {
         for try await result in stream {
           if let dataChunk = result.data as? NSDictionary {
             for (key, value) in dataChunk {
-              response.append("\(key) \(value)")
+              responseQueue.sync {
+                response.append("\(key) \(value)")
+              }
             }
-            // Last chunk is a the concatened result so we have to parse it as String else will
-            // fail.
           } else {
-            if (result.data as? String) != nil {
-              response.append(result.data as! String)
+            // Last chunk is the concatenated result so we have to parse it as String else will
+            // fail.
+            if let dataString = result.data as? String {
+              responseQueue.sync {
+                response.append(dataString)
+              }
             }
           }
         }
