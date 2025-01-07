@@ -1,9 +1,12 @@
-# Unreleased
+# 11.7.0
 - [fixed] Fix Multi-factor session crash on second Firebase app. (#14238)
 - [fixed] Updated most decoders to be consistent with Firebase 10's behavior
   for decoding `nil` values. (#14212)
 - [fixed] Address Xcode 16.2 concurrency compile time issues. (#14279)
 - [fixed] Fix handling of cloud blocking function errors. (#14052)
+- [fixed] Fix phone auth flow to skip RCE verification if appVerificationDisabledForTesting is set. (#14242)
+- [fixed] Avoid over release crash by making concurrently accessed properties
+  atomic (#14308).
 
 # 11.6.0
 - [added] Added reCAPTCHA Enterprise support for app verification during phone
