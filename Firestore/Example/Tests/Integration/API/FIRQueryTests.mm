@@ -898,19 +898,18 @@
 
 - (void)testSnapshotListenerSortsUnicodeStringsInTheSameOrderAsServer {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"a": @{@"value": @ "Łukasiewicz"},
-    @"b": @{@"value": @"Sierpiński"},
-    @"c": @{@"value": @"岩澤"},
-    @"d": @{@"value": @"🄟"},
-    @"e": @{@"value": @"Ｐ"},
-    @"f": @{@"value": @"︒"},
-    @"g": @{@"value": @"🐵"}
+    @"a" : @{@"value" : @ "Łukasiewicz"},
+    @"b" : @{@"value" : @"Sierpiński"},
+    @"c" : @{@"value" : @"岩澤"},
+    @"d" : @{@"value" : @"🄟"},
+    @"e" : @{@"value" : @"Ｐ"},
+    @"f" : @{@"value" : @"︒"},
+    @"g" : @{@"value" : @"🐵"}
 
   }];
 
   FIRQuery *query = [collRef queryOrderedByField:@"value"];
-  NSArray<NSString *> *expectedDocs =
-      @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
   FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
 
@@ -924,18 +923,18 @@
 
 - (void)testSnapshotListenerSortsUnicodeStringsTheSameWayOnlineAndOffline {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"a": @{@"value": @ "Łukasiewicz"},
-    @"b": @{@"value": @"Sierpiński"},
-    @"c": @{@"value": @"岩澤"},
-    @"d": @{@"value": @"🄟"},
-    @"e": @{@"value": @"Ｐ"},
-    @"f": @{@"value": @"︒"},
-    @"g": @{@"value": @"🐵"}
+    @"a" : @{@"value" : @ "Łukasiewicz"},
+    @"b" : @{@"value" : @"Sierpiński"},
+    @"c" : @{@"value" : @"岩澤"},
+    @"d" : @{@"value" : @"🄟"},
+    @"e" : @{@"value" : @"Ｐ"},
+    @"f" : @{@"value" : @"︒"},
+    @"g" : @{@"value" : @"🐵"}
 
   }];
-  
+
   [self checkOnlineAndOfflineQuery:[collRef queryOrderedByField:@"value"]
-                     matchesResult:@[@"b", @"a", @"c", @"f", @"e", @"d", @"g"]];
+                     matchesResult:@[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ]];
 }
 
 - (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
