@@ -115,6 +115,8 @@ class Filter {
  protected:
   class Rep {
    public:
+    Rep() = default;
+
     virtual ~Rep() = default;
 
     virtual Type type() const {

@@ -17,13 +17,13 @@
 #include "Firestore/core/src/core/composite_filter.h"
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_format.h"
-#include "absl/memory/memory.h"
 #include "absl/strings/str_join.h"
 
 namespace firebase {
@@ -143,7 +143,7 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
 }
 
 std::shared_ptr<std::vector<FieldFilter>> CompositeFilter::Rep::CalculateFlattenedFilters() const {
-  auto flattened_filters = absl::make_unique<std::vector<FieldFilter>>();
+  auto flattened_filters = std::make_shared<std::vector<FieldFilter>>();
   for (const auto& filter : filters())
     std::copy(filter.GetFlattenedFilters().begin(),
               filter.GetFlattenedFilters().end(),
