@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,12 @@
 // limitations under the License.
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenGenerationConfig {
-  public var numberOfImages: Int?
-  public var negativePrompt: String?
-  public var aspectRatio: ImagenAspectRatio?
+public struct ImagenModelConfig {
+  let imageFormat: ImagenImageFormat?
+  let addWatermark: Bool?
 
-  public init(numberOfImages: Int? = nil, negativePrompt: String? = nil,
-              aspectRatio: ImagenAspectRatio? = nil) {
-    self.numberOfImages = numberOfImages
-    self.negativePrompt = negativePrompt
-    self.aspectRatio = aspectRatio
+  public init(imageFormat: ImagenImageFormat? = nil, addWatermark: Bool? = nil) {
+    self.imageFormat = imageFormat
+    self.addWatermark = addWatermark
   }
 }
