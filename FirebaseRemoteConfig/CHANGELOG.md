@@ -1,7 +1,7 @@
 # 11.7.0
 - [fixed] Mark ConfigUpdateListenerRegistration Sendable. (#14215)
 - [fixed] Mark completion handlers as Sendable in RemoteConfig class. (#14257)
-- [feature] Added support for custom signal targeting in Remote Config. Use 
+- [feature] Added support for custom signal targeting in Remote Config. Use
   `setCustomSignals` API for setting custom signals and use them to build
   custom targeting conditions in Remote Config. (#13976)
 
