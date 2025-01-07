@@ -20,6 +20,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <utility>
 
 namespace firebase {
 namespace firestore {
@@ -32,14 +33,25 @@ namespace util {
 template <typename T>
 class ThreadSafeMemoizer {
  public:
-  ThreadSafeMemoizer()
-      : memoized_(new std::atomic<T*>(nullptr), MemoizedValueDeleter) {
+  explicit ThreadSafeMemoizer(std::function<std::shared_ptr<T>()> func) : func_(std::move(func)) {
   }
 
-  ThreadSafeMemoizer(const ThreadSafeMemoizer& other) = default;
-  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer& other) = default;
-  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) = default;
-  ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) = default;
+  ThreadSafeMemoizer(const ThreadSafeMemoizer& other) : func_(other.func_), memoized_(std::atomic_load(&other.memoized_)) {}
+
+  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer& other) {
+    func_ = other.func_;
+    std::atomic_store(&memoized_, std::atomic_load(&other.memoized_));
+    return *this;
+  }
+
+  ThreadSafeMemoizer(ThreadSafeMemoizer&& other) noexcept : func_(std::move(other.func_)), memoized_(std::atomic_load(&other.memoized_)) {
+  }
+
+  ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) noexcept {
+    func_ = std::move(other.func_);
+    std::atomic_store(&memoized_, std::atomic_load(&other.memoized_));
+    return *this;
+  }
 
   /**
    * Memoize a value.
@@ -58,28 +70,24 @@ class ThreadSafeMemoizer {
    * No reference to the given function is retained by this object, and the
    * function be called synchronously, if it is called at all.
    */
-  const T& memoize(std::function<std::unique_ptr<T>()> func) {
+  const T& value() {
+    std::shared_ptr<T> old_memoized = std::atomic_load(&memoized_);
     while (true) {
-      T* old_memoized = memoized_->load();
       if (old_memoized) {
         return *old_memoized;
       }
 
-      std::unique_ptr<T> new_memoized = func();
+      std::shared_ptr<T> new_memoized = func_();
 
-      if (memoized_->compare_exchange_weak(old_memoized, new_memoized.get())) {
-        return *new_memoized.release();
+      if (std::atomic_compare_exchange_weak(&memoized_, &old_memoized, new_memoized)) {
+        return *new_memoized;
       }
     }
   }
 
  private:
-  std::shared_ptr<std::atomic<T*>> memoized_;
-
-  static void MemoizedValueDeleter(std::atomic<T*>* value) {
-    delete value->load();
-    delete value;
-  }
+  std::function<std::shared_ptr<T>()> func_;
+  std::shared_ptr<T> memoized_;
 };
 
 }  // namespace util

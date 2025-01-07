@@ -145,21 +145,21 @@ class Filter {
 
     virtual bool IsEmpty() const = 0;
 
-    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
+    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const {
+      return flattened_filters_.value();
+    }
 
     virtual std::vector<Filter> GetFilters() const = 0;
 
+   protected:
+    virtual std::shared_ptr<std::vector<FieldFilter>> CalculateFlattenedFilters() const = 0;
+
+   private:
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
-     *
-     * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
-     * `ThreadSafeMemoizer` directly so that this class is copyable
-     * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-     * member variable, which is not copyable).
      */
-    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>>
-        memoized_flattened_filters_;
+    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>> flattened_filters_{[&] { return CalculateFlattenedFilters(); }};
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {

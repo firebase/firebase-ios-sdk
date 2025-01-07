@@ -123,13 +123,11 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
     : Filter(std::move(rep)) {
 }
 
-const std::vector<FieldFilter>& FieldFilter::Rep::GetFlattenedFilters() const {
+std::shared_ptr<std::vector<FieldFilter>> FieldFilter::Rep::CalculateFlattenedFilters() const {
   // This is already a field filter, so we return a vector of size one.
-  return memoized_flattened_filters_.memoize([&]() {
-    auto filters = absl::make_unique<std::vector<FieldFilter>>();
-    filters->push_back(FieldFilter(std::make_shared<const Rep>(*this)));
-    return filters;
-  });
+  auto filters = std::make_shared<std::vector<FieldFilter>>();
+  filters->push_back(FieldFilter(std::make_shared<const Rep>(*this)));
+  return filters;
 }
 
 std::vector<Filter> FieldFilter::Rep::GetFilters() const {
