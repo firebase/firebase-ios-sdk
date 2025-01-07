@@ -501,12 +501,13 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
           evaluateStreamResponse(response)
         }
       } catch {
-        let wrappedError = NSError(domain: RemoteConfigUpdateErrorDomain,
-                                   code: RemoteConfigUpdateError.messageInvalid.rawValue,
-                                   userInfo: [
-                                     NSLocalizedDescriptionKey: "Unable to parse ConfigUpdate. \(strData)",
-                                     NSUnderlyingErrorKey: error,
-                                   ])
+        let wrappedError =
+          NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
+                  code: RemoteConfigUpdateError.messageInvalid.rawValue,
+                  userInfo: [
+                    NSLocalizedDescriptionKey: "Unable to parse ConfigUpdate. \(strData)",
+                    NSUnderlyingErrorKey: error,
+                  ])
         propagateErrors(wrappedError)
         return
       }
@@ -524,11 +525,12 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
     }
     if isRealtimeDisabled {
       pauseRealtimeStream()
-      let error = NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
-                          code: RemoteConfigUpdateError.unavailable.rawValue,
-                          userInfo: [
-                            NSLocalizedDescriptionKey: "The server is temporarily unavailable. Try again in a few minutes.",
-                          ])
+      let error =
+        NSError(domain: ConfigConstants.RemoteConfigUpdateErrorDomain,
+                code: RemoteConfigUpdateError.unavailable.rawValue,
+                userInfo: [
+                  NSLocalizedDescriptionKey: "The server is temporarily unavailable. Try again in a few minutes.",
+                ])
       propagateErrors(error)
     } else {
       let clientTemplateVersion = Int(configFetch.templateVersionNumber) ?? 0
