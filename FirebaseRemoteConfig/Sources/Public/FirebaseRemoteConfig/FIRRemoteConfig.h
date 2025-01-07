@@ -97,6 +97,19 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateErr
     FIRRemoteConfigUpdateErrorUnavailable = 8004,
 } NS_SWIFT_NAME(RemoteConfigUpdateError);
 
+/// Error domain for custom signals errors.
+extern NSString *const _Nonnull FIRRemoteConfigCustomSignalsErrorDomain NS_SWIFT_NAME(RemoteConfigCustomSignalsErrorDomain);
+
+/// Firebase Remote Config custom signals error.
+typedef NS_ERROR_ENUM(FIRRemoteConfigCustomSignalsErrorDomain, FIRRemoteConfigCustomSignalsError){
+    /// Unknown error.
+    FIRRemoteConfigCustomSignalsErrorUnknown = 8101,
+    /// Invalid value type in the custom signals dictionary.
+    FIRRemoteConfigCustomSignalsErrorInvalidValueType = 8102,
+    /// Limit exceeded for key length, value length, or number of signals.
+    FIRRemoteConfigCustomSignalsErrorLimitExceeded = 8103,
+} NS_SWIFT_NAME(RemoteConfigCustomSignalsError);
+
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
 /// the Remote Config service, the DefaultConfig that is available when the app is first installed,
 /// or a static initialized value if data is not available from the service or DefaultConfig.
@@ -357,5 +370,9 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
+
+- (void)setCustomSignals:(nonnull NSDictionary<NSString *, NSObject *> *)customSignals
+          withCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler
+    NS_REFINED_FOR_SWIFT;
 
 @end

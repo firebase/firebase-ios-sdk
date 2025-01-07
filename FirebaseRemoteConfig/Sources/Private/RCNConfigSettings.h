@@ -81,6 +81,11 @@
 /// Last active template version.
 @property(nonatomic, readwrite, assign) NSString *lastActiveTemplateVersion;
 
+#pragma mark - Custom Signals
+
+/// A dictionary to hold custom signals that are set by the developer.
+@property(nonatomic, readwrite, strong) NSDictionary<NSString *, NSString *> *customSignals;
+
 #pragma mark Throttling properties
 
 /// Throttling intervals are based on https://cloud.google.com/storage/docs/exponential-backoff
