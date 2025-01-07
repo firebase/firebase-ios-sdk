@@ -24,6 +24,8 @@ public final class ImagenModel {
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
 
+  let modelConfig: ImagenModelConfig?
+
   let safetySettings: ImagenSafetySettings?
 
   /// Configuration parameters for sending requests to the backend.
@@ -32,6 +34,7 @@ public final class ImagenModel {
   init(name: String,
        projectID: String,
        apiKey: String,
+       modelConfig: ImagenModelConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        appCheck: AppCheckInterop?,
@@ -45,6 +48,7 @@ public final class ImagenModel {
       auth: auth,
       urlSession: urlSession
     )
+    self.modelConfig = modelConfig
     self.safetySettings = safetySettings
     self.requestOptions = requestOptions
   }
@@ -57,6 +61,7 @@ public final class ImagenModel {
       parameters: ImagenModel.imageGenerationParameters(
         storageURI: nil,
         generationConfig: generationConfig,
+        modelConfig: modelConfig,
         safetySettings: safetySettings
       )
     )
@@ -70,6 +75,7 @@ public final class ImagenModel {
       parameters: ImagenModel.imageGenerationParameters(
         storageURI: storageURI,
         generationConfig: generationConfig,
+        modelConfig: modelConfig,
         safetySettings: safetySettings
       )
     )
@@ -90,6 +96,7 @@ public final class ImagenModel {
 
   static func imageGenerationParameters(storageURI: String?,
                                         generationConfig: ImagenGenerationConfig?,
+                                        modelConfig: ImagenModelConfig?,
                                         safetySettings: ImagenSafetySettings?)
     -> ImageGenerationParameters {
     return ImageGenerationParameters(
@@ -99,13 +106,13 @@ public final class ImagenModel {
       aspectRatio: generationConfig?.aspectRatio?.rawValue,
       safetyFilterLevel: safetySettings?.safetyFilterLevel?.rawValue,
       personGeneration: safetySettings?.personFilterLevel?.rawValue,
-      outputOptions: generationConfig?.imageFormat.map {
+      outputOptions: modelConfig?.imageFormat.map {
         ImageGenerationOutputOptions(
           mimeType: $0.mimeType,
           compressionQuality: $0.compressionQuality
         )
       },
-      addWatermark: generationConfig?.addWatermark,
+      addWatermark: modelConfig?.addWatermark,
       includeResponsibleAIFilterReason: true
     )
   }
