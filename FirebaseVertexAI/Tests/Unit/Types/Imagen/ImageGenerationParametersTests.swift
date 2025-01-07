@@ -111,13 +111,11 @@ final class ImageGenerationParametersTests: XCTestCase {
   }
 
   func testDefaultParameters_includeSafetySettings() throws {
-    let safetyFilterLevel = ImagenSafetySettings.SafetyFilterLevel.blockOnlyHigh
-    let personGeneration = ImagenSafetySettings.PersonGeneration.allowAll
-    let includeFilterReason = false
+    let safetyFilterLevel = ImagenSafetyFilterLevel.blockOnlyHigh
+    let personFilterLevel = ImagenPersonFilterLevel.allowAll
     let safetySettings = ImagenSafetySettings(
       safetyFilterLevel: safetyFilterLevel,
-      includeFilterReason: includeFilterReason,
-      personGeneration: personGeneration
+      personFilterLevel: personFilterLevel
     )
     let expectedParameters = ImageGenerationParameters(
       sampleCount: 1,
@@ -125,10 +123,10 @@ final class ImageGenerationParametersTests: XCTestCase {
       negativePrompt: nil,
       aspectRatio: nil,
       safetyFilterLevel: safetyFilterLevel.rawValue,
-      personGeneration: personGeneration.rawValue,
+      personGeneration: personFilterLevel.rawValue,
       outputOptions: nil,
       addWatermark: nil,
-      includeResponsibleAIFilterReason: includeFilterReason
+      includeResponsibleAIFilterReason: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
@@ -156,13 +154,11 @@ final class ImageGenerationParametersTests: XCTestCase {
       imageFormat: imageFormat,
       addWatermark: addWatermark
     )
-    let safetyFilterLevel = ImagenSafetySettings.SafetyFilterLevel.blockNone
-    let personGeneration = ImagenSafetySettings.PersonGeneration.blockAll
-    let includeFilterReason = false
+    let safetyFilterLevel = ImagenSafetyFilterLevel.blockNone
+    let personFilterLevel = ImagenPersonFilterLevel.blockAll
     let safetySettings = ImagenSafetySettings(
       safetyFilterLevel: safetyFilterLevel,
-      includeFilterReason: includeFilterReason,
-      personGeneration: personGeneration
+      personFilterLevel: personFilterLevel
     )
     let expectedParameters = ImageGenerationParameters(
       sampleCount: sampleCount,
@@ -170,13 +166,13 @@ final class ImageGenerationParametersTests: XCTestCase {
       negativePrompt: negativePrompt,
       aspectRatio: aspectRatio.rawValue,
       safetyFilterLevel: safetyFilterLevel.rawValue,
-      personGeneration: personGeneration.rawValue,
+      personGeneration: personFilterLevel.rawValue,
       outputOptions: ImageGenerationOutputOptions(
         mimeType: imageFormat.mimeType,
         compressionQuality: imageFormat.compressionQuality
       ),
       addWatermark: addWatermark,
-      includeResponsibleAIFilterReason: includeFilterReason
+      includeResponsibleAIFilterReason: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
