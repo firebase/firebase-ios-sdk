@@ -15,13 +15,11 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class FinalizeMFASignInResponse: AuthRPCResponse {
-  required init() {}
-
+struct FinalizeMFASignInResponse: AuthRPCResponse {
   var IDToken: String?
   var refreshToken: String?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     IDToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
   }

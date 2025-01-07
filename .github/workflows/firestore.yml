@@ -15,6 +15,7 @@
 name: firestore
 
 on:
+  workflow_dispatch:
   pull_request:
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
@@ -30,16 +31,22 @@ jobs:
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
-      changed: ${{ steps.changes.outputs.changed }}
+      changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
-      - uses: dorny/paths-filter@v2
-        id: changes
+      - uses: dorny/paths-filter@v3.0.2
+        id: firestore_src_changes
         with:
+          predicate-quantifier: 'every'
           filters: |
-            changed:
+            sources:
               # Firestore sources
               - 'Firestore/**'
-
+              - '!Firestore/**/*.md'
+      - uses: dorny/paths-filter@v3.0.2
+        id: related_changes
+        with:
+          filters: |
+            other_changes:
               # Interop headers
               - 'FirebaseAuth/Interop/*.h'
 
@@ -130,7 +137,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -180,7 +187,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
@@ -259,7 +266,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -305,7 +312,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.7'
+        python-version: '3.11'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -405,7 +412,7 @@ jobs:
           - os: macos-13
             platforms: 'ios'
         include:
-          - os: macos-14
+          - os: macos-15
             xcode: Xcode_16
           - os: macos-13
             xcode: Xcode_15.2
@@ -461,9 +468,28 @@ jobs:
       (github.event_name == 'pull_request')
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS]
-        os: [macos-14]
-        xcode: [Xcode_15.2, Xcode_16]
+        include:
+          - os: macos-13
+            xcode: Xcode_15.2
+            target: iOS
+          - os: macos-14
+            xcode: Xcode_15.4
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: tvOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: macOS
+          - os: macos-15
+            xcode: Xcode_16
+            target: catalyst
+          - os: macos-15
+            xcode: Xcode_16
+            target: visionOS
     runs-on: ${{ matrix.os }}
     env:
       FIREBASE_SOURCE_FIRESTORE: 1

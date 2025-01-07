@@ -40,6 +40,9 @@ NS_SWIFT_NAME(FirebaseConfiguration)
  */
 - (void)setLoggerLevel:(FIRLoggerLevel)loggerLevel;
 
+/// Returns the logging level for internal Firebase logging.
+- (FIRLoggerLevel)loggerLevel;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -69,15 +69,9 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
 
     // This has to be called on the main thread and so it's done here instead of in
     // FPRScreenTraceTracker.
-    // TODO(#13067): Replace keyWindow usage (deprecated in iOS and unavailable in visionOS).
-#if !defined(TARGET_OS_VISION) || !TARGET_OS_VISION
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([((UIViewController *)_self).view isDescendantOfView:FPRSharedApplication().keyWindow]) {
-#pragma clang diagnostic pop
+    if (FPRSharedApplication() && ((UIViewController *)_self).view.window.keyWindow) {
       [[FPRScreenTraceTracker sharedInstance] viewControllerDidAppear:_self];
     }
-#endif
   }];
 }
 

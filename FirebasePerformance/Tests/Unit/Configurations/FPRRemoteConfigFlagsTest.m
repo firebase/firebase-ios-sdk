@@ -195,7 +195,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 }
 
 /** Validate the configuration update does not happen immediately after fetching. */
-- (void)testConfigUpdateHappensIfIntialFetchHasNotHappened {
+- (void)testConfigUpdateHappensIfInitialFetchHasNotHappened {
   FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
   remoteConfig.lastFetchStatus = FIRRemoteConfigFetchStatusNoFetchYet;
   remoteConfig.lastFetchTime = nil;

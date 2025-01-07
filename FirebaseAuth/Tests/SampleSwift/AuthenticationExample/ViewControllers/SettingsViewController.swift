@@ -24,7 +24,7 @@ enum SettingsAction: String {
   case toggleAccessGroup = "Current Access Group"
   case toggleAPNSToken = "APNs Token"
   case toggleAppCredential = "App Credential"
-  case setAuthLanugage = "Auth Language"
+  case setAuthLanguage = "Auth Language"
   case useAppLanguage = "Use App Language"
   case togglePhoneAppVerification = "Disable App Verification (Phone)"
 }
@@ -77,7 +77,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.toggle()
     case .toggleAccessGroup:
       toggleAccessGroup()
-    case .setAuthLanugage:
+    case .setAuthLanguage:
       setAuthLanguage()
     case .useAppLanguage:
       auth.useAppLanguage()

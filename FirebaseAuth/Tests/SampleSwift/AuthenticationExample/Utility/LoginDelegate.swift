@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAuth
 import Foundation
 
 /// Delegate for signaling that a successful login with Firebase Auth has occurred
 protocol LoginDelegate: NSObject {
-  func loginDidOccur()
+  func loginDidOccur(resolver: MultiFactorResolver?)
 }

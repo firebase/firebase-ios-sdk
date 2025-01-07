@@ -16,6 +16,8 @@
 // [START auth_import]
 import FirebaseCore
 
+import SwiftUI
+
 // For Sign in with Facebook
 import FBSDKLoginKit
 
@@ -26,6 +28,8 @@ import GameKit
 // [START google_import]
 import GoogleSignIn
 import UIKit
+
+import SwiftUI
 
 // For Sign in with Apple
 import AuthenticationServices
@@ -178,7 +182,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       phoneEnroll()
 
     case .totpEnroll:
-      totpEnroll()
+      Task { await totpEnroll() }
 
     case .multifactorUnenroll:
       mfaUnenroll()
@@ -202,54 +206,50 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     // [END_EXCLUDE]
     let config = GIDConfiguration(clientID: clientID)
     GIDSignIn.sharedInstance.configuration = config
+    Task {
+      do {
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: self)
+        let user = result.user
+        guard let idToken = user.idToken?.tokenString
+        else {
+          // [START_EXCLUDE]
+          let error = NSError(
+            domain: "GIDSignInError",
+            code: -1,
+            userInfo: [
+              NSLocalizedDescriptionKey: "Unexpected sign in result: required authentication data is missing.",
+            ]
+          )
+          return displayError(error)
+          // [END_EXCLUDE]
+        }
+        let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                       accessToken: user.accessToken.tokenString)
+        try await signIn(with: credential)
 
-    // Start the sign in flow!
-    GIDSignIn.sharedInstance.signIn(withPresenting: self) { [unowned self] result, error in
-      guard error == nil else {
-        // [START_EXCLUDE]
+      } catch {
         return displayError(error)
-        // [END_EXCLUDE]
       }
 
-      guard let user = result?.user,
-            let idToken = user.idToken?.tokenString
-      else {
-        // [START_EXCLUDE]
-        let error = NSError(
-          domain: "GIDSignInError",
-          code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey: "Unexpected sign in result: required authentication data is missing.",
-          ]
-        )
-        return displayError(error)
-        // [END_EXCLUDE]
-      }
-
-      let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                     accessToken: user.accessToken.tokenString)
-
-      // [START_EXCLUDE]
-      signIn(with: credential)
       // [END_EXCLUDE]
     }
     // [END headless_google_auth]
   }
 
-  func signIn(with credential: AuthCredential) {
-    // [START signin_google_credential]
-    AppManager.shared.auth().signIn(with: credential) { result, error in
-      // [START_EXCLUDE silent]
-      guard error == nil else { return self.displayError(error) }
-      // [END_EXCLUDE]
-
-      // At this point, our user is signed in
-      // [START_EXCLUDE silent]
-      // so we advance to the User View Controller
-      self.transitionToUserViewController()
-      // [END_EXCLUDE]
+  func signIn(with credential: AuthCredential) async throws {
+    do {
+      _ = try await AppManager.shared.auth().signIn(with: credential)
+      transitionToUserViewController()
+    } catch {
+      let authError = error as NSError
+      if authError.code == AuthErrorCode.secondFactorRequired.rawValue {
+        let resolver = authError
+          .userInfo[AuthErrorUserInfoMultiFactorResolverKey] as! MultiFactorResolver
+        performMfaLoginFlow(resolver: resolver)
+      } else {
+        return displayError(error)
+      }
     }
-    // [END signin_google_credential]
   }
 
   // For Sign in with Apple
@@ -338,9 +338,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func performDemoEmailPasswordLoginFlow() {
-    let loginController = LoginController()
-    loginController.delegate = self
-    navigationController?.pushViewController(loginController, animated: true)
+    let loginView = LoginView(delegate: self)
+    let hostingController = UIHostingController(rootView: loginView)
+    hostingController.title = "Email/Password Auth"
+    navigationController?.pushViewController(hostingController, animated: true)
   }
 
   private func performPasswordlessLoginFlow() {
@@ -356,6 +357,14 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     phoneAuthViewController.delegate = self
     let navPhoneAuthController = UINavigationController(rootViewController: phoneAuthViewController)
     navigationController?.present(navPhoneAuthController, animated: true)
+  }
+
+  private func performMfaLoginFlow(resolver: MultiFactorResolver) {
+    let mfaLoginController = UIHostingController(rootView: MFALoginView(
+      resolver: resolver,
+      delegate: self
+    ))
+    present(mfaLoginController, animated: true)
   }
 
   private func performAnonymousLoginFlow() {
@@ -481,7 +490,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
       Task {
         do {
-          let verifyResponse = try await AuthBackend.call(with: request)
+          let verifyResponse = try await AppManager.shared.auth().backend.call(with: request)
 
           guard let receipt = verifyResponse.receipt,
                 let timeoutDate = verifyResponse.suggestedTimeOutDate else {
@@ -510,7 +519,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
             )
 
             do {
-              _ = try await AuthBackend.call(with: request)
+              _ = try await AppManager.shared.auth().backend.call(with: request)
               print("Verify iOS client succeeded")
             } catch {
               print("Verify iOS Client failed: \(error.localizedDescription)")
@@ -780,89 +789,53 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
-  private func totpEnroll() {
-    guard let user = AppManager.shared.auth().currentUser else {
-      print("Error: User must be logged in first.")
+  private func totpEnroll() async {
+    guard
+      let user = AppManager.shared.auth().currentUser,
+      let accountName = user.email
+    else {
+      showAlert(for: "Enrollment failed: User must be logged and have email address.")
       return
     }
 
-    user.multiFactor.getSessionWithCompletion { session, error in
-      guard let session = session, error == nil else {
-        if let error = error {
-          self.showAlert(for: "Enrollment failed")
-          print("Multi factor start enroll failed. Error: \(error.localizedDescription)")
-        } else {
-          self.showAlert(for: "Enrollment failed")
-          print("Multi factor start enroll failed with unknown error.")
-        }
+    guard let issuer = AppManager.shared.auth().app?.name else {
+      showAlert(for: "Enrollment failed: Firebase app is missing name.")
+      return
+    }
+
+    do {
+      let session = try await user.multiFactor.session()
+      let secret = try await TOTPMultiFactorGenerator.generateSecret(with: session)
+      print("Secret: " + secret.sharedSecretKey())
+
+      let url = secret.generateQRCodeURL(withAccountName: accountName, issuer: issuer)
+      guard !url.isEmpty else {
+        showAlert(for: "Enrollment failed")
+        print("Multi factor finalize enroll failed. Could not generate URL.")
+        return
+      }
+      secret.openInOTPApp(withQRCodeURL: url)
+
+      guard
+        let oneTimePassword = await showTextInputPrompt(with: "Enter the one time passcode.")
+      else {
+        showAlert(for: "Enrollment failed: one time passcode not entered.")
         return
       }
 
-      TOTPMultiFactorGenerator.generateSecret(with: session) { secret, error in
-        guard let secret = secret, error == nil else {
-          if let error = error {
-            self.showAlert(for: "Enrollment failed")
-            print("Error generating TOTP secret. Error: \(error.localizedDescription)")
-          } else {
-            self.showAlert(for: "Enrollment failed")
-            print("Error generating TOTP secret.")
-          }
-          return
-        }
+      let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
+        with: secret,
+        oneTimePassword: oneTimePassword
+      )
 
-        guard let accountName = user.email, let issuer = Auth.auth().app?.name else {
-          self.showAlert(for: "Enrollment failed")
-          print("Multi factor finalize enroll failed. Could not get account details.")
-          return
-        }
+      // TODO(nickcooke): Provide option to enter display name.
+      try await user.multiFactor.enroll(with: assertion, displayName: "TOTP")
 
-        DispatchQueue.main.async {
-          let url = secret.generateQRCodeURL(withAccountName: accountName, issuer: issuer)
-
-          guard !url.isEmpty else {
-            self.showAlert(for: "Enrollment failed")
-            print("Multi factor finalize enroll failed. Could not generate URL.")
-            return
-          }
-
-          secret.openInOTPApp(withQRCodeURL: url)
-
-          self
-            .showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:",
-                                           url: url) { oneTimePassword in
-              guard !oneTimePassword.isEmpty else {
-                self.showAlert(for: "Display name must not be empty")
-                print("OTP not entered.")
-                return
-              }
-
-              let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
-                with: secret,
-                oneTimePassword: oneTimePassword
-              )
-
-              self.showTextInputPrompt(with: "Display Name") { displayName in
-                guard !displayName.isEmpty else {
-                  self.showAlert(for: "Display name must not be empty")
-                  print("Display name not entered.")
-                  return
-                }
-
-                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
-                  if let error = error {
-                    self.showAlert(for: "Enrollment failed")
-                    print(
-                      "Multi factor finalize enroll failed. Error: \(error.localizedDescription)"
-                    )
-                  } else {
-                    self.showAlert(for: "Successfully enrolled: \(displayName)")
-                    print("Multi factor finalize enroll succeeded.")
-                  }
-                }
-              }
-            }
-        }
-      }
+      showAlert(for: "Successfully enrolled: TOTP")
+      print("Multi factor finalize enroll succeeded.")
+    } catch {
+      print(error)
+      showAlert(for: "Enrollment failed: \(error.localizedDescription)")
     }
   }
 
@@ -958,60 +931,12 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     present(editController, animated: true, completion: nil)
   }
 
-  private func showQRCodePromptWithTextInput(with message: String, url: String,
-                                             completion: ((String) -> Void)? = nil) {
-    // Create a UIAlertController
-    let alertController = UIAlertController(
-      title: "QR Code Prompt",
-      message: message,
-      preferredStyle: .alert
-    )
-
-    // Add a text field for input
-    alertController.addTextField { textField in
-      textField.placeholder = "Enter text"
-    }
-
-    // Create a UIImage from the URL
-    guard let image = generateQRCode(from: url) else {
-      print("Failed to generate QR code")
-      return
-    }
-
-    // Create an image view to display the QR code
-    let imageView = UIImageView(image: image)
-    imageView.contentMode = .scaleAspectFit
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-
-    // Add the image view to the alert controller
-    alertController.view.addSubview(imageView)
-
-    // Add constraints to position the image view
-    NSLayoutConstraint.activate([
-      imageView.topAnchor.constraint(equalTo: alertController.view.topAnchor, constant: 20),
-      imageView.centerXAnchor.constraint(equalTo: alertController.view.centerXAnchor),
-      imageView.widthAnchor.constraint(equalToConstant: 200),
-      imageView.heightAnchor.constraint(equalToConstant: 200),
-    ])
-
-    // Add actions
-    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-    let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
-      if let completion,
-         let text = alertController.textFields?.first?.text {
-        completion(text)
+  private func showTextInputPrompt(with message: String) async -> String? {
+    await withCheckedContinuation { continuation in
+      showTextInputPrompt(with: message) { inputText in
+        continuation.resume(returning: inputText.isEmpty ? nil : inputText)
       }
     }
-
-    alertController.addAction(cancelAction)
-    alertController.addAction(submitAction)
-
-    // Present the alert controller
-    UIApplication.shared.windows.first?.rootViewController?.present(
-      alertController,
-      animated: true,
-      completion: nil
-    )
   }
 
   // Function to generate QR code from a string
@@ -1064,8 +989,12 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 // MARK: - LoginDelegate
 
 extension AuthViewController: LoginDelegate {
-  public func loginDidOccur() {
-    transitionToUserViewController()
+  public func loginDidOccur(resolver: MultiFactorResolver?) {
+    if let resolver {
+      performMfaLoginFlow(resolver: resolver)
+    } else {
+      transitionToUserViewController()
+    }
   }
 }
 

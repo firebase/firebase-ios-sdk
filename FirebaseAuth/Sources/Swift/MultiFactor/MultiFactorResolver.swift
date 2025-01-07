@@ -34,8 +34,8 @@ import Foundation
     @objc public let auth: Auth
 
     /// A helper function to help users complete sign in with a second factor using a
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
-    /// challenge.
+    /// - Parameter assertion: The assertion confirming the user successfully
+    ///  completed the second factor challenge.
     /// - Parameter completion: The block invoked when the request is complete, or fails.
     @objc(resolveSignInWithAssertion:completion:)
     open func resolveSignIn(with assertion: MultiFactorAssertion,
@@ -72,7 +72,7 @@ import Foundation
       )
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await self.auth.backend.call(with: request)
           let user = try await self.auth.completeSignIn(withAccessToken: response.idToken,
                                                         accessTokenExpirationDate: nil,
                                                         refreshToken: response.refreshToken,
@@ -80,7 +80,7 @@ import Foundation
           let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
           let decoratedCallback = self.auth
             .signInFlowAuthDataResultCallback(byDecorating: completion)
-          decoratedCallback(result, nil)
+          decoratedCallback(.success(result))
         } catch {
           if let completion {
             completion(nil, error)
@@ -90,8 +90,8 @@ import Foundation
     }
 
     /// A helper function to help users complete sign in with a second factor using a
-    /// `MultiFactorAssertion` confirming the user successfully completed the second factor
-    /// challenge.
+    /// - Parameter assertion: The assertion confirming the user successfully
+    ///  completed the second factor challenge.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in

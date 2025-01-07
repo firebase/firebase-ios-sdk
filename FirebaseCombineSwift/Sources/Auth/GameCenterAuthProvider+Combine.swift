@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0)
+#if canImport(Combine) && !os(watchOS)
 
   import Combine
   import FirebaseAuth
 
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
-  @available(watchOS, unavailable)
   public extension GameCenterAuthProvider {
     /// Creates an `AuthCredential` for a Game Center sign in.
     ///

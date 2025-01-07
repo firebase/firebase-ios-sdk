@@ -39,12 +39,7 @@ open class HTTPSCallable: NSObject {
   // The functions client to use for making calls.
   private let functions: Functions
 
-  private enum EndpointType {
-    case name(String)
-    case url(URL)
-  }
-
-  private let endpoint: EndpointType
+  private let url: URL
 
   private let options: HTTPSCallableOptions?
 
@@ -53,16 +48,10 @@ open class HTTPSCallable: NSObject {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
   @objc open var timeoutInterval: TimeInterval = 70
 
-  init(functions: Functions, name: String, options: HTTPSCallableOptions? = nil) {
-    self.functions = functions
-    self.options = options
-    endpoint = .name(name)
-  }
-
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
+    self.url = url
     self.options = options
-    endpoint = .url(url)
   }
 
   /// Executes this Callable HTTPS trigger asynchronously.
@@ -89,28 +78,31 @@ open class HTTPSCallable: NSObject {
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping (HTTPSCallableResult?,
                                                                           Error?) -> Void) {
-    let callback: ((Result<HTTPSCallableResult, Error>) -> Void) = { result in
-      switch result {
-      case let .success(callableResult):
-        completion(callableResult, nil)
-      case let .failure(error):
-        completion(nil, error)
+    if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
+      Task {
+        do {
+          let result = try await call(data)
+          completion(result, nil)
+        } catch {
+          completion(nil, error)
+        }
       }
-    }
-
-    switch endpoint {
-    case let .name(name):
-      functions.callFunction(name: name,
-                             withObject: data,
-                             options: options,
-                             timeout: timeoutInterval,
-                             completion: callback)
-    case let .url(url):
-      functions.callFunction(url: url,
-                             withObject: data,
-                             options: options,
-                             timeout: timeoutInterval,
-                             completion: callback)
+    } else {
+      // This isn’t expected to ever be called because Functions
+      // doesn’t officially support the older platforms.
+      functions.callFunction(
+        at: url,
+        withObject: data,
+        options: options,
+        timeout: timeoutInterval
+      ) { result in
+        switch result {
+        case let .success(callableResult):
+          completion(callableResult, nil)
+        case let .failure(error):
+          completion(nil, error)
+        }
+      }
     }
   }
 
@@ -148,15 +140,7 @@ open class HTTPSCallable: NSObject {
   /// - Returns: The result of the call.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
-    return try await withCheckedThrowingContinuation { continuation in
-      // TODO(bonus): Use task to handle and cancellation.
-      self.call(data) { callableResult, error in
-        if let callableResult {
-          continuation.resume(returning: callableResult)
-        } else {
-          continuation.resume(throwing: error!)
-        }
-      }
-    }
+    try await functions
+      .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 }

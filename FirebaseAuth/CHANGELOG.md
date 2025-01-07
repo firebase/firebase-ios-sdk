@@ -1,23 +1,61 @@
+# Unreleased
+- [fixed] Fix Multi-factor session crash on second Firebase app. (#14238)
+- [fixed] Updated most decoders to be consistent with Firebase 10's behavior
+  for decoding `nil` values. (#14212)
+- [fixed] Address Xcode 16.2 concurrency compile time issues. (#14279)
+- [fixed] Fix handling of cloud blocking function errors. (#14052)
+- [fixed] Fix phone auth flow to skip RCE verification if appVerificationDisabledForTesting is set. (#14242)
+
+# 11.6.0
+- [added] Added reCAPTCHA Enterprise support for app verification during phone
+  authentication for Firebase Authentication (#14114)
+- [fixed] Restore Firebase 10 behavior by synchronizing access to the
+  `Auth.currentUser` API. This resolves some Firebase 11 issues where the
+  current user is unexpectedly `nil` at startup.
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from always being decoded as `nil` . Note that this fix was only needed for
+  cases where Firebase 11 was reading data written by Firebase 10. (#14011)
+- [fixed] Restore Firebase 10 decoding behavior to prevent user provider data
+  from being decoded as `nil` when a user has multiple linked providers. Note
+  that this fix was only needed for cases where Firebase 11 was reading data
+  written by Firebase 10. Note that this fix will not be in the 11.6.0 zip and
+  Carthage distributions, but will be included from 11.6.0 onwards. (#14011)
+
+# 11.5.0
+- [fixed] Restore pre-Firebase 11 decoding behavior to prevent users getting
+  logged out when upgrading from Firebase 8.10.0 or earlier to Firebase 11.
+  Note that this fix will not be in the 11.5.0 zip and Carthage
+  distributions, but will be included from 11.6.0 onwards. (#14011)
+- [fixed] Restore Firebase 10 keychain error handling behavior when retrieving
+  Firebase Auth tokens, potentially causing user sign-out on Firebase 11. Note
+  that this fix will not be in the 11.5.0 zip and Carthage distributions, but
+  will be included from 11.6.0 onwards. (#14067)
+
+# 11.4.0
+- [fixed] Restore Firebase 10 behavior by ignoring `nil` display names used
+  during multi factor enrollment. (#13856)
+- [fixed] Fix crash when enrolling account with TOTP MFA. (#13880)
+
 # 11.3.0
-- [Fixed] Restore Firebase 10 behavior by querying with the
+- [fixed] Restore Firebase 10 behavior by querying with the
   `kSecAttrSynchronizable` key when auth state is set to be shared across
   devices. (#13584)
-- [Fixed] Prevent a bad memory access crash by using non-ObjC, native Swift
+- [fixed] Prevent a bad memory access crash by using non-ObjC, native Swift
   types in the SDK's networking layer, and moving synchronous work off of
   the shared Swift concurrency queue. (#13650)
-- [Fixed] Restore Firebase 10 behavior by forwarding errors from interrupted
+- [fixed] Restore Firebase 10 behavior by forwarding errors from interrupted
   reCAPTCHA or OIDC login flows. (#13645)
 
 # 11.2.0
-- [Fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
+- [fixed] Fixed crashes that could occur in Swift continuation blocks running in the Xcode 16
   betas. (#13480)
-- [Fixed] Fixed Phone Auth via Sandbox APNS tokens that broke in 11.0.0. (#13479)
-- [Fixed] Fixed crash when fetching sign in methods due to unexpected nil.
+- [fixed] Fixed Phone Auth via Sandbox APNS tokens that broke in 11.0.0. (#13479)
+- [fixed] Fixed crash when fetching sign in methods due to unexpected nil.
   Previously, fetching sign in methods could return both a `nil` array of sign
   in methods and a `nil` error. In such cases, an empty array is instead
   returned with the `nil` error. (#13550)
-- [Fixed] Fixed user session persistence in multi tenant projects. Introduced in 11.0.0. (#13565)
-- [Fixed] Fixed encoding crash that occurs when using TOTP multi-factor
+- [fixed] Fixed user session persistence in multi tenant projects. Introduced in 11.0.0. (#13565)
+- [fixed] Fixed encoding crash that occurs when using TOTP multi-factor
   authentication. Note that this fix will not be in the 11.2.0 zip and Carthage
   distributions, but will be included from 11.3.0 onwards. (#13591)
 

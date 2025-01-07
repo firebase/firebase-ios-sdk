@@ -528,7 +528,7 @@ TEST_F(BundleReaderTest, FailsWhenSecondElementMissing) {
   EXPECT_NOT_OK(reader.reader_status());
 }
 
-TEST_F(BundleReaderTest, FailsWhenNoEnoughtDataCanBeRead) {
+TEST_F(BundleReaderTest, FailsWhenNotEnoughDataCanBeRead) {
   const auto& bundle =
       BuildBundle("bundle-1", testutil::Version(6000004000), 0);
   BundleReader reader(bundle_serializer, ToByteStream("1" + bundle));

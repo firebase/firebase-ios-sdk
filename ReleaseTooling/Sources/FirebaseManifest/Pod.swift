@@ -28,6 +28,8 @@ public struct Pod {
   public let allowWarnings: Bool
   /// Set of platforms (e.g. "ios", "macos", "tvos", or "watchos") to build this pod for.
   public let platforms: Set<String>
+  /// Allows overriding the ``Manifest/version`` for this pod; defaults to `nil`.
+  public let podVersion: String?
   /// Whether or not the pod is planned for publicly releasing (as some pods are for
   /// internal/testing use).
   public let releasing: Bool
@@ -47,6 +49,7 @@ public struct Pod {
     self.isBeta = isBeta
     self.allowWarnings = allowWarnings
     self.platforms = platforms
+    self.podVersion = podVersion
     self.releasing = releasing
     self.zip = zip
   }

@@ -61,55 +61,79 @@ class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyPhoneNumberResponse
 
   /// The verification ID obtained from the response of `sendVerificationCode`.
-  var verificationID: String?
+  let verificationID: String?
 
   /// The verification code provided by the user.
-  var verificationCode: String?
+  let verificationCode: String?
 
   /// The STS Access Token for the authenticated user.
   var accessToken: String?
 
   /// The temporary proof code, previously returned from the backend.
-  var temporaryProof: String?
+  let temporaryProof: String?
 
   /// The phone number to be verified in the request.
-  var phoneNumber: String?
+  let phoneNumber: String?
 
   /// The type of operation triggering this verify phone number request.
-  var operation: AuthOperationType
+  let operation: AuthOperationType
 
-  /// Designated initializer.
+  /// Convenience initializer.
   /// - Parameter temporaryProof: The temporary proof sent by the backed.
   /// - Parameter phoneNumber: The phone number associated with the credential to be signed in .
   /// - Parameter operation: Indicates what operation triggered the verify phone number request.
   /// - Parameter requestConfiguration: An object containing configurations to be added to the
   /// request.
-  init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
-       requestConfiguration: AuthRequestConfiguration) {
-    self.temporaryProof = temporaryProof
-    self.phoneNumber = phoneNumber
-    self.operation = operation
-    super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
+  convenience init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
+                   requestConfiguration: AuthRequestConfiguration) {
+    self.init(
+      temporaryProof: temporaryProof,
+      phoneNumber: phoneNumber,
+      verificationID: nil,
+      verificationCode: nil,
+      operation: operation,
+      requestConfiguration: requestConfiguration
+    )
   }
 
-  /// Designated initializer.
+  /// Convenience initializer.
   /// - Parameter verificationID: The verification ID obtained from the response of
   /// `sendVerificationCode`.
   /// - Parameter verificationCode: The verification code provided by the user.
   /// - Parameter operation: Indicates what operation triggered the verify phone number request.
   /// - Parameter requestConfiguration: An object containing configurations to be added to the
   /// request.
-  init(verificationID: String,
-       verificationCode: String,
-       operation: AuthOperationType,
-       requestConfiguration: AuthRequestConfiguration) {
+  convenience init(verificationID: String,
+                   verificationCode: String,
+                   operation: AuthOperationType,
+                   requestConfiguration: AuthRequestConfiguration) {
+    self.init(
+      temporaryProof: nil,
+      phoneNumber: nil,
+      verificationID: verificationID,
+      verificationCode: verificationCode,
+      operation: operation,
+      requestConfiguration: requestConfiguration
+    )
+  }
+
+  private init(temporaryProof: String?, phoneNumber: String?, verificationID: String?,
+               verificationCode: String?, operation: AuthOperationType,
+               requestConfiguration: AuthRequestConfiguration) {
+    self.temporaryProof = temporaryProof
+    self.phoneNumber = phoneNumber
     self.verificationID = verificationID
     self.verificationCode = verificationCode
     self.operation = operation
-    super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
+    super.init(
+      endpoint: kVerifyPhoneNumberEndPoint,
+      requestConfiguration: requestConfiguration,
+      useIdentityPlatform: false,
+      useStaging: false
+    )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let verificationID {
       postBody[kVerificationIDKey] = verificationID

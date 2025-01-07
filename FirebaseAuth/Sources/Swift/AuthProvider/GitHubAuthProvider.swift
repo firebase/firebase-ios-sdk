@@ -34,8 +34,9 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRGitHubAuthCredential) class GitHubAuthCredential: AuthCredential, NSSecureCoding {
-  let token: String
+@objc(FIRGitHubAuthCredential) class GitHubAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
+  let token: String?
 
   init(withToken token: String) {
     self.token = token
@@ -48,17 +49,14 @@ import Foundation
 
   // MARK: Secure Coding
 
-  public static var supportsSecureCoding = true
+  public static let supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
     coder.encode(token, forKey: "token")
   }
 
   required init?(coder: NSCoder) {
-    guard let token = coder.decodeObject(of: NSString.self, forKey: "token") as? String else {
-      return nil
-    }
-    self.token = token
+    token = coder.decodeObject(of: NSString.self, forKey: "token") as String?
     super.init(provider: GitHubAuthProvider.id)
   }
 }

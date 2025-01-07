@@ -17,7 +17,7 @@ import Foundation
 
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {
-  /// The timeout to use when calling the function. Defaults to 60 seconds.
+  /// The timeout to use when calling the function. Defaults to 70 seconds.
   public var timeoutInterval: TimeInterval {
     get {
       callable.timeoutInterval

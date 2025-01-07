@@ -18,13 +18,13 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor UserProfileUpdate {
   func link(user: User, with credential: AuthCredential) async throws -> AuthDataResult {
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetTokenAsync(backend: user.backend)
     let request = VerifyAssertionRequest(providerID: credential.provider,
                                          requestConfiguration: user.requestConfiguration)
     credential.prepare(request)
     request.accessToken = accessToken
     do {
-      let response = try await AuthBackend.call(with: request)
+      let response = try await user.backend.call(with: request)
       guard let idToken = response.idToken,
             let refreshToken = response.refreshToken,
             let providerID = response.providerID else {
@@ -48,16 +48,17 @@ actor UserProfileUpdate {
   }
 
   func unlink(user: User, fromProvider provider: String) async throws -> User {
-    let accessToken = try await user.internalGetTokenAsync()
-    let request = SetAccountInfoRequest(requestConfiguration: user.requestConfiguration)
-    request.accessToken = accessToken
+    let accessToken = try await user.internalGetTokenAsync(backend: user.backend)
+    let request = SetAccountInfoRequest(
+      accessToken: accessToken, requestConfiguration: user.requestConfiguration
+    )
 
     if user.providerDataRaw[provider] == nil {
       throw AuthErrorUtils.noSuchProviderError()
     }
     request.deleteProviders = [provider]
     do {
-      let response = try await AuthBackend.call(with: request)
+      let response = try await user.backend.call(with: request)
 
       // We can't just use the provider info objects in SetAccountInfoResponse
       // because they don't have localID and email fields. Remove the specific
@@ -100,19 +101,21 @@ actor UserProfileUpdate {
   /// atomically in regards to other calls to this method.
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   func executeUserUpdateWithChanges(user: User,
-                                    changeBlock: @escaping (GetAccountInfoResponseUser,
+                                    changeBlock: @escaping (GetAccountInfoResponse.User,
                                                             SetAccountInfoRequest)
                                       -> Void) async throws {
     let userAccountInfo = try await getAccountInfoRefreshingCache(user)
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetTokenAsync(backend: user.backend)
 
     // Mutate setAccountInfoRequest in block
     let setAccountInfoRequest =
-      SetAccountInfoRequest(requestConfiguration: user.requestConfiguration)
-    setAccountInfoRequest.accessToken = accessToken
+      SetAccountInfoRequest(
+        accessToken: accessToken,
+        requestConfiguration: user.requestConfiguration
+      )
     changeBlock(userAccountInfo, setAccountInfoRequest)
     do {
-      let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
+      let accountInfoResponse = try await user.backend.call(with: setAccountInfoRequest)
       if let idToken = accountInfoResponse.idToken,
          let refreshToken = accountInfoResponse.refreshToken {
         let tokenService = SecureTokenService(
@@ -140,13 +143,13 @@ actor UserProfileUpdate {
       accessTokenExpirationDate: expirationDate,
       refreshToken: refreshToken
     )
-    let accessToken = try await user.internalGetTokenAsync()
+    let accessToken = try await user.internalGetTokenAsync(backend: user.backend)
     let getAccountInfoRequest = GetAccountInfoRequest(
       accessToken: accessToken,
       requestConfiguration: user.requestConfiguration
     )
     do {
-      let response = try await AuthBackend.call(with: getAccountInfoRequest)
+      let response = try await user.backend.call(with: getAccountInfoRequest)
       user.isAnonymous = false
       user.update(withGetAccountInfoResponse: response)
     } catch {
@@ -165,7 +168,7 @@ actor UserProfileUpdate {
   /// - Parameter tokenService: The new token service object.
   /// - Parameter callback: The block to be called in the global auth working queue once finished.
   func setTokenService(user: User, tokenService: SecureTokenService) async throws {
-    _ = try await tokenService.fetchAccessToken(forcingRefresh: false)
+    _ = try await tokenService.fetchAccessToken(forcingRefresh: false, backend: user.backend)
     user.tokenService = tokenService
     if let error = user.updateKeychain() {
       throw error
@@ -176,12 +179,12 @@ actor UserProfileUpdate {
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
   func getAccountInfoRefreshingCache(_ user: User) async throws
-    -> GetAccountInfoResponseUser {
-    let token = try await user.internalGetTokenAsync()
+    -> GetAccountInfoResponse.User {
+    let token = try await user.internalGetTokenAsync(backend: user.backend)
     let request = GetAccountInfoRequest(accessToken: token,
                                         requestConfiguration: user.requestConfiguration)
     do {
-      let accountInfoResponse = try await AuthBackend.call(with: request)
+      let accountInfoResponse = try await user.backend.call(with: request)
       user.update(withGetAccountInfoResponse: accountInfoResponse)
       if let error = user.updateKeychain() {
         throw error

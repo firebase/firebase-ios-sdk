@@ -89,19 +89,19 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   var displayName: String?
 
   /// The local ID of the user.
-  var localID: String?
+  var localID: String? = nil
 
   /// The email of the user.
-  var email: String?
+  var email: String? = nil
 
   /// The photoURL of the user.
   var photoURL: URL?
 
   /// The new password of the user.
-  var password: String?
+  var password: String? = nil
 
   /// The associated identity providers of the user.
-  var providers: [String]?
+  var providers: [String]? = nil
 
   /// The out-of-band code of the change email request.
   var oobCode: String?
@@ -113,16 +113,16 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   var upgradeToFederatedLogin: Bool = false
 
   /// The captcha challenge.
-  var captchaChallenge: String?
+  var captchaChallenge: String? = nil
 
   /// Response to the captcha.
-  var captchaResponse: String?
+  var captchaResponse: String? = nil
 
   /// The list of user attributes to delete.
   ///
   /// Every element of the list must be one of the predefined constant starts with
   /// `SetAccountInfoUserAttribute`.
-  var deleteAttributes: [String]?
+  var deleteAttributes: [String]? = nil
 
   /// The list of identity providers to delete.
   var deleteProviders: [String]?
@@ -131,11 +131,12 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The default value is `true` .
   var returnSecureToken: Bool = true
 
-  init(requestConfiguration: AuthRequestConfiguration) {
+  init(accessToken: String? = nil, requestConfiguration: AuthRequestConfiguration) {
+    self.accessToken = accessToken
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let accessToken {
       postBody[kIDTokenKey] = accessToken

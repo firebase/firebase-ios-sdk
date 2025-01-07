@@ -89,7 +89,7 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     if let email {
       postBody[kEmailKey] = email

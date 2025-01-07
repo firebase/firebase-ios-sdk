@@ -30,7 +30,7 @@ class FunctionCallingViewModel: ObservableObject {
   }
 
   /// Function calls pending processing
-  private var functionCalls = [FunctionCall]()
+  private var functionCalls = [FunctionCallPart]()
 
   private var model: GenerativeModel
   private var chat: Chat
@@ -40,7 +40,7 @@ class FunctionCallingViewModel: ObservableObject {
   init() {
     model = VertexAI.vertexAI().generativeModel(
       modelName: "gemini-1.5-flash",
-      tools: [Tool(functionDeclarations: [
+      tools: [.functionDeclarations([
         FunctionDeclaration(
           name: "get_exchange_rate",
           description: "Get the exchange rate for currencies between countries",
@@ -116,7 +116,7 @@ class FunctionCallingViewModel: ObservableObject {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      responseStream = try chat.sendMessageStream(functionResponses.modelContent())
+      responseStream = try chat.sendMessageStream([functionResponses.modelContent()])
     }
     for try await chunk in responseStream {
       processResponseContent(content: chunk)
@@ -132,7 +132,7 @@ class FunctionCallingViewModel: ObservableObject {
       for functionResponse in functionResponses {
         messages.insert(functionResponse.chatMessage(), at: messages.count - 1)
       }
-      response = try await chat.sendMessage(functionResponses.modelContent())
+      response = try await chat.sendMessage([functionResponses.modelContent()])
     }
     processResponseContent(content: response)
   }
@@ -144,26 +144,26 @@ class FunctionCallingViewModel: ObservableObject {
 
     for part in candidate.content.parts {
       switch part {
-      case let .text(text):
+      case let textPart as TextPart:
         // replace pending message with backend response
-        messages[messages.count - 1].message += text
+        messages[messages.count - 1].message += textPart.text
         messages[messages.count - 1].pending = false
-      case let .functionCall(functionCall):
-        messages.insert(functionCall.chatMessage(), at: messages.count - 1)
-        functionCalls.append(functionCall)
-      case .inlineData, .fileData, .functionResponse:
-        fatalError("Unsupported response content.")
+      case let functionCallPart as FunctionCallPart:
+        messages.insert(functionCallPart.chatMessage(), at: messages.count - 1)
+        functionCalls.append(functionCallPart)
+      default:
+        fatalError("Unsupported response part: \(part)")
       }
     }
   }
 
-  func processFunctionCalls() async throws -> [FunctionResponse] {
-    var functionResponses = [FunctionResponse]()
+  func processFunctionCalls() async throws -> [FunctionResponsePart] {
+    var functionResponses = [FunctionResponsePart]()
     for functionCall in functionCalls {
       switch functionCall.name {
       case "get_exchange_rate":
         let exchangeRates = getExchangeRate(args: functionCall.args)
-        functionResponses.append(FunctionResponse(
+        functionResponses.append(FunctionResponsePart(
           name: "get_exchange_rate",
           response: exchangeRates
         ))
@@ -208,7 +208,7 @@ class FunctionCallingViewModel: ObservableObject {
   }
 }
 
-private extension FunctionCall {
+private extension FunctionCallPart {
   func chatMessage() -> ChatMessage {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -228,7 +228,7 @@ private extension FunctionCall {
   }
 }
 
-private extension FunctionResponse {
+private extension FunctionResponsePart {
   func chatMessage() -> ChatMessage {
     let encoder = JSONEncoder()
     encoder.outputFormatting = .prettyPrinted
@@ -248,12 +248,8 @@ private extension FunctionResponse {
   }
 }
 
-private extension [FunctionResponse] {
-  func modelContent() -> [ModelContent] {
-    return self.map { ModelContent(
-      role: "function",
-      parts: [ModelContent.Part.functionResponse($0)]
-    )
-    }
+private extension [FunctionResponsePart] {
+  func modelContent() -> ModelContent {
+    return ModelContent(role: "function", parts: self)
   }
 }

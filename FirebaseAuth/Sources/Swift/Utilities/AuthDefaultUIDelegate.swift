@@ -26,10 +26,10 @@
   ///
   /// This class should be used in the case that a UIDelegate was expected and necessary to
   /// continue a given flow, but none was provided.
-  class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
+  final class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
     /// Returns a default AuthUIDelegate object.
     /// - Returns: The default AuthUIDelegate object.
-    class func defaultUIDelegate() -> AuthUIDelegate? {
+    @MainActor static func defaultUIDelegate() -> AuthUIDelegate? {
       if GULAppEnvironmentUtil.isAppExtension() {
         // iOS App extensions should not call [UIApplication sharedApplication], even if
         // UIApplication responds to it.

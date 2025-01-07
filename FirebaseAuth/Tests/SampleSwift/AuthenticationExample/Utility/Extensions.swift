@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAuth
+import SwiftUI
 import UIKit
 
 // MARK: - Extending a `Firebase User` to conform to `DataSourceProvidable`

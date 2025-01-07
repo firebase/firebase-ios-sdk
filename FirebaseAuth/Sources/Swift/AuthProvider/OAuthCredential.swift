@@ -16,7 +16,8 @@ import Foundation
 
 /// Internal implementation of `AuthCredential` for generic credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIROAuthCredential) open class OAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIROAuthCredential) open class OAuthCredential: AuthCredential, NSSecureCoding,
+  @unchecked Sendable {
   /// The ID Token associated with this credential.
   @objc(IDToken) public let idToken: String?
 
@@ -96,7 +97,7 @@ import Foundation
 
   // MARK: Secure Coding
 
-  public static var supportsSecureCoding: Bool = true
+  public static let supportsSecureCoding: Bool = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(idToken, forKey: "IDToken")

@@ -54,8 +54,15 @@ private let kRefreshTokenKey = "refreshToken"
 /// The key for the "code" parameter in the request.
 private let kCodeKey = "code"
 
-/// Host for server API calls.
-private var gAPIHost = "securetoken.googleapis.com"
+#if compiler(>=6)
+  /// Host for server API calls. This should be changed via
+  /// `SecureTokenRequest.setHost(_ host:)` for testing purposes only.
+  private nonisolated(unsafe) var gAPIHost = "securetoken.googleapis.com"
+#else
+  /// Host for server API calls. This should be changed via
+  /// `SecureTokenRequest.setHost(_ host:)` for testing purposes only.
+  private var gAPIHost = "securetoken.googleapis.com"
+#endif // compiler(>=6)
 
 /// Represents the parameters for the token endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -64,16 +71,16 @@ class SecureTokenRequest: AuthRPCRequest {
 
   /// The type of grant requested.
   /// See FIRSecureTokenRequestGrantType
-  var grantType: SecureTokenRequestGrantType
+  let grantType: SecureTokenRequestGrantType
 
   /// The scopes requested (a comma-delimited list of scope strings).
-  var scope: String?
+  let scope: String?
 
   /// The client's refresh token.
-  var refreshToken: String?
+  let refreshToken: String?
 
   /// The client's authorization code (legacy Gitkit "ID Token").
-  var code: String?
+  let code: String?
 
   /// The client's API Key.
   let apiKey: String
@@ -107,8 +114,8 @@ class SecureTokenRequest: AuthRPCRequest {
     )
   }
 
-  init(grantType: SecureTokenRequestGrantType, scope: String?, refreshToken: String?,
-       code: String?, requestConfiguration: AuthRequestConfiguration) {
+  private init(grantType: SecureTokenRequestGrantType, scope: String?, refreshToken: String?,
+               code: String?, requestConfiguration: AuthRequestConfiguration) {
     self.grantType = grantType
     self.scope = scope
     self.refreshToken = refreshToken
@@ -127,9 +134,7 @@ class SecureTokenRequest: AuthRPCRequest {
     return URL(string: urlString)!
   }
 
-  var containsPostBody: Bool { return true }
-
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [
       kGrantTypeKey: grantType.value,
     ]

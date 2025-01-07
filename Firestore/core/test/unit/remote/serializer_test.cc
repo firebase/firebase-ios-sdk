@@ -1078,13 +1078,13 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
   ObjectValue fields{
-      Map("foo", "bar", "two", 2, "nested", Map("fourty-two", 42))};
+      Map("foo", "bar", "two", 2, "nested", Map("forty-two", 42))};
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1::Value inner_proto;
   google::protobuf::Map<std::string, v1::Value>& inner_fields =
       *inner_proto.mutable_map_value()->mutable_fields();
-  inner_fields["fourty-two"] = ValueProto(int64_t{42});
+  inner_fields["forty-two"] = ValueProto(int64_t{42});
 
   v1::BatchGetDocumentsResponse proto;
   v1::Document* doc_proto = proto.mutable_found();

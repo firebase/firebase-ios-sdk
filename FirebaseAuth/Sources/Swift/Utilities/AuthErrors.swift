@@ -303,7 +303,7 @@ import Foundation
   /// Indicates that the nonce is missing or invalid.
   case missingOrInvalidNonce = 17094
 
-  /// Raised when n Cloud Function returns a blocking error. Will include a message returned from
+  /// Raised when a Cloud Function returns a blocking error. Will include a message returned from
   /// the function.
   case blockingCloudFunctionError = 17105
 

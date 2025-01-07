@@ -21,7 +21,7 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "11.3.0",
+  version: "11.7.0",
   pods: [
     Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreInternal"),
@@ -53,9 +53,9 @@ public let shared = Manifest(
     Pod("FirebasePerformance", platforms: ["ios", "tvos"], zip: true),
     Pod("FirebaseStorage", zip: true),
     Pod("FirebaseMLModelDownloader", isBeta: true, zip: true),
-    // TODO(andrewheard): Re-add FirebaseVertexAI when ready for release as zip.
-    // Pod("FirebaseVertexAI", isBeta: true, allowWarnings: true, zip: true),
+    Pod("FirebaseVertexAI", zip: true),
     Pod("Firebase", allowWarnings: true, platforms: ["ios", "tvos", "macos"], zip: true),
+    Pod("FirebaseCombineSwift", releasing: false, zip: false),
   ]
 )
 
@@ -65,6 +65,7 @@ public struct Manifest {
   public let pods: [Pod]
 
   public func versionString(_ pod: Pod) -> String {
+    let version = pod.podVersion ?? self.version
     return pod.isBeta ? version + "-beta" : version
   }
 }

@@ -296,7 +296,7 @@ struct TitleBodyButtonHeightInfo {
                "with frame height as %lf",
               heightCalcReference, self.view.window.frame.size.height);
 
-  // this makes sure titleLable gets correct width to be ready for later's height estimate for the
+  // this makes sure titleLabel gets correct width to be ready for later's height estimate for the
   // text & button column
   [self.messageCardView layoutIfNeeded];
 
@@ -403,7 +403,7 @@ struct TitleBodyButtonHeightInfo {
     self.cardLeadingMarginInLandscapeMode.constant = self.view.window.frame.size.width / 5;
   }
 
-  // this makes sure titleLable gets correct width to be ready for later's height estimate for the
+  // this makes sure titleLabel gets correct width to be ready for later's height estimate for the
   // text & button column
   [self.messageCardView layoutIfNeeded];
 

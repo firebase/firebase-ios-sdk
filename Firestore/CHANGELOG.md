@@ -1,6 +1,13 @@
 # Unreleased
 - [changed] Internal change to stream implementation, to prepare for handshake. (#13792)
 
+# 11.6.0
+- [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is
+  `Sendable` if `T` is `Sendable`. (#14042)
+
+# 11.4.0
+- [changed] Prepare Firestore cache to support session token.
+
 # 11.3.0
 - [changed] Improve efficiency of memory persistence when processing a large number of writes. (#13572)
 

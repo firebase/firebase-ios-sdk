@@ -34,7 +34,7 @@ import Foundation
     /// operation.
     @objc(getSessionWithCompletion:)
     open func getSessionWithCompletion(_ completion: ((MultiFactorSession?, Error?) -> Void)?) {
-      let session = MultiFactorSession.sessionForCurrentUser
+      let session = MultiFactorSession.session(for: user)
       if let completion {
         completion(session, nil)
       }
@@ -67,98 +67,41 @@ import Foundation
                      displayName: String?,
                      completion: ((Error?) -> Void)?) {
       // TODO: Refactor classes so this duplicated code isn't necessary for phone and totp.
-      if assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID {
-        guard let totpAssertion = assertion as? TOTPMultiFactorAssertion else {
-          fatalError("Auth Internal Error: Failed to find TOTPMultiFactorAssertion")
-        }
-        switch totpAssertion.secretOrID {
-        case .enrollmentID: fatalError("Missing secret in totpAssertion")
-        case let .secret(secret):
-          guard let user = user, let auth = user.auth else {
-            fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
-          }
-          let finalizeMFATOTPRequestInfo =
-            AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: secret.sessionInfo,
-                                                          verificationCode: totpAssertion
-                                                            .oneTimePassword)
-          let request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
-                                                     displayName: displayName,
-                                                     totpVerificationInfo: finalizeMFATOTPRequestInfo,
-                                                     requestConfiguration: user
-                                                       .requestConfiguration)
-          Task {
-            do {
-              let response = try await AuthBackend.call(with: request)
-              do {
-                let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                         accessTokenExpirationDate: nil,
-                                                         refreshToken: response.refreshToken,
-                                                         anonymous: false)
-                try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-                if let completion {
-                  DispatchQueue.main.async {
-                    completion(nil)
-                  }
-                }
-              } catch {
-                DispatchQueue.main.async {
-                  if let completion {
-                    completion(error)
-                  }
-                }
-              }
-            } catch {
-              if let completion {
-                completion(error)
-              }
-            }
-          }
-        }
-      } else if assertion.factorID != PhoneMultiFactorInfo.PhoneMultiFactorID {
+
+      guard
+        assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID ||
+        assertion.factorID == PhoneMultiFactorInfo.PhoneMultiFactorID
+      else {
         return
       }
-      let phoneAssertion = assertion as? PhoneMultiFactorAssertion
-      guard let credential = phoneAssertion?.authCredential else {
-        fatalError("Internal Error: Missing credential")
-      }
-      switch credential.credentialKind {
-      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
-      case let .verification(verificationID, code):
-        let finalizeMFAPhoneRequestInfo =
-          AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
-        guard let user = user, let auth = user.auth else {
-          fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
-        }
-        let request = FinalizeMFAEnrollmentRequest(
-          idToken: self.user?.rawAccessToken(),
-          displayName: displayName,
-          phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
-          requestConfiguration: user.requestConfiguration
-        )
 
-        Task {
-          do {
-            let response = try await AuthBackend.call(with: request)
-            do {
-              let user = try await auth.completeSignIn(withAccessToken: response.idToken,
-                                                       accessTokenExpirationDate: nil,
-                                                       refreshToken: response.refreshToken,
-                                                       anonymous: false)
-              try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
-              if let completion {
-                DispatchQueue.main.async {
-                  completion(nil)
-                }
-              }
-            } catch {
-              DispatchQueue.main.async {
-                if let completion {
-                  completion(error)
-                }
-              }
+      guard let user, let auth = user.auth else {
+        fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
+      }
+
+      let request = Self.enrollmentFinalizationRequest(
+        with: assertion,
+        displayName: displayName,
+        user: user,
+        auth: auth
+      )
+
+      Task {
+        do {
+          let response = try await auth.backend.call(with: request)
+          let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                   accessTokenExpirationDate: nil,
+                                                   refreshToken: response.refreshToken,
+                                                   anonymous: false)
+          try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+          if let completion {
+            DispatchQueue.main.async {
+              completion(nil)
             }
-          } catch {
-            if let completion {
+          }
+        } catch {
+          if let completion {
+            DispatchQueue.main.async {
               completion(error)
             }
           }
@@ -166,12 +109,63 @@ import Foundation
       }
     }
 
+    private static func enrollmentFinalizationRequest(with assertion: MultiFactorAssertion,
+                                                      displayName: String?,
+                                                      user: User,
+                                                      auth: Auth) -> FinalizeMFAEnrollmentRequest {
+      var request: FinalizeMFAEnrollmentRequest? = nil
+      if assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID {
+        guard let totpAssertion = assertion as? TOTPMultiFactorAssertion else {
+          fatalError("Auth Internal Error: Failed to find TOTPMultiFactorAssertion")
+        }
+        switch totpAssertion.secretOrID {
+        case .enrollmentID: fatalError("Missing secret in totpAssertion")
+        case let .secret(secret):
+          let finalizeMFATOTPRequestInfo =
+            AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: secret.sessionInfo,
+                                                          verificationCode: totpAssertion
+                                                            .oneTimePassword)
+          request = FinalizeMFAEnrollmentRequest(idToken: user.rawAccessToken(),
+                                                 displayName: displayName,
+                                                 totpVerificationInfo: finalizeMFATOTPRequestInfo,
+                                                 requestConfiguration: user
+                                                   .requestConfiguration)
+        }
+      } else if assertion.factorID == PhoneMultiFactorInfo.PhoneMultiFactorID {
+        let phoneAssertion = assertion as? PhoneMultiFactorAssertion
+        guard let credential = phoneAssertion?.authCredential else {
+          fatalError("Internal Error: Missing credential")
+        }
+        switch credential.credentialKind {
+        case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+        case let .verification(verificationID, code):
+          let finalizeMFAPhoneRequestInfo =
+            AuthProtoFinalizeMFAPhoneRequestInfo(
+              sessionInfo: verificationID,
+              verificationCode: code
+            )
+          request = FinalizeMFAEnrollmentRequest(
+            idToken: user.rawAccessToken(),
+            displayName: displayName,
+            phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
+            requestConfiguration: user.requestConfiguration
+          )
+        }
+      }
+
+      guard let request else {
+        // Assertion is not a phone assertion or TOTP assertion.
+        fatalError("Internal Error: Unsupported assertion with factor ID: \(assertion.factorID).")
+      }
+
+      return request
+    }
+
     /// Enrolls a second factor as identified by the `MultiFactorAssertion` parameter for the
     /// current user.
     /// - Parameter assertion: The `MultiFactorAssertion`.
     /// - Parameter displayName: An optional display name associated with the multi factor to
     /// enroll.
-    /// - Parameter completion: The block invoked when the request is complete, or fails.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func enroll(with assertion: MultiFactorAssertion, displayName: String?) async throws {
       return try await withCheckedThrowingContinuation { continuation in
@@ -186,6 +180,7 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
+    /// - Parameter factorInfo: The second factor instance to unenroll.
     /// - Parameter completion: The block invoked when the request to send the verification email is
     /// complete, or fails.
     @objc(unenrollWithInfo:completion:)
@@ -201,6 +196,8 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
+    /// - Parameter factorUID: The unique identifier corresponding to the
+    /// second factor being unenrolled.
     /// - Parameter completion: The block invoked when the request to send the verification email is
     /// complete, or fails.
     @objc(unenrollWithFactorUID:completion:)
@@ -214,7 +211,7 @@ import Foundation
                                        requestConfiguration: user.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.call(with: request)
+          let response = try await auth.backend.call(with: request)
           do {
             let user = try await auth.completeSignIn(withAccessToken: response.idToken,
                                                      accessTokenExpirationDate: nil,
@@ -281,9 +278,7 @@ import Foundation
 
     private let kEnrolledFactorsCodingKey = "enrolledFactors"
 
-    public static var supportsSecureCoding: Bool {
-      true
-    }
+    public static let supportsSecureCoding = true
 
     public func encode(with coder: NSCoder) {
       coder.encode(enrolledFactors, forKey: kEnrolledFactorsCodingKey)

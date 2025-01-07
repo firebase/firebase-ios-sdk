@@ -16,83 +16,132 @@ import Foundation
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig {
-  /// A parameter controlling the degree of randomness in token selection. A
-  /// temperature of zero is deterministic, always choosing the
-  /// highest-probability response. Typical values are between 0 and 1
-  /// inclusive. Defaults to 0 if unspecified.
-  public let temperature: Float?
+  /// Controls the degree of randomness in token selection.
+  let temperature: Float?
 
-  /// The `topP` parameter changes how the model selects tokens for output.
-  /// Tokens are selected from the most to least probable until the sum of
-  /// their probabilities equals the `topP` value. For example, if tokens A, B,
-  /// and C have probabilities of 0.3, 0.2, and 0.1 respectively and the topP
-  /// value is 0.5, then the model will select either A or B as the next token
-  /// by using the `temperature` and exclude C as a candidate.
-  /// Defaults to 0.95 if unset.
-  public let topP: Float?
+  /// Controls diversity of generated text.
+  let topP: Float?
 
-  /// The `topK` parameter changes how the model selects tokens for output. A
-  /// `topK` of 1 means the selected token is the most probable among all the
-  /// tokens in the model's vocabulary, while a `topK` of 3 means that the next
-  /// token is selected from among the 3 most probable using the `temperature`.
-  /// For each token selection step, the `topK` tokens with the highest
-  /// probabilities are sampled. Tokens are then further filtered based on
-  /// `topP` with the final token selected using `temperature` sampling.
-  /// Defaults to 40 if unspecified.
-  public let topK: Int?
+  /// Limits the number of highest probability words considered.
+  let topK: Int?
 
-  /// The maximum number of generated response messages to return. This value
-  /// must be between [1, 8], inclusive. If unset, this will default to 1.
-  ///
-  /// - Note: Only unique candidates are returned. Higher temperatures are more
-  ///     likely to produce unique candidates. Setting `temperature` to 0 will
-  ///     always produce exactly one candidate regardless of the
-  ///     `candidateCount`.
-  public let candidateCount: Int?
+  /// The number of response variations to return.
+  let candidateCount: Int?
 
-  /// Specifies the maximum number of tokens that can be generated in the
-  /// response. The number of tokens per word varies depending on the
-  /// language outputted. The maximum value is capped at 1024. Defaults to 0
-  /// (unbounded).
-  public let maxOutputTokens: Int?
+  /// Maximum number of tokens that can be generated in the response.
+  let maxOutputTokens: Int?
 
-  /// A set of up to 5 `String`s that will stop output generation. If
-  /// specified, the API will stop at the first appearance of a stop sequence.
-  /// The stop sequence will not be included as part of the response.
-  public let stopSequences: [String]?
+  /// Controls the likelihood of repeating the same words or phrases already generated in the text.
+  let presencePenalty: Float?
+
+  /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
+  let frequencyPenalty: Float?
+
+  /// A set of up to 5 `String`s that will stop output generation.
+  let stopSequences: [String]?
 
   /// Output response MIME type of the generated candidate text.
-  ///
-  /// Supported MIME types:
-  /// - `text/plain`: Text output; the default behavior if unspecified.
-  /// - `application/json`: JSON response in the candidates.
-  public let responseMIMEType: String?
+  let responseMIMEType: String?
 
   /// Output schema of the generated candidate text.
-  /// If set, a compatible ``responseMIMEType`` must also be set.
-  ///
-  /// Compatible MIME types:
-  ///   - `application/json`: Schema for JSON response.
-  ///
-  /// Refer to the [Control generated
-  /// output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
-  /// guide for more details.
-  public let responseSchema: Schema?
+  let responseSchema: Schema?
 
   /// Creates a new `GenerationConfig` value.
   ///
-  /// - Parameter temperature: See ``temperature``
-  /// - Parameter topP: See ``topP``
-  /// - Parameter topK: See ``topK``
-  /// - Parameter candidateCount: See ``candidateCount``
-  /// - Parameter maxOutputTokens: See ``maxOutputTokens``
-  /// - Parameter stopSequences: See ``stopSequences``
-  /// - Parameter responseMIMEType: See ``responseMIMEType``
-  /// - Parameter responseSchema: See ``responseSchema``
+  /// See the
+  /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
+  /// guide and the
+  /// [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  /// for more details.
+  ///
+  /// - Parameters:
+  ///   - temperature:Controls the randomness of the language model's output. Higher values (for
+  ///     example, 1.0) make the text more random and creative, while lower values (for example,
+  ///     0.1) make it more focused and deterministic.
+  ///
+  ///     > Note: A temperature of 0 means that the highest probability tokens are always selected.
+  ///     > In this case, responses for a given prompt are mostly deterministic, but a small amount
+  ///     > of variation is still possible.
+  ///
+  ///     > Important: The range of supported temperature values depends on the model; see the
+  ///     > [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     > for more details.
+  ///   - topP: Controls diversity of generated text. Higher values (e.g., 0.9) produce more diverse
+  ///     text, while lower values (e.g., 0.5) make the output more focused.
+  ///
+  ///     The supported range is 0.0 to 1.0.
+  ///
+  ///     > Important: The default `topP` value depends on the model; see the
+  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     for more details.
+  ///   - topK: Limits the number of highest probability words the model considers when generating
+  ///     text. For example, a topK of 40 means only the 40 most likely words are considered for the
+  ///     next token. A higher value increases diversity, while a lower value makes the output more
+  ///     deterministic.
+  ///
+  ///     The supported range is 1 to 40.
+  ///
+  ///     > Important: Support for `topK` and the default value depends on the model; see the
+  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     for more details.
+  ///   - candidateCount: The number of response variations to return; defaults to 1 if not set.
+  ///     Support for multiple candidates depends on the model; see the
+  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     for more details.
+  ///   - maxOutputTokens: Maximum number of tokens that can be generated in the response.
+  ///     See the configure model parameters [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#max-output-tokens)
+  ///     for more details.
+  ///   - presencePenalty: Controls the likelihood of repeating the same words or phrases already
+  ///     generated in the text. Higher values increase the penalty of repetition, resulting in more
+  ///     diverse output.
+  ///
+  ///     > Note: While both `presencePenalty` and `frequencyPenalty` discourage repetition,
+  ///     > `presencePenalty` applies the same penalty regardless of how many times the word/phrase
+  ///     > has already appeared, whereas `frequencyPenalty` increases the penalty for *each*
+  ///     > repetition of a word/phrase.
+  ///
+  ///     > Important: The range of supported `presencePenalty` values depends on the model; see the
+  ///     > [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     > for more details
+  ///   - frequencyPenalty: Controls the likelihood of repeating words or phrases, with the penalty
+  ///     increasing for each repetition. Higher values increase the penalty of repetition,
+  ///     resulting in more diverse output.
+  ///
+  ///     > Note: While both `frequencyPenalty` and `presencePenalty` discourage repetition,
+  ///     > `frequencyPenalty` increases the penalty for *each* repetition of a word/phrase, whereas
+  ///     > `presencePenalty` applies the same penalty regardless of how many times the word/phrase
+  ///     > has already appeared.
+  ///
+  ///     > Important: The range of supported `frequencyPenalty` values depends on the model; see
+  ///     > the
+  ///     > [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     > for more details
+  ///   - stopSequences: A set of up to 5 `String`s that will stop output generation. If specified,
+  ///     the API will stop at the first appearance of a stop sequence. The stop sequence will not
+  ///     be included as part of the response. See the
+  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     for more details.
+  ///   - responseMIMEType: Output response MIME type of the generated candidate text.
+  ///
+  ///     Supported MIME types:
+  ///     - `text/plain`: Text output; the default behavior if unspecified.
+  ///     - `application/json`: JSON response in the candidates.
+  ///     - `text/x.enum`: For classification tasks, output an enum value as defined in the
+  ///       `responseSchema`.
+  ///   - responseSchema: Output schema of the generated candidate text. If set, a compatible
+  ///     `responseMIMEType` must also be set.
+  ///
+  ///     Compatible MIME types:
+  ///     - `application/json`: Schema for JSON response.
+  ///
+  ///     Refer to the
+  ///     [Control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  ///     guide for more details.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
@@ -102,6 +151,8 @@ public struct GenerationConfig {
     self.topK = topK
     self.candidateCount = candidateCount
     self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
@@ -110,5 +161,5 @@ public struct GenerationConfig {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerationConfig: Encodable {}

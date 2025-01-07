@@ -16,7 +16,7 @@ import FirebaseVertexAI
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerationConfigTests: XCTestCase {
   let encoder = JSONEncoder()
 
@@ -47,6 +47,8 @@ final class GenerationConfigTests: XCTestCase {
     let topK = 40
     let candidateCount = 2
     let maxOutputTokens = 256
+    let presencePenalty: Float = 0.5
+    let frequencyPenalty: Float = 0.75
     let stopSequences = ["END", "DONE"]
     let responseMIMEType = "application/json"
     let generationConfig = GenerationConfig(
@@ -55,6 +57,8 @@ final class GenerationConfigTests: XCTestCase {
       topK: topK,
       candidateCount: candidateCount,
       maxOutputTokens: maxOutputTokens,
+      presencePenalty: presencePenalty,
+      frequencyPenalty: frequencyPenalty,
       stopSequences: stopSequences,
       responseMIMEType: responseMIMEType,
       responseSchema: .array(items: .string())
@@ -66,7 +70,9 @@ final class GenerationConfigTests: XCTestCase {
     XCTAssertEqual(json, """
     {
       "candidateCount" : \(candidateCount),
+      "frequencyPenalty" : \(frequencyPenalty),
       "maxOutputTokens" : \(maxOutputTokens),
+      "presencePenalty" : \(presencePenalty),
       "responseMIMEType" : "\(responseMIMEType)",
       "responseSchema" : {
         "items" : {

@@ -108,7 +108,7 @@ import XCTest
       let kTestRefreshToken = "REFRESH_TOKEN"
 
       rpcIssuer.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON: [
+        try self.rpcIssuer.respond(withJSON: [
           "idToken": kTestIDToken,
           "refreshToken": kTestRefreshToken,
           "localId": kTestLocalID,
@@ -116,7 +116,7 @@ import XCTest
           "isNewUser": true,
         ])
       }
-      let rpcResponse = try await AuthBackend.call(with: makeVerifyPhoneNumberRequest())
+      let rpcResponse = try await authBackend.call(with: makeVerifyPhoneNumberRequest())
       XCTAssertEqual(rpcResponse.localID, kTestLocalID)
       XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
       let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
@@ -129,13 +129,13 @@ import XCTest
      */
     func testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof() async throws {
       rpcIssuer.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON: [
+        try self.rpcIssuer.respond(withJSON: [
           "temporaryProof": self.kTemporaryProof,
           "phoneNumber": self.kPhoneNumber,
         ])
       }
       do {
-        let _ = try await AuthBackend.call(with: makeVerifyPhoneNumberRequestWithTemporaryProof())
+        let _ = try await authBackend.call(with: makeVerifyPhoneNumberRequestWithTemporaryProof())
         XCTFail("Expected to throw")
       } catch {
         let rpcError = error as NSError

@@ -14,14 +14,19 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
   let model: String
+
   let contents: [ModelContent]
+  let systemInstruction: ModelContent?
+  let tools: [Tool]?
+  let generationConfig: GenerationConfig?
+
   let options: RequestOptions
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
@@ -31,7 +36,7 @@ extension CountTokensRequest: GenerativeAIRequest {
 }
 
 /// The model's response to a count tokens request.
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CountTokensResponse {
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
@@ -45,12 +50,15 @@ public struct CountTokensResponse {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: Encodable {
   enum CodingKeys: CodingKey {
     case contents
+    case systemInstruction
+    case tools
+    case generationConfig
   }
 }
 
-@available(iOS 15.0, macOS 11.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensResponse: Decodable {}

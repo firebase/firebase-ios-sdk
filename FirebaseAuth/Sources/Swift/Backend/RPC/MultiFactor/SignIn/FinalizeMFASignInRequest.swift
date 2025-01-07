@@ -23,8 +23,8 @@ private let kTenantIDKey = "tenantId"
 class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = FinalizeMFAEnrollmentResponse
 
-  var mfaPendingCredential: String?
-  var verificationInfo: AuthProto?
+  let mfaPendingCredential: String?
+  let verificationInfo: AuthProto?
 
   init(mfaPendingCredential: String?,
        verificationInfo: AuthProto?,
@@ -36,7 +36,7 @@ class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
                useIdentityPlatform: true)
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [:]
     if let mfaPendingCredential = mfaPendingCredential {
       body["mfaPendingCredential"] = mfaPendingCredential

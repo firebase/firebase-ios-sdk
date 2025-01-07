@@ -24,9 +24,9 @@ private let kTenantIDKey = "tenantId"
 class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartMFASignInResponse
 
-  var MFAPendingCredential: String?
-  var MFAEnrollmentID: String?
-  var signInInfo: AuthProtoStartMFAPhoneRequestInfo?
+  let MFAPendingCredential: String?
+  let MFAEnrollmentID: String?
+  let signInInfo: AuthProtoStartMFAPhoneRequestInfo?
 
   init(MFAPendingCredential: String?, MFAEnrollmentID: String?,
        signInInfo: AuthProtoStartMFAPhoneRequestInfo?,
@@ -41,7 +41,7 @@ class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var body: [String: AnyHashable] = [:]
     if let MFAPendingCredential = MFAPendingCredential {
       body["mfaPendingCredential"] = MFAPendingCredential
@@ -56,5 +56,16 @@ class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
       body[kTenantIDKey] = tenantID
     }
     return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    // reCAPTCHA check is only available for phone based MFA
+    if let signInInfo {
+      signInInfo.injectRecaptchaFields(
+        recaptchaResponse: recaptchaResponse,
+        recaptchaVersion: recaptchaVersion,
+        clientType: clientType
+      )
+    }
   }
 }

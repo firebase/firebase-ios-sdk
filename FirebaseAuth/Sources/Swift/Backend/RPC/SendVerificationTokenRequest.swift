@@ -29,11 +29,20 @@ private let kSecretKey = "iosSecret"
 /// The key for the reCAPTCHAToken parameter in the request.
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
+/// The key for the "clientType" value in the request.
+private let kClientType = "clientType"
+
+/// The key for the "captchaResponse" value in the request.
+private let kCaptchaResponseKey = "captchaResponse"
+
+/// The key for the "recaptchaVersion" value in the request.
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
 ///  A verification code can be an appCredential or a reCaptcha Token
-enum CodeIdentity {
+enum CodeIdentity: Equatable {
   case credential(AuthAppCredential)
   case recaptcha(String)
   case empty
@@ -50,6 +59,12 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// verification code.
   let codeIdentity: CodeIdentity
 
+  /// Response to the captcha.
+  var captchaResponse: String?
+
+  /// The reCAPTCHA version.
+  var recaptchaVersion: String?
+
   init(phoneNumber: String, codeIdentity: CodeIdentity,
        requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
@@ -60,7 +75,7 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  var unencodedHTTPRequestBody: [String: AnyHashable]? {
     var postBody: [String: AnyHashable] = [:]
     postBody[kPhoneNumberKey] = phoneNumber
     switch codeIdentity {
@@ -71,10 +86,21 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty: break
     }
-
+    if let captchaResponse {
+      postBody[kCaptchaResponseKey] = captchaResponse
+    }
+    if let recaptchaVersion {
+      postBody[kRecaptchaVersion] = recaptchaVersion
+    }
     if let tenantID {
       postBody[kTenantIDKey] = tenantID
     }
+    postBody[kClientType] = clientType
     return postBody
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
   }
 }

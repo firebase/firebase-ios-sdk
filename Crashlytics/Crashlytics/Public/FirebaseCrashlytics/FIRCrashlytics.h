@@ -59,8 +59,8 @@ NS_SWIFT_NAME(Crashlytics)
  * Adds logging that is sent with your crash data. The logging does not appear in app
  * logs and is only visible in the Crashlytics dashboard.
  *
- * @param format Format of string
- * @param ... A comma-separated list of arguments to substitute into format
+ * @param format The format of the string, followed by a comma-separated list
+ * of arguments to substitute into the format.
  */
 - (void)logWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1, 2);
 
@@ -126,8 +126,8 @@ NS_SWIFT_NAME(Crashlytics)
  * relayed to Crashlytics on a subsequent launch of your application.
  *
  * @param error Non-fatal error to be recorded
- * @param userInfo Additional keys and values to send with the logged error. These parameters are
- * added to Crashlytics global list of keys and values that live with the session.
+ * @param userInfo Additional keys and values to send with the logged error. These keys and values
+ * are added to the error, in addition to the Crashlytics global list of keys and values.
  */
 - (void)recordError:(NSError *)error
            userInfo:(nullable NSDictionary<NSString *, id> *)userInfo

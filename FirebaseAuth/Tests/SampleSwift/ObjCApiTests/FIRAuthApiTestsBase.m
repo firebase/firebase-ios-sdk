@@ -46,7 +46,7 @@
                                handler:^(NSError *error) {
                                  if (error != nil) {
                                    XCTFail(@"Failed to wait for expectations "
-                                           @"in anonymousy sign in. Error: %@",
+                                           @"in anonymously sign in. Error: %@",
                                            error.localizedDescription);
                                  }
                                }];

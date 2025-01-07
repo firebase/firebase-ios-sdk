@@ -15,15 +15,13 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class FinalizeMFAEnrollmentResponse: AuthRPCResponse {
-  required init() {}
-
+struct FinalizeMFAEnrollmentResponse: AuthRPCResponse {
   private(set) var idToken: String?
   private(set) var refreshToken: String?
   private(set) var phoneSessionInfo: AuthProtoFinalizeMFAPhoneResponseInfo?
   private(set) var totpSessionInfo: AuthProtoFinalizeMFATOTPEnrollmentResponseInfo?
 
-  func setFields(dictionary: [String: AnyHashable]) throws {
+  init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
 

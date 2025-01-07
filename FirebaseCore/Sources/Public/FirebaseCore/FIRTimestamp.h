@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://github.com/google/protobuf/blob/main/src/google/protobuf/timestamp.proto for the
  * reference timestamp definition.
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(Timestamp)
 @interface FIRTimestamp : NSObject <NSCopying>
 

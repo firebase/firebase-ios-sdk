@@ -361,46 +361,39 @@
   }];
 }
 
-- (void)testOnceChildAddedFiresExaclyOnce {
-  __block int badCount = 0;
+- (void)testOnceChildAddedFiresExactlyOnce {
+  for (int i = 0; i < 100; i++) {
+    FIRDatabaseReference* path = [FTestHelpers getRandomNode];
+    __block BOOL firstCall = YES;
 
-  // for(int i = 0; i < 100; i++) {
+    __block BOOL done = NO;
 
-  FIRDatabaseReference* path = [FTestHelpers getRandomNode];
-  __block BOOL firstCall = YES;
+    [path observeSingleEventOfType:FIRDataEventTypeChildAdded
+                         withBlock:^(FIRDataSnapshot* snapshot) {
+                           XCTAssertTrue(firstCall, @"Properly saw first call");
+                           firstCall = NO;
+                           XCTAssertEqualObjects(@42, [snapshot value], @"Properly saw node value");
+                           XCTAssertEqualObjects(@"foo", [snapshot key],
+                                                 @"Properly saw the first node");
+                           if (![[snapshot value] isEqual:@42]) {
+                             exit(-1);
+                           }
 
-  __block BOOL done = NO;
+                           done = YES;
+                         }];
 
-  [path observeSingleEventOfType:FIRDataEventTypeChildAdded
-                       withBlock:^(FIRDataSnapshot* snapshot) {
-                         XCTAssertTrue(firstCall, @"Properly saw first call");
-                         firstCall = NO;
-                         XCTAssertEqualObjects(@42, [snapshot value], @"Properly saw node value");
-                         XCTAssertEqualObjects(@"foo", [snapshot key],
-                                               @"Properly saw the first node");
-                         if (![[snapshot value] isEqual:@42]) {
-                           exit(-1);
-                           badCount = badCount + 1;
-                         }
+    [[path child:@"foo"] setValue:@42];
+    [[path child:@"bar"] setValue:@84];  // XXX FIXME sometimes this event fires first
+    [[path child:@"foo"] setValue:@168];
 
-                         done = YES;
-                       }];
-
-  [[path child:@"foo"] setValue:@42];
-  [[path child:@"bar"] setValue:@84];  // XXX FIXME sometimes this event fires first
-  [[path child:@"foo"] setValue:@168];
-
-  //    [path setValue:nil withCompletionBlock:^(BOOL status) { done = YES; }];
-  [self waitUntil:^BOOL {
-    return done;
-  }];
-
-  //  }
-
-  NSLog(@"BADCOUNT: %d", badCount);
+    //    [path setValue:nil withCompletionBlock:^(BOOL status) { done = YES; }];
+    [self waitUntil:^BOOL {
+      return done;
+    }];
+  }
 }
 
-- (void)testOnceValueFiresExacltyOnceEvenIfThereIsASetInsideCallback {
+- (void)testOnceValueFiresExactlyOnceEvenIfThereIsASetInsideCallback {
   FIRDatabaseReference* path = [FTestHelpers getRandomNode];
   __block BOOL firstCall = YES;
   __block BOOL done = NO;
