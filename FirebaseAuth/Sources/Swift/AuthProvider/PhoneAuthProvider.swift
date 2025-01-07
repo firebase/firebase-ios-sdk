@@ -203,6 +203,21 @@ import Foundation
       }
 
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+      
+      if let settings = auth.settings,
+         settings.isAppVerificationDisabledForTesting {
+        // If app verification is disabled for testing
+        // do not fetch recaptcha config, as this is not implemented in emulator
+        // Treat this same as RCE enable status off
+          
+        return try await verifyClAndSendVerificationCode(
+          toPhoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: true,
+          multiFactorSession: multiFactorSession,
+          uiDelegate: uiDelegate
+        )
+      }
+        
       try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
 
       switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
