@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,44 +15,46 @@
  */
 
 #include "Firestore/core/src/util/thread_safe_memoizer.h"
+#include "Firestore/core/test/unit/util/thread_safe_memoizer_testing.h"
 
-#include <thread>  // NOLINT(build/c++11)
+#include <memory>
+#include <string>
+
 #include "gtest/gtest.h"
 
 namespace {
 
+using firebase::firestore::testing::CountingFunc;
 using firebase::firestore::util::ThreadSafeMemoizer;
 
-TEST(ThreadSafeMemoizerTest, MultiThreadedMemoization) {
-  std::atomic<int> global_int{77};
+TEST(ThreadSafeMemoizerTest, DefaultConstructor) {
+  ThreadSafeMemoizer<int> memoizer;
+  auto func = [] { return std::make_shared<int>(42); };
+  ASSERT_EQ(memoizer.value(func), 42);
+}
 
-  auto expensive_lambda = [&] {
-    // Simulate an expensive operation
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    // If the lambda gets executed multiple times, threads will see incremented
-    // `global_int`.
-    ++global_int;
-    return std::make_shared<int>(global_int.load());
-  };
+TEST(ThreadSafeMemoizerTest, Value_ShouldReturnComputedValueOnFirstInvocation) {
+  ThreadSafeMemoizer<std::string> memoizer;
+  CountingFunc counter("rztsygzy5z");
+  ASSERT_EQ(memoizer.value(counter.func()), "rztsygzy5z");
+}
 
-  constexpr int num_threads = 5;
-  constexpr int expected_result = 78;
-
-  // Create a thread safe memoizer and multiple threads.
-  ThreadSafeMemoizer<int> memoized_result;
-  std::vector<std::thread> threads;
-
-  for (int i = 0; i < num_threads; ++i) {
-    threads.emplace_back(
-        [&memoized_result, expected_result, &expensive_lambda] {
-          const int& actual_result = memoized_result.value(expensive_lambda);
-          // Verify that all threads get the same memoized result.
-          EXPECT_EQ(actual_result, expected_result);
-        });
+TEST(ThreadSafeMemoizerTest,
+     Value_ShouldReturnMemoizedValueOnSubsequentInvocations) {
+  ThreadSafeMemoizer<std::string> memoizer;
+  CountingFunc counter("tfj6v4kdxn_%s");
+  for (int i = 0; i < 100; i++) {
+    SCOPED_TRACE("iteration i=" + std::to_string(i));
+    ASSERT_EQ(memoizer.value(counter.func()), "tfj6v4kdxn_0");
   }
+}
 
-  for (auto& thread : threads) {
-    thread.join();
+TEST(ThreadSafeMemoizerTest, Value_ShouldOnlyInvokeFunctionOnFirstInvocation) {
+  ThreadSafeMemoizer<std::string> memoizer;
+  CountingFunc counter("pcgx63yaa8_%s");
+  for (int i = 0; i < 100; i++) {
+    SCOPED_TRACE("iteration i=" + std::to_string(i));
+    ASSERT_EQ(memoizer.value(counter.func()), "pcgx63yaa8_0");
   }
 }
 
