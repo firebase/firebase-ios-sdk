@@ -20,6 +20,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <utility>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -114,39 +115,60 @@ TEST(ThreadSafeMemoizerTest, Value_ShouldNotInvokeTheFunctionAfterMemoizing) {
 
 TEST(ThreadSafeMemoizerTest,
      CopyConstructor_NoMemoizedValue_OriginalMemoizesFirst) {
-  CountingFunc memoizer_counter("aaa"), memoizer_copy_counter("bbb");
+  CountingFunc memoizer_counter("aaa"), memoizer_copy_dest_counter("bbb");
   ThreadSafeMemoizer<std::string> memoizer;
-  ThreadSafeMemoizer<std::string> memoizer_copy(memoizer);
+  ThreadSafeMemoizer<std::string> memoizer_copy_dest(memoizer);
 
   EXPECT_EQ(memoizer.value(memoizer_counter.func()), "aaa");
-  EXPECT_EQ(memoizer_copy.value(memoizer_copy_counter.func()), "bbb");
+  EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter.func()), "bbb");
 
   EXPECT_GT(memoizer_counter.invocation_count(), 0);
-  EXPECT_GT(memoizer_copy_counter.invocation_count(), 0);
+  EXPECT_GT(memoizer_copy_dest_counter.invocation_count(), 0);
 }
 
 TEST(ThreadSafeMemoizerTest,
      CopyConstructor_NoMemoizedValue_CopyMemoizesFirst) {
-  CountingFunc memoizer_counter("aaa"), memoizer_copy_counter("bbb");
+  CountingFunc memoizer_counter("aaa"), memoizer_copy_dest_counter("bbb");
   ThreadSafeMemoizer<std::string> memoizer;
-  ThreadSafeMemoizer<std::string> memoizer_copy(memoizer);
+  ThreadSafeMemoizer<std::string> memoizer_copy_dest(memoizer);
 
-  EXPECT_EQ(memoizer_copy.value(memoizer_copy_counter.func()), "bbb");
+  EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter.func()), "bbb");
   EXPECT_EQ(memoizer.value(memoizer_counter.func()), "aaa");
 
   EXPECT_GT(memoizer_counter.invocation_count(), 0);
-  EXPECT_GT(memoizer_copy_counter.invocation_count(), 0);
+  EXPECT_GT(memoizer_copy_dest_counter.invocation_count(), 0);
 }
 
 TEST(ThreadSafeMemoizerTest, CopyConstructor_MemoizedValue) {
-  CountingFunc memoizer_counter("aaa"), memoizer_copy_counter("bbb");
+  CountingFunc memoizer_counter("aaa"), memoizer_copy_dest_counter("bbb");
   ThreadSafeMemoizer<std::string> memoizer;
   memoizer.value(memoizer_counter.func());
-  ThreadSafeMemoizer<std::string> memoizer_copy(memoizer);
+  ThreadSafeMemoizer<std::string> memoizer_copy_dest(memoizer);
 
-  EXPECT_EQ(memoizer_copy.value(memoizer_copy_counter.func()), "aaa");
+  EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter.func()), "aaa");
 
-  EXPECT_EQ(memoizer_copy_counter.invocation_count(), 0);
+  EXPECT_EQ(memoizer_copy_dest_counter.invocation_count(), 0);
+}
+
+TEST(ThreadSafeMemoizerTest, MoveConstructor_NoMemoizedValue) {
+  CountingFunc memoizer_move_dest_counter("bbb");
+  ThreadSafeMemoizer<std::string> memoizer;
+  ThreadSafeMemoizer<std::string> memoizer_move_dest(std::move(memoizer));
+
+  EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter.func()), "bbb");
+
+  EXPECT_GT(memoizer_move_dest_counter.invocation_count(), 0);
+}
+
+TEST(ThreadSafeMemoizerTest, MoveConstructor_MemoizedValue) {
+  CountingFunc memoizer_counter("aaa"), memoizer_move_dest_counter("bbb");
+  ThreadSafeMemoizer<std::string> memoizer;
+  memoizer.value(memoizer_counter.func());
+  ThreadSafeMemoizer<std::string> memoizer_move_dest(std::move(memoizer));
+
+  EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter.func()), "aaa");
+
+  EXPECT_EQ(memoizer_move_dest_counter.invocation_count(), 0);
 }
 
 }  // namespace
