@@ -1,7 +1,3 @@
-// swift-tools-version:5.9
-// The swift-tools-version declares the minimum version of Swift required to
-// build this package.
-
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +14,11 @@
 
 #if SWIFT_PACKAGE
   import FirebaseFirestoreCpp
-#endif
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
+import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct Pipeline {

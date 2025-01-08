@@ -1,7 +1,3 @@
-// swift-tools-version:5.9
-// The swift-tools-version declares the minimum version of Swift required to
-// build this package.
-
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
