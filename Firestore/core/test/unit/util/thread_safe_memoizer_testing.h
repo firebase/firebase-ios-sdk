@@ -41,10 +41,18 @@ constexpr const char* FST_RE_DIGIT = "[[:digit:]]";
  * The "format" string given to the constructor is literally generated, except
  * that all occurrences of "%s" are replaced with the invocation count.
  *
- *
+ * All functions in this class may be safely called concurrently by multiple
+ * threads.
  */
 class CountingFunc {
  public:
+  /**
+   * Creates a new `CountingFunc` that generates strings that are equal to
+   * the base-10 string representation of the invocation count.
+   */
+  CountingFunc() : CountingFunc("%s") {
+  }
+
   /**
    * Creates a new `CountingFunc` that generates strings that match the given
    * format.
@@ -61,8 +69,17 @@ class CountingFunc {
    * Although each invocation of this function _may_ return a distinct function,
    * they all use the same counter and may be safely called concurrently from
    * multiple threads.
+   *
+   * The returned function is valid as long as this `CountingFunc` object is
+   * valid.
    */
   std::function<std::shared_ptr<std::string>()> func();
+
+  /**
+   * Returns the total number of invocations that have occurred on functions
+   * returned by `func()`. A new instance of this class will return 0 (zero).
+   */
+  int invocation_count() const;
 
  private:
   std::atomic<int> count_;

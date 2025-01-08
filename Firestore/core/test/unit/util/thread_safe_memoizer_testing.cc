@@ -61,6 +61,10 @@ std::function<std::shared_ptr<std::string>()> CountingFunc::func() {
   return [&] { return std::make_shared<std::string>(Next()); };
 }
 
+int CountingFunc::invocation_count() const {
+  return count_.load();
+}
+
 std::string CountingFunc::Next() {
   const int id = count_.fetch_add(1, std::memory_order_acq_rel);
   std::ostringstream ss;

@@ -48,10 +48,17 @@ TEST(ThreadSafeMemoizerTest,
   ThreadSafeMemoizer<std::string> memoizer;
   CountingFunc counter("tfj6v4kdxn_%s");
   auto func = counter.func();
+
+  const auto expected = memoizer.value(func);
+  // Do not hardcode "tfj6v4kdxn_0" as the expected value because
+  // ThreadSafeMemoizer.value() documents that it _may_ call the given function
+  // multiple times.
+  ASSERT_THAT(memoizer.value(func),
+              MatchesRegex("tfj6v4kdxn_"s + FST_RE_DIGIT + "+"));
+
   for (int i = 0; i < 100; i++) {
     SCOPED_TRACE("iteration i=" + std::to_string(i));
-    const auto regex = "tfj6v4kdxn_"s + FST_RE_DIGIT + "+";
-    ASSERT_THAT(memoizer.value(func), MatchesRegex(regex));
+    ASSERT_EQ(memoizer.value(func), expected);
   }
 }
 
@@ -61,6 +68,8 @@ TEST(ThreadSafeMemoizerTest, Value_ShouldOnlyInvokeFunctionOnFirstInvocation) {
   auto func = counter.func();
   for (int i = 0; i < 100; i++) {
     SCOPED_TRACE("iteration i=" + std::to_string(i));
+    // Do not hardcode "tfj6v4kdxn_0" because value() documents that it _may_
+    // call the function multiple times.
     const auto regex = "pcgx63yaa8_"s + FST_RE_DIGIT + "+";
     ASSERT_THAT(memoizer.value(func), MatchesRegex(regex));
   }

@@ -26,6 +26,16 @@ namespace {
 
 using firebase::firestore::testing::CountingFunc;
 
+TEST(ThreadSafeMemoizerTesting, DefaultConstructor) {
+  CountingFunc counting_func;
+  auto func = counting_func.func();
+  for (int i = 0; i < 100; i++) {
+    const auto i_str = std::to_string(i);
+    SCOPED_TRACE("iteration i=" + i_str);
+    EXPECT_EQ(*func(), i_str);
+  }
+}
+
 TEST(ThreadSafeMemoizerTesting,
      CountingFuncShouldReturnSameStringIfNoReplacements) {
   CountingFunc counting_func("tdjebqrtny");
@@ -128,6 +138,68 @@ TEST(ThreadSafeMemoizerTesting, CountingFuncThreadSafety) {
   std::sort(actual_strings.begin(), actual_strings.end());
   std::sort(expected_strings.begin(), expected_strings.end());
   ASSERT_EQ(actual_strings, expected_strings);
+}
+
+TEST(ThreadSafeMemoizerTesting, CountingFuncInvocationCountOnNewInstance) {
+  CountingFunc counting_func;
+  EXPECT_EQ(counting_func.invocation_count(), 0);
+}
+
+TEST(ThreadSafeMemoizerTesting, CountingFuncInvocationCountIncrementsBy1) {
+  CountingFunc counting_func;
+  auto func = counting_func.func();
+  for (int i = 0; i < 100; i++) {
+    EXPECT_EQ(counting_func.invocation_count(), i);
+    // ReSharper disable once CppExpressionWithoutSideEffects
+    func();
+    EXPECT_EQ(counting_func.invocation_count(), i + 1);
+  }
+}
+
+TEST(ThreadSafeMemoizerTesting,
+     CountingFuncInvocationCountIncrementedByEachFunc) {
+  CountingFunc counting_func;
+  for (int i = 0; i < 100; i++) {
+    auto func = counting_func.func();
+    EXPECT_EQ(counting_func.invocation_count(), i);
+    // ReSharper disable once CppExpressionWithoutSideEffects
+    func();
+    EXPECT_EQ(counting_func.invocation_count(), i + 1);
+  }
+}
+
+TEST(ThreadSafeMemoizerTesting, CountingFuncInvocationCountThreadSafe) {
+  CountingFunc counting_func;
+  const auto hardware_concurrency = std::thread::hardware_concurrency();
+  const int num_threads = hardware_concurrency != 0 ? hardware_concurrency : 4;
+  std::vector<std::thread> threads;
+  std::atomic<int> countdown{num_threads};
+  for (auto i = num_threads; i > 0; i--) {
+    threads.emplace_back([&, i] {
+      auto func = counting_func.func();
+      countdown.fetch_sub(1);
+      while (countdown.load() > 0) {
+        std::this_thread::yield();
+      }
+      // ReSharper disable once CppExpressionWithoutSideEffects
+      auto last_count = counting_func.invocation_count();
+      for (int j = 0; j < 100; j++) {
+        SCOPED_TRACE("Thread i=" + std::to_string(i) +
+                     " j=" + std::to_string(j));
+        // ReSharper disable once CppExpressionWithoutSideEffects
+        func();
+        auto new_count = counting_func.invocation_count();
+        EXPECT_GT(new_count, last_count);
+        last_count = new_count;
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  EXPECT_EQ(counting_func.invocation_count(), num_threads * 100);
 }
 
 }  // namespace
