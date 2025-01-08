@@ -27,9 +27,33 @@ namespace firebase {
 namespace firestore {
 namespace testing {
 
+/**
+ * Generates strings that incorporate a count in a thread-safe manner.
+ *
+ * The "format" string given to the constructor is literally generated, except
+ * that all occurrences of "%s" are replaced with the invocation count.
+ *
+ *
+ */
 class CountingFunc {
  public:
+  /**
+   * Creates a new `CountingFunc` that generates strings that match the given
+   * format.
+   * @param format the format to use when generating strings; all occurrences of
+   * "%s" will be replaced by the count, which starts at 0 (zero).
+   */
   explicit CountingFunc(const std::string& format);
+
+  /**
+   * Returns a function that, when invoked, generates a string using the format
+   * given to the constructor. Every string returned by the function has a
+   * different count.
+   *
+   * Although each invocation of this function _may_ return a distinct function,
+   * they all use the same counter and may be safely called concurrently from
+   * multiple threads.
+   */
   std::function<std::shared_ptr<std::string>()> func();
 
  private:
