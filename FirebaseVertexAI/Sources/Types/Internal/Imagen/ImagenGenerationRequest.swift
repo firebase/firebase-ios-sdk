@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ImageGenerationRequest<ImageType: ImagenImageRepresentable> {
+struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable> {
   let model: String
   let options: RequestOptions
   let instances: [ImageGenerationInstance]
@@ -31,8 +31,8 @@ struct ImageGenerationRequest<ImageType: ImagenImageRepresentable> {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
-  typealias Response = ImageGenerationResponse<ImageType>
+extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
+  typealias Response = ImagenGenerationResponse<ImageType>
 
   var url: URL {
     return URL(string: "\(Constants.baseURL)/\(options.apiVersion)/\(model):predict")!
@@ -40,7 +40,7 @@ extension ImageGenerationRequest: GenerativeAIRequest where ImageType: Decodable
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationRequest: Encodable {
+extension ImagenGenerationRequest: Encodable {
   enum CodingKeys: CodingKey {
     case instances
     case parameters

@@ -262,7 +262,7 @@ final class IntegrationTests: XCTestCase {
       generationConfig: generationConfig
     )
 
-    XCTAssertNil(response.raiFilteredReason)
+    XCTAssertNil(response.filteredReason)
     XCTAssertEqual(response.images.count, 1)
     let image = try XCTUnwrap(response.images.first)
     XCTAssertEqual(image.mimeType, "image/jpeg")

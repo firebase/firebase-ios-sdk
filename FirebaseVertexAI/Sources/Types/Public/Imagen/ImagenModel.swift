@@ -55,7 +55,7 @@ public final class ImagenModel {
 
   public func generateImages(prompt: String,
                              generationConfig: ImagenGenerationConfig? = nil) async throws
-    -> ImageGenerationResponse<ImagenInlineDataImage> {
+    -> ImagenGenerationResponse<ImagenInlineDataImage> {
     return try await generateImages(
       prompt: prompt,
       parameters: ImagenModel.imageGenerationParameters(
@@ -69,7 +69,7 @@ public final class ImagenModel {
 
   public func generateImages(prompt: String, storageURI: String,
                              generationConfig: ImagenGenerationConfig? = nil) async throws
-    -> ImageGenerationResponse<ImagenFileDataImage> {
+    -> ImagenGenerationResponse<ImagenFileDataImage> {
     return try await generateImages(
       prompt: prompt,
       parameters: ImagenModel.imageGenerationParameters(
@@ -83,8 +83,8 @@ public final class ImagenModel {
 
   func generateImages<T: Decodable>(prompt: String,
                                     parameters: ImageGenerationParameters) async throws
-    -> ImageGenerationResponse<T> {
-    let request = ImageGenerationRequest<T>(
+    -> ImagenGenerationResponse<T> {
+    let request = ImagenGenerationRequest<T>(
       model: modelResourceName,
       options: requestOptions,
       instances: [ImageGenerationInstance(prompt: prompt)],
