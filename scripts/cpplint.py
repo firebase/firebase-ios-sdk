@@ -270,7 +270,6 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
 # here!  cpplint_unittest.py should tell you if you forget to do this.
 _ERROR_CATEGORIES = [
     'build/class',
-    'build/c++14',
     'build/c++tr1',
     'build/deprecated',
     'build/endif_comment',
