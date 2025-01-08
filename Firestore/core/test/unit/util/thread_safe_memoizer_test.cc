@@ -249,4 +249,51 @@ TEST(ThreadSafeMemoizerTest, CopyAssignment_MemoizedValueToMemoizedValue) {
             expected_memoizer_copy_dest_counter1_invocation_count);
 }
 
+TEST(ThreadSafeMemoizerTest, MoveAssignment_MemoizedValueToNoMemoizedValue) {
+  CountingFunc memoizer_counter("aaa"), memoizer_move_dest_counter("bbb");
+  ThreadSafeMemoizer<std::string> memoizer;
+  memoizer.value(memoizer_counter.func());
+  ThreadSafeMemoizer<std::string> memoizer_move_dest;
+
+  memoizer_move_dest = std::move(memoizer);
+
+  EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter.func()), "aaa");
+  EXPECT_EQ(memoizer_move_dest_counter.invocation_count(), 0);
+}
+
+TEST(ThreadSafeMemoizerTest, MoveAssignment_NoMemoizedValueToMemoizedValue) {
+  CountingFunc memoizer_counter("aaa"), memoizer_move_dest_counter1("bbb1"),
+      memoizer_move_dest_counter2("bbb2");
+  ThreadSafeMemoizer<std::string> memoizer;
+  ThreadSafeMemoizer<std::string> memoizer_move_dest;
+  memoizer_move_dest.value(memoizer_move_dest_counter1.func());
+
+  memoizer_move_dest = std::move(memoizer);
+
+  EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter2.func()),
+            "bbb2");
+}
+
+TEST(ThreadSafeMemoizerTest, MoveAssignment_MemoizedValueToMemoizedValue) {
+  CountingFunc memoizer_counter1("aaa1"), memoizer_counter2("aaa2"),
+      memoizer_move_dest_counter1("bbb1"), memoizer_move_dest_counter2("bbb2");
+  ThreadSafeMemoizer<std::string> memoizer;
+  memoizer.value(memoizer_counter1.func());
+  const auto expected_memoizer_counter1_invocation_count =
+      memoizer_counter1.invocation_count();
+  ThreadSafeMemoizer<std::string> memoizer_move_dest;
+  memoizer_move_dest.value(memoizer_move_dest_counter1.func());
+  const auto expected_memoizer_move_dest_counter1_invocation_count =
+      memoizer_move_dest_counter1.invocation_count();
+
+  memoizer_move_dest = std::move(memoizer);
+
+  EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter2.func()),
+            "aaa1");
+  EXPECT_EQ(memoizer_counter1.invocation_count(),
+            expected_memoizer_counter1_invocation_count);
+  EXPECT_EQ(memoizer_move_dest_counter1.invocation_count(),
+            expected_memoizer_move_dest_counter1_invocation_count);
+}
+
 }  // namespace
