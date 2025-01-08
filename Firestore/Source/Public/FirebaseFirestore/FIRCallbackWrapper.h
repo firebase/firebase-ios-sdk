@@ -15,7 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <memory>
+#include <memory>
+#include <vector>
 
 namespace firebase {
 namespace firestore {
@@ -47,10 +48,15 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CallbackWrapper)
 @interface FIRCallbackWrapper : NSObject
 
+// Note: Marking callbacks in callback-based APIs as `Sendable` can help prevent crashes when they
+// are invoked on a different thread than the one they were originally defined in. If this callback
+// is expected to be called on a different thread, it should be marked as `Sendable` to ensure
+// thread safety.
 + (std::unique_ptr<core::EventListener<std::vector<api::PipelineResult>>>)
     wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-              completion:(void (^)(std::shared_ptr<std::vector<api::PipelineResult>> result,
-                                   NSError *_Nullable error))completion
+              completion:(void (^NS_SWIFT_SENDABLE)(
+                             std::shared_ptr<std::vector<api::PipelineResult>> result,
+                             NSError *_Nullable error))completion
     NS_SWIFT_NAME(wrapPipelineCallback(firestore:completion:));
 
 @end

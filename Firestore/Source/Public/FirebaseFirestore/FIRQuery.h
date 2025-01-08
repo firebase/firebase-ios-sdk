@@ -15,7 +15,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <memory>
 
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"

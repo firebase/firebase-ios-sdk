@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <memory>
+#include <memory>
 
 #import "FIRListenerRegistration.h"
 
