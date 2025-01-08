@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_TEST_UNIT_UTIL_THREAD_SAFE_MEMOIZER_TESTING_H_
 
 #include <atomic>
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <string>
@@ -87,6 +88,18 @@ class CountingFunc {
 
   explicit CountingFunc(std::vector<std::string> chunks);
   std::string Next();
+};
+
+/**
+ * A simple implementation of std::latch in C++20.
+ */
+class CountDownLatch {
+ public:
+  explicit CountDownLatch(int count);
+  void arrive_and_wait();
+
+ private:
+  std::atomic<int> count_;
 };
 
 }  // namespace testing

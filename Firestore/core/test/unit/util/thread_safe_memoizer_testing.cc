@@ -22,12 +22,12 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace firebase {
 namespace firestore {
 namespace testing {
-
 namespace {
 
 std::vector<std::string> Split(const std::string& s, const std::string& sep) {
@@ -77,6 +77,19 @@ std::string CountingFunc::Next() {
     ss << chunk;
   }
   return ss.str();
+}
+
+CountDownLatch::CountDownLatch(int count) {
+  // Explicitly store the count into the atomic<int> because initialization is
+  // NOT atomic.
+  count_.store(count);
+}
+
+void CountDownLatch::arrive_and_wait() {
+  count_.fetch_sub(1, std::memory_order_acq_rel);
+  while (count_.load(std::memory_order_acquire) > 0) {
+    std::this_thread::yield();
+  }
 }
 
 }  // namespace testing

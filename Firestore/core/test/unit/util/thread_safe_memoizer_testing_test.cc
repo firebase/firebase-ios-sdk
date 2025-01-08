@@ -24,6 +24,7 @@
 
 namespace {
 
+using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
 
 TEST(ThreadSafeMemoizerTesting, DefaultConstructor) {
@@ -105,15 +106,12 @@ TEST(ThreadSafeMemoizerTesting, CountingFuncThreadSafety) {
   CountingFunc counting_func("ejrxk3g6tb_%s");
   std::vector<std::thread> threads;
   std::array<std::array<std::string, 100>, 20> strings;
-  std::atomic<int> countdown(strings.size());
+  CountDownLatch latch(strings.size());
   for (decltype(strings.size()) i = 0; i < strings.size(); i++) {
     threads.emplace_back([&, i] {
       auto func = counting_func.func();
       auto& results = strings[i];
-      countdown.fetch_sub(1);
-      while (countdown.load() > 0) {
-        std::this_thread::yield();
-      }
+      latch.arrive_and_wait();
       for (decltype(results.size()) j = 0; j < results.size(); j++) {
         results[j] = *func();
       }
@@ -150,7 +148,6 @@ TEST(ThreadSafeMemoizerTesting, CountingFuncInvocationCountIncrementsBy1) {
   auto func = counting_func.func();
   for (int i = 0; i < 100; i++) {
     EXPECT_EQ(counting_func.invocation_count(), i);
-    // ReSharper disable once CppExpressionWithoutSideEffects
     func();
     EXPECT_EQ(counting_func.invocation_count(), i + 1);
   }
@@ -162,7 +159,6 @@ TEST(ThreadSafeMemoizerTesting,
   for (int i = 0; i < 100; i++) {
     auto func = counting_func.func();
     EXPECT_EQ(counting_func.invocation_count(), i);
-    // ReSharper disable once CppExpressionWithoutSideEffects
     func();
     EXPECT_EQ(counting_func.invocation_count(), i + 1);
   }
@@ -173,20 +169,15 @@ TEST(ThreadSafeMemoizerTesting, CountingFuncInvocationCountThreadSafe) {
   const auto hardware_concurrency = std::thread::hardware_concurrency();
   const int num_threads = hardware_concurrency != 0 ? hardware_concurrency : 4;
   std::vector<std::thread> threads;
-  std::atomic<int> countdown{num_threads};
+  CountDownLatch latch(num_threads);
   for (auto i = num_threads; i > 0; i--) {
     threads.emplace_back([&, i] {
       auto func = counting_func.func();
-      countdown.fetch_sub(1);
-      while (countdown.load() > 0) {
-        std::this_thread::yield();
-      }
-      // ReSharper disable once CppExpressionWithoutSideEffects
+      latch.arrive_and_wait();
       auto last_count = counting_func.invocation_count();
       for (int j = 0; j < 100; j++) {
         SCOPED_TRACE("Thread i=" + std::to_string(i) +
                      " j=" + std::to_string(j));
-        // ReSharper disable once CppExpressionWithoutSideEffects
         func();
         auto new_count = counting_func.invocation_count();
         EXPECT_GT(new_count, last_count);

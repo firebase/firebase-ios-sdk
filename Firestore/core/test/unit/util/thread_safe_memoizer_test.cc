@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <thread>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -26,6 +27,7 @@
 namespace {
 
 using namespace std::string_literals;
+using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
 using firebase::firestore::testing::FST_RE_DIGIT;
 using firebase::firestore::util::ThreadSafeMemoizer;
@@ -64,14 +66,49 @@ TEST(ThreadSafeMemoizerTest,
 
 TEST(ThreadSafeMemoizerTest, Value_ShouldOnlyInvokeFunctionOnFirstInvocation) {
   ThreadSafeMemoizer<std::string> memoizer;
-  CountingFunc counter("pcgx63yaa8_%s");
+  CountingFunc counter;
   auto func = counter.func();
+  memoizer.value(func);
+  // Do not hardcode 1 as the expected invocation count because
+  // ThreadSafeMemoizer.value() documents that it _may_ call the given function
+  // multiple times.
+  const auto expected_invocation_count = counter.invocation_count();
   for (int i = 0; i < 100; i++) {
-    SCOPED_TRACE("iteration i=" + std::to_string(i));
-    // Do not hardcode "tfj6v4kdxn_0" because value() documents that it _may_
-    // call the function multiple times.
-    const auto regex = "pcgx63yaa8_"s + FST_RE_DIGIT + "+";
-    ASSERT_THAT(memoizer.value(func), MatchesRegex(regex));
+    memoizer.value(func);
+  }
+  EXPECT_EQ(counter.invocation_count(), expected_invocation_count);
+}
+
+TEST(ThreadSafeMemoizerTest, Value_ShouldNotInvokeTheFunctionAfterMemoizing) {
+  ThreadSafeMemoizer<std::string> memoizer;
+  CountingFunc counter;
+  auto func = counter.func();
+
+  const auto hardware_concurrency = std::thread::hardware_concurrency();
+  const int num_threads = hardware_concurrency != 0 ? hardware_concurrency : 4;
+  std::vector<std::thread> threads;
+  CountDownLatch latch(num_threads);
+  std::atomic<bool> value_has_been_memoized{false};
+  for (auto i = num_threads; i > 0; i--) {
+    threads.emplace_back([&, i] {
+      latch.arrive_and_wait();
+      for (int j = 0; j < 100; j++) {
+        if (value_has_been_memoized.load(std::memory_order_acquire)) {
+          const auto invocation_count_before = counter.invocation_count();
+          memoizer.value(func);
+          SCOPED_TRACE("thread i=" + std::to_string(i) +
+                       " j=" + std::to_string(j));
+          EXPECT_EQ(counter.invocation_count(), invocation_count_before);
+        } else {
+          memoizer.value(func);
+          value_has_been_memoized.store(true, std::memory_order_release);
+        }
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
   }
 }
 
