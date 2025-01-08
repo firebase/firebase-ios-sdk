@@ -23,9 +23,17 @@
 #include <string>
 #include <vector>
 
+#include "gtest/gtest.h"
+
 namespace firebase {
 namespace firestore {
 namespace testing {
+
+#if defined(GTEST_USES_SIMPLE_RE) || defined(GTEST_USES_RE2)
+constexpr const char* FST_RE_DIGIT = "\\d";
+#elif defined(GTEST_USES_POSIX_RE)
+constexpr const char* FST_RE_DIGIT = "[[:digit:]]";
+#endif
 
 /**
  * Generates strings that incorporate a count in a thread-safe manner.

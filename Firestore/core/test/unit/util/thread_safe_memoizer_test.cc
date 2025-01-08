@@ -20,12 +20,16 @@
 #include <memory>
 #include <string>
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace {
 
+using namespace std::string_literals;
 using firebase::firestore::testing::CountingFunc;
+using firebase::firestore::testing::FST_RE_DIGIT;
 using firebase::firestore::util::ThreadSafeMemoizer;
+using testing::MatchesRegex;
 
 TEST(ThreadSafeMemoizerTest, DefaultConstructor) {
   ThreadSafeMemoizer<int> memoizer;
@@ -43,18 +47,22 @@ TEST(ThreadSafeMemoizerTest,
      Value_ShouldReturnMemoizedValueOnSubsequentInvocations) {
   ThreadSafeMemoizer<std::string> memoizer;
   CountingFunc counter("tfj6v4kdxn_%s");
+  auto func = counter.func();
   for (int i = 0; i < 100; i++) {
     SCOPED_TRACE("iteration i=" + std::to_string(i));
-    ASSERT_EQ(memoizer.value(counter.func()), "tfj6v4kdxn_0");
+    const auto regex = "tfj6v4kdxn_"s + FST_RE_DIGIT + "+";
+    ASSERT_THAT(memoizer.value(func), MatchesRegex(regex));
   }
 }
 
 TEST(ThreadSafeMemoizerTest, Value_ShouldOnlyInvokeFunctionOnFirstInvocation) {
   ThreadSafeMemoizer<std::string> memoizer;
   CountingFunc counter("pcgx63yaa8_%s");
+  auto func = counter.func();
   for (int i = 0; i < 100; i++) {
     SCOPED_TRACE("iteration i=" + std::to_string(i));
-    ASSERT_EQ(memoizer.value(counter.func()), "pcgx63yaa8_0");
+    const auto regex = "pcgx63yaa8_"s + FST_RE_DIGIT + "+";
+    ASSERT_THAT(memoizer.value(func), MatchesRegex(regex));
   }
 }
 
