@@ -26,7 +26,7 @@ public extension StorageReference {
   ///           the task will be cancelled and an error will be thrown.
   /// - Throws: An error if the operation failed, for example if the data exceeded `maxSize`.
   /// - Returns: Data object.
-  func data(maxSize: Int64) async throws -> Data {
+  func data(maxSize: Int64) async throws -> sending Data {
     return try await withCheckedThrowingContinuation { continuation in
       _ = self.getData(maxSize: maxSize) { result in
         continuation.resume(with: result)
@@ -48,7 +48,7 @@ public extension StorageReference {
   /// - Returns: StorageMetadata with additional information about the object being uploaded.
   func putDataAsync(_ uploadData: Data,
                     metadata: StorageMetadata? = nil,
-                    onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
+                    onProgress: ((Progress?) -> Void)? = nil) async throws -> sending StorageMetadata {
     guard let onProgress = onProgress else {
       return try await withCheckedThrowingContinuation { continuation in
         self.putData(uploadData, metadata: metadata) { result in
@@ -86,7 +86,7 @@ public extension StorageReference {
   /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
   func putFileAsync(from url: URL,
                     metadata: StorageMetadata? = nil,
-                    onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
+                    onProgress: ((Progress?) -> Void)? = nil) async throws -> sending StorageMetadata {
     guard let onProgress = onProgress else {
       return try await withCheckedThrowingContinuation { continuation in
         self.putFile(from: url, metadata: metadata) { result in
@@ -121,7 +121,7 @@ public extension StorageReference {
   ///   or `fileURL` did not reference a valid path on disk.
   /// - Returns: A `URL` pointing to the file path of the downloaded file.
   func writeAsync(toFile fileURL: URL,
-                  onProgress: ((Progress?) -> Void)? = nil) async throws -> URL {
+                  onProgress: ((Progress?) -> Void)? = nil) async throws -> sending URL {
     guard let onProgress = onProgress else {
       return try await withCheckedThrowingContinuation { continuation in
         _ = self.write(toFile: fileURL) { result in
@@ -160,7 +160,7 @@ public extension StorageReference {
   /// - Throws: An error if the operation failed, for example if Storage was unreachable
   ///   or the storage reference referenced an invalid path.
   /// - Returns: A `StorageListResult` containing the contents of the storage reference.
-  func list(maxResults: Int64) async throws -> StorageListResult {
+  func list(maxResults: Int64) async throws -> sending StorageListResult {
     typealias ListContinuation = CheckedContinuation<StorageListResult, Error>
     return try await withCheckedThrowingContinuation { (continuation: ListContinuation) in
       self.list(maxResults: maxResults) { result in
@@ -186,7 +186,7 @@ public extension StorageReference {
   ///   or the storage reference referenced an invalid path.
   /// - Returns:
   ///   - completion A `Result` enum with either the list or an `Error`.
-  func list(maxResults: Int64, pageToken: String) async throws -> StorageListResult {
+  func list(maxResults: Int64, pageToken: String) async throws -> sending StorageListResult {
     typealias ListContinuation = CheckedContinuation<StorageListResult, Error>
     return try await withCheckedThrowingContinuation { (continuation: ListContinuation) in
       self.list(maxResults: maxResults, pageToken: pageToken) { result in
