@@ -52,9 +52,6 @@ class ThreadSafeMemoizer {
    * memoized value as the ThreadSafeMemoizer object referred to by the given
    * reference.
    *
-   * This ThreadSafeMemoizer object and the given referred-to ThreadSafeMemoizer
-   * object will share their memoized value with one another.
-   *
    * The runtime performance of this function is O(1).
    */
   ThreadSafeMemoizer(const ThreadSafeMemoizer& other) {
@@ -65,11 +62,6 @@ class ThreadSafeMemoizer {
    * Copy assignment operator: replaces this object's memoized value with the
    * memoized value of the ThreadSafeMemoizer object referred to by the given
    * reference.
-   *
-   * This ThreadSafeMemoizer object and the given referred-to ThreadSafeMemoizer
-   * object will share their memoized value with one another. If this
-   * ThreadSafeMemoizer object previously shared its memoized value with one or
-   * more other ThreadSafeMemoizer objects then that relationship is broken.
    *
    * The runtime performance of this function is O(1).
    */
@@ -83,12 +75,6 @@ class ThreadSafeMemoizer {
    * memoized value as the ThreadSafeMemoizer object referred to by the given
    * reference, also clearing its memoized value.
    *
-   * This ThreadSafeMemoizer object and the given referred-to ThreadSafeMemoizer
-   * object will NOT share their memoized value with one another; however, this
-   * ThreadSafeMemoizer object WILL share its memoized value with all other
-   * ThreadSafeMemoizer objects with which the given ThreadSafeMemoizer object
-   * formerly shared its memoized value.
-   *
    * The runtime performance of this function is O(1).
    */
   ThreadSafeMemoizer(ThreadSafeMemoizer&& other) noexcept {
@@ -99,12 +85,6 @@ class ThreadSafeMemoizer {
    * Move assignment operator: replaces this object's memoized value with the
    * memoized value of the ThreadSafeMemoizer object referred to by the given
    * reference, also clearing its memoized value.
-   *
-   * This ThreadSafeMemoizer object and the given referred-to ThreadSafeMemoizer
-   * object will NOT share their memoized value with one another; however, this
-   * ThreadSafeMemoizer object WILL share its memoized value with all other
-   * ThreadSafeMemoizer objects with which the given ThreadSafeMemoizer object
-   * formerly shared its memoized value.
    *
    * The runtime performance of this function is O(1).
    */
