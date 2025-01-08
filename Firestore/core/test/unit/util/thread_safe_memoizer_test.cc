@@ -31,6 +31,7 @@ using namespace std::string_literals;
 using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
 using firebase::firestore::testing::FST_RE_DIGIT;
+using firebase::firestore::testing::SetOnDestructor;
 using firebase::firestore::util::ThreadSafeMemoizer;
 using testing::MatchesRegex;
 
@@ -294,6 +295,72 @@ TEST(ThreadSafeMemoizerTest, MoveAssignment_MemoizedValueToMemoizedValue) {
             expected_memoizer_counter1_invocation_count);
   EXPECT_EQ(memoizer_move_dest_counter1.invocation_count(),
             expected_memoizer_move_dest_counter1_invocation_count);
+}
+
+TEST(ThreadSafeMemoizerTest,
+     CopyConstructor_CopySourceKeepsMemoizedValueAlive) {
+  CountingFunc memoizer_counter;
+  std::atomic<bool> destroyed{false};
+  auto memoizer = std::make_unique<ThreadSafeMemoizer<SetOnDestructor>>();
+  memoizer->value([&] { return std::make_shared<SetOnDestructor>(destroyed); });
+
+  auto memoizer_copy_dest =
+      std::make_unique<ThreadSafeMemoizer<SetOnDestructor>>(*memoizer);
+
+  ASSERT_FALSE(destroyed.load());
+  memoizer_copy_dest.reset();
+  ASSERT_FALSE(destroyed.load());
+  memoizer.reset();
+  ASSERT_TRUE(destroyed.load());
+}
+
+TEST(ThreadSafeMemoizerTest, CopyAssignment_CopySourceKeepsMemoizedValueAlive) {
+  CountingFunc memoizer_counter;
+  std::atomic<bool> destroyed{false};
+  auto memoizer = std::make_unique<ThreadSafeMemoizer<SetOnDestructor>>();
+  memoizer->value([&] { return std::make_shared<SetOnDestructor>(destroyed); });
+  auto memoizer_copy_dest =
+      std::make_unique<ThreadSafeMemoizer<SetOnDestructor>>();
+
+  *memoizer_copy_dest = *memoizer;
+
+  ASSERT_FALSE(destroyed.load());
+  memoizer_copy_dest.reset();
+  ASSERT_FALSE(destroyed.load());
+  memoizer.reset();
+  ASSERT_TRUE(destroyed.load());
+}
+
+TEST(ThreadSafeMemoizerTest,
+     MoveConstructor_MoveSourceDoesNotKeepMemoizedValueAlive) {
+  CountingFunc memoizer_counter;
+  std::atomic<bool> destroyed{false};
+  ThreadSafeMemoizer<SetOnDestructor> memoizer;
+  memoizer.value([&] { return std::make_shared<SetOnDestructor>(destroyed); });
+
+  auto memoizer_move_dest =
+      std::make_unique<ThreadSafeMemoizer<SetOnDestructor>>(
+          std::move(memoizer));
+
+  ASSERT_FALSE(destroyed.load());
+  memoizer_move_dest.reset();
+  ASSERT_TRUE(destroyed.load());
+}
+
+TEST(ThreadSafeMemoizerTest,
+     MoveAssignment_MoveSourceDoesNotKeepMemoizedValueAlive) {
+  CountingFunc memoizer_counter;
+  std::atomic<bool> destroyed{false};
+  ThreadSafeMemoizer<SetOnDestructor> memoizer;
+  memoizer.value([&] { return std::make_shared<SetOnDestructor>(destroyed); });
+  auto memoizer_move_dest =
+      std::make_unique<ThreadSafeMemoizer<SetOnDestructor>>();
+
+  *memoizer_move_dest = std::move(memoizer);
+
+  ASSERT_FALSE(destroyed.load());
+  memoizer_move_dest.reset();
+  ASSERT_TRUE(destroyed.load());
 }
 
 }  // namespace

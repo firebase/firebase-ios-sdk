@@ -102,6 +102,19 @@ class CountDownLatch {
   std::atomic<int> count_;
 };
 
+class SetOnDestructor {
+ public:
+  SetOnDestructor(std::atomic<bool>& flag) : flag_(flag) {
+  }
+
+  ~SetOnDestructor() {
+    flag_.store(true);
+  }
+
+ private:
+  std::atomic<bool>& flag_;
+};
+
 }  // namespace testing
 }  // namespace firestore
 }  // namespace firebase
