@@ -8,9 +8,9 @@ process.
 If Objective-C is required, additionally refer to the [Google Objective-C Style
 Guide][3].
 
-## Guidance {:#guidance}
+## Guidance
 
-### New APIs should be Swift-only {:#new-apis}
+### New APIs should be Swift-only
 
 Swift is the preferred language for Apple development, so new Firebase APIs
 should be fully optimized for Swift. When designing new APIs, consider whether
@@ -24,13 +24,13 @@ corresponding generated Swift interface should be manually refined to be more
 idiomatic. Apple provides a [guide][4] for improving such Objective-C API
 declarations for Swift.
 
-### Include Swift code samples  {:#include-swift}
+### Include Swift code samples
 
 It is important for new APIs to be as easy to use in Swift as possible. When
 creating a proposal, prioritize Swift code samples to demonstrate the new API's
 usage.
 
-### Async API should be written in async/await form {:#async-api}
+### Async API should be written in async/await form
 
 Swift has built-in [support][5] for writing asynchronous code. If a
 callback-based API is required, it should be carefully considered and justified.
@@ -45,7 +45,7 @@ public func fetchData() async throws -> Data { ... }
 public func fetchData(completion: (Data, any Error) -> Void) { ... }
 ```
 
-### New APIs should be Sendable {:#new-apis}
+### New APIs should be Sendable
 
 A [Sendable][7] type is one that is thread-safe and can be shared safely across
 multiple concurrency contexts. The requirements for conforming to the Sendable
@@ -54,7 +54,7 @@ introduces strict concurrency checking and enforces Sendable types in
 asynchronous code. If applicable, new APIs should be Sendable and designed to be
 used in an async context (e.g. `Task`).
 
-### API Availability {:#api-availability}
+### API Availability
 
 By design, an API may not be available on a given Apple platform. Swift supports
 platform-specific compilation and runtime checks.
@@ -81,7 +81,7 @@ product's CocoaPods podspec, and declare it on the API's signature via the
 func myNewAPI() { ... }
 ```
 
-### Constants {:#constants}
+### Constants
 
 In Objective-C, constants were usually defined at the global level. In Swift,
 constants can instead be grouped under a case-less enum. The benefit of a
@@ -95,7 +95,7 @@ public enum NetworkConstants {
 }
 ```
 
-### Minimizing optionals {:#minimizing-optionals}
+### Minimizing optionals
 
 Unlike Objective-C, Swift handles nullability in a type safe way using
 [optionals][10]. While useful, avoid overusing them as they can complicate
@@ -141,13 +141,13 @@ public struct CustomValue {
 func setValues(_ values: [String: CustomValue]) async throws { ... }
 ```
 
-### Documentation {:#documentation}
+### Documentation
 
 New APIs should have corresponding documentation using [Swift-flavored
 Markdown][13]. Xcode can generate a documentation block's structure when the
 cursor is in the method signature and ⌥ ⌘ / is pressed.
 
-### Naming Conventions {:#naming-conventions}
+### Naming Conventions
 
 [Swift's official API design guidelines][1] provide an overview to creating
 idiomatic Swift API.
@@ -167,14 +167,14 @@ Consider the precedent set by the existing API that is adjacent to the new API
 being added. New APIs should be consistent with the existing Firebase API
 surface, and diverge only when justified.
 
-### Errors {:#errors}
+### Errors
 
 If the new API can fail, mark the API as `throws` and create (or add onto) an
 existing public [error][15] for the API to throw. Swift provides an `Error`
 protocol that can be used to create descriptive errors that can be easily
 handled by clients.
 
-### Don't define typedefs {:#don't-define}
+### Don't define typedefs
 
 _This guideline only applies when changing public Objective-C API_.
 
