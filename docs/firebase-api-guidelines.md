@@ -187,7 +187,7 @@ Objective-C API signature becomes.
 [3]: https://google.github.io/styleguide/objcguide.html
 [4]: https://developer.apple.com/documentation/swift/improving-objective-c-api-declarations-for-swift
 [5]: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/
-[6]: https://apple.co/404ZN2L
+[6]: https://developer.apple.com/documentation/swiftui/view/onsubmit(of:_:)
 [7]: https://developer.apple.com/documentation/swift/sendable
 [8]: https://nshipster.com/swift-system-version-checking/
 [9]: https://nshipster.com/available/
