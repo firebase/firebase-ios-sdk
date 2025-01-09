@@ -105,7 +105,6 @@ app update.
     }
     swift_api.source_files = ['FirebaseRemoteConfig/Tests/Swift/SwiftAPI/*.swift',
                               'FirebaseRemoteConfig/Tests/Swift/FakeUtils/*.swift',
-                              'FirebaseRemoteConfig/Tests/Swift/ObjC/*.[hm]',
                              ]
     # Excludes tests that cannot be include in API tests because it requires fetch remote values from
     # a real console but only one test can be run without polluting other tests' remote values.

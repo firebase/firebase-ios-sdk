@@ -140,7 +140,7 @@ private var RCInstances = [String: [String: RemoteConfig]]()
 /// to fetch, activate and read config results and set default config results on the default
 /// Remote Config instance.
 @objc(FIRRemoteConfig)
-public class RemoteConfig: NSObject, NSFastEnumeration {
+open class RemoteConfig: NSObject, NSFastEnumeration {
   /// All the config content.
   private let configContent: ConfigContent
 
@@ -426,7 +426,7 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
   /// and avoid calling this method again.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func fetch() async throws -> RemoteConfigFetchStatus {
-    return try await withUnsafeThrowingContinuation() { continuation in
+    return try await withUnsafeThrowingContinuation { continuation in
       self.fetch { status, error in
         if let error {
           continuation.resume(throwing: error)
