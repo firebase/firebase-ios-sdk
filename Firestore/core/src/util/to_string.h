@@ -176,8 +176,8 @@ std::string ToStringImpl(const T& value, ToStringChoice<5>) {
 // Fallback
 template <typename T>
 std::string ToStringImpl(const T& value, ToStringChoice<6>) {
-  FormatArg arg{value};
-  return std::string{arg.data(), arg.data() + arg.size()};
+  std::string result;
+  FormatArg{value}.AppendTo(&result);
 }
 
 }  // namespace impl

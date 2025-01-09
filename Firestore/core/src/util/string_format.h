@@ -20,6 +20,7 @@
 #include <initializer_list>
 #include <string>
 #include <utility>
+#include <type_traits>
 
 #include "Firestore/core/src/objc/objc_type_traits.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -33,9 +34,6 @@ namespace firestore {
 namespace util {
 
 namespace internal {
-
-std::string StringFormatPieces(const char* format,
-                               std::initializer_list<absl::string_view> pieces);
 
 /**
  * Explicit ranking for formatting choices. Only useful as an implementation
@@ -62,12 +60,13 @@ struct FormatChoice<5> {};
  *     formatting of the value as an unsigned integer.
  *   * Otherwise the value is interpreted as anything absl::AlphaNum accepts.
  */
-class FormatArg : public absl::AlphaNum {
+class FormatArg {
  public:
   template <typename T>
-  FormatArg(T&& value)  // NOLINT(runtime/explicit)
-      : FormatArg{std::forward<T>(value), internal::FormatChoice<0>{}} {
-  }
+  FormatArg(const T& value)  // NOLINT(runtime/explicit)
+      : FormatArg{value, internal::FormatChoice<0>{}} {}
+
+  void AppendTo(std::string* dest) const { formatter_(dest, arg_); }
 
  private:
   /**
@@ -77,30 +76,30 @@ class FormatArg : public absl::AlphaNum {
    * This overload only applies if the type of the argument is exactly `bool`.
    * No implicit conversions to bool are accepted.
    */
-  template <typename T,
-            typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
+  template <typename T, typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
   FormatArg(T bool_value, internal::FormatChoice<0>)
-      : AlphaNum(bool_value ? "true" : "false") {
-  }
+      : arg_(bool_value ? "true" : "false"), formatter_([](std::string* dest, const void* arg) {
+          absl::StrAppend(dest, static_cast<const char*>(arg));
+        }) {}
 
 #if __OBJC__
   /**
    * Creates a FormatArg from any pointer to an object derived from NSObject.
    */
-  template <
-      typename T,
-      typename = typename std::enable_if<objc::is_objc_pointer<T>{}>::type>
-  FormatArg(T object, internal::FormatChoice<1>)
-      : AlphaNum(MakeStringView([object description])) {
-  }
+  template <typename T, typename = typename std::enable_if<objc::is_objc_pointer<T>{}>::type>
+  FormatArg(const T& object, internal::FormatChoice<1>)
+      : arg_(&object), formatter_([](std::string* dest, const void* arg) {
+          absl::StrAppend(dest, MakeStringView([*static_cast<const T*>(arg) description]));
+        }) {}
 
   /**
    * Creates a FormatArg from any Objective-C Class type. Objective-C Class
    * types are a special struct that aren't of a type derived from NSObject.
    */
-  FormatArg(Class object, internal::FormatChoice<1>)
-      : AlphaNum(MakeStringView(NSStringFromClass(object))) {
-  }
+  FormatArg(const Class& object, internal::FormatChoice<1>)
+      : arg_(&object), formatter_([](std::string* dest, const void* arg) {
+          absl::StrAppend(dest, MakeStringView(NSStringFromClass(*static_cast<const Class*>(arg))));
+        }) {}
 #endif
 
   /**
@@ -108,8 +107,9 @@ class FormatArg : public absl::AlphaNum {
    * handled specially to avoid ambiguity with generic pointers, which are
    * handled differently.
    */
-  FormatArg(std::nullptr_t, internal::FormatChoice<2>) : AlphaNum("null") {
-  }
+  FormatArg(std::nullptr_t, internal::FormatChoice<2>)
+      : arg_(nullptr),
+        formatter_([](std::string* dest, const void* arg) { absl::StrAppend(dest, "null"); }) {}
 
   /**
    * Creates a FormatArg from a character string literal. This is
@@ -117,8 +117,9 @@ class FormatArg : public absl::AlphaNum {
    * handled differently.
    */
   FormatArg(const char* string_value, internal::FormatChoice<3>)
-      : AlphaNum(string_value == nullptr ? "null" : string_value) {
-  }
+      : arg_(string_value), formatter_([](std::string* dest, const void* arg) {
+          absl::StrAppend(dest, arg == nullptr ? "null" : static_cast<const char*>(arg));
+        }) {}
 
   /**
    * Creates a FormatArg from an arbitrary pointer, represented as a
@@ -126,18 +127,30 @@ class FormatArg : public absl::AlphaNum {
    */
   template <typename T>
   FormatArg(T* pointer_value, internal::FormatChoice<4>)
-      : AlphaNum(absl::Hex(reinterpret_cast<uintptr_t>(pointer_value))) {
-  }
+      : arg_(pointer_value), formatter_([](std::string* dest, const void* arg) {
+          absl::StrAppend(dest, absl::Hex(reinterpret_cast<uintptr_t>(arg)));
+        }) {}
 
   /**
    * As a final fallback, creates a FormatArg from any type of value that
    * absl::AlphaNum accepts.
    */
   template <typename T>
-  FormatArg(T&& value, internal::FormatChoice<5>)
-      : AlphaNum(std::forward<T>(value)) {
-  }
+  FormatArg(const T& value, internal::FormatChoice<5>)
+      : arg_(&value), formatter_([](std::string* dest, const void* arg) {
+          absl::StrAppend(dest, *static_cast<const T*>(arg));
+        }) {}
+
+ private:
+  const void* arg_;
+  void (*formatter_)(std::string* dest, const void* arg);
 };
+
+namespace internal {
+
+std::string StringFormatArgs(const char* format, std::initializer_list<FormatArg> args);
+
+}  // namespace internal
 
 /**
  * Formats a string using a simplified printf-like formatting mechanism that
@@ -157,8 +170,7 @@ class FormatArg : public absl::AlphaNum {
  */
 template <typename... FA>
 std::string StringFormat(const char* format, const FA&... args) {
-  return internal::StringFormatPieces(
-      format, {static_cast<const FormatArg&>(args).Piece()...});
+  return internal::StringFormatArgs(format, {args...});
 }
 
 inline std::string StringFormat() {
