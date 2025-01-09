@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIREBASE_COLLECTION_GROUP_STAGE_H
-#define FIREBASE_COLLECTION_GROUP_STAGE_H
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTION_STAGE_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTION_STAGE_H_
 
 #include <string>
 #include "stage.h"
@@ -25,7 +25,7 @@ namespace api {
 
 class Collection : public Stage {
  public:
-  Collection(std::string collection_path);
+  explicit Collection(std::string collection_path);
 
  private:
   std::string collection_path_;
@@ -36,4 +36,4 @@ class Collection : public Stage {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_COLLECTION_GROUP_STAGE_H
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTION_STAGE_H_

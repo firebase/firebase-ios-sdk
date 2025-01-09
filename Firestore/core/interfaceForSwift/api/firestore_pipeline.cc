@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include "Firestore/core/interfaceForSwift/api/firestore_pipeline.h"
+
+#include <memory>
+
 #include "Firestore/core/src/api/firestore.h"
 
 namespace firebase {

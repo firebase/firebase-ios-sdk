@@ -23,7 +23,7 @@ namespace api {
 Collection::Collection(std::string collection_path)
     : collection_path_(collection_path) {
   std::cout << "Calling Pipeline Collection ctor" << std::endl;
-};
+}
 
 }  // namespace api
 

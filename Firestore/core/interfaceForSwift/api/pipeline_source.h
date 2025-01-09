@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIREBASE_PIPELINE_SOURCE_H
-#define FIREBASE_PIPELINE_SOURCE_H
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_SOURCE_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_SOURCE_H_
 
 #include <memory>
+#include <string>
 #include <vector>
+
 #include "pipeline.h"
 
 namespace firebase {
@@ -29,7 +31,7 @@ class DocumentReference;
 
 class PipelineSource {
  public:
-  PipelineSource(std::shared_ptr<Firestore> firestore);
+  explicit PipelineSource(std::shared_ptr<Firestore> firestore);
 
   Pipeline GetCollection(std::string collection_path) const;
 
@@ -42,4 +44,4 @@ class PipelineSource {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_PIPELINE_SOURCE_H
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_SOURCE_H_

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIREBASE_STAGE_H
-#define FIREBASE_STAGE_H
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
 
 namespace firebase {
 namespace firestore {
@@ -30,4 +30,4 @@ class Stage {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_STAGE_H
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_

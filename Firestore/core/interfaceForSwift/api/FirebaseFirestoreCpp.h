@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_FIREBASEFIRESTORECPP_H
-#define FIREBASE_FIREBASEFIRESTORECPP_H
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
 
 #import "collection_stage.h"
 #import "firestore_pipeline.h"
@@ -24,4 +24,4 @@
 #import "pipeline_source.h"
 #import "stage.h"
 
-#endif  // FIREBASE_FIREBASEFIRESTORECPP_H
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_

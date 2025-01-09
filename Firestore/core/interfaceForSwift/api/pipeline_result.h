@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIREBASE_PIPELINE_RESULT_H
-#define FIREBASE_PIPELINE_RESULT_H
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_RESULT_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_RESULT_H_
 
 #include <memory>
 
@@ -48,4 +48,4 @@ class PipelineResult {
 
 }  // namespace firestore
 }  // namespace firebase
-#endif  // FIREBASE_PIPELINE_RESULT_H
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_RESULT_H_
