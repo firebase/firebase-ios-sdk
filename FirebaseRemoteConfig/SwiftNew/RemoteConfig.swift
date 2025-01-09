@@ -861,8 +861,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// - Returns              Returns a registration representing the listener. The registration
   /// contains a remove method, which can be used to stop receiving updates for the provided
   /// listener.
-  @objc public func addOnConfigUpdateListener(remoteConfigUpdateCompletion listener: @Sendable @escaping (RemoteConfigUpdate?,
-                                                                                                          Error?)
+  @discardableResult
+  @objc(addOnConfigUpdateListener:) public func addOnConfigUpdateListener(remoteConfigUpdateCompletion listener: @Sendable @escaping (RemoteConfigUpdate?,
+                                                                                                                                      Error?)
       -> Void)
     -> ConfigUpdateListenerRegistration {
     return configRealtime.addConfigUpdateListener(listener)

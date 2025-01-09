@@ -996,8 +996,7 @@ let package = Package(
     ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
-      dependencies: ["FirebaseRemoteConfig",
-                     "RemoteConfigFakeConsoleObjC"],
+      dependencies: ["FirebaseRemoteConfig"],
       path: "FirebaseRemoteConfig/Tests/Swift",
       exclude: [
         "AccessToken.json",
@@ -1009,15 +1008,6 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
-      ]
-    ),
-    .target(
-      name: "RemoteConfigFakeConsoleObjC",
-      dependencies: [.product(name: "OCMock", package: "ocmock")],
-      path: "FirebaseRemoteConfig/Tests/Swift/ObjC",
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../../../"),
       ]
     ),
     // Internal headers only for consuming from other SDK.

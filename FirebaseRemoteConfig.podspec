@@ -129,7 +129,6 @@ app update.
     fake_console.source_files = ['FirebaseRemoteConfig/Tests/Swift/SwiftAPI/*.swift',
                                  'FirebaseRemoteConfig/Tests/Swift/FakeUtils/*.swift',
                                  'FirebaseRemoteConfig/Tests/Swift/FakeConsole/*.swift',
-                                 'FirebaseRemoteConfig/Tests/Swift/ObjC/*.[hm]',
                                 ]
     fake_console.resources = 'FirebaseRemoteConfig/Tests/Swift/Defaults-testInfo.plist'
     fake_console.requires_app_host = true

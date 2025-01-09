@@ -18,12 +18,19 @@
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
-#import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
-#import "../../../Sources/Private/FIRRemoteConfig_Private.h"
+@import FirebaseRemoteConfig;
 #import "FRCLog.h"
 
-@import FirebaseRemoteConfig;
 @import FirebaseRemoteConfigInterop;
+
+typedef void (^FIRRemoteConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
+                                               NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+typedef void (^FIRRemoteConfigActivateCompletion)(NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
+    FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 static NSString *const FIRPerfNamespace = @"fireperf";
 static NSString *const FIRDefaultFIRAppName = @"__FIRAPP_DEFAULT";
