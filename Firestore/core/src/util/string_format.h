@@ -62,12 +62,18 @@ struct FormatChoice<5> {};
  *     formatting of the value as an unsigned integer.
  *   * Otherwise the value is interpreted as anything absl::AlphaNum accepts.
  */
-class FormatArg : public absl::AlphaNum {
+class FormatArg final : public absl::AlphaNum {
  public:
   template <typename T>
-  FormatArg(T&& value,
-            absl::strings_internal::StringifySink&& sink =
-                {})  // NOLINT(runtime/explicit)
+  FormatArg(
+      T&& value,
+      // TODO(b/388888512) Remove the usage of StringifySink since it is not
+      //  part of absl's public API. Moreover, subclassing AlphaNum is not
+      //  supported either, so find a way to do this without these two caveats.
+      //  See https://github.com/firebase/firebase-ios-sdk/pull/14331 for a
+      //  partial proposal.
+      absl::strings_internal::StringifySink&& sink =
+          {})  // NOLINT(runtime/explicit)
       : FormatArg{std::forward<T>(value), std::move(sink),
                   internal::FormatChoice<0>{}} {
   }
