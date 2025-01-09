@@ -73,6 +73,7 @@ TEST(StringFormatTest, Bool) {
 }
 
 TEST(StringFormatTest, Pointer) {
+  GTEST_SKIP() << "Skipping until the use-after-free bug is fixed by #14306";
   // pointers implicitly convert to bool. Make sure this doesn't happen in
   // this API.
   int value = 4;
