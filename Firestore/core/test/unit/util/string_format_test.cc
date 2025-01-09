@@ -72,7 +72,7 @@ TEST(StringFormatTest, Bool) {
   EXPECT_EQ("Hello false", StringFormat("Hello %s", false));
 }
 
-// TODO: Re-enable this test once the use-after-free bug is fixed by #14306.
+// TODO(dconeybe): Re-enable once the use-after-free bug is fixed by #14306.
 TEST(DISABLED_StringFormatTest, Pointer) {
   // pointers implicitly convert to bool. Make sure this doesn't happen in
   // this API.
