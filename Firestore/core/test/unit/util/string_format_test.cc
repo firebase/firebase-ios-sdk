@@ -16,6 +16,10 @@
 
 #include "Firestore/core/src/util/string_format.h"
 
+#include <algorithm>
+#include <sstream>
+#include <string>
+
 #include "absl/strings/string_view.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -23,6 +27,27 @@
 namespace firebase {
 namespace firestore {
 namespace util {
+
+namespace {
+
+using testing::HasSubstr;
+using testing::MatchesRegex;
+
+std::string lowercase(const std::string& str) {
+  std::string lower_str = str;
+  std::transform(lower_str.begin(), lower_str.end(), lower_str.begin(),
+                 [](auto c) { return std::tolower(c); });
+  return lower_str;
+}
+
+template <typename T>
+std::string hex_address(const T* ptr) {
+  std::ostringstream os;
+  os << std::hex << reinterpret_cast<uintptr_t>(ptr);
+  return os.str();
+}
+
+}  // namespace
 
 TEST(StringFormatTest, Empty) {
   EXPECT_EQ("", StringFormat(""));
@@ -81,8 +106,13 @@ TEST(StringFormatTest, NullPointer) {
 TEST(StringFormatTest, NonNullPointer) {
   // pointers implicitly convert to bool. Make sure this doesn't happen here.
   int value = 4;
-  EXPECT_THAT(StringFormat("Hello %s", &value),
-              testing::MatchesRegex("Hello (0x)?[0123456789abcdefABCDEF]+"));
+
+  const std::string formatted_string = StringFormat("Hello %s", &value);
+
+  const std::string hex_address_regex = "(0x)?[0123456789abcdefABCDEF]+";
+  EXPECT_THAT(formatted_string, MatchesRegex("Hello " + hex_address_regex));
+  const std::string expected_hex_address = lowercase(hex_address(&value));
+  EXPECT_THAT(lowercase(formatted_string), HasSubstr(expected_hex_address));
 }
 
 TEST(StringFormatTest, Mixed) {
