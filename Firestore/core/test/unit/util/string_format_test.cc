@@ -72,8 +72,8 @@ TEST(StringFormatTest, Bool) {
   EXPECT_EQ("Hello false", StringFormat("Hello %s", false));
 }
 
-TEST(StringFormatTest, Pointer) {
-  GTEST_SKIP() << "Skipping until the use-after-free bug is fixed by #14306";
+// TODO: Re-enable this test once the use-after-free bug is fixed by #14306.
+TEST(DISABLED_StringFormatTest, Pointer) {
   // pointers implicitly convert to bool. Make sure this doesn't happen in
   // this API.
   int value = 4;
