@@ -92,7 +92,7 @@ initialized. Additionally, Swift constants do not contain a "k" prefix.
 public enum NetworkConstants {
   public static let httpPostMethod = "POST"
   public static let httpGetMethod = "GET"
-} 
+}
 ```
 
 ### Minimizing optionals {:#minimizing-optionals}
