@@ -62,7 +62,7 @@ struct FormatChoice<5> {};
  *     formatting of the value as an unsigned integer.
  *   * Otherwise the value is interpreted as anything absl::AlphaNum accepts.
  */
-class FormatArg : public absl::AlphaNum {
+class FormatArg final : public absl::AlphaNum {
  public:
   template <typename T>
   FormatArg(T&& value,
