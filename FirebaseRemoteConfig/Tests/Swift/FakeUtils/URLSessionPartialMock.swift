@@ -53,7 +53,7 @@ class URLSessionMock: URLSession, @unchecked Sendable {
                          completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void)
     -> URLSessionDataTask {
     let consoleValues = fakeConsole.get()
-    if etag == "" || consoleValues["state"] as! String == RCNFetchResponseKeyStateUpdate {
+    if etag == "" || consoleValues["state"] as! String == "UPDATE" {
       // Time string in microseconds to insure a different string from previous change.
       etag = String(NSDate().timeIntervalSince1970)
     }

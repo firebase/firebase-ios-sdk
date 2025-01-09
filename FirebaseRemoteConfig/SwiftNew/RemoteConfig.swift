@@ -148,7 +148,7 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
 
   @objc public var settings: ConfigSettings
 
-  private let configFetch: ConfigFetch
+  let configFetch: ConfigFetch
 
   private let configExperiment: ConfigExperiment
 
@@ -201,8 +201,9 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
   // Use the provider to generate and return instances of FIRRemoteConfig for this specific app and
   // namespace. This will ensure the app is configured before Remote Config can return an instance.
   @objc(remoteConfigWithFIRNamespace:app:)
-  public static func remoteConfig(withFIRNamespace firebaseNamespace: String,
-                                  app: FirebaseApp) -> RemoteConfig {
+  public static func remoteConfig(withFIRNamespace firebaseNamespace: String = RemoteConfigConstants
+    .NamespaceGoogleMobilePlatform,
+    app: FirebaseApp) -> RemoteConfig {
     let provider = ComponentType<RemoteConfigInterop>
       .instance(
         for: RemoteConfigInterop.self,
@@ -367,9 +368,22 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
   }
 
   /// Ensures initialization is complete and clients can begin querying for Remote Config values.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func ensureInitialized() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.ensureInitialized { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+
+  /// Ensures initialization is complete and clients can begin querying for Remote Config values.
   /// - Parameter completionHandler: Initialization complete callback with error parameter.
-  @objc public func ensureInitialized(withCompletionHandler completionHandler: @escaping (Error?)
-    -> Void) {
+  @objc public func ensureInitialized(completionHandler: @escaping (Error?) -> Void) {
     DispatchQueue.global(qos: .utility).async { [weak self] in
       guard let self = self else { return }
       let initializationSuccess = self.configContent.initializationSuccessful()
@@ -410,12 +424,59 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
   /// `Installations.authToken(completion:)`).
   /// To stop the periodic sync, call `Installations.delete(completion:)`
   /// and avoid calling this method again.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func fetch() async throws -> RemoteConfigFetchStatus {
+    return try await withUnsafeThrowingContinuation() { continuation in
+      self.fetch { status, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: status)
+        }
+      }
+    }
+  }
+
+  /// Fetches Remote Config data with a callback. Call `activate()` to make fetched data
+  /// available to your app.
+  ///
+  /// Note: This method uses a Firebase Installations token to identify the app instance, and once
+  /// it's called, it periodically sends data to the Firebase backend. (see
+  /// `Installations.authToken(completion:)`).
+  /// To stop the periodic sync, call `Installations.delete(completion:)`
+  /// and avoid calling this method again.
   ///
   /// - Parameter completionHandler Fetch operation callback with status and error parameters.
   @objc public func fetch(completionHandler: ((RemoteConfigFetchStatus, Error?) -> Void)? = nil) {
     queue.async {
       self.fetch(withExpirationDuration: self.settings.minimumFetchInterval,
                  completionHandler: completionHandler)
+    }
+  }
+
+  /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
+  /// Call `activateWithCompletion:` to make fetched data available to your app.
+  ///
+  /// - Parameter expirationDuration  Override the (default or optionally set `minimumFetchInterval`
+  /// property in RemoteConfigSettings) `minimumFetchInterval` for only the current request, in
+  /// seconds. Setting a value of 0 seconds will force a fetch to the backend.
+  ///
+  /// Note: This method uses a Firebase Installations token to identify the app instance, and once
+  /// it's called, it periodically sends data to the Firebase backend. (see
+  /// `Installations.authToken(completion:)`).
+  /// To stop the periodic sync, call `Installations.delete(completion:)`
+  /// and avoid calling this method again.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func fetch(withExpirationDuration expirationDuration: TimeInterval) async throws
+    -> RemoteConfigFetchStatus {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.fetch(withExpirationDuration: expirationDuration) { status, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: status)
+        }
+      }
     }
   }
 
@@ -449,10 +510,33 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
   /// `Installations.authToken(completion:)`).
   /// To stop the periodic sync, call `Installations.delete(completion:)`
   /// and avoid calling this method again.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func fetchAndActivate() async throws -> RemoteConfigFetchAndActivateStatus {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.fetchAndActivate { status, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: status)
+        }
+      }
+    }
+  }
+
+  /// Fetches Remote Config data and if successful, activates fetched data. Optional completion
+  /// handler callback is invoked after the attempted activation of data, if the fetch call
+  /// succeeded.
+  ///
+  /// Note: This method uses a Firebase Installations token to identify the app instance, and once
+  /// it's called, it periodically sends data to the Firebase backend. (see
+  /// `Installations.authToken(completion:)`).
+  /// To stop the periodic sync, call `Installations.delete(completion:)`
+  /// and avoid calling this method again.
   ///
   /// - Parameter completionHandler Fetch operation callback with status and error parameters.
-  @objc public func fetchAndActivate(withCompletionHandler completionHandler:
-    @escaping (RemoteConfigFetchAndActivateStatus, Error?) -> Void) {
+  @objc public func fetchAndActivate(completionHandler:
+    ((RemoteConfigFetchAndActivateStatus, Error?) -> Void)? =
+      nil) {
     fetch { [weak self] status, error in
       guard let self = self else { return }
       // Fetch completed. We are being called on the main queue.
@@ -461,11 +545,13 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
         self.activate { changed, error in
           let status: RemoteConfigFetchAndActivateStatus = error == nil ?
             .successFetchedFromRemote : .successUsingPreFetchedData
-          DispatchQueue.main.async {
-            completionHandler(status, nil)
+          if let completionHandler {
+            DispatchQueue.main.async {
+              completionHandler(status, nil)
+            }
           }
         }
-      } else {
+      } else if let completionHandler {
         DispatchQueue.main.async {
           completionHandler(.error, error)
         }
@@ -477,8 +563,24 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
 
   /// Applies Fetched Config data to the Active Config, causing updates to the behavior and
   /// appearance of the app to take effect (depending on how config data is used in the app).
+  /// - Returns A Bool indicating whether or not a change occurred.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func activate() async throws -> Bool {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.activate { updated, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: updated)
+        }
+      }
+    }
+  }
+
+  /// Applies Fetched Config data to the Active Config, causing updates to the behavior and
+  /// appearance of the app to take effect (depending on how config data is used in the app).
   /// - Parameter completion Activate operation callback with changed and error parameters.
-  @objc public func activate(withCompletion completion: ((Bool, Error?) -> Void)?) {
+  @objc public func activate(completion: ((Bool, Error?) -> Void)? = nil) {
     queue.async { [weak self] in
       guard let self = self else {
         let error = NSError(
@@ -759,8 +861,9 @@ public class RemoteConfig: NSObject, NSFastEnumeration {
   /// - Returns              Returns a registration representing the listener. The registration
   /// contains a remove method, which can be used to stop receiving updates for the provided
   /// listener.
-  @objc public func addOnConfigUpdateListener(_ listener: @Sendable @escaping (RemoteConfigUpdate?,
-                                                                               Error?) -> Void)
+  @objc public func addOnConfigUpdateListener(remoteConfigUpdateCompletion listener: @Sendable @escaping (RemoteConfigUpdate?,
+                                                                                                          Error?)
+      -> Void)
     -> ConfigUpdateListenerRegistration {
     return configRealtime.addConfigUpdateListener(listener)
   }

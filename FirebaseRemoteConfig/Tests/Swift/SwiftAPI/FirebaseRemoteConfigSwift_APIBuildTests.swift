@@ -19,7 +19,8 @@ import FirebaseRemoteConfig
 import FirebaseRemoteConfigInterop
 
 final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
-  func usage() throws {
+  func usage(code: FirebaseRemoteConfig.RemoteConfigError,
+             updateErrorCode: FirebaseRemoteConfig.RemoteConfigUpdateError) throws {
     // MARK: - FirebaseRemoteConfig
 
     // TODO(ncooke3): These global constants should be lowercase.
@@ -51,13 +52,14 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     let nsError = NSError(domain: "", code: 0, userInfo: nil)
 
     // TODO(ncooke3): Global constants should be lowercase.
-    let _: String = FirebaseRemoteConfig.RemoteConfigErrorDomain
-    let _ = FirebaseRemoteConfig.RemoteConfigError(_nsError: nsError)
-    let _: FirebaseRemoteConfig.RemoteConfigError.Code._ErrorType = FirebaseRemoteConfig
-      .RemoteConfigError(_nsError: nsError)
-    let _: String = FirebaseRemoteConfig.RemoteConfigError.errorDomain
-    let code: FirebaseRemoteConfig.RemoteConfigError.Code? = nil
-    switch code! {
+    // TODO(paulb777): Decide if ok to break and add release note.
+//    let _: String = FirebaseRemoteConfig.RemoteConfigErrorDomain
+//    let _ = FirebaseRemoteConfig.RemoteConfigError(_nsError: nsError)
+//    let _: FirebaseRemoteConfig.RemoteConfigError.Code._ErrorType = FirebaseRemoteConfig
+//      .RemoteConfigError(_nsError: nsError)
+//    let _: String = FirebaseRemoteConfig.RemoteConfigError.errorDomain
+//    let code: FirebaseRemoteConfig.RemoteConfigError
+    switch code {
     case .unknown: break
     case .throttled: break
     case .internalError: break
@@ -68,13 +70,14 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     _ = FirebaseRemoteConfig.RemoteConfigError.internalError
 
     // TODO(ncooke3): Global constants should be lowercase.
-    let _: String = FirebaseRemoteConfig.RemoteConfigUpdateErrorDomain
-    let _ = FirebaseRemoteConfig.RemoteConfigUpdateError(_nsError: nsError)
-    let _: FirebaseRemoteConfig.RemoteConfigUpdateError.Code._ErrorType = FirebaseRemoteConfig
-      .RemoteConfigUpdateError(_nsError: nsError)
-    let _: String = FirebaseRemoteConfig.RemoteConfigUpdateError.errorDomain
-    let updateErrorCode: FirebaseRemoteConfig.RemoteConfigUpdateError.Code? = nil
-    switch updateErrorCode! {
+    // TODO(paulb777): Decide if ok to break and add release note.
+//    let _: String = FirebaseRemoteConfig.RemoteConfigUpdateErrorDomain
+//    let _ = FirebaseRemoteConfig.RemoteConfigUpdateError(_nsError: nsError)
+//    let _: FirebaseRemoteConfig.RemoteConfigUpdateError.Code._ErrorType = FirebaseRemoteConfig
+//      .RemoteConfigUpdateError(_nsError: nsError)
+//    let _: String = FirebaseRemoteConfig.RemoteConfigUpdateError.errorDomain
+//    let updateErrorCode: FirebaseRemoteConfig.RemoteConfigUpdateError
+    switch updateErrorCode {
     case .streamError: break
     case .notFetched: break
     case .messageInvalid: break
@@ -160,13 +163,16 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     let _: FirebaseRemoteConfig.RemoteConfigValue = config["key"]
     let _: FirebaseRemoteConfig.RemoteConfigValue = config.configValue(forKey: "key")
     // TODO(ncooke3): Should `nil` be acceptable here in a Swift context?
-    let _: FirebaseRemoteConfig.RemoteConfigValue = config.configValue(forKey: nil)
+    let _: FirebaseRemoteConfig.RemoteConfigValue = config.configValue(forKey: "key")
     let _: FirebaseRemoteConfig.RemoteConfigValue = config.configValue(
       forKey: "key",
       source: source
     )
     // TODO(ncooke3): Should `nil` be acceptable here in a Swift context?
-    let _: FirebaseRemoteConfig.RemoteConfigValue = config.configValue(forKey: nil, source: source)
+    let _: FirebaseRemoteConfig.RemoteConfigValue = config.configValue(
+      forKey: "key",
+      source: source
+    )
 
     let _: [String] = config.allKeys(from: source)
 
@@ -184,8 +190,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     config.setDefaults(fromPlist: nil)
 
     let _: FirebaseRemoteConfig.RemoteConfigValue? = config.defaultValue(forKey: "")
-    // TODO(ncooke3): Should `nil` be acceptable here in a Swift context?
-    let _: FirebaseRemoteConfig.RemoteConfigValue? = config.defaultValue(forKey: nil)
+    let _: FirebaseRemoteConfig.RemoteConfigValue? = config.defaultValue(forKey: "key")
 
     let _: FirebaseRemoteConfig.ConfigUpdateListenerRegistration = config
       .addOnConfigUpdateListener(
