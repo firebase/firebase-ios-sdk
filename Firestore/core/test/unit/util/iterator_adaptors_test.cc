@@ -86,7 +86,7 @@ class IteratorAdaptorTest : public testing::Test {
   SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   template <typename T>
   class InlineStorageIter : public std::iterator<std::input_iterator_tag, T> {
-  SUPPRESS_END()
+    SUPPRESS_END()
    public:
     T* operator->() const {
       return get();
@@ -575,8 +575,8 @@ TEST_F(IteratorAdaptorTest, IteratorPtrHasRandomAccessMethods) {
 SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
 class MyInputIterator
     : public std::iterator<std::input_iterator_tag, const int*> {
-SUPPRESS_END()
-  public:
+  SUPPRESS_END()
+ public:
   explicit MyInputIterator(int* x) : x_(x) {
   }
   const int* operator*() const {

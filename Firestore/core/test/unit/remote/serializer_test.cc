@@ -676,7 +676,8 @@ TEST_F(SerializerTest, EncodesString) {
 
   for (decltype(cases.size()) i = 0; i < cases.size(); ++i) {
     const std::string& string_value = cases[i];
-    SCOPED_TRACE("iteration " + std::to_string(i) + ": string_value=" + string_value);
+    SCOPED_TRACE("iteration " + std::to_string(i) +
+                 ": string_value=" + string_value);
     Message<google_firestore_v1_Value> model = Value(string_value);
     ExpectRoundTrip(model, ValueProto(string_value), TypeOrder::kString);
   }
