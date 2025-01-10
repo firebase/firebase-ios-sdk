@@ -21,16 +21,19 @@ private let fqNamespace2 = "testNamespace2:testApp"
 private var userDefaultsSampleTimestamp: TimeInterval = 0
 
 class UserDefaultsManagerOrigTests: XCTestCase {
-  override func setUp() {
-    super.setUp()
+  private var bundleID: String!
+
+  override func setUp() async throws {
+    try await super.setUp()
     // Clear UserDefaults before each test.
-    UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+    bundleID = try XCTUnwrap(Bundle.main.bundleIdentifier)
     userDefaultsSampleTimestamp = Date().timeIntervalSince1970
+    UserDefaults.standard.removePersistentDomain(forName: bundleID)
   }
 
   func testUserDefaultsEtagWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastETag = "eTag1"
     XCTAssertEqual(manager.lastETag, "eTag1")
@@ -41,7 +44,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsLastFetchTimeWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastFetchTime = userDefaultsSampleTimestamp
     XCTAssertEqual(manager.lastFetchTime, userDefaultsSampleTimestamp)
@@ -52,7 +55,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsLastETagUpdateTimeWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastETagUpdateTime = userDefaultsSampleTimestamp
     XCTAssertEqual(manager.lastETagUpdateTime, userDefaultsSampleTimestamp)
@@ -63,7 +66,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsLastFetchStatusWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastFetchStatus = "Success"
     XCTAssertEqual(manager.lastFetchStatus, "Success")
@@ -74,7 +77,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsIsClientThrottledWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.isClientThrottledWithExponentialBackoff = true
     XCTAssertEqual(manager.isClientThrottledWithExponentialBackoff, true)
@@ -85,7 +88,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsThrottleEndTimeWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
 
     manager.throttleEndTime = userDefaultsSampleTimestamp - 7.0
@@ -97,7 +100,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsCurrentThrottlingRetryIntervalWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.currentThrottlingRetryIntervalSeconds = userDefaultsSampleTimestamp - 1.0
     XCTAssertEqual(
@@ -114,7 +117,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsTemplateVersionWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastFetchedTemplateVersion = "1"
     XCTAssertEqual(manager.lastFetchedTemplateVersion, "1")
@@ -122,7 +125,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsActiveTemplateVersionWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastActiveTemplateVersion = "1"
     XCTAssertEqual(manager.lastActiveTemplateVersion, "1")
@@ -131,7 +134,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
   func testUserDefaultsRealtimeThrottleEndTimeWriteAndRead() {
     let manager = UserDefaultsManager(
       appName: appName,
-      bundleID: Bundle.main.bundleIdentifier!,
+      bundleID: bundleID,
       namespace: fqNamespace1
     )
 
@@ -144,7 +147,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsCurrentRealtimeThrottlingRetryIntervalWriteAndRead() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.currentRealtimeThrottlingRetryIntervalSeconds = userDefaultsSampleTimestamp - 1.0
     XCTAssertEqual(manager.currentRealtimeThrottlingRetryIntervalSeconds,
@@ -157,10 +160,10 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsForMultipleNamespaces() {
     let manager1 = UserDefaultsManager(appName: appName,
-                                       bundleID: Bundle.main.bundleIdentifier!,
+                                       bundleID: bundleID,
                                        namespace: fqNamespace1)
     let manager2 = UserDefaultsManager(appName: appName,
-                                       bundleID: Bundle.main.bundleIdentifier!,
+                                       bundleID: bundleID,
                                        namespace: fqNamespace2)
 
     manager1.lastETag = "eTag1ForNamespace1"
@@ -233,7 +236,7 @@ class UserDefaultsManagerOrigTests: XCTestCase {
 
   func testUserDefaultsReset() {
     let manager = UserDefaultsManager(appName: appName,
-                                      bundleID: Bundle.main.bundleIdentifier!,
+                                      bundleID: bundleID,
                                       namespace: fqNamespace1)
     manager.lastETag = "testETag"
     manager.resetUserDefaults()
