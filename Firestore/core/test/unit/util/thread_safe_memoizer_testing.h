@@ -23,6 +23,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -115,6 +116,14 @@ class SetOnDestructor {
  private:
   std::atomic<bool>& flag_;
 };
+
+/**
+ * Returns the largest number of threads that can be truly executed in parallel,
+ * or an arbitrary value greater than one if the number of CPU cores cannot be
+ * determined.
+ */
+decltype(std::thread::hardware_concurrency())
+max_practical_parallel_threads_for_testing();
 
 }  // namespace testing
 }  // namespace firestore

@@ -15,13 +15,13 @@
  */
 
 #include "Firestore/core/src/util/thread_safe_memoizer.h"
-#include "Firestore/core/test/unit/util/thread_safe_memoizer_testing.h"
 
 #include <memory>
 #include <string>
 #include <thread>
 #include <utility>
 
+#include "Firestore/core/test/unit/util/thread_safe_memoizer_testing.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -31,6 +31,7 @@ using namespace std::literals::string_literals;
 using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
 using firebase::firestore::testing::FST_RE_DIGIT;
+using firebase::firestore::testing::max_practical_parallel_threads_for_testing;
 using firebase::firestore::testing::SetOnDestructor;
 using firebase::firestore::util::ThreadSafeMemoizer;
 using testing::MatchesRegex;
@@ -361,6 +362,55 @@ TEST(ThreadSafeMemoizerTest,
   ASSERT_FALSE(destroyed.load());
   memoizer_move_dest.reset();
   ASSERT_TRUE(destroyed.load());
+}
+
+TEST(ThreadSafeMemoizerTest, TSAN_ConcurrentCallsToValueShouldNotDataRace) {
+  ThreadSafeMemoizer<int> memoizer;
+  const auto num_threads = max_practical_parallel_threads_for_testing() * 4;
+  CountDownLatch latch(num_threads);
+  std::vector<std::thread> threads;
+  for (auto i = num_threads; i > 0; --i) {
+    threads.emplace_back([i, &latch, &memoizer] {
+      latch.arrive_and_wait();
+      memoizer.value([i] { return std::make_shared<int>(i); });
+    });
+  }
+  for (auto&& thread : threads) {
+    thread.join();
+  }
+}
+
+TEST(ThreadSafeMemoizerTest, TSAN_ValueInACopyShouldNotDataRace) {
+  ThreadSafeMemoizer<int> memoizer;
+  memoizer.value([&] { return std::make_shared<int>(1111); });
+  std::unique_ptr<ThreadSafeMemoizer<int>> memoizer_copy;
+  // NOTE: Always use std::memory_order_relaxed when loading from and storing
+  // into this variable to avoid creating a happens-before releationship, which
+  // would defeat the purpose of this test.
+  std::atomic<ThreadSafeMemoizer<int>*> memoizer_copy_atomic(nullptr);
+
+  std::thread thread1([&] {
+    memoizer_copy = std::make_unique<ThreadSafeMemoizer<int>>(memoizer);
+    memoizer_copy_atomic.store(memoizer_copy.get(), std::memory_order_relaxed);
+  });
+  std::thread thread2([&] {
+    ThreadSafeMemoizer<int>* memoizer_ptr = nullptr;
+    while (true) {
+      memoizer_ptr = memoizer_copy_atomic.load(std::memory_order_relaxed);
+      if (memoizer_ptr) {
+        break;
+      }
+      std::this_thread::yield();
+    }
+    memoizer_ptr->value([&] { return std::make_shared<int>(2222); });
+  });
+
+  thread1.join();
+  thread2.join();
+
+  const auto memoizer_copy_value =
+      memoizer_copy->value([&] { return std::make_shared<int>(3333); });
+  EXPECT_EQ(memoizer_copy_value, 1111);
 }
 
 }  // namespace

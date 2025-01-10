@@ -93,6 +93,12 @@ void CountDownLatch::arrive_and_wait() {
   }
 }
 
+decltype(std::thread::hardware_concurrency())
+max_practical_parallel_threads_for_testing() {
+  const auto hardware_concurrency = std::thread::hardware_concurrency();
+  return hardware_concurrency != 0 ? hardware_concurrency : 4;
+}
+
 }  // namespace testing
 }  // namespace firestore
 }  // namespace firebase

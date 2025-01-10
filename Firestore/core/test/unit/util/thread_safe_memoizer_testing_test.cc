@@ -26,6 +26,7 @@ namespace {
 
 using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
+using firebase::firestore::testing::max_practical_parallel_threads_for_testing;
 
 TEST(ThreadSafeMemoizerTesting, DefaultConstructor) {
   CountingFunc counting_func;
@@ -166,8 +167,7 @@ TEST(ThreadSafeMemoizerTesting,
 
 TEST(ThreadSafeMemoizerTesting, CountingFuncInvocationCountThreadSafe) {
   CountingFunc counting_func;
-  const auto hardware_concurrency = std::thread::hardware_concurrency();
-  const int num_threads = hardware_concurrency != 0 ? hardware_concurrency : 4;
+  const int num_threads = max_practical_parallel_threads_for_testing();
   std::vector<std::thread> threads;
   CountDownLatch latch(num_threads);
   for (auto i = num_threads; i > 0; i--) {
