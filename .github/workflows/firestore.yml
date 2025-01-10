@@ -152,7 +152,10 @@ jobs:
     - name: Patch CMake files to use the custom C++ version
       if: ${{ matrix.cpp_version != 'default' }}
       run: |
-        exec sed -i -e 's/CMAKE_CXX_STANDARD\s\+[0-9]\+/CMAKE_CXX_STANDARD ${{ matrix.cpp_version }}/' cmake/compiler_setup.cmake
+        set -xv
+        grep CMAKE_CXX_STANDARD cmake/compiler_setup.cmake
+        sed -i -e 's/CMAKE_CXX_STANDARD\s\+[0-9]\+/CMAKE_CXX_STANDARD ${{ matrix.cpp_version }}/' cmake/compiler_setup.cmake
+        grep CMAKE_CXX_STANDARD cmake/compiler_setup.cmake
 
     - name: Build and test
       run: |
