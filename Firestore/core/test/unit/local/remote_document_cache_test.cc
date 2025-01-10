@@ -136,8 +136,7 @@ TEST_P(RemoteDocumentCacheTest, SetAndReadSeveralDocuments) {
 TEST_P(RemoteDocumentCacheTest,
        SetAndReadSeveralDocumentsIncludingMissingDocument) {
   persistence_->Run(
-      "test_set_and_read_several_documents_including_missing_document",
-      [this] {
+      "test_set_and_read_several_documents_including_missing_document", [this] {
         std::vector<MutableDocument> written = {
             SetTestDocument(kDocPath),
             SetTestDocument(kLongDocPath),
