@@ -104,21 +104,6 @@ public class VertexAI {
     )
   }
 
-  public func imagenModel(modelName: String, modelConfig: ImagenModelConfig? = nil,
-                          safetySettings: ImagenSafetySettings? = nil,
-                          requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
-    return ImagenModel(
-      name: modelResourceName(modelName: modelName),
-      projectID: projectID,
-      apiKey: apiKey,
-      modelConfig: modelConfig,
-      safetySettings: safetySettings,
-      requestOptions: requestOptions,
-      appCheck: appCheck,
-      auth: auth
-    )
-  }
-
   /// Class to enable VertexAI to register via the Objective-C based Firebase component system
   /// to include VertexAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
@@ -180,5 +165,40 @@ public class VertexAI {
     }
 
     return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
+  }
+}
+
+// MARK: - Preview APIs
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension VertexAI {
+  struct Preview {
+    let vertexAI: VertexAI
+
+    init(vertexAI: VertexAI) {
+      self.vertexAI = vertexAI
+    }
+  }
+
+  func preview() -> Preview {
+    return Preview(vertexAI: self)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension VertexAI.Preview {
+  func imagenModel(modelName: String, modelConfig: ImagenModelConfig? = nil,
+                   safetySettings: ImagenSafetySettings? = nil,
+                   requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
+    return ImagenModel(
+      name: vertexAI.modelResourceName(modelName: modelName),
+      projectID: vertexAI.projectID,
+      apiKey: vertexAI.apiKey,
+      modelConfig: modelConfig,
+      safetySettings: safetySettings,
+      requestOptions: requestOptions,
+      appCheck: vertexAI.appCheck,
+      auth: vertexAI.auth
+    )
   }
 }

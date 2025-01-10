@@ -61,7 +61,7 @@ final class IntegrationTests: XCTestCase {
       toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: systemInstruction
     )
-    imagenModel = vertex.imagenModel(
+    imagenModel = vertex.preview().imagenModel(
       modelName: "imagen-3.0-fast-generate-001",
       modelConfig: ImagenModelConfig(imageFormat: .jpeg(compressionQuality: 70)),
       safetySettings: ImagenSafetySettings(
