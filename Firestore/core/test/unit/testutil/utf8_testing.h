@@ -47,14 +47,14 @@ constexpr std::string StringFromU8String(const char8_t* s, std::string::size_typ
 // Creates a std::string whose contents are the bytes of the given null
 // terminated string.
 // e.g. std::string s = StringFromU8String(u8"foobar");
-constexpr std::string StringFromU8String(const char* s) {
+inline std::string StringFromU8String(const char* s) {
   return std::string(s);
 }
 
 // Creates a std::string whose contents are the first count bytes of the given
 // null terminated string.
 // e.g. std::string s = StringFromU8String(u8"foobar", 4);
-constexpr std::string StringFromU8String(const char* s, std::string::size_type count) {
+inline std::string StringFromU8String(const char* s, std::string::size_type count) {
   return std::string(s, count);
 }
 
