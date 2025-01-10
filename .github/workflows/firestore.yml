@@ -176,22 +176,24 @@ jobs:
 
     - name: Set CC and CXX environment variables
       run: |
+        echo 'matrix.compiler=${{ matrix.compiler }}'
         if [[ '${{ matrix.compiler }}' == 'gcc' ]] ; then
+          echo 'Setting CC and CXX for gcc'
           echo "CC=gcc" >> $GITHUB_ENV
           echo "CXX=g++" >> $GITHUB_ENV
           gcc --version
           g++ --version
         elif [[ '${{ matrix.compiler }}' == 'clang' ]] ; then
+          echo 'Setting CC and CXX for clang'
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
           clang --version
           clang++ --version
         else
+          echo 'Setting neither CC nor CXX'
           cc --version
           c++ --version
         fi
-
-        env | grep 'CC=\|CXX='
 
     - name: Build and test
       run: |
