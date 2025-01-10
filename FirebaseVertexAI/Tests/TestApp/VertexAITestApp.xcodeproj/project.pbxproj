@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */; };
 		8661385C2CC943DD00F4B78E /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661385B2CC943DD00F4B78E /* TestApp.swift */; };
 		8661385E2CC943DD00F4B78E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661385D2CC943DD00F4B78E /* ContentView.swift */; };
 		8661386E2CC943DE00F4B78E /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661386D2CC943DE00F4B78E /* IntegrationTests.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestUtils.swift; sourceTree = "<group>"; };
 		866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VertexAITestApp-SPM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8661385B2CC943DD00F4B78E /* TestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestApp.swift; sourceTree = "<group>"; };
 		8661385D2CC943DD00F4B78E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 			children = (
 				868A7C4D2CCC1F4700E449DD /* Credentials.swift */,
 				8661386D2CC943DE00F4B78E /* IntegrationTests.swift */,
+				862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */,
 			);
 			path = Integration;
 			sourceTree = "<group>";
@@ -265,6 +268,7 @@
 			files = (
 				8698D7462CD3CF3600ABA833 /* FirebaseAppTestUtils.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
+				862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */,
 				8661386E2CC943DE00F4B78E /* IntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

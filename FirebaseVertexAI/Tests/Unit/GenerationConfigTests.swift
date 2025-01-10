@@ -73,7 +73,7 @@ final class GenerationConfigTests: XCTestCase {
       "frequencyPenalty" : \(frequencyPenalty),
       "maxOutputTokens" : \(maxOutputTokens),
       "presencePenalty" : \(presencePenalty),
-      "responseMIMEType" : "\(responseMIMEType)",
+      "responseMimeType" : "\(responseMIMEType)",
       "responseSchema" : {
         "items" : {
           "nullable" : false,
@@ -109,7 +109,7 @@ final class GenerationConfigTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "responseMIMEType" : "\(mimeType)",
+      "responseMimeType" : "\(mimeType)",
       "responseSchema" : {
         "nullable" : false,
         "properties" : {
