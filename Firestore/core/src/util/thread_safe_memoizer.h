@@ -71,7 +71,7 @@ class ThreadSafeMemoizer {
    * The runtime performance of this function is O(1).
    */
   ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer& other) {
-    memoize_store(memoized_, other.memoized_);
+    memoize_store(memoized_, memoize_load(other.memoized_));
     return *this;
   }
 
@@ -94,7 +94,7 @@ class ThreadSafeMemoizer {
    * The runtime performance of this function is O(1).
    */
   ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&& other) noexcept {
-    memoize_store(memoized_, other.memoized_);
+    memoize_store(memoized_, memoize_load(other.memoized_));
     memoize_clear(other.memoized_);
     return *this;
   }
@@ -151,7 +151,7 @@ class ThreadSafeMemoizer {
   }
 
   static void memoize_clear(std::atomic<std::shared_ptr<T>>& memoized) {
-    memoize_store(memoized, std::shared_ptr<T>());
+    memoized.store(std::shared_ptr<T>());
   }
 
   static std::shared_ptr<T> memoize_load(
@@ -178,7 +178,7 @@ class ThreadSafeMemoizer {
   }
 
   static void memoize_clear(std::shared_ptr<T>& memoized) {
-    memoize_store(memoized, std::shared_ptr<T>());
+    std::atomic_store(&memoized, std::shared_ptr<T>());
   }
 
   static std::shared_ptr<T> memoize_load(const std::shared_ptr<T>& memoized) {
