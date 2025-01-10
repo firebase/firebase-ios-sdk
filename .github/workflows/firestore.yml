@@ -114,13 +114,12 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-14, ubuntu-latest]
-        cpp_version: [default]
+        os: [ubuntu-latest]
+        cpp_version: [default, 17, 20, 23]
+        compiler: [gcc, clang]
         include:
-          - os: ubuntu-latest
-            cpp_version: 17
-          - os: ubuntu-latest
-            cpp_version: 20
+          - os: macos-14
+            cpp_version: default
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -133,9 +132,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ runner.temp }}/ccache
-        key: firestore-ccache-${{ runner.os }}-cpp${{ matrix.cpp_version }}-${{ github.sha }}
+        key: firestore-ccache-${{ runner.os }}-cpp=${{ matrix.cpp_version }}-compiler=${{ matrix.compiler }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-cpp${{ matrix.cpp_version }}-
+          firestore-ccache-${{ runner.os }}-cpp=${{ matrix.cpp_version }}-compiler=${{ matrix.compiler }}-
 
     - name: Cache Mint packages
       uses: actions/cache@v4
@@ -174,6 +173,25 @@ jobs:
         else:
           echo "C++ version changed successfully."
         fi
+
+    - name: Set CC and CXX environment variables
+      run: |
+        if [[ '${{ matrix.compiler }}' == 'gcc' ]] ; then
+          echo "CC=gcc" >> $GITHUB_ENV
+          echo "CXX=g++" >> $GITHUB_ENV
+          gcc --version
+          g++ --version
+        elif [[ '${{ matrix.compiler }}' == 'clang' ]] ; then
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+          clang --version
+          clang++ --version
+        else
+          cc --version
+          c++ --version
+        fi
+
+        env | grep 'CC=\|CXX='
 
     - name: Build and test
       run: |
