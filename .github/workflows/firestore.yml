@@ -118,6 +118,8 @@ jobs:
         cpp_version: [default]
         include:
           - os: ubuntu-latest
+            cpp_version: 17
+          - os: ubuntu-latest
             cpp_version: 20
 
     env:
