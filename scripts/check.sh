@@ -299,6 +299,8 @@ if [[ "$GITHUB_EVENT_NAME" != pull_request ]] ; then
   CHECK_LINT_CHANGED=0
 elif [[ -n $(git diff --name-only "$START_SHA" | grep 'scripts/check_lint.py') ]]; then
   CHECK_LINT_CHANGED=1
+elif [[ -n $(git diff --name-only "$START_SHA" | grep 'scripts/cpplint.py') ]]; then
+  CHECK_LINT_CHANGED=1
 else
   CHECK_LINT_CHANGED=0
 fi
