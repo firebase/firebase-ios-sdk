@@ -16,6 +16,7 @@ import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import FirebaseVertexAI
+import FirebaseVertexAIPreview
 import VertexAITestApp
 import XCTest
 

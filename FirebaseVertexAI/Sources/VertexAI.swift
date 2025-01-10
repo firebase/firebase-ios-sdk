@@ -104,9 +104,11 @@ public class VertexAI {
     )
   }
 
-  public func imagenModel(modelName: String, modelConfig: ImagenModelConfig? = nil,
-                          safetySettings: ImagenSafetySettings? = nil,
-                          requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
+  // MARK: - Package APIs
+
+  package func createImagenModel(modelName: String, modelConfig: ImagenModelConfig?,
+                                 safetySettings: ImagenSafetySettings?,
+                                 requestOptions: RequestOptions) -> ImagenModel {
     return ImagenModel(
       name: modelResourceName(modelName: modelName),
       projectID: projectID,
@@ -119,11 +121,11 @@ public class VertexAI {
     )
   }
 
+  // MARK: - Private
+
   /// Class to enable VertexAI to register via the Objective-C based Firebase component system
   /// to include VertexAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
-
-  // MARK: - Private
 
   /// The `FirebaseApp` associated with this `VertexAI` instance.
   private let app: FirebaseApp

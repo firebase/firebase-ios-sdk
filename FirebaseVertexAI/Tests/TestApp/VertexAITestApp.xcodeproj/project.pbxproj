@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */; };
+		86401F692D31B86E0026CAED /* FirebaseVertexAIPreview in Frameworks */ = {isa = PBXBuildFile; productRef = 86401F682D31B86E0026CAED /* FirebaseVertexAIPreview */; };
 		8661385C2CC943DD00F4B78E /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661385B2CC943DD00F4B78E /* TestApp.swift */; };
 		8661385E2CC943DD00F4B78E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661385D2CC943DD00F4B78E /* ContentView.swift */; };
 		8661386E2CC943DE00F4B78E /* IntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661386D2CC943DE00F4B78E /* IntegrationTests.swift */; };
@@ -55,6 +56,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8692F2982CC9477800539E8F /* FirebaseAppCheck in Frameworks */,
+				86401F692D31B86E0026CAED /* FirebaseVertexAIPreview in Frameworks */,
 				8692F29E2CC9477800539E8F /* FirebaseVertexAI in Frameworks */,
 				8692F29A2CC9477800539E8F /* FirebaseAuth in Frameworks */,
 				8692F29C2CC9477800539E8F /* FirebaseStorage in Frameworks */,
@@ -167,6 +169,7 @@
 				8692F2992CC9477800539E8F /* FirebaseAuth */,
 				8692F29B2CC9477800539E8F /* FirebaseStorage */,
 				8692F29D2CC9477800539E8F /* FirebaseVertexAI */,
+				86401F682D31B86E0026CAED /* FirebaseVertexAIPreview */,
 			);
 			productName = VertexAITestApp;
 			productReference = 866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */;
@@ -560,6 +563,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		86401F682D31B86E0026CAED /* FirebaseVertexAIPreview */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseVertexAIPreview;
+		};
 		8692F2972CC9477800539E8F /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAppCheck;
