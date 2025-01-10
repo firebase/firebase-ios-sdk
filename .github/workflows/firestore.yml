@@ -115,6 +115,10 @@ jobs:
     strategy:
       matrix:
         os: [macos-14, ubuntu-latest]
+        cpp_version: [default]
+        include:
+          - os: ubuntu-latest
+            cpp_version: 20
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -127,9 +131,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ runner.temp }}/ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        key: firestore-ccache-${{ runner.os }}-cpp${{ matrix.cpp_version }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-
+          firestore-ccache-${{ runner.os }}-cpp${{ matrix.cpp_version }}-
 
     - name: Cache Mint packages
       uses: actions/cache@v4
@@ -144,6 +148,11 @@ jobs:
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    - name: Patch CMake files to use the custom C++ version
+      if: ${{ matrix.cpp_version != 'default' }}
+      run: |
+        exec sed -i -e 's/CMAKE_CXX_STANDARD\s\+[0-9]\+/CMAKE_CXX_STANDARD ${{ matrix.cpp_version }}/' cmake/compiler_setup.cmake
 
     - name: Build and test
       run: |
