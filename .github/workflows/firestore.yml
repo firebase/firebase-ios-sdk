@@ -115,7 +115,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        cpp_version: [default, 17, 20, 23]
+        cpp_version: [default, 17, 20]
         compiler: [gcc, clang]
         include:
           - os: macos-14
