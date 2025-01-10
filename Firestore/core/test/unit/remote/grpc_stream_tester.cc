@@ -187,7 +187,7 @@ std::future<void> FakeGrpcQueue::KeepPolling(
     const CompletionCallback& callback) {
   current_promise_ = {};
 
-  dedicated_executor_->Execute([=] {
+  dedicated_executor_->Execute([=, this] {
     bool done = false;
     while (!done) {
       auto* completion = ExtractCompletion();

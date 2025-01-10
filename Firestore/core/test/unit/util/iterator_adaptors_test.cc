@@ -28,6 +28,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/util/warnings.h"
 #include "absl/base/macros.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -81,8 +82,11 @@ class IteratorAdaptorTest : public testing::Test {
   virtual void TearDown() {
   }
 
+  // Suppress C++20 warning: struct std::iterator is deprecated
+  SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
   template <typename T>
   class InlineStorageIter : public std::iterator<std::input_iterator_tag, T> {
+  SUPPRESS_END()
    public:
     T* operator->() const {
       return get();
@@ -567,9 +571,12 @@ TEST_F(IteratorAdaptorTest, IteratorPtrHasRandomAccessMethods) {
   EXPECT_EQ(88, value2);
 }
 
+// Suppress C++20 warning: struct std::iterator is deprecated
+SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
 class MyInputIterator
     : public std::iterator<std::input_iterator_tag, const int*> {
- public:
+SUPPRESS_END()
+  public:
   explicit MyInputIterator(int* x) : x_(x) {
   }
   const int* operator*() const {

@@ -150,6 +150,10 @@ class ThreadSafeMemoizer {
     memoized.store(value);
   }
 
+  static void memoize_clear(std::atomic<std::shared_ptr<T>>& memoized) {
+    memoize_store(memoized, std::shared_ptr<T>());
+  }
+
   static std::shared_ptr<T> memoize_load(
       const std::atomic<std::shared_ptr<T>>& memoized) {
     return memoized.load();
@@ -173,6 +177,10 @@ class ThreadSafeMemoizer {
     std::atomic_store(&memoized, value);
   }
 
+  static void memoize_clear(std::shared_ptr<T>& memoized) {
+    memoize_store(memoized, std::shared_ptr<T>());
+  }
+
   static std::shared_ptr<T> memoize_load(const std::shared_ptr<T>& memoized) {
     return std::atomic_load(&memoized);
   }
@@ -184,10 +192,6 @@ class ThreadSafeMemoizer {
   }
 
 #endif  // #ifdef __cpp_lib_atomic_shared_ptr
-
-  static void memoize_clear(std::shared_ptr<T>& memoized) {
-    memoize_store(memoized, std::shared_ptr<T>());
-  }
 };
 }  // namespace cpp20_atomic_shared_ptr/cpp11_atomic_free_functions
 }  // namespace util
