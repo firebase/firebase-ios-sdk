@@ -52,12 +52,11 @@ if(CXX_CLANG OR CXX_GNU)
     -Wunused-function -Wunused-value -Wunused-variable
   )
 
-  # Disable treating "redundant-move" as an error since it's not really a problem,
-  # and is even a valid coding style to over-use std::move() in case the type is
-  # ever changed to become non-trivially moveable.
-  CHECK_CXX_COMPILER_FLAG("-Wno-error=redundant-move" FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
-  if(FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
-    list(APPEND common_flags -Wno-error=redundant-move)
+  # Disable "redundant-move" warning since it's not really a problem, and is even a valid coding
+  # style to over-use std::move() in case the type is ever changed to become non-trivially moveable.
+  CHECK_CXX_COMPILER_FLAG("-Wno-redundant-move" FIREBASE_CXX_COMPILER_FLAG_NO_REDUNDANT_MOVE_SUPPORTED)
+  if(FIREBASE_CXX_COMPILER_FLAG_NO_REDUNDANT_MOVE_SUPPORTED)
+    list(APPEND common_flags -Wno-redundant-move)
   endif()
 
   set(
