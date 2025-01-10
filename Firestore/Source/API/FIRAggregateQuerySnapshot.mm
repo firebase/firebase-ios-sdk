@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
                          [aggregateField name], path);
   }
   FSTUserDataWriter *dataWriter =
-      [[FSTUserDataWriter alloc] initWithFirestore:_query.query.firestore.wrapped
+      [[FSTUserDataWriter alloc] initWithFirestore:_query.query.firestore.cppFirestorePtr
                            serverTimestampBehavior:serverTimestampBehavior];
   return [dataWriter convertedValue:*fieldValue];
 }

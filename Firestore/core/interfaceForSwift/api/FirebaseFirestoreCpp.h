@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
 
-NS_ASSUME_NONNULL_BEGIN
+#import "collection_stage.h"
+#import "firestore_pipeline.h"
+#import "pipeline.h"
+#import "pipeline_result.h"
+#import "pipeline_source.h"
+#import "stage.h"
 
-/** Returns the current version of Firebase. */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-NS_SWIFT_NAME(FirebaseVersion())
-NSString* FIRFirebaseVersion(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_

@@ -203,7 +203,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 - (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
                                                              listener:
                                                                  (FIRQuerySnapshotBlock)listener {
-  std::shared_ptr<Firestore> firestore = self.firestore.wrapped;
+  std::shared_ptr<Firestore> firestore = self.firestore.cppFirestorePtr;
   const core::Query &query = self.query;
 
   // Convert from ViewSnapshots to QuerySnapshots.

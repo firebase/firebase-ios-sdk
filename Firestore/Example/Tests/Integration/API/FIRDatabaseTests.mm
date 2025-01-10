@@ -1523,7 +1523,7 @@ using firebase::firestore::util::TimerId;
 
   [self deleteApp:app];
 
-  XCTAssertTrue(firestore.wrapped->client()->is_terminated());
+  XCTAssertTrue(firestore.cppFirestorePtr->client()->is_terminated());
 }
 
 // Ensures b/172958106 doesn't regress.

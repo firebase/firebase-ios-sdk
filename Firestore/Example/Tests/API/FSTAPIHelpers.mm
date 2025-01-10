@@ -103,12 +103,12 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const char *path,
 
 FIRCollectionReference *FSTTestCollectionRef(const char *path) {
   return [[FIRCollectionReference alloc] initWithPath:Resource(path)
-                                            firestore:FSTTestFirestore().wrapped];
+                                            firestore:FSTTestFirestore().cppFirestorePtr];
 }
 
 FIRDocumentReference *FSTTestDocRef(const char *path) {
   return [[FIRDocumentReference alloc] initWithPath:Resource(path)
-                                          firestore:FSTTestFirestore().wrapped];
+                                          firestore:FSTTestFirestore().cppFirestorePtr];
 }
 
 /** A convenience method for creating a query snapshots for tests. */
@@ -157,7 +157,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                             /*sync_state_changed=*/true,
                             /*excludes_metadata_changes=*/false,
                             static_cast<bool>(hasCachedResults)};
-  return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().wrapped
+  return [[FIRQuerySnapshot alloc] initWithFirestore:FSTTestFirestore().cppFirestorePtr
                                        originalQuery:Query(path)
                                             snapshot:std::move(viewSnapshot)
                                             metadata:std::move(metadata)];
