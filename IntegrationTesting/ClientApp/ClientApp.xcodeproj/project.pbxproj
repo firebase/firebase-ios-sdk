@@ -13,6 +13,7 @@
 		EA1269B429EDF98800D79E66 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B329EDF98800D79E66 /* AppDelegate.swift */; };
 		EA1269B829EDF98A00D79E66 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269B729EDF98A00D79E66 /* Assets.xcassets */; };
 		EA1269BC29EDF98A00D79E66 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269BB29EDF98A00D79E66 /* Preview Assets.xcassets */; };
+		EA1FA0D12D31A8EE00DF3C07 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = EA1FA0D02D31A8EE00DF3C07 /* FirebaseAuth */; };
 		EA501B1129F09594009C4DBC /* objcxx-header-import-test.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA501B1029F09593009C4DBC /* objcxx-header-import-test.mm */; };
 		EA5A62942A9914F300F5711A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA5A62932A9914F300F5711A /* Preview Assets.xcassets */; };
 		EA5A62992A99498500F5711A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269B729EDF98A00D79E66 /* Assets.xcassets */; };
@@ -56,10 +57,6 @@
 		EA5A62932A9914F300F5711A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		EA7DF54229EF20B9005664A7 /* swift-import-test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "swift-import-test.swift"; sourceTree = "<group>"; };
 		EA7DF54929EF2A92005664A7 /* firebase-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "firebase-ios-sdk"; path = ../../; sourceTree = "<group>"; };
-		EAA0A9972AD8495000C28FCD /* ClientApp_CocoaPods_iOS13.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClientApp_CocoaPods_iOS13.entitlements; sourceTree = "<group>"; };
-		EAA0A9992AD8495000C28FCD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		EAA0A9B92AD84E0900C28FCD /* ClientApp_iOS13.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClientApp_iOS13.entitlements; sourceTree = "<group>"; };
-		EAA0A9BB2AD84E0900C28FCD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +75,7 @@
 				EA7DF5AB29EF3327005664A7 /* FirebaseMessaging in Frameworks */,
 				EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */,
 				EA7DF5A529EF3327005664A7 /* FirebaseInAppMessaging-Beta in Frameworks */,
+				EA1FA0D12D31A8EE00DF3C07 /* FirebaseAuth in Frameworks */,
 				EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */,
 				EA7DF5B129EF3328005664A7 /* FirebaseRemoteConfig in Frameworks */,
 				EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */,
@@ -182,22 +180,6 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		EAA0A9982AD8495000C28FCD /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				EAA0A9992AD8495000C28FCD /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		EAA0A9BA2AD84E0900C28FCD /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				EAA0A9BB2AD84E0900C28FCD /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -234,6 +216,7 @@
 				EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */,
 				EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */,
 				EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */,
+				EA1FA0D02D31A8EE00DF3C07 /* FirebaseAuth */,
 			);
 			productName = ClientApp;
 			productReference = EA1269B029EDF98800D79E66 /* ClientApp.app */;
@@ -649,6 +632,10 @@
 		EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		EA1FA0D02D31A8EE00DF3C07 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAuth;
 		};
 		EA7DF58229EF3326005664A7 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
