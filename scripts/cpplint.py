@@ -270,7 +270,6 @@ Syntax: cpplint.py [--verbose=#] [--output=emacs|eclipse|vs7|junit|sed|gsed]
 # here!  cpplint_unittest.py should tell you if you forget to do this.
 _ERROR_CATEGORIES = [
     'build/class',
-    'build/c++tr1',
     'build/deprecated',
     'build/endif_comment',
     'build/explicit_make_pair',
@@ -6318,87 +6317,6 @@ def ProcessLine(filename, file_extension, clean_lines, line,
     for check_fn in extra_check_functions:
       check_fn(filename, clean_lines, line, error)
 
-def FlagCxx11Features(filename, clean_lines, linenum, error):
-  """Flag those c++11 features that we only allow in certain places.
-
-  Args:
-    filename: The name of the current file.
-    clean_lines: A CleansedLines instance containing the file.
-    linenum: The number of the line to check.
-    error: The function to call with any errors found.
-  """
-  line = clean_lines.elided[linenum]
-
-  include = Match(r'\s*#\s*include\s+[<"]([^<"]+)[">]', line)
-
-  # Flag unapproved C++ TR1 headers.
-  if include and include.group(1).startswith('tr1/'):
-    error(filename, linenum, 'build/c++tr1', 5,
-          ('C++ TR1 headers such as <%s> are unapproved.') % include.group(1))
-
-  # Flag unapproved C++11 headers.
-  if include and include.group(1) in ('cfenv',
-                                      'condition_variable',
-                                      'fenv.h',
-                                      'future',
-                                      'mutex',
-                                      'thread',
-                                      'chrono',
-                                      'ratio',
-                                      'regex',
-                                      'system_error',
-                                     ):
-    error(filename, linenum, 'build/c++11', 5,
-          ('<%s> is an unapproved C++11 header.') % include.group(1))
-
-  # The only place where we need to worry about C++11 keywords and library
-  # features in preprocessor directives is in macro definitions.
-  if Match(r'\s*#', line) and not Match(r'\s*#\s*define\b', line): return
-
-  # These are classes and free functions.  The classes are always
-  # mentioned as std::*, but we only catch the free functions if
-  # they're not found by ADL.  They're alphabetical by header.
-  for top_name in (
-      # type_traits
-      'alignment_of',
-      'aligned_union',
-      ):
-    if Search(r'\bstd::%s\b' % top_name, line):
-      error(filename, linenum, 'build/c++11', 5,
-            ('std::%s is an unapproved C++11 class or function.  Send c-style '
-             'an example of where it would make your code more readable, and '
-             'they may let you use it.') % top_name)
-
-
-def FlagCxx14Features(filename, clean_lines, linenum, error):
-  """Flag those C++14 features that we restrict.
-
-  Args:
-    filename: The name of the current file.
-    clean_lines: A CleansedLines instance containing the file.
-    linenum: The number of the line to check.
-    error: The function to call with any errors found.
-  """
-  line = clean_lines.elided[linenum]
-
-  include = Match(r'\s*#\s*include\s+[<"]([^<"]+)[">]', line)
-
-  # Flag unapproved C++14 headers.
-  if include and include.group(1) in ('scoped_allocator', 'shared_mutex'):
-    error(filename, linenum, 'build/c++14', 5,
-          ('<%s> is an unapproved C++14 header.') % include.group(1))
-
-  # These are classes and free functions with abseil equivalents.
-  for top_name in (
-      # memory
-      'make_unique',
-      ):
-    if Search(r'\bstd::%s\b' % top_name, line):
-      error(filename, linenum, 'build/c++14', 5,
-            'std::%s does not exist in C++11. Use absl::%s instead.' %
-            (top_name, top_name))
-
-
 def ProcessFileData(filename, file_extension, lines, error,
                     extra_check_functions=None):
   """Performs lint checks and reports any errors to the given error function.
@@ -6435,8 +6353,6 @@ def ProcessFileData(filename, file_extension, lines, error,
     ProcessLine(filename, file_extension, clean_lines, line,
                 include_state, function_state, nesting_state, error,
                 extra_check_functions)
-    FlagCxx11Features(filename, clean_lines, line, error)
-    FlagCxx14Features(filename, clean_lines, line, error)
   nesting_state.CheckCompletedBlocks(filename, error)
 
   CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error)
