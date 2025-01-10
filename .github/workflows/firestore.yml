@@ -71,6 +71,7 @@ jobs:
               # already trigger the check workflow.
               - 'scripts/binary_to_array.py'
               - 'scripts/build.sh'
+              - 'scripts/cpplint.py'
               - 'scripts/install_prereqs.sh'
               - 'scripts/localize_podfile.swift'
               - 'scripts/pod_lib_lint.rb'
