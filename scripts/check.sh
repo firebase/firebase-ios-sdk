@@ -297,7 +297,7 @@ python --version
 # If cpplint.py itself changed, then run it on the entire repo.
 if [[ "$GITHUB_EVENT_NAME" != pull_request ]] ; then
   CHECK_LINT_CHANGED=0
-elif [[ -n $(git diff --name-only "$GITHUB_REF" HEAD | grep 'scripts/check_lint.py') ]]; then
+elif [[ -n $(git diff --name-only "remotes/origin/$GITHUB_BASE_REF" HEAD | grep 'scripts/check_lint.py') ]]; then
   CHECK_LINT_CHANGED=1
 else
   CHECK_LINT_CHANGED=0
