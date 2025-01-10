@@ -293,8 +293,19 @@ python --version
 "${top_dir}/scripts/check_imports.swift"
 
 # Google C++ style
+
+# If cpplint.py itself changed, then run it on the entire repo.
+if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]] ; then
+  CHECK_LINT_CHANGED=0
+elif [[ -n $(git diff --name-only "$GITHUB_BASE_REF" HEAD | grep 'scripts/check_lint.py') ]]; then
+  CHECK_LINT_CHANGED=1
+else
+  CHECK_LINT_CHANGED=0
+fi
+
 lint_cmd=("${top_dir}/scripts/check_lint.py")
-if [[ "$CHECK_DIFF" == true ]]; then
+if [[ "$CHECK_DIFF" == true ]] && [[ "$CHECK_LINT_CHANGED" == 0 ]] ; then
   lint_cmd+=("${START_SHA}")
 fi
+
 "${lint_cmd[@]}"
