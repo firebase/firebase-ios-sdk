@@ -27,7 +27,7 @@
 
 namespace {
 
-using namespace std::string_literals;
+using namespace std::literals::string_literals;
 using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
 using firebase::firestore::testing::FST_RE_DIGIT;

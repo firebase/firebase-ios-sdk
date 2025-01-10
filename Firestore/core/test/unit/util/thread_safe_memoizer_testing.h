@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_UTIL_THREAD_SAFE_MEMOIZER_TESTING_H_
 #define FIRESTORE_CORE_TEST_UNIT_UTIL_THREAD_SAFE_MEMOIZER_TESTING_H_
 
-#include <atomic>
 #include <cstddef>
+
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <string>
@@ -104,7 +105,7 @@ class CountDownLatch {
 
 class SetOnDestructor {
  public:
-  SetOnDestructor(std::atomic<bool>& flag) : flag_(flag) {
+  explicit SetOnDestructor(std::atomic<bool>& flag) : flag_(flag) {
   }
 
   ~SetOnDestructor() {
