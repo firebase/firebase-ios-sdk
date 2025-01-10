@@ -152,10 +152,26 @@ jobs:
     - name: Patch CMake files to use the custom C++ version
       if: ${{ matrix.cpp_version != 'default' }}
       run: |
-        set -xv
-        grep CMAKE_CXX_STANDARD cmake/compiler_setup.cmake
+        readonly BEFORE=$(grep 'CMAKE_CXX_STANDARD\s\+[0-9]' cmake/compiler_setup.cmake)
+        echo "BEFORE=$BEFORE"
+
         sed -i -e 's/CMAKE_CXX_STANDARD\s\+[0-9]\+/CMAKE_CXX_STANDARD ${{ matrix.cpp_version }}/' cmake/compiler_setup.cmake
-        grep CMAKE_CXX_STANDARD cmake/compiler_setup.cmake
+        readonly AFTER=$(grep 'CMAKE_CXX_STANDARD\s\+[0-9]' cmake/compiler_setup.cmake)
+        echo "AFTER=$AFTER"
+
+        if [[ $BEFORE == $AFTER ]] ; then
+          echo "ERROR: sed command did not actually change anything." >&2
+          echo "Namely, the following line should have changed, but did not: $BEFORE" >&2
+          echo "Make sure that the sed command is correct as it _should_ change the C++ version." >&2
+          exit 1
+        elif [[ $AFTER != *'${{ matrix.cpp_version }}'* ]] ; then
+          echo "ERROR: sed command did not set the correct C++ version." >&2
+          echo "Namely, the following line should have contained ${{ matrix.cpp_version }} but it did not: $AFTER" >&2
+          echo "Make sure that the sed command is correct as it _should_ result in the c++ version being incorporated." >&2
+          exit 1
+        else:
+          echo "C++ version changed successfully."
+        fi
 
     - name: Build and test
       run: |
