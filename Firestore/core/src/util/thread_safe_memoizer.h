@@ -25,7 +25,12 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// TODO(c++20): Remove the inline namespace once the other #ifdef checks for
+// Put the C++11 and C++20 implementations into different inline namespaces so
+// that if, by chance, parts of the code compile with different values of
+// `__cpp_lib_atomic_shared_ptr` this will not result in an ODR-violation
+// (at least on account of just the differing `__cpp_lib_atomic_shared_ptr`).
+//
+// TODO(c++20): Remove the inline namespaces once the other #ifdef checks for
 //  __cpp_lib_atomic_shared_ptr are removed.
 #ifdef __cpp_lib_atomic_shared_ptr
 inline namespace cpp20_atomic_shared_ptr {
