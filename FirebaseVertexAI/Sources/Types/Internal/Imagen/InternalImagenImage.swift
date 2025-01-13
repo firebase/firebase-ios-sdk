@@ -14,8 +14,15 @@
 
 import Foundation
 
+/// Internal representation of an image for the Imagen model.
+///
+/// - Important: For internal use by types conforming to ``ImagenImageRepresentable``; all
+/// properties are `internal` and are not needed by SDK users.
+///
+/// TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
+/// input (upscaling / editing).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct _ImagenImage {
+struct _InternalImagenImage {
   let mimeType: String
   let bytesBase64Encoded: String?
   let gcsURI: String?

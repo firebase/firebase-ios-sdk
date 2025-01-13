@@ -27,8 +27,10 @@ public struct ImagenFileDataImage {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenFileDataImage: ImagenImageRepresentable {
-  public var _imagenImage: _ImagenImage {
-    _ImagenImage(mimeType: mimeType, bytesBase64Encoded: nil, gcsURI: gcsURI)
+  // TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
+  // input (upscaling / editing).
+  var _internalImagenImage: _InternalImagenImage {
+    _InternalImagenImage(mimeType: mimeType, bytesBase64Encoded: nil, gcsURI: gcsURI)
   }
 }
 
