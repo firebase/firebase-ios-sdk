@@ -22,7 +22,7 @@
 #include <random>
 #include <sstream>
 #include <string>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 #include <utility>
 #include <vector>
 

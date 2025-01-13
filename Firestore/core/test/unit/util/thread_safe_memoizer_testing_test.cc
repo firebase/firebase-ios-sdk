@@ -18,7 +18,7 @@
 
 #include <algorithm>
 #include <array>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 
 #include "gtest/gtest.h"
 
