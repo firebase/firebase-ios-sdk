@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/query.h"
 
 #include <algorithm>
+#include <memory>
 #include <ostream>
 
 #include "Firestore/core/src/core/bound.h"
@@ -91,44 +92,42 @@ absl::optional<Operator> Query::FindOpInsideFilters(
   return absl::nullopt;
 }
 
-const std::vector<OrderBy>& Query::normalized_order_bys() const {
-  return memoized_normalized_order_bys_->memoize([&]() {
-    // Any explicit order by fields should be added as is.
-    std::vector<OrderBy> result = explicit_order_bys_;
-    std::set<FieldPath> fieldsNormalized;
-    for (const OrderBy& order_by : explicit_order_bys_) {
-      fieldsNormalized.insert(order_by.field());
+std::shared_ptr<std::vector<OrderBy>> Query::CalculateNormalizedOrderBys()
+    const {
+  // Any explicit order by fields should be added as is.
+  auto result = std::make_shared<std::vector<OrderBy>>(explicit_order_bys_);
+  std::set<FieldPath> fieldsNormalized;
+  for (const OrderBy& order_by : explicit_order_bys_) {
+    fieldsNormalized.insert(order_by.field());
+  }
+
+  // The order of the implicit ordering always matches the last explicit order
+  // by.
+  Direction last_direction = explicit_order_bys_.empty()
+                                 ? Direction::Ascending
+                                 : explicit_order_bys_.back().direction();
+
+  // Any inequality fields not explicitly ordered should be implicitly ordered
+  // in a lexicographical order. When there are multiple inequality filters on
+  // the same field, the field should be added only once. Note:
+  // `std::set<model::FieldPath>` sorts the key field before other fields.
+  // However, we want the key field to be sorted last.
+  const std::set<model::FieldPath> inequality_fields = InequalityFilterFields();
+
+  for (const model::FieldPath& field : inequality_fields) {
+    if (fieldsNormalized.find(field) == fieldsNormalized.end() &&
+        !field.IsKeyFieldPath()) {
+      result->push_back(OrderBy(field, last_direction));
     }
+  }
 
-    // The order of the implicit ordering always matches the last explicit order
-    // by.
-    Direction last_direction = explicit_order_bys_.empty()
-                                   ? Direction::Ascending
-                                   : explicit_order_bys_.back().direction();
+  // Add the document key field to the last if it is not explicitly ordered.
+  if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
+      fieldsNormalized.end()) {
+    result->push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
+  }
 
-    // Any inequality fields not explicitly ordered should be implicitly ordered
-    // in a lexicographical order. When there are multiple inequality filters on
-    // the same field, the field should be added only once. Note:
-    // `std::set<model::FieldPath>` sorts the key field before other fields.
-    // However, we want the key field to be sorted last.
-    const std::set<model::FieldPath> inequality_fields =
-        InequalityFilterFields();
-
-    for (const model::FieldPath& field : inequality_fields) {
-      if (fieldsNormalized.find(field) == fieldsNormalized.end() &&
-          !field.IsKeyFieldPath()) {
-        result.push_back(OrderBy(field, last_direction));
-      }
-    }
-
-    // Add the document key field to the last if it is not explicitly ordered.
-    if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
-        fieldsNormalized.end()) {
-      result.push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
-    }
-
-    return result;
-  });
+  return result;
 }
 
 LimitType Query::limit_type() const {
@@ -296,14 +295,12 @@ std::string Query::ToString() const {
   return absl::StrCat("Query(canonical_id=", CanonicalId(), ")");
 }
 
-const Target& Query::ToTarget() const& {
-  return memoized_target_->memoize(
-      [&]() { return ToTarget(normalized_order_bys()); });
+std::shared_ptr<Target> Query::CalculateTarget() const {
+  return std::make_shared<Target>(ToTarget(normalized_order_bys()));
 }
 
-const Target& Query::ToAggregateTarget() const& {
-  return memoized_aggregate_target_->memoize(
-      [&]() { return ToTarget(explicit_order_bys_); });
+std::shared_ptr<Target> Query::CalculateAggregateTarget() const {
+  return std::make_shared<Target>(ToTarget(explicit_order_bys_));
 }
 
 Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
