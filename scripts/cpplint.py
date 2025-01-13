@@ -283,6 +283,7 @@ _ERROR_CATEGORIES = [
     'build/include_order',
     'build/include_what_you_use',
     'build/namespaces_headers',
+    'build/namespaces_literals',
     'build/namespaces',
     'build/printf_format',
     'build/storage_class',
