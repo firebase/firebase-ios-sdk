@@ -18,10 +18,14 @@
   // TODO(ncooke3): Figure out why this isn't working on CocoaPods.
   import Firebase
 #endif // !COCOAPODS
+#if SWIFT_PACKAGE
+  import FirebaseAuthCombineSwift
+#endif // SWIFT_PACKAGE
 // NOTE(ncooke3): `FirebaseABTesting` is not listed as a library.
 import FirebaseABTesting
 import FirebaseAnalytics
 import FirebaseAppCheck
+import FirebaseAuth
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
 #endif
@@ -47,6 +51,7 @@ import FirebaseMLModelDownloader
   import FirebasePerformance
 #endif
 import FirebaseRemoteConfig
+import FirebaseStorage
 #if SWIFT_PACKAGE
   import FirebaseStorageCombineSwift
 #endif // SWIFT_PACKAGE

@@ -21,10 +21,9 @@
 #import <FirebaseABTesting/FirebaseABTesting.h>
 #import <FirebaseAnalytics/FirebaseAnalytics.h>
 #import <FirebaseAppCheck/FirebaseAppCheck.h>
-#import "Firebase.h"
-#import "FirebaseABTesting/FirebaseABTesting.h"
-#import "FirebaseAnalytics/FirebaseAnalytics.h"
+#import <FirebaseAuth/FirebaseAuth.h>
 #import "FirebaseAppCheck/FirebaseAppCheck.h"
+#import "FirebaseAuth/FirebaseAuth.h"
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import <FirebaseAppDistribution/FirebaseAppDistribution.h>
 #import "FirebaseAppDistribution/FirebaseAppDistribution.h"
@@ -53,3 +52,16 @@
 #endif
 #import <FirebaseRemoteConfig/FirebaseRemoteConfig.h>
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
+
+#ifdef COCOAPODS
+#import "FirebaseStorage/FIRStorageTypedefs.h"
+
+@interface TestImports : NSObject
+@end
+
+@implementation TestImports
+- (FIRAuth *)testImports {
+  return [FIRAuth auth];
+}
+@end
+#endif
