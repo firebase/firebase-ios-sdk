@@ -40,7 +40,6 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImagenModel.imageGenerationParameters(
       storageURI: nil,
       generationConfig: nil,
-      modelConfig: nil,
       safetySettings: nil
     )
 
@@ -64,23 +63,31 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImagenModel.imageGenerationParameters(
       storageURI: storageURI,
       generationConfig: nil,
-      modelConfig: nil,
       safetySettings: nil
     )
 
     XCTAssertEqual(parameters, expectedParameters)
   }
 
-  func testParameters_includeModelConfig() throws {
+  func testParameters_includeGenerationConfig() throws {
+    let sampleCount = 2
+    let negativePrompt = "test-negative-prompt"
     let compressionQuality = 80
     let imageFormat = ImagenImageFormat.jpeg(compressionQuality: compressionQuality)
+    let aspectRatio = ImagenAspectRatio.landscape16x9
     let addWatermark = true
-    let modelConfig = ImagenModelConfig(imageFormat: imageFormat, addWatermark: addWatermark)
+    let generationConfig = ImagenGenerationConfig(
+      numberOfImages: sampleCount,
+      negativePrompt: negativePrompt,
+      imageFormat: imageFormat,
+      aspectRatio: aspectRatio,
+      addWatermark: addWatermark
+    )
     let expectedParameters = ImageGenerationParameters(
-      sampleCount: 1,
+      sampleCount: sampleCount,
       storageURI: nil,
-      negativePrompt: nil,
-      aspectRatio: nil,
+      negativePrompt: negativePrompt,
+      aspectRatio: aspectRatio.rawValue,
       safetyFilterLevel: nil,
       personGeneration: nil,
       outputOptions: ImageGenerationOutputOptions(
@@ -93,39 +100,7 @@ final class ImageGenerationParametersTests: XCTestCase {
 
     let parameters = ImagenModel.imageGenerationParameters(
       storageURI: nil,
-      generationConfig: nil,
-      modelConfig: modelConfig,
-      safetySettings: nil
-    )
-
-    XCTAssertEqual(parameters, expectedParameters)
-  }
-
-  func testParameters_includeGenerationConfig() throws {
-    let sampleCount = 2
-    let negativePrompt = "test-negative-prompt"
-    let aspectRatio = ImagenAspectRatio.landscape16x9
-    let generationConfig = ImagenGenerationConfig(
-      numberOfImages: sampleCount,
-      negativePrompt: negativePrompt,
-      aspectRatio: aspectRatio
-    )
-    let expectedParameters = ImageGenerationParameters(
-      sampleCount: sampleCount,
-      storageURI: nil,
-      negativePrompt: negativePrompt,
-      aspectRatio: aspectRatio.rawValue,
-      safetyFilterLevel: nil,
-      personGeneration: nil,
-      outputOptions: nil,
-      addWatermark: nil,
-      includeResponsibleAIFilterReason: true
-    )
-
-    let parameters = ImagenModel.imageGenerationParameters(
-      storageURI: nil,
       generationConfig: generationConfig,
-      modelConfig: nil,
       safetySettings: nil
     )
 
@@ -155,7 +130,6 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImagenModel.imageGenerationParameters(
       storageURI: nil,
       generationConfig: nil,
-      modelConfig: nil,
       safetySettings: safetySettings
     )
 
@@ -168,15 +142,16 @@ final class ImageGenerationParametersTests: XCTestCase {
     let storageURI = "gs://test-bucket/path"
     let sampleCount = 4
     let negativePrompt = "test-negative-prompt"
+    let imageFormat = ImagenImageFormat.png()
     let aspectRatio = ImagenAspectRatio.portrait3x4
+    let addWatermark = false
     let generationConfig = ImagenGenerationConfig(
       numberOfImages: sampleCount,
       negativePrompt: negativePrompt,
-      aspectRatio: aspectRatio
+      imageFormat: imageFormat,
+      aspectRatio: aspectRatio,
+      addWatermark: addWatermark
     )
-    let imageFormat = ImagenImageFormat.png()
-    let addWatermark = false
-    let modelConfig = ImagenModelConfig(imageFormat: imageFormat, addWatermark: addWatermark)
     let safetyFilterLevel = ImagenSafetyFilterLevel.blockNone
     let personFilterLevel = ImagenPersonFilterLevel.blockAll
     let safetySettings = ImagenSafetySettings(
@@ -201,7 +176,6 @@ final class ImageGenerationParametersTests: XCTestCase {
     let parameters = ImagenModel.imageGenerationParameters(
       storageURI: storageURI,
       generationConfig: generationConfig,
-      modelConfig: modelConfig,
       safetySettings: safetySettings
     )
 
