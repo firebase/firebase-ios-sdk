@@ -22,9 +22,9 @@
 #include <atomic>
 #include <functional>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <string>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 #include <vector>
 
 #include "gtest/gtest.h"

@@ -18,7 +18,7 @@
 
 #include <memory>
 #include <string>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 #include <utility>
 
 #include "Firestore/core/test/unit/util/thread_safe_memoizer_testing.h"
@@ -27,6 +27,7 @@
 
 namespace {
 
+// NOLINTNEXTLINE(build/namespaces_literals)
 using namespace std::literals::string_literals;
 using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
