@@ -358,4 +358,98 @@ class FunctionsTests: XCTestCase {
     }
     waitForExpectations(timeout: 1.5)
   }
+
+  func testGenerateStreamContent() async {
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+    var response = [String]()
+    let responseQueue = DispatchQueue(label: "responseQueue")
+
+    let input: [String: Any] = ["data": "Why is the sky blue"]
+    do {
+      let stream = try await functions?.stream(
+        at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
+        withObject: input,
+        options: options,
+        timeout: 4.0
+      )
+      // First chunk of the stream comes as NSDictionary
+      if let stream = stream {
+        for try await result in stream {
+          if let dataChunk = result.data as? NSDictionary {
+            for (key, value) in dataChunk {
+              responseQueue.sync {
+                response.append("\(key) \(value)")
+              }
+            }
+          } else {
+            // Last chunk is the concatenated result so we have to parse it as String else will
+            // fail.
+            if let dataString = result.data as? String {
+              responseQueue.sync {
+                response.append(dataString)
+              }
+            }
+          }
+        }
+        XCTAssertEqual(
+          response,
+          [
+            "chunk hello",
+            "chunk world",
+            "chunk this",
+            "chunk is",
+            "chunk cool",
+            "hello world this is cool",
+          ]
+        )
+      }
+    } catch {
+      XCTExpectFailure("Failed to download stream: \(error)")
+    }
+  }
+
+  func testGenerateStreamContentCanceled() async {
+    var response = [String]()
+    let responseQueue = DispatchQueue(label: "responseQueue")
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+    let input: [String: Any] = ["data": "Why is the sky blue"]
+
+    let task = Task.detached { [self] in
+      let stream = try await functions?.stream(
+        at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
+        withObject: input,
+        options: options,
+        timeout: 4.0
+      )
+      // First chunk of the stream comes as NSDictionary
+      if let stream = stream {
+        for try await result in stream {
+          if let dataChunk = result.data as? NSDictionary {
+            for (key, value) in dataChunk {
+              responseQueue.sync {
+                response.append("\(key) \(value)")
+              }
+            }
+          } else {
+            // Last chunk is the concatenated result so we have to parse it as String else will
+            // fail.
+            if let dataString = result.data as? String {
+              responseQueue.sync {
+                response.append(dataString)
+              }
+            }
+          }
+        }
+        // Since we cancel the call we are expecting an empty array.
+        XCTAssertEqual(
+          response,
+          []
+        )
+      }
+    }
+    // We cancel the task and we expect a nul respone even if the stream was initiaded.
+    task.cancel()
+    let result = await task.result
+    XCTAssertNotNil(result)
+  }
 }
