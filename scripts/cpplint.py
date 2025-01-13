@@ -6390,16 +6390,6 @@ def FlagCxx14Features(filename, clean_lines, linenum, error):
     error(filename, linenum, 'build/c++14', 5,
           ('<%s> is an unapproved C++14 header.') % include.group(1))
 
-  # These are classes and free functions with abseil equivalents.
-  for top_name in (
-      # memory
-      'make_unique',
-      ):
-    if Search(r'\bstd::%s\b' % top_name, line):
-      error(filename, linenum, 'build/c++14', 5,
-            'std::%s does not exist in C++11. Use absl::%s instead.' %
-            (top_name, top_name))
-
 
 def ProcessFileData(filename, file_extension, lines, error,
                     extra_check_functions=None):
