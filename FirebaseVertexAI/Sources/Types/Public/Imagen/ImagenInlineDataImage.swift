@@ -31,8 +31,10 @@ public struct ImagenInlineDataImage {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenInlineDataImage: ImagenImageRepresentable {
-  public var _imagenImage: _ImagenImage {
-    _ImagenImage(
+  // TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
+  // input (upscaling / editing).
+  var _internalImagenImage: _InternalImagenImage {
+    _InternalImagenImage(
       mimeType: mimeType,
       bytesBase64Encoded: data.base64EncodedString(),
       gcsURI: nil
