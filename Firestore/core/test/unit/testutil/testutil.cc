@@ -93,7 +93,7 @@ constexpr const char* kDeleteSentinel = "<DELETE>";
 // the JDK (which is defined to normalize all NaNs to this value). This also
 // happens to be a common value for NAN in C++, but C++ does not require this
 // specific NaN value to be used, so we normalize.
-ABSL_CONST_INIT const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
+const uint64_t kCanonicalNanBits = 0x7ff8000000000000ULL;
 
 namespace details {
 

@@ -61,7 +61,6 @@
 #include "Firestore/core/test/unit/nanopb/nanopb_testing.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
-#include "Firestore/core/test/unit/testutil/utf8_testing.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 #include "google/protobuf/stubs/common.h"
@@ -122,7 +121,6 @@ using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Query;
 using testutil::Ref;
-using testutil::StringFromU8String;
 using testutil::Value;
 using testutil::Version;
 using util::Status;
@@ -662,22 +660,19 @@ TEST_F(SerializerTest, EncodesString) {
       "",
       "a",
       "abc def",
-      StringFromU8String(u8"æ"),
+      u8"æ",
       // Note: Each one of the three embedded universal character names
       // (\u-escaped) maps to three chars, so the total length of the string
       // literal is 10 (ignoring the terminating null), and the resulting string
       // literal is the same as '\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf'". The
       // size of 10 must be added, or else std::string will see the \0 at the
       // start and assume that's the end of the string.
-      StringFromU8String(u8"\0\ud7ff\ue000\uffff", 10),
+      {u8"\0\ud7ff\ue000\uffff", 10},
       {"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
-      StringFromU8String(u8"(╯°□°）╯︵ ┻━┻"),
+      u8"(╯°□°）╯︵ ┻━┻",
   };
 
-  for (decltype(cases.size()) i = 0; i < cases.size(); ++i) {
-    const std::string& string_value = cases[i];
-    SCOPED_TRACE("iteration " + std::to_string(i) +
-                 ": string_value=" + string_value);
+  for (const std::string& string_value : cases) {
     Message<google_firestore_v1_Value> model = Value(string_value);
     ExpectRoundTrip(model, ValueProto(string_value), TypeOrder::kString);
   }

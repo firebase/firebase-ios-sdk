@@ -89,7 +89,7 @@ class RollingSequenceNumberBuffer {
 
 }  // namespace
 
-ABSL_CONST_INIT const ListenSequenceNumber kListenSequenceNumberInvalid = -1;
+const ListenSequenceNumber kListenSequenceNumberInvalid = -1;
 
 LruParams LruParams::Default() {
   return LruParams{100 * 1024 * 1024, 10, 1000};

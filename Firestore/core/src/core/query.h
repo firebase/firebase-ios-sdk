@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_CORE_QUERY_H_
 
-#include <functional>
 #include <iosfwd>
 #include <limits>
 #include <memory>
@@ -149,10 +148,7 @@ class Query {
    * This might include additional sort orders added implicitly to match the
    * backend behavior.
    */
-  const std::vector<OrderBy>& normalized_order_bys() const {
-    const auto func = std::bind(&Query::CalculateNormalizedOrderBys, this);
-    return memoized_normalized_order_bys_.value(func);
-  }
+  const std::vector<OrderBy>& normalized_order_bys() const;
 
   bool has_limit() const {
     return limit_ != Target::kNoLimit;
@@ -250,10 +246,7 @@ class Query {
    * Returns a `Target` instance this query will be mapped to in backend
    * and local store.
    */
-  const Target& ToTarget() const& {
-    const auto func = std::bind(&Query::CalculateTarget, this);
-    return memoized_target_.value(func);
-  }
+  const Target& ToTarget() const&;
 
   /**
    * Returns a `Target` instance this query will be mapped to in backend
@@ -261,10 +254,7 @@ class Query {
    * for non-aggregate queries, aggregate query targets do not contain
    * normalized order-bys, they only contain explicit order-bys.
    */
-  const Target& ToAggregateTarget() const& {
-    const auto func = std::bind(&Query::CalculateAggregateTarget, this);
-    return memoized_aggregate_target_.value(func);
-  }
+  const Target& ToAggregateTarget() const&;
 
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
 
@@ -305,19 +295,20 @@ class Query {
   // member variable, which is not copyable).
 
   // The memoized list of sort orders.
-  std::shared_ptr<std::vector<OrderBy>> CalculateNormalizedOrderBys() const;
-  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>>
-      memoized_normalized_order_bys_;
+  mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<OrderBy>>>
+      memoized_normalized_order_bys_{
+          std::make_shared<util::ThreadSafeMemoizer<std::vector<OrderBy>>>()};
 
   // The corresponding Target of this Query instance.
-  std::shared_ptr<Target> CalculateTarget() const;
-  mutable util::ThreadSafeMemoizer<Target> memoized_target_;
+  mutable std::shared_ptr<util::ThreadSafeMemoizer<Target>> memoized_target_{
+      std::make_shared<util::ThreadSafeMemoizer<Target>>()};
 
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  std::shared_ptr<Target> CalculateAggregateTarget() const;
-  mutable util::ThreadSafeMemoizer<Target> memoized_aggregate_target_;
+  mutable std::shared_ptr<util::ThreadSafeMemoizer<Target>>
+      memoized_aggregate_target_{
+          std::make_shared<util::ThreadSafeMemoizer<Target>>()};
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

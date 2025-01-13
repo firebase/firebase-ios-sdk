@@ -138,8 +138,7 @@ class CompositeFilter : public Filter {
       return filters_.empty();
     }
 
-    std::shared_ptr<std::vector<FieldFilter>> CalculateFlattenedFilters()
-        const override;
+    const std::vector<FieldFilter>& GetFlattenedFilters() const override;
 
     std::vector<Filter> GetFilters() const override {
       return filters();
