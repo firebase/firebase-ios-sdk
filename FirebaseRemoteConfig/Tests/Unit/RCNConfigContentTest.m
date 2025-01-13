@@ -20,10 +20,49 @@
 @import FirebaseRemoteConfig;
 
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
+/// Constants for key names in the fetch response.
+/// Key that includes an array of template entries.
+static NSString *const RCNFetchResponseKeyEntries = @"entries";
+/// Key that includes data for experiment descriptions in ABT.
+static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
+/// Key that includes data for Personalization metadata.
+static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
+/// Key that includes data for Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutMetadata = @"rolloutMetadata";
+/// Key that indicates rollout id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutID = @"rolloutId";
+/// Key that indicates variant id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyVariantID = @"variantId";
+/// Key that indicates affected parameter keys in Rollout Metadata.
+static NSString *const RCNFetchResponseKeyAffectedParameterKeys = @"affectedParameterKeys";
+/// Error key.
+/// Error key.
+static NSString *const RCNFetchResponseKeyError = @"error";
+/// Error code.
+static NSString *const RCNFetchResponseKeyErrorCode = @"code";
+/// Error status.
+static NSString *const RCNFetchResponseKeyErrorStatus = @"status";
+/// Error message.
+static NSString *const RCNFetchResponseKeyErrorMessage = @"message";
+/// The current state of the backend template.
+static NSString *const RCNFetchResponseKeyState = @"state";
+/// Default state (when not set).
+static NSString *const RCNFetchResponseKeyStateUnspecified = @"INSTANCE_STATE_UNSPECIFIED";
+static NSString *const RCNFetchResponseKeyStateUpdate = @"UPDATE";
+/// No template fetched.
+static NSString *const RCNFetchResponseKeyStateNoTemplate = @"NO_TEMPLATE";
+/// Config key/value map and ABT experiment list both match last fetch.
+static NSString *const RCNFetchResponseKeyStateNoChange = @"NO_CHANGE";
+/// Template found, but evaluates to empty (e.g. all keys omitted).
+static NSString *const RCNFetchResponseKeyStateEmptyConfig = @"EMPTY_CONFIG";
+/// Fetched Template Version key
+static NSString *const RCNFetchResponseKeyTemplateVersion = @"templateVersion";
+/// Active Template Version key
+static NSString *const RCNActiveKeyTemplateVersion = @"activeTemplateVersion";
 
 @import FirebaseRemoteConfig;
 @import FirebaseRemoteConfigInterop;

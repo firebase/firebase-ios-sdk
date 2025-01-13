@@ -83,7 +83,7 @@ extension URLSession: RCNConfigFetchSession {
 @objc(RCNConfigFetch) public class ConfigFetch: NSObject {
   private let content: ConfigContent
 
-  private let settings: ConfigSettings
+  let settings: ConfigSettings
 
   private let analytics: (any FIRAnalyticsInterop)?
 
@@ -241,11 +241,11 @@ extension URLSession: RCNConfigFetchSession {
       if strongSelf.settings.shouldThrottle() && !hasDeviceContextChanged {
         // Must set lastFetchStatus before FailReason.
         strongSelf.settings.lastFetchStatus = .throttled
-        strongSelf.settings.lastFetchError = .throttled
+        strongSelf.settings.lastFetchError = RemoteConfigError.throttled
         let throttledEndTime = strongSelf.settings.exponentialBackoffThrottleEndTime
 
         let error = NSError(
-          domain: RemoteConfigErrorDomain,
+          domain: ConfigConstants.RemoteConfigErrorDomain,
           code: RemoteConfigError.throttled.rawValue,
           userInfo: [throttledEndTimeInSecondsKey: throttledEndTime]
         )
@@ -291,11 +291,11 @@ extension URLSession: RCNConfigFetchSession {
       if strongSelf.settings.shouldThrottle() && !hasDeviceContextChanged {
         // Must set lastFetchStatus before FailReason.
         strongSelf.settings.lastFetchStatus = .throttled
-        strongSelf.settings.lastFetchError = .throttled
+        strongSelf.settings.lastFetchError = RemoteConfigError.throttled
         let throttledEndTime = strongSelf.settings.exponentialBackoffThrottleEndTime
 
         let error = NSError(
-          domain: RemoteConfigErrorDomain,
+          domain: ConfigConstants.RemoteConfigErrorDomain,
           code: RemoteConfigError.throttled.rawValue,
           userInfo: [throttledEndTimeInSecondsKey: throttledEndTime]
         )
@@ -339,7 +339,7 @@ extension URLSession: RCNConfigFetchSession {
         on: completionHandler,
         status: .failure,
         error: NSError(
-          domain: RemoteConfigErrorDomain,
+          domain: ConfigConstants.RemoteConfigErrorDomain,
           code: RemoteConfigError.internalError.rawValue,
           userInfo: [NSLocalizedDescriptionKey: errorDescription]
         )
@@ -366,7 +366,7 @@ extension URLSession: RCNConfigFetchSession {
             on: completionHandler,
             status: .failure,
             error: NSError(
-              domain: RemoteConfigErrorDomain,
+              domain: ConfigConstants.RemoteConfigErrorDomain,
               code: RemoteConfigError.internalError.rawValue,
               userInfo: userInfo
             )
@@ -400,7 +400,7 @@ extension URLSession: RCNConfigFetchSession {
                 on: completionHandler,
                 status: .failure,
                 error: NSError(
-                  domain: RemoteConfigErrorDomain,
+                  domain: ConfigConstants.RemoteConfigErrorDomain,
                   code: RemoteConfigError.internalError.rawValue,
                   userInfo: userInfo
                 )
@@ -502,7 +502,7 @@ extension URLSession: RCNConfigFetchSession {
       let errorString = "Failed to compress the config request."
       RCLog.warning("I-RCN000033", errorString)
       let error = NSError(
-        domain: RemoteConfigErrorDomain,
+        domain: ConfigConstants.RemoteConfigErrorDomain,
         code: RemoteConfigError.internalError.rawValue,
         userInfo: [NSLocalizedDescriptionKey: errorString]
       )
@@ -566,11 +566,11 @@ extension URLSession: RCNConfigFetchSession {
               if strongSelf.settings.shouldThrottle() {
                 // Must set lastFetchStatus before FailReason.
                 strongSelf.settings.lastFetchStatus = .throttled
-                strongSelf.settings.lastFetchError = .throttled
+                strongSelf.settings.lastFetchError = RemoteConfigError.throttled
                 let throttledEndTime = strongSelf.settings.exponentialBackoffThrottleEndTime
 
                 let error = NSError(
-                  domain: RemoteConfigErrorDomain,
+                  domain: ConfigConstants.RemoteConfigErrorDomain,
                   code: RemoteConfigError.throttled.rawValue,
                   userInfo: [throttledEndTimeInSecondsKey: throttledEndTime]
                 )
@@ -600,7 +600,7 @@ extension URLSession: RCNConfigFetchSession {
             status: .failure,
             update: nil,
             error: NSError(
-              domain: RemoteConfigErrorDomain,
+              domain: ConfigConstants.RemoteConfigErrorDomain,
               code: RemoteConfigError.internalError.rawValue,
               userInfo: userInfo
             ),
@@ -651,7 +651,7 @@ extension URLSession: RCNConfigFetchSession {
             }
             RCLog.error("I-RCN000044", errStr + ".")
             let error = NSError(
-              domain: RemoteConfigErrorDomain,
+              domain: ConfigConstants.RemoteConfigErrorDomain,
               code: RemoteConfigError.internalError.rawValue,
               userInfo: [NSLocalizedDescriptionKey: errStr]
             )

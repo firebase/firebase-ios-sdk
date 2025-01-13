@@ -20,10 +20,31 @@
 @import FirebaseRemoteConfig;
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-// #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
+
+#define RCNExperimentTableKeyPayload "experiment_payload"
+#define RCNExperimentTableKeyMetadata "experiment_metadata"
+#define RCNExperimentTableKeyActivePayload "experiment_active_payload"
+#define RCNRolloutTableKeyActiveMetadata "active_rollout_metadata"
+#define RCNRolloutTableKeyFetchedMetadata "fetched_rollout_metadata"
+
+typedef void (^FIRRemoteConfigFetchAndActivateCompletion)(
+    FIRRemoteConfigFetchAndActivateStatus status, NSError *_Nullable error);
+
+static NSString *const RCNFetchResponseKeyEntries = @"entries";
+/// Key that includes data for experiment descriptions in ABT.
+static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
+/// Key that includes data for Personalization metadata.
+static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
+/// Key that includes data for Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutMetadata = @"rolloutMetadata";
+/// Key that indicates rollout id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutID = @"rolloutId";
+/// Key that indicates variant id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyVariantID = @"variantId";
+/// Key that indicates affected parameter keys in Rollout Metadata.
+static NSString *const RCNFetchResponseKeyAffectedParameterKeys = @"affectedParameterKeys";
 
 @import FirebaseRemoteConfig;
 

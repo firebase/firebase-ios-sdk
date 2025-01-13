@@ -20,7 +20,6 @@
 @import FirebaseRemoteConfig;
 
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
@@ -64,7 +63,7 @@
 
   FIRExperimentController *experimentController =
       [[FIRExperimentController alloc] initWithAnalytics:nil];
-  _configExperiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManager
+  _configExperiment = [[RCNConfigExperiment alloc] initWithDbManager:_DBManager
                                                 experimentController:experimentController];
 }
 
@@ -189,7 +188,7 @@
       [[FIRExperimentController alloc] initWithAnalytics:nil];
   id mockExperimentController = OCMPartialMock(experimentController);
   RCNConfigExperiment *experiment =
-      [[RCNConfigExperiment alloc] initWithDBManager:_DBManager
+      [[RCNConfigExperiment alloc] initWithDbManager:_DBManager
                                 experimentController:mockExperimentController];
 
   NSTimeInterval lastStartTime =
