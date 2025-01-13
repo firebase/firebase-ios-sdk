@@ -193,7 +193,7 @@ void Firestore::WaitForPendingWrites(util::StatusCallback callback) {
 
 void Firestore::ClearPersistence(util::StatusCallback callback) {
   worker_queue()->EnqueueEvenWhileRestricted([this, callback] {
-    auto MaybeCallback = [=](Status status) {
+    auto MaybeCallback = [this, callback](Status status) {
       if (callback) {
         user_executor_->Execute([=] { callback(status); });
       }

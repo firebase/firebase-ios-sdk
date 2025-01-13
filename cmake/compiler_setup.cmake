@@ -45,9 +45,19 @@ if(CXX_CLANG OR CXX_GNU)
     -Wuninitialized
     -fno-common
 
+    # Don't fail the build solely on account of using deprecated things.
+    -Wno-error=deprecated-declarations
+
     # Delete unused things
     -Wunused-function -Wunused-value -Wunused-variable
   )
+
+  # Disable "redundant-move" warning since it's not really a problem, and is even a valid coding
+  # style to over-use std::move() in case the type is ever changed to become non-trivially moveable.
+  CHECK_CXX_COMPILER_FLAG("-Wno-redundant-move" FIREBASE_CXX_COMPILER_FLAG_NO_REDUNDANT_MOVE_SUPPORTED)
+  if(FIREBASE_CXX_COMPILER_FLAG_NO_REDUNDANT_MOVE_SUPPORTED)
+    list(APPEND common_flags -Wno-redundant-move)
+  endif()
 
   set(
     cxx_flags
@@ -77,14 +87,6 @@ if(CXX_CLANG OR CXX_GNU)
     if(CXX_CLANG OR CXX_GNU)
       list(APPEND common_flags -fdiagnostics-color)
     endif()
-  endif()
-
-  # Disable treating "redundant-move" as an error since it's not really a problem,
-  # and is even a valid coding style to over-use std::move() in case the type is
-  # ever changed to become non-trivially moveable.
-  CHECK_CXX_COMPILER_FLAG("-Wno-error=redundant-move" FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
-  if(FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
-    list(APPEND common_flags -Wno-error=redundant-move)
   endif()
 endif()
 

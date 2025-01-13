@@ -114,7 +114,12 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-14, ubuntu-latest]
+        os: [ubuntu-latest]
+        cpp_version: [default, 17, 20]
+        compiler: [gcc, clang]
+        include:
+          - os: macos-14
+            cpp_version: default
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -127,9 +132,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ runner.temp }}/ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        key: firestore-ccache-${{ runner.os }}-cpp=${{ matrix.cpp_version }}-compiler=${{ matrix.compiler }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-
+          firestore-ccache-${{ runner.os }}-cpp=${{ matrix.cpp_version }}-compiler=${{ matrix.compiler }}-
 
     - name: Cache Mint packages
       uses: actions/cache@v4
@@ -144,6 +149,51 @@ jobs:
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    - name: Patch CMake files to use the custom C++ version
+      if: ${{ matrix.cpp_version != 'default' }}
+      run: |
+        readonly BEFORE=$(grep 'CMAKE_CXX_STANDARD\s\+[0-9]' cmake/compiler_setup.cmake)
+        echo "BEFORE=$BEFORE"
+
+        sed -i -e 's/CMAKE_CXX_STANDARD\s\+[0-9]\+/CMAKE_CXX_STANDARD ${{ matrix.cpp_version }}/' cmake/compiler_setup.cmake
+        readonly AFTER=$(grep 'CMAKE_CXX_STANDARD\s\+[0-9]' cmake/compiler_setup.cmake)
+        echo "AFTER=$AFTER"
+
+        if [[ $BEFORE == $AFTER ]] ; then
+          echo "ERROR: sed command did not actually change anything." >&2
+          echo "Namely, the following line should have changed, but did not: $BEFORE" >&2
+          echo "Make sure that the sed command is correct as it _should_ change the C++ version." >&2
+          exit 1
+        elif [[ $AFTER != *'${{ matrix.cpp_version }}'* ]] ; then
+          echo "ERROR: sed command did not set the correct C++ version." >&2
+          echo "Namely, the following line should have contained ${{ matrix.cpp_version }} but it did not: $AFTER" >&2
+          echo "Make sure that the sed command is correct as it _should_ result in the c++ version being incorporated." >&2
+          exit 1
+        else:
+          echo "C++ version changed successfully."
+        fi
+
+    - name: Set CC and CXX environment variables
+      run: |
+        echo 'matrix.compiler=${{ matrix.compiler }}'
+        if [[ '${{ matrix.compiler }}' == 'gcc' ]] ; then
+          echo 'Setting CC and CXX for gcc'
+          echo "CC=gcc" >> $GITHUB_ENV
+          echo "CXX=g++" >> $GITHUB_ENV
+          gcc --version
+          g++ --version
+        elif [[ '${{ matrix.compiler }}' == 'clang' ]] ; then
+          echo 'Setting CC and CXX for clang'
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CXX=clang++" >> $GITHUB_ENV
+          clang --version
+          clang++ --version
+        else
+          echo 'Setting neither CC nor CXX'
+          cc --version
+          c++ --version
+        fi
 
     - name: Build and test
       run: |
