@@ -28,34 +28,6 @@ class UserDefaultsManagerTests: XCTestCase {
     UserDefaults.standard.removePersistentDomain(forName: persistentDomain)
   }
 
-//    func testInit_withUserDefaults() {
-//        let mockUserDefaults = UserDefaults(suiteName: "testSuite")!
-//        let manager = UserDefaultsManager(appName: appName, bundleID: bundleID, namespace:
-//        namespace, userDefaults: mockUserDefaults)
-//        XCTAssertTrue(manager.userDefaults === mockUserDefaults) // Check if same instance
-//    }
-//
-//
-//    func testInit_defaultUserDefaults() {
-//        let manager = UserDefaultsManager(appName: appName, bundleID: bundleID, namespace:
-//        namespace)
-//        let sharedDefaults = UserDefaultsManager.sharedUserDefaultsForBundleIdentifier(bundleID)
-//        XCTAssertTrue(manager.userDefaults === sharedDefaults) // Check if using shared instance
-//    }
-//
-//
-//    func testValidateNamespace_fullyQualified() {
-//        let validatedNamespace = UserDefaultsManager.validateNamespace(namespace:
-//        fullyQualifiedNamespace)
-//        XCTAssertEqual(validatedNamespace, "namespace")
-//    }
-//
-//
-//    func testValidateNamespace_notFullyQualified() {
-//        let validatedNamespace = UserDefaultsManager.validateNamespace(namespace: namespace)
-//        XCTAssertEqual(validatedNamespace, namespace) // Should return the same input
-//    }
-
   func testSharedUserDefaultsForBundleIdentifier() {
     let defaults1 = UserDefaultsManager.sharedUserDefaultsForBundleIdentifier(bundleID)
     let defaults2 = UserDefaultsManager.sharedUserDefaultsForBundleIdentifier(bundleID)
@@ -256,9 +228,4 @@ class UserDefaultsManagerTests: XCTestCase {
     manager.resetUserDefaults()
     XCTAssertNil(manager.lastETag) // Check if value was removed
   }
-
-//    func testUserDefaultsNamespace() {
-//      let manager = UserDefaultsManager(appName: appName, bundleID: bundleID, namespace: "a:b:c")
-//      XCTAssertEqual(manager.firebaseNamespace, "a")
-//    }
 }
