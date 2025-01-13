@@ -81,9 +81,9 @@ public final class ImagenModel {
     )
   }
 
-  func generateImages<T: Decodable>(prompt: String,
-                                    parameters: ImageGenerationParameters) async throws
-    -> ImagenGenerationResponse<T> {
+  func generateImages<T>(prompt: String,
+                         parameters: ImageGenerationParameters) async throws
+    -> ImagenGenerationResponse<T> where T: Decodable, T: ImagenImageRepresentable {
     let request = ImagenGenerationRequest<T>(
       model: modelResourceName,
       options: requestOptions,

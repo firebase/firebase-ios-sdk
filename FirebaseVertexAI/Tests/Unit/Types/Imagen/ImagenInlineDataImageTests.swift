@@ -35,9 +35,9 @@ final class ImagenInlineDataImageTests: XCTestCase {
 
     XCTAssertEqual(image.mimeType, mimeType)
     XCTAssertEqual(image.data.base64EncodedString(), bytesBase64Encoded)
-    XCTAssertEqual(image._imagenImage.mimeType, mimeType)
-    XCTAssertEqual(image._imagenImage.bytesBase64Encoded, bytesBase64Encoded)
-    XCTAssertNil(image._imagenImage.gcsURI)
+    XCTAssertEqual(image._internalImagenImage.mimeType, mimeType)
+    XCTAssertEqual(image._internalImagenImage.bytesBase64Encoded, bytesBase64Encoded)
+    XCTAssertNil(image._internalImagenImage.gcsURI)
   }
 
   func testDecodeImage_missingBytesBase64Encoded_throws() throws {
