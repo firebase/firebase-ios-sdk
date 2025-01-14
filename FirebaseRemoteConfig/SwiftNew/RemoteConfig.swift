@@ -469,8 +469,8 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func fetch(withExpirationDuration expirationDuration: TimeInterval) async throws
     -> RemoteConfigFetchStatus {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.fetch(withExpirationDuration: expirationDuration) { status, error in
+    return try await withUnsafeThrowingContinuation { continuation in
+      configFetch.fetchConfig(withExpirationDuration: expirationDuration) { status, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -512,14 +512,12 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// and avoid calling this method again.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func fetchAndActivate() async throws -> RemoteConfigFetchAndActivateStatus {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.fetchAndActivate { status, error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume(returning: status)
-        }
-      }
+    _ = try await fetch()
+    do {
+      try await activate()
+      return .successFetchedFromRemote
+    } catch {
+      return .successUsingPreFetchedData
     }
   }
 
@@ -537,23 +535,25 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   @objc public func fetchAndActivate(completionHandler:
     ((RemoteConfigFetchAndActivateStatus, Error?) -> Void)? =
       nil) {
-    fetch { [weak self] status, error in
+    fetch { [weak self] fetchStatus, error in
       guard let self = self else { return }
       // Fetch completed. We are being called on the main queue.
       // If fetch is successful, try to activate the fetched config
-      if status == .success, error == nil {
+      if fetchStatus == .success, error == nil {
         self.activate { changed, error in
-          let status: RemoteConfigFetchAndActivateStatus = error == nil ?
-            .successFetchedFromRemote : .successUsingPreFetchedData
           if let completionHandler {
             DispatchQueue.main.async {
+              let status: RemoteConfigFetchAndActivateStatus = error == nil ?
+                .successFetchedFromRemote : .successUsingPreFetchedData
               completionHandler(status, nil)
             }
           }
         }
       } else if let completionHandler {
         DispatchQueue.main.async {
-          completionHandler(.error, error)
+          let status: RemoteConfigFetchAndActivateStatus = fetchStatus == .success ?
+            .successFetchedFromRemote : .error
+          completionHandler(status, error)
         }
       }
     }
@@ -565,8 +565,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// appearance of the app to take effect (depending on how config data is used in the app).
   /// - Returns A Bool indicating whether or not a change occurred.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
   public func activate() async throws -> Bool {
-    return try await withCheckedThrowingContinuation { continuation in
+    return try await withUnsafeThrowingContinuation { continuation in
       self.activate { updated, error in
         if let error {
           continuation.resume(throwing: error)
@@ -634,9 +635,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
         DispatchQueue.main.async {
           self.notifyConfigHasActivated()
         }
-        self.configExperiment.updateExperiments { error in
+        self.configExperiment.updateExperiments { _ in
           DispatchQueue.main.async {
-            completion?(true, error)
+            completion?(true, nil)
           }
         }
       } else {
