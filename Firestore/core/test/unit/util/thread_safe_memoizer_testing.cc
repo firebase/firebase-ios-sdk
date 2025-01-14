@@ -16,6 +16,7 @@
 
 #include "Firestore/core/test/unit/util/thread_safe_memoizer_testing.h"
 
+#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <memory>
@@ -26,10 +27,19 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/util/sanitizers.h"
+
 namespace firebase {
 namespace firestore {
 namespace testing {
 namespace {
+
+constexpr bool kIsRunningUnderThreadSanitizer =
+#if THREAD_SANITIZER
+    true;
+#else
+    false;
+#endif
 
 std::vector<std::string> SplitSeparators(const std::string& s) {
   std::vector<std::string> chunks;
@@ -103,14 +113,23 @@ CountDownLatch::CountDownLatch(int count) {
 void CountDownLatch::arrive_and_wait() {
   count_.fetch_sub(1, std::memory_order_acq_rel);
   while (count_.load(std::memory_order_acquire) > 0) {
-    // do nothing; busy wait.
+    std::this_thread::yield();
   }
 }
 
 decltype(std::thread::hardware_concurrency())
 max_practical_parallel_threads_for_testing() {
   const auto hardware_concurrency = std::thread::hardware_concurrency();
-  return hardware_concurrency != 0 ? hardware_concurrency : 4;
+  const auto num_threads = hardware_concurrency != 0 ? hardware_concurrency : 4;
+
+  // Limit the number of threads when running under Thread Sanitizer as the
+  // boilerplate that it puts around atomics is so much that a large number of
+  // threads competing for a std::atomic can bring the app to its knees.
+  if (kIsRunningUnderThreadSanitizer) {
+    return std::min(static_cast<int>(num_threads), 10);
+  }
+
+  return num_threads;
 }
 
 bool GenerateRandomBool() {

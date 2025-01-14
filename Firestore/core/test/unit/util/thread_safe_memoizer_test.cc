@@ -448,7 +448,7 @@ TEST(ThreadSafeMemoizerTest,
 
 TEST(ThreadSafeMemoizerTest, TSAN_ConcurrentCallsToValueShouldNotDataRace) {
   ThreadSafeMemoizer<int> memoizer;
-  const auto num_threads = max_practical_parallel_threads_for_testing() * 4;
+  const auto num_threads = max_practical_parallel_threads_for_testing();
   CountDownLatch latch(num_threads);
   std::vector<std::thread> threads;
   for (auto i = num_threads; i > 0; --i) {
