@@ -63,7 +63,6 @@ final class IntegrationTests: XCTestCase {
     )
     imagenModel = vertex.imagenModel(
       modelName: "imagen-3.0-fast-generate-001",
-      modelConfig: ImagenModelConfig(imageFormat: .jpeg(compressionQuality: 70)),
       safetySettings: ImagenSafetySettings(
         safetyFilterLevel: .blockLowAndAbove,
         personFilterLevel: .blockAll
@@ -254,7 +253,10 @@ final class IntegrationTests: XCTestCase {
     overlooking a vast African savanna at sunset. Golden hour light, long shadows, sharp focus on
     the lion, shallow depth of field, detailed fur texture, DSLR, 85mm lens.
     """
-    let generationConfig = ImagenGenerationConfig(aspectRatio: .landscape16x9)
+    let generationConfig = ImagenGenerationConfig(
+      imageFormat: .jpeg(compressionQuality: 70),
+      aspectRatio: .landscape16x9
+    )
 
     let response = try await imagenModel.generateImages(
       prompt: imagePrompt,
