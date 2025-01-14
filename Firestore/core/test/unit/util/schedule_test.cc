@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/util/schedule.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <cstdlib>
 #include <string>
 

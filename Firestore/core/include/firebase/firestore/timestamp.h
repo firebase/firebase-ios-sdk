@@ -23,7 +23,7 @@
 #include <string>
 
 #if !defined(_STLPORT_VERSION)
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #endif             // !defined(_STLPORT_VERSION)
 
 namespace firebase {
