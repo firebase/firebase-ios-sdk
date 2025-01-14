@@ -66,7 +66,7 @@ final class IntegrationTests: XCTestCase {
 
   // MARK: - Generate Content
 
-  func testGenerateContent() async throws {
+  func testGenerateContent_text() async throws {
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
     let response = try await model.generateContent(prompt)
@@ -75,7 +75,49 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(text, "Mountain View")
   }
 
-  func testGenerateContentStream() async throws {
+  func testGenerateContent_image_fileData_public() async throws {
+    let storageRef = storage.reference(withPath: "vertexai/public/green.png")
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/png")
+
+    let response = try await model.generateContent(fileData, "What color is this?")
+
+    XCTAssertNotNil(response.text)
+  }
+
+  func testGenerateContent_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
+    let userID = "3MjEzU6JIobWvHdCYHicnDMcPpQ2"
+    let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/pink.webp")
+
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
+
+    do {
+      let response = try await model.generateContent(fileData, "What color is this?")
+      XCTFail("Expected to throw an error, got response: \(response)")
+    } catch {
+      let errorDescription = String(describing: error)
+      XCTAssertTrue(errorDescription.contains("403"))
+      XCTAssertTrue(errorDescription.contains("The caller does not have permission"))
+    }
+  }
+
+  func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
+    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    addTeardownBlock { await app.delete() }
+    let vertex = VertexAI.vertexAI(app: app)
+    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    do {
+      let response = try await model.generateContent(prompt)
+      XCTFail("Expected a Firebase App Check error, got response: \(response)")
+    } catch let GenerateContentError.internalError(error) {
+      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
+    }
+  }
+
+  // MARK: - Generate Content Streaming
+
+  func testGenerateContentStream_text() async throws {
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
     var text = ""
@@ -88,18 +130,38 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(text, "Mountain View")
   }
 
-  func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
-    addTeardownBlock { await app.delete() }
-    let vertex = VertexAI.vertexAI(app: app)
-    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
-    let prompt = "Where is Google headquarters located? Answer with the city name only."
+  func testGenerateContentStream_image_fileData_public() async throws {
+    let storageRef = storage.reference(withPath: "vertexai/public/green.png")
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/png")
+
+    var text = ""
+    let contentStream = try model.generateContentStream(fileData, "What color is this?")
+    for try await chunk in contentStream {
+      text += try XCTUnwrap(chunk.text)
+    }
+
+    text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    XCTAssertFalse(text.isEmpty)
+  }
+
+  func testGenerateContentStream_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
+    let userID = "3MjEzU6JIobWvHdCYHicnDMcPpQ2"
+    let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/pink.webp")
+
+    let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
+
+    let contentStream = try model.generateContentStream(fileData, "What color is this?")
 
     do {
-      _ = try await model.generateContent(prompt)
-      XCTFail("Expected a Firebase App Check error; none thrown.")
-    } catch let GenerateContentError.internalError(error) {
-      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
+      var responses = [GenerateContentResponse]()
+      for try await response in contentStream {
+        responses.append(response)
+      }
+      XCTFail("Expected to throw an error, got response(s): \(responses)")
+    } catch {
+      let errorDescription = String(describing: error)
+      XCTAssertTrue(errorDescription.contains("403"))
+      XCTAssertTrue(errorDescription.contains("The caller does not have permission"))
     }
   }
 
@@ -179,8 +241,8 @@ final class IntegrationTests: XCTestCase {
     let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
 
     do {
-      _ = try await model.countTokens(fileData)
-      XCTFail("Expected to throw an error.")
+      let response = try await model.countTokens(fileData)
+      XCTFail("Expected to throw an error, got response: \(response)")
     } catch {
       let errorDescription = String(describing: error)
       XCTAssertTrue(errorDescription.contains("403"))
@@ -242,8 +304,8 @@ final class IntegrationTests: XCTestCase {
     let prompt = "Why is the sky blue?"
 
     do {
-      _ = try await model.countTokens(prompt)
-      XCTFail("Expected a Firebase App Check error; none thrown.")
+      let response = try await model.countTokens(prompt)
+      XCTFail("Expected a Firebase App Check error, got response: \(response)")
     } catch {
       XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
     }
