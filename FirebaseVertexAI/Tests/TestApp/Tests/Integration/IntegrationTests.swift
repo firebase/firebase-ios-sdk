@@ -75,6 +75,19 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(text, "Mountain View")
   }
 
+  func testGenerateContentStream() async throws {
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    var text = ""
+    let contentStream = try model.generateContentStream(prompt)
+    for try await chunk in contentStream {
+      text += try XCTUnwrap(chunk.text)
+    }
+
+    text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    XCTAssertEqual(text, "Mountain View")
+  }
+
   func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
     let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
     addTeardownBlock { await app.delete() }
