@@ -21,6 +21,8 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -100,28 +102,43 @@ class ThreadSafeMemoizer {
    * On the other hand, if this object does _not_ have a memoized value then
    * the given function is called to calculate the value to memoize. The value
    * returned by the function is stored internally as the "memoized value" and
-   * then returned.
+   * then returned. If multiple threads race in calls to this function then
+   * more than one of them may have their functions called but only one of them
+   * will be memoized, with the others being discarded.
    *
-   * The given function *must* be idempotent because it _may_ be called more
-   * than once due to the semantics of "weak" compare-and-exchange. No reference
-   * to the given function is retained by this object. The given function will
-   * be called synchronously by this function, if it is called at all.
+   * The given function will be called synchronously by this function either
+   * zero times or one time. No reference to the given function is retained by
+   * this object.
+   *
+   * The given function _must_ return an initialized `std::shared_ptr<T>`; that
+   * is, the returned `std::shared_ptr<T>` _must_ evaluate to `true` when
+   * converted to `bool`. It is undefined behavior if the returned
+   * `std::shared_ptr<T>` does _not_ satisfy this requirement.
    *
    * This function is thread-safe and may be called concurrently by multiple
    * threads.
    *
-   * The returned reference should only be considered "valid" as long as this
-   * ThreadSafeMemoizer instance is alive.
+   * The returned reference is "valid" only as long as this `ThreadSafeMemoizer`
+   * object is alive; namely, once this `ThreadSafeMemoizer` object's destructor
+   * starts running, the reference returned by this function is invalid and
+   * using it is undefined behavior.
    */
   const T& value(const std::function<std::shared_ptr<T>()>& func) {
     std::shared_ptr<T> old_memoized = std::atomic_load(&memoized_);
+
+    std::shared_ptr<T> new_memoized;
+    bool new_memoized_is_initialized = false;
 
     while (true) {
       if (old_memoized) {
         return *old_memoized;
       }
 
-      std::shared_ptr<T> new_memoized = func();
+      if (!new_memoized_is_initialized) {
+        new_memoized = func();
+        new_memoized_is_initialized = true;
+        HARD_ASSERT(new_memoized);
+      }
 
       if (std::atomic_compare_exchange_weak(&memoized_, &old_memoized,
                                             new_memoized)) {

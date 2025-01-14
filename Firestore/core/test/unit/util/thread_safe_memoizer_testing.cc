@@ -97,13 +97,13 @@ std::string CountingFunc::Next(const std::string& cookie) {
 CountDownLatch::CountDownLatch(int count) {
   // Explicitly store the count into the atomic<int> because initialization is
   // NOT atomic.
-  count_.store(count);
+  count_.store(count, std::memory_order_release);
 }
 
 void CountDownLatch::arrive_and_wait() {
-  count_.fetch_sub(1);
-  while (count_.load() > 0) {
-    std::this_thread::yield();
+  count_.fetch_sub(1, std::memory_order_acq_rel);
+  while (count_.load(std::memory_order_acquire) > 0) {
+    // do nothing; busy wait.
   }
 }
 

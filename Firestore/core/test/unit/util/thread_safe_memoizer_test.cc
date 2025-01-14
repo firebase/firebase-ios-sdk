@@ -41,9 +41,9 @@ using testing::StartsWith;
 /**
  * Performs a copy or move assignment (chosen randomly) on the given memoizer
  * and then ensure that it behaves as expected. This is useful for testing the
- * "move" logic because a move-from object, according to the C++ standard, is in
- * a "valid, but unspecified" state and the only operations it is guaranteed to
- * support are assignment and destruction.
+ * "move" logic because a moved-from object, according to the C++ standard, is
+ * in a "valid, but unspecified" state and the only operations it is guaranteed
+ * to support are assignment and destruction.
  */
 void VerifyWorksAfterBeingAssigned(ThreadSafeMemoizer<std::string>& memoizer);
 
@@ -65,16 +65,12 @@ TEST(ThreadSafeMemoizerTest,
   CountingFunc counter("tfj6v4kdxn_%s");
   auto func = counter.func();
 
-  const auto expected = memoizer.value(func);
-  // Do not hardcode "tfj6v4kdxn_0" as the expected value because
-  // ThreadSafeMemoizer.value() documents that it _may_ call the given function
-  // multiple times.
-  ASSERT_THAT(memoizer.value(func),
-              MatchesRegex("tfj6v4kdxn_"s + FST_RE_DIGIT + "+"));
+  memoizer.value(func);
 
+  ASSERT_EQ(memoizer.value(func), "tfj6v4kdxn_0");
   for (int i = 0; i < 100; i++) {
     SCOPED_TRACE("iteration i=" + std::to_string(i));
-    ASSERT_EQ(memoizer.value(func), expected);
+    ASSERT_EQ(memoizer.value(func), "tfj6v4kdxn_0");
   }
 }
 
@@ -83,14 +79,12 @@ TEST(ThreadSafeMemoizerTest, Value_ShouldOnlyInvokeFunctionOnFirstInvocation) {
   CountingFunc counter;
   auto func = counter.func();
   memoizer.value(func);
-  // Do not hardcode 1 as the expected invocation count because
-  // ThreadSafeMemoizer.value() documents that it _may_ call the given function
-  // multiple times.
-  const auto expected_invocation_count = counter.invocation_count();
+
   for (int i = 0; i < 100; i++) {
+    SCOPED_TRACE("iteration i=" + std::to_string(i));
     memoizer.value(func);
+    EXPECT_EQ(counter.invocation_count(), 1);
   }
-  EXPECT_EQ(counter.invocation_count(), expected_invocation_count);
 }
 
 TEST(ThreadSafeMemoizerTest, Value_ShouldNotInvokeTheFunctionAfterMemoizing) {
@@ -116,6 +110,13 @@ TEST(ThreadSafeMemoizerTest, Value_ShouldNotInvokeTheFunctionAfterMemoizing) {
       // maximize concurrent access to the ThreadSafeMemoizer object.
       latch.arrive_and_wait();
 
+      // Give all the threads a chance to exit the busy wait in
+      // arrive_and_wait() to reduce the chance of unintended "happens-before"
+      // relationships between threads being established.
+      for (auto k = num_threads * 2; k > 0; --k) {
+        std::this_thread::yield();
+      }
+
       // Make an initial invocation of memoizer.value(). If some other thread
       // is known to have already set the memoized value then ensure that our
       // local function is _not_ invoked; otherwise, announce to the other
@@ -128,12 +129,14 @@ TEST(ThreadSafeMemoizerTest, Value_ShouldNotInvokeTheFunctionAfterMemoizing) {
         SCOPED_TRACE("thread i=" + thread_id + " had_memoized_value=" +
                      std::to_string(had_memoized_value) +
                      " memoized_value=" + memoized_value);
-        if (!had_memoized_value) {
-          has_memoized_value.store(true, std::memory_order_release);
-          return my_func_invocation_count;
-        } else {
+        if (had_memoized_value) {
           EXPECT_EQ(my_func_invocation_count, 0);
           return 0;
+        } else {
+          has_memoized_value.store(true, std::memory_order_release);
+          EXPECT_GE(my_func_invocation_count, 0);
+          EXPECT_LE(my_func_invocation_count, 1);
+          return my_func_invocation_count;
         }
       }();
 
@@ -163,8 +166,8 @@ TEST(ThreadSafeMemoizerTest,
   EXPECT_EQ(memoizer.value(memoizer_counter.func()), "aaa");
   EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter.func()), "bbb");
 
-  EXPECT_GT(memoizer_counter.invocation_count(), 0);
-  EXPECT_GT(memoizer_copy_dest_counter.invocation_count(), 0);
+  EXPECT_EQ(memoizer_counter.invocation_count(), 1);
+  EXPECT_EQ(memoizer_copy_dest_counter.invocation_count(), 1);
 }
 
 TEST(ThreadSafeMemoizerTest,
@@ -176,8 +179,8 @@ TEST(ThreadSafeMemoizerTest,
   EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter.func()), "bbb");
   EXPECT_EQ(memoizer.value(memoizer_counter.func()), "aaa");
 
-  EXPECT_GT(memoizer_counter.invocation_count(), 0);
-  EXPECT_GT(memoizer_copy_dest_counter.invocation_count(), 0);
+  EXPECT_EQ(memoizer_counter.invocation_count(), 1);
+  EXPECT_EQ(memoizer_copy_dest_counter.invocation_count(), 1);
 }
 
 TEST(ThreadSafeMemoizerTest, CopyConstructor_MemoizedValue) {
@@ -198,7 +201,7 @@ TEST(ThreadSafeMemoizerTest, MoveConstructor_NoMemoizedValue) {
 
   EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter.func()), "bbb");
 
-  EXPECT_GT(memoizer_move_dest_counter.invocation_count(), 0);
+  EXPECT_EQ(memoizer_move_dest_counter.invocation_count(), 1);
   VerifyWorksAfterBeingAssigned(memoizer);
 }
 
@@ -242,16 +245,13 @@ TEST(ThreadSafeMemoizerTest, CopyAssignment_MemoizedValueToNoMemoizedValue) {
   CountingFunc memoizer_counter("aaa"), memoizer_copy_dest_counter("bbb");
   ThreadSafeMemoizer<std::string> memoizer;
   memoizer.value(memoizer_counter.func());
-  const auto expected_memoizer_counter_invocation_count =
-      memoizer_counter.invocation_count();
   ThreadSafeMemoizer<std::string> memoizer_copy_dest;
 
   memoizer_copy_dest = memoizer;
 
   EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter.func()), "aaa");
   EXPECT_EQ(memoizer.value(memoizer_counter.func()), "aaa");
-  EXPECT_EQ(memoizer_counter.invocation_count(),
-            expected_memoizer_counter_invocation_count);
+  EXPECT_EQ(memoizer_counter.invocation_count(), 1);
   EXPECT_EQ(memoizer_copy_dest_counter.invocation_count(), 0);
 }
 
@@ -274,22 +274,16 @@ TEST(ThreadSafeMemoizerTest, CopyAssignment_MemoizedValueToMemoizedValue) {
       memoizer_copy_dest_counter1("bbb1"), memoizer_copy_dest_counter2("bbb2");
   ThreadSafeMemoizer<std::string> memoizer;
   memoizer.value(memoizer_counter1.func());
-  const auto expected_memoizer_counter1_invocation_count =
-      memoizer_counter1.invocation_count();
   ThreadSafeMemoizer<std::string> memoizer_copy_dest;
   memoizer_copy_dest.value(memoizer_copy_dest_counter1.func());
-  const auto expected_memoizer_copy_dest_counter1_invocation_count =
-      memoizer_copy_dest_counter1.invocation_count();
 
   memoizer_copy_dest = memoizer;
 
   EXPECT_EQ(memoizer_copy_dest.value(memoizer_copy_dest_counter2.func()),
             "aaa1");
   EXPECT_EQ(memoizer.value(memoizer_counter2.func()), "aaa1");
-  EXPECT_EQ(memoizer_counter1.invocation_count(),
-            expected_memoizer_counter1_invocation_count);
-  EXPECT_EQ(memoizer_copy_dest_counter1.invocation_count(),
-            expected_memoizer_copy_dest_counter1_invocation_count);
+  EXPECT_EQ(memoizer_counter1.invocation_count(), 1);
+  EXPECT_EQ(memoizer_copy_dest_counter1.invocation_count(), 1);
 }
 
 TEST(ThreadSafeMemoizerTest, CopyAssignment_CopyToSelf_NoMemoizedValue) {
@@ -301,7 +295,7 @@ TEST(ThreadSafeMemoizerTest, CopyAssignment_CopyToSelf_NoMemoizedValue) {
   memoizer = looks_like_another_memoizer;
 
   EXPECT_EQ(memoizer.value(memoizer_counter.func()), "aaa");
-  EXPECT_GT(memoizer_counter.invocation_count(), 0);
+  EXPECT_EQ(memoizer_counter.invocation_count(), 1);
 }
 
 TEST(ThreadSafeMemoizerTest, CopyAssignment_CopyToSelf_MemoizedValue) {
@@ -310,13 +304,12 @@ TEST(ThreadSafeMemoizerTest, CopyAssignment_CopyToSelf_MemoizedValue) {
   ThreadSafeMemoizer<std::string> memoizer;
   auto& looks_like_another_memoizer = memoizer;
   ASSERT_EQ(&memoizer, &looks_like_another_memoizer);
-  const auto memoized_value = memoizer.value(func);
-  const auto expected_invocation_count = memoizer_counter.invocation_count();
+  memoizer.value(func);
 
   memoizer = looks_like_another_memoizer;
 
-  EXPECT_EQ(memoizer.value(func), memoized_value);
-  EXPECT_EQ(memoizer_counter.invocation_count(), expected_invocation_count);
+  EXPECT_EQ(memoizer.value(func), "aaa_0");
+  EXPECT_EQ(memoizer_counter.invocation_count(), 1);
 }
 
 TEST(ThreadSafeMemoizerTest, MoveAssignment_MemoizedValueToNoMemoizedValue) {
@@ -351,21 +344,15 @@ TEST(ThreadSafeMemoizerTest, MoveAssignment_MemoizedValueToMemoizedValue) {
       memoizer_move_dest_counter1("bbb1"), memoizer_move_dest_counter2("bbb2");
   ThreadSafeMemoizer<std::string> memoizer;
   memoizer.value(memoizer_counter1.func());
-  const auto expected_memoizer_counter1_invocation_count =
-      memoizer_counter1.invocation_count();
   ThreadSafeMemoizer<std::string> memoizer_move_dest;
   memoizer_move_dest.value(memoizer_move_dest_counter1.func());
-  const auto expected_memoizer_move_dest_counter1_invocation_count =
-      memoizer_move_dest_counter1.invocation_count();
 
   memoizer_move_dest = std::move(memoizer);
 
   EXPECT_EQ(memoizer_move_dest.value(memoizer_move_dest_counter2.func()),
             "aaa1");
-  EXPECT_EQ(memoizer_counter1.invocation_count(),
-            expected_memoizer_counter1_invocation_count);
-  EXPECT_EQ(memoizer_move_dest_counter1.invocation_count(),
-            expected_memoizer_move_dest_counter1_invocation_count);
+  EXPECT_EQ(memoizer_counter1.invocation_count(), 1);
+  EXPECT_EQ(memoizer_move_dest_counter1.invocation_count(), 1);
   VerifyWorksAfterBeingAssigned(memoizer);
 }
 
@@ -465,8 +452,13 @@ TEST(ThreadSafeMemoizerTest, TSAN_ConcurrentCallsToValueShouldNotDataRace) {
   CountDownLatch latch(num_threads);
   std::vector<std::thread> threads;
   for (auto i = num_threads; i > 0; --i) {
-    threads.emplace_back([i, &latch, &memoizer] {
+    threads.emplace_back([i, num_threads, &latch, &memoizer] {
       latch.arrive_and_wait();
+
+      for (auto k = num_threads; k > 0; --k) {
+        std::this_thread::yield();
+      }
+
       memoizer.value([i] { return std::make_shared<int>(i); });
     });
   }
@@ -509,31 +501,32 @@ TEST(ThreadSafeMemoizerTest, TSAN_ValueInACopyShouldNotDataRace) {
 }
 
 void VerifyWorksAfterBeingAssigned(ThreadSafeMemoizer<std::string>& memoizer) {
-  ThreadSafeMemoizer<std::string> memoizer2;
-  CountingFunc counter2("sx22pz64dn_%s");
-  auto func2 = counter2.func();
-  const bool counter2_had_memoized_value = GenerateRandomBool();
+  ThreadSafeMemoizer<std::string> other_memoizer;
+  CountingFunc other_memoizer_counter("sx22pz64dn_%s");
 
   // Randomly select whether the original memoizer had a memoized value.
-  const std::string memoized_value = counter2_had_memoized_value
-                                         ? memoizer2.value(func2)
-                                         : "(error code nnwyh34mtx)";
-  const auto invocation_count_before = counter2.invocation_count();
+  const bool other_memoizer_has_memoized_value = GenerateRandomBool();
+  if (other_memoizer_has_memoized_value) {
+    other_memoizer.value(other_memoizer_counter.func());
+  }
 
   // Randomly select copy-assignment or move-assignment.
   if (GenerateRandomBool()) {
-    memoizer = memoizer2;
+    memoizer = other_memoizer;
   } else {
-    memoizer = std::move(memoizer2);
+    memoizer = std::move(other_memoizer);
   }
 
-  if (counter2_had_memoized_value) {
-    EXPECT_EQ(memoizer.value(func2), memoized_value);
-    EXPECT_EQ(counter2.invocation_count(), invocation_count_before);
+  // Verify that the given `ThreadSafeMemoizer` behaves correctly after being
+  // assigned.
+  if (other_memoizer_has_memoized_value) {
+    EXPECT_EQ(memoizer.value(other_memoizer_counter.func()), "sx22pz64dn_0");
+    EXPECT_EQ(other_memoizer_counter.invocation_count(), 1);
   } else {
-    CountingFunc counter3("mx3rfb8qqk");
-    EXPECT_EQ(memoizer.value(counter3.func()), "mx3rfb8qqk");
-    EXPECT_EQ(counter2.invocation_count(), invocation_count_before);
+    CountingFunc temp_counter("mx3rfb8qqk");
+    EXPECT_EQ(memoizer.value(temp_counter.func()), "mx3rfb8qqk");
+    EXPECT_EQ(temp_counter.invocation_count(), 1);
+    EXPECT_EQ(other_memoizer_counter.invocation_count(), 0);
   }
 }
 
