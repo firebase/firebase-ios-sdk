@@ -23,9 +23,9 @@ import Foundation
   private static let experimentMetadataKeyLastStartTime = "last_experiment_start_time"
   private static let serviceOrigin = "frc"
 
-  @objc private var experimentPayloads: [Data]
-  @objc private var experimentMetadata: [String: Any]
-  @objc private var activeExperimentPayloads: [Data]
+  @objc var experimentPayloads: [Data]
+  @objc var experimentMetadata: [String: Any]
+  @objc var activeExperimentPayloads: [Data]
   private let dbManager: ConfigDBManager
   // TODO(ncooke3): This property could be made non-optional after ensuring the
   // unit tests properly configure the default app. This is because the
@@ -144,7 +144,7 @@ import Foundation
     updateActiveExperimentsInDB()
   }
 
-  @objc private func updateExperimentStartTime() {
+  @objc func updateExperimentStartTime() {
     let existingLastStartTime =
       experimentMetadata[Self.experimentMetadataKeyLastStartTime] as? Double
 
