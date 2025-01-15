@@ -359,13 +359,12 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  func testGenerateStreamContent() async {
+  func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     var response = [String]()
     let responseQueue = DispatchQueue(label: "responseQueue")
 
     let input: [String: Any] = ["data": "Why is the sky blue"]
-    do {
       let stream = try await functions?.stream(
         at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
         withObject: input,
@@ -403,9 +402,7 @@ class FunctionsTests: XCTestCase {
           ]
         )
       }
-    } catch {
-      XCTExpectFailure("Failed to download stream: \(error)")
-    }
+      XCTExpectFailure("Failed to download stream")
   }
 
   func testGenerateStreamContentCanceled() async {
