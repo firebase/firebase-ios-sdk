@@ -24,7 +24,7 @@
 
 #if !defined(_STLPORT_VERSION)
 #include <chrono>
-#endif             // !defined(_STLPORT_VERSION)
+#endif  // !defined(_STLPORT_VERSION)
 
 namespace firebase {
 
