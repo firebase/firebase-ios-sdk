@@ -164,6 +164,7 @@
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
 }
 
+// Note: This cannot be tested in Swift.
 - (void)testThrowsWithNilGoogleAppID {
   FIROptions *options = [self fakeOptions];
 #pragma clang diagnostic push
@@ -193,6 +194,7 @@
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
 }
 
+// Note: This cannot be tested in Swift.
 - (void)testThrowsWithNilGCMSenderID {
   FIROptions *options = [self fakeOptions];
 #pragma clang diagnostic push
@@ -222,6 +224,7 @@
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
 }
 
+// Note: This cannot be tested in Swift.
 - (void)testThrowsWithNilProjectID {
   FIROptions *options = [self fakeOptions];
 #pragma clang diagnostic push
