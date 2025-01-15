@@ -179,7 +179,6 @@ class ConfigExperimentOrigTests: XCTestCase {
         self.configExperiment.experimentMetadata["last_experiment_start_time"] as? TimeInterval,
         self.testTimeInterval
       )
-      //  OCMVerify([experiment updateActiveExperimentsInDB]);
       XCTAssertEqual(self.configExperiment.activeExperimentPayloads, [mockPayloadData])
       updateExpecation.fulfill()
     }
