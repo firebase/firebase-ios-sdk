@@ -447,7 +447,7 @@ class FunctionsTests: XCTestCase {
         )
       }
     }
-    // We cancel the task and we expect a nul respone even if the stream was initiaded.
+    // We cancel the task and we expect a null response even if the stream was initiated.
     task.cancel()
     let result = await task.result
     XCTAssertNotNil(result)
