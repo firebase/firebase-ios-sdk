@@ -386,7 +386,6 @@ class FunctionsTests: XCTestCase {
   func testGenerateStreamContentCanceled() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
-    var result = [String]()
 
     let task = Task.detached { [self] in
       let stream = try await functions!.stream(
