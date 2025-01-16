@@ -675,9 +675,9 @@ enum FunctionsConstants {
           }
 
           if let dataChunk = String(data: data, encoding: .utf8) {
-            // We remove the "data :" field so it can be safely parsed to Json.
+            // We remove the "data:" field so it can be safely parsed to Json.
             let dataChunkToJson = dataChunk.split(separator: "\n").map {
-              String($0.dropFirst(6))
+              String($0.dropFirst(5))
             }
             resultArray.append(contentsOf: dataChunkToJson)
           } else {
