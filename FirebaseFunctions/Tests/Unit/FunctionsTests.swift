@@ -361,48 +361,33 @@ class FunctionsTests: XCTestCase {
 
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    var response = [String]()
-    
+    var result = [String]()
+
     let input: [String: Any] = ["data": "Why is the sky blue"]
-      let stream = try await functions?.stream(
-        at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
-        withObject: input,
-        options: options,
-        timeout: 4.0
-      )
-      // First chunk of the stream comes as NSDictionary
-      if let stream = stream {
-        for try await result in stream {
-          if let dataChunk = result.data as? NSDictionary {
-            for (key, value) in dataChunk {
-              response.append("\(key) \(value)")
-              }
-          } else {
-            // Last chunk is the concatenated result so we have to parse it as String else will
-            // fail.
-            if let dataString = result.data as? String {
-                response.append(dataString)
-            }
-          }
-        }
-        XCTAssertEqual(
-          response,
-          [
-            "chunk hello",
-            "chunk world",
-            "chunk this",
-            "chunk is",
-            "chunk cool",
-            "hello world this is cool",
-          ]
-        )
-      }
-      XCTExpectFailure("Failed to download stream")
+    let stream = try await functions!.stream(
+      at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
+      withObject: input,
+      options: options,
+      timeout: 4.0
+    )
+    result = try await response(from: stream)
+    XCTAssertEqual(
+      result,
+      [
+        "chunk hello",
+        "chunk world",
+        "chunk this",
+        "chunk is",
+        "chunk cool",
+        "hello world this is cool",
+      ]
+    )
   }
 
   func testGenerateStreamContentCanceled() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
+    var result = [String]()
 
     let task = Task.detached { [self] in
       let stream = try await functions!.stream(
@@ -411,30 +396,37 @@ class FunctionsTests: XCTestCase {
         options: options,
         timeout: 4.0
       )
-      // First chunk of the stream comes as NSDictionary
-      var response = [String]()
-      for try await result in stream {
-        if let dataChunk = result.data as? NSDictionary {
-          for (key, value) in dataChunk {
-            response.append("\(key) \(value)")
-          }
-        } else {
-          // Last chunk is the concatenated result so we have to parse it as String else will
-          // fail.
-          if let dataString = result.data as? String {
-            response.append(dataString)
-          }
-        }
-      }
+
+      result = try await response(from: stream)
       // Since we cancel the call we are expecting an empty array.
       XCTAssertEqual(
-        response,
+        result,
         []
       )
     }
     // We cancel the task and we expect a null response even if the stream was initiated.
     task.cancel()
-    let result = await task.result
-    XCTAssertNotNil(result)
+    let respone = await task.result
+    XCTAssertNotNil(respone)
   }
+}
+
+private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
+  any Error>) async throws -> [String] {
+  var response = [String]()
+  for try await result in stream {
+    // First chunk of the stream comes as NSDictionary
+    if let dataChunk = result.data as? NSDictionary {
+      for (key, value) in dataChunk {
+        response.append("\(key) \(value)")
+      }
+    } else {
+      // Last chunk is the concatenated result so we have to parse it as String else will
+      // fail.
+      if let dataString = result.data as? String {
+        response.append(dataString)
+      }
+    }
+  }
+  return response
 }
