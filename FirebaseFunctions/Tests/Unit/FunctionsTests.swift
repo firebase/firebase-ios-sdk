@@ -369,7 +369,7 @@ class FunctionsTests: XCTestCase {
       options: options,
       timeout: 4.0
     )
-    result = try await response(from: stream)
+    let result = try await response(from: stream)
     XCTAssertEqual(
       result,
       [
