@@ -14,6 +14,7 @@
 
 import FirebaseABTesting
 
+// TODO: interop
 // import FirebaseAnalyticsInterop
 import FirebaseCore
 import FirebaseCoreExtension
@@ -22,11 +23,11 @@ import FirebaseRemoteConfigInterop
 import Foundation
 @_implementationOnly import GoogleUtilities
 
-public let FIRNamespaceGoogleMobilePlatform = "firebase"
+public let namespaceGoogleMobilePlatform = "firebase"
 
-public let FIRRemoteConfigThrottledEndTimeInSecondsKey = "error_throttled_end_time_seconds"
+public let remoteConfigThrottledEndTimeInSecondsKey = "error_throttled_end_time_seconds"
 
-public let FIRRemoteConfigActivateNotification =
+public let remoteConfigActivateNotification =
   Notification.Name("FIRRemoteConfigActivateNotification")
 
 /// Listener for the get methods.
@@ -34,9 +35,21 @@ public typealias RemoteConfigListener = (String, [String: RemoteConfigValue]) ->
 
 @objc(FIRRemoteConfigSettings)
 public class RemoteConfigSettings: NSObject, NSCopying {
+  /// Indicates the default value in seconds to set for the minimum interval that needs to elapse
+  /// before a fetch request can again be made to the Remote Config backend. After a fetch request
+  /// to
+  /// the backend has succeeded, no additional fetch requests to the backend will be allowed until
+  /// the
+  /// minimum fetch interval expires. Note that you can override this default on a per-fetch request
+  /// basis using `RemoteConfig.fetch(withExpirationDuration:)`. For example, setting
+  /// the expiration duration to 0 in the fetch request will override the `minimumFetchInterval` and
+  /// allow the request to proceed.
   @objc public var minimumFetchInterval: TimeInterval =
     .init(ConfigConstants.defaultMinimumFetchInterval)
 
+  /// Indicates the default value in seconds to abandon a pending fetch request made to the backend.
+  /// This value is set for outgoing requests as the `timeoutIntervalForRequest` as well as the
+  /// `timeoutIntervalForResource` on the `NSURLSession`'s configuration.
   @objc public var fetchTimeout: TimeInterval =
     .init(ConfigConstants.httpDefaultConnectionTimeout)
 
@@ -76,7 +89,7 @@ public enum RemoteConfigFetchAndActivateStatus: Int {
 }
 
 @objc(FIRRemoteConfigError)
-public enum RemoteConfigError: Int, LocalizedError {
+public enum RemoteConfigError: Int, LocalizedError, CustomNSError {
   /// Unknown or no error.
   case unknown = 8001
   /// Frequency of fetch requests exceeds throttled limit.
@@ -97,7 +110,7 @@ public enum RemoteConfigError: Int, LocalizedError {
 }
 
 @objc(FIRRemoteConfigUpdateError)
-public enum RemoteConfigUpdateError: Int, LocalizedError {
+public enum RemoteConfigUpdateError: Int, LocalizedError, CustomNSError {
   /// Unable to make a connection to the Remote Config backend.
   case streamError = 8001
   /// Unable to fetch the latest version of the config.
@@ -127,14 +140,15 @@ public enum RemoteConfigUpdateError: Int, LocalizedError {
 /// DefaultConfig.
 @objc(FIRRemoteConfigSource)
 public enum RemoteConfigSource: Int {
-  case remote /// < The data source is the Remote Config service.
-  case `default` /// < The data source is the DefaultConfig defined for this app.
-  case `static` /// < The data doesn't exist, return a static initialized value.
+  /// The data source is the Remote Config service.
+  case remote
+  /// The data source is the DefaultConfig defined for this app.
+  case `default`
+  /// The data doesn't exist, return a static initialized value.
+  case `static`
 }
 
 // MARK: - RemoteConfig
-
-private var RCInstances = [String: [String: RemoteConfig]]()
 
 /// Firebase Remote Config class. The class method `remoteConfig()` can be used
 /// to fetch, activate and read config results and set default config results on the default
@@ -161,18 +175,30 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   private var listeners = [RemoteConfigListener]()
 
-  public var FIRNamespace: String
-
-  /// Shared Remote Config instances, keyed by FIRApp name and namespace.
-  private static var RCInstances = [String: [String: RemoteConfig]]()
+  let FIRNamespace: String
 
   // MARK: - Public Initializers and Accessors
 
-  @objc public static func remoteConfig(with app: FirebaseApp) -> RemoteConfig {
+  /// Returns the `RemoteConfig` instance for your (non-default) Firebase appID. Note that Firebase
+  /// analytics does not work for non-default app instances. This singleton object contains the
+  /// complete set of Remote Config parameter values available to the app, including the Active
+  /// Config
+  /// and Default Config. This object also caches values fetched from the Remote Config Server until
+  /// they are copied to the Active Config by calling `activate())`. When you fetch values
+  /// from the Remote Config Server using the non-default Firebase app, you should use this
+  /// class method to create and reuse shared instance of `RemoteConfig`.
+  @objc(remoteConfigWithApp:) public static func remoteConfig(app: FirebaseApp) -> RemoteConfig {
     return remoteConfig(withFIRNamespace: RemoteConfigConstants.NamespaceGoogleMobilePlatform,
                         app: app)
   }
 
+  /// Returns the `RemoteConfig` instance configured for the default Firebase app. This singleton
+  /// object contains the complete set of Remote Config parameter values available to the app,
+  /// including the Active Config and Default Config. This object also caches values fetched from
+  /// the
+  /// Remote Config server until they are copied to the Active Config by calling `activate()`. When
+  /// you fetch values from the Remote Config server using the default Firebase app, you should use
+  /// this class method to create and reuse a shared instance of `RemoteConfig`.
   @objc public static func remoteConfig() -> RemoteConfig {
     guard let app = FirebaseApp.app() else {
       fatalError("The default FirebaseApp instance must be configured before the " +
@@ -185,6 +211,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
                         app: app)
   }
 
+  /// API for internal use only.
   @objc(remoteConfigWithFIRNamespace:)
   public static func remoteConfig(withFIRNamespace firebaseNamespace: String) -> RemoteConfig {
     guard let app = FirebaseApp.app() else {
@@ -198,8 +225,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     return remoteConfig(withFIRNamespace: firebaseNamespace, app: app)
   }
 
-  // Use the provider to generate and return instances of FIRRemoteConfig for this specific app and
-  // namespace. This will ensure the app is configured before Remote Config can return an instance.
+  /// API for internal use only.
+  /// Use the provider to generate and return instances of FIRRemoteConfig for this specific app and
+  /// namespace. This will ensure the app is configured before Remote Config can return an instance.
   @objc(remoteConfigWithFIRNamespace:app:)
   public static func remoteConfig(withFIRNamespace firebaseNamespace: String = RemoteConfigConstants
     .NamespaceGoogleMobilePlatform,
@@ -389,7 +417,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
       let initializationSuccess = self.configContent.initializationSuccessful()
       let error = initializationSuccess ? nil :
         NSError(
-          domain: ConfigConstants.RemoteConfigErrorDomain,
+          domain: ConfigConstants.remoteConfigErrorDomain,
           code: RemoteConfigError.internalError.rawValue,
           userInfo: [NSLocalizedDescriptionKey: "Timed out waiting for database load."]
         )
@@ -414,7 +442,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     }
   }
 
-  // MARK: fetch
+  // MARK: - Fetch
 
   /// Fetches Remote Config data with a callback. Call `activate()` to make fetched data
   /// available to your app.
@@ -499,7 +527,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
                             completionHandler: completionHandler)
   }
 
-  // MARK: fetchAndActivate
+  // MARK: - FetchAndActivate
 
   /// Fetches Remote Config data and if successful, activates fetched data. Optional completion
   /// handler callback is invoked after the attempted activation of data, if the fetch call
@@ -559,7 +587,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     }
   }
 
-  // MARK: activate
+  // MARK: - Activate
 
   /// Applies Fetched Config data to the Active Config, causing updates to the behavior and
   /// appearance of the app to take effect (depending on how config data is used in the app).
@@ -585,7 +613,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     queue.async { [weak self] in
       guard let self = self else {
         let error = NSError(
-          domain: ConfigConstants.RemoteConfigErrorDomain,
+          domain: ConfigConstants.remoteConfigErrorDomain,
           code: RemoteConfigError.internalError.rawValue,
           userInfo: ["ActivationFailureReason": "Internal Error."]
         )
@@ -631,7 +659,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
       // Update experiments only for 3p namespace
       let namespace = self.FIRNamespace.split(separator: ":").first.map(String.init)
-      if namespace == FIRNamespaceGoogleMobilePlatform {
+      if namespace == NamespaceGoogleMobilePlatform {
         DispatchQueue.main.async {
           self.notifyConfigHasActivated()
         }
@@ -653,7 +681,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     // The Remote Config Swift SDK will be listening for this notification so it can tell SwiftUI
     // to update the UI.
     NotificationCenter.default.post(
-      name: FIRRemoteConfigActivateNotification, object: self,
+      name: remoteConfigActivateNotification, object: self,
       userInfo: ["FIRAppNameKey": appName]
     )
   }
@@ -780,7 +808,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     return count
   }
 
-  // MARK: Defaults
+  // MARK: - Defaults
 
   /// Sets config defaults for parameter keys and values in the default namespace config.
   /// - Parameter defaults         A dictionary mapping a NSString * key to a NSObject * value.
@@ -800,9 +828,8 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// Sets default configs from plist for default namespace.
   ///
   /// - Parameter fileName The plist file name, with no file name extension. For example, if the
-  /// plist
-  /// file is named `defaultSamples.plist`:
-  ///                 `RemoteConfig.remoteConfig().setDefaults(fromPlist: "defaultSamples")`
+  /// plist file is named `defaultSamples.plist`:
+  ///  `RemoteConfig.remoteConfig().setDefaults(fromPlist: "defaultSamples")`
   @objc(setDefaultsFromPlistFileName:)
   public func setDefaults(fromPlist fileName: String?) {
     guard let fileName = fileName, !fileName.isEmpty else {
@@ -824,9 +851,8 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   /// Returns the default value of a given key from the default config.
   ///
-  /// - Parameter key              The parameter key of default config.
-  /// - Returns                 Returns the default value of the specified key. Returns
-  ///                         nil if the key doesn't exist in the default config.
+  /// - Parameter key The parameter key of default config.
+  /// - Returns The default value of the specified key if the key exists; otherwise, nil.
   @objc public func defaultValue(forKey key: String) -> RemoteConfigValue? {
     let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
     var value: RemoteConfigValue?

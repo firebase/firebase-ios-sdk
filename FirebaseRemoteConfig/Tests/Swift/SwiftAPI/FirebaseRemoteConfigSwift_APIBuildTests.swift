@@ -57,8 +57,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
 //    let _ = FirebaseRemoteConfig.RemoteConfigError(_nsError: nsError)
 //    let _: FirebaseRemoteConfig.RemoteConfigError.Code._ErrorType = FirebaseRemoteConfig
 //      .RemoteConfigError(_nsError: nsError)
-//    let _: String = FirebaseRemoteConfig.RemoteConfigError.errorDomain
-//    let code: FirebaseRemoteConfig.RemoteConfigError
+    let _: String = FirebaseRemoteConfig.RemoteConfigError.errorDomain
     switch code {
     case .unknown: break
     case .throttled: break
@@ -75,8 +74,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
 //    let _ = FirebaseRemoteConfig.RemoteConfigUpdateError(_nsError: nsError)
 //    let _: FirebaseRemoteConfig.RemoteConfigUpdateError.Code._ErrorType = FirebaseRemoteConfig
 //      .RemoteConfigUpdateError(_nsError: nsError)
-//    let _: String = FirebaseRemoteConfig.RemoteConfigUpdateError.errorDomain
-//    let updateErrorCode: FirebaseRemoteConfig.RemoteConfigUpdateError
+    let _: String = FirebaseRemoteConfig.RemoteConfigUpdateError.errorDomain
     switch updateErrorCode {
     case .streamError: break
     case .notFetched: break

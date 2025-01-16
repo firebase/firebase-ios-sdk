@@ -24,9 +24,9 @@ enum ConfigConstants {
   static let remoteConfigQueueLabel = "com.google.GoogleConfigService.FIRRemoteConfig"
 
   /// Remote Config Error Domain.
-  static let RemoteConfigErrorDomain = "com.google.remoteconfig.ErrorDomain"
+  static let remoteConfigErrorDomain = "com.google.remoteconfig.ErrorDomain"
   // Remote Config Realtime Error Domain
-  static let RemoteConfigUpdateErrorDomain = "com.google.remoteconfig.update.ErrorDomain"
+  static let remoteConfigUpdateErrorDomain = "com.google.remoteconfig.update.ErrorDomain"
 
   // MARK: - Fetch Response Keys
 
