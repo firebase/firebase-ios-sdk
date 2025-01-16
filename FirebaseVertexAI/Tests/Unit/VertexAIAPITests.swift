@@ -38,6 +38,15 @@ final class VertexAIAPITests: XCTestCase {
       parts: TextPart("Talk like a pirate.")
     )
 
+    let apiVersionID = "v1"
+    let apiVersion = APIVersion.v1
+    let _ = RequestOptions()
+    let _ = RequestOptions(apiVersion: .v1)
+    let _ = RequestOptions(apiVersion: "v1")
+    let _ = RequestOptions(apiVersion: APIVersion(stringLiteral: "v1"))
+    let _ = RequestOptions(apiVersion: APIVersion(stringLiteral: apiVersionID))
+    let _ = RequestOptions(apiVersion: apiVersion)
+
     // Instantiate Vertex AI SDK - Default App
     let vertexAI = VertexAI.vertexAI()
     let _ = VertexAI.vertexAI(location: "my-location")
