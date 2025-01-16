@@ -51,7 +51,7 @@ NS_SWIFT_NAME(CallbackWrapper)
 // are invoked on a different thread than the one they were originally defined in. If this callback
 // is expected to be called on a different thread, it should be marked as `Sendable` to ensure
 // thread safety.
-+ (std::unique_ptr<core::EventListener<std::vector<api::PipelineResult>>>)
++ (std::shared_ptr<core::EventListener<std::vector<api::PipelineResult>>>)
     wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
               completion:(void (^NS_SWIFT_SENDABLE)(PipelineResultVector result,
                                                     NSError *_Nullable error))completion
