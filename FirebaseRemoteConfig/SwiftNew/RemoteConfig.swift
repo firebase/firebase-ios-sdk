@@ -241,24 +241,18 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   }
 
   /// Last successful fetch completion time.
-  @objc public var lastFetchTime: Date? {
-    var fetchTime: Date?
+  @objc public var lastFetchTime: Date {
     queue.sync {
       let lastFetchTimeInterval = self.settings.lastFetchTimeInterval
-      if lastFetchTimeInterval > 0 {
-        fetchTime = Date(timeIntervalSince1970: lastFetchTimeInterval)
-      }
+      return Date(timeIntervalSince1970: lastFetchTimeInterval)
     }
-    return fetchTime
   }
 
   /// Last fetch status. The status can be any enumerated value from `RemoteConfigFetchStatus`.
   @objc public var lastFetchStatus: RemoteConfigFetchStatus {
-    var currentStatus: RemoteConfigFetchStatus = .noFetchYet
     queue.sync {
-      currentStatus = self.configFetch.settings.lastFetchStatus
+      self.configFetch.settings.lastFetchStatus
     }
-    return currentStatus
   }
 
   /// Config settings are custom settings.
@@ -266,11 +260,8 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     get {
       // These properties *must* be accessed and returned on the lock queue
       // to ensure thread safety.
-      var minimumFetchInterval: TimeInterval = ConfigConstants.defaultMinimumFetchInterval
-      var fetchTimeout: TimeInterval = ConfigConstants.httpDefaultConnectionTimeout
-      queue.sync {
-        minimumFetchInterval = self.settings.minimumFetchInterval
-        fetchTimeout = self.settings.fetchTimeout
+      let (minimumFetchInterval, fetchTimeout) = queue.sync {
+        (self.settings.minimumFetchInterval, self.settings.fetchTimeout)
       }
 
       RCLog.debug("I-RCN000066",
@@ -279,6 +270,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
       let settings = RemoteConfigSettings()
       settings.minimumFetchInterval = minimumFetchInterval
       settings.fetchTimeout = fetchTimeout
+
+      /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+      configFetch.recreateNetworkSession()
       RCLog.debug("I-RCN987366",
                   "Successfully read configSettings. Minimum Fetch Interval: " +
                     "\(minimumFetchInterval), Fetch timeout: \(fetchTimeout)")
@@ -286,9 +280,8 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     }
     set {
       queue.async {
-        let configSettings = newValue
-        self.settings.minimumFetchInterval = configSettings.minimumFetchInterval
-        self.settings.fetchTimeout = configSettings.fetchTimeout
+        self.settings.minimumFetchInterval = newValue.minimumFetchInterval
+        self.settings.fetchTimeout = newValue.fetchTimeout
 
         /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
         self.configFetch.recreateNetworkSession()
@@ -413,7 +406,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// - Parameter completionHandler: Initialization complete callback with error parameter.
   @objc public func ensureInitialized(completionHandler: @escaping (Error?) -> Void) {
     DispatchQueue.global(qos: .utility).async { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
       let initializationSuccess = self.configContent.initializationSuccessful()
       let error = initializationSuccess ? nil :
         NSError(
@@ -435,7 +428,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   private func callListeners(key: String, config: [String: RemoteConfigValue]) {
     queue.async { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
       for listener in self.listeners {
         listener(key, config)
       }
@@ -564,7 +557,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     ((RemoteConfigFetchAndActivateStatus, Error?) -> Void)? =
       nil) {
     fetch { [weak self] fetchStatus, error in
-      guard let self = self else { return }
+      guard let self else { return }
       // Fetch completed. We are being called on the main queue.
       // If fetch is successful, try to activate the fetched config
       if fetchStatus == .success, error == nil {
@@ -611,7 +604,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// - Parameter completion Activate operation callback with changed and error parameters.
   @objc public func activate(completion: ((Bool, Error?) -> Void)? = nil) {
     queue.async { [weak self] in
-      guard let self = self else {
+      guard let self else {
         let error = NSError(
           domain: ConfigConstants.remoteConfigErrorDomain,
           code: RemoteConfigError.internalError.rawValue,
@@ -816,7 +809,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     let defaults = defaults ?? [String: Any]()
     let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
     queue.async { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
 
       self.configContent.copy(fromDictionary: [fullyQualifiedNamespace: defaults],
                               toSource: .default,
