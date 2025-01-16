@@ -406,43 +406,36 @@ class FunctionsTests: XCTestCase {
   }
 
   func testGenerateStreamContentCanceled() async {
-    var response = [String]()
-    let responseQueue = DispatchQueue(label: "responseQueue")
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
 
     let task = Task.detached { [self] in
-      let stream = try await functions?.stream(
+      let stream = try await functions!.stream(
         at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
         withObject: input,
         options: options,
         timeout: 4.0
       )
       // First chunk of the stream comes as NSDictionary
-      if let stream = stream {
-        for try await result in stream {
-          if let dataChunk = result.data as? NSDictionary {
-            for (key, value) in dataChunk {
-              responseQueue.sync {
-                response.append("\(key) \(value)")
-              }
-            }
-          } else {
-            // Last chunk is the concatenated result so we have to parse it as String else will
-            // fail.
-            if let dataString = result.data as? String {
-              responseQueue.sync {
-                response.append(dataString)
-              }
-            }
+      var response = [String]()
+      for try await result in stream {
+        if let dataChunk = result.data as? NSDictionary {
+          for (key, value) in dataChunk {
+            response.append("\(key) \(value)")
+          }
+        } else {
+          // Last chunk is the concatenated result so we have to parse it as String else will
+          // fail.
+          if let dataString = result.data as? String {
+            response.append(dataString)
           }
         }
-        // Since we cancel the call we are expecting an empty array.
-        XCTAssertEqual(
-          response,
-          []
-        )
       }
+      // Since we cancel the call we are expecting an empty array.
+      XCTAssertEqual(
+        response,
+        []
+      )
     }
     // We cancel the task and we expect a null response even if the stream was initiated.
     task.cancel()
