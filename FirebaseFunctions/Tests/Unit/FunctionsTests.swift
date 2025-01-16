@@ -395,7 +395,7 @@ class FunctionsTests: XCTestCase {
         timeout: 4.0
       )
 
-      result = try await response(from: stream)
+      let result = try await response(from: stream)
       // Since we cancel the call we are expecting an empty array.
       XCTAssertEqual(
         result,
