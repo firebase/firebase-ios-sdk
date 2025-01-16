@@ -362,8 +362,7 @@ class FunctionsTests: XCTestCase {
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     var response = [String]()
-    let responseQueue = DispatchQueue(label: "responseQueue")
-
+    
     let input: [String: Any] = ["data": "Why is the sky blue"]
       let stream = try await functions?.stream(
         at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
@@ -376,17 +375,13 @@ class FunctionsTests: XCTestCase {
         for try await result in stream {
           if let dataChunk = result.data as? NSDictionary {
             for (key, value) in dataChunk {
-              responseQueue.sync {
-                response.append("\(key) \(value)")
+              response.append("\(key) \(value)")
               }
-            }
           } else {
             // Last chunk is the concatenated result so we have to parse it as String else will
             // fail.
             if let dataString = result.data as? String {
-              responseQueue.sync {
                 response.append(dataString)
-              }
             }
           }
         }
