@@ -103,7 +103,7 @@ extension RemoteConfigComponent: RemoteConfigProvider {
       let analytics = app.isDefaultApp ? app.container.instance(for: FIRAnalyticsInterop.self) : nil
       let newInstance = RemoteConfig(
         appName: app.name,
-        firOptions: app.options,
+        options: app.options,
         namespace: remoteConfigNamespace,
         dbManager: ConfigDBManager.sharedInstance,
         configContent: ConfigContent.sharedInstance,
@@ -168,7 +168,7 @@ extension RemoteConfigComponent: RemoteConfigInterop {
     .RolloutsStateSubscriber,
     for namespace: String) {
     if let instance = remoteConfig(forNamespace: namespace) {
-      instance.addInteropSubscriber(subscriber)
+      instance.addRemoteConfigInteropSubscriber(subscriber)
     }
   }
 }

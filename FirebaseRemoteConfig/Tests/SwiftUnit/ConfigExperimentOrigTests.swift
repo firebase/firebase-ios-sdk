@@ -36,7 +36,7 @@ class ConfigExperimentOrigTests: XCTestCase {
     dbManager = ConfigDBManagerFake()
     experimentController = ExperimentControllerFake()
     configExperiment = ConfigExperiment(
-      DBManager: dbManager,
+      dbManager: dbManager,
       experimentController: experimentController
     )
   }
@@ -53,7 +53,7 @@ class ConfigExperimentOrigTests: XCTestCase {
 
     // Initializer will load experiment from table.
     let configExperiment = ConfigExperiment(
-      DBManager: dbManager,
+      dbManager: dbManager,
       experimentController: ExperimentController.sharedInstance()
     )
 

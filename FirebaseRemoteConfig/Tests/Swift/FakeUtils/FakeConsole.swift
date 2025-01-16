@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+@testable import FirebaseRemoteConfig
 #if SWIFT_PACKAGE
   import RemoteConfigFakeConsoleObjC
 #endif
@@ -31,13 +32,17 @@ class FakeConsole {
   func get() -> [String: AnyHashable] {
     if config.count == 0 {
       last = config
-      return [RCNFetchResponseKeyState: RCNFetchResponseKeyStateEmptyConfig]
+      return [ConfigConstants.fetchResponseKeyState: ConfigConstants
+        .fetchResponseKeyStateEmptyConfig]
     }
-    var state = RCNFetchResponseKeyStateNoChange
+    var state = ConfigConstants.fetchResponseKeyStateNoChange
     if last != config {
-      state = RCNFetchResponseKeyStateUpdate
+      state = ConfigConstants.fetchResponseKeyStateUpdate
     }
     last = config
-    return [RCNFetchResponseKeyState: state, RCNFetchResponseKeyEntries: config]
+    return [
+      ConfigConstants.fetchResponseKeyState: state,
+      ConfigConstants.fetchResponseKeyEntries: config,
+    ]
   }
 }

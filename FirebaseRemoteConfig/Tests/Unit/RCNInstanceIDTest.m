@@ -19,9 +19,7 @@
 
 @import FirebaseRemoteConfig;
 
-// #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
@@ -30,6 +28,9 @@
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig-Swift.h"
+
+typedef void (^FIRRemoteConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
+                                               NSError *_Nullable error);
 
 @import FirebaseRemoteConfigInterop;
 

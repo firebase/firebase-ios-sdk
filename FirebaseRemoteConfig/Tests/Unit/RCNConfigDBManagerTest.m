@@ -22,9 +22,13 @@
 @import FirebaseRemoteConfig;
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigDefines.h"
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
+
+#define RCNExperimentTableKeyPayload "experiment_payload"
+#define RCNExperimentTableKeyMetadata "experiment_metadata"
+#define RCNExperimentTableKeyActivePayload "experiment_active_payload"
+#define RCNRolloutTableKeyActiveMetadata "active_rollout_metadata"
+#define RCNRolloutTableKeyFetchedMetadata "fetched_rollout_metadata"
 
 typedef void (^RCNDBCompletion)(BOOL success, NSDictionary *result);
 typedef void (^RCNDBDictCompletion)(NSDictionary *result);

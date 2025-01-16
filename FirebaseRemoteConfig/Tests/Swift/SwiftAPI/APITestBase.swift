@@ -14,7 +14,7 @@
 
 import FirebaseCore
 import FirebaseInstallations
-import FirebaseRemoteConfig
+@testable import FirebaseRemoteConfig
 
 #if SWIFT_PACKAGE
   import RemoteConfigFakeConsoleObjC
@@ -115,7 +115,7 @@ class APITestBase: XCTestCase {
     }
 
     // Uncomment for verbose debug logging.
-    // FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
+    FirebaseConfiguration.shared.setLoggerLevel(FirebaseLoggerLevel.debug)
   }
 
   override func tearDown() {
