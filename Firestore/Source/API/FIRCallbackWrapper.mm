@@ -34,10 +34,9 @@ using firebase::firestore::util::StatusOr;
 
 @implementation FIRCallbackWrapper
 
-+ (PipelineSnapshotListener)
-    wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-              completion:(void (^)(std::shared_ptr<std::vector<PipelineResult>> result,
-                                   NSError *_Nullable error))completion {
++ (PipelineSnapshotListener)wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
+                                      completion:(void (^)(PipelineResultVector result,
+                                                           NSError *_Nullable error))completion {
   class Converter : public EventListener<std::vector<PipelineResult>> {
    public:
     explicit Converter(std::shared_ptr<api::Firestore> firestore, PipelineBlock completion)
@@ -47,11 +46,10 @@ using firebase::firestore::util::StatusOr;
     void OnEvent(StatusOr<std::vector<PipelineResult>> maybe_snapshot) override {
       if (maybe_snapshot.ok()) {
         completion_(
-            std::make_shared<std::vector<PipelineResult>>(
-                std::initializer_list<PipelineResult>{PipelineResult::GetTestResult(firestore_)}),
+            std::initializer_list<PipelineResult>{PipelineResult::GetTestResult(firestore_)},
             nullptr);
       } else {
-        completion_(nullptr, MakeNSError(maybe_snapshot.status()));
+        completion_(std::initializer_list<PipelineResult>{}, MakeNSError(maybe_snapshot.status()));
       }
     }
 

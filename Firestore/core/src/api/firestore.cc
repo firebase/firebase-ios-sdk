@@ -228,7 +228,8 @@ void Firestore::SetClientLanguage(std::string language_token) {
 }
 
 PipelineSource Firestore::pipeline() {
-  return {shared_from_this()};
+  EnsureClientConfigured();
+  return PipelineSource(shared_from_this());
 }
 
 std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(

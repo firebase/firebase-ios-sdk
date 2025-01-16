@@ -24,13 +24,13 @@ public struct PipelineResult {
     cppObj = cppSource
   }
 
-  static func convertToArrayFromCppVector(_ vectorPtr: PipelineResultVectorPtr)
+  static func convertToArrayFromCppVector(_ vector: PipelineResultVector)
     -> [PipelineResult] {
     // Create a Swift array and populate it by iterating over the C++ vector
     var swiftArray: [PipelineResult] = []
 
-    for index in vectorPtr.pointee.indices {
-      let cppResult = vectorPtr.pointee[index]
+    for index in vector.indices {
+      let cppResult = vector[index]
       swiftArray.append(PipelineResult(cppResult))
     }
 
