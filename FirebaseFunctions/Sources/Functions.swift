@@ -472,7 +472,7 @@ enum FunctionsConstants {
   }
 
   @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
-  func stream(at url: URL,
+  public func stream(at url: URL,
               withObject data: Any?,
               options: HTTPSCallableOptions?,
               timeout: TimeInterval) async throws
