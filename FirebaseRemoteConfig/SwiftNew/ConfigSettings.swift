@@ -458,6 +458,13 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
           // Ignore JSON serialization error.
         }
       }
+      if customSignals.count > 0,
+         let jsonData = try? JSONSerialization.data(withJSONObject: customSignals),
+         let jsonString = String(data: jsonData, encoding: .utf8) {
+        request += ", custom_signals:\(jsonString)"
+        // Log the keys of the custom signals sent during fetch.
+        RCLog.debug("I-RCN000078", "Keys of custom signals during fetch: \(customSignals.keys)")
+      }
     }
     request += "}"
     return request
@@ -521,6 +528,14 @@ let RCNHTTPDefaultConnectionTimeout: TimeInterval = 60
         namespace: _FIRNamespace,
         values: [newValue]
       )
+    }
+  }
+
+  /// A dictionary to hold custom signals set by the developer.
+  @objc public var customSignals: [String: String] {
+    get { _userDefaultsManager.customSignals }
+    set {
+      _userDefaultsManager.customSignals = newValue
     }
   }
 

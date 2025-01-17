@@ -65,7 +65,7 @@ public class RemoteConfigSettings: NSObject, NSCopying {
 
 /// Indicates whether updated data was successfully fetched.
 @objc(FIRRemoteConfigFetchStatus)
-public enum RemoteConfigFetchStatus: Int {
+public enum RemoteConfigFetchStatus: Int, Sendable {
   /// Config has never been fetched.
   case noFetchYet
   /// Config fetch succeeded.
@@ -132,6 +132,17 @@ public enum RemoteConfigUpdateError: Int, LocalizedError, CustomNSError {
       return "The Remote Config real-time config update service is unavailable."
     }
   }
+}
+
+/// Firebase Remote Config custom signals error.
+@objc(FIRRemoteConfigCustomSignalsError)
+public enum RemoteConfigCustomSignalsError: Int, CustomNSError {
+  /// Unknown error.
+  case unknown = 8101
+  /// Invalid value type in the custom signals dictionary.
+  case invalidValueType = 8102
+  /// Limit exceeded for key length, value length, or number of signals.
+  case limitExceeded = 8103
 }
 
 /// Enumerated value that indicates the source of Remote Config data. Data can come from
@@ -468,7 +479,10 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// and avoid calling this method again.
   ///
   /// - Parameter completionHandler Fetch operation callback with status and error parameters.
-  @objc public func fetch(completionHandler: ((RemoteConfigFetchStatus, Error?) -> Void)? = nil) {
+  @objc public func fetch(completionHandler: (
+    @Sendable (RemoteConfigFetchStatus, Error?) -> Void
+  )? =
+    nil) {
     queue.async {
       self.fetch(withExpirationDuration: self.settings.minimumFetchInterval,
                  completionHandler: completionHandler)
@@ -515,7 +529,10 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// To stop the periodic sync, call `Installations.delete(completion:)`
   /// and avoid calling this method again.
   @objc public func fetch(withExpirationDuration expirationDuration: TimeInterval,
-                          completionHandler: ((RemoteConfigFetchStatus, Error?) -> Void)? = nil) {
+                          completionHandler: (
+                            @Sendable (RemoteConfigFetchStatus, Error?) -> Void
+                          )? =
+                            nil) {
     configFetch.fetchConfig(withExpirationDuration: expirationDuration,
                             completionHandler: completionHandler)
   }
@@ -554,8 +571,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   ///
   /// - Parameter completionHandler Fetch operation callback with status and error parameters.
   @objc public func fetchAndActivate(completionHandler:
-    ((RemoteConfigFetchAndActivateStatus, Error?) -> Void)? =
-      nil) {
+    (@Sendable (RemoteConfigFetchAndActivateStatus, Error?) -> Void)? = nil) {
     fetch { [weak self] fetchStatus, error in
       guard let self else { return }
       // Fetch completed. We are being called on the main queue.
@@ -602,7 +618,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// Applies Fetched Config data to the Active Config, causing updates to the behavior and
   /// appearance of the app to take effect (depending on how config data is used in the app).
   /// - Parameter completion Activate operation callback with changed and error parameters.
-  @objc public func activate(completion: ((Bool, Error?) -> Void)? = nil) {
+  @objc public func activate(completion: (@Sendable (Bool, Error?) -> Void)? = nil) {
     queue.async { [weak self] in
       guard let self else {
         let error = NSError(
@@ -882,8 +898,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// contains a remove method, which can be used to stop receiving updates for the provided
   /// listener.
   @discardableResult
-  @objc(addOnConfigUpdateListener:) public func addOnConfigUpdateListener(remoteConfigUpdateCompletion listener: @Sendable @escaping (RemoteConfigUpdate?,
-                                                                                                                                      Error?)
+  @objc(addOnConfigUpdateListener:)
+  public func addOnConfigUpdateListener(remoteConfigUpdateCompletion listener: @Sendable @escaping (RemoteConfigUpdate?,
+                                                                                                    Error?)
       -> Void)
     -> ConfigUpdateListenerRegistration {
     return configRealtime.addConfigUpdateListener(listener)
@@ -950,6 +967,145 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
       }
     }
     return rolloutsAssignments
+  }
+
+  let customSignalsMaxKeyLength = 250
+  let customSignalsMaxStringValueLength = 500
+  let customSignalsMaxCount = 100
+
+  // MARK: - Custom Signals
+
+  /// Sets custom signals for this Remote Config instance.
+  /// - Parameter customSignals: A dictionary mapping string keys to custom
+  /// signals to be set for the app instance.
+  ///
+  /// When a new key is provided, a new key-value pair is added to the custom signals.
+  /// If an existing key is provided with a new value, the corresponding signal is updated.
+  /// If the value for a key is `nil`, the signal associated with that key is removed.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public
+  func setCustomSignals(_ customSignals: [String: CustomSignalValue?]) async throws {
+    return try await withUnsafeThrowingContinuation { continuation in
+      let customSignals = customSignals.mapValues { $0?.toNSObject() ?? NSNull() }
+      self.setCustomSignalsImpl(customSignals) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+
+  @available(swift 1000.0) // Objective-C only API
+  @objc(setCustomSignals:withCompletion:) public func __setCustomSignals(_ customSignals: [
+    String: Any
+  ]?,
+  withCompletion completionHandler: (
+    @Sendable (Error?) -> Void
+  )?) {
+    setCustomSignalsImpl(customSignals, withCompletion: completionHandler)
+  }
+
+  private func setCustomSignalsImpl(_ customSignals: [String: Any]?,
+                                    withCompletion completionHandler: (
+                                      @Sendable (Error?) -> Void
+                                    )?) {
+    queue.async { [weak self] in
+      guard let self else { return }
+      guard let customSignals = customSignals else {
+        if let completionHandler {
+          DispatchQueue.main.async {
+            completionHandler(nil)
+          }
+        }
+        return
+      }
+
+      // Validate value type, and key and value length
+      for (key, value) in customSignals {
+        if !(value is NSNull || value is NSString || value is NSNumber) {
+          let error = NSError(
+            domain: ConfigConstants.remoteConfigCustomSignalsErrorDomain,
+            code: RemoteConfigCustomSignalsError.invalidValueType.rawValue,
+            userInfo: [
+              NSLocalizedDescriptionKey: "Invalid value type. Must be NSString, NSNumber, or NSNull.",
+            ]
+          )
+          if let completionHandler {
+            DispatchQueue.main.async {
+              completionHandler(error)
+            }
+          }
+          return
+        }
+
+        if key.count > customSignalsMaxKeyLength ||
+          (value is NSString && (value as! NSString).length > customSignalsMaxStringValueLength) {
+          if let completionHandler {
+            let error = NSError(
+              domain: ConfigConstants.remoteConfigCustomSignalsErrorDomain,
+              code: RemoteConfigCustomSignalsError.limitExceeded.rawValue,
+              userInfo: [
+                NSLocalizedDescriptionKey:
+                  "Custom signal keys and string values must be " +
+                  "\(customSignalsMaxKeyLength) and " +
+                  "\(customSignalsMaxStringValueLength) " +
+                  "characters or less respectively.",
+              ]
+            )
+            DispatchQueue.main.async {
+              completionHandler(error)
+            }
+          }
+          return
+        }
+      }
+
+      // Merge new signals with existing ones, overwriting existing keys.
+      // Also, remove entries where the new value is null.
+      var newCustomSignals = self.settings.customSignals
+
+      for (key, value) in customSignals {
+        if !(value is NSNull) {
+          let stringValue = value is NSNumber ? (value as! NSNumber).stringValue : value as! String
+          newCustomSignals[key] = stringValue
+        } else {
+          newCustomSignals.removeValue(forKey: key)
+        }
+      }
+
+      // Check the size limit.
+      if newCustomSignals.count > customSignalsMaxCount {
+        if let completionHandler {
+          let error = NSError(
+            domain: ConfigConstants.remoteConfigCustomSignalsErrorDomain,
+            code: RemoteConfigCustomSignalsError.limitExceeded.rawValue,
+            userInfo: [
+              NSLocalizedDescriptionKey:
+                "Custom signals count exceeds the limit of \(customSignalsMaxCount).",
+            ]
+          )
+          DispatchQueue.main.async {
+            completionHandler(error)
+          }
+        }
+        return
+      }
+
+      // Update only if there are changes.
+      if newCustomSignals != self.settings.customSignals {
+        self.settings.customSignals = newCustomSignals
+      }
+
+      // Log the keys of the updated custom signals using RCLog.debug
+      RCLog.debug("I-RCN000078",
+                  "Keys of updated custom signals: \(newCustomSignals.keys.sorted())")
+
+      DispatchQueue.main.async {
+        completionHandler?(nil)
+      }
+    }
   }
 }
 

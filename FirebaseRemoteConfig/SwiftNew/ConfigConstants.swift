@@ -25,8 +25,11 @@ enum ConfigConstants {
 
   /// Remote Config Error Domain.
   static let remoteConfigErrorDomain = "com.google.remoteconfig.ErrorDomain"
-  // Remote Config Realtime Error Domain
+  /// Remote Config Realtime Error Domain
   static let remoteConfigUpdateErrorDomain = "com.google.remoteconfig.update.ErrorDomain"
+  /// Error domain for custom signals errors.
+  static let remoteConfigCustomSignalsErrorDomain =
+    "com.google.remoteconfig.customsignals.ErrorDomain"
 
   // MARK: - Fetch Response Keys
 
