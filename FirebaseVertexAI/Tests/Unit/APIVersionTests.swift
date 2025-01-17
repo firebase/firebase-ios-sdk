@@ -18,20 +18,6 @@ import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class APIVersionTests: XCTestCase {
-  func testInitialize_stringLiteral() {
-    let apiVersion = APIVersion("test-version")
-
-    XCTAssertEqual(apiVersion.versionIdentifier, "test-version")
-  }
-
-  func testInitialize_stringConstant() {
-    let expectedVersion = "test-version"
-
-    let apiVersion = APIVersion(stringLiteral: expectedVersion)
-
-    XCTAssertEqual(apiVersion.versionIdentifier, expectedVersion)
-  }
-
   func testInitialize_v1() {
     let apiVersion: APIVersion = .v1
 

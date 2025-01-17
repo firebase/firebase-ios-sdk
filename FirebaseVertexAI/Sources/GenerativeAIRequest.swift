@@ -36,7 +36,8 @@ public struct RequestOptions {
   /// Initializes a request options object.
   ///
   /// - Parameters:
-  ///   - timeout The request’s timeout interval in seconds; defaults to 180 seconds.
+  ///   - timeout: The request’s timeout interval in seconds; defaults to 180 seconds.
+  ///   - apiVersion: The API version to use in requests to the backend; defaults to v1beta.
   public init(timeout: TimeInterval = 180.0, apiVersion: APIVersion = .v1beta) {
     self.timeout = timeout
     self.apiVersion = apiVersion.versionIdentifier

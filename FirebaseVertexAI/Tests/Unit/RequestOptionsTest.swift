@@ -37,22 +37,6 @@ final class RequestOptionsTests: XCTestCase {
     XCTAssertEqual(requestOptions.apiVersion, defaultAPIVersion)
   }
 
-  func testInitialize_apiVersion_stringLiteral() {
-    let requestOptions = RequestOptions(apiVersion: "test-version")
-
-    XCTAssertEqual(requestOptions.timeout, defaultTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, "test-version")
-  }
-
-  func testInitialize_apiVersion_stringConstant() {
-    let expectedVersion = "test-version"
-
-    let requestOptions = RequestOptions(apiVersion: APIVersion(stringLiteral: expectedVersion))
-
-    XCTAssertEqual(requestOptions.timeout, defaultTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, expectedVersion)
-  }
-
   func testInitialize_apiVersion_v1() {
     let requestOptions = RequestOptions(apiVersion: .v1)
 

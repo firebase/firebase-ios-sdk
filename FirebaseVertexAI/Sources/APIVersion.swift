@@ -13,16 +13,13 @@
 // limitations under the License.
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct APIVersion: ExpressibleByStringLiteral {
-  public static let v1 = APIVersion("v1")
-  public static let v1beta = APIVersion("v1beta")
+public struct APIVersion {
+  public static let v1 = APIVersion(versionIdentifier: "v1")
+  public static let v1beta = APIVersion(versionIdentifier: "v1beta")
 
   let versionIdentifier: String
 
-  public init(stringLiteral versionIdentifier: String) {
-    guard !versionIdentifier.isEmpty else {
-      fatalError("The API version identifier must not be empty.")
-    }
+  init(versionIdentifier: String) {
     self.versionIdentifier = versionIdentifier
   }
 }
