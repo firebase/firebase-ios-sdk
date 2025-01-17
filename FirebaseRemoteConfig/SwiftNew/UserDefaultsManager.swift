@@ -49,6 +49,7 @@ public class UserDefaultsManager: NSObject {
   let kRCNUserDefaultsKeyNameCurrentRealtimeThrottlingRetryInterval =
     "currentRealtimeThrottlingRetryInterval"
   let kRCNUserDefaultsKeyNameRealtimeRetryCount = "realtimeRetryCount"
+  let kRCNUserDefaultsKeyCustomSignals = "customSignals"
 
   // Delete when ObjC tests are gone.
   @objc public convenience init(appName: String, bundleID: String, namespace: String) {
@@ -109,6 +110,13 @@ public class UserDefaultsManager: NSObject {
   @objc(userDefaultsSuiteNameForBundleIdentifier:)
   public static func userDefaultsSuiteName(for bundleIdentifier: String) -> String {
     return "\(kRCNGroupPrefix).\(bundleIdentifier).\(kRCNGroupSuffix)"
+  }
+
+  @objc public var customSignals: [String: String] {
+    get { instanceUserDefaults[kRCNUserDefaultsKeyCustomSignals] as? [String: String] ?? [:] }
+    set {
+      setInstanceUserDefaultsValue(newValue, forKey: kRCNUserDefaultsKeyCustomSignals)
+    }
   }
 
   /// The last ETag received from the server.

@@ -1949,7 +1949,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
     [_configInstances[i] setCustomSignals:testSignals1
                            withCompletion:^(NSError *_Nullable error) {
                              XCTAssertNil(error);
-                             [_configInstances[i]
+                             [self->_configInstances[i]
                                  setCustomSignals:testSignals2
                                    withCompletion:^(NSError *_Nullable error) {
                                      XCTAssertNil(error);
