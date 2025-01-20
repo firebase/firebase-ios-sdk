@@ -1356,7 +1356,7 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240116.1" ..< "0.20240117.0"
+      "0.20240722.0" ..< "0.20240723.0"
     )
   } else {
     packageInfo = (
@@ -1374,7 +1374,7 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
   }
@@ -1401,24 +1401,21 @@ func firestoreWrapperTarget() -> Target {
   )
 }
 
-func firebaseFirestoreCppTarget() -> Target {
+func firebaseFirestoreObjCppTarget() -> Target {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return .target(
-      name: "FirebaseFirestoreCpp",
+      name: "FirebaseFirestoreObjCpp",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseCore",
-        "leveldb",
-        "FirebaseFirestoreInternalWrapper",
-        .product(name: "nanopb", package: "nanopb"),
-        .product(name: "gRPC-cpp", package: "grpc-ios"),
+        "FirebaseFirestoreCpp",
       ],
-      path: "Firestore/core/interfaceForSwift",
-      publicHeadersPath: "api", // Path to the public headers
+      path: "Firestore/Source",
+      publicHeadersPath: "Public", // Path to the public headers
       cxxSettings: [
-        .headerSearchPath("../../../"),
-        .headerSearchPath("../../Protos/nanopb"),
-        .headerSearchPath("api"), // Ensure the header search path is correct
+        .headerSearchPath("../../"),
+        .headerSearchPath("Public/FirebaseFirestore/"),
+        .headerSearchPath("../Protos/nanopb"),
       ]
     )
   } else {
@@ -1451,7 +1448,7 @@ func firestoreTargets() -> [Target] {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return [
       .target(
-        name: "FirebaseFirestoreInternalWrapper",
+        name: "FirebaseFirestoreCpp",
         dependencies: [
           "FirebaseAppCheckInterop",
           "FirebaseCore",
@@ -1462,6 +1459,8 @@ func firestoreTargets() -> [Target] {
         ],
         path: "Firestore",
         exclude: [
+          // Exclude legacy objc layer
+          "Source/",
           "CHANGELOG.md",
           "CMakeLists.txt",
           "Example/",
@@ -1494,15 +1493,13 @@ func firestoreTargets() -> [Target] {
           "core/src/util/secure_random_openssl.cc",
         ],
         sources: [
-          "Source/",
           "Protos/nanopb/",
           "core/include/",
           "core/src",
         ],
-        publicHeadersPath: "Source/Public",
+        publicHeadersPath: "core/src/api",
         cSettings: [
           .headerSearchPath("../"),
-          .headerSearchPath("Source/Public/FirebaseFirestore"),
           .headerSearchPath("Protos/nanopb"),
           .define("PB_FIELD_32BIT", to: "1"),
           .define("PB_NO_PACKED_STRUCTS", to: "1"),
@@ -1518,15 +1515,15 @@ func firestoreTargets() -> [Target] {
           .linkedLibrary("c++"),
         ]
       ),
-      firebaseFirestoreCppTarget(),
+      firebaseFirestoreObjCppTarget(),
       .target(
         name: "FirebaseFirestore",
         dependencies: [
           "FirebaseCore",
           "FirebaseCoreExtension",
-          "FirebaseFirestoreInternalWrapper",
-          "FirebaseSharedSwift",
           "FirebaseFirestoreCpp",
+          "FirebaseFirestoreObjCpp",
+          "FirebaseSharedSwift",
         ],
         path: "Firestore",
         exclude: [
@@ -1548,6 +1545,10 @@ func firestoreTargets() -> [Target] {
           "Swift/Source/",
         ],
         resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
+        cxxSettings: [
+          .headerSearchPath("../"),
+          .headerSearchPath("Protos/nanopb"),
+        ],
         swiftSettings: [
           .interoperabilityMode(.Cxx), // C++ interoperability setting
         ]
@@ -1619,6 +1620,6 @@ func firestoreTargets() -> [Target] {
       publicHeadersPath: "."
     ),
     firestoreInternalTarget,
-    firebaseFirestoreCppTarget(),
+    firebaseFirestoreObjCppTarget(),
   ]
 }
