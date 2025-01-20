@@ -77,7 +77,7 @@ Timestamp Timestamp::Now() {
 #else
   // Use the standard <chrono> library from C++11.
   return FromTimePoint(std::chrono::system_clock::now());
-#endif
+#endif  // defined(__APPLE__)
 }
 
 Timestamp Timestamp::FromTimeT(const time_t seconds_since_unix_epoch) {
