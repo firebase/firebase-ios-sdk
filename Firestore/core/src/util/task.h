@@ -18,10 +18,10 @@
 #define FIRESTORE_CORE_SRC_UTIL_TASK_H_
 
 #include <atomic>
-#include <condition_variable>  // NOLINT(build/c++11)
+#include <condition_variable>
 #include <memory>
-#include <mutex>   // NOLINT(build/c++11)
-#include <thread>  // NOLINT(build/c++11)
+#include <mutex>
+#include <thread>
 
 #include "Firestore/core/src/util/executor.h"
 
