@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_EXECUTOR_H_
 #define FIRESTORE_CORE_SRC_UTIL_EXECUTOR_H_
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <string>

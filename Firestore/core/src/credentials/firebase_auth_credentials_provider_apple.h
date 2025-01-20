@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <utility>
 
 #include "Firestore/core/src/credentials/credentials_provider.h"

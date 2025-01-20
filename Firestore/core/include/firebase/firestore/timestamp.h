@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <ctime>
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <iosfwd>
 #include <string>
 

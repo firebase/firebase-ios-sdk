@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/remote/stream.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"

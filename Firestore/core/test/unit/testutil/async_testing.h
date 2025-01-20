@@ -17,12 +17,12 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_ASYNC_TESTING_H_
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_ASYNC_TESTING_H_
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <functional>
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
-#include <mutex>   // NOLINT(build/c++11)
-#include <thread>  // NOLINT(build/c++11)
+#include <mutex>
+#include <thread>
 #include <utility>
 #include <vector>
 
