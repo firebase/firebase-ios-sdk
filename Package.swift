@@ -1497,7 +1497,7 @@ func firestoreTargets() -> [Target] {
           "core/include/",
           "core/src",
         ],
-        publicHeadersPath: "core/src/api",
+        publicHeadersPath: "core/interfaceForSwift",
         cSettings: [
           .headerSearchPath("../"),
           .headerSearchPath("Protos/nanopb"),
