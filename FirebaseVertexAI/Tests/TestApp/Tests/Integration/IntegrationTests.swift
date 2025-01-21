@@ -84,7 +84,7 @@ final class IntegrationTests: XCTestCase {
     XCTAssertNotNil(response.text)
   }
 
-  func testGenerateContent_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
+  func testGenerateContent_imageData_requiresAuth_wrongUser_permissionDenied() async throws {
     let userID = "3MjEzU6JIobWvHdCYHicnDMcPpQ2"
     let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/pink.webp")
 
@@ -144,7 +144,7 @@ final class IntegrationTests: XCTestCase {
     XCTAssertFalse(text.isEmpty)
   }
 
-  func testGenerateContentStream_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
+  func testGenContentStream_image_fileData_requiresAuth_wrongUser_permissionDenied() async throws {
     let userID = "3MjEzU6JIobWvHdCYHicnDMcPpQ2"
     let storageRef = storage.reference(withPath: "vertexai/authenticated/user/\(userID)/pink.webp")
 
