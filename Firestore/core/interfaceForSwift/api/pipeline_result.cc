@@ -12,22 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
+#include <iostream>
+
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 
 namespace firebase {
 namespace firestore {
 
 namespace api {
 
+std::atomic<int> next_id(0);
+
 PipelineResult::PipelineResult(std::shared_ptr<Firestore> firestore,
                                std::shared_ptr<Timestamp> execution_time,
                                std::shared_ptr<Timestamp> update_time,
                                std::shared_ptr<Timestamp> create_time)
-    : firestore_(firestore),
+    : id_(next_id.fetch_add(1)),
+      firestore_(firestore),
       execution_time_(execution_time),
       update_time_(update_time),
       create_time_(create_time) {
+  std::cout << "zzyzx PipelineResult[" << id_ << "]@"
+            << reinterpret_cast<std::uintptr_t>(this) << "()" << std::endl;
 }
 
 PipelineResult PipelineResult::GetTestResult(

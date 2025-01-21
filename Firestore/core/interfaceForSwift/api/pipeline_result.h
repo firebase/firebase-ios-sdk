@@ -15,6 +15,8 @@
 #ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_RESULT_H_
 #define FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_RESULT_H_
 
+#include <atomic>
+#include <iostream>
 #include <memory>
 
 namespace firebase {
@@ -28,6 +30,8 @@ namespace api {
 class Firestore;
 class DocumentReference;
 
+extern std::atomic<int> next_id;
+
 class PipelineResult {
  public:
   PipelineResult(std::shared_ptr<Firestore> firestore,
@@ -35,9 +39,46 @@ class PipelineResult {
                  std::shared_ptr<Timestamp> update_time,
                  std::shared_ptr<Timestamp> create_time);
 
+  // Copy constructor
+  PipelineResult(const PipelineResult& other)
+      : id_(next_id.fetch_add(1)),
+        firestore_(other.firestore_),
+        execution_time_(other.execution_time_),
+        update_time_(other.update_time_),
+        create_time_(other.create_time_) {
+    std::cout << "zzyzx PipelineResult[" << id_ << "]@"
+              << reinterpret_cast<std::uintptr_t>(this)
+              << "(const PipelineResult&) other.id=" << other.id_ << std::endl;
+    long n = execution_time_.use_count();
+    std::cout << "Calling copy ctor when refer count is:" << n << std::endl;
+  }
+
+  // Copy assignment operator
+  PipelineResult& operator=(const PipelineResult& other) {
+    std::cout << "zzyzx PipelineResult[" << id_ << "]@"
+              << reinterpret_cast<std::uintptr_t>(this)
+              << ".operator=(const PipelineResult&) other.id_=" << other.id_
+              << std::endl;
+    if (this != &other) {
+      firestore_ = other.firestore_;
+      execution_time_ = other.execution_time_;
+      update_time_ = other.update_time_;
+      create_time_ = other.create_time_;
+    }
+    return *this;
+  }
+
   static PipelineResult GetTestResult(std::shared_ptr<Firestore> firestore);
 
- private:
+  ~PipelineResult() {
+    std::cout << "zzyzx PipelineResult[" << id_ << "]@"
+              << reinterpret_cast<std::uintptr_t>(this) << "~PipelineResult()"
+              << std::endl;
+    long n = execution_time_.use_count();
+    std::cout << "Calling destructor when refer count is:" << n << std::endl;
+  }
+
+  int id_;
   std::shared_ptr<Firestore> firestore_;
   std::shared_ptr<Timestamp> execution_time_;
   std::shared_ptr<Timestamp> update_time_;

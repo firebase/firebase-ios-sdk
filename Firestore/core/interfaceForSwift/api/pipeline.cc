@@ -45,8 +45,10 @@ void Pipeline::GetPipelineResult(PipelineSnapshotListener callback) const {
       /*include_document_metadata_changes=*/true,
       /*wait_for_sync_when_online=*/true);
 
-  callback->OnEvent(StatusOr<std::vector<PipelineResult>>(
-      {(PipelineResult::GetTestResult(firestore_))}));
+  PipelineResult sample = PipelineResult::GetTestResult(firestore_);
+
+  StatusOr<PipelineResult> res(sample);
+  callback->OnEvent(res);
 
   //  class ListenOnce : public EventListener<std::vector<PipelineResult>> {
   //   public:
