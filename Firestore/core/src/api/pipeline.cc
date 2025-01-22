@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/Pipeline.h"
-
-#include <future>
-#include <memory>
+#include "Firestore/core/src/api/pipeline.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/interfaceForSwift/api/PipelineResult.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/listener_registration.h"
+#include "Firestore/core/src/api/pipeline_result.h"
 #include "Firestore/core/src/api/source.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/core/listen_options.h"

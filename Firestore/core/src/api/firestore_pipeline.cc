@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/FirestorePipeline.h"
+#include "Firestore/core/src/api/firestore_pipeline.h"
 
 #include <memory>
 

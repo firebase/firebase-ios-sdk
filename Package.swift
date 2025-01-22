@@ -1356,19 +1356,16 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240722.0" ..< "0.20240723.0"
+      "0.20240722.2" ..< "0.20240723.0"
     )
-    // return .package(url: packageInfo.url, packageInfo.range)
-    return .package(name: "abseil-cpp-SwiftPM",
-                    path: "/Users/wuandy/projects/abseil-cpp-SwiftPM")
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
       "1.2024011602.0" ..< "1.2024011700.0"
     )
-    return .package(url: packageInfo.url, packageInfo.range)
   }
 
+  return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func grpcDependency() -> Package.Dependency {
@@ -1482,7 +1479,6 @@ func firestoreTargets() -> [Target] {
           "core/CMakeLists.txt",
           "core/src/util/config_detected.h.in",
           "core/test/",
-          "core/interfaceForSwift/",
           "fuzzing/",
           "test.sh",
           // Swift PM doesn't recognize hpp files, so we're relying on search paths
@@ -1500,7 +1496,7 @@ func firestoreTargets() -> [Target] {
           "core/include/",
           "core/src",
         ],
-        publicHeadersPath: "core/interfaceForSwift",
+        publicHeadersPath: "core/src/api",
         cSettings: [
           .headerSearchPath("../"),
           .headerSearchPath("Protos/nanopb"),

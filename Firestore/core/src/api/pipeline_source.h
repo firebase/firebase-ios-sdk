@@ -12,17 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
-#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
+#ifndef FIRESTORE_CORE_SRC_API_PIPELINE_SOURCE_H_
+#define FIRESTORE_CORE_SRC_API_PIPELINE_SOURCE_H_
+
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "Firestore/core/src/api/pipeline.h"
 
 namespace firebase {
 namespace firestore {
 
 namespace api {
 
-class Stage {
+class Firestore;
+class DocumentReference;
+
+class PipelineSource {
  public:
-  Stage();
+  explicit PipelineSource(std::shared_ptr<Firestore> firestore);
+
+  Pipeline GetCollection(std::string collection_path) const;
+
+ private:
+  std::shared_ptr<Firestore> firestore_;
 };
 
 }  // namespace api
@@ -30,4 +44,4 @@ class Stage {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
+#endif  // FIRESTORE_CORE_SRC_API_PIPELINE_SOURCE_H_

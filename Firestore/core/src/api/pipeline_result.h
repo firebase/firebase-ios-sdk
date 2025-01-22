@@ -12,49 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_H_
-#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_H_
+#ifndef FIRESTORE_CORE_SRC_API_PIPELINE_RESULT_H_
+#define FIRESTORE_CORE_SRC_API_PIPELINE_RESULT_H_
 
-#include <functional>
 #include <memory>
-#include <vector>
-#include "PipelineResult.h"
-#include "Stage.h"
 
 namespace firebase {
-namespace firestore {
 
-namespace core {
-template <typename T>
-class EventListener;
-}  // namespace core
+class Timestamp;
+
+namespace firestore {
 
 namespace api {
 
 class Firestore;
-class PipelineResult;
+class DocumentReference;
 
-using PipelineSnapshotListener =
-    std::shared_ptr<core::EventListener<PipelineResult>>;
-
-class Pipeline {
+class PipelineResult {
  public:
-  Pipeline(std::shared_ptr<Firestore> firestore, Stage stage);
+  PipelineResult(std::shared_ptr<Firestore> firestore,
+                 std::shared_ptr<Timestamp> execution_time,
+                 std::shared_ptr<Timestamp> update_time,
+                 std::shared_ptr<Timestamp> create_time);
 
-  void GetPipelineResult(PipelineSnapshotListener callback) const;
-
-  std::shared_ptr<Firestore> GetFirestore() const {
-    return firestore_;
-  }
+  static PipelineResult GetTestResult(std::shared_ptr<Firestore> firestore);
 
  private:
   std::shared_ptr<Firestore> firestore_;
-  Stage stage_;
+  std::shared_ptr<Timestamp> execution_time_;
+  std::shared_ptr<Timestamp> update_time_;
+  std::shared_ptr<Timestamp> create_time_;
 };
 
 }  // namespace api
 
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_H_
+#endif  // FIRESTORE_CORE_SRC_API_PIPELINE_RESULT_H_
