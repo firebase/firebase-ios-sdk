@@ -231,10 +231,18 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Unavailable. Use +remoteConfig instead.
 - (nonnull instancetype)init __attribute__((unavailable("Use +remoteConfig instead.")));
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Ensures initialization is complete and clients can begin querying for Remote Config values.
+/// @param completionHandler Initialization complete callback with error parameter.
+- (void)ensureInitializedWithCompletionHandler:
+    (void (^_Nonnull NS_SWIFT_SENDABLE)(NSError *_Nullable initializationError))completionHandler;
+#else
 /// Ensures initialization is complete and clients can begin querying for Remote Config values.
 /// @param completionHandler Initialization complete callback with error parameter.
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
+#endif
+
 #pragma mark - Fetch
 
 #if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
