@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
+#include <iostream>
+
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
 
 namespace firebase {
 namespace firestore {

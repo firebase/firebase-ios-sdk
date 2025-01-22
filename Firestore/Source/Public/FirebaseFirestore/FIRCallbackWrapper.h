@@ -38,10 +38,10 @@ namespace core = firebase::firestore::core;
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^PipelineBlock)(std::vector<api::PipelineResult> result, NSError *_Nullable error)
-    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+typedef api::PipelineResult CppPipelineResult;
 
-typedef std::vector<api::PipelineResult> PipelineResultVector;
+typedef void (^PipelineBlock)(CppPipelineResult *_Nullable result, NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CallbackWrapper)
@@ -51,9 +51,9 @@ NS_SWIFT_NAME(CallbackWrapper)
 // are invoked on a different thread than the one they were originally defined in. If this callback
 // is expected to be called on a different thread, it should be marked as `Sendable` to ensure
 // thread safety.
-+ (std::shared_ptr<core::EventListener<std::vector<api::PipelineResult>>>)
++ (std::shared_ptr<core::EventListener<api::PipelineResult>>)
     wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-              completion:(void (^NS_SWIFT_SENDABLE)(PipelineResultVector result,
+              completion:(void (^NS_SWIFT_SENDABLE)(CppPipelineResult *_Nullable result,
                                                     NSError *_Nullable error))completion
     NS_SWIFT_NAME(wrapPipelineCallback(firestore:completion:));
 

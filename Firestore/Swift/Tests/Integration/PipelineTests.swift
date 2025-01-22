@@ -21,6 +21,6 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testCreatePipeline() async throws {
     let pipelineSource: PipelineSource = db.pipeline()
     let pipeline: Pipeline = pipelineSource.GetCollection("path")
-    let _: [PipelineResult] = try await pipeline.GetPipelineResult()
+    let _ = try await pipeline.GetPipelineResult()
   }
 }

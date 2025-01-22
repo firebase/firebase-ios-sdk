@@ -29,15 +29,14 @@ public struct Pipeline {
   }
 
   @discardableResult
-  public func GetPipelineResult() async throws -> [PipelineResult] {
+  public func GetPipelineResult() async throws -> PipelineResult {
     return try await withCheckedThrowingContinuation { continuation in
       let listener = CallbackWrapper.wrapPipelineCallback(firestore: cppObj.GetFirestore()) {
         result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
-          // Our callbacks guarantee that we either return an error or a progress event.
-          continuation.resume(returning: PipelineResult.convertToArrayFromCppVector(result))
+          continuation.resume(returning: PipelineResult(result!.pointee))
         }
       }
       cppObj.GetPipelineResult(listener)
