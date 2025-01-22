@@ -16,7 +16,7 @@
 
 #include "Firestore/core/test/unit/util/executor_test.h"
 
-#include <cstdlib>
+#include <cstdlib>  // NOLINT(build/include_order)
 
 #include <chrono>
 #include <condition_variable>
