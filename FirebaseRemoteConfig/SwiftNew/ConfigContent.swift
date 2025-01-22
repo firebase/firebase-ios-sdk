@@ -112,12 +112,18 @@ class ConfigContent: NSObject {
   @objc public
   static let sharedInstance = ConfigContent(dbManager: ConfigDBManager.sharedInstance)
 
-  /// Designated initializer
+  // TODO(ncooke3): Remove when ObjC usage goes away.
+  /// Convenience initializer
   @objc(initWithDBManager:) public
-  init(dbManager: ConfigDBManager) {
+  convenience init(dbManager: ConfigDBManager) {
+    self.init(dbManager: dbManager, bundleIdentifier: Bundle.main.bundleIdentifier)
+  }
+
+  /// Designated initializer
+  public init(dbManager: ConfigDBManager, bundleIdentifier: String?) {
     self.dbManager = dbManager
-    bundleIdentifier = Bundle.main.bundleIdentifier ?? ""
-    if bundleIdentifier.isEmpty {
+    self.bundleIdentifier = bundleIdentifier ?? ""
+    if self.bundleIdentifier.isEmpty {
       RCLog.notice("I-RCN000038",
                    "Main bundle identifier is missing. Remote Config might not work properly.")
     }
