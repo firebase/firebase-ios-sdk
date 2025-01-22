@@ -16,11 +16,11 @@
 
 #include "Firestore/core/src/util/testing_hooks.h"
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <future>  // NOLINT(build/c++11)
+#include <chrono>
+#include <future>
 #include <memory>
 #include <string>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -34,7 +34,7 @@
 
 namespace {
 
-using namespace std::chrono_literals;  // NOLINT(build/namespaces)
+using namespace std::chrono_literals;
 
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::nanopb::ByteString;

@@ -62,11 +62,20 @@ struct FormatChoice<5> {};
  *     formatting of the value as an unsigned integer.
  *   * Otherwise the value is interpreted as anything absl::AlphaNum accepts.
  */
-class FormatArg : public absl::AlphaNum {
+class FormatArg final : public absl::AlphaNum {
  public:
   template <typename T>
-  FormatArg(T&& value)  // NOLINT(runtime/explicit)
-      : FormatArg{std::forward<T>(value), internal::FormatChoice<0>{}} {
+  FormatArg(
+      T&& value,
+      // TODO(b/388888512) Remove the usage of StringifySink since it is not
+      //  part of absl's public API. Moreover, subclassing AlphaNum is not
+      //  supported either, so find a way to do this without these two caveats.
+      //  See https://github.com/firebase/firebase-ios-sdk/pull/14331 for a
+      //  partial proposal.
+      absl::strings_internal::StringifySink&& sink =
+          {})  // NOLINT(runtime/explicit)
+      : FormatArg{std::forward<T>(value), std::move(sink),
+                  internal::FormatChoice<0>{}} {
   }
 
  private:
@@ -79,7 +88,9 @@ class FormatArg : public absl::AlphaNum {
    */
   template <typename T,
             typename = typename std::enable_if<std::is_same<bool, T>{}>::type>
-  FormatArg(T bool_value, internal::FormatChoice<0>)
+  FormatArg(T bool_value,
+            absl::strings_internal::StringifySink&&,
+            internal::FormatChoice<0>)
       : AlphaNum(bool_value ? "true" : "false") {
   }
 
@@ -90,7 +101,9 @@ class FormatArg : public absl::AlphaNum {
   template <
       typename T,
       typename = typename std::enable_if<objc::is_objc_pointer<T>{}>::type>
-  FormatArg(T object, internal::FormatChoice<1>)
+  FormatArg(T object,
+            absl::strings_internal::StringifySink&&,
+            internal::FormatChoice<1>)
       : AlphaNum(MakeStringView([object description])) {
   }
 
@@ -98,7 +111,9 @@ class FormatArg : public absl::AlphaNum {
    * Creates a FormatArg from any Objective-C Class type. Objective-C Class
    * types are a special struct that aren't of a type derived from NSObject.
    */
-  FormatArg(Class object, internal::FormatChoice<1>)
+  FormatArg(Class object,
+            absl::strings_internal::StringifySink&&,
+            internal::FormatChoice<1>)
       : AlphaNum(MakeStringView(NSStringFromClass(object))) {
   }
 #endif
@@ -108,7 +123,10 @@ class FormatArg : public absl::AlphaNum {
    * handled specially to avoid ambiguity with generic pointers, which are
    * handled differently.
    */
-  FormatArg(std::nullptr_t, internal::FormatChoice<2>) : AlphaNum("null") {
+  FormatArg(std::nullptr_t,
+            absl::strings_internal::StringifySink&&,
+            internal::FormatChoice<2>)
+      : AlphaNum("null") {
   }
 
   /**
@@ -116,7 +134,9 @@ class FormatArg : public absl::AlphaNum {
    * handled specially to avoid ambiguity with generic pointers, which are
    * handled differently.
    */
-  FormatArg(const char* string_value, internal::FormatChoice<3>)
+  FormatArg(const char* string_value,
+            absl::strings_internal::StringifySink&&,
+            internal::FormatChoice<3>)
       : AlphaNum(string_value == nullptr ? "null" : string_value) {
   }
 
@@ -125,8 +145,11 @@ class FormatArg : public absl::AlphaNum {
    * hexadecimal integer literal.
    */
   template <typename T>
-  FormatArg(T* pointer_value, internal::FormatChoice<4>)
-      : AlphaNum(absl::Hex(reinterpret_cast<uintptr_t>(pointer_value))) {
+  FormatArg(T* pointer_value,
+            absl::strings_internal::StringifySink&& sink,
+            internal::FormatChoice<4>)
+      : AlphaNum(absl::Hex(reinterpret_cast<uintptr_t>(pointer_value)),
+                 std::move(sink)) {
   }
 
   /**
@@ -134,7 +157,9 @@ class FormatArg : public absl::AlphaNum {
    * absl::AlphaNum accepts.
    */
   template <typename T>
-  FormatArg(T&& value, internal::FormatChoice<5>)
+  FormatArg(T&& value,
+            absl::strings_internal::StringifySink&&,
+            internal::FormatChoice<5>)
       : AlphaNum(std::forward<T>(value)) {
   }
 };

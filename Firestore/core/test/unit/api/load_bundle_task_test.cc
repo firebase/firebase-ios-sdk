@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <mutex>   // NOLINT(build/c++11)
+#include <chrono>
+#include <mutex>
 #include <queue>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/api/load_bundle_task.h"

@@ -55,6 +55,11 @@ TEST(StringFormatTest, FSTDescribable) {
   EXPECT_EQ("Hello description", StringFormat("Hello %s", desc_id));
 }
 
+TEST(StringFormatTest, ObjectiveCClass) {
+  FSTDescribable* desc = [[FSTDescribable alloc] init];
+  EXPECT_EQ("Hello FSTDescribable", StringFormat("Hello %s", [desc class]));
+}
+
 }  //  namespace util
 }  //  namespace firestore
 }  //  namespace firebase

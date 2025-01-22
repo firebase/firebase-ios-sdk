@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/api/query_core.h"
 
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 #include <utility>
 #include <vector>

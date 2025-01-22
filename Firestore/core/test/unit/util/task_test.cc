@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/util/task.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"

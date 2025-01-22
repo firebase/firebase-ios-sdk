@@ -17,7 +17,7 @@
 #include "Firestore/core/src/local/leveldb_remote_document_cache.h"
 
 #include <string>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"

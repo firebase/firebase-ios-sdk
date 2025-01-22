@@ -129,4 +129,54 @@ class AsyncAwaitTests: APITestBase {
     XCTAssertTrue(config.configValue(forKey: Constants.jedi).dataValue.isEmpty,
                   "Remote config should have been deleted.")
   }
+
+  func testSetCustomSignals() async throws {
+    let testSignals: [String: CustomSignalValue?] = [
+      "signal_1": .integer(5),
+      "signal_2": .string("basic"),
+      "signal_3": .double(3.14159),
+    ]
+
+    let expectedSignals: [String: String] = [
+      "signal_1": "5",
+      "signal_2": "basic",
+      "signal_3": "3.14159",
+    ]
+
+    _ = try await config.setCustomSignals(testSignals)
+    XCTAssertEqual(config.settings.customSignals, expectedSignals)
+  }
+
+  func testSetCustomSignalsMultipleTimes() async throws {
+    let testSignals: [String: CustomSignalValue?] = [
+      "signal_1": 6,
+      "signal_2": "basic",
+      "signal_3": 3.14,
+    ]
+
+    let expectedSignals: [String: String] = [
+      "signal_1": "6",
+      "signal_2": "basic",
+      "signal_3": "3.14",
+    ]
+
+    _ = try await config.setCustomSignals(testSignals)
+    XCTAssertEqual(config.settings.customSignals, expectedSignals)
+
+    let testSignals2: [String: CustomSignalValue?] = [
+      "signal_4": .integer(100),
+      "signal_3": nil,
+      "signal_5": .double(3.1234),
+    ]
+
+    let expectedSignals2: [String: String] = [
+      "signal_1": "6",
+      "signal_2": "basic",
+      "signal_4": "100",
+      "signal_5": "3.1234",
+    ]
+
+    _ = try await config.setCustomSignals(testSignals2)
+    XCTAssertEqual(config.settings.customSignals, expectedSignals2)
+  }
 }

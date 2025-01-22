@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_COMPLETION_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_COMPLETION_H_
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <functional>
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 #include <utility>
 

@@ -2382,7 +2382,16 @@ extension Auth: AuthInterop {
   private let keychainServices: AuthKeychainServices
 
   /// The user access (ID) token used last time for posting auth state changed notification.
-  private var lastNotifiedUserToken: String?
+  ///
+  /// - Note: The atomic wrapper can be removed when the SDK is fully
+  /// synchronized with structured concurrency.
+  private var lastNotifiedUserToken: String? {
+    get { lastNotifiedUserTokenLock.withLock { _lastNotifiedUserToken } }
+    set { lastNotifiedUserTokenLock.withLock { _lastNotifiedUserToken = newValue } }
+  }
+
+  private var _lastNotifiedUserToken: String?
+  private var lastNotifiedUserTokenLock = NSLock()
 
   /// This flag denotes whether or not tokens should be automatically refreshed.
   /// Will only be set to `true` if the another Firebase service is included (additionally to

@@ -35,7 +35,7 @@ class Firestore;
 class PipelineResult;
 
 using PipelineSnapshotListener =
-    std::shared_ptr<core::EventListener<std::vector<PipelineResult>>>;
+    std::shared_ptr<core::EventListener<PipelineResult>>;
 
 class Pipeline {
  public:

@@ -18,6 +18,8 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseRemoteConfig', :path => '../../'
   pod 'FirebaseRemoteConfigInterop', :path => '../../'
   pod 'FirebaseAppDistribution', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
+  pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCrashlytics', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
   pod 'FirebaseDynamicLinks', :path => '../../'
@@ -27,19 +29,8 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseInAppMessaging', :path => '../../'
   pod 'FirebaseMessaging', :path => '../../'
   pod 'FirebaseSessions', :path => '../../'
+  pod 'FirebaseStorage', :path => '../../'
   pod 'FirebasePerformance', :path => '../../'
   pod 'FirebaseMLModelDownloader', :path => '../../'
   pod 'Firebase', :path => '../../'
-end
-
-target 'ClientApp-CocoaPods-iOS13' do
-  platform :ios, '13.0'
-
-  use_frameworks!
-
-  pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
-  pod 'FirebaseAuth', :path => '../../' # Requires iOS 13.0+
-  pod 'FirebaseAuthInterop', :path => '../../'
-  pod 'FirebaseInAppMessaging', :path => '../../'
-  pod 'FirebaseStorage', :path => '../../'
 end

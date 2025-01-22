@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/local/lru_garbage_collector.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <queue>
 #include <string>
 #include <utility>

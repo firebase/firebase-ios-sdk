@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 
 #include <functional>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <vector>
 
 namespace firebase {

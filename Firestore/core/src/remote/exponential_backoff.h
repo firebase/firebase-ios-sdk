@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_EXPONENTIAL_BACKOFF_H_
 #define FIRESTORE_CORE_SRC_REMOTE_EXPONENTIAL_BACKOFF_H_
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <memory>
 
 #include "Firestore/core/src/util/async_queue.h"

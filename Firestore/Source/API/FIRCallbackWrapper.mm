@@ -16,6 +16,7 @@
 
 #import "FIRCallbackWrapper.h"
 
+#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -35,21 +36,24 @@ using firebase::firestore::util::StatusOr;
 @implementation FIRCallbackWrapper
 
 + (PipelineSnapshotListener)wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-                                      completion:(void (^)(PipelineResultVector result,
+                                      completion:(void (^)(CppPipelineResult *result,
                                                            NSError *_Nullable error))completion {
-  class Converter : public EventListener<std::vector<PipelineResult>> {
+  class Converter : public EventListener<CppPipelineResult> {
    public:
     explicit Converter(std::shared_ptr<api::Firestore> firestore, PipelineBlock completion)
         : firestore_(firestore), completion_(completion) {
     }
 
-    void OnEvent(StatusOr<std::vector<PipelineResult>> maybe_snapshot) override {
+    void OnEvent(StatusOr<CppPipelineResult> maybe_snapshot) override {
       if (maybe_snapshot.ok()) {
-        completion_(
-            std::initializer_list<PipelineResult>{PipelineResult::GetTestResult(firestore_)},
-            nullptr);
+        std::cout << "zzyzx OnEvent 1" << std::endl;
+        CppPipelineResult result = maybe_snapshot.ValueOrDie();
+        std::cout << "zzyzx OnEvent 2 result.id=" << result.id_ << std::endl;
+        completion_(&result, nullptr);
+        std::cout << "zzyzx OnEvent 3 result.id=" << result.id_ << std::endl;
       } else {
-        completion_(std::initializer_list<PipelineResult>{}, MakeNSError(maybe_snapshot.status()));
+        //        completion_(PipelineResult::GetTestResult(firestore_),
+        //        MakeNSError(maybe_snapshot.status()));
       }
     }
 
@@ -58,7 +62,7 @@ using firebase::firestore::util::StatusOr;
     PipelineBlock completion_;
   };
 
-  return absl::make_unique<Converter>(firestore, completion);
+  return std::make_shared<Converter>(firestore, completion);
 }
 
 @end

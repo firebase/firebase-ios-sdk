@@ -16,8 +16,8 @@
 
 #include "Firestore/core/test/unit/util/async_queue_test.h"
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <future>  // NOLINT(build/c++11)
+#include <chrono>
+#include <future>
 #include <string>
 
 #include "Firestore/core/src/util/executor.h"

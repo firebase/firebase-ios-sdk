@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TIME_TESTING_H_
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_TIME_TESTING_H_
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 

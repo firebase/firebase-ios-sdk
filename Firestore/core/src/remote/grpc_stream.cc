@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/remote/grpc_stream.h"
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <future>  // NOLINT(build/c++11)
+#include <chrono>
+#include <future>
 
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_util.h"

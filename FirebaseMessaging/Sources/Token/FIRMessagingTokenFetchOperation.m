@@ -108,7 +108,7 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
         FIRMessaging_STRONGIFY(self);
         [self handleResponseWithData:data response:response error:error];
       };
-  NSURLSessionConfiguration *config = NSURLSessionConfiguration.defaultSessionConfiguration;
+  NSURLSessionConfiguration *config = NSURLSessionConfiguration.ephemeralSessionConfiguration;
   config.timeoutIntervalForResource = 60.0f;  // 1 minute
   NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
   self.dataTask = [session dataTaskWithRequest:request completionHandler:requestHandler];
