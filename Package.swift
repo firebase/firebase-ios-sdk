@@ -1358,14 +1358,17 @@ func abseilDependency() -> Package.Dependency {
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
       "0.20240722.0" ..< "0.20240723.0"
     )
+    // return .package(url: packageInfo.url, packageInfo.range)
+    return .package(name: "abseil-cpp-SwiftPM",
+                    path: "/Users/wuandy/projects/abseil-cpp-SwiftPM")
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
       "1.2024011602.0" ..< "1.2024011700.0"
     )
+    return .package(url: packageInfo.url, packageInfo.range)
   }
 
-  return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func grpcDependency() -> Package.Dependency {
