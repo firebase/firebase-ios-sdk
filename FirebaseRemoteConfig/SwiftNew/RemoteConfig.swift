@@ -430,7 +430,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   }
 
   /// Adds a listener that will be called whenever one of the get methods is called.
-  /// - Parameter listener Function that takes in the parameter key and the config.
+  /// - Parameter listener: Function that takes in the parameter key and the config.
   @objc public func addListener(_ listener: @escaping RemoteConfigListener) {
     queue.async {
       self.listeners.append(listener)
@@ -478,7 +478,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// To stop the periodic sync, call `Installations.delete(completion:)`
   /// and avoid calling this method again.
   ///
-  /// - Parameter completionHandler Fetch operation callback with status and error parameters.
+  /// - Parameter completionHandler: Fetch operation callback with status and error parameters.
   @objc public func fetch(completionHandler: (
     @Sendable (RemoteConfigFetchStatus, Error?) -> Void
   )? =
@@ -492,7 +492,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
   /// Call `activateWithCompletion:` to make fetched data available to your app.
   ///
-  /// - Parameter expirationDuration  Override the (default or optionally set `minimumFetchInterval`
+  /// - Parameter expirationDuration: Override the (default or optionally set `minimumFetchInterval`
   /// property in RemoteConfigSettings) `minimumFetchInterval` for only the current request, in
   /// seconds. Setting a value of 0 seconds will force a fetch to the backend.
   ///
@@ -518,10 +518,10 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// Fetches Remote Config data and sets a duration that specifies how long config data lasts.
   /// Call `activateWithCompletion:` to make fetched data available to your app.
   ///
-  /// - Parameter expirationDuration  Override the (default or optionally set `minimumFetchInterval`
+  /// - Parameter expirationDuration: Override the (default or optionally set `minimumFetchInterval`
   /// property in RemoteConfigSettings) `minimumFetchInterval` for only the current request, in
   /// seconds. Setting a value of 0 seconds will force a fetch to the backend.
-  /// - Parameter completionHandler   Fetch operation callback with status and error parameters.
+  /// - Parameter completionHandler: Fetch operation callback with status and error parameters.
   ///
   /// Note: This method uses a Firebase Installations token to identify the app instance, and once
   /// it's called, it periodically sends data to the Firebase backend. (see
@@ -550,12 +550,14 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// and avoid calling this method again.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func fetchAndActivate() async throws -> RemoteConfigFetchAndActivateStatus {
-    _ = try await fetch()
-    do {
-      try await activate()
-      return .successFetchedFromRemote
-    } catch {
-      return .successUsingPreFetchedData
+    return try await withUnsafeThrowingContinuation { continuation in
+      fetchAndActivate { status, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: status)
+        }
+      }
     }
   }
 
@@ -569,7 +571,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// To stop the periodic sync, call `Installations.delete(completion:)`
   /// and avoid calling this method again.
   ///
-  /// - Parameter completionHandler Fetch operation callback with status and error parameters.
+  /// - Parameter completionHandler: Fetch operation callback with status and error parameters.
   @objc public func fetchAndActivate(completionHandler:
     (@Sendable (RemoteConfigFetchAndActivateStatus, Error?) -> Void)? = nil) {
     fetch { [weak self] fetchStatus, error in
@@ -617,7 +619,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   /// Applies Fetched Config data to the Active Config, causing updates to the behavior and
   /// appearance of the app to take effect (depending on how config data is used in the app).
-  /// - Parameter completion Activate operation callback with changed and error parameters.
+  /// - Parameter completion: Activate operation callback with changed and error parameters.
   @objc public func activate(completion: (@Sendable (Bool, Error?) -> Void)? = nil) {
     queue.async { [weak self] in
       guard let self else {
@@ -626,12 +628,12 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
           code: RemoteConfigError.internalError.rawValue,
           userInfo: ["ActivationFailureReason": "Internal Error."]
         )
-        RCLog.error("I-RCN000068", "Internal error activating config.")
         if let completion {
           DispatchQueue.main.async {
             completion(false, error)
           }
         }
+        RCLog.error("I-RCN000068", "Internal error activating config.")
         return
       }
       // Check if the last fetched config has already been activated. Fetches with no data change
@@ -695,7 +697,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
     )
   }
 
-  // MARK: helpers
+  // MARK: - Helpers
 
   private func fullyQualifiedNamespace(_ namespace: String) -> String {
     if namespace.contains(":") { return namespace } // Already fully qualified
@@ -713,114 +715,106 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   // MARK: Get Config Result
 
   /// Gets the config value.
-  /// - Parameter key Config key.
+  /// - Parameter key: Config key.
   @objc public func configValue(forKey key: String) -> RemoteConfigValue {
     guard !key.isEmpty else {
       return RemoteConfigValue(data: Data(), source: .static)
     }
 
     let fullyQualifiedNamespace = fullyQualifiedNamespace(FIRNamespace)
-    var value: RemoteConfigValue!
 
-    queue.sync {
-      value = configContent.activeConfig()[fullyQualifiedNamespace]?[key]
-      if let value = value {
-        if value.source != .remote {
-          RCLog.error("I-RCN000001",
-                      "Key \(key) should come from source: \(RemoteConfigSource.remote.rawValue)" +
-                        "instead coming from source: \(value.source.rawValue)")
-        }
-        if let config = configContent.getConfigAndMetadata(forNamespace: fullyQualifiedNamespace)
-          as? [String: RemoteConfigValue] {
-          callListeners(key: key, config: config)
-        }
-        return
+    return queue.sync {
+      guard let value = configContent.activeConfig()[fullyQualifiedNamespace]?[key] else {
+        return defaultValue(forFullyQualifiedNamespace: fullyQualifiedNamespace, key: key)
       }
 
-      value = defaultValue(forFullyQualifiedNamespace: fullyQualifiedNamespace, key: key)
+      if value.source != .remote {
+        RCLog.error("I-RCN000001",
+                    "Key \(key) should come from source: \(RemoteConfigSource.remote.rawValue)" +
+                      "instead coming from source: \(value.source.rawValue)")
+      }
+      if let config = configContent.getConfigAndMetadata(forNamespace: fullyQualifiedNamespace)
+        as? [String: RemoteConfigValue] {
+        callListeners(key: key, config: config)
+      }
+      return value
     }
-    return value
   }
 
   /// Gets the config value of a given source from the default namespace.
-  /// - Parameter key              Config key.
-  /// - Parameter source           Config value source.
+  /// - Parameter key: Config key.
+  /// - Parameter source: Config value source.
   @objc public func configValue(forKey key: String, source: RemoteConfigSource) ->
     RemoteConfigValue {
     guard !key.isEmpty else {
       return RemoteConfigValue(data: Data(), source: .static)
     }
     let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
-    var value: RemoteConfigValue!
 
-    queue.sync {
-      switch source {
+    return queue.sync {
+      let remoteConfigValue = switch source {
       case .remote:
-        value = configContent.activeConfig()[fullyQualifiedNamespace]?[key]
+        configContent.activeConfig()[fullyQualifiedNamespace]?[key]
       case .default:
-        value = configContent.defaultConfig()[fullyQualifiedNamespace]?[key]
+        configContent.defaultConfig()[fullyQualifiedNamespace]?[key]
       case .static:
-        value = RemoteConfigValue(data: Data(), source: .static)
+        RemoteConfigValue(data: Data(), source: .static)
       }
+      return remoteConfigValue ?? RemoteConfigValue(data: Data(), source: source)
     }
-    return value
   }
 
   @objc(allKeysFromSource:)
   public func allKeys(from source: RemoteConfigSource) -> [String] {
-    var keys: [String] = []
     queue.sync {
       let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
       switch source {
       case .default:
         if let values = configContent.defaultConfig()[fullyQualifiedNamespace] {
-          keys = Array(values.keys)
+          return Array(values.keys)
         }
       case .remote:
         if let values = configContent.activeConfig()[fullyQualifiedNamespace] {
-          keys = Array(values.keys)
+          return Array(values.keys)
         }
-      case .static:
-        break
+      case .static: break
       }
+      return []
     }
-    return keys
   }
 
   @objc public func keys(withPrefix prefix: String?) -> Set<String> {
-    var keys = Set<String>()
     queue.sync {
       let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
 
       if let config = configContent.activeConfig()[fullyQualifiedNamespace] {
         if let prefix = prefix, !prefix.isEmpty {
-          keys = Set(config.keys.filter { $0.hasPrefix(prefix) })
+          return Set(config.keys.filter { $0.hasPrefix(prefix) })
         } else {
-          keys = Set(config.keys)
+          return Set(config.keys)
         }
       }
+      return Set<String>()
     }
-    return keys
   }
 
   public func countByEnumerating(with state: UnsafeMutablePointer<NSFastEnumerationState>,
                                  objects buffer: AutoreleasingUnsafeMutablePointer<AnyObject?>,
                                  count len: Int) -> Int {
-    var count = 0
     queue.sync {
       let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
 
       if let config = configContent.activeConfig()[fullyQualifiedNamespace] as? NSDictionary {
-        count = config.countByEnumerating(with: state, objects: buffer, count: len)
+        return config.countByEnumerating(with: state, objects: buffer, count: len)
       }
+      return 0
     }
-    return count
   }
 
   // MARK: - Defaults
 
   /// Sets config defaults for parameter keys and values in the default namespace config.
-  /// - Parameter defaults         A dictionary mapping a NSString * key to a NSObject * value.
+  /// - Parameter defaults: A dictionary mapping a NSString * key to a NSObject * value.
   @objc public func setDefaults(_ defaults: [String: Any]?) {
     let defaults = defaults ?? [String: Any]()
     let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
@@ -836,12 +830,12 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   /// Sets default configs from plist for default namespace.
   ///
-  /// - Parameter fileName The plist file name, with no file name extension. For example, if the
+  /// - Parameter fileName: The plist file name, with no file name extension. For example, if the
   /// plist file is named `defaultSamples.plist`:
   ///  `RemoteConfig.remoteConfig().setDefaults(fromPlist: "defaultSamples")`
   @objc(setDefaultsFromPlistFileName:)
   public func setDefaults(fromPlist fileName: String?) {
-    guard let fileName = fileName, !fileName.isEmpty else {
+    guard let fileName, !fileName.isEmpty else {
       RCLog.warning("I-RCN000037",
                     "The plist file name cannot be nil or empty.")
       return
@@ -860,12 +854,12 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   /// Returns the default value of a given key from the default config.
   ///
-  /// - Parameter key The parameter key of default config.
+  /// - Parameter key: The parameter key of default config.
   /// - Returns The default value of the specified key if the key exists; otherwise, nil.
   @objc public func defaultValue(forKey key: String) -> RemoteConfigValue? {
-    let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
-    var value: RemoteConfigValue?
     queue.sync {
+      let fullyQualifiedNamespace = self.fullyQualifiedNamespace(FIRNamespace)
+      var value: RemoteConfigValue?
       if let config = configContent.defaultConfig()[fullyQualifiedNamespace] {
         value = config[key]
         if let value, value.source != .default {
@@ -874,8 +868,8 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
                         "instead coming from source: \(value.source.rawValue)")
         }
       }
+      return value
     }
-    return value
   }
 
   // MARK: Realtime
@@ -892,9 +886,9 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
   /// https://firebase.google.com/docs/remote-config/get-started
   /// for more information.
   ///
-  /// - Parameter listener              The configured listener that is called for every config
+  /// - Parameter listener: The configured listener that is called for every config
   /// update.
-  /// - Returns              Returns a registration representing the listener. The registration
+  /// - Returns A registration representing the listener. The registration
   /// contains a remove method, which can be used to stop receiving updates for the provided
   /// listener.
   @discardableResult

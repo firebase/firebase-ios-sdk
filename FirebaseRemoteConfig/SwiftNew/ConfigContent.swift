@@ -165,7 +165,7 @@ class ConfigContent: NSObject {
     dispatchGroup.enter()
     dbManager.loadMain(withBundleIdentifier: bundleIdentifier) { [weak self] success,
       fetched, active, defaults, rolloutMetadata in
-      guard let self = self else { return }
+      guard let self else { return }
       self._fetchedConfig.store(newValue: fetched)
       self._activeConfig.store(newValue: active)
       self._defaultConfig.store(newValue: defaults)
@@ -182,7 +182,7 @@ class ConfigContent: NSObject {
     dispatchGroup.enter()
     dbManager.loadPersonalization { [weak self] success, fetchedPersonalization,
       activePersonalization in
-      guard let self = self else { return }
+      guard let self else { return }
       self._fetchedPersonalization = fetchedPersonalization
       self._activePersonalization = activePersonalization
       self.dispatchGroup.leave()

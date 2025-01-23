@@ -224,7 +224,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
 
     RCLog.debug("I-RCN000039", "Starting requesting token.")
     installations.authToken { [weak self] result, error in
-      guard let self = self else { return }
+      guard let self else { return }
       if let error = error {
         let errorDescription = "Failed to get installations token. Error : \(error)."
         RCLog.error("I-RCN000073", errorDescription)
@@ -257,7 +257,7 @@ class ConfigRealtime: NSObject, URLSessionDataDelegate {
       }
       /// We have a valid token. Get the backing installationID.
       installations.installationID { [weak self] identifier, error in
-        guard let self = self else { return }
+        guard let self else { return }
         // Dispatch to the RC serial queue to update settings on the queue.
         self.realtimeLockQueue.async {
           /// Update config settings with the IID and token.
