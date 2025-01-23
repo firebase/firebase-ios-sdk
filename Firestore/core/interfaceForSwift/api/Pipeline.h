@@ -12,26 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIRESTORE_PIPELINE_H_
-#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIRESTORE_PIPELINE_H_
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_H_
 
+#include <functional>
 #include <memory>
-
-#include "pipeline_source.h"
+#include <vector>
+#include "PipelineResult.h"
+#include "Stage.h"
 
 namespace firebase {
 namespace firestore {
 
-namespace api {
-class Firestore;
+namespace core {
+template <typename T>
+class EventListener;
+}  // namespace core
 
-class FirestorePipeline {
+namespace api {
+
+class Firestore;
+class PipelineResult;
+
+using PipelineSnapshotListener =
+    std::shared_ptr<core::EventListener<PipelineResult>>;
+
+class Pipeline {
  public:
-  static PipelineSource pipeline(std::shared_ptr<Firestore> firestore);
+  Pipeline(std::shared_ptr<Firestore> firestore, Stage stage);
+
+  void GetPipelineResult(PipelineSnapshotListener callback) const;
+
+  std::shared_ptr<Firestore> GetFirestore() const {
+    return firestore_;
+  }
+
+ private:
+  std::shared_ptr<Firestore> firestore_;
+  Stage stage_;
 };
 
 }  // namespace api
+
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIRESTORE_PIPELINE_H_
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_PIPELINE_H_

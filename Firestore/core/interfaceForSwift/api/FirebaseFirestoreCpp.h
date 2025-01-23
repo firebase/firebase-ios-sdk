@@ -17,11 +17,11 @@
 #ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
 #define FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
 
-#import "collection_stage.h"
-#import "firestore_pipeline.h"
-#import "pipeline.h"
-#import "pipeline_result.h"
-#import "pipeline_source.h"
-#import "stage.h"
+#import "CollectionStage.h"
+#import "FirestorePipeline.h"
+#import "Pipeline.h"
+#import "PipelineResult.h"
+#import "PipelineSource.h"
+#import "Stage.h"
 
 #endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_

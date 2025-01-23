@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/pipeline_source.h"
+#include "Firestore/core/interfaceForSwift/api/PipelineSource.h"
 
 #include <string>
 
-#include "Firestore/core/interfaceForSwift/api/collection_stage.h"
+#include "Firestore/core/interfaceForSwift/api/CollectionStage.h"
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/firestore.h"
 

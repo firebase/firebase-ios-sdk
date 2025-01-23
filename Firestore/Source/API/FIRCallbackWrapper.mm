@@ -20,8 +20,8 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/interfaceForSwift/api/pipeline.h"
-#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
+#include "Firestore/core/interfaceForSwift/api/Pipeline.h"
+#include "Firestore/core/interfaceForSwift/api/PipelineResult.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/statusor.h"

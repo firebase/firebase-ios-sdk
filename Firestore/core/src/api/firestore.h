@@ -21,7 +21,7 @@
 #include <mutex>
 #include <string>
 
-#include "Firestore/core/interfaceForSwift/api/pipeline_source.h"
+#include "Firestore/core/interfaceForSwift/api/PipelineSource.h"
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/api/settings.h"

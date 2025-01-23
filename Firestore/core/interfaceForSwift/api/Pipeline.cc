@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/pipeline.h"
+#include "Firestore/core/interfaceForSwift/api/Pipeline.h"
 
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
+#include "Firestore/core/interfaceForSwift/api/PipelineResult.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/src/api/source.h"

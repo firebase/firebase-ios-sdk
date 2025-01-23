@@ -15,7 +15,7 @@
 #include <iostream>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/interfaceForSwift/api/pipeline_result.h"
+#include "Firestore/core/interfaceForSwift/api/PipelineResult.h"
 
 namespace firebase {
 namespace firestore {
