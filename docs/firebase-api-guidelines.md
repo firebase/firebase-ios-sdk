@@ -54,6 +54,14 @@ introduces strict concurrency checking and enforces Sendable types in
 asynchronous code. If applicable, new APIs should be Sendable and designed to be
 used in an async context (e.g. `Task`).
 
+### Access Control
+
+New Swift APIs should use the `public` access level over `open`. The `open`
+access level allows for subclasses to override the API.
+
+Additionally, new Swift classes should be `final` to prevent clients from
+subclassing, unless otherwise justified.
+
 ### API Availability
 
 By design, an API may not be available on a given Apple platform. Swift supports

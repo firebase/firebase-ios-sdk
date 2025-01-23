@@ -18,8 +18,8 @@
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <future>  // NOLINT(build/c++11)
+#include <chrono>
+#include <future>
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 

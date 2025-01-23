@@ -16,7 +16,7 @@
 
 #include "Firestore/core/test/unit/local/local_store_test.h"
 
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>

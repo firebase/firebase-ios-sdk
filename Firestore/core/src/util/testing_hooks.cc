@@ -17,7 +17,7 @@
 #include "Firestore/core/src/util/testing_hooks.h"
 
 #include <functional>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
