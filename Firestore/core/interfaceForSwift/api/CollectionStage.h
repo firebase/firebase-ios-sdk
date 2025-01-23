@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTION_STAGE_H_
-#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTION_STAGE_H_
+#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTIONSTAGE_H_
+#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTIONSTAGE_H_
 
 #include <string>
 #include "Stage.h"
@@ -36,4 +36,4 @@ class Collection : public Stage {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTION_STAGE_H_
+#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_COLLECTIONSTAGE_H_

@@ -14,7 +14,7 @@
 
 #include "Firestore/core/interfaceForSwift/api/Pipeline.h"
 
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
