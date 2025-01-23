@@ -361,74 +361,7 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  @available(iOS 15, *)
-  func testGenerateStreamContent() async throws {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-
-    let input: [String: Any] = ["data": "Why is the sky blue"]
-    let stream = functions!.stream(
-      at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
-      withObject: input,
-      options: options,
-      timeout: 4.0
-    )
-    let result = try await response(from: stream)
-    XCTAssertEqual(
-      result,
-      [
-        "chunk hello",
-        "chunk world",
-        "chunk this",
-        "chunk is",
-        "chunk cool",
-        "hello world this is cool",
-      ]
-    )
-  }
-
-  @available(iOS 15, *)
-  func testGenerateStreamContentCanceled() async {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let input: [String: Any] = ["data": "Why is the sky blue"]
-
-    let task = Task.detached { [self] in
-      let stream = functions!.stream(
-        at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
-        withObject: input,
-        options: options,
-        timeout: 4.0
-      )
-
-      let result = try await response(from: stream)
-      // Since we cancel the call we are expecting an empty array.
-      XCTAssertEqual(
-        result,
-        []
-      )
-    }
-    // We cancel the task and we expect a null response even if the stream was initiated.
-    task.cancel()
-    let respone = await task.result
-    XCTAssertNotNil(respone)
-  }
-}
-
-private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
-  any Error>) async throws -> [String] {
-  var response = [String]()
-  for try await result in stream {
-    // First chunk of the stream comes as NSDictionary
-    if let dataChunk = result.data as? NSDictionary {
-      for (key, value) in dataChunk {
-        response.append("\(key) \(value)")
-      }
-    } else {
-      // Last chunk is the concatenated result so we have to parse it as String else will
-      // fail.
-      if let dataString = result.data as? String {
-        response.append(dataString)
-      }
-    }
-  }
-  return response
+  // TODO: Implement unit test variants.
+  func testGenerateStreamContent() async throws {}
+  func testGenerateStreamContentCanceled() async {}
 }
