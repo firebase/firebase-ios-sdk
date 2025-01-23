@@ -39,7 +39,7 @@ open class HTTPSCallable: NSObject {
   // The functions client to use for making calls.
   private let functions: Functions
 
-  private let url: URL
+  let url: URL
 
   private let options: HTTPSCallableOptions?
 
@@ -144,10 +144,8 @@ open class HTTPSCallable: NSObject {
       .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  open func stream(_ data: Any? = nil) async throws
-    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-    try await functions
-      .stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
+  @available(iOS 15, *)
+  func stream(_ data: Any? = nil) -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+    functions.stream(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 }

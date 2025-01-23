@@ -159,4 +159,22 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   public func callAsFunction(_ data: Request) async throws -> Response {
     return try await call(data)
   }
+
+  // TODO: Look into handling parameter-less functions.
+  @available(iOS 15, *)
+  public func stream(_ data: Request) async throws -> AsyncThrowingStream<Response, Error> {
+    let encoded = try encoder.encode(data)
+    return AsyncThrowingStream { continuation in
+      Task {
+        do {
+          for try await result in callable.stream(encoded) {
+            let response = try decoder.decode(Response.self, from: result.data)
+            continuation.yield(response)
+          }
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
+    }
+  }
 }

@@ -22,7 +22,9 @@ import FirebaseCore
   import GTMSessionFetcherCore
 #endif
 
-import SharedTestUtilities
+#if SWIFT_PACKAGE
+  import SharedTestUtilities
+#endif
 import XCTest
 
 class FunctionsTests: XCTestCase {
@@ -359,11 +361,12 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
+  @available(iOS 15, *)
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
     let input: [String: Any] = ["data": "Why is the sky blue"]
-    let stream = try await functions!.stream(
+    let stream = functions!.stream(
       at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
       withObject: input,
       options: options,
@@ -383,12 +386,13 @@ class FunctionsTests: XCTestCase {
     )
   }
 
+  @available(iOS 15, *)
   func testGenerateStreamContentCanceled() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
 
     let task = Task.detached { [self] in
-      let stream = try await functions!.stream(
+      let stream = functions!.stream(
         at: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
         withObject: input,
         options: options,

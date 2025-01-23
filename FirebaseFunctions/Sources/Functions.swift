@@ -471,28 +471,72 @@ enum FunctionsConstants {
     }
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
+  @available(iOS 15, *)
   func stream(at url: URL,
               withObject data: Any?,
               options: HTTPSCallableOptions?,
-              timeout: TimeInterval) async throws
+              timeout: TimeInterval)
     -> AsyncThrowingStream<HTTPSCallableResult, Error> {
-    let context = try await contextProvider.context(options: options)
-    let fetcher = try makeFetcherForStreamableContent(
-      url: url,
-      data: data,
-      options: options,
-      timeout: timeout,
-      context: context
-    )
+    AsyncThrowingStream { continuation in
+      Task {
+        // TODO: This API does not throw. Should the throwing request
+        // setup be in the stream or one level up?
+        let urlRequest: URLRequest
+        do {
+          let context = try await contextProvider.context(options: options)
+          urlRequest = try makeRequestForStreamableContent(
+            url: url,
+            data: data,
+            options: options,
+            timeout: timeout,
+            context: context
+          )
+          // TODO: Address below commented out code.
+          //      // Override normal security rules if this is a local test.
+          //      var configuration = URLSessionConfiguration.default
+          //      if let emulatorOrigin {
+          //        configuration.
+          //      }
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
 
-    do {
-      let rawData = try await fetcher.beginFetch()
-      return try callableResultFromResponseAsync(data: rawData, error: nil)
-    } catch {
-      // This method always throws when `error` is not `nil`, but ideally,
-      // it should be refactored so it looks less confusing.
-      return try callableResultFromResponseAsync(data: nil, error: error)
+        let stream: URLSession.AsyncBytes
+        let rawResponse: URLResponse
+        do {
+          // TODO: Look into injecting URLSession for unit tests.
+          (stream, rawResponse) = try await URLSession.shared.bytes(for: urlRequest)
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
+
+        // Verify the status code is 200
+        let response: HTTPURLResponse
+        do {
+          print(rawResponse)
+//            response = try httpResponse(urlResponse: rawResponse)
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
+
+        for try await line in stream.lines {
+          let json = try callableResult(
+            fromResponseData: line
+              .dropFirst(6)
+              .data(using: .utf8, allowLossyConversion: true) ?? Data()
+          )
+          try callableResult(fromResponseData: line.dropFirst(6).data(
+            using: .utf8,
+            allowLossyConversion: true
+          ) ?? Data())
+          continuation.yield(HTTPSCallableResult(data: json.data))
+        }
+
+        continuation.finish(throwing: nil)
+      }
     }
   }
 
@@ -511,63 +555,53 @@ enum FunctionsConstants {
     return processedData
   }
 
-  private func makeFetcherForStreamableContent(url: URL,
+  private func makeRequestForStreamableContent(url: URL,
                                                data: Any?,
                                                options: HTTPSCallableOptions?,
                                                timeout: TimeInterval,
                                                context: FunctionsContext) throws
-    -> GTMSessionFetcher {
-    let request = URLRequest(
+    -> URLRequest {
+    var urlRequest = URLRequest(
       url: url,
       cachePolicy: .useProtocolCachePolicy,
       timeoutInterval: timeout
     )
-    let fetcher = fetcherService.fetcher(with: request)
 
     let data = data ?? NSNull()
     let encoded = try serializer.encode(data)
     let body = ["data": encoded]
     let payload = try JSONSerialization.data(withJSONObject: body, options: [.fragmentsAllowed])
-    fetcher.bodyData = payload
+    urlRequest.httpBody = payload
 
     // Set the headers for starting a streaming session.
-    fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
-    fetcher.setRequestValue("text/event-stream", forHTTPHeaderField: "Accept")
-    fetcher.request?.httpMethod = "POST"
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+    urlRequest.httpMethod = "POST"
+
     if let authToken = context.authToken {
       let value = "Bearer \(authToken)"
-      fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
+      urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
     }
 
     if let fcmToken = context.fcmToken {
-      fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+      urlRequest.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
     }
 
     if options?.requireLimitedUseAppCheckTokens == true {
       if let appCheckToken = context.limitedUseAppCheckToken {
-        fetcher.setRequestValue(
+        urlRequest.setValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
     } else if let appCheckToken = context.appCheckToken {
-      fetcher.setRequestValue(
+      urlRequest.setValue(
         appCheckToken,
         forHTTPHeaderField: Constants.appCheckTokenHeader
       )
     }
-    // Remove after genStream is updated on the emulator or deployed
-    #if DEBUG
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
-    #endif
-    // Override normal security rules if this is a local test.
-    if emulatorOrigin != nil {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
-    }
 
-    return fetcher
+    return urlRequest
   }
 
   private func makeFetcher(url: URL,
