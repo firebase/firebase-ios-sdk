@@ -99,6 +99,8 @@ if is_platform(:ios)
 
     configure_local_pods()
 
+    pod 'abseil', '~> 1.20240722.0'
+
     target 'Firestore_Tests_iOS' do
       inherit! :search_paths
 
@@ -140,6 +142,8 @@ if is_platform(:osx)
 
     configure_local_pods()
 
+    pod 'abseil', '~> 1.20240722.0'
+
     target 'Firestore_Tests_macOS' do
       inherit! :search_paths
 
@@ -167,6 +171,8 @@ if is_platform(:tvos)
     platform :tvos, '13.0'
 
     configure_local_pods()
+
+    pod 'abseil', '~> 1.20240722.0'
 
     target 'Firestore_Tests_tvOS' do
       inherit! :search_paths
