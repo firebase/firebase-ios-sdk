@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenModelConfig {
-  let imageFormat: ImagenImageFormat?
-  let addWatermark: Bool?
+import Foundation
 
-  public init(imageFormat: ImagenImageFormat? = nil, addWatermark: Bool? = nil) {
-    self.imageFormat = imageFormat
-    self.addWatermark = addWatermark
-  }
+// TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
+// input (upscaling / editing).
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+protocol ImagenImageRepresentable {
+  /// Internal representation of the image for use with the Imagen model.
+  ///
+  /// - Important: Not needed by SDK users.
+  var _internalImagenImage: _InternalImagenImage { get }
 }

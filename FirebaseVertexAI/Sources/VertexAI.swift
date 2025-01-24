@@ -113,7 +113,6 @@ public class VertexAI {
       name: modelResourceName(modelName: modelName),
       projectID: projectID,
       apiKey: apiKey,
-      modelConfig: modelConfig,
       safetySettings: safetySettings,
       requestOptions: requestOptions,
       appCheck: appCheck,
