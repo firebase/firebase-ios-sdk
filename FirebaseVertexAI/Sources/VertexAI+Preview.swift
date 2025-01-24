@@ -17,12 +17,10 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension VertexAI {
-  func imagenModel(modelName: String, modelConfig: ImagenModelConfig? = nil,
-                   safetySettings: ImagenSafetySettings? = nil,
+  func imagenModel(modelName: String, safetySettings: ImagenSafetySettings? = nil,
                    requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
     return createImagenModel(
       modelName: modelName,
-      modelConfig: modelConfig,
       safetySettings: safetySettings,
       requestOptions: requestOptions
     )

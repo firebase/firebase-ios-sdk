@@ -106,8 +106,7 @@ public class VertexAI {
 
   // MARK: - Package APIs
 
-  package func createImagenModel(modelName: String, modelConfig: ImagenModelConfig?,
-                                 safetySettings: ImagenSafetySettings?,
+  package func createImagenModel(modelName: String, safetySettings: ImagenSafetySettings?,
                                  requestOptions: RequestOptions) -> ImagenModel {
     return ImagenModel(
       name: modelResourceName(modelName: modelName),
