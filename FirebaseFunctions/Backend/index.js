@@ -139,7 +139,7 @@ exports.genStream = functionsV2.https.onCall(
         response.sendChunk({ chunk });
       }
     }
-    return data.join(" ");
+    return streamData.join(" ");
   }
 );
 
