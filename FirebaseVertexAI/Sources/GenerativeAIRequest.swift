@@ -32,12 +32,22 @@ public struct RequestOptions {
 
   /// The API version to use in requests to the backend.
   let apiVersion = "v1beta"
+    
+  public enum EndpointVersion: String {
+      case v1 = "v1"
+      case v1beta = "v1beta"
+  }
+
+  /// The endpoint version to use in requests to the backend.
+  let endpointVersion: EndpointVersion
 
   /// Initializes a request options object.
   ///
   /// - Parameters:
   ///   - timeout The request’s timeout interval in seconds; defaults to 180 seconds.
-  public init(timeout: TimeInterval = 180.0) {
+  ///   - endpointVersion The endpoint version to use in request to the backend; defaults to `v1beta`.
+  public init(timeout: TimeInterval = 180.0, endpointVersion: EndpointVersion = .v1beta) {
     self.timeout = timeout
+    self.endpointVersion = endpointVersion
   }
 }
