@@ -180,27 +180,19 @@ struct GenerativeAIService {
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
     var urlRequest = URLRequest(url: request.url)
     urlRequest.httpMethod = "POST"
-    urlRequest.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+    guard let accessToken = ProcessInfo.processInfo.environment["GCLOUD_ACCESS_TOKEN"] else {
+      fatalError("""
+      Missing access token; run `gcloud auth print-access-token` and add an environment variable \
+      `GCLOUD_ACCESS_TOKEN` with the printed value.
+      Note: This value will only be valid for 60 minutes.
+      """)
+    }
+    urlRequest.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-    if let appCheck {
-      let tokenResult = await appCheck.getToken(forcingRefresh: false)
-      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-      if let error = tokenResult.error {
-        VertexLog.error(
-          code: .appCheckTokenFetchFailed,
-          "Failed to fetch AppCheck token. Error: \(error)"
-        )
-      }
-    }
-
-    if let auth, let authToken = try await auth.getToken(forcingRefresh: false) {
-      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
-    }
 
     let encoder = JSONEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
