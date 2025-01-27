@@ -15,6 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
+
+#if defined(__cplusplus)
 #include <memory>
 #include <vector>
 
@@ -60,3 +62,4 @@ NS_SWIFT_NAME(CallbackWrapper)
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

@@ -219,6 +219,7 @@ firebase_ios_glob(
   src/remote/*.cc
   src/remote/*.h
   interfaceForSwift/api/*.h
+  interfaceForSwift/api/*.cc
   EXCLUDE ${nanopb_sources}
 )
 
