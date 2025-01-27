@@ -27,26 +27,11 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 
-#if defined(__ANDROID__)
-// Abseil does not support STLPort, so avoid their config.h here.
-//
-// TODO(b/163140650): Remove once the Firebase support floor moves to NDK R18.
-//
-// Meanwhile, NDK R16b (the current minimum) includes Clang 5.0.3 and GCC 4.9.
-// While Clang supports `__cpp_exceptions` at that version, GCC does not. Both
-// support `__EXCEPTIONS`.
-#if __EXCEPTIONS
-#define FIRESTORE_HAVE_EXCEPTIONS 1
-#endif
-
-#else  // !defined(__ANDROID__)
-// On any other supported platform, just take Abseil's word for it.
 #include "absl/base/config.h"
 
 #if ABSL_HAVE_EXCEPTIONS
 #define FIRESTORE_HAVE_EXCEPTIONS 1
 #endif
-#endif  // defined(__ANDROID__)
 
 namespace firebase {
 namespace firestore {

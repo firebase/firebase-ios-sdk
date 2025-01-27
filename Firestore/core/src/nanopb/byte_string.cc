@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/nanopb/byte_string.h"
 
-#include <cstdlib>
-
 #include <cctype>
+#include <cstdlib>  // NOLINT(build/include_order)
 #include <cstring>
 #include <iomanip>
 #include <ostream>

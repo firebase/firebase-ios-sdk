@@ -116,7 +116,7 @@ final class PartsRepresentableTests: XCTestCase {
         "Got unexpected error type: \(errorPart.error)"
       )
       guard case .invalidUnderlyingImage = imageError else {
-        XCTFail("Expected invalid underyling image conversion error, got \(imageError) instead.")
+        XCTFail("Expected invalid underlying image conversion error, got \(imageError) instead.")
         return
       }
     }

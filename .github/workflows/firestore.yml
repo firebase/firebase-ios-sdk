@@ -15,6 +15,7 @@
 name: firestore
 
 on:
+  workflow_dispatch:
   pull_request:
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
@@ -56,6 +57,9 @@ jobs:
               # Podspec
               - 'FirebaseFirestoreInternal.podspec'
               - 'FirebaseFirestore.podspec'
+
+              # Package.swift
+              - 'Package.swift'
 
               # CMake
               - '**CMakeLists.txt'
@@ -311,7 +315,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.7'
+        python-version: '3.11'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
