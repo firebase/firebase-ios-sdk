@@ -141,7 +141,7 @@ def lint_py(files):
     global _flake8_warned
     if not _flake8_warned:
       _flake8_warned = True
-      _logger.warn(textwrap.dedent(
+      _logger.warning(textwrap.dedent(
           """
           Could not find flake8 on $PATH; skipping python lint.
           Install with:

@@ -125,6 +125,10 @@ let package = Package(
       name: "FirebaseVertexAI",
       targets: ["FirebaseVertexAI"]
     ),
+    .library(
+      name: "FirebaseVertexAIPreview",
+      targets: ["FirebaseVertexAIPreview"]
+    ),
   ],
   dependencies: [
     .package(
@@ -1306,11 +1310,27 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseVertexAI/Sources",
+      exclude: [
+        "VertexAI+Preview.swift",
+      ]
+    ),
+    .target(
+      name: "FirebaseVertexAIPreview",
+      dependencies: [
+        "FirebaseVertexAI",
+      ],
+      path: "FirebaseVertexAI/Sources",
+      sources: [
+        "VertexAI+Preview.swift",
+      ]
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
-      dependencies: ["FirebaseVertexAI"],
+      dependencies: [
+        "FirebaseVertexAI",
+        "FirebaseVertexAIPreview",
+      ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),

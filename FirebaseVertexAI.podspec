@@ -35,6 +35,9 @@ Firebase SDK.
   s.source_files = [
     'FirebaseVertexAI/Sources/**/*.swift',
   ]
+  s.exclude_files = [
+    'FirebaseVertexAI/Sources/VertexAI+Preview.swift',
+  ]
 
   s.swift_version = '5.9'
 
@@ -48,6 +51,10 @@ Firebase SDK.
   s.dependency 'FirebaseAuthInterop', '~> 11.4'
   s.dependency 'FirebaseCore', '~> 11.8.0'
   s.dependency 'FirebaseCoreExtension', '~> 11.8.0'
+
+  s.pod_target_xcconfig = {
+    'OTHER_SWIFT_FLAGS' => '-package-name Firebase'
+  }
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'
