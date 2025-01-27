@@ -16,10 +16,11 @@
 
 #include "Firestore/core/test/unit/util/executor_test.h"
 
+#include <cstdlib>
+
 #include <chrono>              // NOLINT(build/c++11)
 #include <condition_variable>  // NOLINT(build/c++11)
-#include <cstdlib>
-#include <future>  // NOLINT(build/c++11)
+#include <future>              // NOLINT(build/c++11)
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
 
