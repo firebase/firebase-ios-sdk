@@ -415,7 +415,7 @@ open class RemoteConfig: NSObject, NSFastEnumeration {
 
   /// Ensures initialization is complete and clients can begin querying for Remote Config values.
   /// - Parameter completionHandler: Initialization complete callback with error parameter.
-  @objc public func ensureInitialized(completionHandler: @escaping (Error?) -> Void) {
+  @objc public func ensureInitialized(completionHandler: @Sendable @escaping (Error?) -> Void) {
     DispatchQueue.global(qos: .utility).async { [weak self] in
       guard let self else { return }
       let initializationSuccess = self.configContent.initializationSuccessful()
