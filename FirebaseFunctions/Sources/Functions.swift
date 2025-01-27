@@ -478,6 +478,8 @@ enum FunctionsConstants {
               timeout: TimeInterval)
     -> AsyncThrowingStream<HTTPSCallableResult, Error> {
     AsyncThrowingStream { continuation in
+      // TODO: Vertex prints the curl command. Should this?
+
       Task {
         // TODO: This API does not throw. Should the throwing request
         // setup be in the stream or one level up?
@@ -513,31 +515,59 @@ enum FunctionsConstants {
         }
 
         // Verify the status code is 200
-        let response: HTTPURLResponse
-        do {
-          print(rawResponse)
-//            response = try httpResponse(urlResponse: rawResponse)
-        } catch {
-          continuation.finish(throwing: error)
+        guard let response = rawResponse as? HTTPURLResponse else {
+          continuation.finish(
+            throwing: FunctionsError(
+              .internal,
+              userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
+            )
+          )
+          return
+        }
+
+        guard response.statusCode == 200 else {
+          // TODO: Add test for error case and parse out error.
           return
         }
 
         for try await line in stream.lines {
-          let json = try callableResult(
-            fromResponseData: line
-              .dropFirst(6)
-              .data(using: .utf8, allowLossyConversion: true) ?? Data()
-          )
-          try callableResult(fromResponseData: line.dropFirst(6).data(
-            using: .utf8,
-            allowLossyConversion: true
-          ) ?? Data())
-          continuation.yield(HTTPSCallableResult(data: json.data))
+          if line.hasPrefix("data:") {
+            // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+            let jsonText = String(line.dropFirst(5))
+            let data: Data
+            do {
+              data = try jsonData(jsonText: jsonText)
+            } catch {
+              continuation.finish(throwing: error)
+              return
+            }
+
+            // Handle the content.
+            do {
+              let content = try callableResult(fromResponseData: data)
+              continuation.yield(content)
+            } catch {
+              continuation.finish(throwing: error)
+              return
+            }
+          } else {
+            // TODO: Throw error with unexpected formatted lines.
+          }
         }
 
         continuation.finish(throwing: nil)
       }
     }
+  }
+
+  private func jsonData(jsonText: String) throws -> Data {
+    guard let data = jsonText.data(using: .utf8) else {
+      throw DecodingError.dataCorrupted(DecodingError.Context(
+        codingPath: [],
+        debugDescription: "Could not parse response as UTF8."
+      ))
+    }
+    return data
   }
 
   @available(iOS 13.0, *)
