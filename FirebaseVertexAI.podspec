@@ -35,6 +35,9 @@ Firebase SDK.
   s.source_files = [
     'FirebaseVertexAI/Sources/**/*.swift',
   ]
+  s.exclude_files = [
+    'FirebaseVertexAI/Sources/VertexAI+Preview.swift',
+  ]
 
   s.swift_version = '5.9'
 
