@@ -19,8 +19,6 @@
 #include <cstdint>
 #include <cstdlib>  // NOLINT(build/include_order)
 
-#include <cstdint>
-
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
