@@ -893,8 +893,6 @@ class IntegrationTests: XCTestCase {
     )
   }
 
-  // Other local server: URL(string: "http://127.0.0.1:5001/demo-project/us-central1/genStream")!,
-
   @available(iOS 15, *)
   func testGenerateStreamContentCanceled() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
