@@ -520,7 +520,7 @@ static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
 
   FIRCLSFileWriteSectionEnd(&file);
 
-  FIRCLSHandler(&file, message->thread.name, NULL);
+  FIRCLSHandler(&file, message->thread.name, NULL, true);
 
   FIRCLSFileClose(&file);
 

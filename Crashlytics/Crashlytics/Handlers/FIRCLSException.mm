@@ -235,7 +235,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       FIRCLSExceptionWrite(&file, type, name, reason, frames, nil);
 
       // We only want to do this work if we have the expectation that we'll actually crash
-      FIRCLSHandler(&file, mach_thread_self(), NULL);
+      FIRCLSHandler(&file, mach_thread_self(), NULL, YES);
 
       FIRCLSFileClose(&file);
     });
@@ -353,7 +353,7 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     return nil;
   }
   FIRCLSExceptionWrite(&file, type, name, reason, frames, nil);
-  FIRCLSHandler(&file, mach_thread_self(), NULL);
+  FIRCLSHandler(&file, mach_thread_self(), NULL, NO);
   FIRCLSFileClose(&file);
 
   // Return the path to the new report.

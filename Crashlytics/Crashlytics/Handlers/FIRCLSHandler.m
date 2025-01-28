@@ -22,12 +22,14 @@
 
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager_Private.h"
 
-void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
+void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid, bool isNativeFatal) {
   FIRCLSProcess process;
 
   FIRCLSProcessInit(&process, crashedThread, uapVoid);
 
-  FIRCLSProcessSuspendAllOtherThreads(&process);
+  if (isNativeFatal) {
+    FIRCLSProcessSuspendAllOtherThreads(&process);
+  }
 
   FIRCLSProcessRecordAllThreads(&process, file);
 
@@ -45,5 +47,7 @@ void FIRCLSHandler(FIRCLSFile* file, thread_t crashedThread, void* uapVoid) {
   // Store a crash file marker to indicate that a crash has occurred
   FIRCLSCreateCrashedMarkerFile();
 
-  FIRCLSProcessResumeAllOtherThreads(&process);
+  if (isNativeFatal) {
+    FIRCLSProcessResumeAllOtherThreads(&process);
+  }
 }

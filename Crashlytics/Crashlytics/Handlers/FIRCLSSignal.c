@@ -286,7 +286,7 @@ static void FIRCLSSignalRecordSignal(int savedErrno, siginfo_t *info, void *uapV
 
   FIRCLSFileWriteSectionEnd(&file);
 
-  FIRCLSHandler(&file, mach_thread_self(), uapVoid);
+  FIRCLSHandler(&file, mach_thread_self(), uapVoid, true);
 
   FIRCLSFileClose(&file);
 }
