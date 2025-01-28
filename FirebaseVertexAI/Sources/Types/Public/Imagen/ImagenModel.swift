@@ -24,6 +24,8 @@ public final class ImagenModel {
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
 
+  let generationConfig: ImagenGenerationConfig?
+
   let safetySettings: ImagenSafetySettings?
 
   /// Configuration parameters for sending requests to the backend.
@@ -32,6 +34,7 @@ public final class ImagenModel {
   init(name: String,
        projectID: String,
        apiKey: String,
+       generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        appCheck: AppCheckInterop?,
@@ -45,13 +48,13 @@ public final class ImagenModel {
       auth: auth,
       urlSession: urlSession
     )
+    self.generationConfig = generationConfig
     self.safetySettings = safetySettings
     self.requestOptions = requestOptions
   }
 
-  public func generateImages(prompt: String,
-                             generationConfig: ImagenGenerationConfig? = nil) async throws
-    -> ImagenGenerationResponse<ImagenInlineDataImage> {
+  public func generateImages(prompt: String) async throws
+    -> ImagenGenerationResponse<ImagenInlineImage> {
     return try await generateImages(
       prompt: prompt,
       parameters: ImagenModel.imageGenerationParameters(
@@ -62,13 +65,12 @@ public final class ImagenModel {
     )
   }
 
-  public func generateImages(prompt: String, storageURI: String,
-                             generationConfig: ImagenGenerationConfig? = nil) async throws
-    -> ImagenGenerationResponse<ImagenFileDataImage> {
+  public func generateImages(prompt: String, gcsUri: String) async throws
+    -> ImagenGenerationResponse<ImagenGCSImage> {
     return try await generateImages(
       prompt: prompt,
       parameters: ImagenModel.imageGenerationParameters(
-        storageURI: storageURI,
+        storageURI: gcsUri,
         generationConfig: generationConfig,
         safetySettings: safetySettings
       )

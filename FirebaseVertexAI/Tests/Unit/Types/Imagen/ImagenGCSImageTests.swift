@@ -17,30 +17,30 @@ import XCTest
 @testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class ImagenInlineDataImageTests: XCTestCase {
+final class ImagenGCSImageTests: XCTestCase {
   let decoder = JSONDecoder()
 
-  func testDecodeImage_bytesBase64Encoded() throws {
-    let mimeType = "image/png"
-    let bytesBase64Encoded = "dGVzdC1iYXNlNjQtZGF0YQ=="
+  func testDecodeImage_gcsURI() throws {
+    let gcsURI = "gs://test-bucket/images/123456789/sample_0.png"
+    let mimeType = "image/jpeg"
     let json = """
     {
-      "bytesBase64Encoded": "\(bytesBase64Encoded)",
-      "mimeType": "\(mimeType)"
+      "mimeType": "\(mimeType)",
+      "gcsUri": "\(gcsURI)"
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let image = try decoder.decode(ImagenInlineDataImage.self, from: jsonData)
+    let image = try decoder.decode(ImagenGCSImage.self, from: jsonData)
 
     XCTAssertEqual(image.mimeType, mimeType)
-    XCTAssertEqual(image.data.base64EncodedString(), bytesBase64Encoded)
+    XCTAssertEqual(image.gcsURI, gcsURI)
     XCTAssertEqual(image._internalImagenImage.mimeType, mimeType)
-    XCTAssertEqual(image._internalImagenImage.bytesBase64Encoded, bytesBase64Encoded)
-    XCTAssertNil(image._internalImagenImage.gcsURI)
+    XCTAssertEqual(image._internalImagenImage.gcsURI, gcsURI)
+    XCTAssertNil(image._internalImagenImage.bytesBase64Encoded)
   }
 
-  func testDecodeImage_missingBytesBase64Encoded_throws() throws {
+  func testDecodeImage_missingGCSURI_throws() throws {
     let json = """
     {
       "mimeType": "image/jpeg"
@@ -49,11 +49,11 @@ final class ImagenInlineDataImageTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     do {
-      _ = try decoder.decode(ImagenInlineDataImage.self, from: jsonData)
+      _ = try decoder.decode(ImagenGCSImage.self, from: jsonData)
       XCTFail("Expected an error; none thrown.")
     } catch let DecodingError.keyNotFound(codingKey, _) {
-      let codingKey = try XCTUnwrap(codingKey as? ImagenInlineDataImage.CodingKeys)
-      XCTAssertEqual(codingKey, .bytesBase64Encoded)
+      let codingKey = try XCTUnwrap(codingKey as? ImagenGCSImage.CodingKeys)
+      XCTAssertEqual(codingKey, .gcsURI)
     } catch {
       XCTFail("Expected a DecodingError.keyNotFound error; got \(error).")
     }
@@ -62,16 +62,16 @@ final class ImagenInlineDataImageTests: XCTestCase {
   func testDecodeImage_missingMimeType_throws() throws {
     let json = """
     {
-      "bytesBase64Encoded": "dGVzdC1iYXNlNjQtZGF0YQ=="
+      "gcsUri": "gs://test-bucket/images/123456789/sample_0.png"
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     do {
-      _ = try decoder.decode(ImagenInlineDataImage.self, from: jsonData)
+      _ = try decoder.decode(ImagenGCSImage.self, from: jsonData)
       XCTFail("Expected an error; none thrown.")
     } catch let DecodingError.keyNotFound(codingKey, _) {
-      let codingKey = try XCTUnwrap(codingKey as? ImagenInlineDataImage.CodingKeys)
+      let codingKey = try XCTUnwrap(codingKey as? ImagenGCSImage.CodingKeys)
       XCTAssertEqual(codingKey, .mimeType)
     } catch {
       XCTFail("Expected a DecodingError.keyNotFound error; got \(error).")

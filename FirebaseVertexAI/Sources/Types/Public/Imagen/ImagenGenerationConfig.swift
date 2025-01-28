@@ -14,14 +14,14 @@
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImagenGenerationConfig {
-  public var numberOfImages: Int?
   public var negativePrompt: String?
-  public var imageFormat: ImagenImageFormat?
+  public var numberOfImages: Int?
   public var aspectRatio: ImagenAspectRatio?
+  public var imageFormat: ImagenImageFormat?
   public var addWatermark: Bool?
 
-  public init(numberOfImages: Int? = nil, negativePrompt: String? = nil,
-              imageFormat: ImagenImageFormat? = nil, aspectRatio: ImagenAspectRatio? = nil,
+  public init(negativePrompt: String? = nil, numberOfImages: Int? = nil,
+              aspectRatio: ImagenAspectRatio? = nil, imageFormat: ImagenImageFormat? = nil,
               addWatermark: Bool? = nil) {
     self.numberOfImages = numberOfImages
     self.negativePrompt = negativePrompt
