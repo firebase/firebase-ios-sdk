@@ -44,7 +44,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   }
 
   func testInitializeRequest_inlineDataImage() throws {
-    let request = ImagenGenerationRequest<ImagenInlineDataImage>(
+    let request = ImagenGenerationRequest<ImagenInlineImage>(
       model: modelName,
       options: requestOptions,
       instances: [instance],
@@ -62,7 +62,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   }
 
   func testInitializeRequest_fileDataImage() throws {
-    let request = ImagenGenerationRequest<ImagenFileDataImage>(
+    let request = ImagenGenerationRequest<ImagenGCSImage>(
       model: modelName,
       options: requestOptions,
       instances: [instance],
@@ -82,7 +82,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   // MARK: - Encoding Tests
 
   func testEncodeRequest_inlineDataImage() throws {
-    let request = ImagenGenerationRequest<ImagenInlineDataImage>(
+    let request = ImagenGenerationRequest<ImagenInlineImage>(
       model: modelName,
       options: RequestOptions(),
       instances: [instance],
@@ -110,7 +110,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   }
 
   func testEncodeRequest_fileDataImage() throws {
-    let request = ImagenGenerationRequest<ImagenFileDataImage>(
+    let request = ImagenGenerationRequest<ImagenGCSImage>(
       model: modelName,
       options: RequestOptions(),
       instances: [instance],

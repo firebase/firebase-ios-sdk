@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenInlineDataImage {
+public struct ImagenInlineImage {
   public let mimeType: String
   public let data: Data
 
@@ -30,7 +30,7 @@ public struct ImagenInlineDataImage {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenInlineDataImage: ImagenImageRepresentable {
+extension ImagenInlineImage: ImagenImageRepresentable {
   // TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
   // input (upscaling / editing).
   var _internalImagenImage: _InternalImagenImage {
@@ -43,12 +43,12 @@ extension ImagenInlineDataImage: ImagenImageRepresentable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenInlineDataImage: Equatable {}
+extension ImagenInlineImage: Equatable {}
 
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenInlineDataImage: Decodable {
+extension ImagenInlineImage: Decodable {
   enum CodingKeys: CodingKey {
     case mimeType
     case bytesBase64Encoded

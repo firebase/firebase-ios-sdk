@@ -77,10 +77,10 @@ final class ImageGenerationParametersTests: XCTestCase {
     let aspectRatio = ImagenAspectRatio.landscape16x9
     let addWatermark = true
     let generationConfig = ImagenGenerationConfig(
-      numberOfImages: sampleCount,
       negativePrompt: negativePrompt,
-      imageFormat: imageFormat,
+      numberOfImages: sampleCount,
       aspectRatio: aspectRatio,
+      imageFormat: imageFormat,
       addWatermark: addWatermark
     )
     let expectedParameters = ImageGenerationParameters(
@@ -146,10 +146,10 @@ final class ImageGenerationParametersTests: XCTestCase {
     let aspectRatio = ImagenAspectRatio.portrait3x4
     let addWatermark = false
     let generationConfig = ImagenGenerationConfig(
-      numberOfImages: sampleCount,
       negativePrompt: negativePrompt,
-      imageFormat: imageFormat,
+      numberOfImages: sampleCount,
       aspectRatio: aspectRatio,
+      imageFormat: imageFormat,
       addWatermark: addWatermark
     )
     let safetyFilterLevel = ImagenSafetyFilterLevel.blockNone
