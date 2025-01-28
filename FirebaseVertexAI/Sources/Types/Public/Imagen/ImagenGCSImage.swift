@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenFileDataImage {
+public struct ImagenGCSImage {
   public let mimeType: String
   public let gcsURI: String
 
@@ -26,7 +26,7 @@ public struct ImagenFileDataImage {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenFileDataImage: ImagenImageRepresentable {
+extension ImagenGCSImage: ImagenImageRepresentable {
   // TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
   // input (upscaling / editing).
   var _internalImagenImage: _InternalImagenImage {
@@ -35,12 +35,12 @@ extension ImagenFileDataImage: ImagenImageRepresentable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenFileDataImage: Equatable {}
+extension ImagenGCSImage: Equatable {}
 
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenFileDataImage: Decodable {
+extension ImagenGCSImage: Decodable {
   enum CodingKeys: String, CodingKey {
     case mimeType
     case gcsURI = "gcsUri"

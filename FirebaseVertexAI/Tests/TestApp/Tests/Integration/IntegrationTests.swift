@@ -40,6 +40,11 @@ final class IntegrationTests: XCTestCase {
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
 
+  let imagenGenerationConfig = ImagenGenerationConfig(
+    aspectRatio: .landscape16x9,
+    imageFormat: .jpeg(compressionQuality: 70)
+  )
+
   var vertex: VertexAI!
   var model: GenerativeModel!
   var imagenModel: ImagenModel!
@@ -64,6 +69,7 @@ final class IntegrationTests: XCTestCase {
     )
     imagenModel = vertex.imagenModel(
       modelName: "imagen-3.0-fast-generate-001",
+      generationConfig: imagenGenerationConfig,
       safetySettings: ImagenSafetySettings(
         safetyFilterLevel: .blockLowAndAbove,
         personFilterLevel: .blockAll
@@ -254,15 +260,8 @@ final class IntegrationTests: XCTestCase {
     overlooking a vast African savanna at sunset. Golden hour light, long shadows, sharp focus on
     the lion, shallow depth of field, detailed fur texture, DSLR, 85mm lens.
     """
-    let generationConfig = ImagenGenerationConfig(
-      imageFormat: .jpeg(compressionQuality: 70),
-      aspectRatio: .landscape16x9
-    )
 
-    let response = try await imagenModel.generateImages(
-      prompt: imagePrompt,
-      generationConfig: generationConfig
-    )
+    let response = try await imagenModel.generateImages(prompt: imagePrompt)
 
     XCTAssertNil(response.filteredReason)
     XCTAssertEqual(response.images.count, 1)
