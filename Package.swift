@@ -1401,6 +1401,25 @@ func firestoreWrapperTarget() -> Target {
   )
 }
 
+func firestoreInternalTarget() -> Target {
+  if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
+    // This is set when running `scripts/check_firestore_symbols.sh`.
+    return .binaryTarget(
+      name: "FirebaseFirestoreInternal",
+      // The `xcframework` should be moved to the root of the repo.
+      path: "FirebaseFirestoreInternal.xcframework"
+    )
+  } else {
+    return .binaryTarget(
+      name: "FirebaseFirestoreInternal",
+      url: "https://dl.google.com/firebase/ios/bin/firestore/11.6.0/rc0/FirebaseFirestoreInternal.zip",
+      checksum: "ad9d6cf31120ba0a91dbb9ccbe7ad08276a88565f6c79216929ec93a7d436459"
+    )
+  }
+}
+
+// Returns a target of Objective CPP API wrapping around Firestore's core C++ target. Most of the
+// public APIs of Firestore come from this target.
 func firebaseFirestoreObjCppTarget() -> Target {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return .target(
@@ -1420,26 +1439,13 @@ func firebaseFirestoreObjCppTarget() -> Target {
     )
   } else {
     return .target(
-      name: "FirebaseFirestoreCpp",
-      dependencies: [
-        "FirebaseAppCheckInterop",
-        "FirebaseCore",
-        "leveldb",
-        "FirebaseFirestoreInternalWrapper",
-        .product(name: "nanopb", package: "nanopb"),
-        .product(
-          name: "gRPC-C++",
-          package: "grpc-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
-        ),
-      ],
-      path: "Firestore/core/interfaceForSwift",
-      publicHeadersPath: "api", // Path to the public headers
-      cxxSettings: [
-        .headerSearchPath("../../../"),
-        .headerSearchPath("../../Protos/nanopb"),
-        .headerSearchPath("api"), // Ensure the header search path is correct
-      ]
+      name: "FirebaseFirestoreObjCpp",
+      dependencies: [.target(
+        name: "FirebaseFirestoreInternal",
+        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+      )],
+      path: "FirebaseFirestoreInternal",
+      publicHeadersPath: "."
     )
   }
 }
@@ -1448,6 +1454,8 @@ func firestoreTargets() -> [Target] {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return [
       .target(
+        // The C++ core implementation of the Firestore SDK, this target is where the actual
+        // logic of the SDK lives in.
         name: "FirebaseFirestoreCpp",
         dependencies: [
           "FirebaseAppCheckInterop",
@@ -1515,6 +1523,7 @@ func firestoreTargets() -> [Target] {
         ]
       ),
       firebaseFirestoreObjCppTarget(),
+      // Public swift APIs wrapped around core C++ and ObjCpp APIs.
       .target(
         name: "FirebaseFirestore",
         dependencies: [
@@ -1555,29 +1564,15 @@ func firestoreTargets() -> [Target] {
     ]
   }
 
-  let firestoreInternalTarget: Target = {
-    if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
-      // This is set when running `scripts/check_firestore_symbols.sh`.
-      return .binaryTarget(
-        name: "FirebaseFirestoreInternal",
-        // The `xcframework` should be moved to the root of the repo.
-        path: "FirebaseFirestoreInternal.xcframework"
-      )
-    } else {
-      return .binaryTarget(
-        name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.8.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "860882689232f3192a816cea3db8b6c4cbad2896188dec90f35bbdfd2536169c"
-      )
-    }
-  }()
-
+  // Binary firestore builds coming from cocoapods builds
+  let firestoreInternal = firestoreInternalTarget()
   return [
     .target(
+      // Public swift APIs wrapped around core C++ and ObjCpp APIs.
       name: "FirebaseFirestore",
       dependencies: [
         .target(
-          name: "FirebaseFirestoreInternalWrapper",
+          name: "FirebaseFirestoreObjCpp",
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
         ),
         .product(
@@ -1600,6 +1595,10 @@ func firestoreTargets() -> [Target] {
       ],
       path: "Firestore/Swift/Source",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      cSettings: [
+        .headerSearchPath("../../../"),
+        .headerSearchPath("../../Protos/nanopb"),
+      ],
       swiftSettings: [
         .interoperabilityMode(.Cxx), // C++ interoperability setting
       ],
@@ -1610,15 +1609,30 @@ func firestoreTargets() -> [Target] {
       ]
     ),
     .target(
-      name: "FirebaseFirestoreInternalWrapper",
-      dependencies: [.target(
-        name: "FirebaseFirestoreInternal",
-        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
-      )],
-      path: "FirebaseFirestoreInternal",
-      publicHeadersPath: "."
+      // For binary builds, this target exposes the core C++ APIs such that FirebaseFirestore(swift)
+      // can use the C++ apis directly without ObjCpp in between.
+      name: "FirebaseFirestoreCpp",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "leveldb",
+        "FirebaseFirestoreInternal",
+        .product(name: "nanopb", package: "nanopb"),
+        .product(
+          name: "gRPC-C++",
+          package: "grpc-binary",
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+        ),
+      ],
+      path: "Firestore/core/src/api",
+      publicHeadersPath: ".", // Path to the public headers
+      cxxSettings: [
+        .headerSearchPath("../../../.."),
+        .headerSearchPath("../../../Protos/nanopb"),
+        .headerSearchPath("."), // Ensure the header search path is correct
+      ]
     ),
-    firestoreInternalTarget,
+    firestoreInternal,
     firebaseFirestoreObjCppTarget(),
   ]
 }
