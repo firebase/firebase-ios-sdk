@@ -1,4 +1,4 @@
-# Unreleased
+# 11.8.0
 - [fixed] Mark completion handlers as Sendable in RemoteConfig class.
   Some completions handlers were missed in the 11.7.0 update. (#14257)
 
