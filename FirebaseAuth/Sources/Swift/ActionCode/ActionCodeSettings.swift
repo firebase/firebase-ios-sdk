@@ -50,7 +50,7 @@ import Foundation
   @objc open var dynamicLinkDomain: String?
 
   /// The out of band custom domain for handling code in app.
-  @objc open var linkDomain: String?
+  @objc public var linkDomain: String?
 
   /// Sets the iOS bundle ID.
   @objc override public init() {
