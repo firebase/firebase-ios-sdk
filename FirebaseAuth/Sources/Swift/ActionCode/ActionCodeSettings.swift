@@ -40,7 +40,17 @@ import Foundation
   @objc open var androidInstallIfNotAvailable: Bool = false
 
   /// The Firebase Dynamic Link domain used for out of band code flow.
+  #if !FIREBASE_CI
+    @available(
+      *,
+      deprecated,
+      message: "Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead."
+    )
+  #endif // !FIREBASE_CI
   @objc open var dynamicLinkDomain: String?
+
+  /// The out of band custom domain for handling code in app.
+  @objc public var linkDomain: String?
 
   /// Sets the iOS bundle ID.
   @objc override public init() {
