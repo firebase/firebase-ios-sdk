@@ -1,4 +1,4 @@
-# Unreleased
+# 11.8.0
 - [fixed] Don't cache FCM registration token operations. (#14352).
 
 # 11.5.0
