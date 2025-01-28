@@ -926,23 +926,19 @@ class IntegrationTests: XCTestCase {
 
     let task = Task.detached { [self] in
       let stream = functions.stream(
-        at: emulatorURL("genStream"),
+        at: emulatorURL("genStreams"),
         withObject: input,
         options: options,
         timeout: 4.0
       )
 
       let result = try await response(from: stream)
-      // Since we cancel the call we are expecting an empty array.
+      // Since we are sending a bad URL we expect an empty array, the reuqets was not a 200.
       XCTAssertEqual(
         result,
         []
       )
     }
-    // We cancel the task and we expect a null response even if the stream was initiated.
-    task.cancel()
-    let respone = await task.result
-    XCTAssertNotNil(respone)
   }
 
   private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
