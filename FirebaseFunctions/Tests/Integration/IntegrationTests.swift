@@ -940,7 +940,25 @@ class IntegrationTests: XCTestCase {
       )
     }
   }
+  
+  @available(iOS 15, *)
+  func testGenerateStreamContent_streamError() async throws {
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+    let input: [String: Any] = ["data": "Why is the sky blue"]
 
+    let task = Task.detached { [self] in
+      let stream = functions.stream(
+        at: emulatorURL("genStreamError"),
+        withObject: input,
+        options: options,
+        timeout: 4.0
+      )
+
+      let result = try await response(from: stream)
+      XCTFail("TODO: FETCH THE ERROR")
+    }
+  }
+  
   private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
     any Error>) async throws -> [String] {
     var response = [String]()
