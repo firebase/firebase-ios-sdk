@@ -875,7 +875,7 @@ class IntegrationTests: XCTestCase {
 
     let stream = functions.stream(
       at: emulatorURL("genStream"),
-      withObject: input,
+      data: input,
       options: options,
       timeout: 4.0
     )
@@ -953,7 +953,7 @@ class IntegrationTests: XCTestCase {
     let task = Task.detached { [self] in
       let stream = functions.stream(
         at: emulatorURL("genStream"),
-        withObject: input,
+        data: input,
         options: options,
         timeout: 4.0
       )
@@ -979,7 +979,7 @@ class IntegrationTests: XCTestCase {
     let task = Task.detached { [self] in
       let stream = functions.stream(
         at: emulatorURL("genStreams"),
-        withObject: input,
+        data: input,
         options: options,
         timeout: 4.0
       )
@@ -1001,7 +1001,7 @@ class IntegrationTests: XCTestCase {
     let task = Task.detached { [self] in
       let stream = functions.stream(
         at: emulatorURL("genStreamError"),
-        withObject: input,
+        data: input,
         options: options,
         timeout: 4.0
       )
