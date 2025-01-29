@@ -16,6 +16,14 @@ const assert = require('assert');
 const functionsV1 = require('firebase-functions/v1');
 const functionsV2 = require('firebase-functions/v2');
 
+// MARK: - Utilities
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// MARK: - Callable Functions
+
 exports.dataTest = functionsV1.https.onRequest((request, response) => {
   assert.deepEqual(request.body, {
     data: {
@@ -121,10 +129,6 @@ exports.timeoutTest = functionsV1.https.onRequest((request, response) => {
 
 const streamData = ["hello", "world", "this", "is", "cool"]
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 async function* generateText() {
   for (const chunk of streamData) {
     yield chunk;
@@ -153,3 +157,29 @@ exports.genStreamError = functionsV2.https.onCall(
     }
   }
 );
+
+const weatherForecasts = {
+  Toronto: { conditions: 'snowy', temperature: 25 },
+  London: { conditions: 'rainy', temperature: 50 },
+  Dubai: { conditions: 'sunny', temperature: 75 }
+};
+
+async function* generateForecast(locations) {
+  for (const location of locations) {
+    yield { 'location': location,  ...weatherForecasts[location.name] };
+    await sleep(500);
+  }
+};
+
+exports.genStreamWeather = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateForecast(request.data)) {
+        response.sendChunk({ chunk });
+      }
+    }
+    return "Number of forecasts generated: " + request.data.length;
+  }
+);
+
+// TODO: Maybe a function that returns Void?

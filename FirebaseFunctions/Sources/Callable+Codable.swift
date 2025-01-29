@@ -161,19 +161,24 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   }
 
   // TODO: Look into handling parameter-less functions.
-  @available(iOS 15, *)
-  public func stream(_ data: Request) async throws -> AsyncThrowingStream<Response, Error> {
-    let encoded = try encoder.encode(data)
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  public func stream(_ data: Request) -> AsyncThrowingStream<Response, Error> {
     return AsyncThrowingStream { continuation in
       Task {
         do {
+          let encoded = try encoder.encode(data)
           for try await result in callable.stream(encoded) {
-            let response = try decoder.decode(Response.self, from: result.data)
-            continuation.yield(response)
+            if let response = try? decoder.decode([String: Response].self, from: result.data) {
+              continuation.yield(response["chunk"]!)
+            } else if let response = try? decoder.decode(Response.self, from: result.data) {
+              continuation.yield(response)
+            }
+            // TODO: Silently failing. The response cannot be decoded to the given type.
           }
         } catch {
           continuation.finish(throwing: error)
         }
+        continuation.finish()
       }
     }
   }

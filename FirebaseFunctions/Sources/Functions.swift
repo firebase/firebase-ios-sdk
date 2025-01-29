@@ -478,7 +478,7 @@ enum FunctionsConstants {
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   ///   - timeout: timeout for  the HTTPSCallableResult request.
   /// - Returns: HTTPSCallableResult Streaming.
-  @available(iOS 15, *)
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func stream(at url: URL,
               withObject data: Any?,
               options: HTTPSCallableOptions?,

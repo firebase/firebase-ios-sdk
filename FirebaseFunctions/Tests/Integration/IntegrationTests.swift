@@ -867,7 +867,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  @available(iOS 15, *)
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
@@ -893,7 +893,59 @@ class IntegrationTests: XCTestCase {
     )
   }
 
-  @available(iOS 15, *)
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  func testGenerateStreamContent_CodableString() async throws {
+    let byName: Callable<String, String> = functions.httpsCallable("genStream")
+    let stream = byName.stream("This string is not needed.")
+    let result = try await response(from: stream)
+    XCTAssertEqual(
+      result,
+      [
+        "hello",
+        "world",
+        "this",
+        "is",
+        "cool",
+        "hello world this is cool",
+      ]
+    )
+  }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  func testGenerateStreamContent_CodableObject() async throws {
+    struct Location: Codable, Equatable {
+      let name: String
+    }
+    struct WeatherForecast: Decodable, Equatable {
+      enum Conditions: String, Decodable {
+        case sunny
+        case rainy
+        case snowy
+      }
+
+      let location: Location
+      let temperature: Int
+      let conditions: Conditions
+    }
+
+    let byName: Callable<[Location], WeatherForecast> = functions.httpsCallable("genStreamWeather")
+    let stream = byName.stream([
+      Location(name: "Toronto"),
+      Location(name: "London"),
+      Location(name: "Dubai"),
+    ])
+    let result = try await response(from: stream)
+    XCTAssertEqual(
+      result,
+      [
+        WeatherForecast(location: Location(name: "Toronto"), temperature: 25, conditions: .snowy),
+        WeatherForecast(location: Location(name: "London"), temperature: 50, conditions: .rainy),
+        WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
+      ]
+    )
+  }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func testGenerateStreamContentCanceled() async {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
@@ -940,7 +992,7 @@ class IntegrationTests: XCTestCase {
       )
     }
   }
-  
+
   @available(iOS 15, *)
   func testGenerateStreamContent_streamError() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
@@ -958,7 +1010,7 @@ class IntegrationTests: XCTestCase {
       XCTFail("TODO: FETCH THE ERROR")
     }
   }
-  
+
   private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
     any Error>) async throws -> [String] {
     var response = [String]()
@@ -975,6 +1027,15 @@ class IntegrationTests: XCTestCase {
           response.append(dataString)
         }
       }
+    }
+    return response
+  }
+
+  private func response<T>(from stream: AsyncThrowingStream<T,
+    any Error>) async throws -> [T] where T: Decodable {
+    var response = [T]()
+    for try await result in stream {
+      response.append(result)
     }
     return response
   }
