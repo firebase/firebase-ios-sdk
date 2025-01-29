@@ -526,7 +526,7 @@ enum FunctionsConstants {
           return
         }
 
-        // Verify the status code is a 200
+        // Verify the status code is a 200.
         guard response.statusCode == 200 else {
           continuation.finish(
             throwing: FunctionsError(
@@ -543,6 +543,7 @@ enum FunctionsConstants {
             let jsonText = String(line.dropFirst(5))
             let data: Data
             do {
+              // TODO: The error potentially thrown here is not a Functions error.
               data = try jsonData(jsonText: jsonText)
             } catch {
               continuation.finish(throwing: error)
@@ -558,7 +559,6 @@ enum FunctionsConstants {
               return
             }
           } else {
-            // TODO: Throw error with unexpected formatted lines.
             continuation.finish(
               throwing: FunctionsError(
                 .internal,
