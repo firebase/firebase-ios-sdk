@@ -514,7 +514,7 @@ enum FunctionsConstants {
           return
         }
 
-        // Verify the status code is 200
+        // Verify the status code is an HTTP response.
         guard let response = rawResponse as? HTTPURLResponse else {
           continuation.finish(
             throwing: FunctionsError(
@@ -525,8 +525,14 @@ enum FunctionsConstants {
           return
         }
 
+        // Verify the status code is a 200
         guard response.statusCode == 200 else {
-          // TODO: Add test for error case and parse out error.
+          continuation.finish(
+            throwing: FunctionsError(
+              .internal,
+              userInfo: [NSLocalizedDescriptionKey: "Response is not a successful 200."]
+            )
+          )
           return
         }
 
@@ -542,7 +548,7 @@ enum FunctionsConstants {
               return
             }
 
-            // Handle the content.
+            // Handle the content and parse it.
             do {
               let content = try callableResult(fromResponseData: data)
               continuation.yield(content)
@@ -552,6 +558,12 @@ enum FunctionsConstants {
             }
           } else {
             // TODO: Throw error with unexpected formatted lines.
+            continuation.finish(
+              throwing: FunctionsError(
+                .internal,
+                userInfo: [NSLocalizedDescriptionKey: "Unexpected format for streamed response."]
+              )
+            )
           }
         }
 
