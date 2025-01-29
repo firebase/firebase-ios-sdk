@@ -583,21 +583,6 @@ enum FunctionsConstants {
     return data
   }
 
-  @available(iOS 13.0, *)
-  func callableResultFromResponseAsync(data: Data?,
-                                       error: Error?) throws -> AsyncThrowingStream<
-    HTTPSCallableResult, Error
-
-  > {
-    let processedData =
-      try processResponseDataForStreamableContent(
-        from: data,
-        error: error
-      )
-
-    return processedData
-  }
-
   private func makeRequestForStreamableContent(url: URL,
                                                data: Any?,
                                                options: HTTPSCallableOptions?,
@@ -730,58 +715,6 @@ enum FunctionsConstants {
     }
 
     return data
-  }
-
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
-  private func processResponseDataForStreamableContent(from data: Data?,
-                                                       error: Error?) throws
-    -> AsyncThrowingStream<
-      HTTPSCallableResult,
-      Error
-    > {
-    return AsyncThrowingStream { continuation in
-      Task {
-        var resultArray = [String]()
-        do {
-          if let error = error {
-            throw error
-          }
-
-          guard let data = data else {
-            throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
-          }
-
-          if let dataChunk = String(data: data, encoding: .utf8) {
-            // We remove the "data :" field so it can be safely parsed to Json.
-            let dataChunkToJson = dataChunk.split(separator: "\n").map {
-              String($0.dropFirst(6))
-            }
-            resultArray.append(contentsOf: dataChunkToJson)
-          } else {
-            throw NSError(domain: FunctionsErrorDomain.description, code: -1, userInfo: nil)
-          }
-
-          for dataChunk in resultArray {
-            let json = try callableResult(
-              fromResponseData: dataChunk.data(
-                using: .utf8,
-                allowLossyConversion: true
-              ) ?? Data()
-            )
-            continuation.yield(HTTPSCallableResult(data: json.data))
-          }
-
-          continuation.onTermination = { @Sendable _ in
-            // Callback for cancelling the stream
-            continuation.finish()
-          }
-          // Close the stream once it's done
-          continuation.finish()
-        } catch {
-          continuation.finish(throwing: error)
-        }
-      }
-    }
   }
 
   private func responseDataJSON(from data: Data) throws -> Any {
