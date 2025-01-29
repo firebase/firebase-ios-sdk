@@ -723,7 +723,7 @@ enum FunctionsConstants {
     }
     
     // `result` is checked for backwards compatibility,
-    // `message` is checked for StramableContent:
+    // `message` is checked for StreamableContent:
     guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"]
     else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
