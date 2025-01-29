@@ -471,6 +471,13 @@ enum FunctionsConstants {
     }
   }
   
+  ///  Function to initialize a streamaing event for an HTTPCallable
+  /// - Parameters:
+  ///   - url: The url of the Callable HTTPS trigger.
+  ///   - data:   Object to be sent in the request.
+  ///   - options: The options with which to customize the Callable HTTPS trigger.
+  ///   - timeout: timeout for  the HTTPSCallableResult request.
+  /// - Returns: HTTPSCallableResult Streaming.
   @available(iOS 15, *)
   func stream(at url: URL,
               withObject data: Any?,
@@ -492,13 +499,7 @@ enum FunctionsConstants {
             timeout: timeout,
             context: context
           )
-          // TODO: Address below commented out code.
-          //      // Override normal security rules if this is a local test.
-          //        var configuration = URLSessionConfiguration.default
-          //        if let emulatorOrigin {
-          //                  fetcher.allowLocalhostRequest = true
-          //                  fetcher.allowedInsecureSchemes = ["http"]
-          //                }
+          
         } catch {
           continuation.finish(throwing: error)
           return
