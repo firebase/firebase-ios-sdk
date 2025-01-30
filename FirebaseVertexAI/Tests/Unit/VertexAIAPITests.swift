@@ -40,8 +40,6 @@ final class VertexAIAPITests: XCTestCase {
 
     let requestOptions = RequestOptions()
     let _ = RequestOptions(timeout: 30.0)
-    let _ = RequestOptions(apiVersion: .v1)
-    let _ = RequestOptions(timeout: 60.0, apiVersion: .v1)
 
     // Instantiate Vertex AI SDK - Default App
     let vertexAI = VertexAI.vertexAI()
