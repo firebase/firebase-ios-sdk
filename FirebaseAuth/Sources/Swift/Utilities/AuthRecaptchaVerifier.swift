@@ -171,8 +171,7 @@
       if let recaptcha =
         NSClassFromString("RecaptchaEnterprise.RCARecaptcha") as? RCARecaptchaProtocol.Type {
         do {
-          // let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
-          let client = try await recaptcha.getClient(withSiteKey: siteKey)
+          let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
           recaptchaClient = client
           return await retrieveToken(
             actionString: actionString,
