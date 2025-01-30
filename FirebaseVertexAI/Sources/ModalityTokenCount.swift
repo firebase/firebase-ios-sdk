@@ -31,22 +31,22 @@ public struct Modality: CodableProtoEnum, Hashable, Sendable {
     case document = "DOCUMENT"
   }
 
-  /// Harassment content.
+  /// Unspecified modality.
   public static let unspecified = Modality(kind: .unspecified)
 
-  /// Negative or harmful comments targeting identity and/or protected attributes.
+  /// Plain text.
   public static let text = Modality(kind: .text)
 
-  /// Contains references to sexual acts or other lewd content.
+  /// Image.
   public static let image = Modality(kind: .image)
 
-  /// Promotes or enables access to harmful goods, services, or activities.
+  /// Video.
   public static let video = Modality(kind: .video)
 
-  /// Content that may be used to harm civic integrity.
+  /// Audio.
   public static let audio = Modality(kind: .audio)
 
-  /// Content that may be used to harm civic integrity.
+  /// Document, e.g. PDF.
   public static let document = Modality(kind: .document)
 
   /// Returns the raw string representation of the `HarmCategory` value.
