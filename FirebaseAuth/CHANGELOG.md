@@ -1,3 +1,8 @@
+# 11.8.0
+- [added] Added `ActionCodeSettings.linkDomain` to customize the Firebase Hosting link domain
+  that is used in out-of-band email action flows.
+- [deprecated] Deprecated `ActionCodeSettings.dynamicLinkDomain`.
+
 # 11.7.0
 - [fixed] Fix Multi-factor session crash on second Firebase app. (#14238)
 - [fixed] Updated most decoders to be consistent with Firebase 10's behavior

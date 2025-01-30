@@ -1316,7 +1316,10 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
-      dependencies: ["FirebaseVertexAI"],
+      dependencies: [
+        "FirebaseVertexAI",
+        "FirebaseStorage",
+      ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),
@@ -1563,8 +1566,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.7.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "08dd8be97322a1c35bdde315376921d145b5c9dd9bb91bbdbb933380556f24f9"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.8.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "860882689232f3192a816cea3db8b6c4cbad2896188dec90f35bbdfd2536169c"
       )
     }
   }()
