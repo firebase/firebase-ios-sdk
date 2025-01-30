@@ -293,14 +293,22 @@ final class AuthBackend: AuthBackendProtocol {
       .unexpectedErrorResponse(deserializedResponse: dictionary, underlyingError: error)
   }
 
+  private static func splitStringAtFirstColon(_ input: String) -> (before: String, after: String) {
+    guard let colonIndex = input.firstIndex(of: ":") else {
+      return (input, "") // No colon, return original string before and empty after
+    }
+    let before = String(input.prefix(upTo: colonIndex))
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    let after = String(input.suffix(from: input.index(after: colonIndex)))
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    return (before, after.isEmpty ? "" : after) // Return empty after if it's empty
+  }
+
   private static func clientError(withServerErrorMessage serverErrorMessage: String,
                                   errorDictionary: [String: Any],
                                   response: AuthRPCResponse?,
                                   error: Error?) -> Error? {
-    let split = serverErrorMessage.split(separator: ":")
-    let shortErrorMessage = split.first?.trimmingCharacters(in: .whitespacesAndNewlines)
-    let serverDetailErrorMessage = String(split.count > 1 ? split[1] : "")
-      .trimmingCharacters(in: .whitespacesAndNewlines)
+    let (shortErrorMessage, serverDetailErrorMessage) = splitStringAtFirstColon(serverErrorMessage)
     switch shortErrorMessage {
     case "USER_NOT_FOUND": return AuthErrorUtils
       .userNotFoundError(message: serverDetailErrorMessage)
@@ -377,6 +385,8 @@ final class AuthBackend: AuthBackendProtocol {
       .missingAppCredential(message: serverDetailErrorMessage)
     case "INVALID_CODE": return AuthErrorUtils
       .invalidVerificationCodeError(message: serverDetailErrorMessage)
+    case "INVALID_HOSTING_LINK_DOMAIN": return AuthErrorUtils
+      .invalidHostingLinkDomainError(message: serverDetailErrorMessage)
     case "INVALID_SESSION_INFO": return AuthErrorUtils
       .invalidVerificationIDError(message: serverDetailErrorMessage)
     case "SESSION_EXPIRED": return AuthErrorUtils

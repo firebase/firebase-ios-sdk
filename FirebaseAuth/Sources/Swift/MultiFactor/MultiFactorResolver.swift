@@ -80,7 +80,7 @@ import Foundation
           let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
           let decoratedCallback = self.auth
             .signInFlowAuthDataResultCallback(byDecorating: completion)
-          decoratedCallback(result, nil)
+          decoratedCallback(.success(result))
         } catch {
           if let completion {
             completion(nil, error)

@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,27 @@
 
 import Foundation
 
+/// Utility struct to make the execution of one task dependent upon a signal from another task.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-struct StartMFASignInResponse: AuthRPCResponse {
-  let responseInfo: AuthProtoStartMFAPhoneResponseInfo
+struct AuthCondition {
+  private let waiter: () async -> Void
+  private let stream: AsyncStream<Void>.Continuation
 
-  init(dictionary: [String: AnyHashable]) throws {
-    if let data = dictionary["phoneResponseInfo"] as? [String: AnyHashable] {
-      responseInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
-    } else {
-      throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
+  init() {
+    let (stream, continuation) = AsyncStream<Void>.makeStream()
+    waiter = {
+      for await _ in stream {}
     }
+    self.stream = continuation
+  }
+
+  // Signal to unblock the waiter.
+  func signal() {
+    stream.finish()
+  }
+
+  /// Wait for the condition.
+  func wait() async {
+    await waiter()
   }
 }

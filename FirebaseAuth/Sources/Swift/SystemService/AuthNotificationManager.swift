@@ -18,6 +18,7 @@
 
   /// A class represents a credential that proves the identity of the app.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @preconcurrency
   class AuthNotificationManager {
     /// The key to locate payload data in the remote notification.
     private let kNotificationDataKey = "com.google.firebase.auth"
@@ -56,8 +57,7 @@
     /// Only tests should access this property.
     var immediateCallbackForTestFaking: (() -> Bool)?
 
-    /// All pending callbacks while a check is being performed.
-    private var pendingCallbacks: [(Bool) -> Void]?
+    private let condition: AuthCondition
 
     /// Initializes the instance.
     /// - Parameter application: The application.
@@ -69,56 +69,53 @@
       self.application = application
       self.appCredentialManager = appCredentialManager
       timeout = kProbingTimeout
+      condition = AuthCondition()
     }
+
+    private actor PendingCount {
+      private var count = 0
+      func increment() -> Int {
+        count = count + 1
+        return count
+      }
+    }
+
+    private let pendingCount = PendingCount()
 
     /// Checks whether or not remote notifications are being forwarded to this class.
-    /// - Parameter callback: The block to be called either immediately or in future once a result
-    /// is available.
-    func checkNotificationForwardingInternal(withCallback callback: @escaping (Bool) -> Void) {
-      if pendingCallbacks != nil {
-        pendingCallbacks?.append(callback)
-        return
-      }
+    func checkNotificationForwarding() async -> Bool {
       if let getValueFunc = immediateCallbackForTestFaking {
-        callback(getValueFunc())
-        return
+        return getValueFunc()
       }
       if hasCheckedNotificationForwarding {
-        callback(isNotificationBeingForwarded)
-        return
+        return isNotificationBeingForwarded
       }
-      hasCheckedNotificationForwarding = true
-      pendingCallbacks = [callback]
-
-      DispatchQueue.main.async {
-        let proberNotification = [self.kNotificationDataKey: [self.kNotificationProberKey:
-            "This fake notification should be forwarded to Firebase Auth."]]
-        if let delegate = self.application.delegate,
-           delegate
-           .responds(to: #selector(UIApplicationDelegate
-               .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-          delegate.application?(self.application,
-                                didReceiveRemoteNotification: proberNotification) { _ in
+      if await pendingCount.increment() == 1 {
+        DispatchQueue.main.async {
+          let proberNotification = [self.kNotificationDataKey: [self.kNotificationProberKey:
+              "This fake notification should be forwarded to Firebase Auth."]]
+          if let delegate = self.application.delegate,
+             delegate
+             .responds(to: #selector(UIApplicationDelegate
+                 .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
+            delegate.application?(self.application,
+                                  didReceiveRemoteNotification: proberNotification) { _ in
+            }
+          } else {
+            AuthLog.logWarning(
+              code: "I-AUT000015",
+              message: "The UIApplicationDelegate must handle " +
+                "remote notification for phone number authentication to work."
+            )
           }
-        } else {
-          AuthLog.logWarning(
-            code: "I-AUT000015",
-            message: "The UIApplicationDelegate must handle " +
-              "remote notification for phone number authentication to work."
-          )
-        }
-        kAuthGlobalWorkQueue.asyncAfter(deadline: .now() + .seconds(Int(self.timeout))) {
-          self.callback()
+          kAuthGlobalWorkQueue.asyncAfter(deadline: .now() + .seconds(Int(self.timeout))) {
+            self.condition.signal()
+          }
         }
       }
-    }
-
-    func checkNotificationForwarding() async -> Bool {
-      return await withCheckedContinuation { continuation in
-        checkNotificationForwardingInternal { value in
-          continuation.resume(returning: value)
-        }
-      }
+      await condition.wait()
+      hasCheckedNotificationForwarding = true
+      return isNotificationBeingForwarded
     }
 
     /// Attempts to handle the remote notification.
@@ -140,12 +137,12 @@
         return false
       }
       if dictionary[kNotificationProberKey] != nil {
-        if pendingCallbacks == nil {
+        if hasCheckedNotificationForwarding {
           // The prober notification probably comes from another instance, so pass it along.
           return false
         }
         isNotificationBeingForwarded = true
-        callback()
+        condition.signal()
         return true
       }
       guard let receipt = dictionary[kNotificationReceiptKey] as? String,
@@ -153,18 +150,6 @@
         return false
       }
       return appCredentialManager.canFinishVerification(withReceipt: receipt, secret: secret)
-    }
-
-    // MARK: Internal methods
-
-    private func callback() {
-      guard let pendingCallbacks else {
-        return
-      }
-      self.pendingCallbacks = nil
-      for callback in pendingCallbacks {
-        callback(isNotificationBeingForwarded)
-      }
     }
   }
 #endif

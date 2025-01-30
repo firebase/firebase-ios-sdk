@@ -71,9 +71,10 @@ class CreateAuthURITests: RPCBaseTests {
   func testSuccessfulCreateAuthURIResponse() async throws {
     let kAuthUriKey = "authUri"
     let kTestAuthUri = "AuthURI"
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
 
-    rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: [kAuthUriKey: kTestAuthUri])
     }
     let rpcResponse = try await authBackend.call(with: makeAuthURIRequest())
     XCTAssertEqual(rpcResponse.authURI, kTestAuthUri)
@@ -83,17 +84,18 @@ class CreateAuthURITests: RPCBaseTests {
     let kTestExpectedKind = "identitytoolkit#CreateAuthUriResponse"
     let kTestProviderID1 = "google.com"
     let kTestProviderID2 = "facebook.com"
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
 
-    rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer
         .respond(withJSON: ["kind": kTestExpectedKind,
                             "allProviders": [kTestProviderID1, kTestProviderID2]])
     }
     let rpcResponse = try await authBackend.call(with: makeAuthURIRequest())
 
-    XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    XCTAssertEqual(rpcIssuer?.decodedRequest?["identifier"] as? String, kTestIdentifier)
-    XCTAssertEqual(rpcIssuer?.decodedRequest?["continueUri"] as? String, kTestContinueURI)
+    XCTAssertEqual(rpcIssuer.requestURL?.absoluteString, kExpectedAPIURL)
+    XCTAssertEqual(rpcIssuer.decodedRequest?["identifier"] as? String, kTestIdentifier)
+    XCTAssertEqual(rpcIssuer.decodedRequest?["continueUri"] as? String, kTestContinueURI)
 
     XCTAssertEqual(rpcResponse.allProviders?.count, 2)
     XCTAssertEqual(rpcResponse.allProviders?.first, kTestProviderID1)

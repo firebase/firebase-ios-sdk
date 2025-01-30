@@ -123,10 +123,19 @@ class SecureTokenService: NSObject, NSSecureCoding {
 
   /// The cached access token.
   ///
-  ///  This method is specifically for providing the access token to internal clients during
+  /// This method is specifically for providing the access token to internal clients during
   /// deserialization and sign-in events, and should not be used to retrieve the access token by
-  ///     anyone else.
-  var accessToken: String
+  /// anyone else.
+  ///
+  /// - Note: The atomic wrapper can be removed when the SDK is fully
+  /// synchronized with structured concurrency.
+  var accessToken: String {
+    get { accessTokenLock.withLock { _accessToken } }
+    set { accessTokenLock.withLock { _accessToken = newValue } }
+  }
+
+  private var _accessToken: String
+  private let accessTokenLock = NSLock()
 
   /// The refresh token for the user, or `nil` if the user has yet completed sign-in flow.
   ///
@@ -147,7 +156,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
        refreshToken: String) {
     internalService = SecureTokenServiceInternal()
     self.requestConfiguration = requestConfiguration
-    self.accessToken = accessToken
+    _accessToken = accessToken
     self.accessTokenExpirationDate = accessTokenExpirationDate
     self.refreshToken = refreshToken
   }

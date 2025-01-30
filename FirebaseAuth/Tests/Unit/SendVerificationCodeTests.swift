@@ -111,7 +111,7 @@ class SendVerificationCodeTests: RPCBaseTests {
     let kFakeVerificationID = "testVerificationID"
 
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
+      try self.rpcIssuer.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
     }
     let rpcResponse = try await authBackend.call(with:
       makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)))

@@ -258,6 +258,9 @@ import Foundation
   /// unauthorized for the current project.
   case invalidDynamicLinkDomain = 17074
 
+  /// Indicates that the provided Firebase Hosting Link domain is not owned by the current project.
+  case invalidHostingLinkDomain = 17214
+
   /// Indicates that the credential is rejected because it's malformed or mismatching.
   case rejectedCredential = 17075
 
@@ -303,7 +306,7 @@ import Foundation
   /// Indicates that the nonce is missing or invalid.
   case missingOrInvalidNonce = 17094
 
-  /// Raised when n Cloud Function returns a blocking error. Will include a message returned from
+  /// Raised when a Cloud Function returns a blocking error. Will include a message returned from
   /// the function.
   case blockingCloudFunctionError = 17105
 
@@ -468,6 +471,8 @@ import Foundation
       return kErrorInvalidProviderID
     case .invalidDynamicLinkDomain:
       return kErrorInvalidDynamicLinkDomain
+    case .invalidHostingLinkDomain:
+      return kErrorInvalidHostingLinkDomain
     case .webInternalError:
       return kErrorWebInternalError
     case .webSignInUserInteractionFailure:
@@ -661,6 +666,8 @@ import Foundation
       return "ERROR_INVALID_PROVIDER_ID"
     case .invalidDynamicLinkDomain:
       return "ERROR_INVALID_DYNAMIC_LINK_DOMAIN"
+    case .invalidHostingLinkDomain:
+      return "ERROR_INVALID_HOSTING_LINK_DOMAIN"
     case .webInternalError:
       return "ERROR_WEB_INTERNAL_ERROR"
     case .webSignInUserInteractionFailure:
@@ -904,6 +911,9 @@ private let kErrorInvalidProviderID =
 
 private let kErrorInvalidDynamicLinkDomain =
   "The Firebase Dynamic Link domain used is either not configured or is unauthorized for the current project."
+
+private let kErrorInvalidHostingLinkDomain =
+  "The provided hosting link domain is not configured in Firebase Hosting or is not owned by the current project."
 
 private let kErrorInternalError =
   "An internal error has occurred, print and inspect the error details for more information."

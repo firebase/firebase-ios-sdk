@@ -61,14 +61,14 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
   /** @var verifyRequester
       @brief Optional function to run tests on the request.
    */
-  var verifyRequester: ((SendVerificationCodeRequest) -> Void)?
-  var verifyClientRequester: ((VerifyClientRequest) -> Void)?
-  var projectConfigRequester: ((GetProjectConfigRequest) -> Void)?
-  var verifyPasswordRequester: ((VerifyPasswordRequest) -> Void)?
+  var verifyRequester: ((SendVerificationCodeRequest) -> (Data?, Error?))?
+  var verifyClientRequester: ((VerifyClientRequest) -> (Data?, Error?))?
+  var projectConfigRequester: ((GetProjectConfigRequest) -> (Data?, Error?))?
+  var verifyPasswordRequester: ((VerifyPasswordRequest) -> (Data?, Error?))?
   var verifyPhoneNumberRequester: ((VerifyPhoneNumberRequest) -> Void)?
 
-  var respondBlock: (() throws -> Void)?
-  var nextRespondBlock: (() throws -> Void)?
+  var respondBlock: (() throws -> (Data?, Error?))?
+  var nextRespondBlock: (() throws -> (Data?, Error?))?
 
   var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
@@ -80,35 +80,23 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
   func asyncCallToURL<T>(with request: T, body: Data?,
                          contentType: String) async -> (Data?, Error?)
     where T: FirebaseAuth.AuthRPCRequest {
-    return await withCheckedContinuation { continuation in
-      self.asyncCallToURL(with: request, body: body, contentType: contentType) { data, error in
-        continuation.resume(returning: (data, error))
-      }
-    }
-  }
-
-  func asyncCallToURL<T: AuthRPCRequest>(with request: T,
-                                         body: Data?,
-                                         contentType: String,
-                                         completionHandler: @escaping ((Data?, Error?) -> Void)) {
     self.contentType = contentType
-    handler = completionHandler
     self.request = request
     requestURL = request.requestURL()
 
     // TODO: See if we can use the above generics to avoid all this.
     if let verifyRequester,
        let verifyRequest = request as? SendVerificationCodeRequest {
-      verifyRequester(verifyRequest)
+      return verifyRequester(verifyRequest)
     } else if let verifyClientRequester,
               let verifyClientRequest = request as? VerifyClientRequest {
-      verifyClientRequester(verifyClientRequest)
+      return verifyClientRequester(verifyClientRequest)
     } else if let projectConfigRequester,
               let projectConfigRequest = request as? GetProjectConfigRequest {
-      projectConfigRequester(projectConfigRequest)
+      return projectConfigRequester(projectConfigRequest)
     } else if let verifyPasswordRequester,
               let verifyPasswordRequest = request as? VerifyPasswordRequest {
-      verifyPasswordRequester(verifyPasswordRequest)
+      return verifyPasswordRequester(verifyPasswordRequest)
     } else if let verifyPhoneNumberRequester,
               let verifyPhoneNumberRequest = request as? VerifyPhoneNumberRequest {
       verifyPhoneNumberRequester(verifyPhoneNumberRequest)
@@ -116,10 +104,10 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
 
     if let _ = request as? GetAccountInfoRequest,
        let json = fakeGetAccountProviderJSON {
-      guard let _ = try? respond(withJSON: ["users": json]) else {
+      guard let (data, error) = try? respond(withJSON: ["users": json]) else {
         fatalError("fakeGetAccountProviderJSON respond failed")
       }
-      return
+      return (data, error)
     } else if let _ = request as? GetRecaptchaConfigRequest {
       if rceMode != "OFF" { // Check if reCAPTCHA is enabled
         let recaptchaKey = recaptchaSiteKey // iOS key from your config
@@ -127,40 +115,38 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
           ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": rceMode],
           ["provider": "PHONE_PROVIDER", "enforcementState": rceMode],
         ]
-        guard let _ = try? respond(withJSON: [
+        guard let (data, error) = try? respond(withJSON: [
           "recaptchaKey": recaptchaKey,
           "recaptchaEnforcementState": enforcementState,
         ]) else {
           fatalError("GetRecaptchaConfigRequest respond failed")
         }
+        return (data, error)
       } else { // reCAPTCHA OFF
         let enforcementState = [
           ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
           ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
         ]
-        guard let _ = try? respond(withJSON: [
+        guard let (data, error) = try? respond(withJSON: [
           "recaptchaEnforcementState": enforcementState,
         ]) else {
           fatalError("GetRecaptchaConfigRequest respond failed")
         }
+        return (data, error)
       }
-      return
     } else if let _ = request as? SecureTokenRequest {
       if let secureTokenNetworkError {
-        guard let _ = try? respond(withData: nil,
-                                   error: secureTokenNetworkError) else {
-          fatalError("Failed to generate secureTokenNetworkError")
-        }
+        return (nil, secureTokenNetworkError)
       } else if let secureTokenErrorString {
-        guard let _ = try? respond(serverErrorMessage: secureTokenErrorString) else {
+        guard let (data, error) = try? respond(serverErrorMessage: secureTokenErrorString) else {
           fatalError("Failed to generate secureTokenErrorString")
         }
-        return
+        return (data, error)
       } else if let json = fakeSecureTokenServiceJSON {
-        guard let _ = try? respond(withJSON: json) else {
+        guard let (data, error) = try? respond(withJSON: json) else {
           fatalError("fakeGetAccountProviderJSON respond failed")
         }
-        return
+        return (data, error)
       }
     }
     if let body = body {
@@ -180,26 +166,28 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
     }
     if let respondBlock {
       do {
-        try respondBlock()
+        let (data, error) = try respondBlock()
+        self.respondBlock = nextRespondBlock
+        nextRespondBlock = nil
+        return (data, error)
       } catch {
-        XCTFail("Unexpected exception in respondBlock")
+        return (nil, error)
       }
-      self.respondBlock = nextRespondBlock
-      nextRespondBlock = nil
     }
+    fatalError("Should never get here")
   }
 
-  func respond(serverErrorMessage errorMessage: String) throws {
+  func respond(serverErrorMessage errorMessage: String) throws -> (Data, Error?) {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
-    try respond(serverErrorMessage: errorMessage, error: error)
+    return try respond(serverErrorMessage: errorMessage, error: error)
   }
 
-  func respond(serverErrorMessage errorMessage: String, error: NSError) throws {
-    _ = try respond(withJSON: ["error": ["message": errorMessage]], error: error)
+  func respond(serverErrorMessage errorMessage: String, error: NSError) throws -> (Data, Error?) {
+    return try respond(withJSON: ["error": ["message": errorMessage]], error: error)
   }
 
-  @discardableResult func respond(underlyingErrorMessage errorMessage: String,
-                                  message: String = "See the reason") throws -> Data {
+  func respond(underlyingErrorMessage errorMessage: String,
+               message: String = "See the reason") throws -> (Data, Error?) {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
     return try respond(
       withJSON: ["error": ["message": message,
@@ -208,21 +196,9 @@ final class FakeBackendRPCIssuer: AuthBackendRPCIssuerProtocol, @unchecked Senda
     )
   }
 
-  @discardableResult func respond(withJSON json: [String: Any],
-                                  error: NSError? = nil) throws -> Data {
-    let data = try JSONSerialization.data(withJSONObject: json,
-                                          options: JSONSerialization.WritingOptions.prettyPrinted)
-    try respond(withData: data, error: error)
-    return data
-  }
-
-  func respond(withData data: Data?, error: NSError?) throws {
-    let handler = try XCTUnwrap(handler, "There is no pending RPC request.")
-    XCTAssertTrue(
-      (data != nil) || (error != nil),
-      "At least one of: data or error should be been non-nil."
-    )
-    self.handler = nil
-    handler(data, error)
+  func respond(withJSON json: [String: Any], error: NSError? = nil) throws -> (Data, Error?) {
+    return try (JSONSerialization.data(withJSONObject: json,
+                                       options: JSONSerialization.WritingOptions.prettyPrinted),
+                error)
   }
 }

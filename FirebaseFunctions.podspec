@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '11.6.0'
+  s.version          = '11.8.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -35,8 +35,8 @@ Cloud Functions for Firebase.
     'FirebaseFunctions/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '~> 11.6.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.6.0'
+  s.dependency 'FirebaseCore', '~> 11.8.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.8.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseAuthInterop', '~> 11.0'
   s.dependency 'FirebaseMessagingInterop', '~> 11.0'

@@ -38,6 +38,7 @@ class RPCBaseTests: XCTestCase {
   let kAndroidPackageName = "androidpackagename"
   let kAndroidMinimumVersion = "3.0"
   let kDynamicLinkDomain = "test.page.link"
+  let kLinkDomain = "link.firebaseapp.com"
   let kTestPhotoURL = "https://host.domain/image"
   let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
   let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
@@ -99,7 +100,7 @@ class RPCBaseTests: XCTestCase {
         XCTFail("decodedRequest is not a dictionary")
       }
       // Dummy response to unblock await.
-      let _ = try self.rpcIssuer?.respond(withJSON: [:])
+      return try self.rpcIssuer.respond(withJSON: [:])
     }
     let _ = try await authBackend.call(with: request)
   }
@@ -117,11 +118,11 @@ class RPCBaseTests: XCTestCase {
                          checkLocalizedDescription: String? = nil) async throws {
     rpcIssuer.respondBlock = {
       if let json = json {
-        _ = try self.rpcIssuer.respond(withJSON: json)
+        return try self.rpcIssuer.respond(withJSON: json)
       } else if let reason = reason {
-        _ = try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
+        return try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
       } else {
-        _ = try self.rpcIssuer.respond(serverErrorMessage: message)
+        return try self.rpcIssuer.respond(serverErrorMessage: message)
       }
     }
     do {
@@ -304,6 +305,7 @@ class RPCBaseTests: XCTestCase {
     settings.handleCodeInApp = true
     settings.url = URL(string: kContinueURL)
     settings.dynamicLinkDomain = kDynamicLinkDomain
+    settings.linkDomain = kLinkDomain
     return settings
   }
 

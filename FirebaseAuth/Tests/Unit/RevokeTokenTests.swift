@@ -51,7 +51,7 @@ class RevokeTokenTests: RPCBaseTests {
    */
   func testSuccessfulRevokeTokenResponse() async throws {
     rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [:])
+      try self.rpcIssuer.respond(withJSON: [:])
     }
     let rpcResponse = try await authBackend.call(with: makeRevokeTokenRequest())
     XCTAssertNotNil(rpcResponse)

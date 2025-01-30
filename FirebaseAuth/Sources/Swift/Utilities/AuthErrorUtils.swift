@@ -370,6 +370,10 @@ class AuthErrorUtils {
     error(code: .invalidDynamicLinkDomain, message: message)
   }
 
+  static func invalidHostingLinkDomainError(message: String?) -> Error {
+    error(code: .invalidHostingLinkDomain, message: message)
+  }
+
   static func missingOrInvalidNonceError(message: String?) -> Error {
     error(code: .missingOrInvalidNonce, message: message)
   }
@@ -510,25 +514,62 @@ class AuthErrorUtils {
     return error(code: .accountExistsWithDifferentCredential, userInfo: userInfo)
   }
 
+  private static func extractJSONObjectFromString(from string: String) -> [String: Any]? {
+    // 1. Find the start of the JSON object.
+    guard let start = string.firstIndex(of: "{") else {
+      return nil // No JSON object found
+    }
+    // 2. Find the end of the JSON object.
+    // Start from the first curly brace `{`
+    var curlyLevel = 0
+    var endIndex: String.Index?
+
+    for index in string.indices.suffix(from: start) {
+      let char = string[index]
+      if char == "{" {
+        curlyLevel += 1
+      } else if char == "}" {
+        curlyLevel -= 1
+        if curlyLevel == 0 {
+          endIndex = index
+          break
+        }
+      }
+    }
+    guard let end = endIndex else {
+      return nil // Unbalanced curly braces
+    }
+
+    // 3. Extract the JSON string.
+    let jsonString = String(string[start ... end])
+
+    // 4. Convert JSON String to JSON Object
+    guard let jsonData = jsonString.data(using: .utf8) else {
+      return nil // Could not convert String to Data
+    }
+
+    do {
+      if let jsonObject = try JSONSerialization
+        .jsonObject(with: jsonData, options: []) as? [String: Any] {
+        return jsonObject
+      } else {
+        return nil // JSON Object is not a dictionary
+      }
+    } catch {
+      return nil // Failed to deserialize JSON
+    }
+  }
+
   static func blockingCloudFunctionServerResponse(message: String?) -> Error {
     guard let message else {
       return error(code: .blockingCloudFunctionError, message: message)
     }
-    var jsonString = message.replacingOccurrences(
-      of: "HTTP Cloud Function returned an error:",
-      with: ""
-    )
-    jsonString = jsonString.trimmingCharacters(in: .whitespaces)
-    let jsonData = jsonString.data(using: .utf8) ?? Data()
-    do {
-      let jsonDict = try JSONSerialization
-        .jsonObject(with: jsonData, options: []) as? [String: Any] ?? [:]
-      let errorDict = jsonDict["error"] as? [String: Any] ?? [:]
-      let errorMessage = errorDict["message"] as? String
-      return error(code: .blockingCloudFunctionError, message: errorMessage)
-    } catch {
-      return JSONSerializationError(underlyingError: error)
+    guard let jsonDict = extractJSONObjectFromString(from: message) else {
+      return error(code: .blockingCloudFunctionError, message: message)
     }
+    let errorDict = jsonDict["error"] as? [String: Any] ?? [:]
+    let errorMessage = errorDict["message"] as? String
+    return error(code: .blockingCloudFunctionError, message: errorMessage)
   }
 
   #if os(iOS)

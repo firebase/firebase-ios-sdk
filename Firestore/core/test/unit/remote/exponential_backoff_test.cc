@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/remote/exponential_backoff.h"
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/executor.h"

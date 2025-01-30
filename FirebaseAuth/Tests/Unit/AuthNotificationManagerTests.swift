@@ -33,7 +33,7 @@
     /** @property notificationManager
         @brief The notification manager to forward.
      */
-    private var notificationManager: AuthNotificationManager?
+    private var notificationManager: AuthNotificationManager!
 
     /** @var modernDelegate
         @brief The modern fake UIApplicationDelegate for testing.
@@ -75,7 +75,8 @@
     private func verify(forwarding: Bool, delegate: FakeForwardingDelegate) throws {
       delegate.forwardsNotification = forwarding
       let expectation = self.expectation(description: "callback")
-      notificationManager?.checkNotificationForwardingInternal { forwarded in
+      Task {
+        let forwarded = await notificationManager.checkNotificationForwarding()
         XCTAssertEqual(forwarded, forwarding)
         expectation.fulfill()
       }
@@ -93,12 +94,13 @@
       let delegate = try XCTUnwrap(modernDelegate)
       try verify(forwarding: false, delegate: delegate)
       modernDelegate?.notificationReceived = false
-      var calledBack = false
-      notificationManager?.checkNotificationForwardingInternal { isNotificationBeingForwarded in
+      let expectation = self.expectation(description: "callback")
+      Task {
+        let isNotificationBeingForwarded = await notificationManager.checkNotificationForwarding()
         XCTAssertFalse(isNotificationBeingForwarded)
-        calledBack = true
+        expectation.fulfill()
       }
-      XCTAssertTrue(calledBack)
+      waitForExpectations(timeout: 5)
       XCTAssertFalse(delegate.notificationReceived)
     }
 
@@ -136,7 +138,7 @@
         .canHandle(notification: ["com.google.firebase.auth": ["secret": kSecret]]))
       // Probing notification does not belong to this instance.
       XCTAssertFalse(manager
-        .canHandle(notification: ["com.google.firebase.auth": ["warning": "asdf"]]))
+        .canHandle(notification: ["com.google.firebase.auth": ["error": "asdf"]]))
     }
 
     private class FakeApplication: UIApplication {}

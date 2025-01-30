@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.6.0"
+let firebaseVersion = "11.8.0"
 
 let package = Package(
   name: "Firebase",
@@ -304,8 +304,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.4.0/FirebaseAnalytics.zip",
-      checksum: "fb0d7cd992ffdcd82ed5c5fdb83e50ac983664f1dde81b140a0ddaa1aa66baae"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.7.0/FirebaseAnalytics.zip",
+      checksum: "ce1f4aba4f9e831f06eb77a4cbaf0bd021e0859197ee3100c5035b7037074793"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1311,7 +1311,10 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
-      dependencies: ["FirebaseVertexAI"],
+      dependencies: [
+        "FirebaseVertexAI",
+        "FirebaseStorage",
+      ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),
@@ -1337,7 +1340,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.4.0")
+  return .package(url: appMeasurementURL, exact: "11.7.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1506,8 +1509,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.6.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "ad9d6cf31120ba0a91dbb9ccbe7ad08276a88565f6c79216929ec93a7d436459"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.8.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "860882689232f3192a816cea3db8b6c4cbad2896188dec90f35bbdfd2536169c"
       )
     }
   }()
