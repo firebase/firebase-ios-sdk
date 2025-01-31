@@ -1,3 +1,9 @@
+# Firebase 11.8.0
+- [deprecated] The zip and Carthage distributions of the Google Mobile Ads SDK
+  with Firebase are deprecated and will be removed in the next major release.
+  The Google Mobile Ads SDK binary distribution should be accessed from
+  https://developers.google.com/admob/ios/download. (#14408)
+
 # Firebase 11.4.2
 - [fixed] CocoaPods only release to fix iOS 12 build failure resulting from
   incomplete implementation in the FirebaseCoreInternal CocoaPod.
