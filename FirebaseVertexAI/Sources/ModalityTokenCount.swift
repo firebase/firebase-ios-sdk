@@ -21,18 +21,14 @@ public struct ModalityTokenCount: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ContentModality: CodableProtoEnum, Hashable, Sendable {
+public struct ContentModality: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
-    case unspecified = "MODALITY_UNSPECIFIED"
     case text = "TEXT"
     case image = "IMAGE"
     case video = "VIDEO"
     case audio = "AUDIO"
     case document = "DOCUMENT"
   }
-
-  /// Unspecified modality.
-  public static let unspecified = ContentModality(kind: .unspecified)
 
   /// Plain text.
   public static let text = ContentModality(kind: .text)
