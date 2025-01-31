@@ -5,7 +5,8 @@
   from https://developers.google.com/admob/ios/download. Note that
   _any existing versions of the Firebase zip or Carthage distributions will
   continue to be available and functional_. Learn more about this change
-  in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk (#14408)
+  in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk. (#14408)
+
 # Firebase 11.4.2
 - [fixed] CocoaPods only release to fix iOS 12 build failure resulting from
   incomplete implementation in the FirebaseCoreInternal CocoaPod.
