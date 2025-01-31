@@ -16,12 +16,12 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModalityTokenCount: Sendable {
-  let modality: Modality
+  let modality: ContentModality
   let tokenCount: Int
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Modality: CodableProtoEnum, Hashable, Sendable {
+public struct ContentModality: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case unspecified = "MODALITY_UNSPECIFIED"
     case text = "TEXT"
@@ -32,31 +32,28 @@ public struct Modality: CodableProtoEnum, Hashable, Sendable {
   }
 
   /// Unspecified modality.
-  public static let unspecified = Modality(kind: .unspecified)
+  public static let unspecified = ContentModality(kind: .unspecified)
 
   /// Plain text.
-  public static let text = Modality(kind: .text)
+  public static let text = ContentModality(kind: .text)
 
   /// Image.
-  public static let image = Modality(kind: .image)
+  public static let image = ContentModality(kind: .image)
 
   /// Video.
-  public static let video = Modality(kind: .video)
+  public static let video = ContentModality(kind: .video)
 
   /// Audio.
-  public static let audio = Modality(kind: .audio)
+  public static let audio = ContentModality(kind: .audio)
 
   /// Document, e.g. PDF.
-  public static let document = Modality(kind: .document)
+  public static let document = ContentModality(kind: .document)
 
-  /// Returns the raw string representation of the `HarmCategory` value.
-  ///
-  /// > Note: This value directly corresponds to the values in the
-  /// > [REST API](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/HarmCategory).
+  /// Returns the raw string representation of the `ContentModality` value.
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedHarmCategory
+    VertexLog.MessageCode.generateContentResponseUnrecognizedContentModality
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)

@@ -1356,7 +1356,7 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.totalTokens, 1837)
     XCTAssertEqual(response.totalBillableCharacters, 117)
     XCTAssertEqual(response
-      .promptTokensDetails?[0].modality, Modality.image)
+      .promptTokensDetails?[0].modality, ContentModality.image)
     XCTAssertEqual(response
       .promptTokensDetails?[0].tokenCount, 1806)
   }
