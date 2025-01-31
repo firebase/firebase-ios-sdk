@@ -16,6 +16,11 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
 
+/// Represents a remote Imagen model with the ability to generate images using text prompts.
+///
+/// See the [Cloud
+/// documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images) for
+/// more details about the image generation capabilities offered by the Imagen model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class ImagenModel {
   /// The resource name of the model in the backend; has the format "models/model-name".
