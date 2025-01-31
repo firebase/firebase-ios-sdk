@@ -20,8 +20,8 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/interfaceForSwift/api/Pipeline.h"
-#include "Firestore/core/interfaceForSwift/api/PipelineResult.h"
+#include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/api/pipeline_result.h"
 #include "Firestore/core/src/core/event_listener.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -34,18 +34,22 @@ using firebase::firestore::util::StatusOr;
 
 @implementation FIRCallbackWrapper
 
-// In public Swift documentation for integrating Swift and C++, using raw pointers in C++ is
-// generally considered unsafe. However, during an experiment where the result was passed as a value
-// instead of a pointer, a double free error occurred. This issue could not be traced effectively
-// because the implementation resides within the Swift-C++ transition layer. In this specific use
-// case, the C++ OnEvent() scope is destroyed after the Swift callback has been destroyed. Due to
-// this ordering, using a raw pointer is a safe workaround for now.
-+ (PipelineSnapshotListener)wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-                                      completion:(void (^)(CppPipelineResult *_Nullable result,
-                                                           NSError *_Nullable error))completion {
+// In public Swift documentation for integrating Swift and C++, using raw
+// pointers in C++ is generally considered unsafe. However, during an experiment
+// where the result was passed as a value instead of a pointer, a double free
+// error occurred. This issue could not be traced effectively because the
+// implementation resides within the Swift-C++ transition layer. In this
+// specific use case, the C++ OnEvent() scope is destroyed after the Swift
+// callback has been destroyed. Due to this ordering, using a raw pointer is a
+// safe workaround for now.
++ (PipelineSnapshotListener)
+    wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
+              completion:(void (^)(CppPipelineResult* _Nullable result,
+                                   NSError* _Nullable error))completion {
   class Converter : public EventListener<CppPipelineResult> {
    public:
-    explicit Converter(std::shared_ptr<api::Firestore> firestore, PipelineBlock completion)
+    explicit Converter(std::shared_ptr<api::Firestore> firestore,
+                       PipelineBlock completion)
         : firestore_(firestore), completion_(completion) {
     }
 

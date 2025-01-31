@@ -18,7 +18,6 @@
 #import "FIRAggregateQuery.h"
 #import "FIRAggregateQuerySnapshot.h"
 #import "FIRAggregateSource.h"
-#import "FIRCallbackWrapper.h"
 #import "FIRCollectionReference.h"
 #import "FIRDocumentChange.h"
 #import "FIRDocumentReference.h"

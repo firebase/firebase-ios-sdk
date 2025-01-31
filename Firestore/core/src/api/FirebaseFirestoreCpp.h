@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
-#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
+#ifndef FIRESTORE_CORE_SRC_API_FIREBASEFIRESTORECPP_H_
+#define FIRESTORE_CORE_SRC_API_FIREBASEFIRESTORECPP_H_
 
-#import "CollectionStage.h"
-#import "FirestorePipeline.h"
-#import "Pipeline.h"
-#import "PipelineResult.h"
-#import "PipelineSource.h"
-#import "Stage.h"
+#import "Firestore/core/src/api/FIRCallbackWrapper.h"
+#import "Firestore/core/src/api/collection_stage.h"
+#import "Firestore/core/src/api/firestore_pipeline.h"
+#import "Firestore/core/src/api/pipeline.h"
+#import "Firestore/core/src/api/pipeline_result.h"
+#import "Firestore/core/src/api/pipeline_source.h"
+#import "Firestore/core/src/api/stage.h"
 
-#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_FIREBASEFIRESTORECPP_H_
+#endif  // FIRESTORE_CORE_SRC_API_FIREBASEFIRESTORECPP_H_

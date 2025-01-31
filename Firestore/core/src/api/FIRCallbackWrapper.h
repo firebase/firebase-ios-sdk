@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIRESTORE_CORE_SRC_API_FIRCALLBACKWRAPPER_H_
+#define FIRESTORE_CORE_SRC_API_FIRCALLBACKWRAPPER_H_
+
 #import <Foundation/Foundation.h>
 
 #if defined(__cplusplus)
@@ -26,15 +29,12 @@ namespace api {
 class Firestore;
 class PipelineResult;
 }  // namespace api
-
 namespace core {
 template <typename T>
 class EventListener;
 }  // namespace core
-
 }  // namespace firestore
 }  // namespace firebase
-
 namespace api = firebase::firestore::api;
 namespace core = firebase::firestore::core;
 
@@ -42,24 +42,30 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef api::PipelineResult CppPipelineResult;
 
-typedef void (^PipelineBlock)(CppPipelineResult *_Nullable result, NSError *_Nullable error)
+typedef void (^PipelineBlock)(CppPipelineResult* _Nullable result,
+                              NSError* _Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CallbackWrapper)
 @interface FIRCallbackWrapper : NSObject
 
-// Note: Marking callbacks in callback-based APIs as `Sendable` can help prevent crashes when they
-// are invoked on a different thread than the one they were originally defined in. If this callback
-// is expected to be called on a different thread, it should be marked as `Sendable` to ensure
-// thread safety.
+// Note: Marking callbacks in callback-based APIs as `Sendable` can help prevent
+// crashes when they are invoked on a different thread than the one they were
+// originally defined in. If this callback is expected to be called on a
+// different thread, it should be marked as `Sendable` to ensure thread safety.
 + (std::shared_ptr<core::EventListener<api::PipelineResult>>)
+    // NOLINTNEXTLINE(whitespace/parens)
     wrapPipelineCallback:(std::shared_ptr<api::Firestore>)firestore
-              completion:(void (^NS_SWIFT_SENDABLE)(CppPipelineResult *_Nullable result,
-                                                    NSError *_Nullable error))completion
+              // NOLINTNEXTLINE(whitespace/parens)
+              completion:(void (^NS_SWIFT_SENDABLE)(
+                             CppPipelineResult* _Nullable result,
+                             NSError* _Nullable error))completion
     NS_SWIFT_NAME(wrapPipelineCallback(firestore:completion:));
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif
+#endif  // defined(__cplusplus)
+
+#endif  // FIRESTORE_CORE_SRC_API_FIRCALLBACKWRAPPER_H_

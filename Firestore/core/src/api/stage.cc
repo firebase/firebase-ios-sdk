@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
-#define FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_
+#include "Firestore/core/src/api/stage.h"
 
 namespace firebase {
 namespace firestore {
 
 namespace api {
 
-class Stage {
- public:
-  Stage();
-};
+Stage::Stage() {
+}
 
 }  // namespace api
 
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_INTERFACEFORSWIFT_API_STAGE_H_

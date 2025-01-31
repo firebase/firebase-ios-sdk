@@ -30,7 +30,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # framework.
   s.public_header_files = [
     'Firestore/Source/Public/FirebaseFirestore/*.h',
-    'Firestore/core/interfaceForSwift/api/*.h'
+    'Firestore/core/src/api/FirebaseFirestoreCpp.h'
   ]
 
   # source_files contains most of the header and source files for the project.
@@ -54,8 +54,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
+    'Firestore/core/src/api/*.{cc,mm}',
     'FirebaseAuth/Interop/**/*.h',
-    'Firestore/core/interfaceForSwift/**/*.{cc,h}',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal
@@ -132,6 +132,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/core/src/api" ' +
       '"${PODS_ROOT}/nanopb" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"'
   }

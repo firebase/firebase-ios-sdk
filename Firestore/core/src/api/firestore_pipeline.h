@@ -12,29 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Firestore/core/interfaceForSwift/api/PipelineSource.h"
+#ifndef FIRESTORE_CORE_SRC_API_FIRESTORE_PIPELINE_H_
+#define FIRESTORE_CORE_SRC_API_FIRESTORE_PIPELINE_H_
 
-#include <string>
+#include <memory>
 
-#include "Firestore/core/interfaceForSwift/api/CollectionStage.h"
-#include "Firestore/core/src/api/document_reference.h"
-#include "Firestore/core/src/api/firestore.h"
+#include "Firestore/core/src/api/pipeline_source.h"
 
 namespace firebase {
 namespace firestore {
 
 namespace api {
+class Firestore;
 
-PipelineSource::PipelineSource(std::shared_ptr<Firestore> firestore)
-    : firestore_(firestore) {
-  std::cout << "PipelineSource constructs" << std::endl;
-}
-
-Pipeline PipelineSource::GetCollection(std::string collection_path) const {
-  return {firestore_, Collection{collection_path}};
-}
+class FirestorePipeline {
+ public:
+  static PipelineSource pipeline(std::shared_ptr<Firestore> firestore);
+};
 
 }  // namespace api
-
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_API_FIRESTORE_PIPELINE_H_
