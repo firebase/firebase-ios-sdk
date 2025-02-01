@@ -32,9 +32,6 @@ public struct GenerateContentResponse: Sendable {
     /// The breakdown, by modality, of how many tokens are consumed by the prompt
     public let promptTokensDetails: [ModalityTokenCount]?
 
-    /// The breakdown, by modality, of how many tokens are consumed by the cache
-    public let cacheTokensDetails: [ModalityTokenCount]?
-
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
     public let candidatesTokensDetails: [ModalityTokenCount]?
   }
@@ -309,7 +306,6 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     case candidatesTokenCount
     case totalTokenCount
     case promptTokensDetails
-    case cacheTokensDetails
     case candidatesTokensDetails
   }
 
@@ -321,8 +317,6 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails = try container
       .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails)
-    cacheTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .cacheTokensDetails)
     candidatesTokensDetails = try container
       .decodeIfPresent([ModalityTokenCount].self, forKey: .candidatesTokensDetails)
   }
