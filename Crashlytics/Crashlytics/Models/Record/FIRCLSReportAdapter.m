@@ -257,8 +257,8 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
  */
 pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   // We have received couple security tickets before for using calloc here.
-  // Here is a short explaination on how it is calculated so buffer overflow is prevented:
   // We will alloc an amount of memeory for struct `pb_bytes_array_t`, this struct contains two
+  // Here is a short explanation on how it is calculated so buffer overflow is prevented:
   // attributes:
   //    pb_size_t size
   //    pb_byte_t bytes[1]
