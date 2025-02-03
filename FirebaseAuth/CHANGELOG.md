@@ -1,6 +1,7 @@
 # Unreleased
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
   Enterprise 18.7.0 or later.
+- [fixed] Suppress deprecation build warning introduced in 11.8.0.
 
 # 11.8.0
 - [added] Added `ActionCodeSettings.linkDomain` to customize the Firebase Hosting link domain
