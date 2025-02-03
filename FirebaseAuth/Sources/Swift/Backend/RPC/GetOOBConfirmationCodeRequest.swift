@@ -105,6 +105,12 @@ private let kClientType = "clientType"
 /// The key for the "recaptchaVersion" value in the request.
 private let kRecaptchaVersion = "recaptchaVersion"
 
+protocol SuppressWarning {
+  var dynamicLinkDomain: String? { get set }
+}
+
+extension ActionCodeSettings: SuppressWarning {}
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetOOBConfirmationCodeResponse
@@ -177,7 +183,12 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     androidMinimumVersion = actionCodeSettings?.androidMinimumVersion
     androidInstallApp = actionCodeSettings?.androidInstallIfNotAvailable ?? false
     handleCodeInApp = actionCodeSettings?.handleCodeInApp ?? false
-    dynamicLinkDomain = actionCodeSettings?.dynamicLinkDomain
+    dynamicLinkDomain =
+      if let actionCodeSettings {
+        (actionCodeSettings as SuppressWarning).dynamicLinkDomain
+      } else {
+        nil
+      }
     linkDomain = actionCodeSettings?.linkDomain
 
     super.init(
