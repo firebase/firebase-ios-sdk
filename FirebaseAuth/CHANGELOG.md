@@ -1,3 +1,6 @@
+# 11.8.1
+- [fixed] Suppress deprecation build warning introduced in 11.8.0.
+
 # 11.8.0
 - [added] Added `ActionCodeSettings.linkDomain` to customize the Firebase Hosting link domain
   that is used in out-of-band email action flows.
