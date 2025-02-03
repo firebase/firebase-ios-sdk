@@ -24,7 +24,22 @@ public struct PipelineSource {
     cppObj = cppSource
   }
 
-  public func GetCollection(_ path: String) -> Pipeline {
+  public func collection(_ path: String) -> Pipeline {
     return Pipeline(cppObj.GetCollection(std.string(path)))
   }
+
+  public func collectionGroup(_ collectionId: String) -> Pipeline {
+    return Pipeline(cppObj
+      .GetCollectionGroup(std.string(collectionId))) // Corrected: Use collectionId
+  }
+
+  public func database() -> Pipeline {
+    return Pipeline(cppObj.GetDatabase())
+  }
+
+//  public func documents(_ docs: [DocumentReference]) -> Pipeline {
+//        let cppDocs = docs.map { $0.toCppObj() }
+//      return Pipeline(cppObj.GetDocuments(cppDocs))
+//    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+//  }
 }

@@ -273,4 +273,9 @@ public extension DocumentReference {
       .handleEvents(receiveCancel: listenerHandle.remove)
       .eraseToAnyPublisher()
   }
+  
+//  internal func toCppObj() -> firebase.firestore.api.DocumentReference {
+//     
+//      return cppObj
+//  }
 }

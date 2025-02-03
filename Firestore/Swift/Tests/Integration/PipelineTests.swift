@@ -17,10 +17,22 @@ import XCTest
 
 import FirebaseFirestore
 
-final class PipelineTests: FSTIntegrationTestCase {
-  func testCreatePipeline() async throws {
-    let pipelineSource: PipelineSource = db.pipeline()
-    let pipeline: Pipeline = pipelineSource.GetCollection("path")
-    let _ = try await pipeline.GetPipelineResult()
+#if swift(>=5.5.2)
+  final class PipelineTests: FSTIntegrationTestCase {
+    func testCreatePipeline() async throws {
+      let pipelineSource: PipelineSource = db.pipeline()
+//    let docs: [DocumentReference] = [
+//        db.collection("foo").document("bar"),
+//        db.document("foo/baz")
+//    ]
+      // let pipelineA: Pipeline = pipelineSource.documents(docs)
+//    let pipelineA: Pipeline = pipelineSource.documents(
+//      [db.collection("foo").document("bar"), db.document("foo/baz")]
+//    )
+      let _: Pipeline = pipelineSource.collection("foo")
+      let pipelineC: Pipeline = pipelineSource.collectionGroup("foo")
+      let _: Pipeline = pipelineSource.database()
+      let _: PipelineResult = try await pipelineC.execute()
+    }
   }
-}
+#endif

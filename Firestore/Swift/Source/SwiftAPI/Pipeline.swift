@@ -22,14 +22,13 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct Pipeline {
-  var cppObj: firebase.firestore.api.Pipeline
+  let cppObj: firebase.firestore.api.Pipeline
 
   public init(_ cppSource: firebase.firestore.api.Pipeline) {
     cppObj = cppSource
   }
 
-  @discardableResult
-  public func GetPipelineResult() async throws -> PipelineResult {
+  public func execute() async throws -> PipelineResult {
     return try await withCheckedThrowingContinuation { continuation in
       let listener = CallbackWrapper.wrapPipelineCallback(firestore: cppObj.GetFirestore()) {
         result, error in
@@ -39,7 +38,7 @@ public struct Pipeline {
           continuation.resume(returning: PipelineResult(result!.pointee))
         }
       }
-      cppObj.GetPipelineResult(listener)
+      cppObj.Execute(listener)
     }
   }
 }

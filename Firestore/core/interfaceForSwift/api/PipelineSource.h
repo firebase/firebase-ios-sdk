@@ -35,6 +35,12 @@ class PipelineSource {
 
   Pipeline GetCollection(std::string collection_path) const;
 
+  Pipeline GetCollectionGroup(std::string collection_id) const;
+
+  Pipeline GetDatabase() const;
+
+  Pipeline GetDocuments(std::vector<DocumentReference> docs) const;
+
  private:
   std::shared_ptr<Firestore> firestore_;
 };

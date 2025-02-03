@@ -34,6 +34,20 @@ Pipeline PipelineSource::GetCollection(std::string collection_path) const {
   return {firestore_, Collection{collection_path}};
 }
 
+// TODO
+Pipeline PipelineSource::GetCollectionGroup(std::string collection_id) const {
+  return {firestore_, Collection{collection_id}};
+}
+
+Pipeline PipelineSource::GetDatabase() const {
+  return {firestore_, Collection{"path"}};
+}
+
+// TODO
+Pipeline PipelineSource::GetDocuments(std::vector<DocumentReference>) const {
+  return {firestore_, Collection{"path"}};
+}
+
 }  // namespace api
 
 }  // namespace firestore

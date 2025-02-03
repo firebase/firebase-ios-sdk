@@ -39,7 +39,7 @@ Pipeline::Pipeline(std::shared_ptr<Firestore> firestore, Stage stage)
     : firestore_(firestore), stage_(stage) {
 }
 
-void Pipeline::GetPipelineResult(PipelineSnapshotListener callback) const {
+void Pipeline::Execute(PipelineSnapshotListener callback) const {
   ListenOptions options(
       /*include_query_metadata_changes=*/true,
       /*include_document_metadata_changes=*/true,
