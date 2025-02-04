@@ -97,7 +97,7 @@ struct ImagenIntegrationTests {
       withPath: "/vertexai/imagen/authenticated/user/\(userID1)"
     )
 
-    let response = try await model.generateImages(prompt: prompt, gcsUri: storageRef.gsURI)
+    let response = try await model.generateImages(prompt: prompt, gcsURI: storageRef.gsURI)
 
     #expect(response.filteredReason == nil)
     #expect(response.images.count == generationConfig.numberOfImages)

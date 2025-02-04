@@ -70,12 +70,12 @@ public final class ImagenModel {
     )
   }
 
-  public func generateImages(prompt: String, gcsUri: String) async throws
+  public func generateImages(prompt: String, gcsURI: String) async throws
     -> ImagenGenerationResponse<ImagenGCSImage> {
     return try await generateImages(
       prompt: prompt,
       parameters: ImagenModel.imageGenerationParameters(
-        storageURI: gcsUri,
+        storageURI: gcsURI,
         generationConfig: generationConfig,
         safetySettings: safetySettings
       )
