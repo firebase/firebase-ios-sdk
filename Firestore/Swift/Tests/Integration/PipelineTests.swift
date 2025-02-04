@@ -17,22 +17,23 @@ import XCTest
 
 import FirebaseFirestore
 
-#if swift(>=5.5.2)
-  final class PipelineTests: FSTIntegrationTestCase {
-    func testCreatePipeline() async throws {
-      let pipelineSource: PipelineSource = db.pipeline()
-//    let docs: [DocumentReference] = [
-//        db.collection("foo").document("bar"),
-//        db.document("foo/baz")
-//    ]
-      // let pipelineA: Pipeline = pipelineSource.documents(docs)
-//    let pipelineA: Pipeline = pipelineSource.documents(
-//      [db.collection("foo").document("bar"), db.document("foo/baz")]
-//    )
-      let _: Pipeline = pipelineSource.collection("foo")
-      let pipelineC: Pipeline = pipelineSource.collectionGroup("foo")
-      let _: Pipeline = pipelineSource.database()
-      let _: PipelineResult = try await pipelineC.execute()
-    }
+final class PipelineTests: FSTIntegrationTestCase {
+  func testCreatePipeline() async throws {
+    let pipelineSource: PipelineSource = db.pipeline()
+
+    let pipeline: Pipeline = pipelineSource.documents(
+      [db.collection("foo").document("bar"), db.document("foo/baz")]
+    )
+    let _: Pipeline = pipelineSource.collection("foo")
+    let _: Pipeline = pipelineSource.collectionGroup("foo")
+    let _: Pipeline = pipelineSource.database()
+
+    let query: Query = db.collection("foo").limit(to: 2)
+    let _: Pipeline = pipelineSource.createFrom(query)
+
+    let aggregateQuery = db.collection("foo").count
+    let _: Pipeline = pipelineSource.createFrom(aggregateQuery)
+
+    let _: PipelineResult = try await pipeline.execute()
   }
-#endif
+}

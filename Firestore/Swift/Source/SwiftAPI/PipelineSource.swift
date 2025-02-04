@@ -15,6 +15,7 @@
 #if SWIFT_PACKAGE
   import FirebaseFirestoreCpp
 #endif
+import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineSource {
@@ -37,9 +38,16 @@ public struct PipelineSource {
     return Pipeline(cppObj.GetDatabase())
   }
 
-//  public func documents(_ docs: [DocumentReference]) -> Pipeline {
-//        let cppDocs = docs.map { $0.toCppObj() }
-//      return Pipeline(cppObj.GetDocuments(cppDocs))
-//    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
-//  }
+  public func documents<documentReference: DocumentReference>(_ docs: [documentReference])
+    -> Pipeline {
+    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+  }
+
+  public func createFrom(_ query: Query) -> Pipeline {
+    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+  }
+
+  public func createFrom(_ aggregateQuery: AggregateQuery) -> Pipeline {
+    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+  }
 }
