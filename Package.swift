@@ -23,7 +23,7 @@ let firebaseVersion = "11.9.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
+  platforms: [.iOS(.v12), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -414,10 +414,7 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
-      path: "FirebaseAuth/Sources",
-      exclude: [
-        "ObjC", "Public",
-      ],
+      path: "FirebaseAuth/Sources/Swift",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: Context.environment["FIREBASE_CI"] != nil ? [.define("FIREBASE_CI")] : [],
       linkerSettings: [
@@ -432,7 +429,7 @@ let package = Package(
       ],
       path: "FirebaseAuth/Sources",
       exclude: [
-        "Swift", "Resources",
+        "Swift",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -586,7 +583,9 @@ let package = Package(
       path: "FirebaseDatabase/Sources",
       exclude: [
         "third_party/Wrap-leveldb/LICENSE",
+        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
+        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
