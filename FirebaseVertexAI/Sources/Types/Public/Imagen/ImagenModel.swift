@@ -21,6 +21,10 @@ import Foundation
 /// See the [Cloud
 /// documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images) for
 /// more details about the image generation capabilities offered by the Imagen model.
+///
+/// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
+/// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+/// could change in backwards-incompatible ways.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class ImagenModel {
   /// The resource name of the model in the backend; has the format "models/model-name".
@@ -58,6 +62,20 @@ public final class ImagenModel {
     self.requestOptions = requestOptions
   }
 
+  /// **[Public Preview]** Generates images using the Imagen model and returns them as inline data.
+  ///
+  /// The individual ``ImagenInlineImage/data`` is provided for each of the generated
+  /// ``ImagenGenerationResponse/images``.
+  ///
+  /// > Note: By default, 1 image sample is generated; see ``ImagenGenerationConfig/numberOfImages``
+  /// to configure the number of images that are generated.
+  ///
+  /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// - Parameters:
+  ///   - prompt: A text prompt describing the image(s) to generate.
   public func generateImages(prompt: String) async throws
     -> ImagenGenerationResponse<ImagenInlineImage> {
     return try await generateImages(
@@ -70,6 +88,28 @@ public final class ImagenModel {
     )
   }
 
+  /// **[Public Preview]** Generates images using the Imagen model and stores them in Cloud Storage
+  /// (GCS) for Firebase.
+  ///
+  /// The generated images are stored in a subdirectory of the requested `gcsURI`, named as a random
+  /// numeric hash. For example, for the `gcsURI` `"gs://bucket-name/path/"`, the generated images
+  /// are stored in `"gs://bucket-name/path/1234567890123/"` with the names `sample_0.png`,
+  /// `sample_1.png`, `sample_2.png`, ..., `sample_N.png`. In this example, `1234567890123` is the
+  /// hash value and `N` is the number of images that were generated, up to the number requested in
+  /// ``ImagenGenerationConfig/numberOfImages``. The individual ``ImagenGCSImage/gcsURI`` is
+  /// provided for each of the generated ``ImagenGenerationResponse/images``.
+  ///
+  /// > Note: By default, 1 image sample is generated; see ``ImagenGenerationConfig/numberOfImages``
+  /// to configure the number of images that are generated.
+  ///
+  /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// - Parameters:
+  ///   - prompt: A text prompt describing the image(s) to generate.
+  ///   - gcsURI: The Cloud Storage (GCS) for Firebase URI where the generated images are stored.
+  ///     This is a `"gs://"`-prefixed URI , for example, `"gs://bucket-name/path/"`.
   public func generateImages(prompt: String, gcsURI: String) async throws
     -> ImagenGenerationResponse<ImagenGCSImage> {
     return try await generateImages(
