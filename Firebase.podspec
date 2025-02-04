@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '11.8.0'
+  s.version          = '11.8.1'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -43,7 +43,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '~> 11.8.0'
+    ss.dependency 'FirebaseCore', '~> 11.8.1'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -110,7 +110,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 11.8.0'
+    ss.dependency 'FirebaseAuth', '~> 11.8.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '13.0'
     ss.osx.deployment_target = '10.15'
