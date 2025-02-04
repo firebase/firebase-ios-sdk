@@ -23,8 +23,7 @@
 @protocol FWebSocketDelegate;
 
 #if !TARGET_OS_WATCH
-@interface FWebSocketConnection
-    : NSObject <FSRWebSocketDelegate, NSURLSessionWebSocketDelegate>
+@interface FWebSocketConnection : NSObject <FSRWebSocketDelegate>
 #else
 @interface FWebSocketConnection : NSObject <NSURLSessionWebSocketDelegate>
 #endif // else !TARGET_OS_WATCH

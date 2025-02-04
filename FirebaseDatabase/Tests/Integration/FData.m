@@ -2197,9 +2197,7 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 }
 
-// TODO: On arm hardware Macs, the following test hangs with the emulator, but passes with a real
-// project.
-- (void)SKIPtestUpdateReplacesChildrenAndIsNotRecursive {
+- (void)testUpdateReplacesChildrenAndIsNotRecursive {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
