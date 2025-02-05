@@ -34,7 +34,7 @@ jobs:
             xcode: Xcode_15.2
             tests: --skip-tests
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             tests: ""
     runs-on: ${{ matrix.build-env.os }}
     steps:
@@ -90,22 +90,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
