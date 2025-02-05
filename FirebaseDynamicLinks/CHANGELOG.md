@@ -1,5 +1,8 @@
+# 11.8.0
+- [deprecated] The `FirebaseDynamicLinks` CocoaPod is deprecated. For information about timelines and alternatives, see the [Dynamic Links deprecation FAQ](https://firebase.google.com/support/dynamic-links-faq).
+
 # 10.27.0
-- [added] Added deprecation warning in advance of August 25, 2025 Dynamic Links service shutdown. (#12995)
+- [deprecated] Dynamic Links is deprecated. For information about timelines and alternatives, see the [Dynamic Links deprecation FAQ](https://firebase.google.com/support/dynamic-links-faq)
 
 # 10.3.0
 - [fixed] Fixes issue where `utmParametersDictionary` / `minimumAppVersion` were not provided and their value were set to `[NSNull null]` instead of `nil`.

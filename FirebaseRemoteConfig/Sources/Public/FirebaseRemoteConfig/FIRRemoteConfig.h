@@ -231,10 +231,18 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Unavailable. Use +remoteConfig instead.
 - (nonnull instancetype)init __attribute__((unavailable("Use +remoteConfig instead.")));
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Ensures initialization is complete and clients can begin querying for Remote Config values.
+/// @param completionHandler Initialization complete callback with error parameter.
+- (void)ensureInitializedWithCompletionHandler:
+    (void (^_Nonnull NS_SWIFT_SENDABLE)(NSError *_Nullable initializationError))completionHandler;
+#else
 /// Ensures initialization is complete and clients can begin querying for Remote Config values.
 /// @param completionHandler Initialization complete callback with error parameter.
 - (void)ensureInitializedWithCompletionHandler:
     (void (^_Nonnull)(NSError *_Nullable initializationError))completionHandler;
+#endif
+
 #pragma mark - Fetch
 
 #if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
@@ -414,6 +422,25 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                                                 NSError *_Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Start listening for real-time config updates from the Remote Config backend and automatically
+/// fetch updates when they're available.
+///
+/// If a connection to the Remote Config backend is not already open, calling this method will
+/// open it. Multiple listeners can be added by calling this method again, but subsequent calls
+/// re-use the same connection to the backend.
+///
+/// Note: Real-time Remote Config requires the Firebase Remote Config Realtime API. See Get started
+/// with Firebase Remote Config at https://firebase.google.com/docs/remote-config/get-started for
+/// more information.
+///
+/// @param listener              The configured listener that is called for every config update.
+/// @return              Returns a registration representing the listener. The registration contains
+/// a remove method, which can be used to stop receiving updates for the provided listener.
+- (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
+    (FIRRemoteConfigUpdateCompletion _Nonnull NS_SWIFT_SENDABLE)listener
+    NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
+#else
 /// Start listening for real-time config updates from the Remote Config backend and automatically
 /// fetch updates when they're available.
 ///
@@ -431,6 +458,7 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
+#endif
 
 - (void)setCustomSignals:(nonnull NSDictionary<NSString *, NSObject *> *)customSignals
           withCompletion:(void (^_Nullable)(NSError *_Nullable error))completionHandler

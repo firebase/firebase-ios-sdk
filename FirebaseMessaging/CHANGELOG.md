@@ -1,3 +1,6 @@
+# 11.8.0
+- [fixed] Don't cache FCM registration token operations. (#14352).
+
 # 11.5.0
 - [fixed] Improve token-fetch failure logging with detailed error info. (#13997).
 

@@ -43,6 +43,7 @@ enum AuthMenu: String {
   case deleteApp
   case actionType
   case continueURL
+  case linkDomain
   case requestVerifyEmail
   case requestPasswordReset
   case resetPassword
@@ -117,6 +118,8 @@ enum AuthMenu: String {
       return "Action Type"
     case .continueURL:
       return "Continue URL"
+    case .linkDomain:
+      return "Link Domain"
     case .requestVerifyEmail:
       return "Request Verify Email"
     case .requestPasswordReset:
@@ -197,6 +200,8 @@ enum AuthMenu: String {
       self = .actionType
     case "Continue URL":
       self = .continueURL
+    case "Link Domain":
+      self = .linkDomain
     case "Request Verify Email":
       self = .requestVerifyEmail
     case "Request Password Reset":
@@ -328,6 +333,7 @@ class AuthMenuData: DataSourceProvidable {
     let items: [Item] = [
       Item(title: AuthMenu.actionType.name, detailTitle: ActionCodeRequestType.inApp.name),
       Item(title: AuthMenu.continueURL.name, detailTitle: "--", isEditable: true),
+      Item(title: AuthMenu.linkDomain.name, detailTitle: "--", isEditable: true),
       Item(title: AuthMenu.requestVerifyEmail.name),
       Item(title: AuthMenu.requestPasswordReset.name),
       Item(title: AuthMenu.resetPassword.name),

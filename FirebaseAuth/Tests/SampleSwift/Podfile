@@ -15,7 +15,7 @@ target 'AuthenticationExample' do
   pod 'FirebaseAuthInterop', :path => '../../..'
   pod 'FirebaseAppCheckInterop', :path => '../../..'
 
-  pod 'RecaptchaEnterprise', '~> 18.3'
+  pod 'RecaptchaEnterprise', '~> 18.7'
 
   ## Pod for Sign in with Google
   pod 'GoogleSignIn'
