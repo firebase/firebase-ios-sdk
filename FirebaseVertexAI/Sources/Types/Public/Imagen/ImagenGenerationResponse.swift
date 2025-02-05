@@ -71,7 +71,12 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
     }
 
     self.images = images
-    filteredReason = filteredReasons.joined(separator: "\n")
+    let filteredReason = filteredReasons.joined(separator: "\n")
+    if filteredReason.isEmpty {
+      self.filteredReason = nil
+    } else {
+      self.filteredReason = filteredReason
+    }
     // TODO(#14221): Throw `ImagenImagesBlockedError` with `filteredReason` if `images` is empty.
   }
 }

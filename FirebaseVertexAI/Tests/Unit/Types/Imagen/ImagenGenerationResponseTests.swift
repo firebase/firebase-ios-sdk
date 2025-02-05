@@ -181,16 +181,20 @@ final class ImagenGenerationResponseTests: XCTestCase {
     let json = "{}"
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(
-      ImagenGenerationResponse<ImagenInlineImage>.self,
-      from: jsonData
-    )
-
-    XCTAssertEqual(response.images, [])
-    XCTAssertNil(response.filteredReason)
+    do {
+      let response = try decoder.decode(
+        ImagenGenerationResponse<ImagenInlineImage>.self,
+        from: jsonData
+      )
+      XCTFail("Expected a DecodingError, got response: \(response)")
+    } catch let DecodingError.keyNotFound(codingKey, _) {
+      XCTAssertEqual(codingKey.stringValue, "predictions")
+    } catch {
+      XCTFail("Expected a DecodingError.keyNotFound, got error: \(error)")
+    }
   }
 
-  func testDecodeResponse_multipleFilterReasons_returnsFirst() throws {
+  func testDecodeResponse_multipleFilterReasons_concatenatesReasons() throws {
     let raiFilteredReason1 = "filtered-reason-1"
     let raiFilteredReason2 = "filtered-reason-2"
     let json = """
@@ -213,8 +217,7 @@ final class ImagenGenerationResponseTests: XCTestCase {
     )
 
     XCTAssertEqual(response.images, [])
-    XCTAssertEqual(response.filteredReason, raiFilteredReason1)
-    XCTAssertNotEqual(response.filteredReason, raiFilteredReason2)
+    XCTAssertEqual(response.filteredReason, "\(raiFilteredReason1)\n\(raiFilteredReason2)")
   }
 
   func testDecodeResponse_unknownPrediction() throws {
