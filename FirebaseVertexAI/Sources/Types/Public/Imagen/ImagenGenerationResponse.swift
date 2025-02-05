@@ -50,12 +50,6 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    guard container.contains(.predictions) else {
-      images = []
-      filteredReason = nil
-      // TODO(#14221): Log warning if no predictions.
-      return
-    }
     var predictionsContainer = try container.nestedUnkeyedContainer(forKey: .predictions)
 
     var images = [T]()
@@ -66,7 +60,7 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
       } else if let filteredReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
         filteredReasons.append(filteredReason.raiFilteredReason)
       } else if let _ = try? predictionsContainer.decode(JSONObject.self) {
-        // TODO(#14221): Log or throw unsupported prediction type
+        // TODO(#14221): Log unsupported prediction type message with the decoded `JSONObject`.
       } else {
         // This should never be thrown since JSONObject accepts any valid JSON.
         throw DecodingError.dataCorruptedError(
@@ -77,7 +71,7 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
     }
 
     self.images = images
-    filteredReason = filteredReasons.first
-    // TODO(#14221): Log if more than one RAI Filtered Reason; unexpected behaviour.
+    filteredReason = filteredReasons.joined(separator: "\n")
+    // TODO(#14221): Throw `ImagenImagesBlockedError` with `filteredReason` if `images` is empty.
   }
 }
