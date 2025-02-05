@@ -102,6 +102,8 @@ class CountingFunc {
 
 /**
  * A simple implementation of std::latch in C++20.
+ *
+ * TODO(c++20) Replace with std::latch.
  */
 class CountDownLatch {
  public:
