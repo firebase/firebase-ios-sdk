@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A filter level controlling whether generation of images containing people or faces is allowed.
+///
+/// See the
+/// [`personGeneration`](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/imagen-api#parameter_list)
+/// documentation for more details.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImagenPersonFilterLevel: ProtoEnum {
   enum Kind: String {
@@ -20,8 +25,23 @@ public struct ImagenPersonFilterLevel: ProtoEnum {
     case allowAll = "allow_all"
   }
 
+  /// Disallow generation of images containing people or faces; images of people are filtered out.
   public static let blockAll = ImagenPersonFilterLevel(kind: .blockAll)
+
+  /// Allow generation of images containing adults only; images of children are filtered out.
+  ///
+  /// > Important: Generation of images containing people or faces may require your use case to be
+  /// reviewed and approved by Cloud support; see the [Responsible AI and usage
+  /// guidelines](https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen#person-face-gen)
+  /// for more details.
   public static let allowAdult = ImagenPersonFilterLevel(kind: .allowAdult)
+
+  /// Allow generation of images containing people of all ages.
+  ///
+  /// > Important: Generation of images containing people or faces may require your use case to be
+  /// reviewed and approved; see the [Responsible AI and usage
+  /// guidelines](https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen#person-face-gen)
+  /// for more details.
   public static let allowAll = ImagenPersonFilterLevel(kind: .allowAll)
 
   let rawValue: String

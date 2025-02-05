@@ -104,6 +104,23 @@ public class VertexAI {
     )
   }
 
+  /// **[Public Preview]** Initializes an ``ImagenModel`` with the given parameters.
+  ///
+  /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the Imagen 3 model to use, for example `"imagen-3.0-generate-002"`;
+  ///     see [model
+  ///     versions](https://cloud.google.com/vertex-ai/generative-ai/docs/image/model-versioning)
+  ///     for a list of supported Imagen 3 models.
+  ///   - generationConfig: Configuration options for generating images with Imagen.
+  ///   - safetySettings: Settings describing what types of potentially harmful content your model
+  ///     should allow.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
