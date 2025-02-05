@@ -28,7 +28,7 @@ using firebase::firestore::testing::CountDownLatch;
 using firebase::firestore::testing::CountingFunc;
 using firebase::firestore::testing::max_practical_parallel_threads_for_testing;
 
-TEST(ThreadSafeMemoizerTesting, DefaultConstructor) {
+TEST(ThreadSafeMemoizerTesting, CountingFuncDefaultConstructor) {
   CountingFunc counting_func;
   auto func = counting_func.func();
   for (int i = 0; i < 100; i++) {
