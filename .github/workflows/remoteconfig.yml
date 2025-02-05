@@ -69,7 +69,7 @@ jobs:
             tests: --allow-warnings
           # Flaky tests on CI
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             tests: --skip-tests
     runs-on: ${{ matrix.build-env.os }}
     steps:
@@ -123,27 +123,27 @@ jobs:
             target: iOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: iOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: tvOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: macOS
             test: spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: watchOS
             test: spmbuildonly
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: catalyst
             test: spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: visionOS
             test: spm
     runs-on: ${{ matrix.os }}

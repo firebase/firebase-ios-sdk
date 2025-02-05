@@ -30,16 +30,16 @@ jobs:
             xcode: Xcode_15.4
             target: ios
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: ios
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: tvos
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: macos
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: watchos
     runs-on: ${{ matrix.os }}
     steps:
@@ -94,22 +94,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: macOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16
+            xcode: Xcode_16.2
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
