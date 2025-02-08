@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.8.0"
+let firebaseVersion = "11.9.0"
 
 let package = Package(
   name: "Firebase",
@@ -168,7 +168,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
-      "100.0.0" ..< "101.0.0"
+      "101.0.0" ..< "102.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git",
              "11.0.1" ..< "12.0.0"),
@@ -586,7 +586,9 @@ let package = Package(
       path: "FirebaseDatabase/Sources",
       exclude: [
         "third_party/Wrap-leveldb/LICENSE",
+        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
+        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -1350,7 +1352,7 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240116.1" ..< "0.20240117.0"
+      "0.20240722.0" ..< "0.20240723.0"
     )
   } else {
     packageInfo = (
@@ -1368,7 +1370,7 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
   }
@@ -1508,8 +1510,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.7.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "08dd8be97322a1c35bdde315376921d145b5c9dd9bb91bbdbb933380556f24f9"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.8.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "860882689232f3192a816cea3db8b6c4cbad2896188dec90f35bbdfd2536169c"
       )
     }
   }()

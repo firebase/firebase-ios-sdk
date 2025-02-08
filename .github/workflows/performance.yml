@@ -58,7 +58,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_15.2
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -157,10 +157,10 @@ jobs:
             xcode: Xcode_15.4
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: tvOS
     runs-on: ${{ matrix.os }}
     steps:

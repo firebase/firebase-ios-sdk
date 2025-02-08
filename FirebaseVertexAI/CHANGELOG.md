@@ -1,3 +1,11 @@
+# Unreleased
+- [feature] **Public Preview**: Added support for generating images using the
+  Imagen 3 model.
+  <br /><br />
+  Note: This feature is in Public Preview, which means that the it is not
+  subject to any SLA or deprecation policy and could change in
+  backwards-incompatible ways.
+
 # 11.6.0
 - [changed] The token counts from `GenerativeModel.countTokens(...)` now include
   tokens from the schema for JSON output and function calling; reported token
