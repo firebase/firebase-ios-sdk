@@ -17,7 +17,6 @@ import Foundation
 /// Represents token counting info for a single modality.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModalityTokenCount: Sendable {
-
   /// The modality associated with this token count.
   public let modality: ContentModality
 
