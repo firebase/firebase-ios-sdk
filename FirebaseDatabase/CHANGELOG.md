@@ -3,6 +3,7 @@
   Socket Rocket implementation instead of `NSURLSessionWebSocket`. Note that
   this may expose a Thread Performance Checker Warning (#12883).
   (#14188, #13877, #13855, #13529)
+- [fixed] Added `Sendable` conformance for `DataSnapshot` (#14369).
 
 # 11.2.0
 - [fixed] Fix temporary disconnects when the app goes inactive. The issue was
