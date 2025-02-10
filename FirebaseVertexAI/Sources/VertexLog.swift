@@ -31,8 +31,11 @@ enum VertexLog {
     // API Enablement Errors
     case vertexAIInFirebaseAPIDisabled = 200
 
-    // Model Configuration
+    // Generative Model Configuration
     case generativeModelInitialized = 1000
+
+    // Imagen Model Configuration
+    case imagenInvalidJPEGCompressionQuality = 1201
 
     // Network Errors
     case generativeAIServiceNonHTTPResponse = 2000
