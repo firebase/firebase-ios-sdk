@@ -45,6 +45,12 @@ public struct ImagenImageFormat {
   ///     compression (lowest image quality, smallest file size) and `100` is the lowest level of
   ///     compression (highest image quality, largest file size); defaults to `75`.
   public static func jpeg(compressionQuality: Int? = nil) -> ImagenImageFormat {
+    if let compressionQuality, compressionQuality < 0 || compressionQuality > 100 {
+      VertexLog.warning(code: .imagenInvalidJPEGCompressionQuality, """
+      Invalid JPEG compression quality of \(compressionQuality) specified; the supported range is \
+      [0, 100].
+      """)
+    }
     return ImagenImageFormat(mimeType: "image/jpeg", compressionQuality: compressionQuality)
   }
 }
