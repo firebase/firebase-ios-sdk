@@ -27,11 +27,23 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 
+#if defined(__ANDROID__)
+// The firebase-cpp-sdk has issues compiling Abseil on Android in some cases;
+// therefore, just use `__EXCEPTIONS`, which is known to be set by both clang
+// and gcc in Android NDK r16b. In the future, consider, instead, using
+// `__cpp_exceptions` when support for this old NDK version r16b is dropped.
+#if __EXCEPTIONS
+#define FIRESTORE_HAVE_EXCEPTIONS 1
+#endif
+
+#else  // !defined(__ANDROID__)
+// On any other supported platform, just take Abseil's word for it.
 #include "absl/base/config.h"
 
 #if ABSL_HAVE_EXCEPTIONS
 #define FIRESTORE_HAVE_EXCEPTIONS 1
 #endif
+#endif  // defined(__ANDROID__)
 
 namespace firebase {
 namespace firestore {
