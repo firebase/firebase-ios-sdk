@@ -46,6 +46,9 @@ public struct CountTokensResponse {
   /// > Important: This does not include billable image, video or other non-text input. See
   /// [Vertex AI pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) for details.
   public let totalBillableCharacters: Int?
+
+  /// The breakdown, by modality, of how many tokens are consumed by the prompt.
+  public let promptTokensDetails: [ModalityTokenCount]
 }
 
 // MARK: - Codable Conformances

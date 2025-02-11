@@ -57,6 +57,7 @@ enum VertexLog {
     case decodedInvalidProtoDateMonth = 3009
     case decodedInvalidProtoDateDay = 3010
     case decodedInvalidCitationPublicationDate = 3011
+    case generateContentResponseUnrecognizedContentModality = 3012
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
