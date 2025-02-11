@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  * location. They can't be modified and will never change. To modify data at a
  * location, use a DatabaseReference (e.g. with `setValue(_:)`).
  */
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DataSnapshot)
 @interface FIRDataSnapshot : NSObject
 
