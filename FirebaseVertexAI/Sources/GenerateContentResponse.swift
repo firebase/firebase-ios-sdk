@@ -316,9 +316,11 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
       .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? [ModalityTokenCount]()
+      .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ??
+      [ModalityTokenCount]()
     candidatesTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .candidatesTokensDetails) ?? [ModalityTokenCount]()
+      .decodeIfPresent([ModalityTokenCount].self, forKey: .candidatesTokensDetails) ??
+      [ModalityTokenCount]()
   }
 }
 
