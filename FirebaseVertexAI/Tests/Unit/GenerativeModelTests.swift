@@ -141,10 +141,15 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(response.usageMetadata?.promptTokensDetails[0].modality, .image)
-    XCTAssertEqual(response.usageMetadata?.promptTokensDetails[0].tokenCount, 1806)
-    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails[0].modality, .text)
-    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails[0].tokenCount, 76)
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.count, 2)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[0].modality, .image)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[0].tokenCount, 1806)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[1].modality, .text)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[1].tokenCount, 76)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails.count, 1)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails[0].modality, .text)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails[0].tokenCount, 76)
   }
 
   func testGenerateContent_success_citations() async throws {
@@ -1357,10 +1362,11 @@ final class GenerativeModelTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 1837)
     XCTAssertEqual(response.totalBillableCharacters, 117)
-    XCTAssertEqual(response
-      .promptTokensDetails[0].modality, ContentModality.image)
-    XCTAssertEqual(response
-      .promptTokensDetails[0].tokenCount, 1806)
+    XCTAssertEqual(response.promptTokensDetails.count, 2)
+    XCTAssertEqual(response.promptTokensDetails[0].modality, .image)
+    XCTAssertEqual(response.promptTokensDetails[0].tokenCount, 1806)
+    XCTAssertEqual(response.promptTokensDetails[1].modality, .text)
+    XCTAssertEqual(response.promptTokensDetails[1].tokenCount, 31)
   }
 
   func testCountTokens_succeeds_allOptions() async throws {
