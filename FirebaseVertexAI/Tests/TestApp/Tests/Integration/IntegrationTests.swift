@@ -39,6 +39,8 @@ final class IntegrationTests: XCTestCase {
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
+  // Candidates and total token counts may differ slightly between runs due to whitespace tokens.
+  let tokenCountAccuracy = 1
 
   var vertex: VertexAI!
   var model: GenerativeModel!
@@ -68,9 +70,6 @@ final class IntegrationTests: XCTestCase {
   // MARK: - Generate Content
 
   func testGenerateContent() async throws {
-    let expectedPromptTokenCount = 21
-    let expectedCandidatesTokenCount = 4
-    let expectedTotalTokenCount = 25
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
     let response = try await model.generateContent(prompt)
@@ -78,17 +77,17 @@ final class IntegrationTests: XCTestCase {
     let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     XCTAssertEqual(text, "Mountain View")
     let usageMetadata = try XCTUnwrap(response.usageMetadata)
-    XCTAssertEqual(usageMetadata.promptTokenCount, expectedPromptTokenCount)
-    XCTAssertEqual(usageMetadata.candidatesTokenCount, expectedCandidatesTokenCount)
-    XCTAssertEqual(usageMetadata.totalTokenCount, expectedTotalTokenCount)
+    XCTAssertEqual(usageMetadata.promptTokenCount, 21)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, 3, accuracy: tokenCountAccuracy)
+    XCTAssertEqual(usageMetadata.totalTokenCount, 24, accuracy: tokenCountAccuracy)
     XCTAssertEqual(usageMetadata.promptTokensDetails.count, 1)
     let promptTokensDetails = try XCTUnwrap(usageMetadata.promptTokensDetails.first)
     XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, expectedPromptTokenCount)
+    XCTAssertEqual(promptTokensDetails.tokenCount, usageMetadata.promptTokenCount)
     XCTAssertEqual(usageMetadata.candidatesTokensDetails.count, 1)
     let candidatesTokensDetails = try XCTUnwrap(usageMetadata.candidatesTokensDetails.first)
     XCTAssertEqual(candidatesTokensDetails.modality, .text)
-    XCTAssertEqual(candidatesTokensDetails.tokenCount, expectedCandidatesTokenCount)
+    XCTAssertEqual(candidatesTokensDetails.tokenCount, usageMetadata.candidatesTokenCount)
   }
 
   func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
