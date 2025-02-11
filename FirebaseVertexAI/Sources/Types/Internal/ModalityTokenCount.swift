@@ -12,50 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 /// Represents token counting info for a single modality.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModalityTokenCount: Sendable {
+struct ModalityTokenCount: Sendable {
   /// The modality associated with this token count.
-  public let modality: ContentModality
+  let modality: ContentModality
 
   /// The number of tokens counted.
-  public let tokenCount: Int
+  let tokenCount: Int
 }
 
-/// Content part modality.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ContentModality: DecodableProtoEnum, Hashable, Sendable {
-  enum Kind: String {
-    case text = "TEXT"
-    case image = "IMAGE"
-    case video = "VIDEO"
-    case audio = "AUDIO"
-    case document = "DOCUMENT"
+extension [ModalityTokenCount] {
+  func asModalityTokenDetails() -> [ContentModality: ModalityTokenDetails] {
+    var modalityTokenDetails = [ContentModality: ModalityTokenDetails]()
+    for modalityTokenCount in self {
+      modalityTokenDetails[modalityTokenCount.modality] =
+        ModalityTokenDetails(tokenCount: modalityTokenCount.tokenCount)
+    }
+
+    return modalityTokenDetails
   }
-
-  /// Plain text.
-  public static let text = ContentModality(kind: .text)
-
-  /// Image.
-  public static let image = ContentModality(kind: .image)
-
-  /// Video.
-  public static let video = ContentModality(kind: .video)
-
-  /// Audio.
-  public static let audio = ContentModality(kind: .audio)
-
-  /// Document, e.g. PDF.
-  public static let document = ContentModality(kind: .document)
-
-  /// Returns the raw string representation of the `ContentModality` value.
-  public let rawValue: String
-
-  static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedContentModality
 }
+
+// MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModalityTokenCount: Decodable {}

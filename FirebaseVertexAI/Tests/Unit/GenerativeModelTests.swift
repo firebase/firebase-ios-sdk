@@ -141,10 +141,17 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(response.usageMetadata?.promptTokensDetails?[0].modality, .image)
-    XCTAssertEqual(response.usageMetadata?.promptTokensDetails?[0].tokenCount, 1806)
-    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails?[0].modality, .text)
-    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails?[0].tokenCount, 76)
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[.text]?.tokenCount, 76)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[.image]?.tokenCount, 1806)
+    XCTAssertNil(usageMetadata.promptTokensDetails[.audio])
+    XCTAssertNil(usageMetadata.promptTokensDetails[.video])
+    XCTAssertNil(usageMetadata.promptTokensDetails[.document])
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails[.text]?.tokenCount, 76)
+    XCTAssertNil(usageMetadata.candidatesTokensDetails[.image])
+    XCTAssertNil(usageMetadata.candidatesTokensDetails[.audio])
+    XCTAssertNil(usageMetadata.candidatesTokensDetails[.video])
+    XCTAssertNil(usageMetadata.candidatesTokensDetails[.document])
   }
 
   func testGenerateContent_success_citations() async throws {
@@ -1355,10 +1362,11 @@ final class GenerativeModelTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 1837)
     XCTAssertEqual(response.totalBillableCharacters, 117)
-    XCTAssertEqual(response
-      .promptTokensDetails?[0].modality, ContentModality.image)
-    XCTAssertEqual(response
-      .promptTokensDetails?[0].tokenCount, 1806)
+    XCTAssertEqual(response.promptTokensDetails[.text]?.tokenCount, 31)
+    XCTAssertEqual(response.promptTokensDetails[.image]?.tokenCount, 1806)
+    XCTAssertNil(response.promptTokensDetails[.audio])
+    XCTAssertNil(response.promptTokensDetails[.video])
+    XCTAssertNil(response.promptTokensDetails[.document])
   }
 
   func testCountTokens_succeeds_allOptions() async throws {

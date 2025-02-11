@@ -48,7 +48,7 @@ public struct CountTokensResponse {
   public let totalBillableCharacters: Int?
 
   /// The breakdown, by modality, of how many tokens are consumed by the prompt.
-  public let promptTokensDetails: [ModalityTokenCount]?
+  public let promptTokensDetails: [ContentModality: ModalityTokenDetails]
 }
 
 // MARK: - Codable Conformances
@@ -64,4 +64,23 @@ extension CountTokensRequest: Encodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CountTokensResponse: Decodable {}
+extension CountTokensResponse: Decodable {
+  enum CodingKeys: CodingKey {
+    case totalTokens
+    case totalBillableCharacters
+    case promptTokensDetails
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens) ?? 0
+    totalBillableCharacters = try container.decodeIfPresent(
+      Int.self,
+      forKey: .totalBillableCharacters
+    )
+
+    let promptModalityTokenCounts = try container
+      .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
+    promptTokensDetails = promptModalityTokenCounts.asModalityTokenDetails()
+  }
+}

@@ -30,10 +30,10 @@ public struct GenerateContentResponse: Sendable {
     public let totalTokenCount: Int
 
     /// The breakdown, by modality, of how many tokens are consumed by the prompt
-    public let promptTokensDetails: [ModalityTokenCount]?
+    public let promptTokensDetails: [ContentModality: ModalityTokenDetails]
 
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
-    public let candidatesTokensDetails: [ModalityTokenCount]?
+    public let candidatesTokensDetails: [ContentModality: ModalityTokenDetails]
   }
 
   /// A list of candidate response content, ordered from best to worst.
@@ -315,10 +315,14 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     candidatesTokenCount = try container
       .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
-    promptTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails)
-    candidatesTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .candidatesTokensDetails)
+
+    let promptModalityTokenCounts = try container
+      .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
+    promptTokensDetails = promptModalityTokenCounts.asModalityTokenDetails()
+
+    let candidatesModalityTokenCounts = try container
+      .decodeIfPresent([ModalityTokenCount].self, forKey: .candidatesTokensDetails) ?? []
+    candidatesTokensDetails = candidatesModalityTokenCounts.asModalityTokenDetails()
   }
 }
 
