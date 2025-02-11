@@ -141,10 +141,10 @@ final class GenerativeModelTests: XCTestCase {
     let candidate = try XCTUnwrap(response.candidates.first)
     let finishReason = try XCTUnwrap(candidate.finishReason)
     XCTAssertEqual(finishReason, .stop)
-    XCTAssertEqual(response.usageMetadata?.promptTokensDetails?[0].modality, .image)
-    XCTAssertEqual(response.usageMetadata?.promptTokensDetails?[0].tokenCount, 1806)
-    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails?[0].modality, .text)
-    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails?[0].tokenCount, 76)
+    XCTAssertEqual(response.usageMetadata?.promptTokensDetails[0].modality, .image)
+    XCTAssertEqual(response.usageMetadata?.promptTokensDetails[0].tokenCount, 1806)
+    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails[0].modality, .text)
+    XCTAssertEqual(response.usageMetadata?.candidatesTokensDetails[0].tokenCount, 76)
   }
 
   func testGenerateContent_success_citations() async throws {
@@ -507,6 +507,8 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(usageMetadata.promptTokenCount, 6)
     XCTAssertEqual(usageMetadata.candidatesTokenCount, 7)
     XCTAssertEqual(usageMetadata.totalTokenCount, 13)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.isEmpty, true)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails.isEmpty, true)
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {
@@ -1356,9 +1358,9 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.totalTokens, 1837)
     XCTAssertEqual(response.totalBillableCharacters, 117)
     XCTAssertEqual(response
-      .promptTokensDetails?[0].modality, ContentModality.image)
+      .promptTokensDetails[0].modality, ContentModality.image)
     XCTAssertEqual(response
-      .promptTokensDetails?[0].tokenCount, 1806)
+      .promptTokensDetails[0].tokenCount, 1806)
   }
 
   func testCountTokens_succeeds_allOptions() async throws {

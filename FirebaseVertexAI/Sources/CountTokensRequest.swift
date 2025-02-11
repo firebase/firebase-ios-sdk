@@ -48,7 +48,7 @@ public struct CountTokensResponse {
   public let totalBillableCharacters: Int?
 
   /// The breakdown, by modality, of how many tokens are consumed by the prompt.
-  public let promptTokensDetails: [ModalityTokenCount]?
+  public let promptTokensDetails: [ModalityTokenCount]
 }
 
 // MARK: - Codable Conformances
