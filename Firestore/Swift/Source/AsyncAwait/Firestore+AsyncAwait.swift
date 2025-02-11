@@ -117,7 +117,7 @@ public extension Firestore {
     }
   }
 
-  func pipeline() -> PipelineSource {
+  func pipeline() -> PipelineSource<Pipeline> {
     return PipelineSource(firebase.firestore.api.FirestorePipeline.pipeline(cppFirestorePtr))
   }
 }

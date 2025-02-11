@@ -19,7 +19,7 @@ import FirebaseFirestore
 
 final class PipelineTests: FSTIntegrationTestCase {
   func testCreatePipeline() async throws {
-    let pipelineSource: PipelineSource = db.pipeline()
+    let pipelineSource: PipelineSource<Pipeline> = db.pipeline()
 
     let pipeline: Pipeline = pipelineSource.documents(
       [db.collection("foo").document("bar"), db.document("foo/baz")]

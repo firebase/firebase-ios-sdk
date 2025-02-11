@@ -17,37 +17,69 @@
 #endif
 import Foundation
 
+public protocol PipelineType {}
+
+public struct RealtimePipeline: PipelineType {
+  let cppObj: firebase.firestore.api.Pipeline
+
+  init(_ cppSource: firebase.firestore.api.Pipeline) {
+    cppObj = cppSource
+  }
+}
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSource {
+public struct PipelineSource<T: PipelineType> {
   let cppObj: firebase.firestore.api.PipelineSource
 
-  public init(_ cppSource: firebase.firestore.api.PipelineSource) {
+  init(_ cppSource: firebase.firestore.api.PipelineSource) {
     cppObj = cppSource
   }
 
-  public func collection(_ path: String) -> Pipeline {
-    return Pipeline(cppObj.GetCollection(std.string(path)))
+  public func collection(_ path: String) -> T {
+    if T.self == Pipeline.self {
+      return Pipeline(cppObj.GetCollection(std.string(path))) as! T
+    } else {
+      return RealtimePipeline(cppObj.GetCollection(std.string(path))) as! T
+    }
   }
 
-  public func collectionGroup(_ collectionId: String) -> Pipeline {
-    return Pipeline(cppObj
-      .GetCollectionGroup(std.string(collectionId))) // Corrected: Use collectionId
+  public func collectionGroup(_ collectionId: String) -> T {
+    if T.self == Pipeline.self {
+      return Pipeline(cppObj.GetCollectionGroup(std.string(collectionId))) as! T
+    } else {
+      return RealtimePipeline(cppObj.GetCollectionGroup(std.string(collectionId))) as! T
+    }
   }
 
-  public func database() -> Pipeline {
-    return Pipeline(cppObj.GetDatabase())
+  public func database() -> T {
+    if T.self == Pipeline.self {
+      return Pipeline(cppObj.GetDatabase()) as! T
+    } else {
+      return RealtimePipeline(cppObj.GetDatabase()) as! T
+    }
   }
 
-  public func documents<documentReference: DocumentReference>(_ docs: [documentReference])
-    -> Pipeline {
-    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+  public func documents<documentReference: DocumentReference>(_ docs: [documentReference]) -> T {
+    if T.self == Pipeline.self {
+      return Pipeline(cppObj.GetDatabase()) as! T // PLACEHOLDER
+    } else {
+      return RealtimePipeline(cppObj.GetDatabase()) as! T // PLACEHOLDER
+    }
   }
 
-  public func createFrom(_ query: Query) -> Pipeline {
-    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+  public func createFrom(_ query: Query) -> T {
+    if T.self == Pipeline.self {
+      return Pipeline(cppObj.GetDatabase()) as! T // PLACEHOLDER
+    } else {
+      return RealtimePipeline(cppObj.GetDatabase()) as! T // PLACEHOLDER
+    }
   }
 
-  public func createFrom(_ aggregateQuery: AggregateQuery) -> Pipeline {
-    return Pipeline(cppObj.GetDatabase()) // PLACEHOLDER
+  public func createFrom(_ aggregateQuery: AggregateQuery) -> T {
+    if T.self == Pipeline.self {
+      return Pipeline(cppObj.GetDatabase()) as! T // PLACEHOLDER
+    } else {
+      return RealtimePipeline(cppObj.GetDatabase()) as! T // PLACEHOLDER
+    }
   }
 }

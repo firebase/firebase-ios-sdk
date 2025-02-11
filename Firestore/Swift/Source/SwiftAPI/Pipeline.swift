@@ -21,10 +21,10 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct Pipeline {
+public struct Pipeline: PipelineType {
   let cppObj: firebase.firestore.api.Pipeline
 
-  public init(_ cppSource: firebase.firestore.api.Pipeline) {
+  init(_ cppSource: firebase.firestore.api.Pipeline) {
     cppObj = cppSource
   }
 
