@@ -68,12 +68,27 @@ final class IntegrationTests: XCTestCase {
   // MARK: - Generate Content
 
   func testGenerateContent() async throws {
+    let expectedPromptTokenCount = 21
+    let expectedCandidatesTokenCount = 4
+    let expectedTotalTokenCount = 25
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
     let response = try await model.generateContent(prompt)
 
     let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     XCTAssertEqual(text, "Mountain View")
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokenCount, expectedPromptTokenCount)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, expectedCandidatesTokenCount)
+    XCTAssertEqual(usageMetadata.totalTokenCount, expectedTotalTokenCount)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(usageMetadata.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, expectedPromptTokenCount)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails.count, 1)
+    let candidatesTokensDetails = try XCTUnwrap(usageMetadata.candidatesTokensDetails.first)
+    XCTAssertEqual(candidatesTokensDetails.modality, .text)
+    XCTAssertEqual(candidatesTokensDetails.tokenCount, expectedCandidatesTokenCount)
   }
 
   func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
@@ -113,6 +128,10 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 14)
     XCTAssertEqual(response.totalBillableCharacters, 51)
+    XCTAssertEqual(response.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, 14)
   }
 
   #if canImport(UIKit)
@@ -126,6 +145,15 @@ final class IntegrationTests: XCTestCase {
 
       XCTAssertEqual(response.totalTokens, 266)
       XCTAssertEqual(response.totalBillableCharacters, 35)
+      XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
+      let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
+        $0.modality == .text
+      }) // System instruction
+      XCTAssertEqual(textPromptTokensDetails.tokenCount, 8)
+      let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
+        $0.modality == .image
+      })
+      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
     }
   #endif // canImport(UIKit)
 
@@ -137,6 +165,15 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 266)
     XCTAssertEqual(response.totalBillableCharacters, 35)
+    XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
+    let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
+      $0.modality == .text
+    }) // System instruction
+    XCTAssertEqual(textPromptTokensDetails.tokenCount, 8)
+    let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
+      $0.modality == .image
+    })
+    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
   }
 
   func testCountTokens_image_fileData_requiresAuth_signedIn() async throws {
@@ -199,6 +236,10 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 24)
     XCTAssertEqual(response.totalBillableCharacters, 71)
+    XCTAssertEqual(response.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, 24)
   }
 
   func testCountTokens_jsonSchema() async throws {
@@ -220,6 +261,10 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 58)
     XCTAssertEqual(response.totalBillableCharacters, 160)
+    XCTAssertEqual(response.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, 58)
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
