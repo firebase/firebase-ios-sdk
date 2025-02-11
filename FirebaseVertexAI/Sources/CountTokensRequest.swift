@@ -64,4 +64,19 @@ extension CountTokensRequest: Encodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CountTokensResponse: Decodable {}
+extension CountTokensResponse: Decodable {
+  enum CodingKeys: CodingKey {
+    case totalTokens
+    case totalBillableCharacters
+    case promptTokensDetails
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens) ?? 0
+    totalBillableCharacters =
+      try container.decodeIfPresent(Int.self, forKey: .totalBillableCharacters)
+    promptTokensDetails =
+      try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
+  }
+}

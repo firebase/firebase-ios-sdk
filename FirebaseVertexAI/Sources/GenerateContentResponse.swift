@@ -312,15 +312,15 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
-    candidatesTokenCount = try container
-      .decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    candidatesTokenCount =
+      try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
-    promptTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ??
-      [ModalityTokenCount]()
-    candidatesTokensDetails = try container
-      .decodeIfPresent([ModalityTokenCount].self, forKey: .candidatesTokensDetails) ??
-      [ModalityTokenCount]()
+    promptTokensDetails =
+      try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
+    candidatesTokensDetails = try container.decodeIfPresent(
+      [ModalityTokenCount].self,
+      forKey: .candidatesTokensDetails
+    ) ?? []
   }
 }
 
