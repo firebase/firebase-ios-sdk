@@ -1,0 +1,4 @@
+Placeholder file for Package.swift - required to prevent a warning.
+
+It should be replaced before running the FirebaseVertexAI unit tests by
+running `scripts/update_vertexai_responses.sh`.
