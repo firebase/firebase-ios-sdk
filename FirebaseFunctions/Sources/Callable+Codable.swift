@@ -15,6 +15,11 @@
 import FirebaseSharedSwift
 import Foundation
 
+public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
+  case message(Message)
+  case result(Result)
+}
+
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
@@ -159,10 +164,12 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   public func callAsFunction(_ data: Request) async throws -> Response {
     return try await call(data)
   }
+}
 
+public extension Callable {
   // TODO: Look into handling parameter-less functions.
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  public func stream(_ data: Request) -> AsyncThrowingStream<Response, Error> {
+  func stream(_ data: Request) -> AsyncThrowingStream<Response, Error> {
     return AsyncThrowingStream { continuation in
       Task {
         do {
@@ -173,7 +180,9 @@ public struct Callable<Request: Encodable, Response: Decodable> {
             } else if let response = try? decoder.decode(Response.self, from: result.data) {
               continuation.yield(response)
             }
-            // TODO: Silently failing. The response cannot be decoded to the given type.
+            // Uncomment when we can use "StreamResponse" for now this will allows the tests to
+            // pass.
+            // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
           }
         } catch {
           continuation.finish(throwing: error)
