@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Mark internal `fetchSession` property as `atomic` to prevent a concurrency
+  related crash. (#14449)
+
 # 11.8.0
 - [fixed] Mark completion handlers as Sendable in RemoteConfig class.
   Some completions handlers were missed in the 11.7.0 update. (#14257)
