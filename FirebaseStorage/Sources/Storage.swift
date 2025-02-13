@@ -72,6 +72,19 @@ import FirebaseCore
     return storage(app: app, bucket: Storage.bucket(for: app, urlString: url))
   }
 
+  /// Creates an instance of `Storage`, configured with a custom `FirebaseApp` and a custom storage
+  /// bucket URL.
+  /// - Parameters:
+  ///   - app: The custom `FirebaseApp` used for initialization.
+  ///   - url: The `gs://` url to your Firebase Storage bucket.
+  /// - Returns: The `Storage` instance, configured with the custom `FirebaseApp` and storage bucket
+  /// URL.
+  open class func storage(app: FirebaseApp, emulatorSettings: (host: String, port: Int)) -> Storage {
+    return InstanceCache.shared.storage(app: app,
+                                        bucket: Storage.bucket(for: app),
+                                        emulatorSettings: emulatorSettings)
+  }
+
   private class func storage(app: FirebaseApp, bucket: String) -> Storage {
     return InstanceCache.shared.storage(app: app, bucket: bucket)
   }
@@ -115,8 +128,7 @@ import FirebaseCore
   /// Creates a `StorageReference` initialized at the root Firebase Storage location.
   /// - Returns: An instance of `StorageReference` referencing the root of the storage bucket.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc open func reference() -> StorageReference {
-    configured = true
+  @objc open func reference() -> sending StorageReference {
     let path = StoragePath(with: storageBucket)
     return StorageReference(storage: self, path: path)
   }
@@ -132,8 +144,7 @@ import FirebaseCore
   /// - Throws: Throws a fatal error if `url` is not associated with the `FirebaseApp` used to
   /// initialize this Storage instance.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc open func reference(forURL url: String) -> StorageReference {
-    configured = true
+  @objc open func reference(forURL url: String) -> sending StorageReference {
     do {
       let path = try StoragePath.path(string: url)
 
@@ -164,8 +175,7 @@ import FirebaseCore
   /// - Returns: An instance of StorageReference at the given child path.
   /// - Throws: Throws an Error if `url` is not associated with the `FirebaseApp` used to initialize
   ///     this Storage instance.
-  open func reference(for url: URL) throws -> StorageReference {
-    configured = true
+  open func reference(for url: URL) throws -> sending StorageReference {
     var path: StoragePath
     do {
       path = try StoragePath.path(string: url.absoluteString)
@@ -192,7 +202,7 @@ import FirebaseCore
   /// - Parameter path: A relative path from the root of the storage bucket,
   ///     for instance @"path/to/object".
   /// - Returns: An instance of `StorageReference` pointing to the given path.
-  @objc(referenceWithPath:) open func reference(withPath path: String) -> StorageReference {
+  @objc(referenceWithPath:) open func reference(withPath path: String) -> sending StorageReference {
     return reference().child(path)
   }
 
@@ -201,23 +211,9 @@ import FirebaseCore
   /// This method should be called before invoking any other methods on a new instance of `Storage`.
   /// - Parameter host: A string specifying the host.
   /// - Parameter port: The port specified as an `Int`.
-
+  @available(*, deprecated, message: "Use class method storage(app:emulatorSettings:) instead.")
   @objc open func useEmulator(withHost host: String, port: Int) {
-    guard host.count > 0 else {
-      fatalError("Invalid host argument: Cannot connect to empty host.")
-    }
-    guard port >= 0 else {
-      fatalError("Invalid port argument: Port must be greater or equal to zero.")
-    }
-    guard configured == false else {
-      fatalError("Cannot connect to emulator after Storage SDK initialization. " +
-        "Call useEmulator(host:port:) before creating a Storage " +
-        "reference or trying to load data.")
-    }
-    usesEmulator = true
-    scheme = "http"
-    self.host = host
-    self.port = port
+    fatalError("Use class method storage(app:emulatorSettings:) instead.")
   }
 
   // MARK: - NSObject overrides
@@ -253,14 +249,18 @@ import FirebaseCore
 
     private init() {}
 
-    func storage(app: FirebaseApp, bucket: String) -> Storage {
+    func storage(app: FirebaseApp, bucket: String, emulatorSettings: (host: String, port: Int)? = nil) -> Storage {
       os_unfair_lock_lock(&instancesLock)
       defer { os_unfair_lock_unlock(&instancesLock) }
 
       if let instance = instances[bucket] {
         return instance
       }
-      let newInstance = FirebaseStorage.Storage(app: app, bucket: bucket)
+      let newInstance = FirebaseStorage.Storage(
+        app: app,
+        bucket: bucket,
+        emulatorSettings: emulatorSettings
+      )
       instances[bucket] = newInstance
       return newInstance
     }
@@ -268,7 +268,7 @@ import FirebaseCore
 
   let dispatchQueue: DispatchQueue
 
-  init(app: FirebaseApp, bucket: String) {
+  init(app: FirebaseApp, bucket: String, emulatorSettings: (host: String, port: Int)? = nil) {
     self.app = app
     auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self,
                                                in: app.container)
@@ -286,15 +286,21 @@ import FirebaseCore
     maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
     maxUploadRetryTime = 600.0
     maxUploadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxUploadRetryTime)
+    if let settings = emulatorSettings {
+      guard settings.host.count > 0 else {
+        fatalError("Invalid host argument: Cannot connect to empty host.")
+      }
+      guard settings.port >= 0 else {
+        fatalError("Invalid port argument: Port must be greater or equal to zero.")
+      }
+      host = settings.host
+      port = settings.port
+    }
   }
 
   let auth: AuthInterop?
   let appCheck: AppCheckInterop?
   let storageBucket: String
-  var usesEmulator = false
-
-  /// Once `configured` is true, the emulator can no longer be enabled.
-  var configured = false
 
   var host: String
   var scheme: String
