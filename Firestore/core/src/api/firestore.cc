@@ -227,6 +227,11 @@ void Firestore::SetClientLanguage(std::string language_token) {
   GrpcConnection::SetClientLanguage(std::move(language_token));
 }
 
+PipelineSource Firestore::pipeline() {
+  EnsureClientConfigured();
+  return PipelineSource(shared_from_this());
+}
+
 std::unique_ptr<ListenerRegistration> Firestore::AddSnapshotsInSyncListener(
     std::unique_ptr<core::EventListener<Empty>> listener) {
   EnsureClientConfigured();

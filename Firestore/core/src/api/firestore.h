@@ -21,6 +21,7 @@
 #include <mutex>
 #include <string>
 
+#include "Firestore/core/interfaceForSwift/api/PipelineSource.h"
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
 #include "Firestore/core/src/api/settings.h"
@@ -124,6 +125,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
    * "gl-<language>/<version>" where version might be blank, e.g. `gl-objc/`.
    */
   static void SetClientLanguage(std::string language_token);
+
+  PipelineSource pipeline();
 
  private:
   void EnsureClientConfigured();

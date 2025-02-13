@@ -59,6 +59,7 @@ for internal testing only. It should not be published.
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'SWIFT_OBJC_INTEROP_MODE' => 'objcxx',
   }
 
   s.test_spec 'unit' do |unit_tests|
@@ -81,7 +82,8 @@ for internal testing only. It should not be published.
     unit_tests.exclude_files = 'FirebaseCombineSwift/Tests/Unit/**/*Template.swift'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
-      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h'
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h',
+      'SWIFT_OBJC_INTEROP_MODE' => 'objcxx',
     }
     unit_tests.dependency 'OCMock'
     unit_tests.dependency 'FirebaseAuthTestingSupport'

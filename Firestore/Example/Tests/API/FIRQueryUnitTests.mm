@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQueryUnitTests
 
 - (void)testEquals {
-  std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
+  std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().cppFirestorePtr;
   FIRQuery *queryFoo = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore];
   FIRQuery *queryFooDup = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore];
   FIRQuery *queryBar = [[FIRQuery alloc] initWithQuery:Query("bar") firestore:firestore];
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testFilteringWithPredicate {
-  std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
+  std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().cppFirestorePtr;
   FIRQuery *query = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
   FIRQuery *query2 = [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f<=1"]];

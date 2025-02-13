@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAggregateQueryUnitTests
 
 - (void)testEquals {
-  std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
+  std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().cppFirestorePtr;
   FIRAggregateQuery *queryFoo =
       [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore].count;
   FIRAggregateQuery *queryFooDup =
