@@ -71,7 +71,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.7'
+        python-version: '3.11'
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-nightly.plist.gpg \

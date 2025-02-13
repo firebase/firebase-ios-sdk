@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/api/document_reference.h"
 
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 
 #include "Firestore/core/src/api/collection_reference.h"
