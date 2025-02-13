@@ -358,12 +358,12 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (BOOL)onDemandThreadSuspensionEnabled {
-  NSNumber *value = self.settingsDictionary[@"on_demand_thread_suspension_enabled"];
+  NSNumber *value = self.settingsDictionary[@"on_demand_thread_recording_suspension_enabled"];
 
   if (value != nil) {
     return value.boolValue;
   }
 
-  return NO;
+  return YES;
 }
 @end
