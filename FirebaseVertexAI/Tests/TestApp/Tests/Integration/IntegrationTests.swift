@@ -33,8 +33,8 @@ final class IntegrationTests: XCTestCase {
     parts: "You are a friendly and helpful assistant."
   )
   let safetySettings = [
-    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .probability),
-    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove, method: .severity),
+    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),

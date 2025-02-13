@@ -196,6 +196,6 @@ public class VertexAI {
       """)
     }
 
-    return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
+    return "models/\(modelName)"
   }
 }
