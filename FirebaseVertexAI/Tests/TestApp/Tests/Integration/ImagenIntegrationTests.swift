@@ -23,6 +23,9 @@ import VertexAITestApp
   import UIKit
 #endif // canImport(UIKit)
 
+// TODO(#14452): Remove `@testable import` when `generateImages(prompt:gcsURI:)` is public.
+@testable import class FirebaseVertexAI.ImagenModel
+
 @Suite(
   .enabled(
     if: ProcessInfo.processInfo.environment["VTXIntegrationImagen"] != nil,
