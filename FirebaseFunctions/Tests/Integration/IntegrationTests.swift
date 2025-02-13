@@ -1016,7 +1016,7 @@ class IntegrationTests: XCTestCase {
      
       let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
       let stream =  callable.stream("genStream")
-      
+      //Todo fetch actual content.
       for try await response in stream {
           switch response {
           case .message(let message):
