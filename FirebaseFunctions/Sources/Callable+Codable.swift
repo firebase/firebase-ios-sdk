@@ -15,6 +15,7 @@
 import FirebaseSharedSwift
 import Foundation
 
+@available(macOS 12.0, iOS 15.0, tvOS 8.0,*)
 public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
   case message(Message)
   case result(Result)
