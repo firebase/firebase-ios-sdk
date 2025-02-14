@@ -78,6 +78,9 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
     } else {
       self.filteredReason = filteredReason
     }
-    // TODO(#14221): Throw `ImagenImagesBlockedError` with `filteredReason` if `images` is empty.
+
+    guard !images.isEmpty else {
+      throw ImagenImagesBlockedError(message: filteredReason)
+    }
   }
 }
