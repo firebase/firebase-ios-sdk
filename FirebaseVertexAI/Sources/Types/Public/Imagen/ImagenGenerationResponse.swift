@@ -73,12 +73,15 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
 
     self.images = images
     let filteredReason = filteredReasons.joined(separator: "\n")
-    if filteredReason.isEmpty {
-      self.filteredReason = nil
-    } else {
-      self.filteredReason = filteredReason
-    }
+    self.filteredReason = filteredReason.isEmpty ? nil : filteredReason
 
+    guard !images.isEmpty || !filteredReasons.isEmpty else {
+      throw DecodingError.dataCorruptedError(
+        forKey: .predictions,
+        in: container,
+        debugDescription: "No images or filtered reasons in response."
+      )
+    }
     guard !images.isEmpty else {
       throw ImagenImagesBlockedError(message: filteredReason)
     }
