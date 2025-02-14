@@ -60,8 +60,11 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
         images.append(image)
       } else if let filteredReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
         filteredReasons.append(filteredReason.raiFilteredReason)
-      } else if let _ = try? predictionsContainer.decode(JSONObject.self) {
-        // TODO(#14221): Log unsupported prediction type message with the decoded `JSONObject`.
+      } else if let unsupportedPrediction = try? predictionsContainer.decode(JSONObject.self) {
+        VertexLog.warning(
+          code: .decodedUnsupportedImagenPredictionType,
+          "Ignoring unsupported Imagen prediction: \(unsupportedPrediction)"
+        )
       } else {
         // This should never be thrown since JSONObject accepts any valid JSON.
         throw DecodingError.dataCorruptedError(
