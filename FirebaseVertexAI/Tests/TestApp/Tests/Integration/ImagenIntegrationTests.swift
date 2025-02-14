@@ -134,7 +134,7 @@ struct ImagenIntegrationTests {
       try await model.generateImages(prompt: imagePrompt)
     } throws: {
       let error = try #require($0 as? ImagenImagesBlockedError)
-      #expect(error.errorCode == 1000)  // Constants.Imagen.ErrorCode.imagesBlocked
+      #expect(error.errorCode == 1000) // Constants.Imagen.ErrorCode.imagesBlocked
       // 39322892: Detected a person or face when it isn't allowed due to request safety settings.
       return error.localizedDescription.contains("39322892")
     }
