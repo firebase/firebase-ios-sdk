@@ -136,6 +136,18 @@ public class VertexAI {
     )
   }
 
+  public func multimodalLiveModel(modelName: String = "gemini-2.0-flash-001",
+                                  generationConfig: GenerationConfig =
+                                    GenerationConfig(responseModalities: ["TEXT"]))
+    -> MultimodalLiveModel {
+    return MultimodalLiveModel(
+      modelName: modelName,
+      projectID: projectID,
+      apiKey: apiKey,
+      location: location
+    )
+  }
+
   /// Class to enable VertexAI to register via the Objective-C based Firebase component system
   /// to include VertexAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
