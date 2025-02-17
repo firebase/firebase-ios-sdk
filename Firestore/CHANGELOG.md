@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
+
 # 11.8.0
 - [fixed] Fixed use-after-free bug when internally formatting strings. (#14306)
 - [changed] Update gRPC dependency to 1.69.

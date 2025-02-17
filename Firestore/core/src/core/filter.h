@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_FILTER_H_
 #define FIRESTORE_CORE_SRC_CORE_FILTER_H_
 
+#include <functional>
 #include <iosfwd>
 #include <memory>
 #include <string>
@@ -114,7 +115,7 @@ class Filter {
  protected:
   class Rep {
    public:
-    Rep();
+    Rep() = default;
 
     virtual ~Rep() = default;
 
@@ -147,20 +148,23 @@ class Filter {
 
     virtual bool IsEmpty() const = 0;
 
-    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
+    virtual const std::vector<FieldFilter>& GetFlattenedFilters() const {
+      const auto func = std::bind(&Rep::CalculateFlattenedFilters, this);
+      return memoized_flattened_filters_.value(func);
+    }
 
     virtual std::vector<Filter> GetFilters() const = 0;
 
+   protected:
+    virtual std::shared_ptr<std::vector<FieldFilter>>
+    CalculateFlattenedFilters() const = 0;
+
+   private:
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
-     *
-     * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
-     * `ThreadSafeMemoizer` directly so that this class is copyable
-     * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-     * member variable, which is not copyable).
      */
-    mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<FieldFilter>>>
+    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>>
         memoized_flattened_filters_;
   };
 
