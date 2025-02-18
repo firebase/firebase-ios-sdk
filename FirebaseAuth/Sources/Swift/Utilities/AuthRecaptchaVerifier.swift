@@ -72,6 +72,30 @@ class AuthRecaptchaVerifier {
   private var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
   private var recaptchaClient: RCARecaptchaClientProtocol?
   private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
+  
+  private func siteKey() -> String? {
+    if let tenantID = auth?.tenantID {
+      if let config = tenantConfigs[tenantID] {
+        return config.siteKey
+      }
+      return nil
+    }
+    return agentConfig?.siteKey
+  }
+
+  func enablementStatus(forProvider provider: AuthRecaptchaProvider)
+    -> AuthRecaptchaEnablementStatus {
+    if let tenantID = auth?.tenantID,
+       let tenantConfig = tenantConfigs[tenantID],
+       let status = tenantConfig.enablementStatus[provider] {
+      return status
+    } else if let agentConfig = agentConfig,
+              let status = agentConfig.enablementStatus[provider] {
+      return status
+    } else {
+      return AuthRecaptchaEnablementStatus.off
+    }
+  }
 
   func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
     try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
@@ -109,63 +133,6 @@ class AuthRecaptchaVerifier {
       }
       return token
     #endif // !(COCOAPODS || SWIFT_PACKAGE)
-  }
-
-  func enablementStatus(forProvider provider: AuthRecaptchaProvider)
-    -> AuthRecaptchaEnablementStatus {
-    if let tenantID = auth?.tenantID,
-       let tenantConfig = tenantConfigs[tenantID],
-       let status = tenantConfig.enablementStatus[provider] {
-      return status
-    } else if let agentConfig = agentConfig,
-              let status = agentConfig.enablementStatus[provider] {
-      return status
-    } else {
-      return AuthRecaptchaEnablementStatus.off
-    }
-  }
-
-  func retrieveRecaptchaConfig(forceRefresh: Bool) async throws {
-    if !forceRefresh {
-      if let tenantID = auth?.tenantID {
-        if tenantConfigs[tenantID] != nil {
-          return
-        }
-      } else if agentConfig != nil {
-        return
-      }
-    }
-
-    guard let auth = auth else {
-      throw AuthErrorUtils.error(code: .recaptchaNotEnabled,
-                                 message: "No requestConfiguration for Auth instance")
-    }
-    let request = GetRecaptchaConfigRequest(requestConfiguration: auth.requestConfiguration)
-    let response = try await auth.backend.call(with: request)
-    AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
-    try await parseRecaptchaConfigFromResponse(response: response)
-  }
-
-  func injectRecaptchaFields(request: any AuthRPCRequest,
-                             provider: AuthRecaptchaProvider,
-                             action: AuthRecaptchaAction) async throws {
-    try await retrieveRecaptchaConfig(forceRefresh: false)
-    if enablementStatus(forProvider: provider) != .off {
-      let token = try await verify(forceRefresh: false, action: action)
-      request.injectRecaptchaFields(recaptchaResponse: token, recaptchaVersion: kRecaptchaVersion)
-    } else {
-      request.injectRecaptchaFields(recaptchaResponse: nil, recaptchaVersion: kRecaptchaVersion)
-    }
-  }
-
-  private func siteKey() -> String? {
-    if let tenantID = auth?.tenantID {
-      if let config = tenantConfigs[tenantID] {
-        return config.siteKey
-      }
-      return nil
-    }
-    return agentConfig?.siteKey
   }
 
   private func recaptchaToken(siteKey: String,
@@ -218,6 +185,27 @@ class AuthRecaptchaVerifier {
       return ("", nil, false, false)
     }
   }
+  
+  func retrieveRecaptchaConfig(forceRefresh: Bool) async throws {
+    if !forceRefresh {
+      if let tenantID = auth?.tenantID {
+        if tenantConfigs[tenantID] != nil {
+          return
+        }
+      } else if agentConfig != nil {
+        return
+      }
+    }
+
+    guard let auth = auth else {
+      throw AuthErrorUtils.error(code: .recaptchaNotEnabled,
+                                 message: "No requestConfiguration for Auth instance")
+    }
+    let request = GetRecaptchaConfigRequest(requestConfiguration: auth.requestConfiguration)
+    let response = try await auth.backend.call(with: request)
+    AuthLog.logInfo(code: "I-AUT000029", message: "reCAPTCHA config retrieval succeeded.")
+    try await parseRecaptchaConfigFromResponse(response: response)
+  }
 
   private func parseRecaptchaConfigFromResponse(response: GetRecaptchaConfigResponse) async throws {
     var enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus] = [:]
@@ -253,6 +241,18 @@ class AuthRecaptchaVerifier {
       tenantConfigs[tenantID] = config
     } else {
       agentConfig = config
+    }
+  }
+
+  func injectRecaptchaFields(request: any AuthRPCRequest,
+                             provider: AuthRecaptchaProvider,
+                             action: AuthRecaptchaAction) async throws {
+    try await retrieveRecaptchaConfig(forceRefresh: false)
+    if enablementStatus(forProvider: provider) != .off {
+      let token = try await verify(forceRefresh: false, action: action)
+      request.injectRecaptchaFields(recaptchaResponse: token, recaptchaVersion: kRecaptchaVersion)
+    } else {
+      request.injectRecaptchaFields(recaptchaResponse: nil, recaptchaVersion: kRecaptchaVersion)
     }
   }
 }
