@@ -1,4 +1,4 @@
-# Unreleased
+# 11.9.0
 - [fixed] Mark internal `fetchSession` property as `atomic` to prevent a concurrency
   related crash. (#14449)
 
