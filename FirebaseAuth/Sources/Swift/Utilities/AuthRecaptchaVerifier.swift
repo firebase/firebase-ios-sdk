@@ -12,69 +12,75 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// RecaptchaInterop is only available on iOS.
+import Foundation
+
+#if SWIFT_PACKAGE
+  import FirebaseAuthInternal
+#endif
+
 #if os(iOS)
-  import Foundation
-
-  #if SWIFT_PACKAGE
-    import FirebaseAuthInternal
-  #endif
-
   import RecaptchaInterop
+#endif // os(iOS)
 
-  @available(iOS 13, *)
-  class AuthRecaptchaConfig {
-    var siteKey: String?
-    let enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]
+@available(iOS 13, *)
+class AuthRecaptchaConfig {
+  var siteKey: String?
+  let enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]
 
-    init(siteKey: String? = nil,
-         enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
-      self.siteKey = siteKey
-      self.enablementStatus = enablementStatus
-    }
+  init(siteKey: String? = nil,
+       enablementStatus: [AuthRecaptchaProvider: AuthRecaptchaEnablementStatus]) {
+    self.siteKey = siteKey
+    self.enablementStatus = enablementStatus
   }
+}
 
-  @available(iOS 13, *)
-  enum AuthRecaptchaEnablementStatus: String, CaseIterable {
-    case enforce = "ENFORCE"
-    case audit = "AUDIT"
-    case off = "OFF"
+@available(iOS 13, *)
+enum AuthRecaptchaEnablementStatus: String, CaseIterable {
+  case enforce = "ENFORCE"
+  case audit = "AUDIT"
+  case off = "OFF"
 
-    // Convenience property for mapping values
-    var stringValue: String { rawValue }
-  }
+  // Convenience property for mapping values
+  var stringValue: String { rawValue }
+}
 
-  @available(iOS 13, *)
-  enum AuthRecaptchaProvider: String, CaseIterable {
-    case password = "EMAIL_PASSWORD_PROVIDER"
-    case phone = "PHONE_PROVIDER"
+@available(iOS 13, *)
+enum AuthRecaptchaProvider: String, CaseIterable {
+  case password = "EMAIL_PASSWORD_PROVIDER"
+  case phone = "PHONE_PROVIDER"
 
-    // Convenience property for mapping values
-    var stringValue: String { rawValue }
-  }
+  // Convenience property for mapping values
+  var stringValue: String { rawValue }
+}
 
-  @available(iOS 13, *)
-  enum AuthRecaptchaAction: String {
-    case defaultAction
-    case signInWithPassword
-    case getOobCode
-    case signUpPassword
-    case sendVerificationCode
-    case mfaSmsSignIn
-    case mfaSmsEnrollment
+@available(iOS 13, *)
+enum AuthRecaptchaAction: String {
+  case defaultAction
+  case signInWithPassword
+  case getOobCode
+  case signUpPassword
+  case sendVerificationCode
+  case mfaSmsSignIn
+  case mfaSmsEnrollment
 
-    // Convenience property for mapping values
-    var stringValue: String { rawValue }
-  }
+  // Convenience property for mapping values
+  var stringValue: String { rawValue }
+}
 
-  @available(iOS 13, *)
-  class AuthRecaptchaVerifier {
-    weak var auth: Auth?
-    private var agentConfig: AuthRecaptchaConfig?
-    private var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
+@available(iOS 13, *)
+class AuthRecaptchaVerifier {
+  weak var auth: Auth?
+  private var agentConfig: AuthRecaptchaConfig?
+  private var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
+  #if os(iOS)
     private var recaptchaClient: RCARecaptchaClientProtocol?
-    private let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
+  #endif // os(iOS)
+  private let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
+}
 
+#if os(iOS)
+  @available(iOS 13, *)
+  extension AuthRecaptchaVerifier {
     private func siteKey() -> String? {
       if let tenantID = auth?.tenantID {
         if let config = tenantConfigs[tenantID] {
