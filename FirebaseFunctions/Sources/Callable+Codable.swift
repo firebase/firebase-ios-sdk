@@ -17,7 +17,9 @@ import Foundation
 
 @available(macOS 12.0, iOS 15.0, tvOS 8.0,*)
 public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
+  /// The message yielded by the callable function.
   case message(Message)
+  /// The final result returned by the callable function.
   case result(Result)
 }
 
