@@ -202,8 +202,6 @@ import Foundation
         throw AuthErrorUtils.notificationNotForwardedError()
       }
 
-      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
-
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
         // If app verification is disabled for testing
