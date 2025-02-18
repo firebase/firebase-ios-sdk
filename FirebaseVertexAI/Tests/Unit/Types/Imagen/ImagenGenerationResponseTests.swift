@@ -168,13 +168,17 @@ final class ImagenGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(
-      ImagenGenerationResponse<ImagenInlineImage>.self,
-      from: jsonData
-    )
-
-    XCTAssertEqual(response.images, [])
-    XCTAssertEqual(response.filteredReason, raiFilteredReason)
+    do {
+      let response = try decoder.decode(
+        ImagenGenerationResponse<ImagenGCSImage>.self,
+        from: jsonData
+      )
+      XCTFail("Expected a ImagenImagesBlockedError, got response: \(response)")
+    } catch let error as ImagenImagesBlockedError {
+      XCTAssertEqual(error.message, raiFilteredReason)
+    } catch {
+      XCTFail("Expected an ImagenImagesBlockedError, got error: \(error)")
+    }
   }
 
   func testDecodeResponse_noImagesAnd_noFilteredReason() throws {
@@ -211,13 +215,17 @@ final class ImagenGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(
-      ImagenGenerationResponse<ImagenGCSImage>.self,
-      from: jsonData
-    )
-
-    XCTAssertEqual(response.images, [])
-    XCTAssertEqual(response.filteredReason, "\(raiFilteredReason1)\n\(raiFilteredReason2)")
+    do {
+      let response = try decoder.decode(
+        ImagenGenerationResponse<ImagenGCSImage>.self,
+        from: jsonData
+      )
+      XCTFail("Expected an ImagenImagesBlockedError, got response: \(response)")
+    } catch let error as ImagenImagesBlockedError {
+      XCTAssertEqual(error.message, "\(raiFilteredReason1)\n\(raiFilteredReason2)")
+    } catch {
+      XCTFail("Expected an ImagenImagesBlockedError, got error: \(error)")
+    }
   }
 
   func testDecodeResponse_unknownPrediction() throws {
@@ -232,12 +240,16 @@ final class ImagenGenerationResponseTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    let response = try decoder.decode(
-      ImagenGenerationResponse<ImagenInlineImage>.self,
-      from: jsonData
-    )
-
-    XCTAssertEqual(response.images, [])
-    XCTAssertNil(response.filteredReason)
+    do {
+      let response = try decoder.decode(
+        ImagenGenerationResponse<ImagenGCSImage>.self,
+        from: jsonData
+      )
+      XCTFail("Expected a DecodingError.dataCorrupted, got response: \(response)")
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(context.debugDescription, "No images or filtered reasons in response.")
+    } catch {
+      XCTFail("Expected a DecodingError.dataCorrupted, got error: \(error)")
+    }
   }
 }
