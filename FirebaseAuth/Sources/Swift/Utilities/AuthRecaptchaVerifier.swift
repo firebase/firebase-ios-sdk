@@ -71,7 +71,7 @@ class AuthRecaptchaVerifier {
   private var agentConfig: AuthRecaptchaConfig?
   private var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
   private var recaptchaClient: RCARecaptchaClientProtocol?
-  private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
+  private let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
   
   private func siteKey() -> String? {
     if let tenantID = auth?.tenantID {
@@ -250,9 +250,9 @@ class AuthRecaptchaVerifier {
     try await retrieveRecaptchaConfig(forceRefresh: false)
     if enablementStatus(forProvider: provider) != .off {
       let token = try await verify(forceRefresh: false, action: action)
-      request.injectRecaptchaFields(recaptchaResponse: token, recaptchaVersion: kRecaptchaVersion)
+      request.injectRecaptchaFields(recaptchaResponse: token, recaptchaVersion: recaptchaVersion)
     } else {
-      request.injectRecaptchaFields(recaptchaResponse: nil, recaptchaVersion: kRecaptchaVersion)
+      request.injectRecaptchaFields(recaptchaResponse: nil, recaptchaVersion: recaptchaVersion)
     }
   }
 }
