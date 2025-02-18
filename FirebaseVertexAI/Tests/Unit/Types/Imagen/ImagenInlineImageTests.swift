@@ -77,4 +77,27 @@ final class ImagenInlineImageTests: XCTestCase {
       XCTFail("Expected a DecodingError.keyNotFound error; got \(error).")
     }
   }
+
+  func testDecodeImage_invalidBase64Data_throws() throws {
+    let bytesBase64Encoded = "not-a-base64-string"
+    let json = """
+    {
+      "bytesBase64Encoded": "\(bytesBase64Encoded)",
+      "mimeType": "image/png"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    do {
+      _ = try decoder.decode(ImagenInlineImage.self, from: jsonData)
+      XCTFail("Expected an error; none thrown.")
+    } catch let DecodingError.dataCorrupted(context) {
+      XCTAssertEqual(
+        context.debugDescription,
+        "Failed to decode data from base64-encoded string: \(bytesBase64Encoded)"
+      )
+    } catch {
+      XCTFail("Expected a DecodingError.dataCorrupted error; got \(error).")
+    }
+  }
 }

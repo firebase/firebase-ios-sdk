@@ -23,7 +23,9 @@ final class ImagenGenerationResponseTests: XCTestCase {
   func testDecodeResponse_oneBase64Image_noneFiltered() throws {
     let mimeType = "image/png"
     let bytesBase64Encoded = "dGVzdC1iYXNlNjQtZGF0YQ=="
-    let image = ImagenInlineImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded)
+    let image = try ImagenInlineImage(
+      mimeType: mimeType, data: XCTUnwrap(Data(base64Encoded: bytesBase64Encoded))
+    )
     let json = """
     {
       "predictions": [
@@ -50,9 +52,15 @@ final class ImagenGenerationResponseTests: XCTestCase {
     let bytesBase64Encoded1 = "dGVzdC1iYXNlNjQtYnl0ZXMtMQ=="
     let bytesBase64Encoded2 = "dGVzdC1iYXNlNjQtYnl0ZXMtMg=="
     let bytesBase64Encoded3 = "dGVzdC1iYXNlNjQtYnl0ZXMtMw=="
-    let image1 = ImagenInlineImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded1)
-    let image2 = ImagenInlineImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded2)
-    let image3 = ImagenInlineImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded3)
+    let image1 = try ImagenInlineImage(
+      mimeType: mimeType, data: XCTUnwrap(Data(base64Encoded: bytesBase64Encoded1))
+    )
+    let image2 = try ImagenInlineImage(
+      mimeType: mimeType, data: XCTUnwrap(Data(base64Encoded: bytesBase64Encoded2))
+    )
+    let image3 = try ImagenInlineImage(
+      mimeType: mimeType, data: XCTUnwrap(Data(base64Encoded: bytesBase64Encoded3))
+    )
     let json = """
     {
       "predictions": [
@@ -86,8 +94,12 @@ final class ImagenGenerationResponseTests: XCTestCase {
     let mimeType = "image/png"
     let bytesBase64Encoded1 = "dGVzdC1iYXNlNjQtYnl0ZXMtMQ=="
     let bytesBase64Encoded2 = "dGVzdC1iYXNlNjQtYnl0ZXMtMg=="
-    let image1 = ImagenInlineImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded1)
-    let image2 = ImagenInlineImage(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded2)
+    let image1 = try ImagenInlineImage(
+      mimeType: mimeType, data: XCTUnwrap(Data(base64Encoded: bytesBase64Encoded1))
+    )
+    let image2 = try ImagenInlineImage(
+      mimeType: mimeType, data: XCTUnwrap(Data(base64Encoded: bytesBase64Encoded2))
+    )
     let raiFilteredReason = """
     Your current safety filter threshold filtered out 2 generated images. You will not be charged \
     for blocked images. Try rephrasing the prompt. If you think this was an error, send feedback.

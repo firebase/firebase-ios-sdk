@@ -26,12 +26,8 @@ public struct ImagenInlineImage {
   /// The image data in PNG or JPEG format.
   public let data: Data
 
-  init(mimeType: String, bytesBase64Encoded: String) {
+  init(mimeType: String, data: Data) {
     self.mimeType = mimeType
-    guard let data = Data(base64Encoded: bytesBase64Encoded) else {
-      // TODO(#14221): Add error handling for invalid base64 bytes.
-      fatalError("Creating a `Data` from `bytesBase64Encoded` failed.")
-    }
     self.data = data
   }
 }
@@ -65,6 +61,13 @@ extension ImagenInlineImage: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let mimeType = try container.decode(String.self, forKey: .mimeType)
     let bytesBase64Encoded = try container.decode(String.self, forKey: .bytesBase64Encoded)
-    self.init(mimeType: mimeType, bytesBase64Encoded: bytesBase64Encoded)
+    guard let data = Data(base64Encoded: bytesBase64Encoded) else {
+      throw DecodingError.dataCorruptedError(
+        forKey: .bytesBase64Encoded,
+        in: container,
+        debugDescription: "Failed to decode data from base64-encoded string: \(bytesBase64Encoded)"
+      )
+    }
+    self.init(mimeType: mimeType, data: data)
   }
 }
