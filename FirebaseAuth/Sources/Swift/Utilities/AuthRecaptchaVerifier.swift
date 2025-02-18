@@ -72,7 +72,7 @@ class AuthRecaptchaVerifier {
   private var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
   private var recaptchaClient: RCARecaptchaClientProtocol?
   private let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
-  
+
   private func siteKey() -> String? {
     if let tenantID = auth?.tenantID {
       if let config = tenantConfigs[tenantID] {
@@ -185,7 +185,7 @@ class AuthRecaptchaVerifier {
       return ("", nil, false, false)
     }
   }
-  
+
   func retrieveRecaptchaConfig(forceRefresh: Bool) async throws {
     if !forceRefresh {
       if let tenantID = auth?.tenantID {
