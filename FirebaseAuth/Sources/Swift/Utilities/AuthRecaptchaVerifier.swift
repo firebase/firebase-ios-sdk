@@ -76,6 +76,30 @@ class AuthRecaptchaVerifier {
   #if os(iOS)
     private var recaptchaClient: RCARecaptchaClientProtocol?
 
+    private func siteKey() -> String? {
+      if let tenantID = auth?.tenantID {
+        if let config = tenantConfigs[tenantID] {
+          return config.siteKey
+        }
+        return nil
+      }
+      return agentConfig?.siteKey
+    }
+
+    func enablementStatus(forProvider provider: AuthRecaptchaProvider)
+      -> AuthRecaptchaEnablementStatus {
+      if let tenantID = auth?.tenantID,
+         let tenantConfig = tenantConfigs[tenantID],
+         let status = tenantConfig.enablementStatus[provider] {
+        return status
+      } else if let agentConfig = agentConfig,
+                let status = agentConfig.enablementStatus[provider] {
+        return status
+      } else {
+        return AuthRecaptchaEnablementStatus.off
+      }
+    }
+
     func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
       try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
       guard let siteKey = siteKey() else {
@@ -112,30 +136,6 @@ class AuthRecaptchaVerifier {
         }
         return token
       #endif // !(COCOAPODS || SWIFT_PACKAGE)
-    }
-
-    private func siteKey() -> String? {
-      if let tenantID = auth?.tenantID {
-        if let config = tenantConfigs[tenantID] {
-          return config.siteKey
-        }
-        return nil
-      }
-      return agentConfig?.siteKey
-    }
-
-    func enablementStatus(forProvider provider: AuthRecaptchaProvider)
-      -> AuthRecaptchaEnablementStatus {
-      if let tenantID = auth?.tenantID,
-         let tenantConfig = tenantConfigs[tenantID],
-         let status = tenantConfig.enablementStatus[provider] {
-        return status
-      } else if let agentConfig = agentConfig,
-                let status = agentConfig.enablementStatus[provider] {
-        return status
-      } else {
-        return AuthRecaptchaEnablementStatus.off
-      }
     }
 
     private func recaptchaToken(siteKey: String,
