@@ -1,4 +1,4 @@
-# Unreleased
+# 11.9.0
 - [fixed] Migrate FCM codebase to new NSKeyedUnarchiver APIs. (#14424).
 
 # 11.8.0

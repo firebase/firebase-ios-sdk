@@ -1,4 +1,4 @@
-# Unreleased
+# 11.9.0
 - [fixed] Made on-demand fatal recording thread suspension configurable through setting to imrpove performance and avoid audio glitch on Unity. Change is for framework only.
 
 # 11.7.0

@@ -1,4 +1,4 @@
-# Unreleased
+# 11.9.0
 - [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
 
 # 11.8.0

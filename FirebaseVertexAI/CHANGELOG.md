@@ -1,4 +1,4 @@
-# Unreleased
+# 11.9.0
 - [feature] **Public Preview**: Added support for generating images using the
   Imagen 3 model.
   <br /><br />
