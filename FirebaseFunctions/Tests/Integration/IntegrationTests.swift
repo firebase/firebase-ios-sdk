@@ -1013,7 +1013,6 @@ class IntegrationTests: XCTestCase {
 
   @available(iOS 15.0, *)
   func testGenStreamContent() async throws {
-     
       let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
       let stream =  callable.stream("genStream")
       //Todo fetch actual content.
