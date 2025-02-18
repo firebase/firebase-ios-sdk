@@ -152,8 +152,7 @@ class AuthRecaptchaVerifier {
       do {
         // Note, reCAPTCHA does not support multi-tenancy, so only one site key can be used per
         // runtime.
-        // let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
-        let client = try await recaptcha.getClient(withSiteKey: siteKey)
+        let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
         recaptchaClient = client
         return await retrieveToken(
           actionString: actionString,
