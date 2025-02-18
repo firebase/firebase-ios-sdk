@@ -178,8 +178,10 @@ static const double SEC_PER_MINUTE = 60;
 }
 
 - (NSString *)recordOnDemandExceptionWithModel:(FIRExceptionModel *)exceptionModel {
+  BOOL shouldSuspendThread = self.settings.onDemandThreadSuspensionEnabled;
   return FIRCLSExceptionRecordOnDemandModel(exceptionModel, self.recordedOnDemandExceptionCount,
-                                            self.droppedOnDemandExceptionCount);
+                                            self.droppedOnDemandExceptionCount,
+                                            shouldSuspendThread);
 }
 
 - (int)droppedOnDemandExceptionCount {
