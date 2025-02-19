@@ -1008,24 +1008,26 @@ class IntegrationTests: XCTestCase {
 
       let result = try await response(from: stream)
       XCTAssertNotNil(result)
-     //Implent full tests when stremable<> is ready.
+      // TODO: Implement full tests when Streamable is ready.
     }
   }
 
   @available(iOS 15.0, *)
   func testGenStreamContent() async throws {
-      let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
-      let stream =  callable.stream("genStream")
-      //Todo fetch actual content.
-      for try await response in stream {
-        switch response {
-          case .message(let message):
-              print("Message: \(message)")
-          case .result(let result):
-              print("Result: \(result)")
-          }
+    let callable: Callable<String, StreamResponse<String, String>> = functions
+      .httpsCallable("genStream")
+    let stream = callable.stream("genStream")
+    // TODO: Fetch actual content.
+    for try await response in stream {
+      switch response {
+      case let .message(message):
+        print("Message: \(message)")
+      case let .result(result):
+        print("Result: \(result)")
       }
+    }
   }
+
   private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
     any Error>) async throws -> [String] {
     var response = [String]()
