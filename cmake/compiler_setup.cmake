@@ -86,13 +86,6 @@ if(CXX_CLANG OR CXX_GNU)
   if(FIREBASE_CXX_COMPILER_FLAG_REDUNDANT_MOVE_SUPPORTED)
     list(APPEND common_flags -Wno-error=redundant-move)
   endif()
-
-  # Disable treating "deprecated-declarations" as an error since it's not really a problem
-  # worth breaking the build over.
-  CHECK_CXX_COMPILER_FLAG("-Wno-error=deprecated-declarations" FIREBASE_CXX_COMPILER_FLAG_DEPRECATED_DECLARATIONS_SUPPORTED)
-  if(FIREBASE_CXX_COMPILER_FLAG_DEPRECATED_DECLARATIONS_SUPPORTED)
-    list(APPEND common_flags -Wno-error=deprecated-declarations)
-  endif()
 endif()
 
 if(APPLE)
