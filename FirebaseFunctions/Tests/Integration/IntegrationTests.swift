@@ -871,25 +871,39 @@ class IntegrationTests: XCTestCase {
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
-    let input: [String: Any] = ["data": "Why is the sky blue"]
-
-    let stream = functions.stream(
-      at: emulatorURL("genStream"),
-      data: input,
-      options: options,
-      timeout: 4.0
+    let input = ["data": "Why is the sky blue"]
+    let callable: Callable<[String: String], String> = functions.httpsCallable(
+      "genStream",
+      options: options
     )
-    let result = try await response(from: stream)
+    let stream = callable.stream(input) // This actually takes no data.
+    var streamContents: [String] = []
+    for try await response in stream {
+      streamContents.append(response)
+    }
     XCTAssertEqual(
-      result,
-      [
-        "chunk hello",
-        "chunk world",
-        "chunk this",
-        "chunk is",
-        "chunk cool",
-        "hello world this is cool",
-      ]
+      streamContents,
+      ["hello", "world", "this", "is", "cool" /* , "hello world this is cool" */ ]
+    )
+  }
+
+  @available(iOS 15.0, *)
+  func testGenStreamContent() async throws {
+    let callable: Callable<String, StreamResponse<String, String>> = functions
+      .httpsCallable("genStream")
+    let stream = callable.stream("genStream") // This actually takes no data.
+    var streamContents: [String] = []
+    for try await response in stream {
+      switch response {
+      case let .message(message):
+        streamContents.append(message)
+      case let .result(result):
+        streamContents.append(result)
+      }
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool", "hello world this is cool"]
     )
   }
 
@@ -898,17 +912,7 @@ class IntegrationTests: XCTestCase {
     let byName: Callable<String, String> = functions.httpsCallable("genStream")
     let stream = byName.stream("This string is not needed.")
     let result = try await response(from: stream)
-    XCTAssertEqual(
-      result,
-      [
-        "hello",
-        "world",
-        "this",
-        "is",
-        "cool",
-        "hello world this is cool",
-      ]
-    )
+    XCTAssertEqual(result, ["hello", "world", "this", "is", "cool"])
   }
 
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
@@ -1009,22 +1013,6 @@ class IntegrationTests: XCTestCase {
       let result = try await response(from: stream)
       XCTAssertNotNil(result)
       // TODO: Implement full tests when Streamable is ready.
-    }
-  }
-
-  @available(iOS 15.0, *)
-  func testGenStreamContent() async throws {
-    let callable: Callable<String, StreamResponse<String, String>> = functions
-      .httpsCallable("genStream")
-    let stream = callable.stream("genStream")
-    // TODO: Fetch actual content.
-    for try await response in stream {
-      switch response {
-      case let .message(message):
-        print("Message: \(message)")
-      case let .result(result):
-        print("Result: \(result)")
-      }
     }
   }
 

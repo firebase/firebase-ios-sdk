@@ -21,6 +21,14 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
   case message(Message)
   /// The final result returned by the callable function.
   case result(Result)
+
+  enum MessageCodingKeys: String, CodingKey {
+    case _0 = "chunk"
+  }
+
+  enum ResultCodingKeys: String, CodingKey {
+    case _0 = "result"
+  }
 }
 
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
@@ -171,6 +179,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
 
 public extension Callable {
   // TODO: Look into handling parameter-less functions.
+  // TODO: Ensure decoding failures are passed into reasonable errors.
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func stream(_ data: Request) -> AsyncThrowingStream<Response, Error> {
     return AsyncThrowingStream { continuation in
@@ -178,14 +187,27 @@ public extension Callable {
         do {
           let encoded = try encoder.encode(data)
           for try await result in callable.stream(encoded) {
-            if let response = try? decoder.decode([String: Response].self, from: result.data) {
-              continuation.yield(response["chunk"]!)
-            } else if let response = try? decoder.decode(Response.self, from: result.data) {
+            if let response = try? decoder.decode(Response.self, from: result.data) {
               continuation.yield(response)
+            } else {
+              // TODO:
+              // StreamResponse failed or Non-stream Response needs decoding (only decode chunks
+              // and skip result).
+              // The boxing is done since stream logic wraps reponse in extra dictionary for easy
+              // decoding.
+              if let response = try? decoder.decode(
+                [String: [String: Response]].self,
+                from: result.data
+              ) {
+                guard let message = response["message"], let chunk = message["chunk"] else {
+                  // Either the chunk was miswrapped (unlikely) or a result was encountered.
+                  continue
+                }
+                continuation.yield(chunk)
+              } else {
+                // Could not decode non-stream response. Should throw.
+              }
             }
-            // Uncomment when we can use "StreamResponse" for now this will allows the tests to
-            // pass.
-            // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
           }
         } catch {
           continuation.finish(throwing: error)

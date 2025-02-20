@@ -552,7 +552,7 @@ enum FunctionsConstants {
 
             // Handle the content and parse it.
             do {
-              let content = try callableResult(fromResponseData: data)
+              let content = try callableStreamResult(fromResponseData: data)
               continuation.yield(content)
             } catch {
               continuation.finish(throwing: error)
@@ -708,6 +708,15 @@ enum FunctionsConstants {
     return HTTPSCallableResult(data: payload as Any)
   }
 
+  private func callableStreamResult(fromResponseData data: Data) throws -> HTTPSCallableResult {
+    let processedData = try processedData(fromResponseData: data)
+    let json = try streamResponseDataJSON(from: processedData)
+    // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
+    let payload = try serializer.decode(json)
+    // TODO: Remove `as Any` once `decode(_:)` is refactored
+    return HTTPSCallableResult(data: payload as Any)
+  }
+
   private func processedData(fromResponseData data: Data) throws -> Data {
     // `data` might specify a custom error. If so, throw the error.
     if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
@@ -725,14 +734,32 @@ enum FunctionsConstants {
       throw FunctionsError(.internal, userInfo: userInfo)
     }
 
-    // `result` is checked for backwards compatibility,
-    // `message` is checked for StreamableContent:
-    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"]
-    else {
+    // `result` is checked for backwards compatibility:
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
       throw FunctionsError(.internal, userInfo: userInfo)
     }
 
     return dataJSON
+  }
+
+  private func streamResponseDataJSON(from data: Data) throws -> Any {
+    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+
+    guard let responseJSON = responseJSONObject as? NSDictionary else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
+
+    // TODO: Will "data" ever appear here? I don't think so.
+
+    if let _ = responseJSON["result"] {
+      return ["result": responseJSON]
+    } else if let _ = responseJSON["message"] {
+      return responseJSON
+    } else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
   }
 }
