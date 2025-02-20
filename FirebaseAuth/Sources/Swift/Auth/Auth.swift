@@ -1297,6 +1297,8 @@ extension Auth: AuthInterop {
     return false
   }
 
+  let recaptchaVerifier: AuthRecaptchaVerifier
+
   #if os(iOS) && !targetEnvironment(macCatalyst)
 
     /// Initializes reCAPTCHA using the settings configured for the project or tenant.
@@ -1326,8 +1328,10 @@ extension Auth: AuthInterop {
     open func initializeRecaptchaConfig() async throws {
       // Trigger recaptcha verification flow to initialize the recaptcha client and
       // config. Recaptcha token will be returned.
-      let verifier = AuthRecaptchaVerifier.shared(auth: self)
-      _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
+      _ = try await recaptchaVerifier.verify(
+        forceRefresh: true,
+        action: AuthRecaptchaAction.defaultAction
+      )
     }
   #endif
 
@@ -1627,7 +1631,8 @@ extension Auth: AuthInterop {
   init(app: FirebaseApp,
        keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal(),
        backend: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer()),
-       authDispatcher: AuthDispatcher = .init()) {
+       authDispatcher: AuthDispatcher = .init(),
+       recaptchaVerifier: AuthRecaptchaVerifier = .init()) {
     self.app = app
     mainBundleUrlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
@@ -1653,6 +1658,7 @@ extension Auth: AuthInterop {
                                                     appCheck: appCheck)
     self.backend = backend
     self.authDispatcher = authDispatcher
+    self.recaptchaVerifier = recaptchaVerifier
 
     let keychainServiceName = Auth.keychainServiceName(for: app)
     keychainServices = AuthKeychainServices(service: keychainServiceName,
@@ -1664,6 +1670,7 @@ extension Auth: AuthInterop {
 
     super.init()
     requestConfiguration.auth = self
+    self.recaptchaVerifier.auth = self
 
     protectedDataInitialization()
   }
@@ -2307,7 +2314,6 @@ extension Auth: AuthInterop {
     func injectRecaptcha<T: AuthRPCRequest>(request: T,
                                             action: AuthRecaptchaAction) async throws -> T
       .Response {
-      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: self)
       if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) != .off {
         try await recaptchaVerifier.injectRecaptchaFields(request: request,
                                                           provider: AuthRecaptchaProvider.password,
