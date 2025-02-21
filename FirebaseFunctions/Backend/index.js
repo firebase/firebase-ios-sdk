@@ -182,4 +182,17 @@ exports.genStreamWeather = functionsV2.https.onCall(
   }
 );
 
+exports.genStreamWeatherError = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateForecast(request.data)) {
+        // The SDK won't be able to decode the message without the location field.
+        delete chunk.location;
+        response.sendChunk(chunk);
+      }
+    }
+    return "Number of forecasts generated: " + request.data.length;
+  }
+);
+
 // TODO: Maybe a function that returns Void?
