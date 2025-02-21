@@ -93,6 +93,7 @@ public class VertexAI {
       name: modelResourceName(modelName: modelName),
       projectID: projectID,
       apiKey: apiKey,
+      googleAppID: googleAppID,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
@@ -128,6 +129,7 @@ public class VertexAI {
       name: modelResourceName(modelName: modelName),
       projectID: projectID,
       apiKey: apiKey,
+      googleAppID: googleAppID,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       requestOptions: requestOptions,
@@ -167,6 +169,7 @@ public class VertexAI {
 
   let projectID: String
   let apiKey: String
+  let googleAppID: String?
   let location: String
 
   init(app: FirebaseApp, location: String) {
@@ -183,7 +186,7 @@ public class VertexAI {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
     }
     self.apiKey = apiKey
-
+    self.googleAppID = app.isDataCollectionDefaultEnabled ? app.options.googleAppID : nil
     self.location = location
   }
 

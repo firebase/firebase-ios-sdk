@@ -31,16 +31,19 @@ struct GenerativeAIService {
   /// Gives permission to talk to the backend.
   private let apiKey: String
 
+  private let googleAppID: String?
+
   private let appCheck: AppCheckInterop?
 
   private let auth: AuthInterop?
 
   private let urlSession: URLSession
 
-  init(projectID: String, apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?,
-       urlSession: URLSession) {
+  init(projectID: String, apiKey: String, googleAppID: String?,
+       appCheck: AppCheckInterop?, auth: AuthInterop?, urlSession: URLSession) {
     self.projectID = projectID
     self.apiKey = apiKey
+    self.googleAppID = googleAppID
     self.appCheck = appCheck
     self.auth = auth
     self.urlSession = urlSession
@@ -200,6 +203,10 @@ struct GenerativeAIService {
 
     if let auth, let authToken = try await auth.getToken(forcingRefresh: false) {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
+    }
+
+    if let googleAppID = self.googleAppID {
+      urlRequest.setValue(googleAppID, forHTTPHeaderField: "google-app-id")
     }
 
     let encoder = JSONEncoder()

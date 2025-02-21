@@ -43,6 +43,7 @@ public final class ImagenModel {
   init(name: String,
        projectID: String,
        apiKey: String,
+       googleAppID: String?,
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
@@ -53,6 +54,7 @@ public final class ImagenModel {
     generativeAIService = GenerativeAIService(
       projectID: projectID,
       apiKey: apiKey,
+      googleAppID: googleAppID,
       appCheck: appCheck,
       auth: auth,
       urlSession: urlSession

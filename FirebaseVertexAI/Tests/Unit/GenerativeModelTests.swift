@@ -70,6 +70,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
@@ -271,6 +272,7 @@ final class GenerativeModelTests: XCTestCase {
       name: "models/test-model",
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
@@ -391,6 +393,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(token: appCheckToken),
@@ -407,11 +410,36 @@ final class GenerativeModelTests: XCTestCase {
     _ = try await model.generateContent(testPrompt)
   }
 
+  func testGenerateContent_dataCollectionOff() async throws {
+    let appCheckToken = "test-valid-token"
+    model = GenerativeModel(
+      name: testModelResourceName,
+      projectID: "my-project-id",
+      apiKey: "API_KEY",
+      googleAppID: nil,
+      tools: nil,
+      requestOptions: RequestOptions(),
+      appCheck: AppCheckInteropFake(token: appCheckToken),
+      auth: nil,
+      urlSession: urlSession
+    )
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json",
+        appCheckToken: appCheckToken,
+        dataCollection: false
+      )
+
+    _ = try await model.generateContent(testPrompt)
+  }
+
   func testGenerateContent_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
@@ -434,6 +462,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
@@ -455,6 +484,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
@@ -476,6 +506,7 @@ final class GenerativeModelTests: XCTestCase {
       name: "my-model",
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
@@ -858,6 +889,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
@@ -1153,6 +1185,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(token: appCheckToken),
@@ -1175,6 +1208,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
@@ -1321,6 +1355,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
@@ -1396,6 +1431,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       generationConfig: generationConfig,
       tools: [Tool(functionDeclarations: [sumFunction])],
       systemInstruction: systemInstruction,
@@ -1455,6 +1491,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: requestOptions,
       appCheck: nil,
@@ -1495,7 +1532,8 @@ final class GenerativeModelTests: XCTestCase {
                                   statusCode: Int = 200,
                                   timeout: TimeInterval = RequestOptions().timeout,
                                   appCheckToken: String? = nil,
-                                  authToken: String? = nil) throws -> ((URLRequest) throws -> (
+                                  authToken: String? = nil,
+                                  dataCollection: Bool = true) throws -> ((URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
@@ -1515,6 +1553,8 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
       XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
+      let googleAppID = request.value(forHTTPHeaderField: "google-app-id")
+      XCTAssertEqual(googleAppID, dataCollection ? "My app ID" : nil)
       if let authToken {
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Firebase \(authToken)")
       } else {

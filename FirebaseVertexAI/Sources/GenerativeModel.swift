@@ -61,6 +61,7 @@ public final class GenerativeModel {
   init(name: String,
        projectID: String,
        apiKey: String,
+       googleAppID: String?,
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
        tools: [Tool]?,
@@ -74,6 +75,7 @@ public final class GenerativeModel {
     generativeAIService = GenerativeAIService(
       projectID: projectID,
       apiKey: apiKey,
+      googleAppID: googleAppID,
       appCheck: appCheck,
       auth: auth,
       urlSession: urlSession

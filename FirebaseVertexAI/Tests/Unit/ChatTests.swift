@@ -57,6 +57,7 @@ final class ChatTests: XCTestCase {
       name: "my-model",
       projectID: "my-project-id",
       apiKey: "API_KEY",
+      googleAppID: "My app ID",
       tools: nil,
       requestOptions: RequestOptions(),
       appCheck: nil,
