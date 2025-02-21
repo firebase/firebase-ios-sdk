@@ -365,16 +365,16 @@ class FunctionsTests: XCTestCase {
 
   @available(iOS 15, *)
   func testGenerateStreamContent_Success() async throws {
-    // TODO: Implent full tests when stremable<> is ready.
+    // TODO: Implement full tests when Streamable is ready.
   }
 
   @available(iOS 15, *)
   func testGenerateStreamContent_Canceled() async {
-    // TODO: Implent full tests when stremable<> is ready.
+    // TODO: Implement full tests when Streamable is ready.
   }
 
   @available(iOS 15, *)
   func testGenerateStreamContent_BadResponse() async throws {
-    // TODO: Implent full tests when stremable<> is ready.
+    // TODO: Implement full tests when Streamable is ready.
   }
 }

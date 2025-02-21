@@ -543,7 +543,7 @@ enum FunctionsConstants {
             let jsonText = String(line.dropFirst(5))
             let data: Data
             do {
-              // TODO: The error potentially thrown here is not a Functions error.
+              // TODO: The error potentially thrown here is not a Functions error. Should it be wrapped?
               data = try jsonData(jsonText: jsonText)
             } catch {
               continuation.finish(throwing: error)
@@ -758,7 +758,7 @@ enum FunctionsConstants {
     } else if let _ = responseJSON["message"] {
       return responseJSON
     } else {
-      let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
       throw FunctionsError(.internal, userInfo: userInfo)
     }
   }
