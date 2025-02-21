@@ -754,9 +754,9 @@ enum FunctionsConstants {
     // TODO: Will "data" ever appear here? I don't think so.
 
     if let _ = responseJSON["result"] {
-      return ["result": responseJSON]
+      return responseJSON
     } else if let _ = responseJSON["message"] {
-      return ["message": responseJSON]
+      return responseJSON
     } else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
       throw FunctionsError(.internal, userInfo: userInfo)

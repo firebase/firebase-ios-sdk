@@ -956,6 +956,21 @@ extension IntegrationTests {
     )
   }
 
+  func testGenerateStreamContent_StreamResponse_DecodingError() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeatherError")
+    let stream = callable.stream([Location(name: "Toronto")])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch DecodingError.keyNotFound {
+      // Success.
+    } catch {
+      XCTFail("Expected error to be a `FunctionsError`.")
+    }
+  }
+
   func testGenerateStreamContent_ComplexStreamResponse() async throws {
     // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
     let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
