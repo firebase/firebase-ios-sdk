@@ -205,7 +205,7 @@ struct GenerativeAIService {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
-    if let googleAppID = self.googleAppID {
+    if let googleAppID = googleAppID {
       urlRequest.setValue(googleAppID, forHTTPHeaderField: "google-app-id")
     }
 

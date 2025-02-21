@@ -186,7 +186,7 @@ public class VertexAI {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
     }
     self.apiKey = apiKey
-    self.googleAppID = app.isDataCollectionDefaultEnabled ? app.options.googleAppID : nil
+    googleAppID = app.isDataCollectionDefaultEnabled ? app.options.googleAppID : nil
     self.location = location
   }
 
