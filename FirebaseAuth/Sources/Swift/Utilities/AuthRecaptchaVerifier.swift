@@ -156,36 +156,38 @@
 
     private static var recaptchaClient: (any RCARecaptchaClientProtocol)?
 
-    private func recaptchaToken(siteKey: String,
-                                actionString: String,
-                                fakeToken: String) async -> (token: String, error: Error?,
-                                                             linked: Bool, actionCreated: Bool) {
-      if let recaptchaClient {
-        return await retrieveToken(
-          actionString: actionString,
-          fakeToken: fakeToken,
-          recaptchaClient: recaptchaClient
-        )
-      }
-
-      if let recaptcha =
-        NSClassFromString("RecaptchaEnterprise.RCARecaptcha") as? RCARecaptchaProtocol.Type {
-        do {
-          let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
-          recaptchaClient = client
+    #if COCOAPODS || SWIFT_PACKAGE // No recaptcha on internal build system.
+      private func recaptchaToken(siteKey: String,
+                                  actionString: String,
+                                  fakeToken: String) async -> (token: String, error: Error?,
+                                                               linked: Bool, actionCreated: Bool) {
+        if let recaptchaClient {
           return await retrieveToken(
             actionString: actionString,
             fakeToken: fakeToken,
-            recaptchaClient: client
+            recaptchaClient: recaptchaClient
           )
-        } catch {
-          return ("", error, true, true)
         }
-      } else {
-        // RecaptchaEnterprise not linked.
-        return ("", nil, false, false)
+
+        if let recaptcha =
+          NSClassFromString("RecaptchaEnterprise.RCARecaptcha") as? RCARecaptchaProtocol.Type {
+          do {
+            let client = try await recaptcha.fetchClient(withSiteKey: siteKey)
+            recaptchaClient = client
+            return await retrieveToken(
+              actionString: actionString,
+              fakeToken: fakeToken,
+              recaptchaClient: client
+            )
+          } catch {
+            return ("", error, true, true)
+          }
+        } else {
+          // RecaptchaEnterprise not linked.
+          return ("", nil, false, false)
+        }
       }
-    }
+    #endif // (COCOAPODS || SWIFT_PACKAGE)
 
     private func retrieveToken(actionString: String,
                                fakeToken: String,
