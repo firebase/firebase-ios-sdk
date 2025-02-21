@@ -23,7 +23,7 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
   case result(Result)
 
   enum MessageCodingKeys: String, CodingKey {
-    case _0 = "chunk"
+    case _0 = "message"
   }
 
   enum ResultCodingKeys: String, CodingKey {
@@ -177,6 +177,8 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   }
 }
 
+// TODO: Figure out decoding error flow.
+
 public extension Callable {
   // TODO: Look into handling parameter-less functions.
   // TODO: Ensure decoding failures are passed into reasonable errors.
@@ -199,11 +201,12 @@ public extension Callable {
                 [String: [String: Response]].self,
                 from: result.data
               ) {
-                guard let message = response["message"], let chunk = message["chunk"] else {
+                guard let rootMessage = response["message"],
+                      let message = rootMessage["message"] else {
                   // Either the chunk was miswrapped (unlikely) or a result was encountered.
                   continue
                 }
-                continuation.yield(chunk)
+                continuation.yield(message)
               } else {
                 // Could not decode non-stream response. Should throw.
               }

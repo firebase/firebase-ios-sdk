@@ -756,7 +756,7 @@ enum FunctionsConstants {
     if let _ = responseJSON["result"] {
       return ["result": responseJSON]
     } else if let _ = responseJSON["message"] {
-      return responseJSON
+      return ["message": responseJSON]
     } else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
       throw FunctionsError(.internal, userInfo: userInfo)
