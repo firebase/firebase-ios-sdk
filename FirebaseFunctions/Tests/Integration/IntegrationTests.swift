@@ -967,7 +967,7 @@ extension IntegrationTests {
     } catch DecodingError.keyNotFound {
       // Success.
     } catch {
-      XCTFail("Expected error to be a `FunctionsError`.")
+      XCTFail("Expected error to be a `DecodingError`.")
     }
   }
 

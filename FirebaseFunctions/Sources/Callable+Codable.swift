@@ -219,14 +219,17 @@ public extension Callable {
       Task {
         do {
           let encoded = try encoder.encode(data)
-          for try await result in callable.stream(encoded) {
+          for try await response in callable.stream(encoded) {
+            let responseJSON = switch response {
+            case let .message(json), let .result(json): json
+            }
             do {
               // Due to the way the response data is boxed by the SDK, this will succeed in the
               // following cases.
               // (a) Response is of type `StreamResponse<_, _>`
               // (b) Response is a custom type that matches structure of type `StreamResponse<_, _>`
               // TODO: Probably can address (b) by making firebase-specific custom key. Is it worth it though?
-              let response = try decoder.decode(Response.self, from: result.data)
+              let response = try decoder.decode(Response.self, from: responseJSON)
               continuation.yield(response)
             } catch let StreamResponseError.decodingFailure(underlyingError: error) {
               // `Response` is of type `StreamResponse<_, _>`, but failed to decode. Rethrow.
@@ -235,18 +238,18 @@ public extension Callable {
             } catch {
               // `Response` is *not* of type `StreamResponse<_, _>`, and needs to be unboxed and
               // decoded.
-              // TODO: We need to be careful to not decode the result here. We can't catch an error here
-              // because of the case where the result type is same as message type. We need to have
-              // the information
-              // here to know if we are trying to decode a result vs. a message.
-              let response = try decoder.decode([String: Response].self, from: result.data)
-              // TODO: Above error may need to be cleaned up (caught) due to custom boxing.
-              guard let message = response["message"] else {
+              guard case let .message(messageJSON) = response else {
                 // Since `Response` is not a `StreamResponse<_, _>`, only messages should be
                 // decoded.
                 continue
               }
-              continuation.yield(message)
+
+              // TODO: Error may need to be cleaned up (caught) due to custom boxing.
+              let boxedMessage = try decoder.decode(
+                StreamResponseMessage<Response>.self,
+                from: messageJSON
+              )
+              continuation.yield(boxedMessage.message)
             }
           }
         } catch {
@@ -256,4 +259,14 @@ public extension Callable {
       }
     }
   }
+}
+
+struct StreamResponseMessage<Message: Decodable>: Decodable {
+  let message: Message
+}
+
+enum JSONStreamResponse {
+  typealias JSON = [String: Any]
+  case message(JSON)
+  case result(JSON)
 }

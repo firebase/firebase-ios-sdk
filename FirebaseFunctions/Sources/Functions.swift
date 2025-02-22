@@ -483,7 +483,7 @@ enum FunctionsConstants {
               data: Any?,
               options: HTTPSCallableOptions?,
               timeout: TimeInterval)
-    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+    -> AsyncThrowingStream<JSONStreamResponse, Error> {
     AsyncThrowingStream { continuation in
       // TODO: Vertex prints the curl command. Should this?
 
@@ -570,6 +570,27 @@ enum FunctionsConstants {
 
         continuation.finish(throwing: nil)
       }
+    }
+  }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  private func callableStreamResult(fromResponseData data: Data) throws -> JSONStreamResponse {
+    let data = try processedData(fromResponseData: data)
+
+    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+
+    guard let responseJSON = responseJSONObject as? JSONStreamResponse.JSON else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
+
+    if let _ = responseJSON["result"] {
+      return .result(responseJSON)
+    } else if let _ = responseJSON["message"] {
+      return .message(responseJSON)
+    } else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+      throw FunctionsError(.internal, userInfo: userInfo)
     }
   }
 
@@ -708,15 +729,6 @@ enum FunctionsConstants {
     return HTTPSCallableResult(data: payload as Any)
   }
 
-  private func callableStreamResult(fromResponseData data: Data) throws -> HTTPSCallableResult {
-    let processedData = try processedData(fromResponseData: data)
-    let json = try streamResponseDataJSON(from: processedData)
-    // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
-    let payload = try serializer.decode(json)
-    // TODO: Remove `as Any` once `decode(_:)` is refactored
-    return HTTPSCallableResult(data: payload as Any)
-  }
-
   private func processedData(fromResponseData data: Data) throws -> Data {
     // `data` might specify a custom error. If so, throw the error.
     if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
@@ -741,25 +753,5 @@ enum FunctionsConstants {
     }
 
     return dataJSON
-  }
-
-  private func streamResponseDataJSON(from data: Data) throws -> Any {
-    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
-
-    guard let responseJSON = responseJSONObject as? NSDictionary else {
-      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-      throw FunctionsError(.internal, userInfo: userInfo)
-    }
-
-    // TODO: Will "data" ever appear here? I don't think so.
-
-    if let _ = responseJSON["result"] {
-      return responseJSON
-    } else if let _ = responseJSON["message"] {
-      return responseJSON
-    } else {
-      let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
-      throw FunctionsError(.internal, userInfo: userInfo)
-    }
   }
 }
