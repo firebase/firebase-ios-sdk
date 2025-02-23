@@ -19,6 +19,7 @@ import FirebaseVertexAI
 import VertexAITestApp
 import XCTest
 
+// TODO(#14405): Migrate to Swift Testing and parameterize tests to run on both `v1` and `v1beta`.
 final class IntegrationTests: XCTestCase {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig(
@@ -38,6 +39,8 @@ final class IntegrationTests: XCTestCase {
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
+  // Candidates and total token counts may differ slightly between runs due to whitespace tokens.
+  let tokenCountAccuracy = 1
 
   var vertex: VertexAI!
   var model: GenerativeModel!
@@ -53,7 +56,7 @@ final class IntegrationTests: XCTestCase {
 
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
-      modelName: "gemini-1.5-flash",
+      modelName: "gemini-2.0-flash",
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [],
@@ -73,13 +76,25 @@ final class IntegrationTests: XCTestCase {
 
     let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     XCTAssertEqual(text, "Mountain View")
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokenCount, 21)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, 3, accuracy: tokenCountAccuracy)
+    XCTAssertEqual(usageMetadata.totalTokenCount, 24, accuracy: tokenCountAccuracy)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(usageMetadata.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, usageMetadata.promptTokenCount)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails.count, 1)
+    let candidatesTokensDetails = try XCTUnwrap(usageMetadata.candidatesTokensDetails.first)
+    XCTAssertEqual(candidatesTokensDetails.modality, .text)
+    XCTAssertEqual(candidatesTokensDetails.tokenCount, usageMetadata.candidatesTokenCount)
   }
 
   func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
     let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
     addTeardownBlock { await app.delete() }
     let vertex = VertexAI.vertexAI(app: app)
-    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+    let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
     do {
@@ -112,6 +127,10 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 14)
     XCTAssertEqual(response.totalBillableCharacters, 51)
+    XCTAssertEqual(response.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, 14)
   }
 
   #if canImport(UIKit)
@@ -125,6 +144,15 @@ final class IntegrationTests: XCTestCase {
 
       XCTAssertEqual(response.totalTokens, 266)
       XCTAssertEqual(response.totalBillableCharacters, 35)
+      XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
+      let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
+        $0.modality == .text
+      }) // System instruction
+      XCTAssertEqual(textPromptTokensDetails.tokenCount, 8)
+      let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
+        $0.modality == .image
+      })
+      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
     }
   #endif // canImport(UIKit)
 
@@ -136,6 +164,15 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 266)
     XCTAssertEqual(response.totalBillableCharacters, 35)
+    XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
+    let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
+      $0.modality == .text
+    }) // System instruction
+    XCTAssertEqual(textPromptTokensDetails.tokenCount, 8)
+    let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
+      $0.modality == .image
+    })
+    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
   }
 
   func testCountTokens_image_fileData_requiresAuth_signedIn() async throws {
@@ -182,7 +219,7 @@ final class IntegrationTests: XCTestCase {
       parameters: ["x": .integer(), "y": .integer()]
     )
     model = vertex.generativeModel(
-      modelName: "gemini-1.5-flash",
+      modelName: "gemini-2.0-flash",
       tools: [.functionDeclarations([sumDeclaration])],
       toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
     )
@@ -198,11 +235,15 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 24)
     XCTAssertEqual(response.totalBillableCharacters, 71)
+    XCTAssertEqual(response.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, 24)
   }
 
   func testCountTokens_jsonSchema() async throws {
     model = vertex.generativeModel(
-      modelName: "gemini-1.5-flash",
+      modelName: "gemini-2.0-flash",
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
         responseSchema: Schema.object(properties: [
@@ -219,13 +260,17 @@ final class IntegrationTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 58)
     XCTAssertEqual(response.totalBillableCharacters, 160)
+    XCTAssertEqual(response.promptTokensDetails.count, 1)
+    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
+    XCTAssertEqual(promptTokensDetails.modality, .text)
+    XCTAssertEqual(promptTokensDetails.tokenCount, 58)
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
     addTeardownBlock { await app.delete() }
     let vertex = VertexAI.vertexAI(app: app)
-    let model = vertex.generativeModel(modelName: "gemini-1.5-flash")
+    let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
     let prompt = "Why is the sky blue?"
 
     do {

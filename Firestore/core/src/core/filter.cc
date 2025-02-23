@@ -35,12 +35,6 @@ std::ostream& operator<<(std::ostream& os, const Filter& filter) {
   return os << filter.ToString();
 }
 
-Filter::Rep::Rep()
-    : memoized_flattened_filters_(
-          std::make_shared<
-              util::ThreadSafeMemoizer<std::vector<FieldFilter>>>()) {
-}
-
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

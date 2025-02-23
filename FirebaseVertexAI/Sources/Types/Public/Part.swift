@@ -31,16 +31,41 @@ public struct TextPart: Part {
   }
 }
 
-/// Data with a specified media type.
+/// A data part that is provided inline in requests.
 ///
-/// > Note: Not all media types may be supported by the AI model.
+/// Data provided as an inline data part is encoded as base64 and included directly (inline) in the
+/// request. For large files, see ``FileDataPart`` which references content by URI instead of
+/// including the data in the request.
+///
+/// > Important: Only small files can be sent as inline data because of limits on total request
+/// sizes;
+///  see [input files and requirements
+///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
+///  for more details and size limits.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
   let inlineData: InlineData
 
+  /// The data provided in the inline data part.
   public var data: Data { inlineData.data }
+
+  /// The IANA standard MIME type of the data.
   public var mimeType: String { inlineData.mimeType }
 
+  /// Creates an inline data part from data and a MIME type.
+  ///
+  /// > Important: Supported input types depend on the model on the model being used; see [input
+  ///  files and requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements)
+  ///  for more details.
+  ///
+  /// - Parameters:
+  ///   - data: The data representation of an image, video, audio or document; see [input files and
+  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     supported media types.
+  ///   - mimeType: The IANA standard MIME type of the data, for example, `"image/jpeg"` or
+  ///     `"video/mp4"`; see [input files and
+  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     supported values.
   public init(data: Data, mimeType: String) {
     self.init(InlineData(data: data, mimeType: mimeType))
   }

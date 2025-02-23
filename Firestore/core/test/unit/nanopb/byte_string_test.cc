@@ -17,7 +17,7 @@
 #include "Firestore/core/src/nanopb/byte_string.h"
 
 #include <cstdint>
-#include <cstdlib>
+#include <cstdlib>  // NOLINT(build/include_order)
 
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "gmock/gmock.h"

@@ -1,3 +1,10 @@
+# 11.9.0
+- [fixed] Fix connection failure issue introduced in 10.27.0 by restoring the
+  Socket Rocket implementation instead of `NSURLSessionWebSocket`. Note that
+  this may expose a Thread Performance Checker Warning (#12883).
+  (#14188, #13877, #13855, #13529)
+- [fixed] Added `Sendable` conformance to `DataSnapshot` (#14369).
+
 # 11.2.0
 - [fixed] Fix temporary disconnects when the app goes inactive. The issue was
   introduced in 10.27.0. (#13529)

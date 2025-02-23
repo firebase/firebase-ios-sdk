@@ -17,7 +17,7 @@
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 #include <algorithm>
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>
 #include <set>
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"

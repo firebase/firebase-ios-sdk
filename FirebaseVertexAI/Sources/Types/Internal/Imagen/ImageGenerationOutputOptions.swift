@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAnalytics
-import FirebaseAuth
-#if SWIFT_PACKAGE
-  import FirebaseAuthCombineSwift
-#endif // SWIFT_PACKAGE
-#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
-  import FirebaseInAppMessaging
-#endif
-import FirebaseStorage
+import Foundation
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct ImageGenerationOutputOptions {
+  let mimeType: String
+  let compressionQuality: Int?
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ImageGenerationOutputOptions: Equatable {}
+
+// MARK: - Codable Conformance
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension ImageGenerationOutputOptions: Encodable {}

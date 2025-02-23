@@ -128,6 +128,30 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.functionCalls, [])
   }
 
+  func testGenerateContent_success_basicReplyFullUsageMetadata() async throws {
+    MockURLProtocol
+      .requestHandler = try httpRequestHandler(
+        forResource: "unary-success-basic-response-long-usage-metadata",
+        withExtension: "json"
+      )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let finishReason = try XCTUnwrap(candidate.finishReason)
+    XCTAssertEqual(finishReason, .stop)
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.count, 2)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[0].modality, .image)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[0].tokenCount, 1806)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[1].modality, .text)
+    XCTAssertEqual(usageMetadata.promptTokensDetails[1].tokenCount, 76)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails.count, 1)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails[0].modality, .text)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails[0].tokenCount, 76)
+  }
+
   func testGenerateContent_success_citations() async throws {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
@@ -488,6 +512,8 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(usageMetadata.promptTokenCount, 6)
     XCTAssertEqual(usageMetadata.candidatesTokenCount, 7)
     XCTAssertEqual(usageMetadata.totalTokenCount, 13)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.isEmpty, true)
+    XCTAssertEqual(usageMetadata.candidatesTokensDetails.isEmpty, true)
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {
@@ -1324,6 +1350,23 @@ final class GenerativeModelTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 6)
     XCTAssertEqual(response.totalBillableCharacters, 16)
+  }
+
+  func testCountTokens_succeeds_detailed() async throws {
+    MockURLProtocol.requestHandler = try httpRequestHandler(
+      forResource: "unary-success-detailed-token-response",
+      withExtension: "json"
+    )
+
+    let response = try await model.countTokens("Why is the sky blue?")
+
+    XCTAssertEqual(response.totalTokens, 1837)
+    XCTAssertEqual(response.totalBillableCharacters, 117)
+    XCTAssertEqual(response.promptTokensDetails.count, 2)
+    XCTAssertEqual(response.promptTokensDetails[0].modality, .image)
+    XCTAssertEqual(response.promptTokensDetails[0].tokenCount, 1806)
+    XCTAssertEqual(response.promptTokensDetails[1].modality, .text)
+    XCTAssertEqual(response.promptTokensDetails[1].tokenCount, 31)
   }
 
   func testCountTokens_succeeds_allOptions() async throws {
