@@ -68,11 +68,7 @@ final class GenerativeModelTests: XCTestCase {
     urlSession = try XCTUnwrap(URLSession(configuration: configuration))
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -270,11 +266,7 @@ final class GenerativeModelTests: XCTestCase {
     let model = GenerativeModel(
       // Model name is prefixed with "models/".
       name: "models/test-model",
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -391,12 +383,7 @@ final class GenerativeModelTests: XCTestCase {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        appCheck: AppCheckInteropFake(token: appCheckToken),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -415,12 +402,8 @@ final class GenerativeModelTests: XCTestCase {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        appCheck: AppCheckInteropFake(token: appCheckToken),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: nil
-      ),
+      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken),
+                                     privateAppID: true),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -439,12 +422,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -463,12 +441,7 @@ final class GenerativeModelTests: XCTestCase {
     let authToken = "test-valid-token"
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        auth: AuthInteropFake(token: authToken),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: authToken)),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -486,12 +459,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_nilAuthToken() async throws {
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        auth: AuthInteropFake(token: nil),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: nil)),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -509,12 +477,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_authTokenRefreshError() async throws {
     model = GenerativeModel(
       name: "my-model",
-      firebaseInfo: FirebaseInfo(
-        auth: AuthInteropFake(error: AuthErrorFake()),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(error: AuthErrorFake())),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -893,11 +856,7 @@ final class GenerativeModelTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(),
       tools: nil,
       requestOptions: requestOptions,
       urlSession: urlSession
@@ -1189,12 +1148,7 @@ final class GenerativeModelTests: XCTestCase {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        appCheck: AppCheckInteropFake(token: appCheckToken),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -1213,12 +1167,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        appCheck: AppCheckInteropFake(error: AppCheckErrorFake()),
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -1361,11 +1310,7 @@ final class GenerativeModelTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(),
       tools: nil,
       requestOptions: requestOptions,
       urlSession: urlSession
@@ -1437,11 +1382,7 @@ final class GenerativeModelTests: XCTestCase {
     )
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(),
       generationConfig: generationConfig,
       tools: [Tool(functionDeclarations: [sumFunction])],
       systemInstruction: systemInstruction,
@@ -1497,11 +1438,7 @@ final class GenerativeModelTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
       name: testModelResourceName,
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        googleAppID: "My app ID"
-      ),
+      firebaseInfo: testFirebaseInfo(),
       tools: nil,
       requestOptions: requestOptions,
       urlSession: urlSession
@@ -1513,6 +1450,18 @@ final class GenerativeModelTests: XCTestCase {
   }
 
   // MARK: - Helpers
+
+  private func testFirebaseInfo(appCheck: AppCheckInterop? = nil,
+                                auth: AuthInterop? = nil,
+                                privateAppID: Bool = false) -> FirebaseInfo {
+    FirebaseInfo(
+      appCheck: appCheck,
+      auth: auth,
+      projectID: "my-project-id",
+      apiKey: "API_KEY",
+      googleAppID: privateAppID ? nil : "My app ID"
+    )
+  }
 
   private func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
     URLResponse,
