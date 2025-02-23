@@ -194,7 +194,7 @@ struct GenerativeAIService {
     }
 
     if let googleAppID = firebaseInfo.googleAppID {
-      urlRequest.setValue(googleAppID, forHTTPHeaderField: "google-app-id")
+      urlRequest.setValue(googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
     }
 
     let encoder = JSONEncoder()

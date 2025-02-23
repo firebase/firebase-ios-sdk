@@ -1510,7 +1510,7 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
       XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
-      let googleAppID = request.value(forHTTPHeaderField: "google-app-id")
+      let googleAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
       XCTAssertEqual(googleAppID, dataCollection ? "My app ID" : nil)
       if let authToken {
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Firebase \(authToken)")
