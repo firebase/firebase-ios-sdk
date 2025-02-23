@@ -67,7 +67,7 @@ typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
 - (void)recreateNetworkSession;
 
 /// Provide fetchSession for tests to override.
-@property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
+@property(atomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
 
 /// Provide config template version number for Realtime config client.
 @property(nonatomic, copy, nonnull) NSString *templateVersionNumber;

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '11.7.0'
+  s.version          = '11.9.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -58,12 +58,12 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseAuthInterop', '~> 11.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.7.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.7.0'
+  s.dependency 'FirebaseCore', '~> 11.9.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.9.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'
-  s.ios.dependency 'RecaptchaInterop', '~> 100.0'
+  s.ios.dependency 'RecaptchaInterop', '~> 101.0'
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     # Unit tests can't run on watchOS.

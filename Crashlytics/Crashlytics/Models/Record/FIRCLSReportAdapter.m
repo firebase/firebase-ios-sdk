@@ -257,8 +257,8 @@ pb_bytes_array_t *FIRCLSEncodeString(NSString *string) {
  */
 pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   // We have received couple security tickets before for using calloc here.
-  // Here is a short explaination on how it is calculated so buffer overflow is prevented:
-  // We will alloc an amount of memeory for struct `pb_bytes_array_t`, this struct contains two
+  // Here is a short explanation on how it is calculated so buffer overflow is prevented:
+  // We will alloc an amount of memory for struct `pb_bytes_array_t`, this struct contains two
   // attributes:
   //    pb_size_t size
   //    pb_byte_t bytes[1]
@@ -268,7 +268,7 @@ pb_bytes_array_t *FIRCLSEncodeData(NSData *data) {
   // For size, NSData return size in `unsigned long` type which is the same size as `pb_size_t` and
   // it is declared in compile time depending on the arch of system. If overflow happened it should
   // happend at NSData level first when user trying to inserting data to NSData.
-  // For bytes, it is just a strict memeory copy of the data in NSData.
+  // For bytes, it is just a strict memory copy of the data in NSData.
   // The whole structure will be freed as a part of process for deallocing report in dealloc() of
   // this class
   pb_bytes_array_t *pbBytes = calloc(1, PB_BYTES_ARRAY_T_ALLOCSIZE(data.length));

@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ‼️ NOTE: Changes should also be reflected in `objcxx-module-import-test.m`.
+import Foundation
 
-#if !COCOAPODS
-// TODO(ncooke3): Figure out why this isn't working on CocoaPods.
-@import Firebase;
-#endif  // !COCOAPODS
-@import FirebaseABTesting;
-@import FirebaseAnalytics;
-@import FirebaseAuth;
-@import FirebaseCore;
-#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
-@import FirebaseInAppMessaging;
-#endif
-@import FirebaseStorage;
+// TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
+// input (upscaling / editing).
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+protocol ImagenImageRepresentable {
+  /// Internal representation of the image for use with the Imagen model.
+  ///
+  /// - Important: Not needed by SDK users.
+  var _internalImagenImage: _InternalImagenImage { get }
+}

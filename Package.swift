@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.7.0"
+let firebaseVersion = "11.9.0"
 
 let package = Package(
   name: "Firebase",
@@ -168,7 +168,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
-      "100.0.0" ..< "101.0.0"
+      "101.0.0" ..< "102.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git",
              "11.0.1" ..< "12.0.0"),
@@ -303,8 +303,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.4.0/FirebaseAnalytics.zip",
-      checksum: "fb0d7cd992ffdcd82ed5c5fdb83e50ac983664f1dde81b140a0ddaa1aa66baae"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.9.0/FirebaseAnalytics.zip",
+      checksum: "9582ae3649a185a3b097f0e3ec7ee328708539061927455a3e18a761c8a0d872"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -586,7 +586,9 @@ let package = Package(
       path: "FirebaseDatabase/Sources",
       exclude: [
         "third_party/Wrap-leveldb/LICENSE",
+        "third_party/SocketRocket/LICENSE",
         "third_party/FImmutableSortedDictionary/LICENSE",
+        "third_party/SocketRocket/aa2297808c225710e267afece4439c256f6efdb3",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -1310,7 +1312,10 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
-      dependencies: ["FirebaseVertexAI"],
+      dependencies: [
+        "FirebaseVertexAI",
+        "FirebaseStorage",
+      ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("vertexai-sdk-test-data/mock-responses"),
@@ -1336,7 +1341,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.4.0")
+  return .package(url: appMeasurementURL, exact: "11.9.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1347,12 +1352,12 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240116.1" ..< "0.20240117.0"
+      "0.20240722.0" ..< "0.20240723.0"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024011602.0" ..< "1.2024011700.0"
+      "1.2024072200.0" ..< "1.2024072300.0"
     )
   }
 
@@ -1365,9 +1370,9 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.65.0" ..< "1.66.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.65.1" ..< "1.66.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1505,8 +1510,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.6.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "ad9d6cf31120ba0a91dbb9ccbe7ad08276a88565f6c79216929ec93a7d436459"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.9.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "d227a750db1ca100e0a8ffe841cf52b8b7daf4496c28062d80aa8d15c75e18d8"
       )
     }
   }()

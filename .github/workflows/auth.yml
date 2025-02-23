@@ -59,7 +59,7 @@ jobs:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
         target: [ios, tvos, macos --skip-tests --allow-warnings, watchos]
         os: [macos-15]
-        xcode: [Xcode_16.1]
+        xcode: [Xcode_16.2]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -115,22 +115,22 @@ jobs:
             xcode: Xcode_15.4
             target: iOS spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: iOS spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: tvOS spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: macOS spmbuildonly
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: watchOS spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: catalyst spm
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
             target: visionOS spm
     runs-on: ${{ matrix.os }}
     steps:
@@ -185,7 +185,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthSample/Credentials.swift.gpg \
           FirebaseAuth/Tests/SampleSwift/SwiftApiTests/Credentials.swift "$plist_secret"
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 120

@@ -9,6 +9,9 @@ on:
     # Run every day at 9pm (PST) - cron uses UTC times
     - cron:  '0 5 * * *'
 
+env:
+  FIREBASE_CI: true
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
@@ -255,7 +258,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup testing repo and quickstart
       run: |
           botaccess=`cat bot-access.txt`
