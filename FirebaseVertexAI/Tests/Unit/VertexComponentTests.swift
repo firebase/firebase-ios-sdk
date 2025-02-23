@@ -50,8 +50,8 @@ class VertexComponentTests: XCTestCase {
     let vertex = VertexAI.vertexAI(app: VertexComponentTests.app, location: location)
 
     XCTAssertNotNil(vertex)
-    XCTAssertEqual(vertex.projectID, VertexComponentTests.projectID)
-    XCTAssertEqual(vertex.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
   }
 
@@ -121,12 +121,12 @@ class VertexComponentTests: XCTestCase {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = VertexAI.vertexAI(app: app, location: location)
     let model = "test-model-name"
-
     let modelResourceName = vertex.modelResourceName(modelName: model)
+    let projectID = vertex.firebaseInfo.projectID
 
     XCTAssertEqual(
       modelResourceName,
-      "projects/\(vertex.projectID)/locations/\(vertex.location)/publishers/google/models/\(model)"
+      "projects/\(projectID)/locations/\(vertex.location)/publishers/google/models/\(model)"
     )
   }
 

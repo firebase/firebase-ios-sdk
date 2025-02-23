@@ -55,13 +55,13 @@ final class ChatTests: XCTestCase {
 
     let model = GenerativeModel(
       name: "my-model",
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
-      googleAppID: "My app ID",
+      firebaseInfo: FirebaseInfo(
+        projectID: "my-project-id",
+        apiKey: "API_KEY",
+        googleAppID: "My app ID"
+      ),
       tools: nil,
       requestOptions: RequestOptions(),
-      appCheck: nil,
-      auth: nil,
       urlSession: urlSession
     )
     let chat = Chat(model: model, history: [])
