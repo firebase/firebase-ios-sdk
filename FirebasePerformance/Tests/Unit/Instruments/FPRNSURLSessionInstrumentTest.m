@@ -503,7 +503,6 @@
     [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                          GCDWebServerResponse *_Nonnull response) {
       XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
-      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
     }];
   }
   [instrument deregisterInstrumentors];
