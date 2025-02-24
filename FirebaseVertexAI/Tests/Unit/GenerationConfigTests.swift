@@ -41,27 +41,74 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
-  func testEncodeGenerationConfig_allOptions() throws {
-    let temperature: Float = 0.5
-    let topP: Float = 0.75
-    let topK = 40
-    let candidateCount = 2
-    let maxOutputTokens = 256
-    let presencePenalty: Float = 0.5
-    let frequencyPenalty: Float = 0.75
-    let stopSequences = ["END", "DONE"]
-    let responseMIMEType = "application/json"
+    func testEncodeGenerationConfig_allOptions() throws {
+        let temperature: Float = 0.5
+        let topP: Float = 0.75
+        let topK = 40
+        let candidateCount = 2
+        let maxOutputTokens = 256
+        let presencePenalty: Float = 0.5
+        let frequencyPenalty: Float = 0.75
+        let stopSequences = ["END", "DONE"]
+        let responseMIMEType = "application/json"
+        let responseModalities: [ContentModality] = [.text, .image, .audio]
+        let generationConfig = GenerationConfig(
+          temperature: temperature,
+          topP: topP,
+          topK: topK,
+          candidateCount: candidateCount,
+          maxOutputTokens: maxOutputTokens,
+          presencePenalty: presencePenalty,
+          frequencyPenalty: frequencyPenalty,
+          stopSequences: stopSequences,
+          responseMIMEType: responseMIMEType,
+          responseSchema: .array(items: .string()),
+            responseModalities: responseModalities
+        )
+
+        let jsonData = try encoder.encode(generationConfig)
+
+        let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+        XCTAssertEqual(json, """
+        {
+          "candidateCount" : \(candidateCount),
+          "frequencyPenalty" : \(frequencyPenalty),
+          "maxOutputTokens" : \(maxOutputTokens),
+          "presencePenalty" : \(presencePenalty),
+          "responseMimeType" : "\(responseMIMEType)",
+          "responseModalities" : [
+            "TEXT",
+            "IMAGE",
+            "AUDIO"
+          ],
+          "responseSchema" : {
+            "items" : {
+              "nullable" : false,
+              "type" : "STRING"
+            },
+            "nullable" : false,
+            "type" : "ARRAY"
+          },
+          "stopSequences" : [
+            "END",
+            "DONE"
+          ],
+          "temperature" : \(temperature),
+          "topK" : \(topK),
+          "topP" : \(topP)
+        }
+        """)
+    }
+
+  func testEncodeGenerationConfig_jsonResponse() throws {
+    let mimeType = "application/json"
     let generationConfig = GenerationConfig(
-      temperature: temperature,
-      topP: topP,
-      topK: topK,
-      candidateCount: candidateCount,
-      maxOutputTokens: maxOutputTokens,
-      presencePenalty: presencePenalty,
-      frequencyPenalty: frequencyPenalty,
-      stopSequences: stopSequences,
-      responseMIMEType: responseMIMEType,
-      responseSchema: .array(items: .string())
+      responseMIMEType: mimeType,
+      responseSchema: .object(properties: [
+        "firstName": .string(),
+        "lastName": .string(),
+        "age": .integer(),
+      ])
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -69,29 +116,52 @@ final class GenerationConfigTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "candidateCount" : \(candidateCount),
-      "frequencyPenalty" : \(frequencyPenalty),
-      "maxOutputTokens" : \(maxOutputTokens),
-      "presencePenalty" : \(presencePenalty),
-      "responseMimeType" : "\(responseMIMEType)",
+      "responseMimeType" : "\(mimeType)",
       "responseSchema" : {
-        "items" : {
-          "nullable" : false,
-          "type" : "STRING"
-        },
         "nullable" : false,
-        "type" : "ARRAY"
-      },
-      "stopSequences" : [
-        "END",
-        "DONE"
-      ],
-      "temperature" : \(temperature),
-      "topK" : \(topK),
-      "topP" : \(topP)
+        "properties" : {
+          "age" : {
+            "nullable" : false,
+            "type" : "INTEGER"
+          },
+          "firstName" : {
+            "nullable" : false,
+            "type" : "STRING"
+          },
+          "lastName" : {
+            "nullable" : false,
+            "type" : "STRING"
+          }
+        },
+        "required" : [
+          "age",
+          "firstName",
+          "lastName"
+        ],
+        "type" : "OBJECT"
+      }
     }
     """)
   }
+    
+    func testEncodeGenerationConfig_with_responseModalities() throws {
+      let responseModalities: [ContentModality] = [.text, .image, .audio]
+      let generationConfig = GenerationConfig(responseModalities: responseModalities)
+
+      let jsonData = try encoder.encode(generationConfig)
+
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      XCTAssertEqual(json, """
+      {
+        "responseModalities" : [
+          "TEXT",
+          "IMAGE",
+          "AUDIO"
+        ]
+      }
+      """)
+    }
+}
 
   func testEncodeGenerationConfig_jsonResponse() throws {
     let mimeType = "application/json"
