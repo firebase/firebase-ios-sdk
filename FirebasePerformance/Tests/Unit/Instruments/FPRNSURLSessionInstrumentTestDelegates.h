@@ -52,6 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Set to YES when URLSession:dataTask:didReceiveData: is called, used for testing. */
 @property(nonatomic) BOOL URLSessionDataTaskDidReceiveDataCalled;
 
+/** Set to YES when
+ * URLSession:dataTask:didReceiveResponse:completionHandler: is called, used
+ * for testing.
+ */
+@property(nonatomic) BOOL URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled;
+
 /** Set to YES when URLSession:downloadTask:didFinishDownloadingToURL: is called, used for testing.
  */
 @property(nonatomic) BOOL URLSessionDownloadTaskDidFinishDownloadingToURLCalled;
@@ -66,12 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
  * for testing.
  */
 @property(nonatomic) BOOL URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
-
-/** Set to YES when
- * URLSession:dataTask:didReceiveResponse:completionHandler: is called, used
- * for testing.
- */
-@property(nonatomic) BOOL URLSessionDownloadTaskDidReceiveResponseCompletionHandlerCalled;
 
 @end
 

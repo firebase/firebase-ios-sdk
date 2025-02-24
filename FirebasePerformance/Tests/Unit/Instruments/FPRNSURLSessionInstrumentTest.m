@@ -484,23 +484,28 @@
 
 /** Tests that the called delegate selector is wrapped and calls through. */
 - (void)testDelegateURLSessionDownloadDidReceiveResponseCompletionHandler {
-  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
-  [instrument registerInstrumentors];
-  FPRNSURLSessionCompleteTestDelegate *delegate =
-      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
-  NSURLSessionConfiguration *configuration =
-      [NSURLSessionConfiguration defaultSessionConfiguration];
-  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                        delegate:delegate
-                                                   delegateQueue:nil];
-  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testDownload"];
-  NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
-  [downloadTask resume];
-  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
-  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
-                                       GCDWebServerResponse *_Nonnull response) {
-    XCTAssertTrue(delegate.URLSessionDownloadTaskDidReceiveResponseCompletionHandlerCalled);
-  }];
+  FPRNSURLSessionInstrument *instrument;
+  NSURLSessionDataTask *dataTask;
+  @autoreleasepool {
+    instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:delegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+    dataTask = [session dataTaskWithURL:URL];
+    [dataTask resume];
+    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                         GCDWebServerResponse *_Nonnull response) {
+      XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    }];
+  }
   [instrument deregisterInstrumentors];
 }
 

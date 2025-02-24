@@ -99,7 +99,7 @@
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
-  self.URLSessionDownloadTaskDidReceiveResponseCompletionHandlerCalled = YES;
+  self.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled = YES;
 }
 
 @end
