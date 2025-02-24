@@ -1605,6 +1605,7 @@ extension Auth: AuthInterop {
     /// so the caller should ignore the URL from further processing, and `false` means the
     /// the URL is for the app (or another library) so the caller should continue handling
     /// this URL as usual.
+    @discardableResult
     @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
         guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
