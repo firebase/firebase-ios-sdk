@@ -95,6 +95,13 @@
   self.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled = YES;
 }
 
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+didReceiveResponse:(NSURLResponse *)response
+ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+  self.URLSessionDownloadTaskDidReceiveResponseCompletionHandlerCalled = YES;
+}
+
 @end
 
 @interface FPRNSURLSessionTestDownloadDelegate ()

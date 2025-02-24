@@ -67,6 +67,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic) BOOL URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
 
+
+/** Set to YES when
+ * URLSession:dataTask:didReceiveResponse:completionHandler: is called, used
+ * for testing.
+ */
+@property(nonatomic) BOOL URLSessionDownloadTaskDidReceiveResponseCompletionHandlerCalled;
+
 @end
 
 /** This class implements the methods necessary to cancel and resume a download. */
