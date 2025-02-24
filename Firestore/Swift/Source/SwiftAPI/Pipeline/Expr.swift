@@ -15,9 +15,9 @@
 public protocol Expr: Sendable, Equatable {
   func alias(_ alias: String) -> ExprWithAlias
 
-  func eq(_ expr: some Expr)
+  func eq(_ expr: BooleanExpr)
 
-  func add(_ expr: some Expr)
+  func add(_ expr: some FunctionExpr)
 
   func add(_ expr: Constant)
 }
