@@ -21,7 +21,7 @@ import Foundation
 /// documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images#aspect-ratio)
 /// for more details and examples of the supported aspect ratios.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenAspectRatio {
+public struct ImagenAspectRatio: Sendable {
   /// Square (1:1) aspect ratio.
   ///
   /// Common uses for this aspect ratio include social media posts.

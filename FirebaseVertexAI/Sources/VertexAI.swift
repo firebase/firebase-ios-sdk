@@ -149,12 +149,21 @@ public class VertexAI {
 
   private let auth: AuthInterop?
 
-  /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
-  /// the format `appName:location`.
-  private static var instances: [String: VertexAI] = [:]
+  #if compiler(>=6)
+    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
+    /// the format `appName:location`.
+    private nonisolated(unsafe) static var instances: [String: VertexAI] = [:]
 
-  /// Lock to manage access to the `instances` array to avoid race conditions.
-  private static var instancesLock: os_unfair_lock = .init()
+    /// Lock to manage access to the `instances` array to avoid race conditions.
+    private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
+  #else
+    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
+    /// the format `appName:location`.
+    private static var instances: [String: VertexAI] = [:]
+
+    /// Lock to manage access to the `instances` array to avoid race conditions.
+    private static var instancesLock: os_unfair_lock = .init()
+  #endif
 
   let projectID: String
   let apiKey: String

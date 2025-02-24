@@ -23,7 +23,7 @@
 /// guidelines](https://cloud.google.com/vertex-ai/generative-ai/docs/image/responsible-ai-imagen#safety-filters)
 /// for more details.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ImagenSafetyFilterLevel: ProtoEnum {
+public struct ImagenSafetyFilterLevel: ProtoEnum, Sendable {
   enum Kind: String {
     case blockLowAndAbove = "block_low_and_above"
     case blockMediumAndAbove = "block_medium_and_above"

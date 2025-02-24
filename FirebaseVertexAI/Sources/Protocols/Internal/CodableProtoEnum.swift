@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /// A type that represents a Protocol Buffer raw enum value.
-protocol ProtoEnum {
+protocol ProtoEnum: Sendable {
   /// The type representing the valid values for the protobuf enum.
   ///
   /// > Important: This type must conform to `RawRepresentable` with the `RawValue == String`.
