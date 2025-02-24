@@ -67,7 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic) BOOL URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled;
 
-
 /** Set to YES when
  * URLSession:dataTask:didReceiveResponse:completionHandler: is called, used
  * for testing.
