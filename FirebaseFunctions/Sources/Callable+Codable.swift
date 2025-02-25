@@ -15,14 +15,6 @@
 import FirebaseSharedSwift
 import Foundation
 
-@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
-  /// The message yielded by the callable function.
-  case message(Message)
-  /// The final result returned by the callable function.
-  case result(Result)
-}
-
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
