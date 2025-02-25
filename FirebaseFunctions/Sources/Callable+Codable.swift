@@ -175,9 +175,7 @@ public extension Callable {
             } else if let response = try? decoder.decode(Response.self, from: result.data) {
               continuation.yield(response)
             }
-            // Uncomment when we can use "StreamResponse" for now this will allows the tests to
-            // pass.
-            // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
+            // TODO: Silently failing. The response cannot be decoded to the given type.
           }
         } catch {
           continuation.finish(throwing: error)
