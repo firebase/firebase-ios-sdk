@@ -365,19 +365,19 @@ class FunctionsTests: XCTestCase {
 
   @available(iOS 15, *)
   func testGenerateStreamContent() async throws {
-    //TODO
+    XCTFail("TODO")
     //Implent full tests when stremable<> is ready.
   }
 
   @available(iOS 15, *)
   func testGenerateStreamContentCanceled() async {
-    //TODO
+    XCTFail("TODO")
     //Implent full tests when stremable<> is ready.
   }
 
   @available(iOS 15, *)
   func testGenerateContentStream_badResponse() async throws {
-    //TODO
+    XCTFail("TODO")
     //Implent full tests when stremable<> is ready.
   }
 }
