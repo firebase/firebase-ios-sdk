@@ -63,11 +63,11 @@
 @end
 
 @interface FPRNSURLSessionDelegateProxy : NSProxy <NSURLSessionDelegate> {
-  // The wrapped session object.
+  // The wrapped delegate object.
   id _delegate;
 }
 
-/** @return an instance of the session proxy. */
+/** @return an instance of the delegate proxy. */
 - (instancetype)initWithDelegate:(id <NSURLSessionDelegate>)delegate;
 
 @end
