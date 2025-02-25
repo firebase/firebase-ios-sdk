@@ -159,7 +159,6 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   public func callAsFunction(_ data: Request) async throws -> Response {
     return try await call(data)
   }
-}
 
 public extension Callable {
   // TODO: Look into handling parameter-less functions.
