@@ -985,7 +985,7 @@ class IntegrationTests: XCTestCase {
       )
 
       let result = try await response(from: stream)
-      // Since we are sending a bad URL we expect an empty array, the request was not a 200.
+      // Since we are sending a bad URL we expect an empty array, the reuqets was not a 200.
       XCTAssertEqual(
         result,
         []
