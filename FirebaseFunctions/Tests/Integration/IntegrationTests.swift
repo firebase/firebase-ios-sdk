@@ -1026,6 +1026,19 @@ class IntegrationTests: XCTestCase {
           }
       }
   }
+
+  @available(iOS 15.0, *)
+  func testGenStream_NoArgs_ThrowsError() async throws {
+      let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
+      let stream =  callable.stream("")
+      //Todo fetch actual content.
+      for try await response in stream {
+       //TODO add logic to fetch the error after we enable 
+        // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
+        // back in Callable+Codable func stream(_ data: Request?=nil) -> AsyncThrowingStream<Response, Error>
+      }
+  }
+
   private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
     any Error>) async throws -> [String] {
     var response = [String]()
