@@ -193,8 +193,8 @@ struct GenerativeAIService {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
-    if let googleAppID = firebaseInfo.googleAppID {
-      urlRequest.setValue(googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
+    if firebaseInfo.app.isDataCollectionDefaultEnabled {
+      urlRequest.setValue(firebaseInfo.googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
     }
 
     let encoder = JSONEncoder()

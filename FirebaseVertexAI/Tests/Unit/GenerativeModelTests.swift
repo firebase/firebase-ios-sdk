@@ -1454,12 +1454,17 @@ final class GenerativeModelTests: XCTestCase {
   private func testFirebaseInfo(appCheck: AppCheckInterop? = nil,
                                 auth: AuthInterop? = nil,
                                 privateAppID: Bool = false) -> FirebaseInfo {
-    FirebaseInfo(
+    let app = FirebaseApp(instanceWithName: "testApp",
+                          options: FirebaseOptions(googleAppID: "ignore",
+                                                   gcmSenderID: "ignore"))
+    app.isDataCollectionDefaultEnabled = !privateAppID
+    return FirebaseInfo(
       appCheck: appCheck,
       auth: auth,
       projectID: "my-project-id",
       apiKey: "API_KEY",
-      googleAppID: privateAppID ? nil : "My app ID"
+      googleAppID: "My app ID",
+      firebaseApp: app
     )
   }
 

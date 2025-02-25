@@ -25,17 +25,20 @@ struct FirebaseInfo {
   let auth: AuthInterop?
   let projectID: String
   let apiKey: String
-  let googleAppID: String?
+  let googleAppID: String
+  let app: FirebaseApp
 
   init(appCheck: AppCheckInterop? = nil,
        auth: AuthInterop? = nil,
        projectID: String,
        apiKey: String,
-       googleAppID: String?) {
+       googleAppID: String,
+       firebaseApp: FirebaseApp) {
     self.appCheck = appCheck
     self.auth = auth
     self.projectID = projectID
     self.apiKey = apiKey
     self.googleAppID = googleAppID
+    app = firebaseApp
   }
 }
