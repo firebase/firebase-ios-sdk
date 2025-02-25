@@ -157,3 +157,20 @@ public struct FunctionResponsePart: Part {
     self.functionResponse = functionResponse
   }
 }
+
+/// Represents the modality of the content that is outputted by the model.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct OutputContentModality: EncodableProtoEnum, Equatable {
+  let rawValue: String
+
+  public static let text = OutputContentModality(rawValue: "TEXT")
+  public static let image = OutputContentModality(rawValue: "IMAGE")
+  public static let audio = OutputContentModality(rawValue: "AUDIO")
+
+  init(rawValue: String) {
+    self.rawValue = rawValue
+  }
+    
+  public var protoEnumValue: String { rawValue }
+    
+}

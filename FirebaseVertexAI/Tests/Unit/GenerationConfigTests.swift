@@ -136,4 +136,61 @@ final class GenerationConfigTests: XCTestCase {
     }
     """)
   }
+
+    func testEncodeGenerationConfig_responseModalities() throws {
+      let generationConfig = GenerationConfig(responseModalities: [.text, .image, .audio])
+
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+
+      XCTAssertEqual(json, """
+        {
+          "responseModalities" : [
+            "TEXT",
+            "IMAGE",
+            "AUDIO"
+          ]
+        }
+      """)
+    }
+    
+    func testEncodeGenerationConfig_responseModalitiesNil() throws {
+      let generationConfig = GenerationConfig()
+
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      
+      XCTAssertEqual(json, """
+        {
+
+        }
+      """)
+    }
+
+    func testEncodeGenerationConfig_withOneResponseModality() throws {
+      let generationConfig = GenerationConfig(responseModalities: [.text])
+
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      
+      XCTAssertEqual(json, """
+        {
+          "responseModalities" : [
+            "TEXT"
+          ]
+        }
+      """)
+    }
+  
+    func testEncodeGenerationConfig_setResponseModalities() throws {
+      var generationConfig = GenerationConfig()
+      generationConfig.responseModalities = [.text, .image, .audio]
+      XCTAssertEqual(generationConfig.responseModalities, [.text, .image, .audio])
+    }
+    
+    func testInitGenerationConfig_setResponseModalities() throws {
+      var generationConfig = GenerationConfig(responseModalities: [.text, .image, .audio])
+      XCTAssertEqual(generationConfig.responseModalities, [.text, .image, .audio])
+    }
+  
 }

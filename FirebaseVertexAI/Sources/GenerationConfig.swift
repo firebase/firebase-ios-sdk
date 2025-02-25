@@ -48,7 +48,8 @@ public struct GenerationConfig {
   /// Output schema of the generated candidate text.
   let responseSchema: Schema?
 
-  /// Creates a new `GenerationConfig` value.
+    /// Output modalities of the generated candidate text.
+  let responseModalities: [OutputContentModality]?
   ///
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
@@ -143,7 +144,7 @@ public struct GenerationConfig {
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
-              responseSchema: Schema? = nil) {
+              responseSchema: Schema? = nil, responseModalities: [OutputContentModality]? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -156,6 +157,7 @@ public struct GenerationConfig {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
+    self.responseModalities = responseModalities
   }
 }
 
@@ -174,5 +176,6 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
+    case responseModalities
   }
 }

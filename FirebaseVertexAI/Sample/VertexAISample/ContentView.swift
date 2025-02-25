@@ -45,6 +45,11 @@ struct ContentView: View {
         } label: {
           Label("Function Calling", systemImage: "function")
         }
+        NavigationLink {
+            MultimodalOutputScreen()
+        } label: {
+            Label("Multimodal Output", systemImage: "rectangle.3.offgrid.fill")
+        }
       }
       .navigationTitle("Generative AI Samples")
     }
