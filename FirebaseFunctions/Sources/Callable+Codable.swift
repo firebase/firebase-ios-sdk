@@ -35,12 +35,12 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
   public init(from decoder: any Decoder) throws {
     do {
       let container = try decoder
-        .container(keyedBy: StreamResponse<Message, Result>.CodingKeys.self)
+        .container(keyedBy: Self<Message, Result>.CodingKeys.self)
       var allKeys = ArraySlice(container.allKeys)
       guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
         throw DecodingError
           .typeMismatch(
-            StreamResponse<Message,
+            Self<Message,
               Result>.self,
             DecodingError.Context(
               codingPath: container.codingPath,
@@ -52,10 +52,10 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
 
       switch onlyKey {
       case .message:
-        self = try StreamResponse
+        self = try Self
           .message(container.decode(Message.self, forKey: .message))
       case .result:
-        self = try StreamResponse
+        self = try Self
           .result(container.decode(Result.self, forKey: .result))
       }
     } catch {
