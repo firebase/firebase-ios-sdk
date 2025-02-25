@@ -976,7 +976,7 @@ class IntegrationTests: XCTestCase {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let input: [String: Any] = ["data": "Why is the sky blue"]
 
-    _ = Task.detached { [self] in
+    let task = Task.detached { [self] in
       let stream = functions.stream(
         at: emulatorURL("genStreams"),
         data: input,
