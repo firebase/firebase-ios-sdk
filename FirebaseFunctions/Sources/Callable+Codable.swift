@@ -160,7 +160,6 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     return try await call(data)
   }
 
-public extension Callable {
   // TODO: Look into handling parameter-less functions.
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   public func stream(_ data: Request? = nil) -> AsyncThrowingStream<Response, Error> {
