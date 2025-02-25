@@ -62,6 +62,35 @@
 
 @end
 
+@interface FPRNSURLSessionDelegateProxy : NSProxy <NSURLSessionDelegate> {
+  // The wrapped session object.
+  id _delegate;
+}
+
+/** @return an instance of the session proxy. */
+- (instancetype)initWithDelegate:(id <NSURLSessionDelegate>)delegate;
+
+@end
+
+@implementation FPRNSURLSessionDelegateProxy
+
+- (instancetype)initWithDelegate:(id)delegate {
+  if (self) {
+    _delegate = delegate;
+  }
+  return self;
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+  return [_delegate methodSignatureForSelector:selector];
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation {
+  [invocation invokeWithTarget:_delegate];
+}
+
+@end
+
 @interface FPRNSURLSessionInstrumentTest : FPRTestCase
 
 /** Test server to create connections to. */
@@ -433,6 +462,31 @@
 }
 
 /** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionTaskWillPerformHTTPRedirectionNewRequestCompletionHandler {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate = [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testRedirect"];
+  NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURLSessionTask *task = [session dataTaskWithRequest:request];
+  [task resume];
+  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:task]);
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue(
+        delegate.URLSessionTaskWillPerformHTTPRedirectionNewRequestCompletionHandlerCalled);
+  }];
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
 - (void)testDelegateURLSessionDataTaskDidReceiveData {
   FPRNSURLSessionInstrument *instrument;
   NSURLSessionDataTask *dataTask;
@@ -503,6 +557,7 @@
     [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                          GCDWebServerResponse *_Nonnull response) {
       XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
     }];
   }
   [instrument deregisterInstrumentors];
