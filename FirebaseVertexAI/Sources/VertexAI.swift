@@ -91,16 +91,13 @@ public class VertexAI {
     -> GenerativeModel {
     return GenerativeModel(
       name: modelResourceName(modelName: modelName),
-      projectID: projectID,
-      apiKey: apiKey,
+      firebaseInfo: firebaseInfo,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      requestOptions: requestOptions,
-      appCheck: appCheck,
-      auth: auth
+      requestOptions: requestOptions
     )
   }
 
@@ -126,13 +123,10 @@ public class VertexAI {
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
     return ImagenModel(
       name: modelResourceName(modelName: modelName),
-      projectID: projectID,
-      apiKey: apiKey,
+      firebaseInfo: firebaseInfo,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      requestOptions: requestOptions,
-      appCheck: appCheck,
-      auth: auth
+      requestOptions: requestOptions
     )
   }
 
@@ -142,12 +136,8 @@ public class VertexAI {
 
   // MARK: - Private
 
-  /// The `FirebaseApp` associated with this `VertexAI` instance.
-  private let app: FirebaseApp
-
-  private let appCheck: AppCheckInterop?
-
-  private let auth: AuthInterop?
+  /// Firebase data relevant to Vertex AI.
+  let firebaseInfo: FirebaseInfo
 
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
@@ -165,25 +155,26 @@ public class VertexAI {
     private static var instancesLock: os_unfair_lock = .init()
   #endif
 
-  let projectID: String
-  let apiKey: String
   let location: String
 
   init(app: FirebaseApp, location: String) {
-    self.app = app
-    appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
-    auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
-
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
-    self.projectID = projectID
-
     guard let apiKey = app.options.apiKey else {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
     }
-    self.apiKey = apiKey
-
+    firebaseInfo = FirebaseInfo(
+      appCheck: ComponentType<AppCheckInterop>.instance(
+        for: AppCheckInterop.self,
+        in: app.container
+      ),
+      auth: ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container),
+      projectID: projectID,
+      apiKey: apiKey,
+      googleAppID: app.options.googleAppID,
+      firebaseApp: app
+    )
     self.location = location
   }
 
@@ -205,6 +196,7 @@ public class VertexAI {
       """)
     }
 
+    let projectID = firebaseInfo.projectID
     return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
   }
 }

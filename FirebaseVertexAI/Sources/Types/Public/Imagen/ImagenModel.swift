@@ -41,20 +41,14 @@ public final class ImagenModel {
   let requestOptions: RequestOptions
 
   init(name: String,
-       projectID: String,
-       apiKey: String,
+       firebaseInfo: FirebaseInfo,
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
-       appCheck: AppCheckInterop?,
-       auth: AuthInterop?,
        urlSession: URLSession = .shared) {
     modelResourceName = name
     generativeAIService = GenerativeAIService(
-      projectID: projectID,
-      apiKey: apiKey,
-      appCheck: appCheck,
-      auth: auth,
+      firebaseInfo: firebaseInfo,
       urlSession: urlSession
     )
     self.generationConfig = generationConfig
