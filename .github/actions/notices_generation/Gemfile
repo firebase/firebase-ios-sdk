@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
 # cocoapods isn't needed for generating the Gemfile.lock, but is needed for the CI job
-gem "cocoapods"
-gem "octokit"
+gem "cocoapods", ">= 1.16.2"
+gem "octokit", "~> 4.19"
 gem "plist"
