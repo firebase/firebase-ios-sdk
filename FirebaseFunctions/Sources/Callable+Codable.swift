@@ -58,7 +58,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   /// - Parameter completion: The block to call when the HTTPS request has completed.
   public func call(_ data: Request,
                    completion: @escaping (Result<Response, Error>)
-                     -> Void) {
+                   -> Void) {
     do {
       let encoded = try encoder.encode(data)
 
@@ -105,7 +105,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   ///   - completion: The block to call when the HTTPS request has completed.
   public func callAsFunction(_ data: Request,
                              completion: @escaping (Result<Response, Error>)
-                               -> Void) {
+                             -> Void) {
     call(data, completion: completion)
   }
 
@@ -159,28 +159,30 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   public func callAsFunction(_ data: Request) async throws -> Response {
     return try await call(data)
   }
+}
 
-public extension Callable {
-  // TODO: Look into handling parameter-less functions.
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  public func stream(_ data: Request? = nil) -> AsyncThrowingStream<Response, Error> {
-    return AsyncThrowingStream { continuation in
-      Task {
-        do {
-          let encoded = try encoder.encode(data)
-          for try await result in callable.stream(encoded) {
-            if let response = try? decoder.decode([String: Response].self, from: result.data) {
-              continuation.yield(response["chunk"]!)
-            } else if let response = try? decoder.decode(Response.self, from: result.data) {
-              continuation.yield(response)
+  public extension Callable {
+    // TODO: Look into handling parameter-less functions.
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+    func stream(_ data: Request? = nil) -> AsyncThrowingStream<Response, Error> {
+      return AsyncThrowingStream { continuation in
+        Task {
+          do {
+            let encoded = try encoder.encode(data)
+            for try await result in callable.stream(encoded) {
+              if let response = try? decoder.decode([String: Response].self, from: result.data) {
+                continuation.yield(response["chunk"]!)
+              } else if let response = try? decoder.decode(Response.self, from: result.data) {
+                continuation.yield(response)
+              }
+              // TODO: Silently failing. The response cannot be decoded to the given type.
             }
-            // TODO: Silently failing. The response cannot be decoded to the given type.
+          } catch {
+            continuation.finish(throwing: error)
           }
-        } catch {
-          continuation.finish(throwing: error)
+          continuation.finish()
         }
-        continuation.finish()
       }
     }
   }
-}
+
