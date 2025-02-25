@@ -178,7 +178,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
               // TODO: Silently failing. The response cannot be decoded to the given type.
             }
           } catch {
-            continuation.finish(throwing: error)
+            // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
           }
           continuation.finish()
         }
