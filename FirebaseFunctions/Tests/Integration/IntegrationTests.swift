@@ -1007,8 +1007,7 @@ class IntegrationTests: XCTestCase {
       )
 
       let result = try await response(from: stream)
-      XCTAssertNotNil(result)
-     //Implent full tests when stremable<> is ready.
+     XCTFail("TODO: FETCH THE ERROR")
     }
   }
 
