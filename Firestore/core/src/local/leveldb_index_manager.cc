@@ -191,7 +191,10 @@ LevelDbIndexManager::LevelDbIndexManager(const User& user,
   auto cmp = [](FieldIndex* left, FieldIndex* right) {
     if (left->index_state().sequence_number() ==
         right->index_state().sequence_number()) {
-      return left->collection_group() >= right->collection_group();
+      if (left->collection_group() == right->collection_group()) {
+        return left->unique_id() > right->unique_id();
+      }
+      return left->collection_group() > right->collection_group();
     }
     return left->index_state().sequence_number() >
            right->index_state().sequence_number();
