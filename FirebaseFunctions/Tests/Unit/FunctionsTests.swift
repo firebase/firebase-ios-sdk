@@ -371,7 +371,6 @@ class FunctionsTests: XCTestCase {
   @available(iOS 15, *)
   func testGenerateStreamContentCanceled() async {
     XCTFail("TODO")
-    //Implent full tests when stremable<> is ready.
   }
 
   @available(iOS 15, *)
