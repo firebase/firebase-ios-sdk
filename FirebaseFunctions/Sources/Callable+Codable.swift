@@ -162,7 +162,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
 
   // TODO: Look into handling parameter-less functions.
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  public func stream(_ data: Request? = nil) -> AsyncThrowingStream<Response, Error> {
+  func stream(_ data: Request? = nil) -> AsyncThrowingStream<Response, Error> {
     return AsyncThrowingStream { continuation in
       Task {
         do {
