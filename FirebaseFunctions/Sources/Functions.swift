@@ -483,7 +483,7 @@ enum FunctionsConstants {
               data: Any?,
               options: HTTPSCallableOptions?,
               timeout: TimeInterval)
-    -> AsyncThrowingStream<HTTPSCallableResult, Error> {
+    -> AsyncThrowingStream<JSONStreamResponse, Error> {
     AsyncThrowingStream { continuation in
       // TODO: Vertex prints the curl command. Should this?
 
@@ -543,7 +543,7 @@ enum FunctionsConstants {
             let jsonText = String(line.dropFirst(5))
             let data: Data
             do {
-              // TODO: The error potentially thrown here is not a Functions error.
+              // TODO: The error potentially thrown here is not a Functions error. Should it be wrapped?
               data = try jsonData(jsonText: jsonText)
             } catch {
               continuation.finish(throwing: error)
@@ -552,7 +552,7 @@ enum FunctionsConstants {
 
             // Handle the content and parse it.
             do {
-              let content = try callableResult(fromResponseData: data)
+              let content = try callableStreamResult(fromResponseData: data)
               continuation.yield(content)
             } catch {
               continuation.finish(throwing: error)
@@ -570,6 +570,27 @@ enum FunctionsConstants {
 
         continuation.finish(throwing: nil)
       }
+    }
+  }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  private func callableStreamResult(fromResponseData data: Data) throws -> JSONStreamResponse {
+    let data = try processedData(fromResponseData: data)
+
+    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+
+    guard let responseJSON = responseJSONObject as? JSONStreamResponse.JSON else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.internal, userInfo: userInfo)
+    }
+
+    if let _ = responseJSON["result"] {
+      return .result(responseJSON)
+    } else if let _ = responseJSON["message"] {
+      return .message(responseJSON)
+    } else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+      throw FunctionsError(.internal, userInfo: userInfo)
     }
   }
 
@@ -725,10 +746,8 @@ enum FunctionsConstants {
       throw FunctionsError(.internal, userInfo: userInfo)
     }
 
-    // `result` is checked for backwards compatibility,
-    // `message` is checked for StreamableContent:
-    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] ?? responseJSON["message"]
-    else {
+    // `result` is checked for backwards compatibility:
+    guard let dataJSON = responseJSON["data"] ?? responseJSON["result"] else {
       let userInfo = [NSLocalizedDescriptionKey: "Response is missing data field."]
       throw FunctionsError(.internal, userInfo: userInfo)
     }

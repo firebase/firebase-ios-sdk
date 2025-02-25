@@ -866,75 +866,86 @@ class IntegrationTests: XCTestCase {
       XCTAssertEqual(response, expected)
     }
   }
+}
 
+// MARK: - Streaming
+
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+extension IntegrationTests {
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
-    let input: [String: Any] = ["data": "Why is the sky blue"]
-
-    let stream = functions.stream(
-      at: emulatorURL("genStream"),
-      data: input,
-      options: options,
-      timeout: 4.0
+    let input = ["data": "Why is the sky blue"]
+    let callable: Callable<[String: String], String> = functions.httpsCallable(
+      "genStream",
+      options: options
     )
-    let result = try await response(from: stream)
+    // TODO: This CF3 actually takes no input.
+    let stream = callable.stream(input)
+    var streamContents: [String] = []
+    for try await response in stream {
+      streamContents.append(response)
+    }
     XCTAssertEqual(
-      result,
-      [
-        "chunk hello",
-        "chunk world",
-        "chunk this",
-        "chunk is",
-        "chunk cool",
-        "hello world this is cool",
-      ]
+      streamContents,
+      ["hello", "world", "this", "is", "cool"]
     )
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  func testGenerateStreamContent_SimpleStreamResponse() async throws {
+    let callable: Callable<String, StreamResponse<String, String>> = functions
+      .httpsCallable("genStream")
+    // TODO: This CF3 actually takes no input.
+    let stream = callable.stream("genStream")
+    var streamContents: [String] = []
+    for try await response in stream {
+      switch response {
+      case let .message(message):
+        streamContents.append(message)
+      case let .result(result):
+        streamContents.append(result)
+      }
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool", "hello world this is cool"]
+    )
+  }
+
   func testGenerateStreamContent_CodableString() async throws {
     let byName: Callable<String, String> = functions.httpsCallable("genStream")
+    // TODO: This CF3 actually takes no input.
     let stream = byName.stream("This string is not needed.")
-    let result = try await response(from: stream)
-    XCTAssertEqual(
-      result,
-      [
-        "hello",
-        "world",
-        "this",
-        "is",
-        "cool",
-        "hello world this is cool",
-      ]
-    )
+    let result: [String] = try await stream.reduce([]) { $0 + [$1] }
+    XCTAssertEqual(result, ["hello", "world", "this", "is", "cool"])
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  private struct Location: Codable, Equatable {
+    let name: String
+  }
+
+  private struct WeatherForecast: Decodable, Equatable {
+    enum Conditions: String, Decodable {
+      case sunny
+      case rainy
+      case snowy
+    }
+
+    let location: Location
+    let temperature: Int
+    let conditions: Conditions
+  }
+
   func testGenerateStreamContent_CodableObject() async throws {
-    struct Location: Codable, Equatable {
-      let name: String
-    }
-    struct WeatherForecast: Decodable, Equatable {
-      enum Conditions: String, Decodable {
-        case sunny
-        case rainy
-        case snowy
-      }
-
-      let location: Location
-      let temperature: Int
-      let conditions: Conditions
-    }
-
-    let byName: Callable<[Location], WeatherForecast> = functions.httpsCallable("genStreamWeather")
-    let stream = byName.stream([
+    let callable: Callable<[Location], WeatherForecast> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = callable.stream([
       Location(name: "Toronto"),
       Location(name: "London"),
       Location(name: "Dubai"),
     ])
-    let result = try await response(from: stream)
+    let result: [WeatherForecast] = try await stream.reduce([]) { $0 + [$1] }
     XCTAssertEqual(
       result,
       [
@@ -945,71 +956,130 @@ class IntegrationTests: XCTestCase {
     )
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  func testGenerateStreamContentCanceled() async {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let input: [String: Any] = ["data": "Why is the sky blue"]
+  func testGenerateStreamContent_StreamResponse_DecodingError() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeatherError")
+    let stream = callable.stream([Location(name: "Toronto")])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch DecodingError.keyNotFound {
+      // Success.
+    } catch {
+      XCTFail("Expected error to be a `DecodingError`.")
+    }
+  }
 
+  func testGenerateStreamContent_ComplexStreamResponse() async throws {
+    // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = callable.stream([
+      Location(name: "Toronto"),
+      Location(name: "London"),
+      Location(name: "Dubai"),
+    ])
+    var streamContents: [WeatherForecast] = []
+    var streamResult = ""
+    for try await response in stream {
+      switch response {
+      case let .message(message):
+        streamContents.append(message)
+      case let .result(result):
+        streamResult = result
+      }
+    }
+    XCTAssertEqual(
+      streamContents,
+      [
+        WeatherForecast(location: Location(name: "Toronto"), temperature: 25, conditions: .snowy),
+        WeatherForecast(location: Location(name: "London"), temperature: 50, conditions: .rainy),
+        WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
+      ]
+    )
+    XCTAssertEqual(streamResult, "Number of forecasts generated: 3")
+  }
+
+  func testGenerateStreamContent_ComplexStreamResponse_Functional() async throws {
+    // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = callable.stream([
+      Location(name: "Toronto"),
+      Location(name: "London"),
+      Location(name: "Dubai"),
+    ])
+    let result: (accumulatedMessages: [WeatherForecast], result: String) =
+      try await stream.reduce(([], "")) { partialResult, streamResponse in
+        switch streamResponse {
+        case let .message(message):
+          (partialResult.accumulatedMessages + [message], partialResult.result)
+        case let .result(result):
+          (partialResult.accumulatedMessages, result)
+        }
+      }
+    XCTAssertEqual(
+      result.accumulatedMessages,
+      [
+        WeatherForecast(location: Location(name: "Toronto"), temperature: 25, conditions: .snowy),
+        WeatherForecast(location: Location(name: "London"), temperature: 50, conditions: .rainy),
+        WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
+      ]
+    )
+    XCTAssertEqual(result.result, "Number of forecasts generated: 3")
+  }
+
+  func testGenerateStreamContent_Canceled() async throws {
     let task = Task.detached { [self] in
-      let stream = functions.stream(
-        at: emulatorURL("genStream"),
-        data: input,
-        options: options,
-        timeout: 4.0
+      let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+      let callable: Callable<[String: String], String> = functions.httpsCallable(
+        "genStream",
+        options: options
       )
-
-      let result = try await response(from: stream)
+      // TODO: This CF3 actually takes no input.
+      let stream = callable.stream(["data": "Why is the sky blue"])
       // Since we cancel the call we are expecting an empty array.
-      XCTAssertEqual(
-        result,
-        []
-      )
+      return try await stream.reduce([]) { $0 + [$1] } as [String]
     }
     // We cancel the task and we expect a null response even if the stream was initiated.
     task.cancel()
-    let respone = await task.result
-    XCTAssertNotNil(respone)
+    let respone = try await task.value
+    XCTAssertEqual(respone, [])
   }
 
-  @available(iOS 15, *)
-  func testGenerateStreamContent_badResponse() async {
+  func testGenerateStreamContent_NonexistentFunction() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let input: [String: Any] = ["data": "Why is the sky blue"]
 
-    let task = Task.detached { [self] in
-      let stream = functions.stream(
-        at: emulatorURL("genStreams"),
-        data: input,
-        options: options,
-        timeout: 4.0
+    let callable: Callable<[String: String], String> = functions.httpsCallable(
+      "nonexistentFunction",
+      options: options
+    )
+    // TODO: This CF3 actually takes no input.
+    let stream = callable.stream(["data": "Why is the sky blue"])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError {
+      // TODO: Is this an expected error.
+      let expectedError = FunctionsError(
+        .internal,
+        userInfo: [NSLocalizedDescriptionKey: "Response is not a successful 200."]
       )
-
-      let result = try await response(from: stream)
-      // Since we are sending a bad URL we expect an empty array, the reuqets was not a 200.
-      XCTAssertEqual(
-        result,
-        []
-      )
+      XCTAssertEqual(error._code, expectedError._code)
+      XCTAssertEqual(error.localizedDescription, expectedError.localizedDescription)
+    } catch {
+      XCTFail("Expected error to be a `FunctionsError`.")
     }
   }
 
-  @available(iOS 15, *)
-  func testGenerateStreamContent_streamError() async throws {
+  func testGenerateStreamContent_StreamError() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let input: [String: Any] = ["data": "Why is the sky blue"]
-
-    let task = Task.detached { [self] in
-      let stream = functions.stream(
-        at: emulatorURL("genStreamError"),
-        data: input,
-        options: options,
-        timeout: 4.0
-      )
-
-      let result = try await response(from: stream)
-      XCTFail("TODO: FETCH THE ERROR")
-    }
-  }
+    let callable: Callable<[String: String], String> = functions.httpsCallable(
+      "genStreamError",
+      options: options
+    )
 
   @available(iOS 15.0, *)
   func testGenStreamContent() async throws {
@@ -1053,20 +1123,28 @@ class IntegrationTests: XCTestCase {
         if let dataString = result.data as? String {
           response.append(dataString)
         }
-      }
-    }
-    return response
-  }
 
-  private func response<T>(from stream: AsyncThrowingStream<T,
-    any Error>) async throws -> [T] where T: Decodable {
-    var response = [T]()
-    for try await result in stream {
-      response.append(result)
+    // TODO: This CF3 actually takes no input.
+    let stream = callable.stream(["data": "Why is the sky blue"])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+
+      }
+    } catch let error as FunctionsError {
+      let expectedError = FunctionsError(
+        .internal,
+        userInfo: [NSLocalizedDescriptionKey: "INTERNAL"]
+      )
+      XCTAssertEqual(error._code, expectedError._code)
+      XCTAssertEqual(error.localizedDescription, expectedError.localizedDescription)
+    } catch {
+      XCTFail("Expected error to be a `FunctionsError`.")
     }
-    return response
   }
 }
+
+// MARK: - Helpers
 
 private class AuthTokenProvider: AuthInterop {
   func getUserID() -> String? {

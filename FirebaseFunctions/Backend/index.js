@@ -140,7 +140,7 @@ exports.genStream = functionsV2.https.onCall(
   async (request, response) => {
     if (request.acceptsStreaming) {
       for await (const chunk of generateText()) {
-        response.sendChunk({ chunk });
+        response.sendChunk(chunk);
       }
     }
     return streamData.join(" ");
@@ -151,7 +151,7 @@ exports.genStreamError = functionsV2.https.onCall(
   async (request, response) => {
     if (request.acceptsStreaming) {
       for await (const chunk of generateText()) {
-        response.write({ chunk });
+        response.write(chunk);
       }
       throw Error("BOOM")
     }
@@ -175,7 +175,20 @@ exports.genStreamWeather = functionsV2.https.onCall(
   async (request, response) => {
     if (request.acceptsStreaming) {
       for await (const chunk of generateForecast(request.data)) {
-        response.sendChunk({ chunk });
+        response.sendChunk(chunk);
+      }
+    }
+    return "Number of forecasts generated: " + request.data.length;
+  }
+);
+
+exports.genStreamWeatherError = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateForecast(request.data)) {
+        // The SDK won't be able to decode the message without the location field.
+        delete chunk.location;
+        response.sendChunk(chunk);
       }
     }
     return "Number of forecasts generated: " + request.data.length;
