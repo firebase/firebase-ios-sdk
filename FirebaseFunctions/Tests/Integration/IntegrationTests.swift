@@ -1007,7 +1007,7 @@ class IntegrationTests: XCTestCase {
       )
 
       let result = try await response(from: stream)
-     XCTFail("TODO: FETCH THE ERROR")
+      XCTFail("TODO: FETCH THE ERROR")
     }
   }
 
