@@ -15,55 +15,6 @@
 import FirebaseSharedSwift
 import Foundation
 
-@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-enum StreamResponseError: Error {
-  case decodingFailure(underlyingError: any Error)
-}
-
-@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable {
-  /// The message yielded by the callable function.
-  case message(Message)
-  /// The final result returned by the callable function.
-  case result(Result)
-
-  private enum CodingKeys: String, CodingKey {
-    case message
-    case result
-  }
-
-  public init(from decoder: any Decoder) throws {
-    do {
-      let container = try decoder
-        .container(keyedBy: Self<Message, Result>.CodingKeys.self)
-      var allKeys = ArraySlice(container.allKeys)
-      guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
-        throw DecodingError
-          .typeMismatch(
-            Self<Message,
-              Result>.self,
-            DecodingError.Context(
-              codingPath: container.codingPath,
-              debugDescription: "Invalid number of keys found, expected one.",
-              underlyingError: nil
-            )
-          )
-      }
-
-      switch onlyKey {
-      case .message:
-        self = try Self
-          .message(container.decode(Message.self, forKey: .message))
-      case .result:
-        self = try Self
-          .result(container.decode(Result.self, forKey: .result))
-      }
-    } catch {
-      throw StreamResponseError.decodingFailure(underlyingError: error)
-    }
-  }
-}
-
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
@@ -210,30 +161,88 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   }
 }
 
+/// Used to determine when a `StreamResponse<_, _>` is being decoded.
+private protocol StreamResponseProtocol {}
+
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
+  StreamResponseProtocol {
+  /// The message yielded by the callable function.
+  case message(Message)
+  /// The final result returned by the callable function.
+  case result(Result)
+
+  private enum CodingKeys: String, CodingKey {
+    case message
+    case result
+  }
+
+  public init(from decoder: any Decoder) throws {
+    do {
+      let container = try decoder
+        .container(keyedBy: Self<Message, Result>.CodingKeys.self)
+      var allKeys = ArraySlice(container.allKeys)
+      guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
+        throw DecodingError
+          .typeMismatch(
+            Self<Message,
+              Result>.self,
+            DecodingError.Context(
+              codingPath: container.codingPath,
+              debugDescription: "Invalid number of keys found, expected one.",
+              underlyingError: nil
+            )
+          )
+      }
+
+      switch onlyKey {
+      case .message:
+        self = try Self
+          .message(container.decode(Message.self, forKey: .message))
+      case .result:
+        self = try Self
+          .result(container.decode(Result.self, forKey: .result))
+      }
+    } catch {
+      throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
+    }
+  }
+}
+
 public extension Callable {
-  // TODO: Look into handling parameter-less functions.
   // TODO: Ensure decoding failures are passed into reasonable errors.
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  func stream(_ data: Request) -> AsyncThrowingStream<Response, Error> {
+  func stream(_ data: Request) throws -> AsyncThrowingStream<Response, Error> {
+    let encoded: Any
+    do {
+      encoded = try encoder.encode(data)
+    } catch {
+      throw FunctionsError(.invalidArgument, userInfo: [NSUnderlyingErrorKey: error])
+    }
+
     return AsyncThrowingStream { continuation in
       Task {
         do {
-          let encoded = try encoder.encode(data)
           for try await response in callable.stream(encoded) {
-            let responseJSON = switch response {
-            case let .message(json), let .result(json): json
-            }
             do {
-              // Due to the way the response data is boxed by the SDK, this will succeed in the
-              // following cases.
-              // (a) Response is of type `StreamResponse<_, _>`
-              // (b) Response is a custom type that matches structure of type `StreamResponse<_, _>`
-              // TODO: Probably can address (b) by making firebase-specific custom key. Is it worth it though?
+              // This response JSON should only be able to be decoded to an `StreamResponse<_, _>`
+              // instance. If the decoding succeeds and the decoded response conforms to
+              // `StreamResponseProtocol`, we know it is a the `Response` generic argument
+              // is `StreamResponse<_, _>`.
+              let responseJSON = switch response {
+              case let .message(json), let .result(json): json
+              }
               let response = try decoder.decode(Response.self, from: responseJSON)
-              continuation.yield(response)
-            } catch let StreamResponseError.decodingFailure(underlyingError: error) {
+              if response is StreamResponseProtocol {
+                continuation.yield(response)
+              } else {
+                // `Response` is a custom type that matched the decoding logic as the
+                // `StreamResponse<_, _>` type. Only the `StreamResponse<_, _>` type should decode
+                // successfully here to avoid exposing the `result` value in a custom type.
+                throw FunctionsError(.internal)
+              }
+            } catch let error as FunctionsError where error.code == .dataLoss {
               // `Response` is of type `StreamResponse<_, _>`, but failed to decode. Rethrow.
-              // TODO: Wrap in Functions error.
               throw error
             } catch {
               // `Response` is *not* of type `StreamResponse<_, _>`, and needs to be unboxed and
@@ -244,12 +253,15 @@ public extension Callable {
                 continue
               }
 
-              // TODO: Error may need to be cleaned up (caught) due to custom boxing.
-              let boxedMessage = try decoder.decode(
-                StreamResponseMessage<Response>.self,
-                from: messageJSON
-              )
-              continuation.yield(boxedMessage.message)
+              do {
+                let boxedMessage = try decoder.decode(
+                  StreamResponseMessage<Response>.self,
+                  from: messageJSON
+                )
+                continuation.yield(boxedMessage.message)
+              } catch {
+                throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
+              }
             }
           }
         } catch {
@@ -266,7 +278,6 @@ struct StreamResponseMessage<Message: Decodable>: Decodable {
 }
 
 enum JSONStreamResponse {
-  typealias JSON = [String: Any]
-  case message(JSON)
-  case result(JSON)
+  case message([String: Any])
+  case result([String: Any])
 }

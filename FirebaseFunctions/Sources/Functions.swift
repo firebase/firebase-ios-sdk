@@ -485,11 +485,7 @@ enum FunctionsConstants {
               timeout: TimeInterval)
     -> AsyncThrowingStream<JSONStreamResponse, Error> {
     AsyncThrowingStream { continuation in
-      // TODO: Vertex prints the curl command. Should this?
-
       Task {
-        // TODO: This API does not throw. Should the throwing request
-        // setup be in the stream or one level up?
         let urlRequest: URLRequest
         do {
           let context = try await contextProvider.context(options: options)
@@ -501,9 +497,17 @@ enum FunctionsConstants {
             context: context
           )
         } catch {
-          continuation.finish(throwing: error)
+          continuation.finish(throwing: FunctionsError(
+            .invalidArgument,
+            userInfo: [NSUnderlyingErrorKey: error]
+          ))
           return
         }
+
+        // TODO: Vertex prints the curl command. Should this?
+        //      #if DEBUG
+        //        printCURLCommand(from: urlRequest)
+        //      #endif
 
         let stream: URLSession.AsyncBytes
         let rawResponse: URLResponse
@@ -511,7 +515,10 @@ enum FunctionsConstants {
           // TODO: Look into injecting URLSession for unit tests.
           (stream, rawResponse) = try await URLSession.shared.bytes(for: urlRequest)
         } catch {
-          continuation.finish(throwing: error)
+          continuation.finish(throwing: FunctionsError(
+            .unavailable,
+            userInfo: [NSUnderlyingErrorKey: error]
+          ))
           return
         }
 
@@ -519,7 +526,7 @@ enum FunctionsConstants {
         guard let response = rawResponse as? HTTPURLResponse else {
           continuation.finish(
             throwing: FunctionsError(
-              .internal,
+              .unavailable,
               userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
             )
           )
@@ -530,45 +537,57 @@ enum FunctionsConstants {
         guard response.statusCode == 200 else {
           continuation.finish(
             throwing: FunctionsError(
-              .internal,
-              userInfo: [NSLocalizedDescriptionKey: "Response is not a successful 200."]
+              httpStatusCode: response.statusCode, body: nil, serializer: serializer
             )
           )
           return
         }
 
-        for try await line in stream.lines {
-          if line.hasPrefix("data:") {
-            // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
-            let jsonText = String(line.dropFirst(5))
-            let data: Data
-            do {
-              // TODO: The error potentially thrown here is not a Functions error. Should it be wrapped?
-              data = try jsonData(jsonText: jsonText)
-            } catch {
-              continuation.finish(throwing: error)
-              return
-            }
+        do {
+          for try await line in stream.lines {
+            if line.hasPrefix("data:") {
+              // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+              let jsonText = String(line.dropFirst(5))
+              let data: Data
+              do {
+                data = try jsonData(jsonText: jsonText)
+              } catch {
+                continuation.finish(throwing: error)
+                return
+              }
 
-            // Handle the content and parse it.
-            do {
-              let content = try callableStreamResult(fromResponseData: data)
-              continuation.yield(content)
-            } catch {
-              continuation.finish(throwing: error)
+              // Handle the content and parse it.
+              do {
+                let content = try callableStreamResult(fromResponseData: data)
+                continuation.yield(content)
+              } catch {
+                continuation.finish(throwing: error)
+                return
+              }
+            } else {
+              continuation.finish(
+                throwing: FunctionsError(
+                  .dataLoss,
+                  userInfo: [NSLocalizedDescriptionKey: "Unexpected format for streamed response."]
+                )
+              )
               return
             }
-          } else {
-            continuation.finish(
-              throwing: FunctionsError(
-                .internal,
-                userInfo: [NSLocalizedDescriptionKey: "Unexpected format for streamed response."]
-              )
-            )
           }
+        } catch {
+          continuation.finish(
+            throwing: FunctionsError(
+              .dataLoss,
+              userInfo: [
+                NSLocalizedDescriptionKey: "Unexpected format for streamed response.",
+                NSUnderlyingErrorKey: error,
+              ]
+            )
+          )
+          return
         }
 
-        continuation.finish(throwing: nil)
+        continuation.finish()
       }
     }
   }
@@ -577,11 +596,16 @@ enum FunctionsConstants {
   private func callableStreamResult(fromResponseData data: Data) throws -> JSONStreamResponse {
     let data = try processedData(fromResponseData: data)
 
-    let responseJSONObject = try JSONSerialization.jsonObject(with: data)
+    let responseJSONObject: Any
+    do {
+      responseJSONObject = try JSONSerialization.jsonObject(with: data)
+    } catch {
+      throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
+    }
 
-    guard let responseJSON = responseJSONObject as? JSONStreamResponse.JSON else {
+    guard let responseJSON = responseJSONObject as? [String: Any] else {
       let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-      throw FunctionsError(.internal, userInfo: userInfo)
+      throw FunctionsError(.dataLoss, userInfo: userInfo)
     }
 
     if let _ = responseJSON["result"] {
@@ -589,17 +613,21 @@ enum FunctionsConstants {
     } else if let _ = responseJSON["message"] {
       return .message(responseJSON)
     } else {
-      let userInfo = [NSLocalizedDescriptionKey: "Response is missing result or message field."]
-      throw FunctionsError(.internal, userInfo: userInfo)
+      throw FunctionsError(
+        .dataLoss,
+        userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+      )
     }
   }
 
   private func jsonData(jsonText: String) throws -> Data {
     guard let data = jsonText.data(using: .utf8) else {
-      throw DecodingError.dataCorrupted(DecodingError.Context(
-        codingPath: [],
-        debugDescription: "Could not parse response as UTF8."
-      ))
+      throw FunctionsError(.dataLoss, userInfo: [
+        NSUnderlyingErrorKey: DecodingError.dataCorrupted(DecodingError.Context(
+          codingPath: [],
+          debugDescription: "Could not parse response as UTF8."
+        )),
+      ])
     }
     return data
   }

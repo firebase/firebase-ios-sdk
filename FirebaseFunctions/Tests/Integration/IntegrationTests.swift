@@ -882,7 +882,7 @@ extension IntegrationTests {
       options: options
     )
     // TODO: This CF3 actually takes no input.
-    let stream = callable.stream(input)
+    let stream = try callable.stream(input)
     var streamContents: [String] = []
     for try await response in stream {
       streamContents.append(response)
@@ -897,7 +897,7 @@ extension IntegrationTests {
     let callable: Callable<String, StreamResponse<String, String>> = functions
       .httpsCallable("genStream")
     // TODO: This CF3 actually takes no input.
-    let stream = callable.stream("genStream")
+    let stream = try callable.stream("genStream")
     var streamContents: [String] = []
     for try await response in stream {
       switch response {
@@ -916,7 +916,7 @@ extension IntegrationTests {
   func testGenerateStreamContent_CodableString() async throws {
     let byName: Callable<String, String> = functions.httpsCallable("genStream")
     // TODO: This CF3 actually takes no input.
-    let stream = byName.stream("This string is not needed.")
+    let stream = try byName.stream("This string is not needed.")
     let result: [String] = try await stream.reduce([]) { $0 + [$1] }
     XCTAssertEqual(result, ["hello", "world", "this", "is", "cool"])
   }
@@ -940,7 +940,7 @@ extension IntegrationTests {
   func testGenerateStreamContent_CodableObject() async throws {
     let callable: Callable<[Location], WeatherForecast> = functions
       .httpsCallable("genStreamWeather")
-    let stream = callable.stream([
+    let stream = try callable.stream([
       Location(name: "Toronto"),
       Location(name: "London"),
       Location(name: "Dubai"),
@@ -959,15 +959,13 @@ extension IntegrationTests {
   func testGenerateStreamContent_StreamResponse_DecodingError() async throws {
     let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
       .httpsCallable("genStreamWeatherError")
-    let stream = callable.stream([Location(name: "Toronto")])
+    let stream = try callable.stream([Location(name: "Toronto")])
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
       }
-    } catch DecodingError.keyNotFound {
-      // Success.
-    } catch {
-      XCTFail("Expected error to be a `DecodingError`.")
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
     }
   }
 
@@ -975,7 +973,7 @@ extension IntegrationTests {
     // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
     let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
       .httpsCallable("genStreamWeather")
-    let stream = callable.stream([
+    let stream = try callable.stream([
       Location(name: "Toronto"),
       Location(name: "London"),
       Location(name: "Dubai"),
@@ -1005,7 +1003,7 @@ extension IntegrationTests {
     // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
     let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
       .httpsCallable("genStreamWeather")
-    let stream = callable.stream([
+    let stream = try callable.stream([
       Location(name: "Toronto"),
       Location(name: "London"),
       Location(name: "Dubai"),
@@ -1038,7 +1036,7 @@ extension IntegrationTests {
         options: options
       )
       // TODO: This CF3 actually takes no input.
-      let stream = callable.stream(["data": "Why is the sky blue"])
+      let stream = try callable.stream(["data": "Why is the sky blue"])
       // Since we cancel the call we are expecting an empty array.
       return try await stream.reduce([]) { $0 + [$1] } as [String]
     }
@@ -1056,21 +1054,13 @@ extension IntegrationTests {
       options: options
     )
     // TODO: This CF3 actually takes no input.
-    let stream = callable.stream(["data": "Why is the sky blue"])
+    let stream = try callable.stream(["data": "Why is the sky blue"])
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
       }
-    } catch let error as FunctionsError {
-      // TODO: Is this an expected error.
-      let expectedError = FunctionsError(
-        .internal,
-        userInfo: [NSLocalizedDescriptionKey: "Response is not a successful 200."]
-      )
-      XCTAssertEqual(error._code, expectedError._code)
-      XCTAssertEqual(error.localizedDescription, expectedError.localizedDescription)
-    } catch {
-      XCTFail("Expected error to be a `FunctionsError`.")
+    } catch let error as FunctionsError where error.code == .notFound {
+      XCTAssertEqual(error.localizedDescription, "NOT FOUND")
     }
   }
 
@@ -1082,20 +1072,87 @@ extension IntegrationTests {
     )
 
     // TODO: This CF3 actually takes no input.
-    let stream = callable.stream(["data": "Why is the sky blue"])
+    let stream = try callable.stream(["data": "Why is the sky blue"])
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
       }
-    } catch let error as FunctionsError {
-      let expectedError = FunctionsError(
-        .internal,
-        userInfo: [NSLocalizedDescriptionKey: "INTERNAL"]
-      )
-      XCTAssertEqual(error._code, expectedError._code)
-      XCTAssertEqual(error.localizedDescription, expectedError.localizedDescription)
-    } catch {
-      XCTFail("Expected error to be a `FunctionsError`.")
+    } catch let error as FunctionsError where error.code == .internal {
+      XCTAssertEqual(error.localizedDescription, "INTERNAL")
+    }
+  }
+
+  func testGenerateStream_EncodingDataFails() async throws {
+    struct Foo: Encodable {
+      enum CodingKeys: CodingKey {}
+
+      func encode(to encoder: any Encoder) throws {
+        throw EncodingError
+          .invalidValue("", EncodingError.Context(codingPath: [], debugDescription: ""))
+      }
+    }
+    let callable: Callable<Foo, String> = functions
+      .httpsCallable("nonexistentFunction")
+    do {
+      _ = try callable.stream(Foo())
+    } catch let error as FunctionsError where error.code == .invalidArgument {
+      _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? EncodingError)
+    }
+  }
+
+  // This tests an edge case to assert that if a custom `Response` is used that matches the
+  // decoding logic of `StreamResponse`, the custom `Response` does not decode successfully.
+  func testGenerateStreamContent_ResultIsOnlyExposedInStreamResponse() async throws {
+    // The implementation is copied from `StreamResponse`. The only difference is the do-catch is
+    // removed from the decoding initializer.
+    enum MyStreamResponse<Message: Decodable, Result: Decodable>: Decodable {
+      /// The message yielded by the callable function.
+      case message(Message)
+      /// The final result returned by the callable function.
+      case result(Result)
+
+      private enum CodingKeys: String, CodingKey {
+        case message
+        case result
+      }
+
+      public init(from decoder: any Decoder) throws {
+        let container = try decoder
+          .container(keyedBy: Self<Message, Result>.CodingKeys.self)
+        var allKeys = ArraySlice(container.allKeys)
+        guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
+          throw DecodingError
+            .typeMismatch(
+              Self<Message,
+                Result>.self,
+              DecodingError.Context(
+                codingPath: container.codingPath,
+                debugDescription: "Invalid number of keys found, expected one.",
+                underlyingError: nil
+              )
+            )
+        }
+
+        switch onlyKey {
+        case .message:
+          self = try Self
+            .message(container.decode(Message.self, forKey: .message))
+        case .result:
+          self = try Self
+            .result(container.decode(Result.self, forKey: .result))
+        }
+      }
+    }
+
+    let callable: Callable<[Location], MyStreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([Location(name: "Toronto")])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
     }
   }
 }
