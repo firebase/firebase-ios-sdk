@@ -17,7 +17,7 @@ import Foundation
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class Chat: @unchecked Sendable {
+public final class Chat: Sendable {
   private let model: GenerativeModel
 
   /// Initializes a new chat representing a 1:1 conversation between model and user.
@@ -27,20 +27,19 @@ public class Chat: @unchecked Sendable {
   }
 
   private let historyLock = NSLock()
-  private var _history: [ModelContent] = []
+  #if compiler(>=6)
+    private nonisolated(unsafe) var _history: [ModelContent] = []
+  #else
+    private var _history: [ModelContent] = []
+  #endif
   /// The previous content from the chat that has been successfully sent and received from the
   /// model. This will be provided to the model for each message sent as context for the discussion.
   public var history: [ModelContent] {
     get {
-      historyLock.lock()
-      let result = _history
-      historyLock.unlock()
-      return result
+      historyLock.withLock { _history }
     }
     set {
-      historyLock.lock()
-      _history = newValue
-      historyLock.unlock()
+      historyLock.withLock { _history = newValue }
     }
   }
 
@@ -86,7 +85,7 @@ public class Chat: @unchecked Sendable {
     let toAdd = ModelContent(role: "model", parts: reply.parts)
 
     // Append the request and successful result to history, then return the value.
-    history.append(contentsOf: newContent)
+    appendHistory(contentsOf: newContent)
     history.append(toAdd)
     return result
   }
