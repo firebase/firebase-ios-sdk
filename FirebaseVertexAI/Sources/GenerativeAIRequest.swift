@@ -26,7 +26,7 @@ protocol GenerativeAIRequest: Encodable {
 /// Configuration parameters for sending requests to the backend.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 // TODO(#14405): Make the `apiVersion` constructor public in Firebase 12 with a default of `.v1`.
-public struct RequestOptions {
+public struct RequestOptions: Sendable {
   /// The request’s timeout interval in seconds; if not specified uses the default value for a
   /// `URLRequest`.
   let timeout: TimeInterval

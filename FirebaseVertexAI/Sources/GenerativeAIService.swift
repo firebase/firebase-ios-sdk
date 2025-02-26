@@ -69,7 +69,7 @@ struct GenerativeAIService {
 
   @available(macOS 12.0, *)
   func loadRequestStream<T: GenerativeAIRequest>(request: T)
-    -> AsyncThrowingStream<T.Response, Error> {
+    -> AsyncThrowingStream<T.Response, Error> where T: Sendable {
     return AsyncThrowingStream { continuation in
       Task {
         let urlRequest: URLRequest

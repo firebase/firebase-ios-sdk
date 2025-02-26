@@ -88,16 +88,16 @@ public class Chat {
   @available(macOS 12.0, *)
   public func sendMessageStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    // Ensure that the new content has the role set.
+    let newContent: [ModelContent] = content.map(populateContentRole(_:))
+
+    // Send the history alongside the new message as context.
+    let request = history + newContent
+    let stream = try model.generateContentStream(request)
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []
 
-        // Ensure that the new content has the role set.
-        let newContent: [ModelContent] = content.map(populateContentRole(_:))
-
-        // Send the history alongside the new message as context.
-        let request = history + newContent
-        let stream = try model.generateContentStream(request)
         do {
           for try await chunk in stream {
             // Capture any content that's streaming. This should be populated if there's no error.
@@ -114,12 +114,12 @@ public class Chat {
           return
         }
 
-        // Save the request.
-        history.append(contentsOf: newContent)
-
-        // Aggregate the content to add it to the history before we finish.
-        let aggregated = aggregatedChunks(aggregatedContent)
-        history.append(aggregated)
+//        // Save the request.
+//        history.append(contentsOf: newContent)
+//
+//        // Aggregate the content to add it to the history before we finish.
+//        let aggregated = aggregatedChunks(aggregatedContent)
+//        history.append(aggregated)
 
         continuation.finish()
       }
