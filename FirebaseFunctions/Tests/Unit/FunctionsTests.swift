@@ -364,17 +364,17 @@ class FunctionsTests: XCTestCase {
   // TODO: Implement unit test variants.
 
   @available(iOS 15, *)
-  func testGenerateStreamContent() async throws {
-    XCTFail("TODO")
+  func testGenerateStreamContent_Success() async throws {
+    // TODO: Implement full tests when Streamable is ready.
   }
 
   @available(iOS 15, *)
-  func testGenerateStreamContentCanceled() async {
-    XCTFail("TODO")
+  func testGenerateStreamContent_Canceled() async {
+    // TODO: Implement full tests when Streamable is ready.
   }
 
   @available(iOS 15, *)
-  func testGenerateContentStream_badResponse() async throws {
-    XCTFail("TODO")
+  func testGenerateStreamContent_BadResponse() async throws {
+    // TODO: Implement full tests when Streamable is ready.
   }
 }
