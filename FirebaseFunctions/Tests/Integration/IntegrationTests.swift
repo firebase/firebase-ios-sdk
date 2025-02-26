@@ -875,14 +875,11 @@ extension IntegrationTests {
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-
-    let input = ["data": "Why is the sky blue"]
     let callable: Callable<[String: String], String> = functions.httpsCallable(
       "genStream",
       options: options
     )
-    // TODO: This CF3 actually takes no input.
-    let stream = try callable.stream(input)
+    let stream = try callable.stream()
     var streamContents: [String] = []
     for try await response in stream {
       streamContents.append(response)
@@ -896,8 +893,7 @@ extension IntegrationTests {
   func testGenerateStreamContent_SimpleStreamResponse() async throws {
     let callable: Callable<String, StreamResponse<String, String>> = functions
       .httpsCallable("genStream")
-    // TODO: This CF3 actually takes no input.
-    let stream = try callable.stream("genStream")
+    let stream = try callable.stream()
     var streamContents: [String] = []
     for try await response in stream {
       switch response {
@@ -915,8 +911,7 @@ extension IntegrationTests {
 
   func testGenerateStreamContent_CodableString() async throws {
     let byName: Callable<String, String> = functions.httpsCallable("genStream")
-    // TODO: This CF3 actually takes no input.
-    let stream = try byName.stream("This string is not needed.")
+    let stream = try byName.stream()
     let result: [String] = try await stream.reduce([]) { $0 + [$1] }
     XCTAssertEqual(result, ["hello", "world", "this", "is", "cool"])
   }
@@ -1035,8 +1030,7 @@ extension IntegrationTests {
         "genStream",
         options: options
       )
-      // TODO: This CF3 actually takes no input.
-      let stream = try callable.stream(["data": "Why is the sky blue"])
+      let stream = try callable.stream()
       // Since we cancel the call we are expecting an empty array.
       return try await stream.reduce([]) { $0 + [$1] } as [String]
     }
@@ -1053,8 +1047,7 @@ extension IntegrationTests {
       "nonexistentFunction",
       options: options
     )
-    // TODO: This CF3 actually takes no input.
-    let stream = try callable.stream(["data": "Why is the sky blue"])
+    let stream = try callable.stream()
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
@@ -1070,9 +1063,7 @@ extension IntegrationTests {
       "genStreamError",
       options: options
     )
-
-    // TODO: This CF3 actually takes no input.
-    let stream = try callable.stream(["data": "Why is the sky blue"])
+    let stream = try callable.stream()
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
