@@ -168,12 +168,14 @@ async function* generateForecast(locations) {
 
 exports.genStreamWeather = functionsV2.https.onCall(
   async (request, response) => {
+    const forecasts = [];
     if (request.acceptsStreaming) {
       for await (const chunk of generateForecast(request.data)) {
+        forecasts.push(chunk)
         response.sendChunk(chunk);
       }
     }
-    return "Number of forecasts generated: " + request.data.length;
+    return { forecasts };
   }
 );
 

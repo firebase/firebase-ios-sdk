@@ -931,6 +931,10 @@ extension IntegrationTests {
     let conditions: Conditions
   }
 
+  private struct WeatherForecastReport: Decodable, Equatable {
+    let forecasts: [WeatherForecast]
+  }
+
   func testGenerateStreamContent_CodableObject() async throws {
     let callable: Callable<[Location], WeatherForecast> = functions
       .httpsCallable("genStreamWeather")
@@ -964,16 +968,16 @@ extension IntegrationTests {
   }
 
   func testGenerateStreamContent_ComplexStreamResponse() async throws {
-    // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
-    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
-      .httpsCallable("genStreamWeather")
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeather")
     let stream = try callable.stream([
       Location(name: "Toronto"),
       Location(name: "London"),
       Location(name: "Dubai"),
     ])
     var streamContents: [WeatherForecast] = []
-    var streamResult = ""
+    var streamResult: WeatherForecastReport?
     for try await response in stream {
       switch response {
       case let .message(message):
@@ -990,20 +994,23 @@ extension IntegrationTests {
         WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
       ]
     )
-    XCTAssertEqual(streamResult, "Number of forecasts generated: 3")
+
+    try XCTAssertEqual(
+      XCTUnwrap(streamResult), WeatherForecastReport(forecasts: streamContents)
+    )
   }
 
   func testGenerateStreamContent_ComplexStreamResponse_Functional() async throws {
-    // TODO: Maybe a result type that is more complicated than `String`, like a `WeatherForecastReport`?
-    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
-      .httpsCallable("genStreamWeather")
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeather")
     let stream = try callable.stream([
       Location(name: "Toronto"),
       Location(name: "London"),
       Location(name: "Dubai"),
     ])
-    let result: (accumulatedMessages: [WeatherForecast], result: String) =
-      try await stream.reduce(([], "")) { partialResult, streamResponse in
+    let result: (accumulatedMessages: [WeatherForecast], result: WeatherForecastReport?) =
+      try await stream.reduce(([], nil)) { partialResult, streamResponse in
         switch streamResponse {
         case let .message(message):
           (partialResult.accumulatedMessages + [message], partialResult.result)
@@ -1019,7 +1026,10 @@ extension IntegrationTests {
         WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
       ]
     )
-    XCTAssertEqual(result.result, "Number of forecasts generated: 3")
+
+    try XCTAssertEqual(
+      XCTUnwrap(result.result), WeatherForecastReport(forecasts: result.accumulatedMessages)
+    )
   }
 
   func testGenerateStreamContent_Canceled() async throws {
