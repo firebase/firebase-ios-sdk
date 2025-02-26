@@ -254,7 +254,7 @@ public extension Callable {
 
               do {
                 let boxedMessage = try decoder.decode(
-                  StreamResponseMessage<Response>.self,
+                  StreamResponseMessage.self,
                   from: messageJSON
                 )
                 continuation.yield(boxedMessage.message)
@@ -270,12 +270,15 @@ public extension Callable {
       }
     }
   }
+
+  /// A container type for the type-safe decoding of the message object from
+  /// the generic Response type.
+  private struct StreamResponseMessage: Decodable {
+    let message: Response
+  }
 }
 
-struct StreamResponseMessage<Message: Decodable>: Decodable {
-  let message: Message
-}
-
+/// A container type for differentiating between message and result responses.
 enum JSONStreamResponse {
   case message([String: Any])
   case result([String: Any])
