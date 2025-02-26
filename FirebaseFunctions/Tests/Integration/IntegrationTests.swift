@@ -872,7 +872,6 @@ class IntegrationTests: XCTestCase {
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension IntegrationTests {
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let callable: Callable<[String: String], String> = functions.httpsCallable(
