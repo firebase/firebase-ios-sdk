@@ -209,9 +209,8 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
   }
 }
 
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 public extension Callable {
-  // TODO: Ensure decoding failures are passed into reasonable errors.
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func stream(_ data: Request) throws -> AsyncThrowingStream<Response, Error> {
     let encoded: Any
     do {
