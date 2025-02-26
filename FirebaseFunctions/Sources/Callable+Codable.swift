@@ -15,14 +15,11 @@
 import FirebaseSharedSwift
 import Foundation
 
-/// A convenience type used to represent that a callable function does not
-/// accept parameters.
-///
-/// This can be used as the generic `Request` parameter to ``Callable`` to
-/// indicate the callable function does not accept parameters.
-public struct EmptyRequest: Encodable {}
-
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
+///
+/// - Note: If the Callable HTTPS trigger accepts no parameters, ``Never`` can
+/// be used for iOS 17.0+. Otherwise, a simple encodable placeholder type
+/// (e.g., `struct EmptyRequest: Encodable {}`) can be used.
 public struct Callable<Request: Encodable, Response: Decodable> {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
   public var timeoutInterval: TimeInterval {

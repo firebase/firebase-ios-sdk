@@ -870,6 +870,13 @@ class IntegrationTests: XCTestCase {
 
 // MARK: - Streaming
 
+/// A convenience type used to represent that a callable function does not
+/// accept parameters.
+///
+/// This can be used as the generic `Request` parameter to ``Callable`` to
+/// indicate the callable function does not accept parameters.
+struct EmptyRequest: Encodable {}
+
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension IntegrationTests {
   func testGenerateStreamContent() async throws {
