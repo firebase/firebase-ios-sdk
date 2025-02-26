@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Streaming callable functions are now supported.
+
 # 10.10.0
 - [fixed] Fixed potential memory leak of Functions instances. (#11248)
 - [added] Callable functions can now opt in to using limited-use App Check
