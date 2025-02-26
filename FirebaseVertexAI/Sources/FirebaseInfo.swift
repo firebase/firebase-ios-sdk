@@ -14,6 +14,7 @@
 
 import Foundation
 
+// TODO: Remove `@preconcurrency` when possible.
 @preconcurrency import FirebaseAppCheckInterop
 @preconcurrency import FirebaseAuthInterop
 @preconcurrency import FirebaseCore

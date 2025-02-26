@@ -44,9 +44,9 @@ public final class Chat: Sendable {
   }
 
   private func appendHistory(contentsOf: [ModelContent]) {
-    historyLock.lock()
-    _history.append(contentsOf: contentsOf)
-    historyLock.unlock()
+    historyLock.withLock {
+      _history.append(contentsOf: contentsOf)
+    }
   }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
