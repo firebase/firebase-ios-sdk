@@ -133,9 +133,15 @@ jobs:
         include:
           - os: macos-14
             xcode: Xcode_15.2
+            swift_version: 5.9
             warnings: --allow-warnings
           - os: macos-15
             xcode: Xcode_16.2
+            swift_version: 5.9
+            warnings:
+          - os: macos-15
+            xcode: Xcode_16.2
+            swift_version: 6.0
             warnings:
     runs-on: ${{ matrix.os }}
     steps:
@@ -147,6 +153,8 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Set Swift swift_version
+      run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseVertexAI.podspec
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseVertexAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}
 
