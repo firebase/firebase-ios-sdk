@@ -1081,55 +1081,11 @@ extension IntegrationTests {
       options: options
     )
 
-  @available(iOS 15.0, *)
-  func testGenStreamContent() async throws {
-      let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
-      let stream =  callable.stream("genStream")
-      //Todo fetch actual content.
-      for try await response in stream {
-        switch response {
-          case .message(let message):
-              print("Message: \(message)")
-          case .result(let result):
-              print("Result: \(result)")
-          }
-      }
-  }
-
-  @available(iOS 15.0, *)
-  func testGenStream_NoArgs_ThrowsError() async throws {
-      let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
-      let stream =  callable.stream("")
-      //Todo fetch actual content.
-      for try await response in stream {
-       //TODO add logic to fetch the error after we enable 
-        // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
-        // back in Callable+Codable func stream(_ data: Request?=nil) -> AsyncThrowingStream<Response, Error>
-      }
-  }
-
-  private func response(from stream: AsyncThrowingStream<HTTPSCallableResult,
-    any Error>) async throws -> [String] {
-    var response = [String]()
-    for try await result in stream {
-      // First chunk of the stream comes as NSDictionary
-      if let dataChunk = result.data as? NSDictionary {
-        for (key, value) in dataChunk {
-          response.append("\(key) \(value)")
-        }
-      } else {
-        // Last chunk is the concatenated result so we have to parse it as String else will
-        // fail.
-        if let dataString = result.data as? String {
-          response.append(dataString)
-        }
-
     // TODO: This CF3 actually takes no input.
     let stream = callable.stream(["data": "Why is the sky blue"])
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
-
       }
     } catch let error as FunctionsError {
       let expectedError = FunctionsError(
@@ -1164,4 +1120,34 @@ private class AuthTokenProvider: AuthInterop {
 
 private class MessagingTokenProvider: NSObject, MessagingInterop {
   var fcmToken: String? { return "fakeFCMToken" }
+}
+
+
+extension IntegrationTests {
+  @available(iOS 15.0, *)
+   func testGenStreamContent() async throws {
+       let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
+       let stream =  callable.stream("genStream")
+       //TODO fetch actual content.
+       for try await response in stream {
+         switch response {
+           case .message(let message):
+               print("Message: \(message)")
+           case .result(let result):
+               print("Result: \(result)")
+           }
+       }
+   }
+
+   @available(iOS 15.0, *)
+   func testGenStream_NoArgs_ThrowsError() async throws {
+       let callable: Callable<String, StreamResponse<String, String>> = functions.httpsCallable("genStream")
+       let stream =  callable.stream("")
+       //TODO fetch actual content.
+       for try await _ in stream {
+        //TODO add logic to fetch the error after we enable
+         // throw(NSError(domain: "The response cannot be decoded to the given type.", code: 0, userInfo: nil))
+         // back in Callable+Codable func stream(_ data: Request?=nil) -> AsyncThrowingStream<Response, Error>
+       }
+   }
 }
