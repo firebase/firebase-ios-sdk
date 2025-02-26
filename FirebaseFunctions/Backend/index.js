@@ -149,12 +149,7 @@ exports.genStream = functionsV2.https.onCall(
 
 exports.genStreamError = functionsV2.https.onCall(
   async (request, response) => {
-    if (request.acceptsStreaming) {
-      for await (const chunk of generateText()) {
-        response.write(chunk);
-      }
-      throw Error("BOOM")
-    }
+    throw Error("BOOM")
   }
 );
 
