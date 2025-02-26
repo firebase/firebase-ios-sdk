@@ -133,6 +133,9 @@ jobs:
         include:
           - os: macos-14
             xcode: Xcode_15.2
+            warnings: --allow-warnings
+          - os: macos-15
+            xcode: Xcode_16.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -144,7 +147,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseVertexAI.podspec --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseVertexAI.podspec --platforms=${{ matrix.target }} {{ matrix.warnings }}
 
   sample:
     strategy:
