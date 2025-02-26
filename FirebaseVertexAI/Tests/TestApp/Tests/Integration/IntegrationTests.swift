@@ -102,8 +102,8 @@ final class IntegrationTests: XCTestCase {
     8.  Neptune
     """
     let prompt = """
-    What are the names of the planets in the solar system, ordered from from closest to furthest
-    from the sun? Answer with a Markdown numbered list of the names and no other text.
+    What are the names of the planets in the solar system, ordered from closest to furthest from
+    the sun? Answer with a Markdown numbered list of the names and no other text.
     """
     let chat = model.startChat()
 
