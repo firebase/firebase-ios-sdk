@@ -330,6 +330,10 @@ class FieldIndex {
   /** Returns the ArrayContains/ArrayContainsAny segment for this index. */
   absl::optional<Segment> GetArraySegment() const;
 
+  /**
+   * Returns the unique identifier for this object, ensuring a strict ordering
+   * in the priority queue's comparison function.
+   */
   int unique_id() const {
     return unique_id_;
   }
