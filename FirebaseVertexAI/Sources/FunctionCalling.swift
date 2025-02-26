@@ -19,7 +19,7 @@ import Foundation
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionDeclaration {
+public struct FunctionDeclaration: Equatable {
   /// The name of the function.
   let name: String
 
@@ -47,6 +47,22 @@ public struct FunctionDeclaration {
       optionalProperties: optionalParameters,
       nullable: false
     )
+  }
+
+  /// Constructs a new `FunctionDeclaration`.
+  ///
+  /// - Parameters:
+  ///   - jsonString: A string representing a function declaration in JSON format; see the [REST
+  ///   documentation]( https://cloud.google.com/vertex-ai/generative-ai/docs/reference/rest/v1/Tool#FunctionDeclaration)
+  ///   for details.
+  public init(jsonString: String) throws {
+    guard let jsonData = jsonString.data(using: .utf8) else {
+      throw DecodingError.dataCorrupted(DecodingError.Context(
+        codingPath: [],
+        debugDescription: "Could not parse JSON string as UTF8."
+      ))
+    }
+    self = try JSONDecoder().decode(Self.self, from: jsonData)
   }
 }
 
@@ -146,7 +162,7 @@ public struct ToolConfig {
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FunctionDeclaration: Encodable {
+extension FunctionDeclaration: Codable {
   enum CodingKeys: String, CodingKey {
     case name
     case description

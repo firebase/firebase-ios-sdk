@@ -19,7 +19,7 @@ import Foundation
 /// These types can be objects, but also primitives and arrays. Represents a select subset of an
 /// [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class Schema {
+public final class Schema {
   /// Modifiers describing the expected format of a string `Schema`.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct StringFormat: EncodableProtoEnum {
@@ -319,7 +319,7 @@ public class Schema {
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Schema: Encodable {
+extension Schema: Codable {
   enum CodingKeys: String, CodingKey {
     case dataType = "type"
     case format
@@ -329,5 +329,17 @@ extension Schema: Encodable {
     case items
     case properties
     case requiredProperties = "required"
+  }
+}
+
+// MARK: - Equatable Conformance
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Schema: Equatable {
+  public static func == (lhs: Schema, rhs: Schema) -> Bool {
+    return lhs.dataType == rhs.dataType && lhs.format == rhs.format
+      && lhs.description == rhs.description && lhs.nullable == rhs.nullable
+      && lhs.enumValues == rhs.enumValues && lhs.items == rhs.items
+      && lhs.properties == rhs.properties && lhs.requiredProperties == rhs.requiredProperties
   }
 }

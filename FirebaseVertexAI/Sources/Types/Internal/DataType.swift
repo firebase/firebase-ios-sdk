@@ -37,4 +37,4 @@ enum DataType: String {
 
 // MARK: - Codable Conformance
 
-extension DataType: Encodable {}
+extension DataType: Codable {}
