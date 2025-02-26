@@ -17,7 +17,7 @@ import Foundation
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class Chat {
+public class Chat: @unchecked Sendable {
   private let model: GenerativeModel
 
   /// Initializes a new chat representing a 1:1 conversation between model and user.
@@ -26,9 +26,29 @@ public class Chat {
     self.history = history
   }
 
+  private let historyLock = NSLock()
+  private var _history: [ModelContent] = []
   /// The previous content from the chat that has been successfully sent and received from the
   /// model. This will be provided to the model for each message sent as context for the discussion.
-  public var history: [ModelContent]
+  public var history: [ModelContent] {
+    get {
+      historyLock.lock()
+      let result = _history
+      historyLock.unlock()
+      return result
+    }
+    set {
+      historyLock.lock()
+      _history = newValue
+      historyLock.unlock()
+    }
+  }
+
+  private func appendHistory(contentsOf: [ModelContent]) {
+    historyLock.lock()
+    _history.append(contentsOf: contentsOf)
+    historyLock.unlock()
+  }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
@@ -114,13 +134,12 @@ public class Chat {
           return
         }
 
-//        // Save the request.
-//        history.append(contentsOf: newContent)
-//
-//        // Aggregate the content to add it to the history before we finish.
-//        let aggregated = aggregatedChunks(aggregatedContent)
-//        history.append(aggregated)
+        // Save the request.
+        appendHistory(contentsOf: newContent)
 
+        // Aggregate the content to add it to the history before we finish.
+        let aggregated = self.aggregatedChunks(aggregatedContent)
+        self.history.append(aggregated)
         continuation.finish()
       }
     }
