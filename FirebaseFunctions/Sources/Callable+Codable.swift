@@ -211,7 +211,7 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 public extension Callable {
-  func stream(_ data: Request) throws -> AsyncThrowingStream<Response, Error> {
+  func stream(_ data: Request? = nil) throws -> AsyncThrowingStream<Response, Error> {
     let encoded: Any
     do {
       encoded = try encoder.encode(data)
