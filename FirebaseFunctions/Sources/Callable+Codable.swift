@@ -15,6 +15,13 @@
 import FirebaseSharedSwift
 import Foundation
 
+/// A convenience type used to represent that a callable function does not
+/// accept parameters.
+///
+/// This can be used as the generic `Request` parameter to ``Callable`` to
+/// indicate the callable function does not accept parameters.
+public struct EmptyRequest: Encodable {}
+
 /// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {
   /// The timeout to use when calling the function. Defaults to 70 seconds.

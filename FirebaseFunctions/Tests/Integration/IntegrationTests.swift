@@ -874,7 +874,7 @@ class IntegrationTests: XCTestCase {
 extension IntegrationTests {
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let callable: Callable<[String: String], String> = functions.httpsCallable(
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
       "genStream",
       options: options
     )
@@ -890,7 +890,7 @@ extension IntegrationTests {
   }
 
   func testGenerateStreamContent_SimpleStreamResponse() async throws {
-    let callable: Callable<String, StreamResponse<String, String>> = functions
+    let callable: Callable<EmptyRequest, StreamResponse<String, String>> = functions
       .httpsCallable("genStream")
     let stream = try callable.stream()
     var streamContents: [String] = []
@@ -909,7 +909,7 @@ extension IntegrationTests {
   }
 
   func testGenerateStreamContent_CodableString() async throws {
-    let byName: Callable<String, String> = functions.httpsCallable("genStream")
+    let byName: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
     let stream = try byName.stream()
     let result: [String] = try await stream.reduce([]) { $0 + [$1] }
     XCTAssertEqual(result, ["hello", "world", "this", "is", "cool"])
@@ -1035,7 +1035,7 @@ extension IntegrationTests {
   func testGenerateStreamContent_Canceled() async throws {
     let task = Task.detached { [self] in
       let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-      let callable: Callable<[String: String], String> = functions.httpsCallable(
+      let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
         "genStream",
         options: options
       )
@@ -1052,7 +1052,7 @@ extension IntegrationTests {
   func testGenerateStreamContent_NonexistentFunction() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
-    let callable: Callable<[String: String], String> = functions.httpsCallable(
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
       "nonexistentFunction",
       options: options
     )
@@ -1068,7 +1068,7 @@ extension IntegrationTests {
 
   func testGenerateStreamContent_StreamError() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let callable: Callable<[String: String], String> = functions.httpsCallable(
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
       "genStreamError",
       options: options
     )
