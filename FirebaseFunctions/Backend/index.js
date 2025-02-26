@@ -191,5 +191,3 @@ exports.genStreamWeatherError = functionsV2.https.onCall(
     return "Number of forecasts generated: " + request.data.length;
   }
 );
-
-// TODO: Maybe a function that returns Void?
