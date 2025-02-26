@@ -19,7 +19,7 @@ import Foundation
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public final class GenerativeModel {
+public final class GenerativeModel: Sendable {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 

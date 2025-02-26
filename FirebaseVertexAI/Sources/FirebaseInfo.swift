@@ -14,13 +14,14 @@
 
 import Foundation
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseCore
+// TODO: Remove `@preconcurrency` when possible.
+@preconcurrency import FirebaseAppCheckInterop
+@preconcurrency import FirebaseAuthInterop
+@preconcurrency import FirebaseCore
 
 /// Firebase data used by VertexAI
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct FirebaseInfo {
+struct FirebaseInfo: Sendable {
   let appCheck: AppCheckInterop?
   let auth: AuthInterop?
   let projectID: String
