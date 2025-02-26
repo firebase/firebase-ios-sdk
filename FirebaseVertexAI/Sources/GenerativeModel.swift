@@ -185,10 +185,9 @@ public final class GenerativeModel: Sendable {
                                                         isStreaming: true,
                                                         options: requestOptions)
 
+    var responseIterator = generativeAIService.loadRequestStream(request: generateContentRequest)
+      .makeAsyncIterator()
     return AsyncThrowingStream {
-      var responseIterator = self.generativeAIService.loadRequestStream(
-        request: generateContentRequest
-      ).makeAsyncIterator()
       let response: GenerateContentResponse?
       do {
         response = try await responseIterator.next()
