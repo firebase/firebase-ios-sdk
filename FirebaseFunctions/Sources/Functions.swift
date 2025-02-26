@@ -512,7 +512,6 @@ enum FunctionsConstants {
         let stream: URLSession.AsyncBytes
         let rawResponse: URLResponse
         do {
-          // TODO: Look into injecting URLSession for unit tests.
           (stream, rawResponse) = try await URLSession.shared.bytes(for: urlRequest)
         } catch {
           continuation.finish(throwing: FunctionsError(
