@@ -187,7 +187,8 @@ public final class GenerativeModel: Sendable {
 
     return AsyncThrowingStream { continuation in
       let responseIterator = generativeAIService.loadRequestStream(request: generateContentRequest)
-      Task{
+      Task {
+        do {
           for try await response in responseIterator {
             // Check the prompt feedback to see if the prompt was blocked.
             if response.promptFeedback?.blockReason != nil {
@@ -196,17 +197,20 @@ public final class GenerativeModel: Sendable {
 
             // If the stream ended early unexpectedly, throw an error.
             if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
-              throw GenerateContentError.responseStoppedEarly(reason: finishReason, response: response)
+              throw GenerateContentError.responseStoppedEarly(
+                reason: finishReason,
+                response: response
+              )
             }
-            
-              continuation.yield(response)
+
+            continuation.yield(response)
           }
         } catch {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
           return
         }
-        
-        continuation.finish(throwing: nil)
+      }
+      continuation.finish(throwing: nil)
     }
   }
 
