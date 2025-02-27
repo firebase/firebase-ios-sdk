@@ -523,7 +523,8 @@ enum FunctionsConstants {
     return fetcher
   }
 
-  private func processedError(fromResponseError error: any Error, endpointURL url: URL) -> any Error {
+  private func processedError(fromResponseError error: any Error,
+                              endpointURL url: URL) -> any Error {
     let error = error as NSError
     let localError: (any Error)? = if error.domain == kGTMSessionFetcherStatusDomain {
       FunctionsError(
@@ -540,7 +541,8 @@ enum FunctionsConstants {
     return localError ?? error
   }
 
-  private func callableResult(fromResponseData data: Data, endpointURL url: URL) throws -> HTTPSCallableResult {
+  private func callableResult(fromResponseData data: Data,
+                              endpointURL url: URL) throws -> HTTPSCallableResult {
     let processedData = try processedData(fromResponseData: data, endpointURL: url)
     let json = try responseDataJSON(from: processedData)
     // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws

@@ -180,7 +180,8 @@ struct FunctionsError: CustomNSError {
   ///     }
   ///     ```
   ///   - serializer: The `FunctionsSerializer` used to decode `details` in the error body.
-  init?(httpStatusCode: Int, region: String, url: URL, body: Data?, serializer: FunctionsSerializer) {
+  init?(httpStatusCode: Int, region: String, url: URL, body: Data?,
+        serializer: FunctionsSerializer) {
     // Start with reasonable defaults from the status code.
     var code = FunctionsErrorCode(httpStatusCode: httpStatusCode)
     var description = Self.errorDescription(from: code)
