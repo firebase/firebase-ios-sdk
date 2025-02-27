@@ -51,11 +51,6 @@ static NSString *const kFAEventNameForDismiss = @"firebase_in_app_message_dismis
 static NSString *const kFAUserPropertyForLastNotification = @"_ln";
 static NSString *const kFAUserPropertyPrefixForFIAM = @"fiam:";
 
-// This user defaults key is for the entry to tell when we should remove the private user
-// property from a prior action url click to stop conversion attribution for a campaign
-static NSString *const kFIAMUserDefaultsKeyForRemoveUserPropertyTimeInSeconds =
-    @"firebase-iam-conversion-tracking-expires-in-seconds";
-
 @implementation FIRIAMAnalyticsEventLoggerImpl {
   id<FIRAnalyticsInterop> _analytics;
 }
