@@ -504,11 +504,6 @@ enum FunctionsConstants {
           return
         }
 
-        // TODO: Vertex prints the curl command. Should this?
-        //      #if DEBUG
-        //        printCURLCommand(from: urlRequest)
-        //      #endif
-
         let stream: URLSession.AsyncBytes
         let rawResponse: URLResponse
         do {
