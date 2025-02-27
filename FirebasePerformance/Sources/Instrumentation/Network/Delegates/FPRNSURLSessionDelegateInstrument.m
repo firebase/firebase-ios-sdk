@@ -132,7 +132,7 @@ void InstrumentURLSessionDataTaskDidReceiveData(FPRClassInstrumentor *instrument
  */
 FOUNDATION_STATIC_INLINE
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
-void InstrumentURLSessionTaskDidReceiveResponseCompletionHandler(
+void InstrumentURLSessionDataTaskDidReceiveResponseCompletionHandler(
     FPRClassInstrumentor *instrumentor) {
   SEL selector = @selector(URLSession:dataTask:didReceiveResponse:completionHandler:);
   FPRSelectorInstrumentor *selectorInstrumentor =
@@ -254,7 +254,7 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     // NSURLSessionTaskDelegate methods.
     InstrumentURLSessionTaskDidCompleteWithError(instrumentor);
     InstrumentURLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSend(instrumentor);
-    InstrumentURLSessionTaskDidReceiveResponseCompletionHandler(instrumentor);
+    InstrumentURLSessionDataTaskDidReceiveResponseCompletionHandler(instrumentor);
 
     // NSURLSessionDataDelegate methods.
     InstrumentURLSessionDataTaskDidReceiveData(instrumentor);
