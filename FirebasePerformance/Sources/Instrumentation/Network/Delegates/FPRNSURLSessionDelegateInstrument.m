@@ -33,7 +33,41 @@ static dispatch_queue_t GetInstrumentationQueue(void) {
   return queue;
 }
 
+typedef void (^FPRDataTaskDelegateCompletionHandler)(NSURLSessionResponseDisposition);
+
 #pragma mark - NSURLSessionTaskDelegate methods
+
+/** Instruments URLSession:dataTask:didReceiveResponse:completionHandler:
+ *
+ *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
+ */
+FOUNDATION_STATIC_INLINE
+NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
+void InstrumentURLSessionTaskDidReceiveResponseCompletionHandler(
+    FPRClassInstrumentor *instrumentor) {
+  SEL selector = @selector(URLSession:dataTask:didReceiveResponse:completionHandler:);
+  FPRSelectorInstrumentor *selectorInstrumentor =
+      [instrumentor instrumentorForInstanceSelector:selector];
+  if (selectorInstrumentor) {
+    IMP currentIMP = selectorInstrumentor.currentIMP;
+    [selectorInstrumentor
+        setReplacingBlock:^(id object, NSURLSession *session, NSURLSessionTask *task,
+                            NSURLResponse *response,
+                            FPRDataTaskDelegateCompletionHandler completionHandler) {
+          @try {
+            FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
+            [trace didCompleteRequestWithResponse:task.response error:task.error];
+            [FPRNetworkTrace removeNetworkTraceFromObject:task];
+          } @catch (NSException *exception) {
+            FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
+          } @finally {
+            typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *,
+                                        NSURLResponse *, FPRDataTaskDelegateCompletionHandler);
+            ((OriginalImp)currentIMP)(object, selector, session, task, response, completionHandler);
+          }
+        }];
+  }
+}
 
 /** Instruments URLSession:task:didCompleteWithError:.
  *
@@ -246,6 +280,8 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     CopySelector(@selector(URLSession:task:didCompleteWithError:), instrumentor);
     CopySelector(@selector(URLSession:
                                  task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:),
+                 instrumentor);
+    CopySelector(@selector(URLSession:dataTask:didReceiveResponse:completionHandler:),
                  instrumentor);
 
     // NSURLSessionDataDelegate methods.

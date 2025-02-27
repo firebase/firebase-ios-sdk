@@ -62,13 +62,13 @@
 
 @end
 
-@interface FPRNSURLSessionDelegateProxy : NSProxy <NSURLSessionDelegate> {
+@interface FPRNSURLSessionDelegateProxy : NSProxy {
   // The wrapped delegate object.
   id _delegate;
 }
 
 /** @return an instance of the delegate proxy. */
-- (instancetype)initWithDelegate:(id <NSURLSessionDelegate>)delegate;
+- (instancetype)initWithDelegate:(id)delegate;
 
 @end
 
@@ -83,6 +83,10 @@
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
   return [_delegate methodSignatureForSelector:selector];
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector {
+  return [_delegate respondsToSelector:aSelector];
 }
 
 - (void)forwardInvocation:(NSInvocation *)invocation {
@@ -547,7 +551,8 @@
     [instrument registerInstrumentors];
     FPRNSURLSessionCompleteTestDelegate *delegate =
         [[FPRNSURLSessionCompleteTestDelegate alloc] init];
-    FPRNSURLSessionDelegateProxy *proxyDelegate = [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+    FPRNSURLSessionDelegateProxy *proxyDelegate =
+        [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
@@ -560,6 +565,7 @@
     [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                          GCDWebServerResponse *_Nonnull response) {
       XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
     }];
   }
   [instrument deregisterInstrumentors];
