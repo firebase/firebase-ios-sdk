@@ -222,10 +222,22 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
 public extension Callable {
   /// Creates a stream that yields responses from the streaming callable function.
   ///
+  /// The request to the Cloud Functions backend made by this method
+  /// automatically includes a FCM token to identify the app instance.
+  /// If a user is logged in with Firebase Auth, an auth ID token for the
+  /// user is included. If App Check is integrated, an app check token is
+  /// included.
+  ///
+  /// Firebase Cloud Messaging sends data to the Firebase backend
+  /// periodically to collect information regarding the app instance. To
+  /// stop this, see `Messaging.deleteData()`. It resumes with a new FCM
+  /// Token the next time you call this method.
+  ///
   /// - Parameter data: The `Request` data to pass to the callable function.
-  /// - Throws: A ``FunctionsError`` if the parameter `data` cannot be encoded.
+  /// - Throws: A ``FunctionsError`` if the parameter `data` cannot be
+  ///   encoded.
   /// - Returns: A stream wrapping responses yielded by the streaming callable
-  /// function or a ``FunctionsError`` if an error occurred.
+  ///   function  or a ``FunctionsError`` if an error occurred.
   func stream(_ data: Request? = nil) throws -> AsyncThrowingStream<Response, Error> {
     let encoded: Any
     do {
