@@ -22,9 +22,7 @@ import FirebaseCore
   import GTMSessionFetcherCore
 #endif
 
-#if SWIFT_PACKAGE
-  import SharedTestUtilities
-#endif
+import SharedTestUtilities
 import XCTest
 
 class FunctionsTests: XCTestCase {
@@ -359,22 +357,5 @@ class FunctionsTests: XCTestCase {
       completionExpectation.fulfill()
     }
     waitForExpectations(timeout: 1.5)
-  }
-
-  // TODO: Implement unit test variants.
-
-  @available(iOS 15, *)
-  func testGenerateStreamContent_Success() async throws {
-    // TODO: Implement full tests when Streamable is ready.
-  }
-
-  @available(iOS 15, *)
-  func testGenerateStreamContent_Canceled() async {
-    // TODO: Implement full tests when Streamable is ready.
-  }
-
-  @available(iOS 15, *)
-  func testGenerateStreamContent_BadResponse() async throws {
-    // TODO: Implement full tests when Streamable is ready.
   }
 }
