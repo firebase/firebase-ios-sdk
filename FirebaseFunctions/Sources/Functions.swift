@@ -474,9 +474,9 @@ enum FunctionsConstants {
   ///  Function to initialize a streamaing event for an HTTPCallable
   /// - Parameters:
   ///   - url: The url of the Callable HTTPS trigger.
-  ///   - data:   Object to be sent in the request.
+  ///   - data: Object to be sent in the request.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
-  ///   - timeout: timeout for  the HTTPSCallableResult request.
+  ///   - timeout: timeout for the HTTPSCallableResult request.
   /// - Returns: HTTPSCallableResult Streaming.
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func stream(at url: URL,

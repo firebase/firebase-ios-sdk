@@ -225,7 +225,7 @@ public extension Callable {
   /// - Parameter data: The `Request` data to pass to the callable function.
   /// - Throws: A ``FunctionsError`` if the parameter `data` cannot be encoded.
   /// - Returns: A stream wrapping responses yielded by the streaming callable
-  /// function  or a ``FunctionsError`` if an error occurred.
+  /// function or a ``FunctionsError`` if an error occurred.
   func stream(_ data: Request? = nil) throws -> AsyncThrowingStream<Response, Error> {
     let encoded: Any
     do {
@@ -241,7 +241,7 @@ public extension Callable {
             do {
               // This response JSON should only be able to be decoded to an `StreamResponse<_, _>`
               // instance. If the decoding succeeds and the decoded response conforms to
-              // `StreamResponseProtocol`, we know it is a the `Response` generic argument
+              // `StreamResponseProtocol`, we know the `Response` generic argument
               // is `StreamResponse<_, _>`.
               let responseJSON = switch response {
               case let .message(json), let .result(json): json
