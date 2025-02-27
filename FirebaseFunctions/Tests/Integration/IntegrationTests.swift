@@ -1180,6 +1180,18 @@ extension IntegrationTests {
       _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
     }
   }
+
+  func testGenerateStreamContent_ForNonStreamingCF3() async throws {
+    let callable: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
+    let stream = try callable.stream(17)
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertEqual(error.localizedDescription, "Unexpected format for streamed response.")
+    }
+  }
 }
 
 // MARK: - Helpers
