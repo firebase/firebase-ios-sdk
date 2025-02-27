@@ -255,6 +255,7 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     // NSURLSessionTaskDelegate methods.
     InstrumentURLSessionTaskDidCompleteWithError(instrumentor);
     InstrumentURLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSend(instrumentor);
+    InstrumentURLSessionTaskDidReceiveResponseCompletionHandler(instrumentor);
 
     // NSURLSessionDataDelegate methods.
     InstrumentURLSessionDataTaskDidReceiveData(instrumentor);
