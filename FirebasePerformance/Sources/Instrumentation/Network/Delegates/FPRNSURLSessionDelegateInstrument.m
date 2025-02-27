@@ -140,17 +140,16 @@ void InstrumentURLSessionTaskDidReceiveResponseCompletionHandler(
   if (selectorInstrumentor) {
     IMP currentIMP = selectorInstrumentor.currentIMP;
     [selectorInstrumentor
-        setReplacingBlock:^(id object, NSURLSession *session, NSURLSessionTask *task,
+        setReplacingBlock:^(id object, NSURLSession *session, NSURLSessionDataTask *task,
                             NSURLResponse *response,
                             FPRDataTaskDelegateCompletionHandler completionHandler) {
           @try {
-            FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:dataTask];
-            [trace didReceiveData:task.];
+            FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
             [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
           } @catch (NSException *exception) {
             FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
           } @finally {
-            typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionTask *,
+            typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionDataTask *,
                                         NSURLResponse *, FPRDataTaskDelegateCompletionHandler);
             ((OriginalImp)currentIMP)(object, selector, session, task, response, completionHandler);
           }
