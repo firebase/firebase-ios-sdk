@@ -132,7 +132,7 @@ const streamData = ["hello", "world", "this", "is", "cool"]
 async function* generateText() {
   for (const chunk of streamData) {
     yield chunk;
-    await sleep(1000);
+    await sleep(100);
   }
 };
 
@@ -162,7 +162,7 @@ const weatherForecasts = {
 async function* generateForecast(locations) {
   for (const location of locations) {
     yield { 'location': location,  ...weatherForecasts[location.name] };
-    await sleep(500);
+    await sleep(100);
   }
 };
 
