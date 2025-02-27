@@ -15,6 +15,7 @@
 import Foundation
 import XCTest
 
+import FirebaseCore
 @testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -53,14 +54,19 @@ final class ChatTests: XCTestCase {
       return (response, fileURL.lines)
     }
 
+    let app = FirebaseApp(instanceWithName: "testApp",
+                          options: FirebaseOptions(googleAppID: "ignore",
+                                                   gcmSenderID: "ignore"))
     let model = GenerativeModel(
       name: "my-model",
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
+      firebaseInfo: FirebaseInfo(
+        projectID: "my-project-id",
+        apiKey: "API_KEY",
+        googleAppID: "My app ID",
+        firebaseApp: app
+      ),
       tools: nil,
       requestOptions: RequestOptions(),
-      appCheck: nil,
-      auth: nil,
       urlSession: urlSession
     )
     let chat = Chat(model: model, history: [])

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '11.8.0'
+  s.version          = '11.10.0'
   s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
@@ -36,6 +36,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.source_files = [
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
+    base_dir + 'third_party/SocketRocket/fbase64.c',
     'FirebaseDatabase/Swift/Sources/**/*.swift',
     'FirebaseAuth/Interop/**/*.h',
     'FirebaseCore/Extension/*.h',
@@ -47,7 +48,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.macos.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.watchos.frameworks = 'CFNetwork', 'Security', 'WatchKit'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseCore', '~> 11.8.0'
+  s.dependency 'FirebaseCore', '~> 11.10.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseSharedSwift', '~> 11.0'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'

@@ -17,7 +17,7 @@ import Foundation
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class Chat {
+public final class Chat: Sendable {
   private let model: GenerativeModel
 
   /// Initializes a new chat representing a 1:1 conversation between model and user.
@@ -26,9 +26,28 @@ public class Chat {
     self.history = history
   }
 
+  private let historyLock = NSLock()
+  #if compiler(>=6)
+    private nonisolated(unsafe) var _history: [ModelContent] = []
+  #else
+    private var _history: [ModelContent] = []
+  #endif
   /// The previous content from the chat that has been successfully sent and received from the
   /// model. This will be provided to the model for each message sent as context for the discussion.
-  public var history: [ModelContent]
+  public var history: [ModelContent] {
+    get {
+      historyLock.withLock { _history }
+    }
+    set {
+      historyLock.withLock { _history = newValue }
+    }
+  }
+
+  private func appendHistory(contentsOf: [ModelContent]) {
+    historyLock.withLock {
+      _history.append(contentsOf: contentsOf)
+    }
+  }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
@@ -66,7 +85,7 @@ public class Chat {
     let toAdd = ModelContent(role: "model", parts: reply.parts)
 
     // Append the request and successful result to history, then return the value.
-    history.append(contentsOf: newContent)
+    appendHistory(contentsOf: newContent)
     history.append(toAdd)
     return result
   }
@@ -88,16 +107,16 @@ public class Chat {
   @available(macOS 12.0, *)
   public func sendMessageStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    // Ensure that the new content has the role set.
+    let newContent: [ModelContent] = content.map(populateContentRole(_:))
+
+    // Send the history alongside the new message as context.
+    let request = history + newContent
+    let stream = try model.generateContentStream(request)
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []
 
-        // Ensure that the new content has the role set.
-        let newContent: [ModelContent] = content.map(populateContentRole(_:))
-
-        // Send the history alongside the new message as context.
-        let request = history + newContent
-        let stream = try model.generateContentStream(request)
         do {
           for try await chunk in stream {
             // Capture any content that's streaming. This should be populated if there's no error.
@@ -115,12 +134,11 @@ public class Chat {
         }
 
         // Save the request.
-        history.append(contentsOf: newContent)
+        appendHistory(contentsOf: newContent)
 
         // Aggregate the content to add it to the history before we finish.
-        let aggregated = aggregatedChunks(aggregatedContent)
-        history.append(aggregated)
-
+        let aggregated = self.aggregatedChunks(aggregatedContent)
+        self.history.append(aggregated)
         continuation.finish()
       }
     }

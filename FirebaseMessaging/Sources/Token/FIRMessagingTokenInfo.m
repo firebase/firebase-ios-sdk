@@ -176,13 +176,13 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     // users have upgraded to at least 10.19.0. Perhaps, after privacy manifests have been required
     // for awhile?
     @try {
-      [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class]
-                     forClassName:@"FIRInstanceIDAPNSInfo"];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      rawAPNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)rawAPNSInfo];
+      NSKeyedUnarchiver *unarchiver =
+          [[NSKeyedUnarchiver alloc] initForReadingFromData:(NSData *)rawAPNSInfo error:nil];
+      unarchiver.requiresSecureCoding = NO;
+      [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
+      rawAPNSInfo = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
+      [unarchiver finishDecoding];
       needsMigration = YES;
-#pragma clang diagnostic pop
     } @catch (NSException *exception) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
                              @"Could not parse raw APNS Info while parsing archived token info.");

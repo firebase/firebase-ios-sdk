@@ -19,7 +19,7 @@ import Foundation
 /// These types can be objects, but also primitives and arrays. Represents a select subset of an
 /// [OpenAPI 3.0 schema object](https://spec.openapis.org/oas/v3.0.3#schema).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class Schema {
+public final class Schema: Sendable {
   /// Modifiers describing the expected format of a string `Schema`.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct StringFormat: EncodableProtoEnum {
@@ -40,7 +40,7 @@ public class Schema {
 
   /// Modifiers describing the expected format of an integer `Schema`.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct IntegerFormat: EncodableProtoEnum {
+  public struct IntegerFormat: EncodableProtoEnum, Sendable {
     enum Kind: String {
       case int32
       case int64

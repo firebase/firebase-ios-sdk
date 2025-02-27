@@ -215,18 +215,22 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithoutToken() {
+  func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithPlaceholderToken() {
     // Given
     appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
-      token: "dummy token",
+      token: "limited use token",
       error: NSError(domain: #function, code: -1)
     )
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       // Assert that header does not contain an AppCheck token.
-      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, _ in
-        XCTAssertNotEqual(key, "X-Firebase-AppCheck")
+      do {
+        let appCheckHeader = try XCTUnwrap(fetcherToTest.request?
+          .allHTTPHeaderFields?["X-Firebase-AppCheck"])
+        XCTAssertEqual(appCheckHeader, self.appCheckFake.limitedUseTokenResult.token)
+      } catch {
+        XCTFail("Unexpected failure: \(error)")
       }
 
       testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)

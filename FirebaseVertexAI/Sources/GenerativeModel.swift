@@ -19,7 +19,7 @@ import Foundation
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public final class GenerativeModel {
+public final class GenerativeModel: Sendable {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -59,23 +59,17 @@ public final class GenerativeModel {
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
   init(name: String,
-       projectID: String,
-       apiKey: String,
+       firebaseInfo: FirebaseInfo,
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
        tools: [Tool]?,
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
-       appCheck: AppCheckInterop?,
-       auth: AuthInterop?,
        urlSession: URLSession = .shared) {
     modelResourceName = name
     generativeAIService = GenerativeAIService(
-      projectID: projectID,
-      apiKey: apiKey,
-      appCheck: appCheck,
-      auth: auth,
+      firebaseInfo: firebaseInfo,
       urlSession: urlSession
     )
     self.generationConfig = generationConfig

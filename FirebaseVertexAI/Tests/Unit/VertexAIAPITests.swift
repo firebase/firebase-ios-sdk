@@ -38,6 +38,9 @@ final class VertexAIAPITests: XCTestCase {
       parts: TextPart("Talk like a pirate.")
     )
 
+    let requestOptions = RequestOptions()
+    let _ = RequestOptions(timeout: 30.0)
+
     // Instantiate Vertex AI SDK - Default App
     let vertexAI = VertexAI.vertexAI()
     let _ = VertexAI.vertexAI(location: "my-location")
@@ -70,7 +73,8 @@ final class VertexAIAPITests: XCTestCase {
       modelName: "gemini-1.0-pro",
       generationConfig: config, // Optional
       safetySettings: filters, // Optional
-      systemInstruction: systemInstruction // Optional
+      systemInstruction: systemInstruction, // Optional
+      requestOptions: requestOptions // Optional
     )
 
     // Full Typed Usage

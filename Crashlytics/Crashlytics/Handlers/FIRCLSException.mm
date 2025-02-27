@@ -91,14 +91,15 @@ void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel, NSString *rol
 
 NSString *FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel *exceptionModel,
                                              int previousRecordedOnDemandExceptions,
-                                             int previousDroppedOnDemandExceptions) {
+                                             int previousDroppedOnDemandExceptions,
+                                             BOOL shouldSuspendThread) {
   const char *name = [[exceptionModel.name copy] UTF8String];
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
 
   return FIRCLSExceptionRecordOnDemand(FIRCLSExceptionTypeCustom, name, reason,
                                        [exceptionModel.stackTrace copy], exceptionModel.isFatal,
                                        previousRecordedOnDemandExceptions,
-                                       previousDroppedOnDemandExceptions);
+                                       previousDroppedOnDemandExceptions, shouldSuspendThread);
 }
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
@@ -235,7 +236,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       FIRCLSExceptionWrite(&file, type, name, reason, frames, nil);
 
       // We only want to do this work if we have the expectation that we'll actually crash
-      FIRCLSHandler(&file, mach_thread_self(), NULL);
+      FIRCLSHandler(&file, mach_thread_self(), NULL, YES);
 
       FIRCLSFileClose(&file);
     });
@@ -258,7 +259,8 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
                                         NSArray<FIRStackFrame *> *frames,
                                         BOOL fatal,
                                         int previousRecordedOnDemandExceptions,
-                                        int previousDroppedOnDemandExceptions) {
+                                        int previousDroppedOnDemandExceptions,
+                                        BOOL shouldSuspendThread) {
   if (!FIRCLSContextIsInitialized()) {
     return nil;
   }
@@ -353,7 +355,8 @@ NSString *FIRCLSExceptionRecordOnDemand(FIRCLSExceptionType type,
     return nil;
   }
   FIRCLSExceptionWrite(&file, type, name, reason, frames, nil);
-  FIRCLSHandler(&file, mach_thread_self(), NULL);
+
+  FIRCLSHandler(&file, mach_thread_self(), NULL, shouldSuspendThread);
   FIRCLSFileClose(&file);
 
   // Return the path to the new report.

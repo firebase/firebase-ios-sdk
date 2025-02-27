@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-protocol GenerativeAIRequest: Encodable {
+protocol GenerativeAIRequest: Sendable, Encodable {
   associatedtype Response: Decodable
 
   var url: URL { get }
@@ -25,19 +25,33 @@ protocol GenerativeAIRequest: Encodable {
 
 /// Configuration parameters for sending requests to the backend.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct RequestOptions {
+// TODO(#14405): Make the `apiVersion` constructor public in Firebase 12 with a default of `.v1`.
+public struct RequestOptions: Sendable {
   /// The request’s timeout interval in seconds; if not specified uses the default value for a
   /// `URLRequest`.
   let timeout: TimeInterval
 
   /// The API version to use in requests to the backend.
-  let apiVersion = "v1beta"
+  let apiVersion: String
 
   /// Initializes a request options object.
   ///
   /// - Parameters:
-  ///   - timeout The request’s timeout interval in seconds; defaults to 180 seconds.
-  public init(timeout: TimeInterval = 180.0) {
+  ///   - timeout: The request’s timeout interval in seconds; defaults to 180 seconds.
+  ///   - apiVersion: The API version to use in requests to the backend.
+  init(timeout: TimeInterval = 180.0, apiVersion: APIVersion) {
     self.timeout = timeout
+    self.apiVersion = apiVersion.versionIdentifier
+  }
+
+  /// Initializes a request options object.
+  ///
+  /// - Parameters:
+  ///   - timeout: The request’s timeout interval in seconds; defaults to 180 seconds.
+  public init(timeout: TimeInterval = 180.0) {
+    self.init(timeout: timeout, apiVersion: .v1beta)
   }
 }
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension RequestOptions: Equatable {}

@@ -121,6 +121,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) uint32_t onDemandBackoffStepDuration;
 
+/**
+ * When this is true, Crashlytics will suspend all threads to do on-demand fatal recording.
+ */
+@property(nonatomic, readonly) BOOL onDemandThreadSuspensionEnabled;
+
 @end
 
 NS_ASSUME_NONNULL_END

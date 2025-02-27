@@ -91,16 +91,42 @@ public class VertexAI {
     -> GenerativeModel {
     return GenerativeModel(
       name: modelResourceName(modelName: modelName),
-      projectID: projectID,
-      apiKey: apiKey,
+      firebaseInfo: firebaseInfo,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      requestOptions: requestOptions,
-      appCheck: appCheck,
-      auth: auth
+      requestOptions: requestOptions
+    )
+  }
+
+  /// **[Public Preview]** Initializes an ``ImagenModel`` with the given parameters.
+  ///
+  /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the Imagen 3 model to use, for example `"imagen-3.0-generate-002"`;
+  ///     see [model
+  ///     versions](https://cloud.google.com/vertex-ai/generative-ai/docs/image/model-versioning)
+  ///     for a list of supported Imagen 3 models.
+  ///   - generationConfig: Configuration options for generating images with Imagen.
+  ///   - safetySettings: Settings describing what types of potentially harmful content your model
+  ///     should allow.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
+                          safetySettings: ImagenSafetySettings? = nil,
+                          requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
+    return ImagenModel(
+      name: modelResourceName(modelName: modelName),
+      firebaseInfo: firebaseInfo,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      requestOptions: requestOptions
     )
   }
 
@@ -110,39 +136,45 @@ public class VertexAI {
 
   // MARK: - Private
 
-  /// The `FirebaseApp` associated with this `VertexAI` instance.
-  private let app: FirebaseApp
+  /// Firebase data relevant to Vertex AI.
+  let firebaseInfo: FirebaseInfo
 
-  private let appCheck: AppCheckInterop?
+  #if compiler(>=6)
+    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
+    /// the format `appName:location`.
+    private nonisolated(unsafe) static var instances: [String: VertexAI] = [:]
 
-  private let auth: AuthInterop?
+    /// Lock to manage access to the `instances` array to avoid race conditions.
+    private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
+  #else
+    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
+    /// the format `appName:location`.
+    private static var instances: [String: VertexAI] = [:]
 
-  /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
-  /// the format `appName:location`.
-  private static var instances: [String: VertexAI] = [:]
+    /// Lock to manage access to the `instances` array to avoid race conditions.
+    private static var instancesLock: os_unfair_lock = .init()
+  #endif
 
-  /// Lock to manage access to the `instances` array to avoid race conditions.
-  private static var instancesLock: os_unfair_lock = .init()
-
-  let projectID: String
-  let apiKey: String
   let location: String
 
   init(app: FirebaseApp, location: String) {
-    self.app = app
-    appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)
-    auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
-
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
-    self.projectID = projectID
-
     guard let apiKey = app.options.apiKey else {
       fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
     }
-    self.apiKey = apiKey
-
+    firebaseInfo = FirebaseInfo(
+      appCheck: ComponentType<AppCheckInterop>.instance(
+        for: AppCheckInterop.self,
+        in: app.container
+      ),
+      auth: ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container),
+      projectID: projectID,
+      apiKey: apiKey,
+      googleAppID: app.options.googleAppID,
+      firebaseApp: app
+    )
     self.location = location
   }
 
@@ -164,6 +196,7 @@ public class VertexAI {
       """)
     }
 
+    let projectID = firebaseInfo.projectID
     return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
   }
 }
