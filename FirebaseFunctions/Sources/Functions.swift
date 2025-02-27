@@ -544,32 +544,25 @@ enum FunctionsConstants {
 
         do {
           for try await line in stream.lines {
-            if line.hasPrefix("data:") {
-              // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
-              let jsonText = String(line.dropFirst(5))
-              let data: Data
-              do {
-                data = try jsonData(jsonText: jsonText)
-              } catch {
-                continuation.finish(throwing: error)
-                return
-              }
-
-              // Handle the content and parse it.
-              do {
-                let content = try callableStreamResult(fromResponseData: data)
-                continuation.yield(content)
-              } catch {
-                continuation.finish(throwing: error)
-                return
-              }
-            } else {
+            guard line.hasPrefix("data:") else {
               continuation.finish(
                 throwing: FunctionsError(
                   .dataLoss,
                   userInfo: [NSLocalizedDescriptionKey: "Unexpected format for streamed response."]
                 )
               )
+              return
+            }
+
+            do {
+              // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+              let jsonText = String(line.dropFirst(5))
+              let data = try jsonData(jsonText: jsonText)
+              // Handle the content and parse it.
+              let content = try callableStreamResult(fromResponseData: data)
+              continuation.yield(content)
+            } catch {
+              continuation.finish(throwing: error)
               return
             }
           }
