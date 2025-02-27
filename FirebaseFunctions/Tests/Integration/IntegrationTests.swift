@@ -879,6 +879,24 @@ private struct EmptyRequest: Encodable {}
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension IntegrationTests {
+  @available(iOS 17.0, *)
+  func testGenerateStreamContent_UseNeverForNoArgs() async throws {
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+    let callable: Callable<Never, String> = functions.httpsCallable(
+      "genStream",
+      options: options
+    )
+    let stream = try callable.stream()
+    var streamContents: [String] = []
+    for try await response in stream {
+      streamContents.append(response)
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool"]
+    )
+  }
+
   func testGenerateStreamContent() async throws {
     let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
     let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
