@@ -233,11 +233,44 @@ public extension Callable {
   /// stop this, see `Messaging.deleteData()`. It resumes with a new FCM
   /// Token the next time you call this method.
   ///
+  /// - Important: The final result returned by the callable function is only
+  ///   accessible when using `StreamResponse` as the `Response` generic
+  ///   type.
+  ///
+  /// Example of using `stream` _without_ `StreamResponse`:
+  /// ```swift
+  /// let callable: Callable<MyRequest, MyResponse> = // ...
+  /// let request: MyRequest = // ...
+  /// let stream = try callable.stream(request)
+  /// for try await response in stream {
+  ///   // Process each `MyResponse` message
+  ///   print(response)
+  /// }
+  /// ```
+  ///
+  /// Example of using `stream` _with_ `StreamResponse`:
+  /// ```swift
+  /// let callable: Callable<MyRequest, StreamResponse<MyMessage,
+  /// MyResult>> = // ...
+  /// let request: MyRequest = // ...
+  /// let stream = try callable.stream(request)
+  /// for try await response in stream {
+  ///   switch response {
+  ///   case .message(let message):
+  ///     // Process each `MyMessage`
+  ///     print(message)
+  ///   case .result(let result):
+  ///     // Process the final `MyResult`
+  ///     print(result)
+  ///   }
+  /// }
+  /// ```
+  ///
   /// - Parameter data: The `Request` data to pass to the callable function.
   /// - Throws: A ``FunctionsError`` if the parameter `data` cannot be
   ///   encoded.
   /// - Returns: A stream wrapping responses yielded by the streaming callable
-  ///   function  or a ``FunctionsError`` if an error occurred.
+  ///   function or a ``FunctionsError`` if an error occurred.
   func stream(_ data: Request? = nil) throws -> AsyncThrowingStream<Response, Error> {
     let encoded: Any
     do {
