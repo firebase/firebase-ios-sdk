@@ -20,6 +20,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+std::atomic<int> FieldIndex::ref_count_{0};
+
 util::ComparisonResult Segment::CompareTo(const Segment& rhs) const {
   auto result = field_path().CompareTo(rhs.field_path());
   if (result != util::ComparisonResult::Same) {
