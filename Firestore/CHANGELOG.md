@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Add `Pipeline` support.
+
 # 11.9.0
 - [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
 
