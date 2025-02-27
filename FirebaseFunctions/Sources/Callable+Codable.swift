@@ -15,7 +15,8 @@
 import FirebaseSharedSwift
 import Foundation
 
-/// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
+/// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud
+/// Functions.
 ///
 /// - Note: If the Callable HTTPS trigger accepts no parameters, ``Never`` can
 /// be used for iOS 17.0+. Otherwise, a simple encodable placeholder type
@@ -172,7 +173,8 @@ private protocol StreamResponseProtocol {}
 /// yielded messages and its return value.
 ///
 /// This can be used as the generic `Response` parameter to ``Callable`` to
-/// receive both the yielded messages and final return value of the streaming callable function.
+/// receive both the yielded messages and final return value of the streaming
+/// callable function.
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
   StreamResponseProtocol {
