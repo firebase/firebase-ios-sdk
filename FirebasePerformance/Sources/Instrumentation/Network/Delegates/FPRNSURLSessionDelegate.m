@@ -61,6 +61,7 @@
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:dataTask];
   [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
+  completionHandler(NSURLSessionResponseAllow);
 }
 
 - (void)URLSession:(NSURLSession *)session
