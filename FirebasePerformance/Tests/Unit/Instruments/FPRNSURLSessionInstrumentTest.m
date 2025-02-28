@@ -565,7 +565,8 @@
     [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                          GCDWebServerResponse *_Nonnull response) {
       XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
-      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+      // URLSession:task:didCompleteWithError: isn't called in the case when the delegate is an NSProxy, and thus this won't be nil.
+      XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
     }];
   }
   [instrument deregisterInstrumentors];
