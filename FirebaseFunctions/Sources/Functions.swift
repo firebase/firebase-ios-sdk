@@ -541,10 +541,8 @@ enum FunctionsConstants {
   private func callableResult(fromResponseData data: Data) throws -> HTTPSCallableResult {
     let processedData = try processedData(fromResponseData: data)
     let json = try responseDataJSON(from: processedData)
-    // TODO: Refactor `decode(_:)` so it either returns a non-optional object or throws
     let payload = try serializer.decode(json)
-    // TODO: Remove `as Any` once `decode(_:)` is refactored
-    return HTTPSCallableResult(data: payload as Any)
+    return HTTPSCallableResult(data: payload)
   }
 
   private func processedData(fromResponseData data: Data) throws -> Data {
