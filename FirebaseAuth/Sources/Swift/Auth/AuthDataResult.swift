@@ -22,7 +22,7 @@ extension AuthDataResult: NSSecureCoding {}
 ///
 /// It contains references to a `User` instance and an `AdditionalUserInfo` instance.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthDataResult) open class AuthDataResult: NSObject {
+@objc(FIRAuthDataResult) open class AuthDataResult: NSObject, Sendable {
   /// The signed in user.
   @objc public let user: User
 
