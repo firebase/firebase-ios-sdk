@@ -254,10 +254,11 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     // NSURLSessionTaskDelegate methods.
     InstrumentURLSessionTaskDidCompleteWithError(instrumentor);
     InstrumentURLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSend(instrumentor);
-    InstrumentURLSessionDataTaskDidReceiveResponseCompletionHandler(instrumentor);
 
     // NSURLSessionDataDelegate methods.
     InstrumentURLSessionDataTaskDidReceiveData(instrumentor);
+    // InstrumentURLSessionDataTaskDidReceiveResponseCompletionHandler(instrumentor);
+
 
     // NSURLSessionDownloadDelegate methods.
     InstrumentURLSessionDownloadTaskDidFinishDownloadToURL(instrumentor);
@@ -284,8 +285,8 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
 
     // NSURLSessionDataDelegate methods.
     CopySelector(@selector(URLSession:dataTask:didReceiveData:), instrumentor);
-    CopySelector(@selector(URLSession:dataTask:didReceiveResponse:completionHandler:),
-                 instrumentor);
+//    CopySelector(@selector(URLSession:dataTask:didReceiveResponse:completionHandler:),
+//                 instrumentor);
 
     // NSURLSessionDownloadDelegate methods.
     CopySelector(@selector(URLSession:downloadTask:didFinishDownloadingToURL:), instrumentor);
