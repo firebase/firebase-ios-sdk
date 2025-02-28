@@ -260,15 +260,19 @@ public final class GenerativeModel: Sendable {
   /// - Returns: The results of running the model's tokenizer on the input; contains
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
-    let countTokensRequest = CountTokensRequest(
+    let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,
       contents: content,
-      systemInstruction: systemInstruction,
-      tools: tools,
       generationConfig: generationConfig,
-      apiConfig: apiConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      isStreaming: false,
       options: requestOptions
     )
+    let countTokensRequest = CountTokensRequest(generateContentRequest: generateContentRequest)
+
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 

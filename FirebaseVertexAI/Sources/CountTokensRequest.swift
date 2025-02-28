@@ -16,12 +16,7 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
-  let model: String
-
-  let contents: [ModelContent]
-  let systemInstruction: ModelContent?
-  let tools: [Tool]?
-  let generationConfig: GenerationConfig?
+  let generateContentRequest: GenerateContentRequest
 
   let apiConfig: APIConfig
   let options: RequestOptions
@@ -57,11 +52,35 @@ public struct CountTokensResponse {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: Encodable {
-  enum CodingKeys: CodingKey {
+  enum VertexCodingKeys: CodingKey {
     case contents
     case systemInstruction
     case tools
     case generationConfig
+  }
+
+  enum DeveloperCodingKeys: CodingKey {
+    case generateContentRequest
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    let backendAPI = encoder.userInfo[CodingUserInfoKey(rawValue: "BackendAPI")!] as! BackendAPI
+
+    switch backendAPI {
+    case .vertexAI:
+      var container = encoder.container(keyedBy: VertexCodingKeys.self)
+      try container.encode(generateContentRequest.contents, forKey: .contents)
+      try container.encodeIfPresent(
+        generateContentRequest.systemInstruction, forKey: .systemInstruction
+      )
+      try container.encodeIfPresent(generateContentRequest.tools, forKey: .tools)
+      try container.encodeIfPresent(
+        generateContentRequest.generationConfig, forKey: .generationConfig
+      )
+    case .developer:
+      var container = encoder.container(keyedBy: DeveloperCodingKeys.self)
+      try container.encode(generateContentRequest, forKey: .generateContentRequest)
+    }
   }
 }
 
