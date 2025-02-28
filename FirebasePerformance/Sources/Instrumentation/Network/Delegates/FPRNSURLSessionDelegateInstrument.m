@@ -33,8 +33,6 @@ static dispatch_queue_t GetInstrumentationQueue(void) {
   return queue;
 }
 
-typedef void (^FPRDataTaskDelegateCompletionHandler)(NSURLSessionResponseDisposition);
-
 #pragma mark - NSURLSessionTaskDelegate methods
 
 /** Instruments URLSession:task:didCompleteWithError:.
@@ -123,37 +121,6 @@ void InstrumentURLSessionDataTaskDidReceiveData(FPRClassInstrumentor *instrument
       typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionDataTask *, NSData *);
       ((OriginalImp)currentIMP)(object, selector, session, dataTask, data);
     }];
-  }
-}
-
-/** Instruments URLSession:dataTask:didReceiveResponse:completionHandler:
- *
- *  @param instrumentor The FPRClassInstrumentor to add the selector instrumentor to.
- */
-FOUNDATION_STATIC_INLINE
-NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
-void InstrumentURLSessionDataTaskDidReceiveResponseCompletionHandler(
-    FPRClassInstrumentor *instrumentor) {
-  SEL selector = @selector(URLSession:dataTask:didReceiveResponse:completionHandler:);
-  FPRSelectorInstrumentor *selectorInstrumentor =
-      [instrumentor instrumentorForInstanceSelector:selector];
-  if (selectorInstrumentor) {
-    IMP currentIMP = selectorInstrumentor.currentIMP;
-    [selectorInstrumentor
-        setReplacingBlock:^(id object, NSURLSession *session, NSURLSessionDataTask *task,
-                            NSURLResponse *response,
-                            FPRDataTaskDelegateCompletionHandler completionHandler) {
-          @try {
-            FPRNetworkTrace *trace = [FPRNetworkTrace networkTraceFromObject:task];
-            [trace checkpointState:FPRNetworkTraceCheckpointStateResponseReceived];
-          } @catch (NSException *exception) {
-            FPRLogWarning(kFPRNetworkTraceNotTrackable, @"Unable to track network request.");
-          } @finally {
-            typedef void (*OriginalImp)(id, SEL, NSURLSession *, NSURLSessionDataTask *,
-                                        NSURLResponse *, FPRDataTaskDelegateCompletionHandler);
-            ((OriginalImp)currentIMP)(object, selector, session, task, response, completionHandler);
-          }
-        }];
   }
 }
 
@@ -257,8 +224,6 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
 
     // NSURLSessionDataDelegate methods.
     InstrumentURLSessionDataTaskDidReceiveData(instrumentor);
-    // InstrumentURLSessionDataTaskDidReceiveResponseCompletionHandler(instrumentor);
-
 
     // NSURLSessionDownloadDelegate methods.
     InstrumentURLSessionDownloadTaskDidFinishDownloadToURL(instrumentor);
@@ -285,8 +250,6 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
 
     // NSURLSessionDataDelegate methods.
     CopySelector(@selector(URLSession:dataTask:didReceiveData:), instrumentor);
-//    CopySelector(@selector(URLSession:dataTask:didReceiveResponse:completionHandler:),
-//                 instrumentor);
 
     // NSURLSessionDownloadDelegate methods.
     CopySelector(@selector(URLSession:downloadTask:didFinishDownloadingToURL:), instrumentor);
