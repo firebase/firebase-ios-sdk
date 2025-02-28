@@ -895,7 +895,7 @@ extension IntegrationTests {
     )
   }
 
-  @available(iOS 17.0, *)
+  @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
   func testStream_NoArgs_UeeNever() async throws {
     let callable: Callable<Never, String> = functions.httpsCallable("genStream")
     let stream = try callable.stream()
