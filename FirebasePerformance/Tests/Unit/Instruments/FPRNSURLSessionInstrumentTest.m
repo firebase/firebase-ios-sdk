@@ -62,6 +62,39 @@
 
 @end
 
+@interface FPRNSURLSessionDelegateProxy : NSProxy {
+  // The wrapped delegate object.
+  id _delegate;
+}
+
+/** @return an instance of the delegate proxy. */
+- (instancetype)initWithDelegate:(id)delegate;
+
+@end
+
+@implementation FPRNSURLSessionDelegateProxy
+
+- (instancetype)initWithDelegate:(id)delegate {
+  if (self) {
+    _delegate = delegate;
+  }
+  return self;
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+  return [_delegate methodSignatureForSelector:selector];
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector {
+  return [_delegate respondsToSelector:aSelector];
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation {
+  [invocation invokeWithTarget:_delegate];
+}
+
+@end
+
 @interface FPRNSURLSessionInstrumentTest : FPRTestCase
 
 /** Test server to create connections to. */
@@ -479,6 +512,63 @@
     XCTAssertTrue(delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled);
     XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
   }];
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testDelegateURLSessionDownloadDidReceiveResponseCompletionHandler {
+  FPRNSURLSessionInstrument *instrument;
+  NSURLSessionDataTask *dataTask;
+  @autoreleasepool {
+    instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:delegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+    dataTask = [session dataTaskWithURL:URL];
+    [dataTask resume];
+    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                         GCDWebServerResponse *_Nonnull response) {
+      XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    }];
+  }
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionDownloadDidReceiveResponseCompletionHandler {
+  FPRNSURLSessionInstrument *instrument;
+  NSURLSessionDataTask *dataTask;
+  @autoreleasepool {
+    instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    FPRNSURLSessionDelegateProxy *proxyDelegate =
+        [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:proxyDelegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+    dataTask = [session dataTaskWithURL:URL];
+    [dataTask resume];
+    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                         GCDWebServerResponse *_Nonnull response) {
+      XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
+      // URLSession:task:didCompleteWithError: isn't called in the case when the delegate is an NSProxy, and thus this isn't nil (when it should).
+      XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    }];
+  }
   [instrument deregisterInstrumentors];
 }
 

@@ -157,9 +157,9 @@ void InstrumentSessionWithConfigurationDelegateDelegateQueue(
           ThrowExceptionBecauseInstrumentHasBeenDeallocated(selector, instrumentedClass);
         }
         if (delegate) {
+          // TODO(#14478): Investigate workaround for NSProxy.
           [delegateInstrument registerClass:[delegate class]];
           [delegateInstrument registerObject:delegate];
-
         } else {
           delegate = [[FPRNSURLSessionDelegate alloc] init];
         }
