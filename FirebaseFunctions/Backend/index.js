@@ -149,6 +149,8 @@ exports.genStream = functionsV2.https.onCall(
 
 exports.genStreamError = functionsV2.https.onCall(
   async (request, response) => {
+    // Note: The functions backend does not pass the error message to the
+    // client at this time.
     throw Error("BOOM")
   }
 );
