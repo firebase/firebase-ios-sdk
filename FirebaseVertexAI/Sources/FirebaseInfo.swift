@@ -28,18 +28,21 @@ struct FirebaseInfo: Sendable {
   let apiKey: String
   let googleAppID: String
   let app: FirebaseApp
+  let backendAPI: BackendAPI
 
   init(appCheck: AppCheckInterop? = nil,
        auth: AuthInterop? = nil,
        projectID: String,
        apiKey: String,
        googleAppID: String,
-       firebaseApp: FirebaseApp) {
+       firebaseApp: FirebaseApp,
+       backendAPI: BackendAPI) {
     self.appCheck = appCheck
     self.auth = auth
     self.projectID = projectID
     self.apiKey = apiKey
     self.googleAppID = googleAppID
     app = firebaseApp
+    self.backendAPI = backendAPI
   }
 }
