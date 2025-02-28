@@ -65,6 +65,7 @@ struct DataTestResponse: Decodable, Equatable {
   var code: Int32
 }
 
+/// - Important: These tests require the emulator. Run `./FirebaseFunctions/Backend/start.sh`
 class IntegrationTests: XCTestCase {
   let functions = Functions(projectID: "functions-integration-test",
                             region: "us-central1",
