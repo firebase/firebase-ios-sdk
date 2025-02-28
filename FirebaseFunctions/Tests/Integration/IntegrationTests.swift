@@ -879,13 +879,24 @@ private struct EmptyRequest: Encodable {}
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension IntegrationTests {
+  func testStream_NoArgs() async throws {
+    // 1. Custom `EmptyRequest` struct is passed as a placeholder generic arg.
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
+    // 2. No request data is passed when creating stream.
+    let stream = try callable.stream()
+    var streamContents: [String] = []
+    for try await response in stream {
+      streamContents.append(response)
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool"]
+    )
+  }
+
   @available(iOS 17.0, *)
-  func testGenerateStreamContent_UseNeverForNoArgs() async throws {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let callable: Callable<Never, String> = functions.httpsCallable(
-      "genStream",
-      options: options
-    )
+  func testStream_NoArgs_UeeNever() async throws {
+    let callable: Callable<Never, String> = functions.httpsCallable("genStream")
     let stream = try callable.stream()
     var streamContents: [String] = []
     for try await response in stream {
@@ -897,24 +908,7 @@ extension IntegrationTests {
     )
   }
 
-  func testGenerateStreamContent() async throws {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
-      "genStream",
-      options: options
-    )
-    let stream = try callable.stream()
-    var streamContents: [String] = []
-    for try await response in stream {
-      streamContents.append(response)
-    }
-    XCTAssertEqual(
-      streamContents,
-      ["hello", "world", "this", "is", "cool"]
-    )
-  }
-
-  func testGenerateStreamContent_SimpleStreamResponse() async throws {
+  func testStream_SimpleStreamResponse() async throws {
     let callable: Callable<EmptyRequest, StreamResponse<String, String>> = functions
       .httpsCallable("genStream")
     let stream = try callable.stream()
@@ -933,7 +927,7 @@ extension IntegrationTests {
     )
   }
 
-  func testGenerateStreamContent_CodableString() async throws {
+  func testStream_CodableString() async throws {
     let byName: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
     let stream = try byName.stream()
     let result: [String] = try await stream.reduce([]) { $0 + [$1] }
@@ -960,7 +954,7 @@ extension IntegrationTests {
     let forecasts: [WeatherForecast]
   }
 
-  func testGenerateStreamContent_CodableObject() async throws {
+  func testStream_CodableObject() async throws {
     let callable: Callable<[Location], WeatherForecast> = functions
       .httpsCallable("genStreamWeather")
     let stream = try callable.stream([
@@ -979,20 +973,36 @@ extension IntegrationTests {
     )
   }
 
-  func testGenerateStreamContent_StreamResponse_DecodingError() async throws {
-    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
-      .httpsCallable("genStreamWeatherError")
+  func testStream_ResponseMessageDecodingFailure() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeatherError")
     let stream = try callable.stream([Location(name: "Toronto")])
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
       }
     } catch let error as FunctionsError where error.code == .dataLoss {
-      _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
     }
   }
 
-  func testGenerateStreamContent_ComplexStreamResponse() async throws {
+  func testStream_ResponseResultDecodingFailure() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([Location(name: "Toronto")])
+    do {
+      for try await response in stream {
+        if case .result = response {
+          XCTFail("Expected error to be thrown from stream.")
+        }
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+    }
+  }
+
+  func testStream_ComplexStreamResponse() async throws {
     let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
       functions
         .httpsCallable("genStreamWeather")
@@ -1025,7 +1035,7 @@ extension IntegrationTests {
     )
   }
 
-  func testGenerateStreamContent_ComplexStreamResponse_Functional() async throws {
+  func testStream_ComplexStreamResponse_Functional() async throws {
     let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
       functions
         .httpsCallable("genStreamWeather")
@@ -1057,13 +1067,9 @@ extension IntegrationTests {
     )
   }
 
-  func testGenerateStreamContent_Canceled() async throws {
+  func testStream_Canceled() async throws {
     let task = Task.detached { [self] in
-      let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-      let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
-        "genStream",
-        options: options
-      )
+      let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
       let stream = try callable.stream()
       // Since we cancel the call we are expecting an empty array.
       return try await stream.reduce([]) { $0 + [$1] } as [String]
@@ -1074,12 +1080,9 @@ extension IntegrationTests {
     XCTAssertEqual(respone, [])
   }
 
-  func testGenerateStreamContent_NonexistentFunction() async throws {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-
+  func testStream_NonexistentFunction() async throws {
     let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
-      "nonexistentFunction",
-      options: options
+      "nonexistentFunction"
     )
     let stream = try callable.stream()
     do {
@@ -1091,12 +1094,8 @@ extension IntegrationTests {
     }
   }
 
-  func testGenerateStreamContent_StreamError() async throws {
-    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
-    let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
-      "genStreamError",
-      options: options
-    )
+  func testStream_StreamError() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamError")
     let stream = try callable.stream()
     do {
       for try await _ in stream {
@@ -1107,7 +1106,7 @@ extension IntegrationTests {
     }
   }
 
-  func testGenerateStream_EncodingDataFails() async throws {
+  func testGenerateStream_RequestEncodingFailure() async throws {
     struct Foo: Encodable {
       enum CodingKeys: CodingKey {}
 
@@ -1117,7 +1116,7 @@ extension IntegrationTests {
       }
     }
     let callable: Callable<Foo, String> = functions
-      .httpsCallable("nonexistentFunction")
+      .httpsCallable("genStream")
     do {
       _ = try callable.stream(Foo())
     } catch let error as FunctionsError where error.code == .invalidArgument {
@@ -1125,9 +1124,10 @@ extension IntegrationTests {
     }
   }
 
-  // This tests an edge case to assert that if a custom `Response` is used that matches the
-  // decoding logic of `StreamResponse`, the custom `Response` does not decode successfully.
-  func testGenerateStreamContent_ResultIsOnlyExposedInStreamResponse() async throws {
+  /// This tests an edge case to assert that if a custom `Response` is used
+  /// that matches the decoding logic of `StreamResponse`, the custom
+  /// `Response` does not decode successfully.
+  func testStream_ResultIsOnlyExposedInStreamResponse() async throws {
     // The implementation is copied from `StreamResponse`. The only difference is the do-catch is
     // removed from the decoding initializer.
     enum MyStreamResponse<Message: Decodable, Result: Decodable>: Decodable {
@@ -1169,19 +1169,20 @@ extension IntegrationTests {
       }
     }
 
-    let callable: Callable<[Location], MyStreamResponse<WeatherForecast, String>> = functions
-      .httpsCallable("genStreamWeather")
+    let callable: Callable<[Location], MyStreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeather")
     let stream = try callable.stream([Location(name: "Toronto")])
     do {
       for try await _ in stream {
         XCTFail("Expected error to be thrown from stream.")
       }
     } catch let error as FunctionsError where error.code == .dataLoss {
-      _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
     }
   }
 
-  func testGenerateStreamContent_ForNonStreamingCF3() async throws {
+  func testStream_ForNonStreamingCF3() async throws {
     let callable: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
     let stream = try callable.stream(17)
     do {
@@ -1191,6 +1192,98 @@ extension IntegrationTests {
     } catch let error as FunctionsError where error.code == .dataLoss {
       XCTAssertEqual(error.localizedDescription, "Unexpected format for streamed response.")
     }
+  }
+
+  func testStream_EmptyStream() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamEmpty")
+    var streamContents: [String] = []
+    for try await response in try callable.stream() {
+      streamContents.append(response)
+    }
+    XCTAssertEqual(streamContents, [])
+  }
+
+  func testStream_ResultOnly() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamResultOnly")
+    let stream = try callable.stream()
+    for try await _ in stream {
+      // The stream should not yield anything, so this should not be reached.
+      XCTFail("Stream should not yield any messages")
+    }
+    // Because StreamResponse was not used, the result is not accessible,
+    // but the message should not throw.
+  }
+
+  func testStream_ResultOnly_StreamResponse() async throws {
+    struct EmptyResponse: Decodable {}
+    let callable: Callable<EmptyRequest, StreamResponse<EmptyResponse, String>> = functions
+      .httpsCallable(
+        "genStreamResultOnly"
+      )
+    let stream = try callable.stream()
+    var streamResult = ""
+    for try await response in stream {
+      switch response {
+      case .message:
+        XCTFail("Stream should not yield any messages")
+      case let .result(result):
+        streamResult = result
+      }
+    }
+    // The hardcoded string matches the CF3's return value.
+    XCTAssertEqual(streamResult, "Only a result")
+  }
+
+  func testStream_UnexpectedType() async throws {
+    // This function yields strings, not integers.
+    let callable: Callable<EmptyRequest, Int> = functions.httpsCallable("genStream")
+    let stream = try callable.stream()
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+    }
+  }
+
+  func testStream_Timeout() async throws {
+    var callable: Callable<EmptyRequest, String> = functions.httpsCallable("timeoutTest")
+    // Set a short timeout
+    callable.timeoutInterval = 0.01 // 10 milliseconds
+
+    let stream = try callable.stream()
+
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .unavailable {
+      // This should be a timeout error.
+      XCTAssertEqual(
+        error.localizedDescription,
+        "The operation couldn’t be completed. (com.firebase.functions error 14.)"
+      )
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? URLError)
+    }
+  }
+
+  func testStream_LargeData() async throws {
+    func generateLargeString() -> String {
+      var largeString = ""
+      for _ in 0 ..< 10000 {
+        largeString += "A"
+      }
+      return largeString
+    }
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamLargeData")
+    let stream = try callable.stream()
+    var concatenatedData = ""
+    for try await response in stream {
+      concatenatedData += response
+    }
+    // Assert that the concatenated data matches the expected large data.
+    XCTAssertEqual(concatenatedData, generateLargeString())
   }
 }
 

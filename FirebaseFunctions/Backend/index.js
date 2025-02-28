@@ -191,3 +191,36 @@ exports.genStreamWeatherError = functionsV2.https.onCall(
     return "Number of forecasts generated: " + request.data.length;
   }
 );
+
+exports.genStreamEmpty = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      // Send no chunks
+    }
+    // Implicitly return null.
+  }
+);
+
+exports.genStreamResultOnly = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      // Do not send any chunks.
+    }
+    return "Only a result";
+  }
+);
+
+exports.genStreamLargeData = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      const largeString = 'A'.repeat(10000);
+      const chunkSize = 1024;
+      for (let i = 0; i < largeString.length; i += chunkSize) {
+        const chunk = largeString.substring(i, i + chunkSize);
+        response.sendChunk(chunk);
+        await sleep(100);
+      }
+    }
+    return "Stream Completed";
+  }
+);
