@@ -17,6 +17,7 @@
 #import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRNetworkTrace.h"
+#import "FirebasePerformance/Sources/Instrumentation/FPRProxyObjectHelper.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRSelectorInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/Delegates/FPRNSURLConnectionDelegate.h"
 #import "FirebasePerformance/Sources/Instrumentation/Network/FPRNetworkInstrumentHelpers.h"
@@ -302,6 +303,15 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
 
     [instrumentor swizzle];
   });
+}
+
+- (void)registerProxy:(id)proxy {
+  [FPRProxyObjectHelper registerProxyObject:proxy
+                                forProtocol:@protocol(NSURLSessionDelegate)
+                            varFoundHandler:^(id ivar) {
+                              [self registerClass:[ivar class]];
+                              [self registerObject:ivar];
+                            }];
 }
 
 @end
