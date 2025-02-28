@@ -29,4 +29,15 @@
   }
 }
 
++ (void)registerProxyObject:(id)proxy
+                forProtocol:(Protocol *)protocol
+            varFoundHandler:(void (^)(id ivar))varFoundHandler {
+  NSArray<id> *ivars = [GULSwizzler ivarObjectsForObject:proxy];
+  for (id ivar in ivars) {
+    if ([ivar conformsToProtocol:protocol]) {
+      varFoundHandler(ivar);
+    }
+  }
+}
+
 @end
