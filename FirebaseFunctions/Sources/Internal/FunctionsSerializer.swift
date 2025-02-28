@@ -58,7 +58,7 @@ final class FunctionsSerializer {
     }
   }
 
-  func decode(_ object: Any) throws -> AnyObject? {
+  func decode(_ object: Any) throws -> Any {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
     if let dict = object as? NSDictionary {
       if let requestedType = dict["@type"] as? String {
@@ -66,8 +66,9 @@ final class FunctionsSerializer {
           // Seems like we should throw here - but this maintains compatibility.
           return dict
         }
-        let result = try decodeWrappedType(requestedType, value)
-        if result != nil { return result }
+        if let result = try decodeWrappedType(requestedType, value) {
+          return result
+        }
 
         // Treat unknown types as dictionaries, so we don't crash old clients when we add types.
       }
