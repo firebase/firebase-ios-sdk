@@ -45,6 +45,7 @@ jobs:
       run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Build and test
       run: |
+        xcodebuild -downloadPlatform iOS
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec \
           --test-specs=integration --platforms=${{ matrix.target }}
 
