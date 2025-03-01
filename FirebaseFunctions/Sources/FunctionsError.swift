@@ -226,7 +226,7 @@ struct FunctionsError: CustomNSError {
     var userInfo = [String: Any]()
     userInfo[NSLocalizedDescriptionKey] = description
     userInfo["region"] = region
-    userInfo["url"] = url.absoluteString
+    userInfo["url"] = url
     if let details {
       userInfo[FunctionsErrorDetailsKey] = details
     }
