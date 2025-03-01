@@ -1605,13 +1605,31 @@ extension Auth: AuthInterop {
     /// so the caller should ignore the URL from further processing, and `false` means the
     /// the URL is for the app (or another library) so the caller should continue handling
     /// this URL as usual.
-    @discardableResult
     @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
         guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
           return false
         }
         return authURLPresenter.canHandle(url: url)
+      }
+    }
+
+    /// Handles the given URL if it is recognized by `Auth`.
+    ///
+    /// This method should be called when a URL is received by the scene delegate, ensuring that
+    /// authentication-related URLs are properly processed. It ensures that URLs passed from
+    /// `openURLContexts` are handled by the authentication system.
+    ///
+    /// - Note: This method is available on iOS only.
+    ///
+    /// - Parameter url: The URL received by the application delegate from any of the `openURL`
+    /// methods.
+    @objc open func handle(_ url: URL) throws {
+      guard canHandle(url) else {
+        throw AuthErrorUtils.error(
+          code: AuthErrorCode.internalError,
+          userInfo: [NSLocalizedDescriptionKey: "The URL can't be handled"]
+        )
       }
     }
   #endif
