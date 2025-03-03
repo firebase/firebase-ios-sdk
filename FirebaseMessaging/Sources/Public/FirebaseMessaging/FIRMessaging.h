@@ -158,7 +158,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 @end
 
 /**
- *  Firebase Messaging lets you reliably deliver messages at no cost.
+ *  Firebase Messaging lets you reliably deliver messages.
  *
  *  To send or receive messages, the app must get a
  *  registration token. This token authorizes an

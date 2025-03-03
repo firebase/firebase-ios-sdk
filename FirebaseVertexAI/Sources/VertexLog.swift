@@ -31,8 +31,11 @@ enum VertexLog {
     // API Enablement Errors
     case vertexAIInFirebaseAPIDisabled = 200
 
-    // Model Configuration
+    // Generative Model Configuration
     case generativeModelInitialized = 1000
+
+    // Imagen Model Configuration
+    case imagenInvalidJPEGCompressionQuality = 1201
 
     // Network Errors
     case generativeAIServiceNonHTTPResponse = 2000
@@ -54,6 +57,8 @@ enum VertexLog {
     case decodedInvalidProtoDateMonth = 3009
     case decodedInvalidProtoDateDay = 3010
     case decodedInvalidCitationPublicationDate = 3011
+    case generateContentResponseUnrecognizedContentModality = 3012
+    case decodedUnsupportedImagenPredictionType = 3013
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000

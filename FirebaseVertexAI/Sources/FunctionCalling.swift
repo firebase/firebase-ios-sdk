@@ -19,7 +19,7 @@ import Foundation
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionDeclaration {
+public struct FunctionDeclaration: Sendable {
   /// The name of the function.
   let name: String
 
@@ -55,7 +55,7 @@ public struct FunctionDeclaration {
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
 /// an action, or set of actions, outside of knowledge and scope of the model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Tool {
+public struct Tool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
 
@@ -89,7 +89,7 @@ public struct Tool {
 
 /// Configuration for specifying function calling behavior.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FunctionCallingConfig {
+public struct FunctionCallingConfig: Sendable {
   /// Defines the execution behavior for function calling by defining the execution mode.
   enum Mode: String {
     case auto = "AUTO"
@@ -135,7 +135,7 @@ public struct FunctionCallingConfig {
 
 /// Tool configuration for any `Tool` specified in the request.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ToolConfig {
+public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
 
   public init(functionCallingConfig: FunctionCallingConfig? = nil) {

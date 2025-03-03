@@ -26,23 +26,12 @@ struct GenerativeAIService {
   /// The Firebase SDK version in the format `fire/<version>`.
   static let firebaseVersionTag = "fire/\(FirebaseVersion())"
 
-  private let projectID: String
-
-  /// Gives permission to talk to the backend.
-  private let apiKey: String
-
-  private let appCheck: AppCheckInterop?
-
-  private let auth: AuthInterop?
+  private let firebaseInfo: FirebaseInfo
 
   private let urlSession: URLSession
 
-  init(projectID: String, apiKey: String, appCheck: AppCheckInterop?, auth: AuthInterop?,
-       urlSession: URLSession) {
-    self.projectID = projectID
-    self.apiKey = apiKey
-    self.appCheck = appCheck
-    self.auth = auth
+  init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
+    self.firebaseInfo = firebaseInfo
     self.urlSession = urlSession
   }
 
@@ -80,7 +69,7 @@ struct GenerativeAIService {
 
   @available(macOS 12.0, *)
   func loadRequestStream<T: GenerativeAIRequest>(request: T)
-    -> AsyncThrowingStream<T.Response, Error> {
+    -> AsyncThrowingStream<T.Response, Error> where T: Sendable {
     return AsyncThrowingStream { continuation in
       Task {
         let urlRequest: URLRequest
@@ -180,14 +169,14 @@ struct GenerativeAIService {
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
     var urlRequest = URLRequest(url: request.url)
     urlRequest.httpMethod = "POST"
-    urlRequest.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
     )
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    if let appCheck {
+    if let appCheck = firebaseInfo.appCheck {
       let tokenResult = await appCheck.getToken(forcingRefresh: false)
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
@@ -198,12 +187,18 @@ struct GenerativeAIService {
       }
     }
 
-    if let auth, let authToken = try await auth.getToken(forcingRefresh: false) {
+    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
+      forcingRefresh: false
+    ) {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
+    // TODO: wait for release approval.
+//    if firebaseInfo.app.isDataCollectionDefaultEnabled {
+//      urlRequest.setValue(firebaseInfo.googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
+//    }
+
     let encoder = JSONEncoder()
-    encoder.keyEncodingStrategy = .convertToSnakeCase
     urlRequest.httpBody = try encoder.encode(request)
     urlRequest.timeoutInterval = request.options.timeout
 
@@ -261,6 +256,7 @@ struct GenerativeAIService {
   // Log specific RPC errors that cannot be mitigated or handled by user code.
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
   private func logRPCError(_ error: BackendError) {
+    let projectID = firebaseInfo.projectID
     if error.isVertexAIInFirebaseServiceDisabledError() {
       VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
       The Vertex AI in Firebase SDK requires the Vertex AI in Firebase API \

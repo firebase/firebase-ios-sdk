@@ -85,7 +85,7 @@ func apis() {
   @unknown default: ()
   }
 
-  // TODO: Mark the initializer as unavialable, as devs shouldn't be able to instantiate this.
+  // TODO: Mark the initializer as unavailable, as devs shouldn't be able to instantiate this.
   _ = MessagingMessageInfo().status
 
   NotificationCenter.default.post(name: .MessagingRegistrationTokenRefreshed, object: nil)
