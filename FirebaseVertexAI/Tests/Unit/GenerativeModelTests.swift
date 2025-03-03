@@ -58,6 +58,11 @@ final class GenerativeModelTests: XCTestCase {
   ].sorted()
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
+  let apiConfig = APIConfig(
+    service: .vertexAI,
+    serviceEndpoint: .firebaseVertexAIProd,
+    version: .v1beta
+  )
 
   var urlSession: URLSession!
   var model: GenerativeModel!
@@ -69,6 +74,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -267,6 +273,7 @@ final class GenerativeModelTests: XCTestCase {
       // Model name is prefixed with "models/".
       name: "models/test-model",
       firebaseInfo: testFirebaseInfo(),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -384,6 +391,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -404,6 +412,7 @@ final class GenerativeModelTests: XCTestCase {
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken),
                                      privateAppID: true),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -423,6 +432,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -442,6 +452,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: authToken)),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -460,6 +471,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: nil)),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -478,6 +490,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: "my-model",
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(error: AuthErrorFake())),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -857,6 +870,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
       urlSession: urlSession
@@ -1149,6 +1163,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -1168,6 +1183,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -1311,6 +1327,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
       urlSession: urlSession
@@ -1383,6 +1400,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
+      apiConfig: apiConfig,
       generationConfig: generationConfig,
       tools: [Tool(functionDeclarations: [sumFunction])],
       systemInstruction: systemInstruction,
@@ -1439,6 +1457,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       name: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
+      apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
       urlSession: urlSession

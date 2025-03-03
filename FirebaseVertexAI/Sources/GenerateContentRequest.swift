@@ -24,7 +24,8 @@ struct GenerateContentRequest: Sendable {
   let tools: [Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
-  let isStreaming: Bool
+  let apiConfig: APIConfig
+  let apiMethod: APIMethod
   let options: RequestOptions
 }
 
@@ -41,15 +42,27 @@ extension GenerateContentRequest: Encodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GenerateContentRequest {
+  enum APIMethod {
+    case generateContent
+    case streamGenerateContent
+    case countTokens
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
   var url: URL {
-    let modelURL = "\(Constants.baseURL)/\(options.apiVersion)/\(model)"
-    if isStreaming {
-      return URL(string: "\(modelURL):streamGenerateContent?alt=sse")!
-    } else {
+    let modelURL = "\(apiConfig.serviceEndpoint)/\(apiConfig.version)/\(model)"
+    switch apiMethod {
+    case .generateContent:
       return URL(string: "\(modelURL):generateContent")!
+    case .streamGenerateContent:
+      return URL(string: "\(modelURL):generateContent")!
+    case .countTokens:
+      fatalError("\(Self.self) should be a property of \(CountTokensRequest.self).")
     }
   }
 }

@@ -50,18 +50,7 @@ public class VertexAI {
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
-    os_unfair_lock_lock(&instancesLock)
-
-    // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
-
-    let instanceKey = "\(app.name):\(location)"
-    if let instance = instances[instanceKey] {
-      return instance
-    }
-    let newInstance = VertexAI(app: app, location: location)
-    instances[instanceKey] = newInstance
-    return newInstance
+    return vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
   }
 
   /// Initializes a generative model with the given parameters.
@@ -92,6 +81,7 @@ public class VertexAI {
     return GenerativeModel(
       name: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
@@ -124,6 +114,7 @@ public class VertexAI {
     return ImagenModel(
       name: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       requestOptions: requestOptions
@@ -139,25 +130,66 @@ public class VertexAI {
   /// Firebase data relevant to Vertex AI.
   let firebaseInfo: FirebaseInfo
 
+  let apiConfig: APIConfig
+
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
-    private nonisolated(unsafe) static var instances: [String: VertexAI] = [:]
+    private nonisolated(unsafe) static var instances: [InstanceKey: VertexAI] = [:]
 
     /// Lock to manage access to the `instances` array to avoid race conditions.
     private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
   #else
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
-    private static var instances: [String: VertexAI] = [:]
+    private static var instances: [InstanceKey: VertexAI] = [:]
 
     /// Lock to manage access to the `instances` array to avoid race conditions.
     private static var instancesLock: os_unfair_lock = .init()
   #endif
 
-  let location: String
+  let location: String?
 
-  init(app: FirebaseApp, location: String) {
+  static let defaultVertexAIAPIConfig = APIConfig(
+    service: .vertexAI,
+    serviceEndpoint: .firebaseVertexAIProd,
+    version: .v1beta
+  )
+  static let defaultDeveloperAPIConfig = APIConfig(
+    service: .developer,
+    serviceEndpoint: .generativeLanguage,
+    version: .v1beta
+  )
+
+  static func developerAPI(apiConfig: APIConfig = defaultDeveloperAPIConfig) -> VertexAI {
+    guard let app = FirebaseApp.app() else {
+      fatalError("No instance of the default Firebase app was found.")
+    }
+
+    return developerAPI(app: app, apiConfig: apiConfig)
+  }
+
+  static func developerAPI(app: FirebaseApp,
+                           apiConfig: APIConfig = defaultDeveloperAPIConfig) -> VertexAI {
+    return vertexAI(app: app, location: nil, apiConfig: apiConfig)
+  }
+
+  static func vertexAI(app: FirebaseApp, location: String?, apiConfig: APIConfig) -> VertexAI {
+    os_unfair_lock_lock(&instancesLock)
+
+    // Unlock before the function returns.
+    defer { os_unfair_lock_unlock(&instancesLock) }
+
+    let instanceKey = InstanceKey(appName: app.name, location: location, apiConfig: apiConfig)
+    if let instance = instances[instanceKey] {
+      return instance
+    }
+    let newInstance = VertexAI(app: app, location: location, apiConfig: apiConfig)
+    instances[instanceKey] = newInstance
+    return newInstance
+  }
+
+  init(app: FirebaseApp, location: String?, apiConfig: APIConfig) {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
@@ -175,6 +207,7 @@ public class VertexAI {
       googleAppID: app.options.googleAppID,
       firebaseApp: app
     )
+    self.apiConfig = apiConfig
     self.location = location
   }
 
@@ -187,6 +220,19 @@ public class VertexAI {
       available models.
       """)
     }
+
+    switch apiConfig.service {
+    case .vertexAI:
+      return vertexAIModelResourceName(modelName: modelName)
+    case .developer:
+      return developerModelResourceName(modelName: modelName)
+    }
+  }
+
+  private func vertexAIModelResourceName(modelName: String) -> String {
+    guard let location else {
+      fatalError("Location must be specified for the Vertex AI service.")
+    }
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
@@ -198,5 +244,23 @@ public class VertexAI {
 
     let projectID = firebaseInfo.projectID
     return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
+  }
+
+  private func developerModelResourceName(modelName: String) -> String {
+    switch apiConfig.serviceEndpoint {
+    case .firebaseVertexAIStaging:
+      let projectID = firebaseInfo.projectID
+      return "projects/\(projectID)/models/\(modelName)"
+    case .generativeLanguage:
+      return "models/\(modelName)"
+    default:
+      fatalError("The Developer API is not supported on '\(apiConfig.serviceEndpoint)'.")
+    }
+  }
+
+  private struct InstanceKey: Sendable, Hashable {
+    let appName: String
+    let location: String?
+    let apiConfig: APIConfig
   }
 }

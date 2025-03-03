@@ -19,13 +19,11 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class RequestOptionsTests: XCTestCase {
   let defaultTimeout: TimeInterval = 180.0
-  let defaultAPIVersion = APIVersion.v1beta.versionIdentifier
 
   func testInitialize_defaultValues() {
     let requestOptions = RequestOptions()
 
     XCTAssertEqual(requestOptions.timeout, defaultTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, defaultAPIVersion)
   }
 
   func testInitialize_timeout() {
@@ -34,30 +32,5 @@ final class RequestOptionsTests: XCTestCase {
     let requestOptions = RequestOptions(timeout: expectedTimeout)
 
     XCTAssertEqual(requestOptions.timeout, expectedTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, defaultAPIVersion)
-  }
-
-  func testInitialize_apiVersion_v1() {
-    let requestOptions = RequestOptions(apiVersion: .v1)
-
-    XCTAssertEqual(requestOptions.timeout, defaultTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, APIVersion.v1.versionIdentifier)
-  }
-
-  func testInitialize_apiVersion_v1beta() {
-    let requestOptions = RequestOptions(apiVersion: .v1beta)
-
-    XCTAssertEqual(requestOptions.timeout, defaultTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, APIVersion.v1beta.versionIdentifier)
-  }
-
-  func testInitialize_allOptions() {
-    let expectedTimeout = 30.0
-    let expectedAPIVersion = APIVersion.v1
-
-    let requestOptions = RequestOptions(timeout: expectedTimeout, apiVersion: expectedAPIVersion)
-
-    XCTAssertEqual(requestOptions.timeout, expectedTimeout)
-    XCTAssertEqual(requestOptions.apiVersion, expectedAPIVersion.versionIdentifier)
   }
 }

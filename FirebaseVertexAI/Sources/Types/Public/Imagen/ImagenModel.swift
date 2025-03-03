@@ -30,6 +30,8 @@ public final class ImagenModel {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
+  let apiConfig: APIConfig
+
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
 
@@ -42,11 +44,13 @@ public final class ImagenModel {
 
   init(name: String,
        firebaseInfo: FirebaseInfo,
+       apiConfig: APIConfig,
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
     modelResourceName = name
+    self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
       urlSession: urlSession
@@ -123,6 +127,7 @@ public final class ImagenModel {
     -> ImagenGenerationResponse<T> where T: Decodable, T: ImagenImageRepresentable {
     let request = ImagenGenerationRequest<T>(
       model: modelResourceName,
+      apiConfig: apiConfig,
       options: requestOptions,
       instances: [ImageGenerationInstance(prompt: prompt)],
       parameters: parameters

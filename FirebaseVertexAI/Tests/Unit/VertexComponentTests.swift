@@ -53,6 +53,9 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
+    XCTAssertEqual(vertex.apiConfig.serviceEndpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
   /// Tests that Vertex instances are reused properly.
@@ -109,7 +112,11 @@ class VertexComponentTests: XCTestCase {
       options.apiKey = VertexComponentTests.apiKey
       let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
       weakApp = try XCTUnwrap(app1)
-      let vertex = VertexAI(app: app1, location: "transitory location")
+      let vertex = VertexAI(
+        app: app1,
+        location: "transitory location",
+        apiConfig: VertexAI.defaultVertexAIAPIConfig
+      )
       weakVertex = vertex
       XCTAssertNotNil(weakVertex)
     }
@@ -117,17 +124,45 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNil(weakVertex)
   }
 
-  func testModelResourceName() throws {
+  func testModelResourceName_vertexAI() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = VertexAI.vertexAI(app: app, location: location)
     let model = "test-model-name"
-    let modelResourceName = vertex.modelResourceName(modelName: model)
     let projectID = vertex.firebaseInfo.projectID
 
+    let modelResourceName = vertex.modelResourceName(modelName: model)
+
+    let location = try XCTUnwrap(vertex.location)
     XCTAssertEqual(
       modelResourceName,
-      "projects/\(projectID)/locations/\(vertex.location)/publishers/google/models/\(model)"
+      "projects/\(projectID)/locations/\(location)/publishers/google/models/\(model)"
     )
+  }
+
+  func testModelResourceName_developerAPI_generativeLanguage() throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = VertexAI.developerAPI(app: app)
+    let model = "test-model-name"
+
+    let modelResourceName = vertex.modelResourceName(modelName: model)
+
+    XCTAssertEqual(modelResourceName, "models/\(model)")
+  }
+
+  func testModelResourceName_developerAPI_firebaseVertexAI() throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let apiConfig = APIConfig(
+      service: .developer,
+      serviceEndpoint: .firebaseVertexAIProd,
+      version: .v1beta
+    )
+    let vertex = VertexAI.developerAPI(app: app, apiConfig: apiConfig)
+    let model = "test-model-name"
+    let projectID = vertex.firebaseInfo.projectID
+
+    let modelResourceName = vertex.modelResourceName(modelName: model)
+
+    XCTAssertEqual(modelResourceName, "projects/\(projectID)/models/\(model)")
   }
 
   func testGenerativeModel() async throws {
