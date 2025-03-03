@@ -12,4 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public protocol PipelineType: Sendable {}
+public struct Selectable {
+  let alias: String
+}

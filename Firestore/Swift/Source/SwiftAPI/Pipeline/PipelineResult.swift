@@ -20,63 +20,38 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSnapshot {
-  /// The Pipeline on which `execute()` was called to obtain this `PipelineSnapshot`.
-  public let pipeline: Pipeline
-
-  /// An array of all the results in the `PipelineSnapshot`.
-  public let results: [PipelineResult]
-
-  /// The time at which the pipeline producing this result was executed.
-  public let executionTime: Timestamp
-
-  init(pipeline: Pipeline, results: [PipelineResult], executionTime: Timestamp) {
-    self.pipeline = pipeline
-    self.results = results
-    self.executionTime = executionTime
-  }
-}
-
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineResult {
-  let cppObj: firebase.firestore.api.PipelineResult
-
-  init(_ cppSource: firebase.firestore.api.PipelineResult) {
-    cppObj = cppSource
+  init(ref: DocumentReference? = nil,
+       id: String? = nil,
+       createTime: Timestamp? = nil,
+       updateTime: Timestamp? = nil,
+       data: [String: Any] = [:]) {
+    self.ref = ref
+    self.id = id
+    self.createTime = createTime
+    self.updateTime = updateTime
+    self.data = data
   }
 
   /// The reference of the document, if the query returns the `__name__` field.
-  public let ref: DocumentReference? = nil
+  public let ref: DocumentReference?
 
   /// The ID of the document for which this `PipelineResult` contains data, if available.
-  public let id: String? = nil
+  public let id: String?
 
   /// The time the document was created, if available.
-  public let createTime: Timestamp? = nil
+  public let createTime: Timestamp?
 
   /// The time the document was last updated when the snapshot was generated.
-  public let updateTime: Timestamp? = nil
+  public let updateTime: Timestamp?
 
   /// Retrieves all fields in the result as a dictionary.
-  public let data: [String: Any] = [:]
+  public let data: [String: Any]
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldPath: Any) -> Any? {
     return "PLACEHOLDER"
-  }
-
-  static func convertToArrayFromCppVector(_ vector: CppPipelineResult)
-    -> [PipelineResult] {
-    // Create a Swift array and populate it by iterating over the C++ vector
-    var swiftArray: [PipelineResult] = []
-
-//    for index in vector.indices {
-//      let cppResult = vector[index]
-//      swiftArray.append(PipelineResult(cppResult))
-//    }
-
-    return swiftArray
   }
 }

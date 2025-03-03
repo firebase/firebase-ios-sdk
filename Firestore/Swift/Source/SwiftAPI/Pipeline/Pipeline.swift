@@ -20,27 +20,19 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct Pipeline: PipelineType {
-  var cppObj: firebase.firestore.api.Pipeline? = nil
+public struct Pipeline {
+  let db: Firestore
 
-  init(_ cppSource: firebase.firestore.api.Pipeline) {
-    cppObj = cppSource
+  init(_ db: Firestore) {
+    self.db = db
   }
 
-  init() {}
-
-  public func execute() async throws -> PipelineResult {
-    return try await withCheckedThrowingContinuation { continuation in
-      let listener = CallbackWrapper.wrapPipelineCallback(firestore: cppObj!.GetFirestore()) {
-        result, error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume(returning: PipelineResult(result!.pointee))
-        }
-      }
-      cppObj!.Execute(listener)
-    }
+  public func execute() async throws -> PipelineSnapshot {
+    return PipelineSnapshot(
+      pipeline: self,
+      results: [],
+      executionTime: Timestamp(seconds: 0, nanoseconds: 0)
+    )
   }
 
   /// Adds new fields to outputs from previous stages.
