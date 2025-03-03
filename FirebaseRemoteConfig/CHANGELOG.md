@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Fix RCNConfigRealtime crash. (#14518)
+- [fixed] Fix intermittent `RCNConfigRealtime` crash due to incorrect parsing of fragmented JSON. (#14518)
 
 # 11.9.0
 - [fixed] Mark internal `fetchSession` property as `atomic` to prevent a concurrency
