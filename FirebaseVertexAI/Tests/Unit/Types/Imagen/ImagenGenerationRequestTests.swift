@@ -84,8 +84,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(
       request.url,
       URL(string:
-          "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict"
-      )
+        "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
   }
 
