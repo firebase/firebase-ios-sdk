@@ -43,7 +43,7 @@ extension GenerateContentRequest: Encodable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest {
-  enum APIMethod {
+  enum APIMethod: String {
     case generateContent
     case streamGenerateContent
     case countTokens
@@ -55,12 +55,12 @@ extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
   var url: URL {
-    let modelURL = "\(apiConfig.serviceEndpoint)/\(apiConfig.version)/\(model)"
+    let modelURL = "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
     switch apiMethod {
     case .generateContent:
-      return URL(string: "\(modelURL):generateContent")!
+      return URL(string: "\(modelURL):\(apiMethod.rawValue)")!
     case .streamGenerateContent:
-      return URL(string: "\(modelURL):generateContent")!
+      return URL(string: "\(modelURL):\(apiMethod.rawValue)?alt=sse")!
     case .countTokens:
       fatalError("\(Self.self) should be a property of \(CountTokensRequest.self).")
     }

@@ -40,7 +40,9 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
   typealias Response = ImagenGenerationResponse<ImageType>
 
   var url: URL {
-    return URL(string: "\(apiConfig.serviceEndpoint)/\(apiConfig.version)/\(model):predict")!
+    return URL(
+      string: "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict"
+    )!
   }
 }
 
