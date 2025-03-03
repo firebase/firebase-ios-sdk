@@ -153,7 +153,7 @@ class VertexComponentTests: XCTestCase {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(
       service: .developer,
-      serviceEndpoint: .firebaseVertexAIProd,
+      serviceEndpoint: .firebaseVertexAIStaging,
       version: .v1beta
     )
     let vertex = VertexAI.developerAPI(app: app, apiConfig: apiConfig)
