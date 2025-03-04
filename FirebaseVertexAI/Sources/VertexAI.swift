@@ -267,6 +267,9 @@ public class VertexAI {
     }
   }
 
+  /// Identifier for a unique instance of ``VertexAI``.
+  ///
+  /// This type is `Hashable` so that it can be used as a key in the `instances` dictionary.
   private struct InstanceKey: Sendable, Hashable {
     let appName: String
     let location: String?
