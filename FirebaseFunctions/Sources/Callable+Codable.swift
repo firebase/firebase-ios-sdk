@@ -192,8 +192,7 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
     do {
       let container = try decoder
         .container(keyedBy: Self<Message, Result>.CodingKeys.self)
-      var allKeys = ArraySlice(container.allKeys)
-      guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
+      guard let onlyKey = container.allKeys.first, container.allKeys.count == 1 else {
         throw DecodingError
           .typeMismatch(
             Self<Message,
