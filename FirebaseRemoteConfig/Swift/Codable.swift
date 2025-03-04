@@ -28,7 +28,8 @@ public extension RemoteConfigValue {
   /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type.
   ///
   /// - Parameter asType: The type to decode the JSON-object to
-  func decoded<Value: Decodable>(asType: Value.Type = Value.self) throws -> Value {
+  func decoded<Value: Decodable>(asType: Value.Type = Value.self,
+                                 decoder: FirebaseDataDecoder = .init()) throws -> Value {
     if asType == Date.self {
       throw RemoteConfigValueCodableError
         .unsupportedType("Date type is not currently supported for " +
