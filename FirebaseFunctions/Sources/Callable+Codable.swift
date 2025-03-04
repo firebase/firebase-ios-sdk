@@ -245,8 +245,7 @@ public extension Callable {
   ///
   /// Example of using `stream` _with_ `StreamResponse`:
   /// ```swift
-  /// let callable: Callable<MyRequest, StreamResponse<MyMessage,
-  /// MyResult>> = // ...
+  /// let callable: Callable<MyRequest, StreamResponse<MyMessage, MyResult>> = // ...
   /// let request: MyRequest = // ...
   /// let stream = try callable.stream(request)
   /// for try await response in stream {
