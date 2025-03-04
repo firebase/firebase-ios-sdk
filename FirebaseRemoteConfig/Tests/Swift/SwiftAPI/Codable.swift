@@ -238,40 +238,4 @@ class CodableTests: APITestBase {
       toGranularity: .second
     ))
   }
-
-  func testDateEncodingAndDecodingWithNonDefaultCoders_1() throws {
-    struct DateWrapper: Codable {
-      let date: Date
-    }
-    struct MyDefaults: Codable {
-      let dateWrapper: DateWrapper
-    }
-
-    let defaults = MyDefaults(dateWrapper: DateWrapper(date: Date()))
-
-    // When
-    let encoder = FirebaseDataEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    try config.setDefaults(from: defaults, encoder: encoder)
-
-    XCTAssertThrowsError(try config.configValue(forKey: "dateWrapper").decoded() as DateWrapper)
-    XCTAssertNil(config[decodedValue: "dateWrapper"] as DateWrapper?)
-
-    // Then
-    let decoder = FirebaseDataDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    // 💥 Throws unexpected error:
-    //  error: -[FirebaseRemoteConfig_Unit_swift_api_tests.CodableTests testDateEncodingAndDecodingWithNonDefaultCoders_1] : failed: caught error: "typeMismatch(Swift.Double, Swift.DecodingError.Context(codingPath: [CodingKeys(stringValue: "date", intValue: nil)], debugDescription: "Expected to decode Double but found a string/data instead.", underlyingError: nil))"
-    let decodedWrapper: DateWrapper = try config.configValue(forKey: "dateWrapper")
-      .decoded(decoder: decoder)
-    XCTAssert(Calendar.current.isDate(
-      decodedWrapper.date,
-      equalTo: defaults.dateWrapper.date,
-      toGranularity: .second
-    ))
-
-    XCTAssertNil(config[decodedValue: "dateWrapper"] as DateWrapper?)
-    // 🔥 Compile time error: `Extraneous argument label 'decoder:' in subscript`
-//    XCTAssertNotNil(config[decodedValue: "dateWrapper", decoder: decoder] as DateWrapper?)
-  }
 }

@@ -18,7 +18,6 @@ import Foundation
 #if SWIFT_PACKAGE
   @_exported import FirebaseRemoteConfigInternal
 #endif // SWIFT_PACKAGE
-import FirebaseSharedSwift
 
 /// Implements subscript overloads to enable Remote Config values to be accessed
 /// in a type-safe way directly from the current config.
@@ -26,8 +25,8 @@ public extension RemoteConfig {
   /// Return a typed RemoteConfigValue for a key.
   /// - Parameter key: A Remote Config key.
   /// - Returns: A typed RemoteConfigValue.
-  subscript<T: Decodable>(decodedValue key: String, decoder: FirebaseDataDecoder = .init()) -> T? {
-    return try? configValue(forKey: key).decoded(decoder: decoder)
+  subscript<T: Decodable>(decodedValue key: String) -> T? {
+    return try? configValue(forKey: key).decoded()
   }
 
   /// Return a Dictionary for a RemoteConfig JSON key.
