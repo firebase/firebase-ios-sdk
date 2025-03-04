@@ -30,6 +30,7 @@ public final class ImagenModel {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
+  /// Configuration for the backend API used by this model.
   let apiConfig: APIConfig
 
   /// The backing service responsible for sending and receiving model requests to the backend.

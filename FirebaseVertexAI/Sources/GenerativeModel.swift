@@ -23,6 +23,7 @@ public final class GenerativeModel: Sendable {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
+  /// Configuration for the backend API used by this model.
   let apiConfig: APIConfig
 
   /// The backing service responsible for sending and receiving model requests to the backend.
@@ -50,8 +51,8 @@ public final class GenerativeModel: Sendable {
   ///
   /// - Parameters:
   ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
-  ///   - projectID: The project ID from the Firebase console.
-  ///   - apiKey: The API key for your project.
+  ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
+  ///   - apiConfig: Configuration for the backend API used by this model.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
