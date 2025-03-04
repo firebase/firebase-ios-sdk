@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@
 #ifndef PB_GOOGLE_FIRESTORE_V1_DOCUMENT_NANOPB_H_INCLUDED
 #define PB_GOOGLE_FIRESTORE_V1_DOCUMENT_NANOPB_H_INCLUDED
 #include <pb.h>
+
+#include "google/api/field_behavior.nanopb.h"
 
 #include "google/protobuf/struct.nanopb.h"
 
@@ -47,6 +49,17 @@ typedef struct _google_firestore_v1_ArrayValue {
 /* @@protoc_insertion_point(struct:google_firestore_v1_ArrayValue) */
 } google_firestore_v1_ArrayValue;
 
+typedef struct _google_firestore_v1_Function {
+    pb_bytes_array_t *name;
+    pb_size_t args_count;
+    struct _google_firestore_v1_Value *args;
+    pb_size_t options_count;
+    struct _google_firestore_v1_Function_OptionsEntry *options;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_Function) */
+} google_firestore_v1_Function;
+
 typedef struct _google_firestore_v1_MapValue {
     pb_size_t fields_count;
     struct _google_firestore_v1_MapValue_FieldsEntry *fields;
@@ -54,6 +67,25 @@ typedef struct _google_firestore_v1_MapValue {
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue) */
 } google_firestore_v1_MapValue;
+
+typedef struct _google_firestore_v1_Pipeline {
+    pb_size_t stages_count;
+    struct _google_firestore_v1_Pipeline_Stage *stages;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_Pipeline) */
+} google_firestore_v1_Pipeline;
+
+typedef struct _google_firestore_v1_Pipeline_Stage {
+    pb_bytes_array_t *name;
+    pb_size_t args_count;
+    struct _google_firestore_v1_Value *args;
+    pb_size_t options_count;
+    struct _google_firestore_v1_Pipeline_Stage_OptionsEntry *options;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_Pipeline_Stage) */
+} google_firestore_v1_Pipeline_Stage;
 
 typedef struct _google_firestore_v1_Document {
     pb_bytes_array_t *name;
@@ -81,6 +113,9 @@ typedef struct _google_firestore_v1_Value {
         google_protobuf_NullValue null_value;
         pb_bytes_array_t *string_value;
         pb_bytes_array_t *bytes_value;
+        pb_bytes_array_t *field_reference_value;
+        google_firestore_v1_Function function_value;
+        google_firestore_v1_Pipeline pipeline_value;
     };
 
     std::string ToString(int indent = 0) const;
@@ -95,6 +130,14 @@ typedef struct _google_firestore_v1_Document_FieldsEntry {
 /* @@protoc_insertion_point(struct:google_firestore_v1_Document_FieldsEntry) */
 } google_firestore_v1_Document_FieldsEntry;
 
+typedef struct _google_firestore_v1_Function_OptionsEntry {
+    pb_bytes_array_t *key;
+    google_firestore_v1_Value value;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_Function_OptionsEntry) */
+} google_firestore_v1_Function_OptionsEntry;
+
 typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     pb_bytes_array_t *key;
     google_firestore_v1_Value value;
@@ -102,6 +145,14 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_MapValue_FieldsEntry) */
 } google_firestore_v1_MapValue_FieldsEntry;
+
+typedef struct _google_firestore_v1_Pipeline_Stage_OptionsEntry {
+    pb_bytes_array_t *key;
+    google_firestore_v1_Value value;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_Pipeline_Stage_OptionsEntry) */
+} google_firestore_v1_Pipeline_Stage_OptionsEntry;
 
 /* Default values for struct fields */
 
@@ -112,16 +163,33 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
 #define google_firestore_v1_ArrayValue_init_default {0, NULL}
 #define google_firestore_v1_MapValue_init_default {0, NULL}
 #define google_firestore_v1_MapValue_FieldsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
+#define google_firestore_v1_Function_init_default {NULL, 0, NULL, 0, NULL}
+#define google_firestore_v1_Function_OptionsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
+#define google_firestore_v1_Pipeline_init_default {0, NULL}
+#define google_firestore_v1_Pipeline_Stage_init_default {NULL, 0, NULL, 0, NULL}
+#define google_firestore_v1_Pipeline_Stage_OptionsEntry_init_default {NULL, google_firestore_v1_Value_init_default}
 #define google_firestore_v1_Document_init_zero   {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, false, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_Document_FieldsEntry_init_zero {NULL, google_firestore_v1_Value_init_zero}
 #define google_firestore_v1_Value_init_zero      {0, {0}}
 #define google_firestore_v1_ArrayValue_init_zero {0, NULL}
 #define google_firestore_v1_MapValue_init_zero   {0, NULL}
 #define google_firestore_v1_MapValue_FieldsEntry_init_zero {NULL, google_firestore_v1_Value_init_zero}
+#define google_firestore_v1_Function_init_zero   {NULL, 0, NULL, 0, NULL}
+#define google_firestore_v1_Function_OptionsEntry_init_zero {NULL, google_firestore_v1_Value_init_zero}
+#define google_firestore_v1_Pipeline_init_zero   {0, NULL}
+#define google_firestore_v1_Pipeline_Stage_init_zero {NULL, 0, NULL, 0, NULL}
+#define google_firestore_v1_Pipeline_Stage_OptionsEntry_init_zero {NULL, google_firestore_v1_Value_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_firestore_v1_ArrayValue_values_tag 1
+#define google_firestore_v1_Function_name_tag    1
+#define google_firestore_v1_Function_args_tag    2
+#define google_firestore_v1_Function_options_tag 3
 #define google_firestore_v1_MapValue_fields_tag  1
+#define google_firestore_v1_Pipeline_stages_tag  1
+#define google_firestore_v1_Pipeline_Stage_name_tag 1
+#define google_firestore_v1_Pipeline_Stage_args_tag 2
+#define google_firestore_v1_Pipeline_Stage_options_tag 3
 #define google_firestore_v1_Document_name_tag    1
 #define google_firestore_v1_Document_fields_tag  2
 #define google_firestore_v1_Document_create_time_tag 3
@@ -137,18 +205,30 @@ typedef struct _google_firestore_v1_MapValue_FieldsEntry {
 #define google_firestore_v1_Value_null_value_tag 11
 #define google_firestore_v1_Value_string_value_tag 17
 #define google_firestore_v1_Value_bytes_value_tag 18
+#define google_firestore_v1_Value_field_reference_value_tag 19
+#define google_firestore_v1_Value_function_value_tag 20
+#define google_firestore_v1_Value_pipeline_value_tag 21
 #define google_firestore_v1_Document_FieldsEntry_key_tag 1
 #define google_firestore_v1_Document_FieldsEntry_value_tag 2
+#define google_firestore_v1_Function_OptionsEntry_key_tag 1
+#define google_firestore_v1_Function_OptionsEntry_value_tag 2
 #define google_firestore_v1_MapValue_FieldsEntry_key_tag 1
 #define google_firestore_v1_MapValue_FieldsEntry_value_tag 2
+#define google_firestore_v1_Pipeline_Stage_OptionsEntry_key_tag 1
+#define google_firestore_v1_Pipeline_Stage_OptionsEntry_value_tag 2
 
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t google_firestore_v1_Document_fields[5];
 extern const pb_field_t google_firestore_v1_Document_FieldsEntry_fields[3];
-extern const pb_field_t google_firestore_v1_Value_fields[12];
+extern const pb_field_t google_firestore_v1_Value_fields[15];
 extern const pb_field_t google_firestore_v1_ArrayValue_fields[2];
 extern const pb_field_t google_firestore_v1_MapValue_fields[2];
 extern const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3];
+extern const pb_field_t google_firestore_v1_Function_fields[4];
+extern const pb_field_t google_firestore_v1_Function_OptionsEntry_fields[3];
+extern const pb_field_t google_firestore_v1_Pipeline_fields[2];
+extern const pb_field_t google_firestore_v1_Pipeline_Stage_fields[4];
+extern const pb_field_t google_firestore_v1_Pipeline_Stage_OptionsEntry_fields[3];
 
 /* Maximum encoded size of messages (where known) */
 /* google_firestore_v1_Document_size depends on runtime parameters */
@@ -157,6 +237,11 @@ extern const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3];
 /* google_firestore_v1_ArrayValue_size depends on runtime parameters */
 /* google_firestore_v1_MapValue_size depends on runtime parameters */
 /* google_firestore_v1_MapValue_FieldsEntry_size depends on runtime parameters */
+/* google_firestore_v1_Function_size depends on runtime parameters */
+/* google_firestore_v1_Function_OptionsEntry_size depends on runtime parameters */
+/* google_firestore_v1_Pipeline_size depends on runtime parameters */
+/* google_firestore_v1_Pipeline_Stage_size depends on runtime parameters */
+/* google_firestore_v1_Pipeline_Stage_OptionsEntry_size depends on runtime parameters */
 
 /* Message IDs (where set with "msgid" option) */
 #ifdef PB_MSGID
