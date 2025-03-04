@@ -15,7 +15,7 @@
 import FirebaseSharedSwift
 import Foundation
 
-/// A `Callable` is reference to a particular Callable HTTPS trigger in Cloud
+/// A `Callable` is a reference to a particular Callable HTTPS trigger in Cloud
 /// Functions.
 ///
 /// - Note: If the Callable HTTPS trigger accepts no parameters, ``Never`` can
