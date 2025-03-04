@@ -210,7 +210,7 @@ class CodableTests: APITestBase {
 
   // MARK: - Test using injected encoder/decoder.
 
-  func testDateEncodingAndDecodingWithISO8601() throws {
+  func testDateEncodingAndDecodingWithNonDefaultCoders() throws {
     // Given
     struct DateDefaults: Codable {
       let date: Date
