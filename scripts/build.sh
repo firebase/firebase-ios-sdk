@@ -700,6 +700,15 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  FirebaseDataConnect-*-spm)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
+      test
+    ;;
+
   # Note that the combine tests require setting the minimum iOS and tvOS version to 13.0
   *-*-spm)
     RunXcodebuild \
