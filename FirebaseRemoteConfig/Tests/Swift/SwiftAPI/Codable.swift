@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseRemoteConfig
+import FirebaseSharedSwift
 
 import XCTest
 
@@ -205,5 +206,36 @@ class CodableTests: APITestBase {
                                             "baz": "baz"])
     XCTAssertEqual(readDefaults.arrayValue, ["foo", "bar", "baz"])
     XCTAssertEqual(readDefaults.arrayIntValue, [1, 2, 0, 3])
+  }
+
+  // MARK: - Test using injected encoder/decoder.
+
+  func testDateEncodingAndDecodingWithISO8601() throws {
+    // Given
+    struct DateDefaults: Codable {
+      let date: Date
+    }
+
+    let defaults = DateDefaults(date: Date())
+
+    // When
+    let encoder = FirebaseDataEncoder()
+    encoder.dateEncodingStrategy = .iso8601
+    try config.setDefaults(from: defaults, encoder: encoder)
+
+    // - Uses default decoder that won't decode ISO8601 format.
+    let improperlyDecodedDefaults: DateDefaults = try config.decoded()
+    XCTAssertNotEqual(improperlyDecodedDefaults.date, defaults.date)
+
+    // Then
+    let decoder = FirebaseDataDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+
+    let decodedDefaults: DateDefaults = try config.decoded(decoder: decoder)
+    XCTAssert(Calendar.current.isDate(
+      decodedDefaults.date,
+      equalTo: defaults.date,
+      toGranularity: .second
+    ))
   }
 }
