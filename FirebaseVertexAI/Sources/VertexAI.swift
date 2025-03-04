@@ -36,8 +36,12 @@ public class VertexAI {
     guard let app = FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
+    let vertexInstance = vertexAI(app: app, location: location)
+    assert(vertexInstance.apiConfig.service == .vertexAI)
+    assert(vertexInstance.apiConfig.serviceEndpoint == .firebaseVertexAIProd)
+    assert(vertexInstance.apiConfig.version == .v1beta)
 
-    return vertexAI(app: app, location: location)
+    return vertexInstance
   }
 
   /// Creates an instance of `VertexAI` configured with a custom `FirebaseApp`.
@@ -50,7 +54,12 @@ public class VertexAI {
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
-    return vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
+    let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
+    assert(vertexInstance.apiConfig.service == .vertexAI)
+    assert(vertexInstance.apiConfig.serviceEndpoint == .firebaseVertexAIProd)
+    assert(vertexInstance.apiConfig.version == .v1beta)
+
+    return vertexInstance
   }
 
   /// Initializes a generative model with the given parameters.
