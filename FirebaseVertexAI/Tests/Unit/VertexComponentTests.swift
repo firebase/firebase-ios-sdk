@@ -33,20 +33,39 @@ class VertexComponentTests: XCTestCase {
     return options
   }()
 
-  static let app = {
-    FirebaseApp.configure(options: options)
-    return FirebaseApp(instanceWithName: "test", options: options)
-  }()
+  static let app = FirebaseApp(instanceWithName: "test", options: options)
 
   let location = "test-location"
+  let modelName = "test-model-name"
+  let systemInstruction = ModelContent(role: "system", parts: "test-system-instruction-prompt")
+
+  override class func setUp() {
+    FirebaseApp.configure(options: options)
+    guard FirebaseApp.app() != nil else {
+      fatalError("The default app does not exist.")
+    }
+  }
 
   /// Test that the objc class is available for the component system to update the user agent.
   func testComponentsBeingRegistered() throws {
     XCTAssertNotNil(NSClassFromString("FIRVertexAIComponent"))
   }
 
+  /// Tests that a vertex instance can be created properly using the default Firebase pp.
+  func testVertexInstanceCreation_defaultApp() throws {
+    let vertex = VertexAI.vertexAI(location: location)
+
+    XCTAssertNotNil(vertex)
+    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(vertex.location, location)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
+    XCTAssertEqual(vertex.apiConfig.serviceEndpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
+  }
+
   /// Tests that a vertex instance can be created properly.
-  func testVertexInstanceCreation() throws {
+  func testVertexInstanceCreation_customApp() throws {
     let vertex = VertexAI.vertexAI(app: VertexComponentTests.app, location: location)
 
     XCTAssertNotNil(vertex)
@@ -99,6 +118,14 @@ class VertexComponentTests: XCTestCase {
 
     XCTAssert(VertexComponentTests.app != app2)
     XCTAssert(vertex1 !== vertex2) // Ensure they are different instances.
+  }
+
+  func testSameAppAndDifferentAPI_newInstanceCreated() throws {
+    let vertex1 = VertexAI.vertexAI(app: VertexComponentTests.app)
+    let vertex2 = VertexAI.developerAPI(app: VertexComponentTests.app)
+
+    // Ensure they are different instances.
+    XCTAssert(vertex1 !== vertex2)
   }
 
   /// Test that vertex instances get deallocated.
@@ -165,12 +192,10 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(modelResourceName, "projects/\(projectID)/models/\(model)")
   }
 
-  func testGenerativeModel() async throws {
+  func testGenerativeModel_vertexAI() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = VertexAI.vertexAI(app: app, location: location)
-    let modelName = "test-model-name"
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
-    let systemInstruction = ModelContent(role: "system", parts: "test-system-instruction-prompt")
 
     let generativeModel = vertex.generativeModel(
       modelName: modelName,
@@ -179,5 +204,21 @@ class VertexComponentTests: XCTestCase {
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
     XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
+    XCTAssertEqual(generativeModel.apiConfig, VertexAI.defaultVertexAIAPIConfig)
+  }
+
+  func testGenerativeModel_developerAPI() async throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = VertexAI.developerAPI(app: app)
+    let modelResourceName = vertex.modelResourceName(modelName: modelName)
+
+    let generativeModel = vertex.generativeModel(
+      modelName: modelName,
+      systemInstruction: systemInstruction
+    )
+
+    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
+    XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
+    XCTAssertEqual(generativeModel.apiConfig, VertexAI.defaultDeveloperAPIConfig)
   }
 }

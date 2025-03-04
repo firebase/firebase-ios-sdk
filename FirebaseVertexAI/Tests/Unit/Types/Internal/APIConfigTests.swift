@@ -29,7 +29,7 @@ final class APIConfigTests: XCTestCase {
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
-  func testInitialize_vertexAI_staging_v1beta() {
+  func testInitialize_vertexAI_prod_v1beta() {
     let apiConfig = APIConfig(
       service: .vertexAI,
       serviceEndpoint: .firebaseVertexAIProd,
