@@ -15,12 +15,11 @@
 import FirebaseSharedSwift
 import Foundation
 
-/// A `Callable` is a reference to a particular Callable HTTPS trigger in Cloud
-/// Functions.
+/// A `Callable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
 ///
-/// - Note: If the Callable HTTPS trigger accepts no parameters, ``Never`` can
-/// be used for iOS 17.0+. Otherwise, a simple encodable placeholder type
-/// (e.g., `struct EmptyRequest: Encodable {}`) can be used.
+/// - Note: If the Callable HTTPS trigger accepts no parameters, ``Never`` can be used for
+///   iOS 17.0+. Otherwise, a simple encodable placeholder type (e.g.,
+///   `struct EmptyRequest: Encodable {}`) can be used.
 public struct Callable<Request: Encodable, Response: Decodable> {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
   public var timeoutInterval: TimeInterval {
@@ -169,12 +168,11 @@ public struct Callable<Request: Encodable, Response: Decodable> {
 /// Used to determine when a `StreamResponse<_, _>` is being decoded.
 private protocol StreamResponseProtocol {}
 
-/// A convenience type used to receive both the streaming callable function's
-/// yielded messages and its return value.
+/// A convenience type used to receive both the streaming callable function's yielded messages and
+/// its return value.
 ///
-/// This can be used as the generic `Response` parameter to ``Callable`` to
-/// receive both the yielded messages and final return value of the streaming
-/// callable function.
+/// This can be used as the generic `Response` parameter to ``Callable`` to receive both the
+/// yielded messages and final return value of the streaming callable function.
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
   StreamResponseProtocol {
@@ -223,20 +221,16 @@ public enum StreamResponse<Message: Decodable, Result: Decodable>: Decodable,
 public extension Callable {
   /// Creates a stream that yields responses from the streaming callable function.
   ///
-  /// The request to the Cloud Functions backend made by this method
-  /// automatically includes a FCM token to identify the app instance.
-  /// If a user is logged in with Firebase Auth, an auth ID token for the
-  /// user is included. If App Check is integrated, an app check token is
-  /// included.
+  /// The request to the Cloud Functions backend made by this method automatically includes a FCM
+  /// token to identify the app instance. If a user is logged in with Firebase Auth, an auth ID
+  /// token for the user is included. If App Check is integrated, an app check token is included.
   ///
-  /// Firebase Cloud Messaging sends data to the Firebase backend
-  /// periodically to collect information regarding the app instance. To
-  /// stop this, see `Messaging.deleteData()`. It resumes with a new FCM
-  /// Token the next time you call this method.
+  /// Firebase Cloud Messaging sends data to the Firebase backend periodically to collect
+  /// information regarding the app instance. To stop this, see `Messaging.deleteData()`. It
+  /// resumes with a new FCM Token the next time you call this method.
   ///
-  /// - Important: The final result returned by the callable function is only
-  ///   accessible when using `StreamResponse` as the `Response` generic
-  ///   type.
+  /// - Important: The final result returned by the callable function is only accessible when
+  ///   using `StreamResponse` as the `Response` generic type.
   ///
   /// Example of using `stream` _without_ `StreamResponse`:
   /// ```swift
@@ -268,10 +262,9 @@ public extension Callable {
   /// ```
   ///
   /// - Parameter data: The `Request` data to pass to the callable function.
-  /// - Throws: A ``FunctionsError`` if the parameter `data` cannot be
-  ///   encoded.
-  /// - Returns: A stream wrapping responses yielded by the streaming callable
-  ///   function or a ``FunctionsError`` if an error occurred.
+  /// - Throws: A ``FunctionsError`` if the parameter `data` cannot be encoded.
+  /// - Returns: A stream wrapping responses yielded by the streaming callable function or
+  ///   a ``FunctionsError`` if an error occurred.
   func stream(_ data: Request? = nil) throws -> AsyncThrowingStream<Response, Error> {
     let encoded: Any
     do {
@@ -332,8 +325,8 @@ public extension Callable {
     }
   }
 
-  /// A container type for the type-safe decoding of the message object from
-  /// the generic Response type.
+  /// A container type for the type-safe decoding of the message object from the generic `Response`
+  /// type.
   private struct StreamResponseMessage: Decodable {
     let message: Response
   }
