@@ -81,7 +81,7 @@ extension APIConfig.Service {
 }
 
 extension APIConfig {
-  /// Versions of the Vertex AI in Firebase server API.
+  /// Versions of the configured API service (`APIConfig.Service`).
   enum Version: String {
     /// The stable channel for version 1 of the API.
     case v1
