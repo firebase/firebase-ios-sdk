@@ -33,6 +33,7 @@ jobs:
     
     - name: Install mint
       run: |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         brew install mint
       #   sudo apt-get update -y
       #   sudo apt-get install -y mint
