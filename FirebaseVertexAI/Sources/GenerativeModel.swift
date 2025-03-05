@@ -186,10 +186,10 @@ public final class GenerativeModel: Sendable {
                                                         options: requestOptions)
 
     return AsyncThrowingStream { continuation in
-      let responseIterator = generativeAIService.loadRequestStream(request: generateContentRequest)
+      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
       Task {
         do {
-          for try await response in responseIterator {
+          for try await response in responseStream {
             // Check the prompt feedback to see if the prompt was blocked.
             if response.promptFeedback?.blockReason != nil {
               throw GenerateContentError.promptBlocked(response: response)
