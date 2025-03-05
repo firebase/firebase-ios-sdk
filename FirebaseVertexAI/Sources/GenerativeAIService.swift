@@ -153,34 +153,14 @@ struct GenerativeAIService {
             extraLines += line
           }
         }
-        for try await line in stream.lines {
-          if line.hasPrefix("data:") {
-            let jsonText = String(line.dropFirst(5))
-            let data: Data
-            do {
-              data = try jsonData(jsonText: jsonText)
-            } catch {
-              continuation.finish(throwing: error)
-              return
-            }
-            do {
-              let content = try parseResponse(T.Response.self, from: data)
-              continuation.yield(content)
-            } catch {
-              continuation.finish(throwing: error)
-              return
-            }
-          } else {}
 
-          if !extraLines.isEmpty {
-            continuation.finish(throwing: parseError(responseBody: extraLines))
-            return
-          }
-
-          continuation.finish(throwing: nil)
+        if extraLines.count > 0 {
+          continuation.finish(throwing: parseError(responseBody: extraLines))
+          return
         }
+
+        continuation.finish(throwing: nil)
       }
-      continuation.finish(throwing: nil)
     }
   }
 

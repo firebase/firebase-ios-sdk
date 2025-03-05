@@ -205,12 +205,12 @@ public final class GenerativeModel: Sendable {
 
             continuation.yield(response)
           }
+          continuation.finish()
         } catch {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
           return
         }
       }
-      continuation.finish(throwing: nil)
     }
   }
 
