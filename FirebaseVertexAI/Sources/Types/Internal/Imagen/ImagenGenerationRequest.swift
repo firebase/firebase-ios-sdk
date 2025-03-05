@@ -17,13 +17,18 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   let model: String
+  let apiConfig: APIConfig
   let options: RequestOptions
   let instances: [ImageGenerationInstance]
   let parameters: ImageGenerationParameters
 
-  init(model: String, options: RequestOptions, instances: [ImageGenerationInstance],
+  init(model: String,
+       apiConfig: APIConfig,
+       options: RequestOptions,
+       instances: [ImageGenerationInstance],
        parameters: ImageGenerationParameters) {
     self.model = model
+    self.apiConfig = apiConfig
     self.options = options
     self.instances = instances
     self.parameters = parameters
@@ -35,7 +40,8 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
   typealias Response = ImagenGenerationResponse<ImageType>
 
   var url: URL {
-    return URL(string: "\(Constants.baseURL)/\(options.apiVersion)/\(model):predict")!
+    return URL(string:
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict")!
   }
 }
 
