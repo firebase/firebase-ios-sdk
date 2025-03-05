@@ -33,10 +33,12 @@
 if [[ -n "$FIR_CLANG_FORMAT_PATH" ]]; then
   clang_format_bin="$FIR_CLANG_FORMAT_PATH"
 elif ! clang_format_bin=$(command -v clang-format); then
-  echo "clang-format not found, install with 'brew install clang-format'"
+  # Check if clang-format is installed, if not suggest installation using apt-get or apt
+  echo "clang-format not found, install with 'apt-get install clang-format' or 'apt install clang-format'"
   exit 1
 fi
 
+# Set clang format version
 # Strip the clang-format version output down to the major version. Examples:
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)
@@ -67,7 +69,7 @@ case "$version" in
   *)
     echo "Please upgrade to clang-format version 20."
     echo "If it's installed via homebrew you can run:"
-    echo "brew upgrade clang-format"
+    echo "apt upgrade clang-format" #Suggest installing it via apt
     exit 1
     ;;
 esac
@@ -76,12 +78,20 @@ esac
 # /usr/local.
 export MINT_PATH=Mint
 
+#Check if mint is installed, if not suggest installation using apt-get or apt.
 if ! which mint >/dev/null 2>&1; then
-  echo "mint is not available, install with 'brew install mint'"
+  echo "mint is not available, install with 'apt-get install mint' or 'apt install mint'"
   exit 1
 fi
+#Check if mint is installed, if not suggest installation using apt-get or apt.
 
-system=$(uname -s)
+# Check if running on macOS
+if [[ "$system" == 'Darwin' ]]; then
+    swift_is_available=true
+else
+    swift_is_available=false
+fi
+# If the system is not macOS, swiftformat should not run.
 
 # Joins the given arguments with the separator given as the first argument.
 function join() {
