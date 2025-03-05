@@ -31,34 +31,29 @@ extension FunctionsSerializer {
 final class FunctionsSerializer {
   // MARK: - Internal APIs
 
-  func encode(_ object: Any) throws -> AnyObject {
+  func encode(_ object: Any) throws -> Any {
     if object is NSNull {
-      return object as AnyObject
+      return object
     } else if object is NSNumber {
       return try encodeNumber(object as! NSNumber)
     } else if object is NSString {
-      return object as AnyObject
-    } else if object is NSDictionary {
-      let dict = object as! NSDictionary
+      return object
+    } else if let dict = object as? NSDictionary {
       let encoded = NSMutableDictionary()
       try dict.forEach { key, value in
         encoded[key] = try encode(value)
       }
       return encoded
-    } else if object is NSArray {
-      let array = object as! NSArray
-      let encoded = NSMutableArray()
-      try array.forEach { element in
-        try encoded.add(encode(element))
+    } else if let array = object as? NSArray {
+      return try array.map { element in
+        try encode(element)
       }
-      return encoded
-
     } else {
       throw Error.unsupportedType(typeName: typeName(of: object))
     }
   }
 
-  func decode(_ object: Any) throws -> AnyObject? {
+  func decode(_ object: Any) throws -> Any {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
     if let dict = object as? NSDictionary {
       if let requestedType = dict["@type"] as? String {
@@ -66,8 +61,9 @@ final class FunctionsSerializer {
           // Seems like we should throw here - but this maintains compatibility.
           return dict
         }
-        let result = try decodeWrappedType(requestedType, value)
-        if result != nil { return result }
+        if let result = try decodeWrappedType(requestedType, value) {
+          return result
+        }
 
         // Treat unknown types as dictionaries, so we don't crash old clients when we add types.
       }

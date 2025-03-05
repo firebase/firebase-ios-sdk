@@ -1,5 +1,5 @@
 # 11.9.0
-- [fixed] Made on-demand fatal recording thread suspension configurable through setting to imrpove performance and avoid audio glitch on Unity. Change is for framework only.
+- [fixed] Made on-demand fatal recording thread suspension configurable through setting to improve performance and avoid audio glitch on Unity. Change is for framework only.
 
 # 11.7.0
 - [fixed] Updated `upload-symbols` to version 3.20, wait for `debug.dylib` DWARF content getting generated when build with `--build-phase` option. Added `debug.dylib` DWARF content to run script input file list for user who enabled user script sandboxing (#14054).
