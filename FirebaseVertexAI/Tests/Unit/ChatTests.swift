@@ -63,7 +63,8 @@ final class ChatTests: XCTestCase {
         projectID: "my-project-id",
         apiKey: "API_KEY",
         googleAppID: "My app ID",
-        firebaseApp: app
+        firebaseApp: app,
+        backendAPI: .vertexAI
       ),
       tools: nil,
       requestOptions: RequestOptions(),
