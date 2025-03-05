@@ -192,7 +192,6 @@ for f in $files; do
     "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi
 
-
   if [[ "$test_only" == true && $? -ne 1 ]]; then
     echo "$f needs formatting."
     needs_formatting=true
