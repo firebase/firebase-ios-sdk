@@ -36,6 +36,8 @@ jobs:
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         # echo "/home/linuxbrew/.linuxbrew/bin/brew" >> $GITHUB_ENV
         brew install mint
+        brew install clang-format@20
+
       #   sudo apt-get update -y
       #   sudo apt-get install -y mint
       # Install clang-format and mint using apt-get
