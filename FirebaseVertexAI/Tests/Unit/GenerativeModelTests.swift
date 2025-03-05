@@ -58,11 +58,7 @@ final class GenerativeModelTests: XCTestCase {
   ].sorted()
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = APIConfig(
-    service: .vertexAI,
-    serviceEndpoint: .firebaseVertexAIProd,
-    version: .v1beta
-  )
+  let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
 
   var urlSession: URLSession!
   var model: GenerativeModel!

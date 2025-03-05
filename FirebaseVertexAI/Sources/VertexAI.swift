@@ -38,7 +38,7 @@ public class VertexAI {
     }
     let vertexInstance = vertexAI(app: app, location: location)
     assert(vertexInstance.apiConfig.service == .vertexAI)
-    assert(vertexInstance.apiConfig.serviceEndpoint == .firebaseVertexAIProd)
+    assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
     assert(vertexInstance.apiConfig.version == .v1beta)
 
     return vertexInstance
@@ -56,7 +56,7 @@ public class VertexAI {
   public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
     let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
     assert(vertexInstance.apiConfig.service == .vertexAI)
-    assert(vertexInstance.apiConfig.serviceEndpoint == .firebaseVertexAIProd)
+    assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
     assert(vertexInstance.apiConfig.version == .v1beta)
 
     return vertexInstance
@@ -159,14 +159,9 @@ public class VertexAI {
 
   let location: String?
 
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI,
-    serviceEndpoint: .firebaseVertexAIProd,
-    version: .v1beta
-  )
+  static let defaultVertexAIAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
   static let defaultDeveloperAPIConfig = APIConfig(
-    service: .developer,
-    serviceEndpoint: .generativeLanguage,
+    service: .developer(endpoint: .generativeLanguage),
     version: .v1beta
   )
 
@@ -256,14 +251,14 @@ public class VertexAI {
   }
 
   private func developerModelResourceName(modelName: String) -> String {
-    switch apiConfig.serviceEndpoint {
+    switch apiConfig.service.endpoint {
     case .firebaseVertexAIStaging:
       let projectID = firebaseInfo.projectID
       return "projects/\(projectID)/models/\(modelName)"
     case .generativeLanguage:
       return "models/\(modelName)"
     default:
-      fatalError("The Developer API is not supported on '\(apiConfig.serviceEndpoint)'.")
+      fatalError("The Developer API is not supported on '\(apiConfig.service.endpoint)'.")
     }
   }
 

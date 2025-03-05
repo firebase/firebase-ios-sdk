@@ -19,11 +19,6 @@ struct APIConfig: Sendable, Hashable {
   /// This controls which backend API is used by the SDK.
   let service: Service
 
-  /// The specific network address to use for API requests.
-  ///
-  /// This must correspond with the API set in `service`.
-  let serviceEndpoint: ServiceEndpoint
-
   /// The version of the selected API to use, e.g., "v1".
   let version: Version
 
@@ -31,11 +26,9 @@ struct APIConfig: Sendable, Hashable {
   ///
   /// - Parameters:
   ///   - service: The API service to use for generative AI.
-  ///   - serviceEndpoint: The network address to use for the API service.
   ///   - version: The version of the API to use.
-  init(service: Service, serviceEndpoint: ServiceEndpoint, version: Version) {
+  init(service: Service, version: Version) {
     self.service = service
-    self.serviceEndpoint = serviceEndpoint
     self.version = version
   }
 }
@@ -46,7 +39,7 @@ extension APIConfig {
   /// See [Vertex AI and Google AI
   /// differences](https://cloud.google.com/vertex-ai/generative-ai/docs/overview#how-gemini-vertex-different-gemini-aistudio)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
-  enum Service {
+  enum Service: Hashable {
     /// The Gemini Enterprise API provided by Vertex AI.
     ///
     /// See the [Cloud
@@ -57,13 +50,25 @@ extension APIConfig {
     /// The Gemini Developer API provided by Google AI.
     ///
     /// See the [Google AI docs](https://ai.google.dev/gemini-api/docs) for more details.
-    case developer
+    case developer(endpoint: Endpoint)
+
+    /// The specific network address to use for API requests.
+    ///
+    /// This must correspond with the API set in `service`.
+    var endpoint: Endpoint {
+      switch self {
+      case .vertexAI:
+        return .firebaseVertexAIProd
+      case let .developer(endpoint: endpoint):
+        return endpoint
+      }
+    }
   }
 }
 
-extension APIConfig {
+extension APIConfig.Service {
   /// Network addresses for generative AI API services.
-  enum ServiceEndpoint: String {
+  enum Endpoint: String {
     /// The Vertex AI in Firebase production endpoint.
     case firebaseVertexAIProd = "https://firebasevertexai.googleapis.com"
 

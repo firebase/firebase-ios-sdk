@@ -33,7 +33,7 @@ extension CountTokensRequest: GenerativeAIRequest {
 
   var url: URL {
     URL(string:
-      "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):countTokens")!
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):countTokens")!
   }
 }
 

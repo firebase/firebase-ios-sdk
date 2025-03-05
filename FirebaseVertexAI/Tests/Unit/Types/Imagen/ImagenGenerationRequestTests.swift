@@ -36,11 +36,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     addWatermark: nil,
     includeResponsibleAIFilterReason: includeResponsibleAIFilterReason
   )
-  let apiConfig = APIConfig(
-    service: .vertexAI,
-    serviceEndpoint: .firebaseVertexAIProd,
-    version: .v1beta
-  )
+  let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
 
   let instance = ImageGenerationInstance(prompt: "test-prompt")
 
@@ -64,7 +60,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(
       request.url,
       URL(string:
-        "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
+        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
   }
 
@@ -84,7 +80,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(
       request.url,
       URL(string:
-        "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
+        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
   }
 

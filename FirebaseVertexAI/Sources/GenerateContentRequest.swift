@@ -55,7 +55,7 @@ extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
   var url: URL {
-    let modelURL = "\(apiConfig.serviceEndpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
+    let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
     switch apiMethod {
     case .generateContent:
       return URL(string: "\(modelURL):\(apiMethod.rawValue)")!

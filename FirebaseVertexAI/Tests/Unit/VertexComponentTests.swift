@@ -60,7 +60,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
     XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
-    XCTAssertEqual(vertex.apiConfig.serviceEndpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
@@ -73,7 +73,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
     XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
-    XCTAssertEqual(vertex.apiConfig.serviceEndpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
@@ -179,8 +179,7 @@ class VertexComponentTests: XCTestCase {
   func testModelResourceName_developerAPI_firebaseVertexAI() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(
-      service: .developer,
-      serviceEndpoint: .firebaseVertexAIStaging,
+      service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
     let vertex = VertexAI.developerAPI(app: app, apiConfig: apiConfig)
