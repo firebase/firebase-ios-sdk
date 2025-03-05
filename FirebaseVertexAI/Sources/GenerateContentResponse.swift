@@ -330,7 +330,6 @@ extension Candidate: Decodable {
     case content
     case safetyRatings
     case finishReason
-    case finishMessage
     case citationMetadata
   }
 
