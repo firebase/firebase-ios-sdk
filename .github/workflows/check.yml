@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MINT_PATH: ${{ github.workspace }}/mint
-      FIR_CLANG_FORMAT_PATH: /home/linuxbrew/.linuxbrew/bin/clang-format
+      FIR_CLANG_FORMAT_PATH: /home/linuxbrew/.linuxbrew/opt/clang-format/bin/clang-format
     steps:
     - uses: actions/checkout@v4
 
