@@ -37,8 +37,7 @@ jobs:
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         scripts/setup_check.sh
         # Add Homebrew clang-format to first in PATH
-        echo 'export PATH="/home/linuxbrew/.linuxbrew/opt/clang-format/bin:$PATH"' \
-            >> /home/runner/.bash_profile
+        export PATH="/home/linuxbrew/.linuxbrew/opt/clang-format/bin:$PATH"
 
     - name: Check
       run:  |
