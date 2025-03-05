@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MINT_PATH: ${{ github.workspace }}/mint
+      FIR_CLANG_FORMAT_PATH: /home/linuxbrew/.linuxbrew/bin/clang-format
     steps:
     - uses: actions/checkout@v4
 
@@ -25,11 +26,11 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Setup Homebrew Path
-      run:  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-    - name: Install Mint
-      run:  brew install mint
+    - name: Install Mint and clang-format
+      run:  |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        brew install mint
+        brew install clang-format@20
 
     - name: Cache Mint packages
       uses: actions/cache@v4
@@ -37,12 +38,6 @@ jobs:
         path: ${{ env.MINT_PATH }}
         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
         restore-keys: ${{ runner.os }}-mint-
-
-    - name: Install clang-format
-      run:  |
-        brew install clang-format@20
-        FIR_CLANG_FORMAT_PATH="$(brew --prefix clang-format)/bin/clang-format"
-        export FIR_CLANG_FORMAT_PATH
 
     - name: Setup check
       run:  scripts/setup_check.sh
