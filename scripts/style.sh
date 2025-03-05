@@ -56,7 +56,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  19)
+  20)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -65,13 +65,12 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 19."
+    echo "Please upgrade to clang-format version 20."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1
     ;;
 esac
-
 # Ensure that tools in `Mintfile` are installed locally to avoid permissions
 # problems that would otherwise arise from the default of installing in
 # /usr/local.
@@ -192,6 +191,7 @@ for f in $files; do
   else
     "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi
+
 
   if [[ "$test_only" == true && $? -ne 1 ]]; then
     echo "$f needs formatting."
