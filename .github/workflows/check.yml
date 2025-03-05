@@ -26,12 +26,6 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Install Mint and clang-format
-      run:  |
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        brew install mint
-        brew install clang-format@20
-
     - name: Cache Mint packages
       uses: actions/cache@v4
       with:
@@ -40,7 +34,9 @@ jobs:
         restore-keys: ${{ runner.os }}-mint-
 
     - name: Setup check
-      run:  scripts/setup_check.sh
+      run:  |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        scripts/setup_check.sh
 
     - name: Check
       run:  scripts/check.sh --test-only
