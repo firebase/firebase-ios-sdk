@@ -25,15 +25,17 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Install clang-format
-      run: |
-        sudo apt-get update -y
-        sudo apt-get install -y clang-format
+# clang-format is available on ubuntu images
+    # - name: Install clang-format
+    #   run: |
+    #     sudo apt-get update -y
+    #     sudo apt-get install -y clang-format
     
     - name: Install mint
       run: |
-        sudo apt-get update -y
-        sudo apt-get install -y mint
+        brew install mint
+      #   sudo apt-get update -y
+      #   sudo apt-get install -y mint
       # Install clang-format and mint using apt-get
 
     - name: Cache Mint packages
