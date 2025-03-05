@@ -18,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MINT_PATH: ${{ github.workspace }}/mint
-      FIR_CLANG_FORMAT_PATH: /home/linuxbrew/.linuxbrew/opt/clang-format/bin/clang-format
     steps:
     - uses: actions/checkout@v4
 
@@ -37,6 +36,9 @@ jobs:
       run:  |
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         scripts/setup_check.sh
+        # Add Homebrew clang-format to first in PATH
+        echo 'export PATH="/home/linuxbrew/.linuxbrew/opt/clang-format/bin:$PATH"' \
+            >> /home/runner/.bash_profile
 
     - name: Check
       run:  |
