@@ -39,4 +39,6 @@ jobs:
         scripts/setup_check.sh
 
     - name: Check
-      run:  scripts/check.sh --test-only
+      run:  |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        scripts/check.sh --test-only
