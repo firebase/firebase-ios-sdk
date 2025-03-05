@@ -34,6 +34,7 @@ jobs:
     - name: Install mint
       run: |
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        echo "/home/linuxbrew/.linuxbrew/bin/brew" >> $GITHUB_PATH
         brew install mint
       #   sudo apt-get update -y
       #   sudo apt-get install -y mint
