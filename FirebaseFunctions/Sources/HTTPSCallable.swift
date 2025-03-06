@@ -39,7 +39,7 @@ open class HTTPSCallable: NSObject {
   // The functions client to use for making calls.
   private let functions: Functions
 
-  let url: URL
+  private let url: URL
 
   private let options: HTTPSCallableOptions?
 
