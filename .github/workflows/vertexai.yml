@@ -137,11 +137,10 @@ jobs:
             xcode: Xcode_16.2
             swift_version: 5.9
             warnings:
-          #TODO: Fix remaining warning in GenerativeAIService and remove --allow-warnings.
           - os: macos-15
             xcode: Xcode_16.2
             swift_version: 6.0
-            warnings: --allow-warnings
+            warnings:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
