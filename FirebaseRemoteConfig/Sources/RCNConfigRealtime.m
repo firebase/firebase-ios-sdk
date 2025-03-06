@@ -573,20 +573,27 @@ static NSInteger const gMaxRetries = 7;
     return;
   }
 
-  NSRange endRange = [strData rangeOfString:@"}"];
   NSRange beginRange = [strData rangeOfString:@"{"];
-  if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
-                @"Received config update message on stream.");
-    NSRange msgRange =
-        NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
-    strData = [strData substringWithRange:msgRange];
-    data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:data
-                                                             options:NSJSONReadingMutableContainers
-                                                               error:&dataError];
+  if (beginRange.location != NSNotFound) {
+    NSRange endRange =
+        [strData rangeOfString:@"}"
+                       options:0
+                         range:NSMakeRange(beginRange.location + 1,
+                                           strData.length - beginRange.location - 1)];
+    if (endRange.location != NSNotFound) {
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
+                  @"Received config update message on stream.");
+      NSRange msgRange =
+          NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
+      strData = [strData substringWithRange:msgRange];
+      data = [strData dataUsingEncoding:NSUTF8StringEncoding];
+      NSDictionary *response =
+          [NSJSONSerialization JSONObjectWithData:data
+                                          options:NSJSONReadingMutableContainers
+                                            error:&dataError];
 
-    [self evaluateStreamResponse:response error:dataError];
+      [self evaluateStreamResponse:response error:dataError];
+    }
   }
 }
 
