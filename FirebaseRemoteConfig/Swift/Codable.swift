@@ -47,19 +47,21 @@ public extension RemoteConfig {
   /// Decodes a struct from the respective Remote Config values.
   ///
   /// - Parameter asType: The type to decode to.
-  func decoded<Value: Decodable>(asType: Value.Type = Value.self) throws -> Value {
+  func decoded<Value: Decodable>(asType: Value.Type = Value.self,
+                                 decoder: FirebaseDataDecoder = .init()) throws -> Value {
     let keys = allKeys(from: RemoteConfigSource.default) + allKeys(from: RemoteConfigSource.remote)
     let config = keys.reduce(into: [String: FirebaseRemoteConfigValueDecoderHelper]()) {
       $0[$1] = FirebaseRemoteConfigValueDecoderHelper(value: configValue(forKey: $1))
     }
-    return try FirebaseDataDecoder().decode(Value.self, from: config)
+    return try decoder.decode(Value.self, from: config)
   }
 
   /// Sets config defaults from an encodable struct.
   ///
   /// - Parameter value: The object to use to set the defaults.
-  func setDefaults<Value: Encodable>(from value: Value) throws {
-    guard let encoded = try FirebaseDataEncoder().encode(value) as? [String: NSObject] else {
+  func setDefaults<Value: Encodable>(from value: Value,
+                                     encoder: FirebaseDataEncoder = .init()) throws {
+    guard let encoded = try encoder.encode(value) as? [String: NSObject] else {
       throw RemoteConfigCodableError.invalidSetDefaultsInput(
         "The setDefaults input: \(value), must be a Struct that encodes to a Dictionary"
       )

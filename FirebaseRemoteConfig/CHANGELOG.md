@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Codable APIs now accept optional `FirebaseDataEncoder` and
+  `FirebaseDataDecoder` parameters, allowing for customization of
+  encoding/decoding behavior. (#14368)
+
 # 11.9.0
 - [fixed] Mark internal `fetchSession` property as `atomic` to prevent a concurrency
   related crash. (#14449)
