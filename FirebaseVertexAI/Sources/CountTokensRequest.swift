@@ -23,6 +23,7 @@ struct CountTokensRequest {
   let tools: [Tool]?
   let generationConfig: GenerationConfig?
 
+  let apiConfig: APIConfig
   let options: RequestOptions
 }
 
@@ -31,7 +32,8 @@ extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
   var url: URL {
-    URL(string: "\(Constants.baseURL)/\(options.apiVersion)/\(model):countTokens")!
+    URL(string:
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):countTokens")!
   }
 }
 
