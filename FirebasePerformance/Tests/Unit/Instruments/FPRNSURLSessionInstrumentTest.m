@@ -543,35 +543,6 @@
 }
 
 /** Tests that the called delegate selector is wrapped and calls through. */
-- (void)testProxyDelegateURLSessionDownloadDidReceiveResponseCompletionHandler {
-  FPRNSURLSessionInstrument *instrument;
-  NSURLSessionDataTask *dataTask;
-  @autoreleasepool {
-    instrument = [[FPRNSURLSessionInstrument alloc] init];
-    [instrument registerInstrumentors];
-    FPRNSURLSessionCompleteTestDelegate *delegate =
-        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
-    FPRNSURLSessionDelegateProxy *proxyDelegate =
-        [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
-    NSURLSessionConfiguration *configuration =
-        [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
-                                                          delegate:proxyDelegate
-                                                     delegateQueue:nil];
-    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
-    dataTask = [session dataTaskWithURL:URL];
-    [dataTask resume];
-    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
-    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
-                                         GCDWebServerResponse *_Nonnull response) {
-      XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
-      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
-    }];
-  }
-  [instrument deregisterInstrumentors];
-}
-
-/** Tests that the called delegate selector is wrapped and calls through. */
 - (void)testDelegateURLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytes {
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
   [instrument registerInstrumentors];
@@ -625,6 +596,277 @@
   XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
                                                         delegate:delegate
+                                                   delegateQueue:nil];
+  XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
+  NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:self.testServer.serverURL];
+  [downloadTask resume];
+  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  }];
+  [instrument deregisterInstrumentors];
+}
+
+#pragma mark - Testing proxy delegate method wrapping
+
+/** Tests that the delegate class is instrumented once when its wrapped with NSProxy. */
+- (void)testProxyDelegateSwizzlesDelegateOnce {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  XCTAssertEqual(instrument.delegateInstrument.classInstrumentors.count, 1);
+  XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 1);
+  XCTAssertTrue(
+      [instrument.delegateInstrument.instrumentedClasses containsObject:[delegate class]]);
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionTaskDidCompleteWithError {
+  [self.testServer stop];
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  // This request needs to fail.
+  NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://nonurl"]];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURLSessionTask *task;
+  @autoreleasepool {
+    task = [session dataTaskWithRequest:request];
+    [task resume];
+    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:task]);
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
+  }
+  XCTAssertNil([FPRNetworkTrace networkTraceFromObject:task]);
+  XCTAssertTrue(delegate.URLSessionTaskDidCompleteWithErrorCalled);
+  [instrument deregisterInstrumentors];
+  [self.testServer start];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSend {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testUpload"];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+  request.HTTPMethod = @"POST";
+
+  NSBundle *bundle = [FPRTestUtils getBundle];
+  NSURL *fileURL = [bundle URLForResource:@"smallDownloadFile" withExtension:@""];
+  NSURLSessionUploadTask *uploadTask = [session uploadTaskWithRequest:request fromFile:fileURL];
+  [uploadTask resume];
+
+  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
+  FPRNetworkTrace *networkTrace = [FPRNetworkTrace networkTraceFromObject:uploadTask];
+
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue(delegate.URLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedCalled);
+    XCTAssert(networkTrace.requestSize > 0);
+    XCTAssert(
+        [networkTrace
+            timeIntervalBetweenCheckpointState:FPRNetworkTraceCheckpointStateInitiated
+                                      andState:FPRNetworkTraceCheckpointStateRequestCompleted] > 0);
+    XCTAssertNil([FPRNetworkTrace networkTraceFromObject:uploadTask]);
+  }];
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionTaskWillPerformHTTPRedirectionNewRequestCompletionHandler {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testRedirect"];
+  NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURLSessionTask *task = [session dataTaskWithRequest:request];
+  [task resume];
+  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:task]);
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue(
+        delegate.URLSessionTaskWillPerformHTTPRedirectionNewRequestCompletionHandlerCalled);
+  }];
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionDataTaskDidReceiveData {
+  FPRNSURLSessionInstrument *instrument;
+  NSURLSessionDataTask *dataTask;
+  @autoreleasepool {
+    instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    FPRNSURLSessionDelegateProxy *proxyDelegate =
+        [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:proxyDelegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+    dataTask = [session dataTaskWithURL:URL];
+    [dataTask resume];
+    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                         GCDWebServerResponse *_Nonnull response) {
+      XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveDataCalled);
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    }];
+  }
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionDownloadTaskDidFinishDownloadingToURL {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testDownload"];
+  NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
+  [downloadTask resume];
+  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue(delegate.URLSessionDownloadTaskDidFinishDownloadingToURLCalled);
+    XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  }];
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionDownloadDidReceiveResponseCompletionHandler {
+  FPRNSURLSessionInstrument *instrument;
+  NSURLSessionDataTask *dataTask;
+  @autoreleasepool {
+    instrument = [[FPRNSURLSessionInstrument alloc] init];
+    [instrument registerInstrumentors];
+    FPRNSURLSessionCompleteTestDelegate *delegate =
+        [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+    FPRNSURLSessionDelegateProxy *proxyDelegate =
+        [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+    NSURLSessionConfiguration *configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:proxyDelegate
+                                                     delegateQueue:nil];
+    NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+    dataTask = [session dataTaskWithURL:URL];
+    [dataTask resume];
+    XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                         GCDWebServerResponse *_Nonnull response) {
+      XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
+      XCTAssertTrue(delegate.URLSessionTaskDidCompleteWithErrorCalled);
+      XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
+    }];
+  }
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)testProxyDelegateURLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytes {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionTestDownloadDelegate *delegate =
+      [[FPRNSURLSessionTestDownloadDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+  NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
+  [downloadTask resume];
+  [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:5.0]];
+  XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  XCTAssertTrue(delegate.URLSessionDownloadTaskDidResumeAtOffsetExpectedTotalBytesCalled);
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that the called delegate selector is wrapped and calls through. */
+- (void)
+    testProxyDelegateURLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesExpectedToWrite {
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
+                                                   delegateQueue:nil];
+  NSURL *URL = [self.testServer.serverURL URLByAppendingPathComponent:@"testBigDownload"];
+  NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:URL];
+  [downloadTask resume];
+  XCTAssertNotNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
+                                       GCDWebServerResponse *_Nonnull response) {
+    XCTAssertTrue(delegate.URLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesCalled);
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    XCTAssertNil([FPRNetworkTrace networkTraceFromObject:downloadTask]);
+  }];
+  [instrument deregisterInstrumentors];
+}
+
+/** Tests that even if a delegate doesn't implement a method, we add it to the delegate class. */
+- (void)testProxyDelegateUnimplementedURLSessionTaskDidCompleteWithError {
+  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
+  FPRNSURLSessionDelegateProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateProxy alloc] initWithDelegate:delegate];
+  FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
+  [instrument registerInstrumentors];
+  NSURLSessionConfiguration *configuration =
+      [NSURLSessionConfiguration defaultSessionConfiguration];
+  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
+  NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                        delegate:proxyDelegate
                                                    delegateQueue:nil];
   XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
   NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:self.testServer.serverURL];
