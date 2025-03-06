@@ -524,7 +524,11 @@ enum FunctionsConstants {
         guard response.statusCode == 200 else {
           continuation.finish(
             throwing: FunctionsError(
-              httpStatusCode: response.statusCode, body: nil, serializer: serializer
+              httpStatusCode: response.statusCode,
+              region: region,
+              url: url,
+              body: nil,
+              serializer: serializer
             )
           )
           return
@@ -547,7 +551,7 @@ enum FunctionsConstants {
               let jsonText = String(line.dropFirst(5))
               let data = try jsonData(jsonText: jsonText)
               // Handle the content and parse it.
-              let content = try callableStreamResult(fromResponseData: data)
+              let content = try callableStreamResult(fromResponseData: data, endpointURL: url)
               continuation.yield(content)
             } catch {
               continuation.finish(throwing: error)
@@ -573,8 +577,9 @@ enum FunctionsConstants {
   }
 
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  private func callableStreamResult(fromResponseData data: Data) throws -> JSONStreamResponse {
-    let data = try processedData(fromResponseData: data)
+  private func callableStreamResult(fromResponseData data: Data,
+                                    endpointURL url: URL) throws -> JSONStreamResponse {
+    let data = try processedData(fromResponseData: data, endpointURL: url)
 
     let responseJSONObject: Any
     do {
