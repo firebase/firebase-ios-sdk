@@ -1107,7 +1107,7 @@ extension IntegrationTests {
     }
   }
 
-  func testGenerateStream_RequestEncodingFailure() async throws {
+  func testStream_RequestEncodingFailure() async throws {
     struct Foo: Encodable {
       enum CodingKeys: CodingKey {}
 
