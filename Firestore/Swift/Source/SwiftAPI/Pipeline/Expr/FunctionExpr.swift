@@ -12,4 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public protocol AccumulatorExpr: Sendable {}
+public class FunctionExpr: Expr, @unchecked Sendable {
+  let functionName: String
+  let agrs: [Expr]
+
+  public init(_ functionName: String, _ agrs: [Expr]) {
+    self.functionName = functionName
+    self.agrs = agrs
+  }
+}

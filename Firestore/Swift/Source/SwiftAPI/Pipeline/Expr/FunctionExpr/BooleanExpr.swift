@@ -12,4 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct Eq {}
+public class BooleanExpr: FunctionExpr, @unchecked Sendable {
+  public static func and(_ value: Expr ...) -> BooleanExpr {
+    return BooleanExpr("and", value)
+  }
+}

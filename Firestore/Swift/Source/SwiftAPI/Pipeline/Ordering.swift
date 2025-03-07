@@ -15,6 +15,7 @@
  */
 
 public struct Ordering {
+  let expr: Expr
   let direction: Direction
 }
 

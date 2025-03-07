@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct Field: Expr, Sendable {
-  public var alias: String
-  public let fieldName: String
+public struct AggregateFunction {
+  let functionName: String
+  let agrs: [Expr]
+
+  public init(_ functionName: String, _ agrs: [Expr]) {
+    self.functionName = functionName
+    self.agrs = agrs
+  }
 }

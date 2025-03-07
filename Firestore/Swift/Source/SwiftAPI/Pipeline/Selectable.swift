@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct Selectable {
-  let alias: String
+public protocol Selectable: Sendable {
+  var alias: String { get }
+  var expr: Expr { get }
 }

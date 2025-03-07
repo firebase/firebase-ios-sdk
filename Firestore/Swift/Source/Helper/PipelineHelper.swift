@@ -12,4 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct BooleanExpr: FunctionExpr, Sendable {}
+enum Helper {
+  static func exprConvertFrom(_ value: Any) -> any Expr {
+    return Field("PLACEHOLDER")
+  }
+
+  static func valueToDefaultExpr(_ value: Any) -> any Expr {
+    return Field("PLACEHOLDER")
+  }
+
+  static func vectorToExpr(_ value: VectorValue) -> any Expr {
+    return Field("PLACEHOLDER")
+  }
+
+  static func timeUnitToExpr(_ value: TimeUnit) -> any Expr {
+    return Field("PLACEHOLDER")
+  }
+}

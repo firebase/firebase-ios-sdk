@@ -13,10 +13,10 @@
 // limitations under the License.
 
 public struct AggregateOption {
-  public let accumulators: [AccumulatorWithAlias]
+  public let accumulators: [AggregateWithAlias]
   public let groups: [SelectableOrFieldName]?
 
-  public init(accumulators: [AccumulatorWithAlias], groups: [SelectableOrFieldName]? = nil) {
+  public init(accumulators: [AggregateWithAlias], groups: [SelectableOrFieldName]? = nil) {
     self.accumulators = accumulators
     self.groups = groups
   }

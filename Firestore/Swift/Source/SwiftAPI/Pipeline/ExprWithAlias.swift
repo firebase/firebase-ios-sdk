@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct ExprWithAlias {
-  init(_ expr: some Expr, _ alias: String) {}
+public struct ExprWithAlias: Selectable {
+  public var alias: String
+
+  public var expr: any Expr
+
+  init(_ expr: some Expr, _ alias: String) {
+    self.alias = alias
+    self.expr = expr
+  }
 }

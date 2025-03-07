@@ -48,7 +48,7 @@ public struct Pipeline {
   ///
   /// - Parameter fields: The fields to add to the documents, specified as `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func addFields(_ fields: Selectable...) -> Pipeline {
+  public func addFields(_ fields: Selectable...) -> Pipeline {
     return self
   }
 
@@ -66,7 +66,7 @@ public struct Pipeline {
   /// - Parameter selections: The fields to include in the output documents, specified as
   /// `Selectable` expressions or `String` values representing field names.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func select(_ selections: SelectableOrFieldName...) -> Pipeline {
+  public func select(_ selections: SelectableOrFieldName...) -> Pipeline {
     // Implementation
     return self
   }
@@ -87,7 +87,7 @@ public struct Pipeline {
   ///
   /// - Parameter condition: The `BooleanExpr` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func `where`(condition: BooleanExpr) -> Pipeline {
+  public func `where`(_ condition: BooleanExpr) -> Pipeline {
     return self
   }
 
@@ -99,7 +99,7 @@ public struct Pipeline {
   ///
   /// - Parameter offset: The number of documents to skip.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func offset(_ offset: Int32) -> Pipeline {
+  public func offset(_ offset: Int32) -> Pipeline {
     return self
   }
 
@@ -114,7 +114,7 @@ public struct Pipeline {
   ///
   /// - Parameter limit: The maximum number of documents to return.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func limit(_ limit: Int32) -> Pipeline {
+  public func limit(_ limit: Int32) -> Pipeline {
     return self
   }
 
@@ -132,7 +132,7 @@ public struct Pipeline {
   ///
   /// - Parameter selections: The fields to include in the output documents, specified as
   /// `Selectable` expressions or `String` values representing field names.
-  func distinct(_ groups: SelectableOrFieldName...) -> Pipeline {
+  public func distinct(_ groups: SelectableOrFieldName...) -> Pipeline {
     return self
   }
 
@@ -145,7 +145,7 @@ public struct Pipeline {
   ///
   /// - Parameter accumulators: The `AccumulatorWithAlias` expressions, each wrapping an
   ///   `Accumulator` and assigning a name to the accumulated results.
-  func aggregate(_ aggregates: AccumulatorWithAlias...) -> Pipeline {
+  public func aggregate(_ aggregates: AggregateWithAlias...) -> Pipeline {
     return self
   }
 
@@ -168,13 +168,13 @@ public struct Pipeline {
   /// calculations.
   ///   - groups: An optional list of grouping fields or expressions.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  func aggregate(option: AggregateOption) -> Pipeline {
+  public func aggregate(option: AggregateOption) -> Pipeline {
     return self
   }
 
   /// Performs a vector similarity search, ordering the result set by most similar to least
   /// similar, and returning the first N documents in the result set.
-  func findNearest(options: FindNearestOptions) -> Pipeline {
+  public func findNearest(options: FindNearestOptions) -> Pipeline {
     return self
   }
 
@@ -188,7 +188,7 @@ public struct Pipeline {
   ///
   /// - Parameter orderings: One or more `Ordering` instances specifying the sorting criteria.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func sort(_ orderings: [Ordering]) -> Pipeline {
+  public func sort(_ orderings: [Ordering]) -> Pipeline {
     // Implementation
     return self
   }
@@ -200,7 +200,7 @@ public struct Pipeline {
   ///
   /// - Parameter field: The `Selectable` field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func replace(_ field: SelectableOrFieldName) -> Pipeline {
+  public func replace(_ field: SelectableOrFieldName) -> Pipeline {
     // Implementation
     return self
   }
@@ -212,7 +212,7 @@ public struct Pipeline {
   ///
   /// - Parameter documents: The number of documents to sample.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func sample(documents: Int64) -> Pipeline {
+  public func sample(documents: Int64) -> Pipeline {
     // Implementation
     return self
   }
@@ -224,7 +224,7 @@ public struct Pipeline {
   ///
   /// - Parameter options: The `SampleOptions` specifies how sampling is performed.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func sample(options: SampleOptions) -> Pipeline {
+  public func sample(options: SampleOptions) -> Pipeline {
     // Implementation
     return self
   }
@@ -237,7 +237,7 @@ public struct Pipeline {
   ///
   /// - Parameter other: The other `Pipeline` that is part of union.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func union(_ other: Pipeline) -> Pipeline {
+  public func union(_ other: Pipeline) -> Pipeline {
     // Implementation
     return self
   }
@@ -257,7 +257,7 @@ public struct Pipeline {
   /// - Parameter field: The name of the field containing the array.
   /// - Parameter indexField: Optional.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func unnest(field: Selectable, indexField: String? = nil) -> Pipeline {
+  public func unnest(field: Selectable, indexField: String? = nil) -> Pipeline {
     // Implementation
     return self
   }
@@ -273,7 +273,7 @@ public struct Pipeline {
   /// - Parameter params: A list of ordered parameters to configure the stage's behavior.
   /// - Parameter options: A list of optional, named parameters to configure the stage's behavior.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  func genericStage(name: String, params: [Any], options: [String: Any]? = nil) -> Pipeline {
+  public func genericStage(name: String, params: [Any], options: [String: Any]? = nil) -> Pipeline {
     // Implementation
     return self
   }

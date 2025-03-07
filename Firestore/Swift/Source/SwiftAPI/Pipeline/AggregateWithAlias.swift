@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public protocol FunctionExpr: Expr, Sendable {}
+public struct AggregateWithAlias {}

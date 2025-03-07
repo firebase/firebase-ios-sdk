@@ -12,4 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct Add {}
+public struct Constant: Expr, @unchecked Sendable {
+  let value: Any
+  public init(_ value: Any) {
+    self.value = value
+  }
+}
