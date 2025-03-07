@@ -31,6 +31,8 @@
 		886F95E02B17D5010036F07A /* ConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F562B1112F600C08E95 /* ConversationViewModel.swift */; };
 		886F95E12B17D5010036F07A /* ConversationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E10F542B1112CA00C08E95 /* ConversationScreen.swift */; };
 		886F95E32B17D6630036F07A /* GenerativeAIUIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 886F95E22B17D6630036F07A /* GenerativeAIUIComponents */; };
+		DEFECAA92D7B4CCD00EF9621 /* ImagenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFECAA72D7B4CCD00EF9621 /* ImagenViewModel.swift */; };
+		DEFECAAA2D7B4CCD00EF9621 /* ImagenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFECAA62D7B4CCD00EF9621 /* ImagenScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +62,8 @@
 		88E10F582B11131900C08E95 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		88E10F5A2B11133E00C08E95 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		88E10F5C2B11135000C08E95 /* BouncingDots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BouncingDots.swift; sourceTree = "<group>"; };
+		DEFECAA62D7B4CCD00EF9621 /* ImagenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagenScreen.swift; sourceTree = "<group>"; };
+		DEFECAA72D7B4CCD00EF9621 /* ImagenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagenViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +150,7 @@
 		8848C8262B0D04BC007B434F = {
 			isa = PBXGroup;
 			children = (
+				DEFECAA82D7B4CCD00EF9621 /* ImagenScreen */,
 				88B8A9352B0FCBA700424728 /* GenerativeAIUIComponents */,
 				869200B22B879C4F00482873 /* GoogleService-Info.plist */,
 				8848C8312B0D04BC007B434F /* VertexAISample */,
@@ -279,6 +284,15 @@
 			path = Screens;
 			sourceTree = "<group>";
 		};
+		DEFECAA82D7B4CCD00EF9621 /* ImagenScreen */ = {
+			isa = PBXGroup;
+			children = (
+				DEFECAA62D7B4CCD00EF9621 /* ImagenScreen.swift */,
+				DEFECAA72D7B4CCD00EF9621 /* ImagenViewModel.swift */,
+			);
+			path = ImagenScreen;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -374,6 +388,8 @@
 				886F95E02B17D5010036F07A /* ConversationViewModel.swift in Sources */,
 				886F95DD2B17D5010036F07A /* MessageView.swift in Sources */,
 				886F95DC2B17BAEF0036F07A /* PhotoReasoningScreen.swift in Sources */,
+				DEFECAA92D7B4CCD00EF9621 /* ImagenViewModel.swift in Sources */,
+				DEFECAAA2D7B4CCD00EF9621 /* ImagenScreen.swift in Sources */,
 				886F95DB2B17BAEF0036F07A /* PhotoReasoningViewModel.swift in Sources */,
 				886F95E12B17D5010036F07A /* ConversationScreen.swift in Sources */,
 				88263BF02B239C09008AB09B /* ErrorView.swift in Sources */,

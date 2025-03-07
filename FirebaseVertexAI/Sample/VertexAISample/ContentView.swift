@@ -48,7 +48,7 @@ struct ContentView: View {
         NavigationLink {
           ImagenScreen()
         } label: {
-          Label("Imagen", systemImage: "photo.art")
+          Label("Imagen", systemImage: "camera.circle")
         }
       }
       .navigationTitle("Generative AI Samples")

@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ class ImagenViewModel: ObservableObject {
   var userInput: String = ""
 
   @Published
-  var outputImage: Image?
+  var images = [UIImage]()
 
   @Published
   var errorMessage: String?
@@ -33,30 +33,53 @@ class ImagenViewModel: ObservableObject {
   @Published
   var inProgress = false
 
-  private var model: GenerativeModel?
+  private let model: ImagenModel
+
+  // 1. Initialize the Vertex AI service
+  private let vertexAI = VertexAI.vertexAI()
 
   init() {
-    model = VertexAI.vertexAI().generativeModel(modelName: "gemini-2.0-flash-001")
+    // 2. Configure Imagen settings
+    let modelName = "imagen-3.0-generate-002"
+    let safetySettings = ImagenSafetySettings(
+      safetyFilterLevel: .blockLowAndAbove
+    )
+    var generationConfig = ImagenGenerationConfig()
+    generationConfig.numberOfImages = 4
+    generationConfig.aspectRatio = .landscape4x3
+    generationConfig.addWatermark = false
+    generationConfig.negativePrompt = "people"
+
+    // 3. Initialize the Imagen model
+    model = vertexAI.imagenModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
   }
-  
+
   func generateImage(prompt: String) async {
-    defer {
-      inProgress = false
-    }
-    guard let model else {
+    guard !inProgress else {
+      print("Already generating images...")
       return
     }
-
     do {
+      defer {
+        inProgress = false
+      }
       inProgress = true
-      errorMessage = nil
-      outputImage = nil
+      // 4. Call generateImages with the text prompt
+      let response = try await model.generateImages(prompt: prompt)
 
-      let response = try await model.generateImage(prompt: prompt)
-      outputImage = Image(uiImage: UIImage(data: response.imageData!))
+      // 5. Print the reason images were filtered out, if any.
+      if let filteredReason = response.filteredReason {
+        print("Image(s) Blocked: \(filteredReason)")
+      }
+
+      // 6. Convert the image data to UIImage for display in the UI
+      images = response.images.compactMap { UIImage(data: $0.data) }
     } catch {
-      logger.error("\(error.localizedDescription)")
-      errorMessage = error.localizedDescription
+      print("Error generating images: \(error)")
     }
   }
 }

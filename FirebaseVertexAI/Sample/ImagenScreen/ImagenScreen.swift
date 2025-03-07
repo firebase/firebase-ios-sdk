@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,12 +40,13 @@ struct ImagenScreen: View {
         onGenerateTapped()
       }
       .padding()
-      
-      if let outputImage = viewModel.outputImage {
-        outputImage
+      ForEach(viewModel.images, id: \.self) {
+        Image(uiImage: $0)
           .resizable()
-          .scaledToFit()
-          .padding()
+          .scaledToFill()
+          .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+          .aspectRatio(nil, contentMode: .fit)
+          .clipped()
       }
     }
     .navigationTitle("Imagen sample")
@@ -64,5 +65,5 @@ struct ImagenScreen: View {
 }
 
 #Preview {
-    ImagenScreen()
+  ImagenScreen()
 }
