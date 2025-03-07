@@ -83,10 +83,6 @@ UIApplication* FIRCLSApplicationSharedInstance(void);
 id FIRCLSApplicationSharedInstance(void);
 #endif
 
-void FIRCLSApplicationOpenURL(NSURL* url,
-                              NSExtensionContext* extensionContext,
-                              void (^completionBlock)(BOOL success));
-
 id<NSObject> FIRCLSApplicationBeginActivity(NSActivityOptions options, NSString* reason);
 void FIRCLSApplicationEndActivity(id<NSObject> activity);
 
