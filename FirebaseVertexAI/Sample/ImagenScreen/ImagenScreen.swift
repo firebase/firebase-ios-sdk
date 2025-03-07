@@ -14,8 +14,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct ImagenScreen: View {
   @StateObject var viewModel = ImagenViewModel()
 
