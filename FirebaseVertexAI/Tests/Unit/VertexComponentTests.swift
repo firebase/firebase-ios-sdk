@@ -51,8 +51,22 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNotNil(NSClassFromString("FIRVertexAIComponent"))
   }
 
-  /// Tests that a vertex instance can be created properly using the default Firebase pp.
+  /// Tests that a vertex instance can be created properly using the default Firebase app.
   func testVertexInstanceCreation_defaultApp() throws {
+    let vertex = VertexAI.vertexAI()
+
+    XCTAssertNotNil(vertex)
+    XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
+    XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
+    XCTAssertEqual(vertex.location, "us-central1")
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.version, .v1beta)
+  }
+
+  /// Tests that a vertex instance can be created properly using the default Firebase app and custom
+  /// location.
+  func testVertexInstanceCreation_defaultApp_customLocation() throws {
     let vertex = VertexAI.vertexAI(location: location)
 
     XCTAssertNotNil(vertex)
@@ -121,8 +135,16 @@ class VertexComponentTests: XCTestCase {
   }
 
   func testSameAppAndDifferentAPI_newInstanceCreated() throws {
-    let vertex1 = VertexAI.vertexAI(app: VertexComponentTests.app)
-    let vertex2 = VertexAI.developerAPI(app: VertexComponentTests.app)
+    let vertex1 = VertexAI.vertexAI(
+      app: VertexComponentTests.app,
+      location: location,
+      apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+    )
+    let vertex2 = VertexAI.vertexAI(
+      app: VertexComponentTests.app,
+      location: location,
+      apiConfig: APIConfig(service: .vertexAI, version: .v1)
+    )
 
     // Ensure they are different instances.
     XCTAssert(vertex1 !== vertex2)
@@ -168,7 +190,8 @@ class VertexComponentTests: XCTestCase {
 
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = VertexAI.developerAPI(app: app)
+    let apiConfig = APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
+    let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
 
     let modelResourceName = vertex.modelResourceName(modelName: model)
@@ -182,7 +205,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = VertexAI.developerAPI(app: app, apiConfig: apiConfig)
+    let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -208,7 +231,11 @@ class VertexComponentTests: XCTestCase {
 
   func testGenerativeModel_developerAPI() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = VertexAI.developerAPI(app: app)
+    let apiConfig = APIConfig(
+      service: .developer(endpoint: .firebaseVertexAIStaging),
+      version: .v1beta
+    )
+    let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
 
     let generativeModel = vertex.generativeModel(
@@ -218,6 +245,6 @@ class VertexComponentTests: XCTestCase {
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
     XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
-    XCTAssertEqual(generativeModel.apiConfig, VertexAI.defaultDeveloperAPIConfig)
+    XCTAssertEqual(generativeModel.apiConfig, apiConfig)
   }
 }

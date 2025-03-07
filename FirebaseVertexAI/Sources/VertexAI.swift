@@ -25,35 +25,18 @@ import Foundation
 public class VertexAI {
   // MARK: - Public APIs
 
-  /// The default `VertexAI` instance.
-  ///
-  /// - Parameter location: The region identifier, defaulting to `us-central1`; see [Vertex AI
-  /// regions
-  ///   ](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#available-regions)
-  ///   for a list of supported regions.
-  /// - Returns: An instance of `VertexAI`, configured with the default `FirebaseApp`.
-  public static func vertexAI(location: String = "us-central1") -> VertexAI {
-    guard let app = FirebaseApp.app() else {
-      fatalError("No instance of the default Firebase app was found.")
-    }
-    let vertexInstance = vertexAI(app: app, location: location)
-    assert(vertexInstance.apiConfig.service == .vertexAI)
-    assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
-    assert(vertexInstance.apiConfig.version == .v1beta)
-
-    return vertexInstance
-  }
-
-  /// Creates an instance of `VertexAI` configured with a custom `FirebaseApp`.
+  /// Creates an instance of `VertexAI`.
   ///
   ///  - Parameters:
-  ///   - app: The custom `FirebaseApp` used for initialization.
+  ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
+  ///     ``FirebaseApp``.
   ///   - location: The region identifier, defaulting to `us-central1`; see
   ///     [Vertex AI locations]
   ///     (https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
-  public static func vertexAI(app: FirebaseApp, location: String = "us-central1") -> VertexAI {
+  public static func vertexAI(app: FirebaseApp? = nil,
+                              location: String = "us-central1") -> VertexAI {
     let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
     assert(vertexInstance.apiConfig.service == .vertexAI)
     assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
@@ -160,25 +143,12 @@ public class VertexAI {
   let location: String?
 
   static let defaultVertexAIAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
-  static let defaultDeveloperAPIConfig = APIConfig(
-    service: .developer(endpoint: .generativeLanguage),
-    version: .v1beta
-  )
 
-  static func developerAPI(apiConfig: APIConfig = defaultDeveloperAPIConfig) -> VertexAI {
-    guard let app = FirebaseApp.app() else {
+  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> VertexAI {
+    guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
 
-    return developerAPI(app: app, apiConfig: apiConfig)
-  }
-
-  static func developerAPI(app: FirebaseApp,
-                           apiConfig: APIConfig = defaultDeveloperAPIConfig) -> VertexAI {
-    return vertexAI(app: app, location: nil, apiConfig: apiConfig)
-  }
-
-  static func vertexAI(app: FirebaseApp, location: String?, apiConfig: APIConfig) -> VertexAI {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.
