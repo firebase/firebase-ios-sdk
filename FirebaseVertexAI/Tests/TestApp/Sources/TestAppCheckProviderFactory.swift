@@ -22,12 +22,9 @@ import Foundation
 /// ``notConfiguredName``, in which case App Check is not configured; this facilitates integration
 /// testing of App Check failure cases.
 public class TestAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
-  /// The name, or a substring of the name, of Firebase apps where App Check is not configured.
-  public static let notConfiguredName = "app-check-not-configured"
-
   /// Returns the `AppCheckDebugProvider` unless  `app.name` contains ``notConfiguredName``.
   public func createProvider(with app: FirebaseApp) -> (any AppCheckProvider)? {
-    if app.name.contains(TestAppCheckProviderFactory.notConfiguredName) {
+    if app.name.contains(FirebaseAppNames.appCheckNotConfigured) {
       return nil
     }
 
