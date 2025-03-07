@@ -45,6 +45,11 @@ struct ContentView: View {
         } label: {
           Label("Function Calling", systemImage: "function")
         }
+        NavigationLink {
+          ImagenScreen()
+        } label: {
+          Label("Imagen", systemImage: "photo.art")
+        }
       }
       .navigationTitle("Generative AI Samples")
     }
