@@ -185,7 +185,7 @@ exports.genStreamWeatherError = functionsV2.https.onCall(
   async (request, response) => {
     if (request.acceptsStreaming) {
       for await (const chunk of generateForecast(request.data)) {
-        // The SDK won't be able to decode the message without the location field.
+        // Remove the location field, since the SDK cannot decode the message if it's there.
         delete chunk.location;
         response.sendChunk(chunk);
       }
