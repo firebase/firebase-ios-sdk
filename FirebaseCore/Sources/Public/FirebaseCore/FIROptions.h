@@ -102,12 +102,12 @@ NS_SWIFT_NAME(FirebaseOptions)
  * This will read the file synchronously from disk.
  * For example:
  * ```swift
- *   if let path = Bundle.main.path(forResource:"GoogleServices-Info", ofType:"plist") {
+ *   if let path = Bundle.main.path(forResource:"GoogleService-Info", ofType:"plist") {
  *       let options = FirebaseOptions(contentsOfFile: path)
  *   }
  * ```
  * Note that it is not possible to customize `FirebaseOptions` for Firebase Analytics which expects
- * a static file named `GoogleServices-Info.plist` -
+ * a static file named `GoogleService-Info.plist` -
  * https://github.com/firebase/firebase-ios-sdk/issues/230.
  * Returns `nil` if the plist file does not exist or is invalid.
  */

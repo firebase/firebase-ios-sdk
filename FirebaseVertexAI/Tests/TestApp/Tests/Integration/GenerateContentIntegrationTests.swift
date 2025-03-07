@@ -23,25 +23,28 @@ import VertexAITestApp
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  static let vertexV1Config = APIConfig(service: .vertexAI, version: .v1)
-  static let vertexV1BetaConfig = APIConfig(service: .vertexAI, version: .v1beta)
-  static let developerV1BetaConfig = APIConfig(
-    service: .developer(endpoint: .generativeLanguage),
-    version: .v1beta
+  static let vertexV1Config =
+    InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1))
+  static let vertexV1BetaConfig =
+    InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1beta))
+  static let developerV1Config = InstanceConfig(
+    appName: FirebaseAppNames.spark,
+    apiConfig: APIConfig(
+      service: .developer(endpoint: .generativeLanguage), version: .v1
+    )
   )
+  static let developerV1BetaConfig = InstanceConfig(
+    appName: FirebaseAppNames.spark,
+    apiConfig: APIConfig(
+      service: .developer(endpoint: .generativeLanguage), version: .v1beta
+    )
+  )
+  static let allConfigs =
+    [vertexV1Config, vertexV1BetaConfig, developerV1Config, developerV1BetaConfig]
 
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  static let generationConfig = GenerationConfig(
-    temperature: 0.0,
-    topP: 0.0,
-    topK: 1,
-    responseMIMEType: "text/plain"
-  )
-  static let systemInstruction = ModelContent(
-    role: "system",
-    parts: "You are a friendly and helpful assistant."
-  )
-  static let safetySettings = [
+  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+  let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
@@ -64,9 +67,13 @@ struct GenerateContentIntegrationTests {
     storage = Storage.storage()
   }
 
-  @Test(arguments: [vertexV1Config, vertexV1BetaConfig, developerV1BetaConfig])
-  func generateContent(_ apiConfig: APIConfig) async throws {
-    let model = GenerateContentIntegrationTests.model(apiConfig: apiConfig)
+  @Test(arguments: allConfigs)
+  func generateContent(_ config: InstanceConfig) async throws {
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
     let response = try await model.generateContent(prompt)
@@ -75,9 +82,9 @@ struct GenerateContentIntegrationTests {
     #expect(text == "Mountain View")
 
     let usageMetadata = try #require(response.usageMetadata)
-    #expect(usageMetadata.promptTokenCount == 21)
+    #expect(usageMetadata.promptTokenCount == 13)
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
-    #expect(usageMetadata.totalTokenCount.isEqual(to: 24, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.totalTokenCount.isEqual(to: 16, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
@@ -88,31 +95,45 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
-  static func model(apiConfig: APIConfig) -> GenerativeModel {
-    return instance(apiConfig: apiConfig).generativeModel(
-      modelName: "gemini-2.0-flash",
-      generationConfig: generationConfig,
+  @Test(
+    "Generate an enum and provide a system instruction",
+    arguments: [
+      vertexV1Config,
+      vertexV1BetaConfig,
+      /* System instructions are not supported on the v1 Developer API. */
+      developerV1BetaConfig,
+    ]
+  )
+  func generateContentEnum(_ config: InstanceConfig) async throws {
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: GenerationConfig(
+        responseMIMEType: "text/x.enum", // Not supported on the v1 Developer API
+        responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
+      ),
       safetySettings: safetySettings,
-      tools: [],
-      toolConfig: .init(functionCallingConfig: .none()),
-      systemInstruction: systemInstruction
+      tools: [], // Not supported on the v1 Developer API
+      toolConfig: .init(functionCallingConfig: .none()), // Not supported on the v1 Developer API
+      systemInstruction: ModelContent(role: "system", parts: "Always pick blue.")
     )
-  }
+    let prompt = "What is your favourite colour?"
 
-  // TODO(andrewheard): Move this helper to a file in the Utilities folder.
-  static func instance(apiConfig: APIConfig) -> VertexAI {
-    switch apiConfig.service {
-    case .vertexAI:
-      return VertexAI.vertexAI(app: nil, location: "us-central1", apiConfig: apiConfig)
-    case .developer:
-      return VertexAI.vertexAI(app: nil, location: nil, apiConfig: apiConfig)
-    }
-  }
-}
+    let response = try await model.generateContent(prompt)
 
-// TODO(andrewheard): Move this extension to a file in the Utilities folder.
-extension Numeric where Self: Strideable, Self.Stride.Magnitude: Comparable {
-  func isEqual(to other: Self, accuracy: Self.Stride) -> Bool {
-    return distance(to: other).magnitude < accuracy.magnitude
+    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(text == "Blue")
+
+    let usageMetadata = try #require(response.usageMetadata)
+    #expect(usageMetadata.promptTokenCount == 14)
+    #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.totalTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+    #expect(usageMetadata.candidatesTokensDetails.count == 1)
+    let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+    #expect(candidatesTokensDetails.modality == .text)
+    #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 }
