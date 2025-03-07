@@ -47,8 +47,6 @@ class ImagenViewModel: ObservableObject {
     var generationConfig = ImagenGenerationConfig()
     generationConfig.numberOfImages = 4
     generationConfig.aspectRatio = .landscape4x3
-    generationConfig.addWatermark = false
-    generationConfig.negativePrompt = "people"
 
     // 3. Initialize the Imagen model
     model = vertexAI.imagenModel(

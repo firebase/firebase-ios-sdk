@@ -38,6 +38,9 @@ struct ImagenScreen: View {
         onGenerateTapped()
       }
       .padding()
+      if viewModel.inProgress {
+        Text("Waiting for model response ...")
+      }
       ForEach(viewModel.images, id: \.self) {
         Image(uiImage: $0)
           .resizable()
