@@ -79,7 +79,7 @@ class ImagenViewModel: ObservableObject {
       // 6. Convert the image data to UIImage for display in the UI
       images = response.images.compactMap { UIImage(data: $0.data) }
     } catch {
-      print("Error generating images: \(error)")
+      logger.error("Error generating images: \(error)")
     }
   }
 }
