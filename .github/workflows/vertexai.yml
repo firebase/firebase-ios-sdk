@@ -81,6 +81,9 @@ jobs:
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install visionOS, if needed.
+      if: matrix.target == 'visionOS'
+      run: xcodebuild -downloadPlatform visionOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@v3
