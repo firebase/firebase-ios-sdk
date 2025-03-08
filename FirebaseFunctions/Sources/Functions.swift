@@ -56,7 +56,7 @@ enum FunctionsConstants {
   private static var instances: [String: [Functions]] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
-  private static var instancesLock: os_unfair_lock = .init()
+  private static let instancesLock = OSAllocatedUnfairLock()
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
@@ -304,10 +304,10 @@ enum FunctionsConstants {
     guard let app else {
       fatalError("`FirebaseApp.configure()` needs to be called before using Functions.")
     }
-    os_unfair_lock_lock(&instancesLock)
+    instancesLock.lock()
 
     // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
+    defer { instancesLock.unlock() }
 
     if let associatedInstances = instances[app.name] {
       for instance in associatedInstances {

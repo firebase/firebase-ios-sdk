@@ -33,7 +33,7 @@ class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
   private var instances: [String: Auth] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
-  private var instancesLock: os_unfair_lock = .init()
+  private let instancesLock = OSAllocatedUnfairLock()
 
   // MARK: - Initializers
 
@@ -58,10 +58,10 @@ class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
   // MARK: - AuthProvider conformance
 
   @discardableResult func auth() -> Auth {
-    os_unfair_lock_lock(&instancesLock)
+    instancesLock.lock()
 
     // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
+    defer { instancesLock.unlock() }
 
     if let instance = instances[app.name] {
       return instance
