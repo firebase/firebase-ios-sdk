@@ -471,6 +471,201 @@ enum FunctionsConstants {
     }
   }
 
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  func stream(at url: URL,
+              data: Any?,
+              options: HTTPSCallableOptions?,
+              timeout: TimeInterval)
+    -> AsyncThrowingStream<JSONStreamResponse, Error> {
+    AsyncThrowingStream { continuation in
+      Task {
+        let urlRequest: URLRequest
+        do {
+          let context = try await contextProvider.context(options: options)
+          urlRequest = try makeRequestForStreamableContent(
+            url: url,
+            data: data,
+            options: options,
+            timeout: timeout,
+            context: context
+          )
+        } catch {
+          continuation.finish(throwing: FunctionsError(
+            .invalidArgument,
+            userInfo: [NSUnderlyingErrorKey: error]
+          ))
+          return
+        }
+
+        let stream: URLSession.AsyncBytes
+        let rawResponse: URLResponse
+        do {
+          (stream, rawResponse) = try await URLSession.shared.bytes(for: urlRequest)
+        } catch {
+          continuation.finish(throwing: FunctionsError(
+            .unavailable,
+            userInfo: [NSUnderlyingErrorKey: error]
+          ))
+          return
+        }
+
+        // Verify the status code is an HTTP response.
+        guard let response = rawResponse as? HTTPURLResponse else {
+          continuation.finish(
+            throwing: FunctionsError(
+              .unavailable,
+              userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
+            )
+          )
+          return
+        }
+
+        // Verify the status code is a 200.
+        guard response.statusCode == 200 else {
+          continuation.finish(
+            throwing: FunctionsError(
+              httpStatusCode: response.statusCode,
+              region: region,
+              url: url,
+              body: nil,
+              serializer: serializer
+            )
+          )
+          return
+        }
+
+        do {
+          for try await line in stream.lines {
+            guard line.hasPrefix("data:") else {
+              continuation.finish(
+                throwing: FunctionsError(
+                  .dataLoss,
+                  userInfo: [NSLocalizedDescriptionKey: "Unexpected format for streamed response."]
+                )
+              )
+              return
+            }
+
+            do {
+              // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+              let jsonText = String(line.dropFirst(5))
+              let data = try jsonData(jsonText: jsonText)
+              // Handle the content and parse it.
+              let content = try callableStreamResult(fromResponseData: data, endpointURL: url)
+              continuation.yield(content)
+            } catch {
+              continuation.finish(throwing: error)
+              return
+            }
+          }
+        } catch {
+          continuation.finish(
+            throwing: FunctionsError(
+              .dataLoss,
+              userInfo: [
+                NSLocalizedDescriptionKey: "Unexpected format for streamed response.",
+                NSUnderlyingErrorKey: error,
+              ]
+            )
+          )
+          return
+        }
+
+        continuation.finish()
+      }
+    }
+  }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  private func callableStreamResult(fromResponseData data: Data,
+                                    endpointURL url: URL) throws -> JSONStreamResponse {
+    let data = try processedData(fromResponseData: data, endpointURL: url)
+
+    let responseJSONObject: Any
+    do {
+      responseJSONObject = try JSONSerialization.jsonObject(with: data)
+    } catch {
+      throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
+    }
+
+    guard let responseJSON = responseJSONObject as? [String: Any] else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.dataLoss, userInfo: userInfo)
+    }
+
+    if let _ = responseJSON["result"] {
+      return .result(responseJSON)
+    } else if let _ = responseJSON["message"] {
+      return .message(responseJSON)
+    } else {
+      throw FunctionsError(
+        .dataLoss,
+        userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+      )
+    }
+  }
+
+  private func jsonData(jsonText: String) throws -> Data {
+    guard let data = jsonText.data(using: .utf8) else {
+      throw FunctionsError(.dataLoss, userInfo: [
+        NSUnderlyingErrorKey: DecodingError.dataCorrupted(DecodingError.Context(
+          codingPath: [],
+          debugDescription: "Could not parse response as UTF8."
+        )),
+      ])
+    }
+    return data
+  }
+
+  private func makeRequestForStreamableContent(url: URL,
+                                               data: Any?,
+                                               options: HTTPSCallableOptions?,
+                                               timeout: TimeInterval,
+                                               context: FunctionsContext) throws
+    -> URLRequest {
+    var urlRequest = URLRequest(
+      url: url,
+      cachePolicy: .useProtocolCachePolicy,
+      timeoutInterval: timeout
+    )
+
+    let data = data ?? NSNull()
+    let encoded = try serializer.encode(data)
+    let body = ["data": encoded]
+    let payload = try JSONSerialization.data(withJSONObject: body, options: [.fragmentsAllowed])
+    urlRequest.httpBody = payload
+
+    // Set the headers for starting a streaming session.
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+    urlRequest.httpMethod = "POST"
+
+    if let authToken = context.authToken {
+      let value = "Bearer \(authToken)"
+      urlRequest.setValue(value, forHTTPHeaderField: "Authorization")
+    }
+
+    if let fcmToken = context.fcmToken {
+      urlRequest.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+    }
+
+    if options?.requireLimitedUseAppCheckTokens == true {
+      if let appCheckToken = context.limitedUseAppCheckToken {
+        urlRequest.setValue(
+          appCheckToken,
+          forHTTPHeaderField: Constants.appCheckTokenHeader
+        )
+      }
+    } else if let appCheckToken = context.appCheckToken {
+      urlRequest.setValue(
+        appCheckToken,
+        forHTTPHeaderField: Constants.appCheckTokenHeader
+      )
+    }
+
+    return urlRequest
+  }
+
   private func makeFetcher(url: URL,
                            data: Any?,
                            options: HTTPSCallableOptions?,
