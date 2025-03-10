@@ -15,7 +15,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s
   }
-  s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '13.0'
   osx_deployment_target = '10.15'

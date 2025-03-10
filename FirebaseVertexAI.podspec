@@ -17,8 +17,6 @@ Firebase SDK.
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.social_media_url = 'https://twitter.com/Firebase'
-
   ios_deployment_target = '15.0'
   osx_deployment_target = '12.0'
   tvos_deployment_target = '15.0'
