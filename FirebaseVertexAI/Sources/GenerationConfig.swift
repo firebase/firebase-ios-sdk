@@ -66,7 +66,7 @@ public struct GenerationConfig: Sendable {
   ///     > of variation is still possible.
   ///
   ///     > Important: The range of supported temperature values depends on the model; see the
-  ///     > [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     > [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#temperature)
   ///     > for more details.
   ///   - topP: Controls diversity of generated text. Higher values (e.g., 0.9) produce more diverse
   ///     text, while lower values (e.g., 0.5) make the output more focused.
@@ -74,8 +74,8 @@ public struct GenerationConfig: Sendable {
   ///     The supported range is 0.0 to 1.0.
   ///
   ///     > Important: The default `topP` value depends on the model; see the
-  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
-  ///     for more details.
+  ///     > [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#top-p)
+  ///     > for more details.
   ///   - topK: Limits the number of highest probability words the model considers when generating
   ///     text. For example, a topK of 40 means only the 40 most likely words are considered for the
   ///     next token. A higher value increases diversity, while a lower value makes the output more
@@ -84,7 +84,7 @@ public struct GenerationConfig: Sendable {
   ///     The supported range is 1 to 40.
   ///
   ///     > Important: Support for `topK` and the default value depends on the model; see the
-  ///     [Cloud documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#generationconfig)
+  ///     [documentation](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#top-k)
   ///     for more details.
   ///   - candidateCount: The number of response variations to return; defaults to 1 if not set.
   ///     Support for multiple candidates depends on the model; see the
@@ -137,8 +137,9 @@ public struct GenerationConfig: Sendable {
   ///     - `application/json`: Schema for JSON response.
   ///
   ///     Refer to the
-  ///     [Control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
-  ///     guide for more details.
+  ///     [Generate structured
+  ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
+  ///     for more details.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,

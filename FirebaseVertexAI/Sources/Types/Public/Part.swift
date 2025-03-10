@@ -89,9 +89,9 @@ public struct FileDataPart: Part {
   ///   - uri: The `"gs://"`-prefixed URI of the file in Cloud Storage for Firebase, for example,
   ///     `"gs://bucket-name/path/image.jpg"`.
   ///   - mimeType: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
-  ///     or `"video/mp4"`; see [media requirements
-  ///     ](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/send-multimodal-prompts#media_requirements)
-  ///     for supported values.
+  ///     or `"video/mp4"`; see [supported input files and
+  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     supported values.
   public init(uri: String, mimeType: String) {
     self.init(FileData(fileURI: uri, mimeType: mimeType))
   }
