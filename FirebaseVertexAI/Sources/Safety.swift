@@ -145,6 +145,10 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
 
 /// A type used to specify a threshold for harmful content, beyond which the model will return a
 /// fallback response instead of generated content.
+///
+/// See [safety settings for Gemini
+/// models](https://firebase.google.com/docs/vertex-ai/safety-settings?platform=ios#gemini) for
+/// more details.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct SafetySetting: Sendable {
   /// Block at and beyond a specified ``SafetyRating/HarmProbability``.

@@ -18,9 +18,10 @@ import Foundation
 
 /// Represents a remote Imagen model with the ability to generate images using text prompts.
 ///
-/// See the [Cloud
-/// documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images) for
-/// more details about the image generation capabilities offered by the Imagen model.
+/// See the [generate images
+/// documentation](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+/// for more details about the image generation capabilities offered by the Imagen model in the
+/// Vertex AI in Firebase SDK.
 ///
 /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
 /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
