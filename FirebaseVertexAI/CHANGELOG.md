@@ -141,7 +141,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  [control generated output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios)
   for more details. (#13576)
 
 # 10.29.0
