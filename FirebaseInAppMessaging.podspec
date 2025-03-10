@@ -16,7 +16,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s
   }
-  s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '13.0'
   s.tvos.deployment_target = '13.0'
 

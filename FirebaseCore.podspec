@@ -16,8 +16,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.social_media_url = 'https://twitter.com/Firebase'
-
   ios_deployment_target = '12.0'
   osx_deployment_target = '10.15'
   tvos_deployment_target = '13.0'

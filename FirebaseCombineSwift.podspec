@@ -17,8 +17,6 @@ for internal testing only. It should not be published.
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.social_media_url = 'https://twitter.com/Firebase'
-
   s.swift_version       = '5.9'
 
   ios_deployment_target = '13.0'

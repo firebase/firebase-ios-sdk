@@ -15,7 +15,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => 'CocoaPods-' + s.version.to_s
   }
-  s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '13.0'
   tvos_deployment_target = '13.0'
