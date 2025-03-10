@@ -1,5 +1,6 @@
 # Unreleased
-- [feature] The Firebase Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
+- [feature] The Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
+- [feature] The Vertex AI Sample App now includes an image generation example.
 
 # 11.9.0
 - [feature] **Public Preview**: Added support for generating images using the

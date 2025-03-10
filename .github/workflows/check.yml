@@ -15,7 +15,7 @@ jobs:
   check:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     env:
       MINT_PATH: ${{ github.workspace }}/mint
     steps:
@@ -33,7 +33,13 @@ jobs:
         restore-keys: ${{ runner.os }}-mint-
 
     - name: Setup check
-      run:  scripts/setup_check.sh
+      run:  |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        scripts/setup_check.sh
 
     - name: Check
-      run:  scripts/check.sh --test-only
+      run:  |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        # Add Homebrew clang-format to first in PATH
+        export PATH="/home/linuxbrew/.linuxbrew/opt/clang-format/bin:$PATH"
+        scripts/check.sh --test-only

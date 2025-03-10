@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Codable APIs now accept optional `FirebaseDataEncoder` and
+  `FirebaseDataDecoder` parameters, allowing for customization of
+  encoding/decoding behavior. (#14368)
 - [fixed] Fix intermittent `RCNConfigRealtime` crash due to incorrect parsing of fragmented JSON. (#14518)
 
 # 11.9.0

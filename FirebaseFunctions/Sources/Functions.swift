@@ -401,9 +401,9 @@ enum FunctionsConstants {
 
     do {
       let rawData = try await fetcher.beginFetch()
-      return try callableResult(fromResponseData: rawData)
+      return try callableResult(fromResponseData: rawData, endpointURL: url)
     } catch {
-      throw processedError(fromResponseError: error)
+      throw processedError(fromResponseError: error, endpointURL: url)
     }
   }
 
@@ -454,10 +454,10 @@ enum FunctionsConstants {
     fetcher.beginFetch { [self] data, error in
       let result: Result<HTTPSCallableResult, any Error>
       if let error {
-        result = .failure(processedError(fromResponseError: error))
+        result = .failure(processedError(fromResponseError: error, endpointURL: url))
       } else if let data {
         do {
-          result = try .success(callableResult(fromResponseData: data))
+          result = try .success(callableResult(fromResponseData: data, endpointURL: url))
         } catch {
           result = .failure(error)
         }
@@ -523,11 +523,14 @@ enum FunctionsConstants {
     return fetcher
   }
 
-  private func processedError(fromResponseError error: any Error) -> any Error {
+  private func processedError(fromResponseError error: any Error,
+                              endpointURL url: URL) -> any Error {
     let error = error as NSError
     let localError: (any Error)? = if error.domain == kGTMSessionFetcherStatusDomain {
       FunctionsError(
         httpStatusCode: error.code,
+        region: region,
+        url: url,
         body: error.userInfo["data"] as? Data,
         serializer: serializer
       )
@@ -538,16 +541,23 @@ enum FunctionsConstants {
     return localError ?? error
   }
 
-  private func callableResult(fromResponseData data: Data) throws -> HTTPSCallableResult {
-    let processedData = try processedData(fromResponseData: data)
+  private func callableResult(fromResponseData data: Data,
+                              endpointURL url: URL) throws -> HTTPSCallableResult {
+    let processedData = try processedData(fromResponseData: data, endpointURL: url)
     let json = try responseDataJSON(from: processedData)
     let payload = try serializer.decode(json)
     return HTTPSCallableResult(data: payload)
   }
 
-  private func processedData(fromResponseData data: Data) throws -> Data {
+  private func processedData(fromResponseData data: Data, endpointURL url: URL) throws -> Data {
     // `data` might specify a custom error. If so, throw the error.
-    if let bodyError = FunctionsError(httpStatusCode: 200, body: data, serializer: serializer) {
+    if let bodyError = FunctionsError(
+      httpStatusCode: 200,
+      region: region,
+      url: url,
+      body: data,
+      serializer: serializer
+    ) {
       throw bodyError
     }
 

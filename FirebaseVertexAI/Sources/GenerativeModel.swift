@@ -23,6 +23,9 @@ public final class GenerativeModel: Sendable {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
+  /// Configuration for the backend API used by this model.
+  let apiConfig: APIConfig
+
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
 
@@ -48,8 +51,8 @@ public final class GenerativeModel: Sendable {
   ///
   /// - Parameters:
   ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
-  ///   - projectID: The project ID from the Firebase console.
-  ///   - apiKey: The API key for your project.
+  ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
+  ///   - apiConfig: Configuration for the backend API used by this model.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
@@ -60,6 +63,7 @@ public final class GenerativeModel: Sendable {
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
   init(name: String,
        firebaseInfo: FirebaseInfo,
+       apiConfig: APIConfig,
        generationConfig: GenerationConfig? = nil,
        safetySettings: [SafetySetting]? = nil,
        tools: [Tool]?,
@@ -68,6 +72,7 @@ public final class GenerativeModel: Sendable {
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
     modelResourceName = name
+    self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
       urlSession: urlSession
@@ -118,15 +123,18 @@ public final class GenerativeModel: Sendable {
     -> GenerateContentResponse {
     try content.throwIfError()
     let response: GenerateContentResponse
-    let generateContentRequest = GenerateContentRequest(model: modelResourceName,
-                                                        contents: content,
-                                                        generationConfig: generationConfig,
-                                                        safetySettings: safetySettings,
-                                                        tools: tools,
-                                                        toolConfig: toolConfig,
-                                                        systemInstruction: systemInstruction,
-                                                        isStreaming: false,
-                                                        options: requestOptions)
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .generateContent,
+      options: requestOptions
+    )
     do {
       response = try await generativeAIService.loadRequest(request: generateContentRequest)
     } catch {
@@ -175,43 +183,44 @@ public final class GenerativeModel: Sendable {
   public func generateContentStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     try content.throwIfError()
-    let generateContentRequest = GenerateContentRequest(model: modelResourceName,
-                                                        contents: content,
-                                                        generationConfig: generationConfig,
-                                                        safetySettings: safetySettings,
-                                                        tools: tools,
-                                                        toolConfig: toolConfig,
-                                                        systemInstruction: systemInstruction,
-                                                        isStreaming: true,
-                                                        options: requestOptions)
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .streamGenerateContent,
+      options: requestOptions
+    )
 
-    var responseIterator = generativeAIService.loadRequestStream(request: generateContentRequest)
-      .makeAsyncIterator()
-    return AsyncThrowingStream {
-      let response: GenerateContentResponse?
-      do {
-        response = try await responseIterator.next()
-      } catch {
-        throw GenerativeModel.generateContentError(from: error)
-      }
+    return AsyncThrowingStream { continuation in
+      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
+      Task {
+        do {
+          for try await response in responseStream {
+            // Check the prompt feedback to see if the prompt was blocked.
+            if response.promptFeedback?.blockReason != nil {
+              throw GenerateContentError.promptBlocked(response: response)
+            }
 
-      // The responseIterator will return `nil` when it's done.
-      guard let response = response else {
-        // This is the end of the stream! Signal it by sending `nil`.
-        return nil
-      }
+            // If the stream ended early unexpectedly, throw an error.
+            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
+              throw GenerateContentError.responseStoppedEarly(
+                reason: finishReason,
+                response: response
+              )
+            }
 
-      // Check the prompt feedback to see if the prompt was blocked.
-      if response.promptFeedback?.blockReason != nil {
-        throw GenerateContentError.promptBlocked(response: response)
-      }
-
-      // If the stream ended early unexpectedly, throw an error.
-      if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
-        throw GenerateContentError.responseStoppedEarly(reason: finishReason, response: response)
-      } else {
-        // Response was valid content, pass it along and continue.
-        return response
+            continuation.yield(response)
+          }
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
+          return
+        }
       }
     }
   }
@@ -251,6 +260,7 @@ public final class GenerativeModel: Sendable {
       systemInstruction: systemInstruction,
       tools: tools,
       generationConfig: generationConfig,
+      apiConfig: apiConfig,
       options: requestOptions
     )
     return try await generativeAIService.loadRequest(request: countTokensRequest)

@@ -81,6 +81,9 @@ jobs:
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install visionOS, if needed.
+      if: matrix.target == 'visionOS'
+      run: xcodebuild -downloadPlatform visionOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@v3
@@ -137,11 +140,10 @@ jobs:
             xcode: Xcode_16.2
             swift_version: 5.9
             warnings:
-          #TODO: Fix remaining warning in GenerativeAIService and remove --allow-warnings.
           - os: macos-15
             xcode: Xcode_16.2
             swift_version: 6.0
-            warnings: --allow-warnings
+            warnings:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
