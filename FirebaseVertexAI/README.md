@@ -1,7 +1,7 @@
 # Vertex AI for Firebase SDK
 
 - For developer documentation, please visit https://firebase.google.com/docs/vertex-ai.
-- Try out the [sample app](Sample/README.md) to get started.
+- Try out the [sample app](https://github.com/firebase/quickstart-ios/tree/main/vertexai to get started.
 
 ## Development
 
