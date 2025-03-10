@@ -158,4 +158,3 @@ jobs:
       run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseVertexAI.podspec
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseVertexAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}
-      
