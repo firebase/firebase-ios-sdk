@@ -118,6 +118,9 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
         FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
+    - name: Install Secret GoogleService-Info-Spark.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info-Spark.plist.gpg \
+        FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist "$secrets_passphrase"
     - name: Install Secret Credentials.swift
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-Credentials.swift.gpg \
         FirebaseVertexAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
