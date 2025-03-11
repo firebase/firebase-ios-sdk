@@ -38,14 +38,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
-    # - name: Setup Bundler
-    #   run: scripts/setup_bundler.sh
-    # - name: Xcode
-    #   run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Set Swift swift_version
-      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseSharedSwift.podspec; cat FirebaseSharedSwift.podspec
-    # - name: Build and test
-    #   run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSharedSwift.podspec --platforms=${{ matrix.target }}
+      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseSharedSwift.podspec
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSharedSwift.podspec --platforms=${{ matrix.target }}
 
   # spm-package-resolved:
   #   env:
