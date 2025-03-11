@@ -1,4 +1,4 @@
-# Unreleased
+# 11.10.0
 - [fixed] Codable APIs now accept optional `FirebaseDataEncoder` and
   `FirebaseDataDecoder` parameters, allowing for customization of
   encoding/decoding behavior. (#14368)

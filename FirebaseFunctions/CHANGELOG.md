@@ -1,4 +1,4 @@
-# Unreleased
+# 11.10.0
 - [added] Streaming callable functions are now supported.
 
 # 11.9.0
