@@ -44,23 +44,11 @@ public enum RemoteConfigCodableError: Error {
 }
 
 public extension RemoteConfig {
-  /// Decodes the given type from the respective Remote Config values.
+  /// Decodes a struct from the respective Remote Config values.
   ///
   /// - Parameter asType: The type to decode to.
-  /// - Throws: An error if the decoding fails.
-  /// - Returns: The decoded value; otherwise, an error if one occurred.
-  func decoded<Value: Decodable>(asType: Value.Type = Value.self) throws -> Value {
-    try decoded(asType: asType, decoder: FirebaseDataDecoder())
-  }
-
-  /// Decodes the given type from the respective Remote Config values.
-  /// - Parameters:
-  ///   - asType: The type to decode to.
-  ///   - decoder: The encoder to use to decode the given type.
-  /// - Throws: An error if the decoding fails.
-  /// - Returns: The decoded value; otherwise, an error if one occurred.
   func decoded<Value: Decodable>(asType: Value.Type = Value.self,
-                                 decoder: FirebaseDataDecoder) throws -> Value {
+                                 decoder: FirebaseDataDecoder = .init()) throws -> Value {
     let keys = allKeys(from: RemoteConfigSource.default) + allKeys(from: RemoteConfigSource.remote)
     let config = keys.reduce(into: [String: FirebaseRemoteConfigValueDecoderHelper]()) {
       $0[$1] = FirebaseRemoteConfigValueDecoderHelper(value: configValue(forKey: $1))
@@ -71,18 +59,8 @@ public extension RemoteConfig {
   /// Sets config defaults from an encodable struct.
   ///
   /// - Parameter value: The object to use to set the defaults.
-  /// - Throws: An error if the encoding fails.
-  func setDefaults<Value: Encodable>(from value: Value) throws {
-    try setDefaults(from: value, encoder: FirebaseDataEncoder())
-  }
-
-  /// Sets config defaults from an encodable struct.
-  /// - Parameters:
-  ///   - value: The object to use to set the defaults.
-  ///   - encoder: The encoder to use to encode the given object.
-  /// - Throws: An error if the encoding fails.
   func setDefaults<Value: Encodable>(from value: Value,
-                                     encoder: FirebaseDataEncoder) throws {
+                                     encoder: FirebaseDataEncoder = .init()) throws {
     guard let encoded = try encoder.encode(value) as? [String: NSObject] else {
       throw RemoteConfigCodableError.invalidSetDefaultsInput(
         "The setDefaults input: \(value), must be a Struct that encodes to a Dictionary"
