@@ -81,7 +81,13 @@ public final class GenerativeModel: Sendable {
     self.safetySettings = safetySettings
     self.tools = tools
     self.toolConfig = toolConfig
-    self.systemInstruction = systemInstruction
+    self.systemInstruction = systemInstruction.map {
+      // The `role` defaults to "user" but is ignored in system instructions. However, it is
+      // erroneously counted towards the prompt and total token count in `countTokens` when using
+      // the Developer API backend; set to `nil` to avoid token count discrepancies between
+      // `countTokens` and `generateContent`.
+      ModelContent(role: nil, parts: $0.parts)
+    }
     self.requestOptions = requestOptions
 
     if VertexLog.additionalLoggingEnabled() {

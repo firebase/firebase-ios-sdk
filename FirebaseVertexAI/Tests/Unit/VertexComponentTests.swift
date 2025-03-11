@@ -218,6 +218,7 @@ class VertexComponentTests: XCTestCase {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let vertex = VertexAI.vertexAI(app: app, location: location)
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
     let generativeModel = vertex.generativeModel(
       modelName: modelName,
@@ -225,7 +226,7 @@ class VertexComponentTests: XCTestCase {
     )
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
-    XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
+    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
     XCTAssertEqual(generativeModel.apiConfig, VertexAI.defaultVertexAIAPIConfig)
   }
 
@@ -237,6 +238,7 @@ class VertexComponentTests: XCTestCase {
     )
     let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
     let generativeModel = vertex.generativeModel(
       modelName: modelName,
@@ -244,7 +246,7 @@ class VertexComponentTests: XCTestCase {
     )
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
-    XCTAssertEqual(generativeModel.systemInstruction, systemInstruction)
+    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
     XCTAssertEqual(generativeModel.apiConfig, apiConfig)
   }
 }

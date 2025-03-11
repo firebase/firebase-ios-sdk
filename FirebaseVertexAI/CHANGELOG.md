@@ -3,6 +3,8 @@
 - [feature] The Vertex AI Sample App now includes an image generation example.
 - [changed] The Vertex AI Sample App is now part of the
   [quickstart-ios repo](https://github.com/firebase/quickstart-ios/tree/main/vertexai).
+- [changed] The `role` in system instructions is now ignored; no code changes
+  are required. (#14558)
 
 # 11.9.0
 - [feature] **Public Preview**: Added support for generating images using the
