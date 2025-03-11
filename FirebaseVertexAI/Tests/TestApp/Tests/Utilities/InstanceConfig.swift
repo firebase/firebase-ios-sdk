@@ -13,12 +13,25 @@
 // limitations under the License.
 
 import FirebaseCore
+import Testing
 import VertexAITestApp
 
 @testable import struct FirebaseVertexAI.APIConfig
 @testable import class FirebaseVertexAI.VertexAI
 
 struct InstanceConfig {
+  static let vertexV1 = InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1))
+  static let vertexV1Beta = InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1beta))
+  static let developerV1 = InstanceConfig(
+    appName: FirebaseAppNames.spark,
+    apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1)
+  )
+  static let developerV1Beta = InstanceConfig(
+    appName: FirebaseAppNames.spark,
+    apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
+  )
+  static let allConfigs = [vertexV1, vertexV1Beta, developerV1, developerV1Beta]
+
   let appName: String?
   let location: String?
   let apiConfig: APIConfig
@@ -31,6 +44,35 @@ struct InstanceConfig {
 
   var app: FirebaseApp? {
     return appName.map { FirebaseApp.app(name: $0) } ?? FirebaseApp.app()
+  }
+
+  var serviceName: String {
+    switch apiConfig.service {
+    case .vertexAI:
+      return "Vertex AI"
+    case .developer:
+      return "Developer"
+    }
+  }
+
+  var versionName: String {
+    return apiConfig.version.rawValue
+  }
+}
+
+extension InstanceConfig: CustomTestStringConvertible {
+  var testDescription: String {
+    let endpointSuffix = switch apiConfig.service.endpoint {
+    case .firebaseVertexAIProd:
+      ""
+    case .firebaseVertexAIStaging:
+      " - Staging"
+    case .generativeLanguage:
+      " - Generative Language"
+    }
+    let locationSuffix = location.map { " - \($0)" } ?? ""
+
+    return "\(serviceName) (\(versionName))\(endpointSuffix)\(locationSuffix)"
   }
 }
 

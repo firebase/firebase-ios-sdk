@@ -178,8 +178,7 @@ public class VertexAI {
       projectID: projectID,
       apiKey: apiKey,
       googleAppID: app.options.googleAppID,
-      firebaseApp: app,
-      backendAPI: .vertexAI
+      firebaseApp: app
     )
     self.apiConfig = apiConfig
     self.location = location

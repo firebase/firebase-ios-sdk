@@ -17,18 +17,20 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
   let generateContentRequest: GenerateContentRequest
-
-  let apiConfig: APIConfig
-  let options: RequestOptions
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
+  var options: RequestOptions { generateContentRequest.options }
+
+  var apiConfig: APIConfig { generateContentRequest.apiConfig }
+
   var url: URL {
-    URL(string:
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):countTokens")!
+    let version = apiConfig.version.rawValue
+    let endpoint = apiConfig.service.endpoint.rawValue
+    return URL(string: "\(endpoint)/\(version)/\(generateContentRequest.model):countTokens")!
   }
 }
 
@@ -64,9 +66,7 @@ extension CountTokensRequest: Encodable {
   }
 
   func encode(to encoder: any Encoder) throws {
-    let backendAPI = encoder.userInfo[CodingUserInfoKey(rawValue: "BackendAPI")!] as! BackendAPI
-
-    switch backendAPI {
+    switch apiConfig.service {
     case .vertexAI:
       var container = encoder.container(keyedBy: VertexCodingKeys.self)
       try container.encode(generateContentRequest.contents, forKey: .contents)

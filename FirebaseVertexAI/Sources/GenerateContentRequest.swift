@@ -18,12 +18,14 @@ import Foundation
 struct GenerateContentRequest: Sendable {
   /// Model name.
   let model: String
+
   let contents: [ModelContent]
   let generationConfig: GenerationConfig?
   let safetySettings: [SafetySetting]?
   let tools: [Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
+
   let apiConfig: APIConfig
   let apiMethod: APIMethod
   let options: RequestOptions
@@ -39,6 +41,19 @@ extension GenerateContentRequest: Encodable {
     case tools
     case toolConfig
     case systemInstruction
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    if apiMethod == .countTokens {
+      try container.encode(model, forKey: .model)
+    }
+    try container.encode(contents, forKey: .contents)
+    try container.encodeIfPresent(generationConfig, forKey: .generationConfig)
+    try container.encodeIfPresent(safetySettings, forKey: .safetySettings)
+    try container.encodeIfPresent(tools, forKey: .tools)
+    try container.encodeIfPresent(toolConfig, forKey: .toolConfig)
+    try container.encodeIfPresent(systemInstruction, forKey: .systemInstruction)
   }
 }
 
