@@ -109,7 +109,7 @@ final class IntegrationTests: XCTestCase {
   }
 
   func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
     addTeardownBlock { await app.delete() }
     let vertex = VertexAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
@@ -285,7 +285,7 @@ final class IntegrationTests: XCTestCase {
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
     addTeardownBlock { await app.delete() }
     let vertex = VertexAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
