@@ -199,7 +199,6 @@ struct GenerativeAIService {
 //    }
 
     let encoder = JSONEncoder()
-    encoder.userInfo[CodingUserInfoKey(rawValue: "BackendAPI")!] = firebaseInfo.backendAPI
     urlRequest.httpBody = try encoder.encode(request)
     urlRequest.timeoutInterval = request.options.timeout
 
