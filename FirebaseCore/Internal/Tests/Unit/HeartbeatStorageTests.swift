@@ -16,7 +16,7 @@
 import XCTest
 
 extension HeartbeatsBundle {
-  static let testHeartbeatBundle: Self = {
+  nonisolated(unsafe) static let testHeartbeatBundle: Self = {
     var heartbeatBundle = HeartbeatsBundle(capacity: 1)
     heartbeatBundle.append(Heartbeat(agent: "dummy_agent", date: Date()))
     return heartbeatBundle
