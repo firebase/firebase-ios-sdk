@@ -1530,9 +1530,14 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
       XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
-      // TODO: Wait for release approval
-      // let googleAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
-      // XCTAssertEqual(googleAppID, dataCollection ? "My app ID" : nil)
+
+      let googleAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
+      let appVersion = request.value(forHTTPHeaderField: "X-Firebase-AppVersion")
+      let expectedAppVersion =
+        try? XCTUnwrap(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+      XCTAssertEqual(googleAppID, dataCollection ? "My app ID" : nil)
+      XCTAssertEqual(appVersion, dataCollection ? expectedAppVersion : nil)
+
       if let authToken {
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Firebase \(authToken)")
       } else {

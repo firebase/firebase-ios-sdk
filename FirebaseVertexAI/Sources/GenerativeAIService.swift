@@ -193,10 +193,12 @@ struct GenerativeAIService {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
-    // TODO: wait for release approval.
-//    if firebaseInfo.app.isDataCollectionDefaultEnabled {
-//      urlRequest.setValue(firebaseInfo.googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
-//    }
+    if firebaseInfo.app.isDataCollectionDefaultEnabled {
+      urlRequest.setValue(firebaseInfo.googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
+      let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ??
+        "unknown"
+      urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
+    }
 
     let encoder = JSONEncoder()
     urlRequest.httpBody = try encoder.encode(request)
