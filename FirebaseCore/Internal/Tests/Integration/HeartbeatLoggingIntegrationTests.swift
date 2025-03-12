@@ -52,7 +52,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  func testLogAndFlushAsync() throws {
+  @MainActor func testLogAndFlushAsync() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
@@ -123,8 +123,9 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testMultipleControllersWithTheSameIDUseTheSameStorageInstance() throws {
     // Given
-    let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { self.date })
-    let heartbeatController2 = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { date })
+    let heartbeatController2 = HeartbeatController(id: #function, dateProvider: { date })
     // When
     heartbeatController1.log("dummy_agent")
     // Then
@@ -148,7 +149,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogAndFlushConcurrencyStressTest() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
 
     // When
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
@@ -189,7 +191,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogAndFlushHeartbeatFromTodayConcurrencyStressTest() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
 
     // When
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
@@ -313,7 +316,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogAndFlush_AfterUnderlyingStorageIsDeleted_CreatesNewStorage() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
     heartbeatController.log("dummy_agent")
     _ = XCTWaiter.wait(for: [expectation(description: "Wait for async log.")], timeout: 0.1)
 
