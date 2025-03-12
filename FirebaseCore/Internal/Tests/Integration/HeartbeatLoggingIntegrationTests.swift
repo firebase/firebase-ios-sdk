@@ -16,9 +16,6 @@
 import XCTest
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
-  // 2021-11-01 @ 00:00:00 (EST)
-  let date = Date(timeIntervalSince1970: 1_635_739_200)
-
   override func setUpWithError() throws {
     try HeartbeatLoggingTestUtils.removeUnderlyingHeartbeatStorageContainers()
   }
@@ -235,6 +232,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let testDate = AdjustableDate(date: date)
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { testDate.date })
 
