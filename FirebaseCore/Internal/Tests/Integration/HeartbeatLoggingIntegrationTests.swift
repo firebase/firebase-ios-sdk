@@ -144,7 +144,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController1)
   }
 
-  func testLogAndFlushConcurrencyStressTest() throws {
+  @MainActor func testLogAndFlushConcurrencyStressTest() throws {
     // Given
     let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
@@ -154,39 +154,34 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       heartbeatController.log("dummy_agent")
     }
 
-    var payloads: [HeartbeatsPayload] = []
+    let expectation = self.expectation(description: #function)
 
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       let payload = heartbeatController.flush()
-      payloads.append(payload)
+      if !payload.userAgentPayloads.isEmpty {
+        try! HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          payload.headerValue(),
+          """
+          {
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["2021-11-01"]
+              }
+            ]
+          }
+          """
+        )
+        expectation.fulfill()
+      }
     }
 
     // Then
-    let nonEmptyPayloads = payloads.filter { payload in
-      // Filter out non-empty payloads.
-      !payload.userAgentPayloads.isEmpty
-    }
-
-    XCTAssertEqual(nonEmptyPayloads.count, 1)
-
-    let payload = try XCTUnwrap(nonEmptyPayloads.first)
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
-      payload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
-          {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"]
-          }
-        ]
-      }
-      """
-    )
+    wait(for: [expectation])
   }
 
-  func testLogAndFlushHeartbeatFromTodayConcurrencyStressTest() throws {
+  @MainActor func testLogAndFlushHeartbeatFromTodayConcurrencyStressTest() throws {
     // Given
     let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
@@ -196,36 +191,31 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
       heartbeatController.log("dummy_agent")
     }
 
-    var payloads: [HeartbeatsPayload] = []
+    let expectation = self.expectation(description: #function)
 
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       let payload = heartbeatController.flushHeartbeatFromToday()
-      payloads.append(payload)
+      if !payload.userAgentPayloads.isEmpty {
+        try! HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          payload.headerValue(),
+          """
+          {
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["2021-11-01"],
+              }
+            ]
+          }
+          """
+        )
+        expectation.fulfill()
+      }
     }
 
     // Then
-    let nonEmptyPayloads = payloads.filter { payload in
-      // Filter out non-empty payloads.
-      !payload.userAgentPayloads.isEmpty
-    }
-
-    XCTAssertEqual(nonEmptyPayloads.count, 1)
-
-    let payload = try XCTUnwrap(nonEmptyPayloads.first)
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
-      payload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
-          {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"],
-          }
-        ]
-      }
-      """
-    )
+    wait(for: [expectation])
 
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
   }

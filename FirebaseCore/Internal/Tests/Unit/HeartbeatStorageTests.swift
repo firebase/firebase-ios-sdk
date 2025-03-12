@@ -15,6 +15,33 @@
 @testable import FirebaseCoreInternal
 import XCTest
 
+public typealias SessionsSubscriberName = Int
+
+public class SessionsDependencies {
+  #if compiler(>=6)
+    private nonisolated(unsafe) static var _dependencies: Set<SessionsSubscriberName> = .init()
+    private(set) static var dependencies: Set<SessionsSubscriberName> {
+      get {
+        lock.withLock {
+          _dependencies
+        }
+      }
+      set {
+        lock.withLock {
+          _dependencies = newValue
+        }
+      }
+    }
+  #else
+    private static var _dependencies: Set<SessionsSubscriberName> = .init()
+  #endif
+  private static let lock = NSLock()
+
+  public static func addDependency(name: SessionsSubscriberName) {
+    SessionsDependencies.dependencies.insert(name)
+  }
+}
+
 extension HeartbeatsBundle {
   static func testHeartbeatBundle() -> HeartbeatsBundle {
     var heartbeatBundle = HeartbeatsBundle(capacity: 1)
@@ -26,6 +53,23 @@ extension HeartbeatsBundle {
 
 class HeartbeatStorageTests: XCTestCase {
   // MARK: - Instance Management
+
+//  @MainActor func testStressTest() {
+//    var expectations: [XCTestExpectation] = []
+//    let lock = NSLock()
+//    DispatchQueue.concurrentPerform(iterations: 1000) { i in
+//      lock.lock()
+//      let exp = self.expectation(description: "\(i)")
+//      expectations.append(exp)
+//      defer { exp.fulfill() }
+//      lock.unlock()
+//      SessionsDependencies.addDependency(name: i)
+//      exp.fulfill()
+//    }
+//    DispatchQueue.perform
+//    wait(for: expectations)
+//    XCTAssertEqual(SessionsDependencies.dependencies.count, 1000)
+//  }
 
   func testGettingInstance_WithSameID_ReturnsSameInstance() {
     // Given
