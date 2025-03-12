@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-public struct Ordering {
+public class Ordering: @unchecked Sendable {
   let expr: Expr
   let direction: Direction
+
+  init(expr: Expr, direction: Direction) {
+    self.expr = expr
+    self.direction = direction
+  }
 }
 
 public struct Direction: Sendable, Equatable, Hashable {

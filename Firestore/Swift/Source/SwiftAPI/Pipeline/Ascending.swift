@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct AggregateOption {
-  public let accumulators: [AggregateWithAlias]
-  public let groups: [Selectable]?
-
-  public init(accumulators: [AggregateWithAlias], groups: [Selectable]? = nil) {
-    self.accumulators = accumulators
-    self.groups = groups
+public class Ascending: Ordering, @unchecked Sendable {
+  public init(_ fieldName: String) {
+    super.init(expr: Field(fieldName), direction: .ascending)
   }
 }

@@ -16,4 +16,23 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
   public static func and(_ value: Expr ...) -> BooleanExpr {
     return BooleanExpr("and", value)
   }
+
+  override init(_ functionName: String, _ agrs: [any Expr]) {
+    super.init(functionName, agrs)
+  }
+
+  public static func && (lhs: BooleanExpr,
+                         rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
+    try BooleanExpr("and", [lhs, rhs()])
+  }
+
+  public static func || (lhs: BooleanExpr,
+                         rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
+    try BooleanExpr("or", [lhs, rhs()])
+  }
+
+  // not
+  public static prefix func ! (lhs: BooleanExpr) -> BooleanExpr {
+    return BooleanExpr("not", [lhs])
+  }
 }

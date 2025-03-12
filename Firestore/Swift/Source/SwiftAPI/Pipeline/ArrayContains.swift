@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct AggregateOption {
-  public let accumulators: [AggregateWithAlias]
-  public let groups: [Selectable]?
-
-  public init(accumulators: [AggregateWithAlias], groups: [Selectable]? = nil) {
-    self.accumulators = accumulators
-    self.groups = groups
+public class ArrayContains: BooleanExpr, @unchecked Sendable {
+  public init(_ values: Any...) {
+    super.init("array_concat", values as! [any Expr])
   }
 }

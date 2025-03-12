@@ -13,10 +13,6 @@
 // limitations under the License.
 
 enum Helper {
-  static func exprConvertFrom(_ value: Any) -> any Expr {
-    return Field("PLACEHOLDER")
-  }
-
   static func valueToDefaultExpr(_ value: Any) -> any Expr {
     return Field("PLACEHOLDER")
   }

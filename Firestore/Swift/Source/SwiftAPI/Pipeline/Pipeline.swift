@@ -64,9 +64,27 @@ public struct Pipeline {
   /// only additions are desired.
   ///
   /// - Parameter selections: The fields to include in the output documents, specified as
-  /// `Selectable` expressions or `String` values representing field names.
+  /// `Selectable` expressions.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func select(_ selections: SelectableOrFieldName...) -> Pipeline {
+  public func select(_ selections: Selectable...) -> Pipeline {
+    // Implementation
+    return self
+  }
+
+  /// Selects or creates a set of fields from the outputs of previous stages.
+  ///
+  /// The selected fields are defined using `Selectable` expressions, which can be:
+  ///
+  /// - `String`: Name of an existing field.
+  /// - `Field`: References an existing field.
+  /// - `Function`: Represents the result of a function with an assigned alias name using `Expr#as`.
+  ///
+  /// If no selections are provided, the output of this stage is empty. Use `addFields` instead if
+  /// only additions are desired.
+  ///
+  /// - Parameter selections: `String` values representing field names.
+  /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
+  public func select(_ selections: String...) -> Pipeline {
     // Implementation
     return self
   }
@@ -87,7 +105,7 @@ public struct Pipeline {
   ///
   /// - Parameter condition: The `BooleanExpr` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func `where`(_ condition: BooleanExpr) -> Pipeline {
+  public func `where`(_ condition: () -> BooleanExpr) -> Pipeline {
     return self
   }
 
@@ -131,8 +149,26 @@ public struct Pipeline {
   /// `Expr.alias(_:)`.
   ///
   /// - Parameter selections: The fields to include in the output documents, specified as
-  /// `Selectable` expressions or `String` values representing field names.
-  public func distinct(_ groups: SelectableOrFieldName...) -> Pipeline {
+  ///  `String` values representing field names.
+  public func distinct(_ groups: String...) -> Pipeline {
+    return self
+  }
+
+  /// Returns a set of distinct `Expr` values from the inputs to this stage.
+  ///
+  /// This stage processes the results from previous stages, ensuring that only unique
+  /// combinations of `Expr` values (such as `Field` and `Function`) are included.
+  ///
+  /// The parameters to this stage are defined using `Selectable` expressions or field names:
+  ///
+  /// - `String`: The name of an existing field.
+  /// - `Field`: A reference to an existing document field.
+  /// - `Function`: Represents the result of a function with an assigned alias using
+  /// `Expr.alias(_:)`.
+  ///
+  /// - Parameter selections: The fields to include in the output documents, specified as
+  /// `Selectable` expressions.
+  public func distinct(_ groups: Selectable...) -> Pipeline {
     return self
   }
 
@@ -188,7 +224,7 @@ public struct Pipeline {
   ///
   /// - Parameter orderings: One or more `Ordering` instances specifying the sorting criteria.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func sort(_ orderings: [Ordering]) -> Pipeline {
+  public func sort(_ orderings: Ordering...) -> Pipeline {
     // Implementation
     return self
   }
@@ -200,7 +236,19 @@ public struct Pipeline {
   ///
   /// - Parameter field: The `Selectable` field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func replace(_ field: SelectableOrFieldName) -> Pipeline {
+  public func replace(_ field: Selectable) -> Pipeline {
+    // Implementation
+    return self
+  }
+
+  /// Fully overwrites all fields in a document with those coming from a nested map.
+  ///
+  /// This stage allows you to emit a map value as a document. Each key of the map becomes a
+  /// field on the document that contains the corresponding value.
+  ///
+  /// - Parameter fieldName: The field containing the nested map.
+  /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
+  public func replace(_ fieldName: String) -> Pipeline {
     // Implementation
     return self
   }

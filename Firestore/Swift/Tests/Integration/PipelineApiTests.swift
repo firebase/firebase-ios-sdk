@@ -29,22 +29,19 @@ final class PipelineTests: FSTIntegrationTestCase {
     let _: Pipeline = pipelineSource.database()
 
     let query: Query = db.collection("foo").limit(to: 2)
-    let _: Pipeline = pipelineSource.createFrom(query)
+    let _: Pipeline = pipelineSource.create(from: query)
 
     let aggregateQuery = db.collection("foo").count
-    let _: Pipeline = pipelineSource.createFrom(aggregateQuery)
+    let _: Pipeline = pipelineSource.create(from: aggregateQuery)
 
     let _: PipelineSnapshot = try await pipeline.execute()
   }
 
   func testWhereStage() async throws {
     _ = db.pipeline().collection("books")
-      .where(
-        BooleanExpr.and(
-          Field("rating").gt(4.0), // Filter for ratings greater than 4.0
-          Field("genre").eq("Science Fiction")
-        )
-      )
+      .where {
+        Field("rating") > 4.0 && Field("genre") == "Science Fiction" || ArrayContains("rating")
+      }
   }
 
   func testAddFieldStage() async throws {
@@ -58,7 +55,7 @@ final class PipelineTests: FSTIntegrationTestCase {
 
     // An expression becomes a Selectable when given an alias. In this case
     // the alias is 'salePrice'
-    let priceSelectableExpr: Selectable = priceExpr.alias("salePrice")
+    let priceSelectableExpr: Selectable = priceExpr.as("salePrice")
 
     _ = db.pipeline().collection("books")
       .addFields(
@@ -71,12 +68,43 @@ final class PipelineTests: FSTIntegrationTestCase {
     // is to inline the Expr definition
     _ = db.pipeline().collection("books")
       .addFields(
-        Field("msrp").multiply(Field("discount")).alias("salePrice")
+        Field("msrp").multiply(Field("discount")).as("salePrice")
       )
 
     // Output
     // { title: 'title1', price: 10, discount: 0.8,  salePrice: 8.0},
     // { title: 'title2', price: 12, discount: 1.0,  salePrice: 12.0 },
     // { title: 'title3', price: 5,  discount: 0.66, salePrice: 3.30 }
+  }
+
+  func testSelectStage() async throws {
+    // Input
+    // { title: 'title1', price: 10, discount: 0.8 },
+    // { title: 'title2', price: 12, discount: 1.0 },
+    // { title: 'title3', price: 5,  discount: 0.66 }
+
+    // Overload for string and Selectable
+    _ = db.pipeline().collection("books")
+      .select(
+        Field("title"), // Field class inheritates Selectable
+        Field("msrp").multiply(Field("discount")).as("salePrice")
+      )
+
+    _ = db.pipeline().collection("books").select("title", "author")
+
+    // Output
+    // { title: 'title1', salePrice: 8.0},
+    // { title: 'title2', salePrice: 12.0 },
+    // { title: 'title3', salePrice: 3.30 }
+  }
+
+  func testSortStage() async throws {
+    // Sort books by rating in descending order, and then by title in ascending order for books
+    // with the same rating
+    _ = db.pipeline().collection("books")
+      .sort(
+        Field("rating").descending(),
+        Ascending("title") // alternative API offered
+      )
   }
 }

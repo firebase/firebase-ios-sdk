@@ -40,11 +40,11 @@ public struct PipelineSource {
     return Pipeline(db)
   }
 
-  public func createFrom(_ query: Query) -> Pipeline {
+  public func create(from query: Query) -> Pipeline {
     return Pipeline(db)
   }
 
-  public func createFrom(_ aggregateQuery: AggregateQuery) -> Pipeline {
+  public func create(from aggregateQuery: AggregateQuery) -> Pipeline {
     return Pipeline(db)
   }
 }

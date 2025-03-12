@@ -13,7 +13,7 @@
 // limitations under the License.
 
 public protocol Expr: Sendable {
-  func alias(_ name: String) -> ExprWithAlias
+  func `as`(_ name: String) -> ExprWithAlias
 
   // MARK: Comparison Operators
 
@@ -221,7 +221,7 @@ public protocol Expr: Sendable {
 }
 
 public extension Expr {
-  func alias(_ name: String) -> ExprWithAlias {
+  func `as`(_ name: String) -> ExprWithAlias {
     return ExprWithAlias(self, name)
   }
 
@@ -793,4 +793,23 @@ public extension Expr {
   func descending() -> Ordering {
     return Ordering(expr: self, direction: .descending)
   }
+}
+
+// protocal cannot overwrite operator, since every inheritated class will have this function
+// it will lead to error: Generic parameter 'Self' could not be inferred
+
+public func > (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+  try BooleanExpr("gt", [lhs, Helper.valueToDefaultExpr(rhs())])
+}
+
+public func < (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+  try BooleanExpr("lt", [lhs, Helper.valueToDefaultExpr(rhs())])
+}
+
+public func <= (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+  try BooleanExpr("lte", [lhs, Helper.valueToDefaultExpr(rhs())])
+}
+
+public func == (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+  try BooleanExpr("eq", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
