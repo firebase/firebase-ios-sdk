@@ -21,7 +21,9 @@ import VertexAITestApp
 
 struct InstanceConfig {
   static let vertexV1 = InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1))
-  static let vertexV1Beta = InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1beta))
+  static let vertexV1Beta = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+  )
   static let developerV1 = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1)

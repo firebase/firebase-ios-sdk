@@ -68,19 +68,27 @@ extension CountTokensRequest: Encodable {
   func encode(to encoder: any Encoder) throws {
     switch apiConfig.service {
     case .vertexAI:
-      var container = encoder.container(keyedBy: VertexCodingKeys.self)
-      try container.encode(generateContentRequest.contents, forKey: .contents)
-      try container.encodeIfPresent(
-        generateContentRequest.systemInstruction, forKey: .systemInstruction
-      )
-      try container.encodeIfPresent(generateContentRequest.tools, forKey: .tools)
-      try container.encodeIfPresent(
-        generateContentRequest.generationConfig, forKey: .generationConfig
-      )
+      try encodeForVertexAI(to: encoder)
     case .developer:
-      var container = encoder.container(keyedBy: DeveloperCodingKeys.self)
-      try container.encode(generateContentRequest, forKey: .generateContentRequest)
+      try encodeForDeveloper(to: encoder)
     }
+  }
+
+  private func encodeForVertexAI(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: VertexCodingKeys.self)
+    try container.encode(generateContentRequest.contents, forKey: .contents)
+    try container.encodeIfPresent(
+      generateContentRequest.systemInstruction, forKey: .systemInstruction
+    )
+    try container.encodeIfPresent(generateContentRequest.tools, forKey: .tools)
+    try container.encodeIfPresent(
+      generateContentRequest.generationConfig, forKey: .generationConfig
+    )
+  }
+
+  private func encodeForDeveloper(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: DeveloperCodingKeys.self)
+    try container.encode(generateContentRequest, forKey: .generateContentRequest)
   }
 }
 

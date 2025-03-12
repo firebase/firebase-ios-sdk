@@ -45,6 +45,9 @@ extension GenerateContentRequest: Encodable {
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
+    // The model name only needs to be encoded when this `GenerateContentRequest` instance is used
+    // in a `CountTokensRequest` (calling `countTokens`). When calling `generateContent` or
+    // `generateContentStream`, the `model` field is populated in the backend from the `url`.
     if apiMethod == .countTokens {
       try container.encode(model, forKey: .model)
     }
