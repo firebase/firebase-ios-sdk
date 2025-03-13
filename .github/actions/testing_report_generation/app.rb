@@ -24,7 +24,7 @@ GITHUB_WORKFLOW_URL = "https://github.com/#{REPO_NAME_WITH_OWNER}/actions/runs/#
 TESTS_TIME_INTERVAL_IN_HOURS = 24
 TESTS_TIME_INTERVAL_IN_SECS = TESTS_TIME_INTERVAL_IN_HOURS * 3600
 NO_WORKFLOW_RUNNING_INFO = "All nightly cron job were not run in the last #{TESTS_TIME_INTERVAL_IN_HOURS} hrs. Please review [log](#{GITHUB_WORKFLOW_URL}) make sure there at least exists one cron job running.".freeze
-EXCLUDED_WORKFLOWS = []
+EXCLUDED_WORKFLOWS = ["dependabot-updates"]
 ISSUE_LABELS = ""
 ISSUE_TITLE = "Auto-Generated Testing Report"
 
@@ -108,7 +108,7 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   end
 
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
-  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs
+  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, workflow_file, :event => "schedule").workflow_runs
   runs = runs.sort_by { |run| -run.created_at.to_i }
   latest_run = runs[0]
   if latest_run.nil?
