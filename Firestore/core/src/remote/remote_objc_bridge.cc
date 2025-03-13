@@ -383,6 +383,32 @@ util::StatusOr<ObjectValue> DatastoreSerializer::DecodeAggregateQueryResponse(
       aliasMap);
 }
 
+Message<google_firestore_v1_ExecutePipelineRequest>
+DatastoreSerializer::EncodeExecutePipelineRequest(
+    const firebase::firestore::api::Pipeline& pipeline) const {
+  Message<google_firestore_v1_ExecutePipelineRequest> result;
+  result->database = serializer_.EncodeDatabaseName();
+  result->which_pipeline_type =
+      google_firestore_v1_ExecutePipelineRequest_structured_pipeline_tag;
+  result->pipeline_type.structured_pipeline =
+      serializer_.EncodePipeline(pipeline);
+
+  return result;
+}
+
+util::StatusOr<api::PipelineSnapshot>
+DatastoreSerializer::DecodeExecutePipelineResponse(
+    const grpc::ByteBuffer& response) const {
+  ByteBufferReader reader{response};
+  auto message =
+      Message<google_firestore_v1_ExecutePipelineResponse>::TryParse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  return serializer_.DecodePipelineResponse(reader.context(), message);
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
