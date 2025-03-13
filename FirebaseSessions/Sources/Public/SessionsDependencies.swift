@@ -19,7 +19,7 @@ private final class AtomicBox<T> {
   private var _value: T
   private let lock = NSLock()
 
-  init(_ value: consuming T) {
+  init(_ value: T) {
     _value = value
   }
 
