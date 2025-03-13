@@ -24,7 +24,7 @@ GITHUB_WORKFLOW_URL = "https://github.com/#{REPO_NAME_WITH_OWNER}/actions/runs/#
 TESTS_TIME_INTERVAL_IN_HOURS = 24
 TESTS_TIME_INTERVAL_IN_SECS = TESTS_TIME_INTERVAL_IN_HOURS * 3600
 NO_WORKFLOW_RUNNING_INFO = "All nightly cron job were not run in the last #{TESTS_TIME_INTERVAL_IN_HOURS} hrs. Please review [log](#{GITHUB_WORKFLOW_URL}) make sure there at least exists one cron job running.".freeze
-EXCLUDED_WORKFLOWS = ["dependabot-updates"]
+EXCLUDED_WORKFLOWS = []
 ISSUE_LABELS = ""
 ISSUE_TITLE = "Auto-Generated Testing Report"
 
@@ -101,10 +101,6 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   workflow_file = File.basename(wf.path)
   puts "------------"
   puts "workflow_file: %s" % [workflow_file]
-  puts "mango"
-  puts EXCLUDED_WORKFLOWS
-  puts EXCLUDED_WORKFLOWS.include?(workflow_file)
-  puts "banana"
   if EXCLUDED_WORKFLOWS.include?(workflow_file)
     puts workflow_file + " is excluded in the report."
     next
