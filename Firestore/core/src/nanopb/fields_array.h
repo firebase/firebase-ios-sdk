@@ -228,6 +228,18 @@ inline const pb_field_t* FieldsArray<
 }
 
 template <>
+inline const pb_field_t*
+FieldsArray<google_firestore_v1_ExecutePipelineRequest>() {
+  return google_firestore_v1_ExecutePipelineRequest_fields;
+}
+
+template <>
+inline const pb_field_t*
+FieldsArray<google_firestore_v1_ExecutePipelineResponse>() {
+  return google_firestore_v1_ExecutePipelineResponse_fields;
+}
+
+template <>
 inline const pb_field_t* FieldsArray<google_firestore_v1_ExistenceFilter>() {
   return google_firestore_v1_ExistenceFilter_fields;
 }
