@@ -61,7 +61,7 @@ public class SessionsDependencies: NSObject {
     _dependencies.value()
   }
 
-  public static func addDependency(name: SessionsSubscriberName) {
+  @objc public static func addDependency(name: SessionsSubscriberName) {
     _dependencies.withLock { dependencies in
       dependencies.insert(name)
     }
