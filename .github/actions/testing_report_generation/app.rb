@@ -94,7 +94,6 @@ last_issue = client.list_issues(REPO_NAME_WITH_OWNER, :labels => ISSUE_LABELS, :
 
 puts "Excluded workflow files: " + EXCLUDED_WORKFLOWS.join(",")
 for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
-  puts wf.name
   # skip if it is the issue generation workflow.
   if wf.name == ENV["GITHUB_WORKFLOW"]
     next
@@ -102,6 +101,10 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   workflow_file = File.basename(wf.path)
   puts "------------"
   puts "workflow_file: %s" % [workflow_file]
+  puts "mango"
+  puts EXCLUDED_WORKFLOWS
+  puts EXCLUDED_WORKFLOWS.include?(workflow_file)
+  puts "banana"
   if EXCLUDED_WORKFLOWS.include?(workflow_file)
     puts workflow_file + " is excluded in the report."
     next
