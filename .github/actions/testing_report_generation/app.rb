@@ -107,6 +107,9 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   end
 
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
+  # If the below request 404s, it may be because the repo doesn't own that workflow (e.g.
+  # `dependabot-updates`). In these cases, add the workflow to the `EXCLUDED_WORKFLOWS` env
+  # var that's set in `.github/workflows/generate_issues.yml`.
   runs = client.workflow_runs(REPO_NAME_WITH_OWNER, workflow_file, :event => "schedule").workflow_runs
   runs = runs.sort_by { |run| -run.created_at.to_i }
   latest_run = runs[0]
