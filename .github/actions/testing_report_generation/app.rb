@@ -107,7 +107,7 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   end
 
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
-  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs
+  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, workflow_file, :event => "schedule").workflow_runs
   runs = runs.sort_by { |run| -run.created_at.to_i }
   latest_run = runs[0]
   if latest_run.nil?
