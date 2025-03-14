@@ -61,7 +61,7 @@ Firebase SDK.
       unit_tests_dir + '**/*.swift',
     ]
     unit_tests.resources = [
-      unit_tests_dir + 'vertexai-sdk-test-data/mock-responses/**/*.{txt,json}',
+      unit_tests_dir + 'vertexai-sdk-test-data/mock-responses/vertexai',
       unit_tests_dir + 'Resources/**/*',
     ]
   end
