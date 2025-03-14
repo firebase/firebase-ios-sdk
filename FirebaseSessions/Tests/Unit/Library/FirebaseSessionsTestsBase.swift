@@ -77,7 +77,7 @@ class FirebaseSessionsTestsBase: XCTestCase {
                       postLogEvent: @escaping (Result<Void, FirebaseSessionsError>,
                                                [SessionsSubscriber]) -> Void) {
     // This class is static, so we need to clear global state
-    SessionsDependencies.dependencies.removeAll()
+    SessionsDependencies.removeAll()
 
     for subscriberSDK in subscriberSDKs {
       SessionsDependencies.addDependency(name: subscriberSDK.sessionsSubscriberName)
