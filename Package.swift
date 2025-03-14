@@ -1318,7 +1318,8 @@ let package = Package(
       ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
-        .process("vertexai-sdk-test-data/mock-responses"),
+        .copy("vertexai-sdk-test-data/mock-responses/googleai"),
+        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
         .process("Resources"),
       ],
       cSettings: [

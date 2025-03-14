@@ -36,7 +36,8 @@ final class ChatTests: XCTestCase {
     let bundle = BundleTestUtil.bundle()
     let fileURL = try XCTUnwrap(bundle.url(
       forResource: "streaming-success-basic-reply-parts",
-      withExtension: "txt"
+      withExtension: "txt",
+      subdirectory: "vertexai"
     ))
 
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
