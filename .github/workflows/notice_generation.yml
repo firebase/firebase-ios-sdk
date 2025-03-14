@@ -1,5 +1,8 @@
 name: generate_notices
 
+permissions:
+  pull-requests: write
+
 on:
   pull_request:
     paths:
