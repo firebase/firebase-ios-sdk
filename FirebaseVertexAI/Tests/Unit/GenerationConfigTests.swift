@@ -136,4 +136,52 @@ final class GenerationConfigTests: XCTestCase {
     }
     """)
   }
+
+  // MARK: - responseModalities tests
+
+    func testEncodeGenerationConfig_noResponseModalities() throws {
+        let generationConfig = GenerationConfig()
+
+        let jsonData = try encoder.encode(generationConfig)
+
+        let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+        XCTAssertEqual(json, """
+        {
+
+        }
+        """)
+    }
+
+    func testEncodeGenerationConfig_allResponseModalities() throws {
+        let generationConfig = GenerationConfig(responseModalities: [.text, .image, .audio])
+
+        let jsonData = try encoder.encode(generationConfig)
+
+        let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+        XCTAssertEqual(json, """
+        {
+          "responseModalities" : [
+            "TEXT",
+            "IMAGE",
+            "AUDIO"
+          ]
+        }
+        """)
+    }
+
+    func testEncodeGenerationConfig_someResponseModalities() throws {
+        let generationConfig = GenerationConfig(responseModalities: [.text, .image])
+
+        let jsonData = try encoder.encode(generationConfig)
+
+        let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+        XCTAssertEqual(json, """
+        {
+          "responseModalities" : [
+            "TEXT",
+            "IMAGE"
+          ]
+        }
+        """)
+    }
 }

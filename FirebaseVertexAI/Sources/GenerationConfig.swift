@@ -48,6 +48,9 @@ public struct GenerationConfig: Sendable {
   /// Output schema of the generated candidate text.
   let responseSchema: Schema?
 
+  /// List of output modalities
+  public var responseModalities: [OutputContentModality]?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -140,40 +143,34 @@ public struct GenerationConfig: Sendable {
   ///     [Generate structured
   ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
   ///     for more details.
-  public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
-              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
-              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-              stopSequences: [String]? = nil, responseMIMEType: String? = nil,
-              responseSchema: Schema? = nil) {
-    // Explicit init because otherwise if we re-arrange the above variables it changes the API
-    // surface.
-    self.temperature = temperature
-    self.topP = topP
-    self.topK = topK
-    self.candidateCount = candidateCount
-    self.maxOutputTokens = maxOutputTokens
-    self.presencePenalty = presencePenalty
-    self.frequencyPenalty = frequencyPenalty
-    self.stopSequences = stopSequences
-    self.responseMIMEType = responseMIMEType
-    self.responseSchema = responseSchema
-  }
-}
-
-// MARK: - Codable Conformances
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GenerationConfig: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case temperature
-    case topP
-    case topK
-    case candidateCount
-    case maxOutputTokens
-    case presencePenalty
-    case frequencyPenalty
-    case stopSequences
-    case responseMIMEType = "responseMimeType"
-    case responseSchema
-  }
++  ///   - responseModalities: List of output modalities.
+   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
+               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
+-              responseSchema: Schema? = nil) {
++              responseSchema: Schema? = nil, responseModalities: [OutputContentModality]? = nil) {
+     // Explicit init because otherwise if we re-arrange the above variables it changes the API
+     // surface.
+     self.temperature = temperature
+@@ -242,12 +228,8 @@
+     self.stopSequences = stopSequences
+     self.responseMIMEType = responseMIMEType
+     self.responseSchema = responseSchema
+-  }
+-
+-  /// List of output modalities
+-  public var responseModalities: [OutputContentModality]?
+-
++    self.responseModalities = responseModalities
++  }
+   enum CodingKeys: String, CodingKey {
+     case temperature
+     case topP
+@@ -259,5 +241,5 @@
+     case stopSequences
+     case responseMIMEType = "responseMimeType"
+     case responseSchema
++      case responseModalities
+   }
 }
