@@ -19,5 +19,4 @@
 
 cd "$(dirname "$0")/../FirebaseVertexAI/Tests/Unit" || exit
 rm -rf vertexai-sdk-test-data || exit
-# TODO(andrewheard): --branch davidmotson.google_ai before merging
-git clone --depth 1 --branch davidmotson.google_ai https://github.com/FirebaseExtended/vertexai-sdk-test-data.git
+git clone --depth 1 https://github.com/FirebaseExtended/vertexai-sdk-test-data.git
