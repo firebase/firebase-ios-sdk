@@ -19,29 +19,8 @@ import FirebaseVertexAI
 import Testing
 import VertexAITestApp
 
-@testable import struct FirebaseVertexAI.APIConfig
-
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  static let vertexV1Config =
-    InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1))
-  static let vertexV1BetaConfig =
-    InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1beta))
-  static let developerV1Config = InstanceConfig(
-    appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(
-      service: .developer(endpoint: .generativeLanguage), version: .v1
-    )
-  )
-  static let developerV1BetaConfig = InstanceConfig(
-    appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(
-      service: .developer(endpoint: .generativeLanguage), version: .v1beta
-    )
-  )
-  static let allConfigs =
-    [vertexV1Config, vertexV1BetaConfig, developerV1Config, developerV1BetaConfig]
-
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
   let safetySettings = [
@@ -67,7 +46,7 @@ struct GenerateContentIntegrationTests {
     storage = Storage.storage()
   }
 
-  @Test(arguments: allConfigs)
+  @Test(arguments: InstanceConfig.allConfigs)
   func generateContent(_ config: InstanceConfig) async throws {
     let model = VertexAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
@@ -98,10 +77,10 @@ struct GenerateContentIntegrationTests {
   @Test(
     "Generate an enum and provide a system instruction",
     arguments: [
-      vertexV1Config,
-      vertexV1BetaConfig,
+      InstanceConfig.vertexV1,
+      InstanceConfig.vertexV1Beta,
       /* System instructions are not supported on the v1 Developer API. */
-      developerV1BetaConfig,
+      InstanceConfig.developerV1Beta,
     ]
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
