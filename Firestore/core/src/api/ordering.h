@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_API_ORDERING_H_
 #define FIRESTORE_CORE_SRC_API_ORDERING_H_
 
+#include <utility>
+
 #include "Firestore/core/src/api/expressions.h"
 
 namespace firebase {

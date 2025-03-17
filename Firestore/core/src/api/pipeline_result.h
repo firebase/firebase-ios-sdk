@@ -53,6 +53,10 @@ class PipelineResult {
   std::shared_ptr<model::ObjectValue> internal_value() const;
   absl::optional<absl::string_view> document_id() const;
 
+  const absl::optional<model::DocumentKey>& internal_key() const {
+    return internal_key_;
+  }
+
  private:
   absl::optional<model::DocumentKey> internal_key_;
   // Using a shared pointer to ObjectValue makes PipelineResult copy-assignable

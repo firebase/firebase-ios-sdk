@@ -18,9 +18,9 @@
 #define FIRESTORE_CORE_SRC_API_STAGES_H_
 
 #include <memory>
-#include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
@@ -43,7 +43,7 @@ class Stage {
 
 class CollectionSource : public Stage {
  public:
-  explicit CollectionSource(std::string path) : path_(path) {
+  explicit CollectionSource(std::string path) : path_(std::move(path)) {
   }
   ~CollectionSource() override = default;
 
@@ -117,7 +117,8 @@ class AggregateStage : public Stage {
 
 class Where : public Stage {
  public:
-  explicit Where(std::shared_ptr<Expr> expr) : expr_(std::move(expr)) {};
+  explicit Where(std::shared_ptr<Expr> expr) : expr_(std::move(expr)) {
+  }
   ~Where() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
@@ -168,26 +169,26 @@ class FindNearestStage : public Stage {
 
 class LimitStage : public Stage {
  public:
-  explicit LimitStage(long limit) : limit_(limit) {
+  explicit LimitStage(int64_t limit) : limit_(limit) {
   }
   ~LimitStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  long limit_;
+  int64_t limit_;
 };
 
 class OffsetStage : public Stage {
  public:
-  explicit OffsetStage(long offset) : offset_(offset) {
+  explicit OffsetStage(int64_t offset) : offset_(offset) {
   }
   ~OffsetStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  long offset_;
+  int64_t offset_;
 };
 
 class SelectStage : public Stage {

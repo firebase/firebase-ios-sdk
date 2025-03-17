@@ -33,6 +33,7 @@
 #include "Firestore/core/src/remote/grpc_util.h"
 #include "Firestore/core/src/remote/watch_change.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "grpcpp/support/status.h"
@@ -398,7 +399,8 @@ DatastoreSerializer::EncodeExecutePipelineRequest(
 
 util::StatusOr<api::PipelineSnapshot>
 DatastoreSerializer::DecodeExecutePipelineResponse(
-    const grpc::ByteBuffer& response) const {
+    const grpc::ByteBuffer& response,
+    std::shared_ptr<api::Firestore> db) const {
   ByteBufferReader reader{response};
   auto message =
       Message<google_firestore_v1_ExecutePipelineResponse>::TryParse(&reader);
@@ -406,7 +408,15 @@ DatastoreSerializer::DecodeExecutePipelineResponse(
     return reader.status();
   }
 
-  return serializer_.DecodePipelineResponse(reader.context(), message);
+  LOG_DEBUG("Pipeline Response: %s", message.ToString());
+
+  auto snapshot = serializer_.DecodePipelineResponse(reader.context(), message);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  snapshot.SetFirestore(std::move(db));
+  return snapshot;
 }
 
 }  // namespace remote
