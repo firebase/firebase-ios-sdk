@@ -177,7 +177,7 @@ public class VertexAI {
       auth: ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container),
       projectID: projectID,
       apiKey: apiKey,
-      googleAppID: app.options.googleAppID,
+      firebaseAppID: app.options.googleAppID,
       firebaseApp: app
     )
     self.apiConfig = apiConfig

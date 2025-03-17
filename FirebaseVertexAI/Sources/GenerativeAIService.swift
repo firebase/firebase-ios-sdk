@@ -194,7 +194,7 @@ struct GenerativeAIService {
     }
 
     if firebaseInfo.app.isDataCollectionDefaultEnabled {
-      urlRequest.setValue(firebaseInfo.googleAppID, forHTTPHeaderField: "X-Firebase-AppId")
+      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
       if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
         urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
       }

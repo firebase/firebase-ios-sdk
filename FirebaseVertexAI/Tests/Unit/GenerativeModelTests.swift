@@ -1478,7 +1478,7 @@ final class GenerativeModelTests: XCTestCase {
       auth: auth,
       projectID: "my-project-id",
       apiKey: "API_KEY",
-      googleAppID: "My app ID",
+      firebaseAppID: "My app ID",
       firebaseApp: app
     )
   }
@@ -1531,11 +1531,11 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
 
-      let googleAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
+      let firebaseAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
       let appVersion = request.value(forHTTPHeaderField: "X-Firebase-AppVersion")
       let expectedAppVersion =
         try? XCTUnwrap(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
-      XCTAssertEqual(googleAppID, dataCollection ? "My app ID" : nil)
+      XCTAssertEqual(firebaseAppID, dataCollection ? "My app ID" : nil)
       XCTAssertEqual(appVersion, dataCollection ? expectedAppVersion : nil)
 
       if let authToken {
