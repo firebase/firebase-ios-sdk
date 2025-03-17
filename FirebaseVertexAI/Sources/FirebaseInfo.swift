@@ -26,20 +26,20 @@ struct FirebaseInfo: Sendable {
   let auth: AuthInterop?
   let projectID: String
   let apiKey: String
-  let googleAppID: String
+  let firebaseAppID: String
   let app: FirebaseApp
 
   init(appCheck: AppCheckInterop? = nil,
        auth: AuthInterop? = nil,
        projectID: String,
        apiKey: String,
-       googleAppID: String,
+       firebaseAppID: String,
        firebaseApp: FirebaseApp) {
     self.appCheck = appCheck
     self.auth = auth
     self.projectID = projectID
     self.apiKey = apiKey
-    self.googleAppID = googleAppID
+    self.firebaseAppID = firebaseAppID
     app = firebaseApp
   }
 }

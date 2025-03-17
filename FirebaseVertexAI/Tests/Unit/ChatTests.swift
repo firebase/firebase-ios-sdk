@@ -62,7 +62,7 @@ final class ChatTests: XCTestCase {
       firebaseInfo: FirebaseInfo(
         projectID: "my-project-id",
         apiKey: "API_KEY",
-        googleAppID: "My app ID",
+        firebaseAppID: "My app ID",
         firebaseApp: app
       ),
       apiConfig: APIConfig(service: .vertexAI, version: .v1beta),
