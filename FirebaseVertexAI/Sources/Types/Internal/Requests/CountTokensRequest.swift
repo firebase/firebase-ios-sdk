@@ -16,24 +16,21 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
-  let model: String
-
-  let contents: [ModelContent]
-  let systemInstruction: ModelContent?
-  let tools: [Tool]?
-  let generationConfig: GenerationConfig?
-
-  let apiConfig: APIConfig
-  let options: RequestOptions
+  let generateContentRequest: GenerateContentRequest
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
+  var options: RequestOptions { generateContentRequest.options }
+
+  var apiConfig: APIConfig { generateContentRequest.apiConfig }
+
   var url: URL {
-    URL(string:
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):countTokens")!
+    let version = apiConfig.version.rawValue
+    let endpoint = apiConfig.service.endpoint.rawValue
+    return URL(string: "\(endpoint)/\(version)/\(generateContentRequest.model):countTokens")!
   }
 }
 
@@ -57,11 +54,41 @@ public struct CountTokensResponse {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: Encodable {
-  enum CodingKeys: CodingKey {
+  enum VertexCodingKeys: CodingKey {
     case contents
     case systemInstruction
     case tools
     case generationConfig
+  }
+
+  enum DeveloperCodingKeys: CodingKey {
+    case generateContentRequest
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    switch apiConfig.service {
+    case .vertexAI:
+      try encodeForVertexAI(to: encoder)
+    case .developer:
+      try encodeForDeveloper(to: encoder)
+    }
+  }
+
+  private func encodeForVertexAI(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: VertexCodingKeys.self)
+    try container.encode(generateContentRequest.contents, forKey: .contents)
+    try container.encodeIfPresent(
+      generateContentRequest.systemInstruction, forKey: .systemInstruction
+    )
+    try container.encodeIfPresent(generateContentRequest.tools, forKey: .tools)
+    try container.encodeIfPresent(
+      generateContentRequest.generationConfig, forKey: .generationConfig
+    )
+  }
+
+  private func encodeForDeveloper(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: DeveloperCodingKeys.self)
+    try container.encode(generateContentRequest, forKey: .generateContentRequest)
   }
 }
 
