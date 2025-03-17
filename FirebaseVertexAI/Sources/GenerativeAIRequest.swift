@@ -18,9 +18,9 @@ import Foundation
 protocol GenerativeAIRequest: Sendable, Encodable {
   associatedtype Response: Decodable
 
-  var url: URL { get }
-
   var options: RequestOptions { get }
+
+  func url(apiConfig: APIConfig) -> URL
 }
 
 /// Configuration parameters for sending requests to the backend.

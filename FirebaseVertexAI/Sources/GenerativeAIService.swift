@@ -28,10 +28,19 @@ struct GenerativeAIService {
 
   private let firebaseInfo: FirebaseInfo
 
+  /// Configuration for the backend API used by this model.
+  private let apiConfig: APIConfig
+
+  private let jsonDecoder: JSONDecoder
+  private let jsonEncoder: JSONEncoder
+
   private let urlSession: URLSession
 
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
+  init(firebaseInfo: FirebaseInfo, apiConfig: APIConfig, urlSession: URLSession) {
     self.firebaseInfo = firebaseInfo
+    self.apiConfig = apiConfig
+    jsonDecoder = JSONDecoder(apiConfig: apiConfig)
+    jsonEncoder = JSONEncoder(apiConfig: apiConfig)
     self.urlSession = urlSession
   }
 
@@ -125,8 +134,6 @@ struct GenerativeAIService {
         // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
         var extraLines = ""
 
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         for try await line in stream.lines {
           VertexLog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
@@ -167,7 +174,7 @@ struct GenerativeAIService {
   // MARK: - Private Helpers
 
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
-    var urlRequest = URLRequest(url: request.url)
+    var urlRequest = URLRequest(url: request.url(apiConfig: apiConfig))
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(
@@ -200,8 +207,7 @@ struct GenerativeAIService {
       }
     }
 
-    let encoder = JSONEncoder()
-    urlRequest.httpBody = try encoder.encode(request)
+    urlRequest.httpBody = try jsonEncoder.encode(request)
     urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
@@ -246,7 +252,7 @@ struct GenerativeAIService {
 
   private func parseError(responseData: Data) -> Error {
     do {
-      let rpcError = try JSONDecoder().decode(BackendError.self, from: responseData)
+      let rpcError = try jsonDecoder.decode(BackendError.self, from: responseData)
       logRPCError(rpcError)
       return rpcError
     } catch {
@@ -273,7 +279,7 @@ struct GenerativeAIService {
 
   private func parseResponse<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
     do {
-      return try JSONDecoder().decode(type, from: data)
+      return try jsonDecoder.decode(type, from: data)
     } catch {
       if let json = String(data: data, encoding: .utf8) {
         VertexLog.error(code: .loadRequestParseResponseFailedJSON, "JSON response: \(json)")

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 /// Configuration for the generative AI backend API used by this SDK.
 struct APIConfig: Sendable, Hashable {
   /// The service to use for generative AI.
@@ -88,5 +90,56 @@ extension APIConfig {
 
     /// The beta channel for version 1 of the API.
     case v1beta
+  }
+}
+
+// MARK: - Coding Utilities
+
+extension CodingUserInfoKey {
+  static let apiConfig = {
+    let keyName = "com.google.firebase.VertexAI.APIConfig"
+    guard let userInfoKey = CodingUserInfoKey(rawValue: keyName) else {
+      fatalError("The key name '\(keyName)' is not a valid raw value for CodingUserInfoKey.")
+    }
+    return userInfoKey
+  }()
+}
+
+extension APIConfig {
+  static func from(userInfo: [CodingUserInfoKey: Any]) -> APIConfig {
+    guard let config = userInfo[CodingUserInfoKey.apiConfig] else {
+      fatalError(
+        "No value provided for '\(CodingUserInfoKey.apiConfig)' in the coder's userInfo."
+      )
+    }
+    guard let config = config as? APIConfig else {
+      fatalError("""
+      The value provided for '\(CodingUserInfoKey.apiConfig)' in the coder's userInfo is not of \
+      type '\(APIConfig.self)'; found type '\(config)'.
+      """)
+    }
+    return config
+  }
+}
+
+extension Decoder {
+  var apiConfig: APIConfig { APIConfig.from(userInfo: userInfo) }
+}
+
+extension JSONDecoder {
+  convenience init(apiConfig: APIConfig) {
+    self.init()
+    userInfo[CodingUserInfoKey.apiConfig] = apiConfig
+  }
+}
+
+extension Encoder {
+  var apiConfig: APIConfig { APIConfig.from(userInfo: userInfo) }
+}
+
+extension JSONEncoder {
+  convenience init(apiConfig: APIConfig) {
+    self.init()
+    userInfo[CodingUserInfoKey.apiConfig] = apiConfig
   }
 }

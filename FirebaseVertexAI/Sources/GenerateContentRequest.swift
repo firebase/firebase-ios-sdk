@@ -26,7 +26,6 @@ struct GenerateContentRequest: Sendable {
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
 
-  let apiConfig: APIConfig
   let apiMethod: APIMethod
   let options: RequestOptions
 }
@@ -73,7 +72,7 @@ extension GenerateContentRequest {
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
-  var url: URL {
+  func url(apiConfig: APIConfig) -> URL {
     let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
     switch apiMethod {
     case .generateContent:

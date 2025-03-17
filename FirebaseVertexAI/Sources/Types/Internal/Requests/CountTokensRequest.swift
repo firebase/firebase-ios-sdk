@@ -25,9 +25,7 @@ extension CountTokensRequest: GenerativeAIRequest {
 
   var options: RequestOptions { generateContentRequest.options }
 
-  var apiConfig: APIConfig { generateContentRequest.apiConfig }
-
-  var url: URL {
+  func url(apiConfig: APIConfig) -> URL {
     let version = apiConfig.version.rawValue
     let endpoint = apiConfig.service.endpoint.rawValue
     return URL(string: "\(endpoint)/\(version)/\(generateContentRequest.model):countTokens")!
@@ -66,7 +64,7 @@ extension CountTokensRequest: Encodable {
   }
 
   func encode(to encoder: any Encoder) throws {
-    switch apiConfig.service {
+    switch encoder.apiConfig.service {
     case .vertexAI:
       try encodeForVertexAI(to: encoder)
     case .developer:
