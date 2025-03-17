@@ -30,13 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRExprBridge (Internal)
 
-- (std::shared_ptr<api::Expr>)cpp_expr;
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader;
 
 @end
 
 @interface FIRStageBridge (Internal)
 
-- (std::shared_ptr<api::Stage>)cpp_stage;
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader;
 
 @end
 

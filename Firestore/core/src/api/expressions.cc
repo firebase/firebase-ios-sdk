@@ -35,12 +35,7 @@ google_firestore_v1_Value Field::to_proto() const {
 }
 
 google_firestore_v1_Value Constant::to_proto() const {
-  google_firestore_v1_Value result;
-
-  result.which_value_type = google_firestore_v1_Value_double_value_tag;
-  result.double_value = this->value_;
-
-  return result;
+  return *value_;
 }
 
 google_firestore_v1_Value FunctionExpr::to_proto() const {

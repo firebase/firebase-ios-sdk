@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -56,12 +57,13 @@ class Field : public Selectable {
 
 class Constant : public Expr {
  public:
-  explicit Constant(double value) : value_(value) {
+  explicit Constant(nanopb::SharedMessage<google_firestore_v1_Value> value)
+      : value_(std::move(value)) {
   }
   google_firestore_v1_Value to_proto() const override;
 
  private:
-  double value_;
+  nanopb::SharedMessage<google_firestore_v1_Value> value_;
 };
 
 class FunctionExpr : public Expr {
