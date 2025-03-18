@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public final class AtomicBox<T> {
+final class AtomicBox<T> {
   private var _value: T
   private let lock = NSLock()
 
