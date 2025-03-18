@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseMessagingInterop
+@preconcurrency import FirebaseAppCheckInterop
+@preconcurrency import FirebaseAuthInterop
+@preconcurrency import FirebaseMessagingInterop
 import Foundation
 
 /// `FunctionsContext` is a helper object that holds metadata for a function call.
@@ -25,7 +25,7 @@ struct FunctionsContext {
   let limitedUseAppCheckToken: String?
 }
 
-struct FunctionsContextProvider {
+struct FunctionsContextProvider: Sendable {
   private let auth: AuthInterop?
   private let messaging: MessagingInterop?
   private let appCheck: AppCheckInterop?
