@@ -15,26 +15,6 @@
 public protocol Expr: Sendable {
   func `as`(_ name: String) -> ExprWithAlias
 
-  // MARK: Comparison Operators
-
-  func eq(_ other: Expr) -> BooleanExpr
-  func eq(_ other: Any) -> BooleanExpr
-
-  func neq(_ other: Expr) -> BooleanExpr
-  func neq(_ other: Any) -> BooleanExpr
-
-  func lt(_ other: Expr) -> BooleanExpr
-  func lt(_ other: Any) -> BooleanExpr
-
-  func lte(_ other: Expr) -> BooleanExpr
-  func lte(_ other: Any) -> BooleanExpr
-
-  func gt(_ other: Expr) -> BooleanExpr
-  func gt(_ other: Any) -> BooleanExpr
-
-  func gte(_ other: Expr) -> BooleanExpr
-  func gte(_ other: Any) -> BooleanExpr
-
   // MARK: Arithmetic Operators
 
   func add(_ second: Expr, _ others: Expr...) -> FunctionExpr
@@ -110,8 +90,8 @@ public protocol Expr: Sendable {
   func endsWith(_ suffix: String) -> BooleanExpr
   func endsWith(_ suffix: Expr) -> BooleanExpr
 
-  func toLower() -> FunctionExpr
-  func toUpper() -> FunctionExpr
+  func lowercased() -> FunctionExpr
+  func uppercased() -> FunctionExpr
   func trim() -> FunctionExpr
 
   func strConcat(_ secondString: Expr, _ otherStrings: Expr...) -> FunctionExpr
@@ -206,10 +186,6 @@ public protocol Expr: Sendable {
 
   func bitRightShift(_ y: Int) -> FunctionExpr
   func bitRightShift(_ numberExpr: Expr) -> FunctionExpr
-
-  // MARK: - String operations.
-
-  func documentId() -> FunctionExpr
 
   func ifError(_ catchExpr: Expr) -> FunctionExpr
   func ifError(_ catchValue: Any) -> FunctionExpr
@@ -475,11 +451,11 @@ public extension Expr {
     return BooleanExpr("ends_with", [self, suffix])
   }
 
-  func toLower() -> FunctionExpr {
+  func lowercased() -> FunctionExpr {
     return FunctionExpr("to_lower", [self])
   }
 
-  func toUpper() -> FunctionExpr {
+  func uppercased() -> FunctionExpr {
     return FunctionExpr("to_upper", [self])
   }
 
@@ -802,6 +778,10 @@ public func > (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> Boolea
   try BooleanExpr("gt", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
+public func >= (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+  try BooleanExpr("gte", [lhs, Helper.valueToDefaultExpr(rhs())])
+}
+
 public func < (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
   try BooleanExpr("lt", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
@@ -812,4 +792,8 @@ public func <= (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> Boole
 
 public func == (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
   try BooleanExpr("eq", [lhs, Helper.valueToDefaultExpr(rhs())])
+}
+
+public func != (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+  try BooleanExpr("neq", [lhs, Helper.valueToDefaultExpr(rhs())])
 }

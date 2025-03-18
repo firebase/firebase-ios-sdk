@@ -12,20 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct SampleOption {
-  let percentage: Double?
-  let count: Int64?
+public class AggregateFunction: @unchecked Sendable {
+  let functionName: String
+  let agrs: [Expr]
 
-  private init(percentage: Double?, count: Int64?) {
-    self.percentage = percentage
-    self.count = count
+  public init(_ functionName: String, _ agrs: [Expr]) {
+    self.functionName = functionName
+    self.agrs = agrs
   }
 
-  public init(percentage: Double) {
-    self.init(percentage: percentage, count: nil)
-  }
-
-  public init(count: Int64) {
-    self.init(percentage: nil, count: count)
+  public func `as`(_ name: String) -> AggregateWithAlias {
+    return AggregateWithAlias(aggregate: self, alias: name)
   }
 }

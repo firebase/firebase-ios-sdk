@@ -13,7 +13,7 @@
 // limitations under the License.
 
 public class ArrayContains: BooleanExpr, @unchecked Sendable {
-  public init(_ values: Any...) {
-    super.init("array_concat", values as! [any Expr])
+  public init(fieldName: String, values: Any...) {
+    super.init("array_concat", values.map { Helper.valueToDefaultExpr($0) })
   }
 }

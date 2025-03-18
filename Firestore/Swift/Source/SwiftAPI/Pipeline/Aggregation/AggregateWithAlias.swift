@@ -12,4 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct AggregateWithAlias {}
+public struct AggregateWithAlias {
+  public let aggregate: AggregateFunction
+  public let alias: String
+}

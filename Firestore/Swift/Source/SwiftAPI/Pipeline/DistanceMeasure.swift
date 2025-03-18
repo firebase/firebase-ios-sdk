@@ -20,15 +20,9 @@
 
 import Foundation
 
-public struct FindNearestOptions {
-  let field: Field
-  let vectorValue: [VectorValue]
-  let distanceMeasure: DistanceMeasure
-  let limit: Int?
-  let distanceField: String?
-}
-
 public struct DistanceMeasure: Sendable, Equatable, Hashable {
+  let kind: Kind
+
   enum Kind: String {
     case euclidean
     case cosine
@@ -47,17 +41,7 @@ public struct DistanceMeasure: Sendable, Equatable, Hashable {
     return self.init(kind: .dotProduct)
   }
 
-  /// Returns the raw string representation of the `DistanceMeasure` value.
-  public let rawValue: String
-
   init(kind: Kind) {
-    rawValue = kind.rawValue
-  }
-
-  public init(rawValue: String) {
-    if Kind(rawValue: rawValue) == nil {
-      // impl
-    }
-    self.rawValue = rawValue
+    self.kind = kind
   }
 }

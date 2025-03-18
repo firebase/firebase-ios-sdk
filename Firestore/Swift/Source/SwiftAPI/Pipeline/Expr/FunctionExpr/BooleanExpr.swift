@@ -13,11 +13,7 @@
 // limitations under the License.
 
 public class BooleanExpr: FunctionExpr, @unchecked Sendable {
-  public static func and(_ value: Expr ...) -> BooleanExpr {
-    return BooleanExpr("and", value)
-  }
-
-  override init(_ functionName: String, _ agrs: [any Expr]) {
+  override public init(_ functionName: String, _ agrs: [any Expr]) {
     super.init(functionName, agrs)
   }
 

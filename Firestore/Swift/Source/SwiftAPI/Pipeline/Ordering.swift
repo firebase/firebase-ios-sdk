@@ -25,6 +25,8 @@ public class Ordering: @unchecked Sendable {
 }
 
 public struct Direction: Sendable, Equatable, Hashable {
+  let kind: Kind
+
   enum Kind: String {
     case ascending
     case descending
@@ -38,16 +40,7 @@ public struct Direction: Sendable, Equatable, Hashable {
     return self.init(kind: .descending)
   }
 
-  public let rawValue: String
-
   init(kind: Kind) {
-    rawValue = kind.rawValue
-  }
-
-  public init(rawValue: String) {
-    if Kind(rawValue: rawValue) == nil {
-      // impl
-    }
-    self.rawValue = rawValue
+    self.kind = kind
   }
 }

@@ -13,8 +13,55 @@
 // limitations under the License.
 
 public struct Constant: Expr, @unchecked Sendable {
-  let value: Any
-  public init(_ value: Any) {
+  let value: Any?
+
+  // Initializer for numbers
+  public init(_ value: Double) {
+    self.value = value
+  }
+
+  // Initializer for strings
+  public init(_ value: String) {
+    self.value = value
+  }
+
+  // Initializer for boolean values
+  public init(_ value: Bool) {
+    self.value = value
+  }
+
+  // Initializer for GeoPoint values
+  public init(_ value: GeoPoint) {
+    self.value = value
+  }
+
+  // Initializer for Timestamp values
+  public init(_ value: Timestamp) {
+    self.value = value
+  }
+
+  // Initializer for Date values
+  public init(_ value: Date) {
+    self.value = value
+  }
+
+  // Initializer for DocumentReference
+  public init(_ value: DocumentReference) {
+    self.value = value
+  }
+
+  // Initializer for vector values
+  public init(_ value: VectorValue) {
+    self.value = value
+  }
+
+  // Initializer for vector values
+  public init(_ vectorValue: [Double]) {
+    value = vectorValue
+  }
+
+  // Initializer for optional values (including nil)
+  public init(_ value: Any?) {
     self.value = value
   }
 }

@@ -48,7 +48,21 @@ public struct Pipeline {
   ///
   /// - Parameter fields: The fields to add to the documents, specified as `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func addFields(_ fields: Selectable...) -> Pipeline {
+  public func addFields(_ field: Selectable, _ additionalFields: Selectable...) -> Pipeline {
+    return self
+  }
+
+  /// Remove fields from outputs of previous stages.
+  /// - Parameter fields: The fields to remove.
+  /// - Returns: A new Pipeline object with this stage appended to the stage list.
+  public func removeFields(_ field: Field, _ additionalFields: Field...) -> Pipeline {
+    return self
+  }
+
+  /// Remove fields from outputs of previous stages.
+  /// - Parameter fields: The fields to remove.
+  /// - Returns: A new Pipeline object with this stage appended to the stage list.
+  public func removeFields(_ field: String, _ additionalFields: String...) -> Pipeline {
     return self
   }
 
@@ -66,7 +80,7 @@ public struct Pipeline {
   /// - Parameter selections: The fields to include in the output documents, specified as
   /// `Selectable` expressions.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func select(_ selections: Selectable...) -> Pipeline {
+  public func select(_ selection: Selectable, _ additionalSelections: Selectable...) -> Pipeline {
     // Implementation
     return self
   }
@@ -84,7 +98,7 @@ public struct Pipeline {
   ///
   /// - Parameter selections: `String` values representing field names.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func select(_ selections: String...) -> Pipeline {
+  public func select(_ selection: String, _ additionalSelections: String...) -> Pipeline {
     // Implementation
     return self
   }
@@ -105,11 +119,12 @@ public struct Pipeline {
   ///
   /// - Parameter condition: The `BooleanExpr` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func `where`(_ condition: () -> BooleanExpr) -> Pipeline {
+  public func `where`(_ condition: BooleanExpr) -> Pipeline {
     return self
   }
 
   /// Skips the first `offset` number of documents from the results of previous stages.
+  /// The negative input number will count back from the result set.
   ///
   /// This stage is useful for implementing pagination in your pipelines, allowing you to
   /// retrieve results in chunks. It is typically used in conjunction with `limit` to control the
@@ -122,6 +137,7 @@ public struct Pipeline {
   }
 
   /// Limits the maximum number of documents returned by previous stages to `limit`.
+  /// The negative input number will count back from the result set.
   ///
   /// This stage is particularly useful when you want to retrieve a controlled
   /// subset of data from a potentially large result set. It's often used for:
@@ -150,7 +166,7 @@ public struct Pipeline {
   ///
   /// - Parameter selections: The fields to include in the output documents, specified as
   ///  `String` values representing field names.
-  public func distinct(_ groups: String...) -> Pipeline {
+  public func distinct(_ group: String, _ additionalGroups: String...) -> Pipeline {
     return self
   }
 
@@ -168,7 +184,7 @@ public struct Pipeline {
   ///
   /// - Parameter selections: The fields to include in the output documents, specified as
   /// `Selectable` expressions.
-  public func distinct(_ groups: Selectable...) -> Pipeline {
+  public func distinct(_ group: Selectable, _ additionalGroups: Selectable...) -> Pipeline {
     return self
   }
 
@@ -181,7 +197,8 @@ public struct Pipeline {
   ///
   /// - Parameter accumulators: The `AccumulatorWithAlias` expressions, each wrapping an
   ///   `Accumulator` and assigning a name to the accumulated results.
-  public func aggregate(_ aggregates: AggregateWithAlias...) -> Pipeline {
+  public func aggregate(_ accumulator: AggregateWithAlias,
+                        _ additionalAccumulators: AggregateWithAlias...) -> Pipeline {
     return self
   }
 
@@ -204,13 +221,42 @@ public struct Pipeline {
   /// calculations.
   ///   - groups: An optional list of grouping fields or expressions.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func aggregate(option: AggregateOption) -> Pipeline {
+  public func aggregate(_ accumulator: [AggregateWithAlias],
+                        groups: [Selectable]? = nil) -> Pipeline {
+    return self
+  }
+
+  /// Performs optionally grouped aggregation operations on the documents from previous stages.
+  ///
+  /// This stage calculates aggregate values over a set of documents, optionally grouped by
+  /// one or more fields or computed expressions.
+  ///
+  /// - **Grouping Fields or Expressions:** Defines how documents are grouped. For each
+  ///   unique combination of values in the specified fields or expressions, a separate group
+  ///   is created. If no grouping fields are provided, all documents are placed into a single
+  ///   group.
+  /// - **Accumulators:** Defines the accumulation operations to perform within each group.
+  ///   These are provided as `AccumulatorWithAlias` expressions, typically created by
+  ///   calling `alias(_:)` on `Accumulator` instances. Each aggregation computes a
+  ///   value (e.g., sum, average, count) based on the documents in its group.
+  ///
+  /// - Parameters:
+  ///   - accumulators: A list of `AccumulatorWithAlias` expressions defining the aggregation
+  /// calculations.
+  ///   - groups: An optional list of grouping field names.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func aggregate(_ accumulator: [AggregateWithAlias],
+                        groups: [String]? = nil) -> Pipeline {
     return self
   }
 
   /// Performs a vector similarity search, ordering the result set by most similar to least
   /// similar, and returning the first N documents in the result set.
-  public func findNearest(options: FindNearestOptions) -> Pipeline {
+  public func findNearest(field: Field,
+                          vectorValue: [Double],
+                          distanceMeasure: DistanceMeasure,
+                          limit: Int? = nil,
+                          distanceField: String? = nil) -> Pipeline {
     return self
   }
 
@@ -224,7 +270,7 @@ public struct Pipeline {
   ///
   /// - Parameter orderings: One or more `Ordering` instances specifying the sorting criteria.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func sort(_ orderings: Ordering...) -> Pipeline {
+  public func sort(_ ordering: Ordering, _ additionalOrdering: Ordering...) -> Pipeline {
     // Implementation
     return self
   }
@@ -236,7 +282,7 @@ public struct Pipeline {
   ///
   /// - Parameter field: The `Selectable` field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func replace(_ field: Selectable) -> Pipeline {
+  public func replace(with field: Selectable) -> Pipeline {
     // Implementation
     return self
   }
@@ -248,7 +294,7 @@ public struct Pipeline {
   ///
   /// - Parameter fieldName: The field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func replace(_ fieldName: String) -> Pipeline {
+  public func replace(with fieldName: String) -> Pipeline {
     // Implementation
     return self
   }
@@ -260,7 +306,7 @@ public struct Pipeline {
   ///
   /// - Parameter documents: The number of documents to sample.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func sample(documents: Int64) -> Pipeline {
+  public func sample(_ count: Int64) -> Pipeline {
     // Implementation
     return self
   }
@@ -272,7 +318,7 @@ public struct Pipeline {
   ///
   /// - Parameter options: The `SampleOptions` specifies how sampling is performed.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func sample(options: SampleOptions) -> Pipeline {
+  public func sample(with option: SampleOption) -> Pipeline {
     // Implementation
     return self
   }
@@ -305,7 +351,7 @@ public struct Pipeline {
   /// - Parameter field: The name of the field containing the array.
   /// - Parameter indexField: Optional.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func unnest(field: Selectable, indexField: String? = nil) -> Pipeline {
+  public func unnest(_ field: Selectable, indexField: String? = nil) -> Pipeline {
     // Implementation
     return self
   }
