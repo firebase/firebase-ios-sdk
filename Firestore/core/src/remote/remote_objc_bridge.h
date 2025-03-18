@@ -32,6 +32,7 @@
 #include "Firestore/core/src/util/status_fwd.h"
 #include "grpcpp/support/byte_buffer.h"
 
+#include "Firestore/core/src/api/pipeline.h"
 #include "absl/container/flat_hash_map.h"
 
 namespace firebase {
@@ -149,6 +150,13 @@ class DatastoreSerializer {
   const Serializer& serializer() const {
     return serializer_;
   }
+
+  nanopb::Message<google_firestore_v1_ExecutePipelineRequest>
+  EncodeExecutePipelineRequest(
+      const firebase::firestore::api::Pipeline& pipeline) const;
+
+  util::StatusOr<api::PipelineSnapshot> DecodeExecutePipelineResponse(
+      const grpc::ByteBuffer& response) const;
 
  private:
   Serializer serializer_;
