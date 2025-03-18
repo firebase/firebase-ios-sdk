@@ -56,7 +56,7 @@ enum FunctionsConstants {
   private static var instances: [String: [Functions]] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
-  private static let instancesLock = OSAllocatedUnfairLock()
+  private static let instancesLock = FirebaseCoreInternal.FIRAllocatedUnfairLock<Void>()
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?

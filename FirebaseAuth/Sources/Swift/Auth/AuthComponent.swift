@@ -17,6 +17,7 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
 import FirebaseCoreExtension
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -33,7 +34,7 @@ class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
   private var instances: [String: Auth] = [:]
 
   /// Lock to manage access to the instances array to avoid race conditions.
-  private let instancesLock = OSAllocatedUnfairLock()
+  private let instancesLock: FirebaseCoreInternal.FIRAllocatedUnfairLock<Void> = .init()
 
   // MARK: - Initializers
 

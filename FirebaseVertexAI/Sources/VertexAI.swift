@@ -125,7 +125,7 @@ public class VertexAI {
   let apiConfig: APIConfig
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
-  private static let instancesLock = OSAllocatedUnfairLock()
+  private static let instancesLock = FirebaseCoreInternal.FIRAllocatedUnfairLock<Void>()
 
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
