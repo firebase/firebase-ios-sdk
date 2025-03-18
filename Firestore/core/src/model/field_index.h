@@ -243,7 +243,9 @@ class FieldIndex {
   static util::ComparisonResult SemanticCompare(const FieldIndex& left,
                                                 const FieldIndex& right);
 
-  FieldIndex() : index_id_(UnknownId()) {
+  FieldIndex()
+      : index_id_(UnknownId()),
+        unique_id_(ref_count_.fetch_add(1, std::memory_order_acq_rel)) {
   }
 
   FieldIndex(int32_t index_id,
@@ -253,7 +255,50 @@ class FieldIndex {
       : index_id_(index_id),
         collection_group_(std::move(collection_group)),
         segments_(std::move(segments)),
-        state_(std::move(state)) {
+        state_(std::move(state)),
+        unique_id_(ref_count_.fetch_add(1, std::memory_order_acq_rel)) {
+  }
+
+  // Copy constructor
+  FieldIndex(const FieldIndex& other)
+      : index_id_(other.index_id_),
+        collection_group_(other.collection_group_),
+        segments_(other.segments_),
+        state_(other.state_),
+        unique_id_(ref_count_.fetch_add(1, std::memory_order_acq_rel)) {
+  }
+
+  // Copy assignment operator
+  FieldIndex& operator=(const FieldIndex& other) {
+    if (this != &other) {
+      index_id_ = other.index_id_;
+      collection_group_ = other.collection_group_;
+      segments_ = other.segments_;
+      state_ = other.state_;
+      unique_id_ = ref_count_.fetch_add(1, std::memory_order_acq_rel);
+    }
+    return *this;
+  }
+
+  // Move constructor
+  FieldIndex(FieldIndex&& other) noexcept
+      : index_id_(other.index_id_),
+        collection_group_(std::move(other.collection_group_)),
+        segments_(std::move(other.segments_)),
+        state_(std::move(other.state_)),
+        unique_id_(ref_count_.fetch_add(1, std::memory_order_acq_rel)) {
+  }
+
+  // Move assignment operator
+  FieldIndex& operator=(FieldIndex&& other) noexcept {
+    if (this != &other) {
+      index_id_ = other.index_id_;
+      collection_group_ = std::move(other.collection_group_);
+      segments_ = std::move(other.segments_);
+      state_ = std::move(other.state_);
+      unique_id_ = ref_count_.fetch_add(1, std::memory_order_acq_rel);
+    }
+    return *this;
   }
 
   /**
@@ -286,6 +331,14 @@ class FieldIndex {
   absl::optional<Segment> GetArraySegment() const;
 
   /**
+   * Returns the unique identifier for this object, ensuring a strict ordering
+   * in the priority queue's comparison function.
+   */
+  int unique_id() const {
+    return unique_id_;
+  }
+
+  /**
    * A type that can be used as the "Compare" template parameter of ordered
    * collections to have the elements ordered using
    * `FieldIndex::SemanticCompare()`.
@@ -308,6 +361,10 @@ class FieldIndex {
   std::string collection_group_;
   std::vector<Segment> segments_;
   IndexState state_;
+  int unique_id_;
+
+  // TODO(C++17): Replace with inline static std::atomic<int> ref_count_ = 0;
+  static std::atomic<int> ref_count_;
 };
 
 inline bool operator==(const FieldIndex& lhs, const FieldIndex& rhs) {
