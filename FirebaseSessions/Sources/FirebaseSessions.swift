@@ -149,13 +149,14 @@ private enum GoogleDataTransportConfig {
 
     super.init()
 
-    for subscriberName in SessionsDependencies.dependencies {
+    let dependencies = SessionsDependencies.dependencies
+    for subscriberName in dependencies {
       subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
     Logger
       .logDebug(
-        "Version \(FirebaseVersion()). Expecting subscriptions from: \(SessionsDependencies.dependencies)"
+        "Version \(FirebaseVersion()). Expecting subscriptions from: \(dependencies)"
       )
 
     self.initiator.beginListening {

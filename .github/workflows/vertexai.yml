@@ -118,6 +118,9 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
         FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
+    - name: Install Secret GoogleService-Info-Spark.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info-Spark.plist.gpg \
+        FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist "$secrets_passphrase"
     - name: Install Secret Credentials.swift
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-Credentials.swift.gpg \
         FirebaseVertexAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
@@ -158,35 +161,3 @@ jobs:
       run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseVertexAI.podspec
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseVertexAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}
-
-  sample:
-    strategy:
-      matrix:
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.4
-          - os: macos-15
-            xcode: Xcode_16.2
-    runs-on: ${{ matrix.os }}
-    needs: spm-package-resolved
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
-      with:
-        path: .build
-        key: ${{needs.spm-package-resolved.outputs.cache_key}}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Placeholder GoogleService-Info.plist for build testing
-      run: cp FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist FirebaseVertexAI/Sample/
-    - uses: nick-fields/retry@v3
-      with:
-        timeout_minutes: 120
-        max_attempts: 3
-        retry_on: error
-        retry_wait_seconds: 120
-        command: scripts/build.sh VertexSample iOS

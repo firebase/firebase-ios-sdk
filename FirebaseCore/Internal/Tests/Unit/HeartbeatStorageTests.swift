@@ -16,11 +16,12 @@
 import XCTest
 
 extension HeartbeatsBundle {
-  static let testHeartbeatBundle: Self = {
+  static func testHeartbeatBundle() -> HeartbeatsBundle {
     var heartbeatBundle = HeartbeatsBundle(capacity: 1)
-    heartbeatBundle.append(Heartbeat(agent: "dummy_agent", date: Date()))
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    heartbeatBundle.append(Heartbeat(agent: "dummy_agent", date: date))
     return heartbeatBundle
-  }()
+  }
 }
 
 class HeartbeatStorageTests: XCTestCase {
@@ -108,7 +109,7 @@ class HeartbeatStorageTests: XCTestCase {
       // Assert that heartbeat storage is empty.
       XCTAssertNil(heartbeatsBundle)
       // Write new value.
-      return HeartbeatsBundle.testHeartbeatBundle
+      return HeartbeatsBundle.testHeartbeatBundle()
     }
 
     heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
@@ -116,7 +117,7 @@ class HeartbeatStorageTests: XCTestCase {
       // Assert old value is read.
       XCTAssertEqual(
         heartbeatsBundle?.makeHeartbeatsPayload(),
-        HeartbeatsBundle.testHeartbeatBundle.makeHeartbeatsPayload()
+        HeartbeatsBundle.testHeartbeatBundle().makeHeartbeatsPayload()
       )
       // Write some new value.
       return heartbeatsBundle
@@ -158,7 +159,7 @@ class HeartbeatStorageTests: XCTestCase {
 
     heartbeatStorage.readAndWriteAsync { heartbeatsBundle in
       expectation.fulfill()
-      return HeartbeatsBundle.testHeartbeatBundle
+      return HeartbeatsBundle.testHeartbeatBundle()
     }
 
     // Then
@@ -166,10 +167,10 @@ class HeartbeatStorageTests: XCTestCase {
       expectation.fulfill()
       XCTAssertNotEqual(
         heartbeatsBundle?.makeHeartbeatsPayload(),
-        HeartbeatsBundle.testHeartbeatBundle.makeHeartbeatsPayload(),
+        HeartbeatsBundle.testHeartbeatBundle().makeHeartbeatsPayload(),
         "They should not be equal because the previous save failed."
       )
-      return HeartbeatsBundle.testHeartbeatBundle
+      return HeartbeatsBundle.testHeartbeatBundle()
     }
 
     wait(for: [expectation], timeout: 0.5)
@@ -220,7 +221,7 @@ class HeartbeatStorageTests: XCTestCase {
       // Assert that heartbeat storage is empty.
       XCTAssertNil(heartbeatsBundle)
       // Write new value.
-      return HeartbeatsBundle.testHeartbeatBundle
+      return HeartbeatsBundle.testHeartbeatBundle()
     } completion: { result in
       switch result {
       case .success: break
@@ -236,7 +237,7 @@ class HeartbeatStorageTests: XCTestCase {
         // Assert old value is read.
         XCTAssertEqual(
           heartbeatsBundle?.makeHeartbeatsPayload(),
-          HeartbeatsBundle.testHeartbeatBundle.makeHeartbeatsPayload()
+          HeartbeatsBundle.testHeartbeatBundle().makeHeartbeatsPayload()
         )
         // Write some new value.
         expectation2.fulfill()

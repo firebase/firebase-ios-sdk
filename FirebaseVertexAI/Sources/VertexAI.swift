@@ -93,9 +93,8 @@ public class VertexAI {
   ///
   /// - Parameters:
   ///   - modelName: The name of the Imagen 3 model to use, for example `"imagen-3.0-generate-002"`;
-  ///     see [model
-  ///     versions](https://cloud.google.com/vertex-ai/generative-ai/docs/image/model-versioning)
-  ///     for a list of supported Imagen 3 models.
+  ///     see [model versions](https://firebase.google.com/docs/vertex-ai/models) for a list of
+  ///     supported Imagen 3 models.
   ///   - generationConfig: Configuration options for generating images with Imagen.
   ///   - safetySettings: Settings describing what types of potentially harmful content your model
   ///     should allow.
@@ -175,7 +174,7 @@ public class VertexAI {
       auth: ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container),
       projectID: projectID,
       apiKey: apiKey,
-      googleAppID: app.options.googleAppID,
+      firebaseAppID: app.options.googleAppID,
       firebaseApp: app
     )
     self.apiConfig = apiConfig

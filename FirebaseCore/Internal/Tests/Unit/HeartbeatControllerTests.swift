@@ -16,9 +16,6 @@
 import XCTest
 
 class HeartbeatControllerTests: XCTestCase {
-  // 2021-11-01 @ 00:00:00 (EST)
-  let date = Date(timeIntervalSince1970: 1_635_739_200)
-
   func testFlush_WhenEmpty_ReturnsEmptyPayload() throws {
     // Given
     let controller = HeartbeatController(storage: HeartbeatStorageFake())
@@ -28,9 +25,10 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLogAndFlush() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { self.date }
+      dateProvider: { date }
     )
 
     assertHeartbeatControllerFlushesEmptyPayload(controller)
@@ -58,11 +56,12 @@ class HeartbeatControllerTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(controller)
   }
 
-  func testLogAndFlushAsync() throws {
+  @MainActor func testLogAndFlushAsync() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { self.date }
+      dateProvider: { date }
     )
     let expectation = expectation(description: #function)
 
@@ -99,6 +98,7 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLogAtEndOfTimePeriodAndAcceptAtStartOfNextOne() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let testDate = AdjustableDate(date: date)
 
     let controller = HeartbeatController(
@@ -148,9 +148,10 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testDoNotLogMoreThanOnceInACalendarDay() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { self.date }
+      dateProvider: { date }
     )
 
     // When
@@ -178,9 +179,10 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testDoNotLogMoreThanOnceInACalendarDay_AfterFlushing() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let controller = HeartbeatController(
       storage: HeartbeatStorageFake(),
-      dateProvider: { self.date }
+      dateProvider: { date }
     )
 
     // When
@@ -308,6 +310,7 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testLoggingDependsOnDateNotUserAgent() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let testDate = AdjustableDate(date: date)
     let heartbeatController = HeartbeatController(
       storage: HeartbeatStorageFake(),
@@ -355,6 +358,7 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testFlushHeartbeatFromToday_WhenTodayHasAHeartbeat_ReturnsPayloadWithOnlyTodaysHeartbeat() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let yesterdaysDate = date.addingTimeInterval(-1 * 60 * 60 * 24)
     let todaysDate = date
     let tomorrowsDate = date.addingTimeInterval(60 * 60 * 24)
@@ -416,7 +420,8 @@ class HeartbeatControllerTests: XCTestCase {
 
   func testFlushHeartbeatFromToday_WhenTodayDoesNotHaveAHeartbeat_ReturnsEmptyPayload() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
     // When
     heartbeatController.flushHeartbeatFromToday()
     // Then

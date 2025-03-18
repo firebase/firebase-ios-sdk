@@ -1,7 +1,13 @@
 # Unreleased
+- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+
+# 11.10.0
 - [feature] The Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
 - [feature] The Vertex AI Sample App now includes an image generation example.
-- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+- [changed] The Vertex AI Sample App is now part of the
+  [quickstart-ios repo](https://github.com/firebase/quickstart-ios/tree/main/vertexai).
+- [changed] The `role` in system instructions is now ignored; no code changes
+  are required. (#14558)
 
 # 11.9.0
 - [feature] **Public Preview**: Added support for generating images using the
@@ -142,7 +148,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  [control generated output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios)
   for more details. (#13576)
 
 # 10.29.0

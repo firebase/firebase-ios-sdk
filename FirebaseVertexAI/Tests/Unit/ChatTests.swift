@@ -36,7 +36,8 @@ final class ChatTests: XCTestCase {
     let bundle = BundleTestUtil.bundle()
     let fileURL = try XCTUnwrap(bundle.url(
       forResource: "streaming-success-basic-reply-parts",
-      withExtension: "txt"
+      withExtension: "txt",
+      subdirectory: "vertexai"
     ))
 
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
@@ -62,7 +63,7 @@ final class ChatTests: XCTestCase {
       firebaseInfo: FirebaseInfo(
         projectID: "my-project-id",
         apiKey: "API_KEY",
-        googleAppID: "My app ID",
+        firebaseAppID: "My app ID",
         firebaseApp: app
       ),
       apiConfig: APIConfig(service: .vertexAI, version: .v1beta),

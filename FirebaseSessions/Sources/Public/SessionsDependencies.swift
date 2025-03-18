@@ -15,18 +15,62 @@
 
 import Foundation
 
-// Sessions Dependencies determines when a dependent SDK is
-// installed in the app. The Sessions SDK uses this to figure
-// out which dependencies to wait for to getting the data
-// collection state.
-//
-// This is important because the Sessions SDK starts up before
-// dependent SDKs
+private final class AtomicBox<T> {
+  private var _value: T
+  private let lock = NSLock()
+
+  init(_ value: T) {
+    _value = value
+  }
+
+  func value() -> T {
+    lock.withLock {
+      _value
+    }
+  }
+
+  @discardableResult func withLock(_ body: (_ value: inout T) -> Void) -> T {
+    lock.withLock {
+      body(&_value)
+      return _value
+    }
+  }
+}
+
+/// Sessions Dependencies determines when a dependent SDK is
+/// installed in the app. The Sessions SDK uses this to figure
+/// out which dependencies to wait for to getting the data
+/// collection state.
+///
+/// This is important because the Sessions SDK starts up before
+/// dependent SDKs
 @objc(FIRSessionsDependencies)
 public class SessionsDependencies: NSObject {
-  static var dependencies: Set<SessionsSubscriberName> = .init()
+  #if compiler(>=6)
+    private nonisolated(unsafe) static let _dependencies: AtomicBox<Set<SessionsSubscriberName>> =
+      AtomicBox(
+        Set()
+      )
+  #else
+    private static let _dependencies: AtomicBox<Set<SessionsSubscriberName>> = AtomicBox(
+      Set()
+    )
+  #endif
+
+  static var dependencies: Set<SessionsSubscriberName> {
+    _dependencies.value()
+  }
 
   @objc public static func addDependency(name: SessionsSubscriberName) {
-    SessionsDependencies.dependencies.insert(name)
+    _dependencies.withLock { dependencies in
+      dependencies.insert(name)
+    }
+  }
+
+  /// For testing only.
+  static func removeAll() {
+    _dependencies.withLock { dependencies in
+      dependencies.removeAll()
+    }
   }
 }

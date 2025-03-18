@@ -81,7 +81,13 @@ public final class GenerativeModel: Sendable {
     self.safetySettings = safetySettings
     self.tools = tools
     self.toolConfig = toolConfig
-    self.systemInstruction = systemInstruction
+    self.systemInstruction = systemInstruction.map {
+      // The `role` defaults to "user" but is ignored in system instructions. However, it is
+      // erroneously counted towards the prompt and total token count in `countTokens` when using
+      // the Developer API backend; set to `nil` to avoid token count discrepancies between
+      // `countTokens` and `generateContent`.
+      ModelContent(role: nil, parts: $0.parts)
+    }
     self.requestOptions = requestOptions
 
     if VertexLog.additionalLoggingEnabled() {
@@ -254,15 +260,31 @@ public final class GenerativeModel: Sendable {
   /// - Returns: The results of running the model's tokenizer on the input; contains
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
-    let countTokensRequest = CountTokensRequest(
+    let requestContent = switch apiConfig.service {
+    case .vertexAI:
+      content
+    case .developer:
+      // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
+      // erroneously counted towards the prompt and total token count when using the Developer API
+      // backend; set to `nil` to avoid token count discrepancies between `countTokens` and
+      // `generateContent` and the two backend APIs.
+      content.map { ModelContent(role: nil, parts: $0.parts) }
+    }
+
+    let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,
-      contents: content,
-      systemInstruction: systemInstruction,
-      tools: tools,
+      contents: requestContent,
       generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
       apiConfig: apiConfig,
+      apiMethod: .countTokens,
       options: requestOptions
     )
+    let countTokensRequest = CountTokensRequest(generateContentRequest: generateContentRequest)
+
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 

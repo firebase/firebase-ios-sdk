@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
 
+# 11.10.0
+- [added] Streaming callable functions are now supported.
+
 # 11.9.0
 - [fixed] Fixed App Check token reporting to enable differentiating outdated
   (`MISSING`) and inauthentic (`INVALID`) clients; see [Monitor App Check

@@ -74,7 +74,7 @@ jobs:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specsreleasing
@@ -111,7 +111,7 @@ jobs:
     needs: [buildup_SpecsReleasing_repo_FirebaseCore, specs_checking]
     # Don't run on private repo unless it is a PR.
     if: github.repository == 'Firebase/firebase-ios-sdk' || github.event_name == 'workflow_dispatch'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
