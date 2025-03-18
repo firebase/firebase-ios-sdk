@@ -20,9 +20,13 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
-/// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class VertexAI {
+@available(*, deprecated, renamed: "GenAI")
+public typealias VertexAI = GenAI
+
+/// The Firebase GenAI SDK provides access to Gemini models directly from your app.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public class GenAI {
   // MARK: - Public APIs
 
   /// Creates an instance of `VertexAI`.
@@ -36,7 +40,7 @@ public class VertexAI {
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
-                              location: String = "us-central1") -> VertexAI {
+                              location: String = "us-central1") -> GenAI {
     let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
     assert(vertexInstance.apiConfig.service == .vertexAI)
     assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
@@ -126,7 +130,7 @@ public class VertexAI {
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
-    private nonisolated(unsafe) static var instances: [InstanceKey: VertexAI] = [:]
+    private nonisolated(unsafe) static var instances: [InstanceKey: GenAI] = [:]
 
     /// Lock to manage access to the `instances` array to avoid race conditions.
     private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
@@ -143,7 +147,7 @@ public class VertexAI {
 
   static let defaultVertexAIAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
 
-  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> VertexAI {
+  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> GenAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -157,7 +161,7 @@ public class VertexAI {
     if let instance = instances[instanceKey] {
       return instance
     }
-    let newInstance = VertexAI(app: app, location: location, apiConfig: apiConfig)
+    let newInstance = GenAI(app: app, location: location, apiConfig: apiConfig)
     instances[instanceKey] = newInstance
     return newInstance
   }
