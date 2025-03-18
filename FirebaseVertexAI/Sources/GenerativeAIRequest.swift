@@ -20,7 +20,7 @@ protocol GenerativeAIRequest: Sendable, Encodable {
 
   var options: RequestOptions { get }
 
-  func url(apiConfig: APIConfig) -> URL
+  func requestURL(apiConfig: APIConfig) -> URL
 }
 
 /// Configuration parameters for sending requests to the backend.

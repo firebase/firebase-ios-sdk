@@ -72,7 +72,7 @@ extension GenerateContentRequest {
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
-  func url(apiConfig: APIConfig) -> URL {
+  func requestURL(apiConfig: APIConfig) -> URL {
     let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
     switch apiMethod {
     case .generateContent:

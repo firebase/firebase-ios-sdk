@@ -36,7 +36,7 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
-  func url(apiConfig: APIConfig) -> URL {
+  func requestURL(apiConfig: APIConfig) -> URL {
     return URL(string:
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict")!
   }

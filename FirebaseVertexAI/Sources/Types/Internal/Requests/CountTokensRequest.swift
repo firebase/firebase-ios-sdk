@@ -25,7 +25,7 @@ extension CountTokensRequest: GenerativeAIRequest {
 
   var options: RequestOptions { generateContentRequest.options }
 
-  func url(apiConfig: APIConfig) -> URL {
+  func requestURL(apiConfig: APIConfig) -> URL {
     let version = apiConfig.version.rawValue
     let endpoint = apiConfig.service.endpoint.rawValue
     return URL(string: "\(endpoint)/\(version)/\(generateContentRequest.model):countTokens")!
