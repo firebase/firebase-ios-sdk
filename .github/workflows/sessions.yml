@@ -25,13 +25,10 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.3
-            tests:
           # Flaky tests on CI
           - os: macos-15
             xcode: Xcode_16.2
-            tests: --skip-tests
+            tests: ""
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -78,12 +75,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS

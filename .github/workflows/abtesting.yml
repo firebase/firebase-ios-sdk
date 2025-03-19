@@ -23,12 +23,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: ios
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: ios
           - os: macos-15
             xcode: Xcode_16.2
             target: ios
@@ -87,12 +81,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS

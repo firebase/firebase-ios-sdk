@@ -28,7 +28,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.cocoapods_version = '>= 1.12.0'
 
-  s.swift_version = '5.9'
+  s.swift_version = '6.0'
 
   s.default_subspec = 'Core'
 

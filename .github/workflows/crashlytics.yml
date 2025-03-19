@@ -30,9 +30,6 @@ jobs:
           ''
         ]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
-            tests: --skip-tests
           - os: macos-15
             xcode: Xcode_16.2
             tests: ""
@@ -83,12 +80,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS

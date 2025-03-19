@@ -23,8 +23,6 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
     runs-on: ${{ matrix.build-env.os }}
@@ -98,12 +96,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS

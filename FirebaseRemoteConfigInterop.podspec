@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version = '5.9'
+  s.swift_version = '6.0'
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 

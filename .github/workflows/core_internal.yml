@@ -19,12 +19,6 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
-            swift_version: 5.9
-          - os: macos-15
-            xcode: Xcode_16.2
-            swift_version: 5.9
           - os: macos-15
             xcode: Xcode_16.2
             swift_version: 6.0
@@ -37,7 +31,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Set Swift swift_version
-      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseCoreInternal.podspec
+      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'6.0'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseCoreInternal.podspec
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCoreInternal.podspec --platforms=${{ matrix.target }}
 
@@ -71,12 +65,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS

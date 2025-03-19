@@ -29,7 +29,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -48,7 +48,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: BuildAndTest
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
 
@@ -60,12 +60,9 @@ jobs:
         podspec: [FirebaseMessagingInterop.podspec, FirebaseMessaging.podspec]
         target: [ios, tvos, macos --skip-tests, watchos --skip-tests] # skipping tests on mac because of keychain access
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.3
-            tests: --test-specs=unit
           - os: macos-15
             xcode: Xcode_16.2
-            tests: --skip-tests
+            tests: --test-specs=unit
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -107,12 +104,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS spm
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS spmbuildonly
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS spm
@@ -226,14 +217,11 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos --skip-tests, watchos --skip-tests]
-        os: [macos-14, macos-13]
+        os: [macos-15]
         include:
-          - os: macos-14
-            xcode: Xcode_15.3
+          - os: macos-15
+            xcode: Xcode_16.2
             tests: --test-specs=unit
-          - os: macos-13
-            xcode: Xcode_15.2
-            tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -250,7 +238,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -266,7 +254,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
 
@@ -275,7 +263,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -291,7 +279,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh SwiftUISample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh SwiftUISample iOS)
 
@@ -300,7 +288,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-13
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -316,7 +304,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSampleStandaloneWatchApp watchOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
 
