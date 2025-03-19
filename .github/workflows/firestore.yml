@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: macos-14
+    runs-on: macos-15
     # Only when this is not a scheduled run
     if: github.event_name != 'schedule'
     outputs:
@@ -92,7 +92,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
 
@@ -114,7 +114,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-14, ubuntu-latest]
+        os: [macos-15, ubuntu-latest]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -161,7 +161,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-15]
         databaseId: [(default), test-db]
 
     env:
@@ -248,7 +248,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-15]
         sanitizer: [asan, tsan]
 
     runs-on: ${{ matrix.os }}
@@ -333,7 +333,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request')
-    runs-on: macos-14
+    runs-on: macos-15
 
     strategy:
       matrix:
@@ -406,7 +406,7 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-14, macos-13]
+        os: [macos-15, macos-13]
         # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
         exclude:
           - os: macos-13
@@ -417,8 +417,6 @@ jobs:
         include:
           - os: macos-15
             xcode: Xcode_16.2
-          - os: macos-13
-            xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -440,7 +438,7 @@ jobs:
             --no-analyze
 
   spm-package-resolved:
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       FIREBASE_SOURCE_FIRESTORE: 1
@@ -472,12 +470,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS
@@ -514,7 +506,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -531,7 +523,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Assert that Firestore and FirestoreInternal have identically named headers.
@@ -560,7 +552,7 @@ jobs:
   # spm-source-cron:
   #   # Don't run on private repo.
   #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-  #   runs-on: macos-14
+  #   runs-on: macos-15
   #   strategy:
   #     matrix:
   #       target: [tvOS, macOS, catalyst]
@@ -579,7 +571,7 @@ jobs:
   spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -612,7 +604,7 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-14
+  #   runs-on: macos-15
   #   needs: check
 
   #   steps:

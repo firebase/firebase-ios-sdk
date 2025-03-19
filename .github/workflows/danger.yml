@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   danger:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1

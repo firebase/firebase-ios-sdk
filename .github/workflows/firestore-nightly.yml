@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   check:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v3
 
@@ -42,7 +42,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-15]
         databaseId: [(default)]
 
     env:

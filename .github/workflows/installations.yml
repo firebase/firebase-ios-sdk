@@ -26,12 +26,9 @@ jobs:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
         target: [ios, tvos, macos --skip-tests, watchos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
-            test-specs: unit,integration
           - os: macos-15
             xcode: Xcode_16.2
-            test-specs: unit
+            test-specs: unit,integration
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -59,7 +56,7 @@ jobs:
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
@@ -85,12 +82,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
           - os: macos-15
             xcode: Xcode_16.2
             target: iOS
@@ -125,7 +116,7 @@ jobs:
 
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -141,7 +132,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -158,7 +149,7 @@ jobs:
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
 
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
@@ -183,7 +174,7 @@ jobs:
   installations-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
