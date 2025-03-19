@@ -155,32 +155,6 @@ id FIRCLSApplicationSharedInstance(void) {
 }
 #endif
 
-void FIRCLSApplicationOpenURL(NSURL* url,
-                              NSExtensionContext* extensionContext,
-                              void (^completionBlock)(BOOL success)) {
-  if (extensionContext) {
-    [extensionContext openURL:url completionHandler:completionBlock];
-    return;
-  }
-
-  BOOL result = NO;
-
-#if TARGET_OS_IOS
-  // What's going on here is the value returned is a scalar, but we really need an object to
-  // call this dynamically. Hoops must be jumped.
-  NSInvocationOperation* op =
-      [[NSInvocationOperation alloc] initWithTarget:FIRCLSApplicationSharedInstance()
-                                           selector:@selector(openURL:)
-                                             object:url];
-  [op start];
-  [op.result getValue:&result];
-#elif CLS_TARGET_OS_OSX
-  result = [[NSClassFromString(@"NSWorkspace") sharedWorkspace] openURL:url];
-#endif
-
-  completionBlock(result);
-}
-
 id<NSObject> FIRCLSApplicationBeginActivity(NSActivityOptions options, NSString* reason) {
   if ([[NSProcessInfo processInfo] respondsToSelector:@selector(beginActivityWithOptions:
                                                                                   reason:)]) {

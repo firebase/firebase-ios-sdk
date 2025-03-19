@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,9 +55,12 @@
 #include "google/protobuf/generated_enum_reflection.h"
 #include "google/protobuf/unknown_field_set.h"
 #include "google/api/annotations.pb.h"
+#include "google/api/field_behavior.pb.h"
 #include "google/firestore/v1/aggregation_result.pb.h"
 #include "google/firestore/v1/common.pb.h"
 #include "google/firestore/v1/document.pb.h"
+#include "google/firestore/v1/explain_stats.pb.h"
+#include "google/firestore/v1/pipeline.pb.h"
 #include "google/firestore/v1/query.pb.h"
 #include "google/firestore/v1/write.pb.h"
 #include "google/protobuf/empty.pb.h"
@@ -112,6 +115,12 @@ extern CreateDocumentRequestDefaultTypeInternal _CreateDocumentRequest_default_i
 class DeleteDocumentRequest;
 struct DeleteDocumentRequestDefaultTypeInternal;
 extern DeleteDocumentRequestDefaultTypeInternal _DeleteDocumentRequest_default_instance_;
+class ExecutePipelineRequest;
+struct ExecutePipelineRequestDefaultTypeInternal;
+extern ExecutePipelineRequestDefaultTypeInternal _ExecutePipelineRequest_default_instance_;
+class ExecutePipelineResponse;
+struct ExecutePipelineResponseDefaultTypeInternal;
+extern ExecutePipelineResponseDefaultTypeInternal _ExecutePipelineResponse_default_instance_;
 class GetDocumentRequest;
 struct GetDocumentRequestDefaultTypeInternal;
 extern GetDocumentRequestDefaultTypeInternal _GetDocumentRequest_default_instance_;
@@ -315,7 +324,7 @@ class Target_DocumentsTarget final :
                &_Target_DocumentsTarget_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    23;
+    25;
 
   friend void swap(Target_DocumentsTarget& a, Target_DocumentsTarget& b) {
     a.Swap(&b);
@@ -737,7 +746,7 @@ class ListCollectionIdsResponse final :
                &_ListCollectionIdsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    28;
+    30;
 
   friend void swap(ListCollectionIdsResponse& a, ListCollectionIdsResponse& b) {
     a.Swap(&b);
@@ -948,7 +957,7 @@ class ListCollectionIdsRequest final :
                &_ListCollectionIdsRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    27;
+    29;
 
   friend void swap(ListCollectionIdsRequest& a, ListCollectionIdsRequest& b) {
     a.Swap(&b);
@@ -1934,7 +1943,7 @@ class TargetChange final :
                &_TargetChange_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    26;
+    28;
 
   friend void swap(TargetChange& a, TargetChange& b) {
     a.Swap(&b);
@@ -2405,7 +2414,7 @@ class WriteResponse final :
                &_WriteResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    19;
+    21;
 
   friend void swap(WriteResponse& a, WriteResponse& b) {
     a.Swap(&b);
@@ -3813,7 +3822,7 @@ class RunAggregationQueryResponse final :
                &_RunAggregationQueryResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    18;
 
   friend void swap(RunAggregationQueryResponse& a, RunAggregationQueryResponse& b) {
     a.Swap(&b);
@@ -4165,6 +4174,541 @@ class ListDocumentsResponse final :
     ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Document > documents_;
     ::google::protobuf::internal::ArenaStringPtr next_page_token_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto;
+};// -------------------------------------------------------------------
+
+class ExecutePipelineResponse final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.ExecutePipelineResponse) */ {
+ public:
+  inline ExecutePipelineResponse() : ExecutePipelineResponse(nullptr) {}
+  ~ExecutePipelineResponse() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR ExecutePipelineResponse(::google::protobuf::internal::ConstantInitialized);
+
+  inline ExecutePipelineResponse(const ExecutePipelineResponse& from)
+      : ExecutePipelineResponse(nullptr, from) {}
+  ExecutePipelineResponse(ExecutePipelineResponse&& from) noexcept
+    : ExecutePipelineResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline ExecutePipelineResponse& operator=(const ExecutePipelineResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ExecutePipelineResponse& operator=(ExecutePipelineResponse&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ExecutePipelineResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ExecutePipelineResponse* internal_default_instance() {
+    return reinterpret_cast<const ExecutePipelineResponse*>(
+               &_ExecutePipelineResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    16;
+
+  friend void swap(ExecutePipelineResponse& a, ExecutePipelineResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ExecutePipelineResponse* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ExecutePipelineResponse* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ExecutePipelineResponse* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ExecutePipelineResponse>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ExecutePipelineResponse& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const ExecutePipelineResponse& from) {
+    ExecutePipelineResponse::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(ExecutePipelineResponse* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "google.firestore.v1.ExecutePipelineResponse";
+  }
+  protected:
+  explicit ExecutePipelineResponse(::google::protobuf::Arena* arena);
+  ExecutePipelineResponse(::google::protobuf::Arena* arena, const ExecutePipelineResponse& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kResultsFieldNumber = 2,
+    kTransactionFieldNumber = 1,
+    kExecutionTimeFieldNumber = 3,
+    kExplainStatsFieldNumber = 4,
+  };
+  // repeated .google.firestore.v1.Document results = 2;
+  int results_size() const;
+  private:
+  int _internal_results_size() const;
+
+  public:
+  void clear_results() ;
+  ::google::firestore::v1::Document* mutable_results(int index);
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Document >*
+      mutable_results();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Document>& _internal_results() const;
+  ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Document>* _internal_mutable_results();
+  public:
+  const ::google::firestore::v1::Document& results(int index) const;
+  ::google::firestore::v1::Document* add_results();
+  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Document >&
+      results() const;
+  // bytes transaction = 1;
+  void clear_transaction() ;
+  const std::string& transaction() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_transaction(Arg_&& arg, Args_... args);
+  std::string* mutable_transaction();
+  PROTOBUF_NODISCARD std::string* release_transaction();
+  void set_allocated_transaction(std::string* value);
+
+  private:
+  const std::string& _internal_transaction() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_transaction(
+      const std::string& value);
+  std::string* _internal_mutable_transaction();
+
+  public:
+  // .google.protobuf.Timestamp execution_time = 3;
+  bool has_execution_time() const;
+  void clear_execution_time() ;
+  const ::google::protobuf::Timestamp& execution_time() const;
+  PROTOBUF_NODISCARD ::google::protobuf::Timestamp* release_execution_time();
+  ::google::protobuf::Timestamp* mutable_execution_time();
+  void set_allocated_execution_time(::google::protobuf::Timestamp* value);
+  void unsafe_arena_set_allocated_execution_time(::google::protobuf::Timestamp* value);
+  ::google::protobuf::Timestamp* unsafe_arena_release_execution_time();
+
+  private:
+  const ::google::protobuf::Timestamp& _internal_execution_time() const;
+  ::google::protobuf::Timestamp* _internal_mutable_execution_time();
+
+  public:
+  // .google.firestore.v1.ExplainStats explain_stats = 4;
+  bool has_explain_stats() const;
+  void clear_explain_stats() ;
+  const ::google::firestore::v1::ExplainStats& explain_stats() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::ExplainStats* release_explain_stats();
+  ::google::firestore::v1::ExplainStats* mutable_explain_stats();
+  void set_allocated_explain_stats(::google::firestore::v1::ExplainStats* value);
+  void unsafe_arena_set_allocated_explain_stats(::google::firestore::v1::ExplainStats* value);
+  ::google::firestore::v1::ExplainStats* unsafe_arena_release_explain_stats();
+
+  private:
+  const ::google::firestore::v1::ExplainStats& _internal_explain_stats() const;
+  ::google::firestore::v1::ExplainStats* _internal_mutable_explain_stats();
+
+  public:
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.ExecutePipelineResponse)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 4, 3,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Document > results_;
+    ::google::protobuf::internal::ArenaStringPtr transaction_;
+    ::google::protobuf::Timestamp* execution_time_;
+    ::google::firestore::v1::ExplainStats* explain_stats_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto;
+};// -------------------------------------------------------------------
+
+class ExecutePipelineRequest final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.ExecutePipelineRequest) */ {
+ public:
+  inline ExecutePipelineRequest() : ExecutePipelineRequest(nullptr) {}
+  ~ExecutePipelineRequest() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR ExecutePipelineRequest(::google::protobuf::internal::ConstantInitialized);
+
+  inline ExecutePipelineRequest(const ExecutePipelineRequest& from)
+      : ExecutePipelineRequest(nullptr, from) {}
+  ExecutePipelineRequest(ExecutePipelineRequest&& from) noexcept
+    : ExecutePipelineRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ExecutePipelineRequest& operator=(const ExecutePipelineRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ExecutePipelineRequest& operator=(ExecutePipelineRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ExecutePipelineRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  enum PipelineTypeCase {
+    kStructuredPipeline = 2,
+    PIPELINE_TYPE_NOT_SET = 0,
+  };
+
+  enum ConsistencySelectorCase {
+    kTransaction = 5,
+    kNewTransaction = 6,
+    kReadTime = 7,
+    CONSISTENCY_SELECTOR_NOT_SET = 0,
+  };
+
+  static inline const ExecutePipelineRequest* internal_default_instance() {
+    return reinterpret_cast<const ExecutePipelineRequest*>(
+               &_ExecutePipelineRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    15;
+
+  friend void swap(ExecutePipelineRequest& a, ExecutePipelineRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ExecutePipelineRequest* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ExecutePipelineRequest* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ExecutePipelineRequest* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ExecutePipelineRequest>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ExecutePipelineRequest& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const ExecutePipelineRequest& from) {
+    ExecutePipelineRequest::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(ExecutePipelineRequest* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "google.firestore.v1.ExecutePipelineRequest";
+  }
+  protected:
+  explicit ExecutePipelineRequest(::google::protobuf::Arena* arena);
+  ExecutePipelineRequest(::google::protobuf::Arena* arena, const ExecutePipelineRequest& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDatabaseFieldNumber = 1,
+    kStructuredPipelineFieldNumber = 2,
+    kTransactionFieldNumber = 5,
+    kNewTransactionFieldNumber = 6,
+    kReadTimeFieldNumber = 7,
+  };
+  // string database = 1 [(.google.api.field_behavior) = REQUIRED];
+  void clear_database() ;
+  const std::string& database() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_database(Arg_&& arg, Args_... args);
+  std::string* mutable_database();
+  PROTOBUF_NODISCARD std::string* release_database();
+  void set_allocated_database(std::string* value);
+
+  private:
+  const std::string& _internal_database() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_database(
+      const std::string& value);
+  std::string* _internal_mutable_database();
+
+  public:
+  // .google.firestore.v1.StructuredPipeline structured_pipeline = 2;
+  bool has_structured_pipeline() const;
+  private:
+  bool _internal_has_structured_pipeline() const;
+
+  public:
+  void clear_structured_pipeline() ;
+  const ::google::firestore::v1::StructuredPipeline& structured_pipeline() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::StructuredPipeline* release_structured_pipeline();
+  ::google::firestore::v1::StructuredPipeline* mutable_structured_pipeline();
+  void set_allocated_structured_pipeline(::google::firestore::v1::StructuredPipeline* value);
+  void unsafe_arena_set_allocated_structured_pipeline(::google::firestore::v1::StructuredPipeline* value);
+  ::google::firestore::v1::StructuredPipeline* unsafe_arena_release_structured_pipeline();
+
+  private:
+  const ::google::firestore::v1::StructuredPipeline& _internal_structured_pipeline() const;
+  ::google::firestore::v1::StructuredPipeline* _internal_mutable_structured_pipeline();
+
+  public:
+  // bytes transaction = 5;
+  bool has_transaction() const;
+  void clear_transaction() ;
+  const std::string& transaction() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_transaction(Arg_&& arg, Args_... args);
+  std::string* mutable_transaction();
+  PROTOBUF_NODISCARD std::string* release_transaction();
+  void set_allocated_transaction(std::string* value);
+
+  private:
+  const std::string& _internal_transaction() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_transaction(
+      const std::string& value);
+  std::string* _internal_mutable_transaction();
+
+  public:
+  // .google.firestore.v1.TransactionOptions new_transaction = 6;
+  bool has_new_transaction() const;
+  private:
+  bool _internal_has_new_transaction() const;
+
+  public:
+  void clear_new_transaction() ;
+  const ::google::firestore::v1::TransactionOptions& new_transaction() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::TransactionOptions* release_new_transaction();
+  ::google::firestore::v1::TransactionOptions* mutable_new_transaction();
+  void set_allocated_new_transaction(::google::firestore::v1::TransactionOptions* value);
+  void unsafe_arena_set_allocated_new_transaction(::google::firestore::v1::TransactionOptions* value);
+  ::google::firestore::v1::TransactionOptions* unsafe_arena_release_new_transaction();
+
+  private:
+  const ::google::firestore::v1::TransactionOptions& _internal_new_transaction() const;
+  ::google::firestore::v1::TransactionOptions* _internal_mutable_new_transaction();
+
+  public:
+  // .google.protobuf.Timestamp read_time = 7;
+  bool has_read_time() const;
+  private:
+  bool _internal_has_read_time() const;
+
+  public:
+  void clear_read_time() ;
+  const ::google::protobuf::Timestamp& read_time() const;
+  PROTOBUF_NODISCARD ::google::protobuf::Timestamp* release_read_time();
+  ::google::protobuf::Timestamp* mutable_read_time();
+  void set_allocated_read_time(::google::protobuf::Timestamp* value);
+  void unsafe_arena_set_allocated_read_time(::google::protobuf::Timestamp* value);
+  ::google::protobuf::Timestamp* unsafe_arena_release_read_time();
+
+  private:
+  const ::google::protobuf::Timestamp& _internal_read_time() const;
+  ::google::protobuf::Timestamp* _internal_mutable_read_time();
+
+  public:
+  void clear_pipeline_type();
+  PipelineTypeCase pipeline_type_case() const;
+  void clear_consistency_selector();
+  ConsistencySelectorCase consistency_selector_case() const;
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.ExecutePipelineRequest)
+ private:
+  class _Internal;
+  void set_has_structured_pipeline();
+  void set_has_transaction();
+  void set_has_new_transaction();
+  void set_has_read_time();
+
+  inline bool has_pipeline_type() const;
+  inline void clear_has_pipeline_type();
+
+  inline bool has_consistency_selector() const;
+  inline void clear_has_consistency_selector();
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 5, 3,
+      59, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::ArenaStringPtr database_;
+    union PipelineTypeUnion {
+      constexpr PipelineTypeUnion() : _constinit_{} {}
+        ::google::protobuf::internal::ConstantInitialized _constinit_;
+      ::google::firestore::v1::StructuredPipeline* structured_pipeline_;
+    } pipeline_type_;
+    union ConsistencySelectorUnion {
+      constexpr ConsistencySelectorUnion() : _constinit_{} {}
+        ::google::protobuf::internal::ConstantInitialized _constinit_;
+      ::google::protobuf::internal::ArenaStringPtr transaction_;
+      ::google::firestore::v1::TransactionOptions* new_transaction_;
+      ::google::protobuf::Timestamp* read_time_;
+    } consistency_selector_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::uint32_t _oneof_case_[2];
+
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4740,7 +5284,7 @@ class WriteRequest final :
                &_WriteRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    20;
 
   friend void swap(WriteRequest& a, WriteRequest& b) {
     a.Swap(&b);
@@ -5003,7 +5547,7 @@ class Target_QueryTarget final :
                &_Target_QueryTarget_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    24;
+    26;
 
   friend void swap(Target_QueryTarget& a, Target_QueryTarget& b) {
     a.Swap(&b);
@@ -5525,7 +6069,7 @@ class ListenResponse final :
                &_ListenResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    22;
+    24;
 
   friend void swap(ListenResponse& a, ListenResponse& b) {
     a.Swap(&b);
@@ -6040,7 +6584,7 @@ class Target final :
                &_Target_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    25;
+    27;
 
   friend void swap(Target& a, Target& b) {
     a.Swap(&b);
@@ -6366,7 +6910,7 @@ class RunAggregationQueryRequest final :
                &_RunAggregationQueryRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    17;
 
   friend void swap(RunAggregationQueryRequest& a, RunAggregationQueryRequest& b) {
     a.Swap(&b);
@@ -6659,7 +7203,7 @@ class ListenRequest final :
                &_ListenRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    23;
 
   friend void swap(ListenRequest& a, ListenRequest& b) {
     a.Swap(&b);
@@ -10664,6 +11208,651 @@ inline void RunQueryResponse::_internal_set_skipped_results(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   ;
   _impl_.skipped_results_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ExecutePipelineRequest
+
+// string database = 1 [(.google.api.field_behavior) = REQUIRED];
+inline void ExecutePipelineRequest::clear_database() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.database_.ClearToEmpty();
+}
+inline const std::string& ExecutePipelineRequest::database() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineRequest.database)
+  return _internal_database();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void ExecutePipelineRequest::set_database(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.database_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.ExecutePipelineRequest.database)
+}
+inline std::string* ExecutePipelineRequest::mutable_database() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_database();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineRequest.database)
+  return _s;
+}
+inline const std::string& ExecutePipelineRequest::_internal_database() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.database_.Get();
+}
+inline void ExecutePipelineRequest::_internal_set_database(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.database_.Set(value, GetArena());
+}
+inline std::string* ExecutePipelineRequest::_internal_mutable_database() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.database_.Mutable( GetArena());
+}
+inline std::string* ExecutePipelineRequest::release_database() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineRequest.database)
+  return _impl_.database_.Release();
+}
+inline void ExecutePipelineRequest::set_allocated_database(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.database_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.database_.IsDefault()) {
+          _impl_.database_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ExecutePipelineRequest.database)
+}
+
+// .google.firestore.v1.StructuredPipeline structured_pipeline = 2;
+inline bool ExecutePipelineRequest::has_structured_pipeline() const {
+  return pipeline_type_case() == kStructuredPipeline;
+}
+inline bool ExecutePipelineRequest::_internal_has_structured_pipeline() const {
+  return pipeline_type_case() == kStructuredPipeline;
+}
+inline void ExecutePipelineRequest::set_has_structured_pipeline() {
+  _impl_._oneof_case_[0] = kStructuredPipeline;
+}
+inline ::google::firestore::v1::StructuredPipeline* ExecutePipelineRequest::release_structured_pipeline() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineRequest.structured_pipeline)
+  if (pipeline_type_case() == kStructuredPipeline) {
+    clear_has_pipeline_type();
+    auto* temp = _impl_.pipeline_type_.structured_pipeline_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.pipeline_type_.structured_pipeline_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::StructuredPipeline& ExecutePipelineRequest::_internal_structured_pipeline() const {
+  return pipeline_type_case() == kStructuredPipeline ? *_impl_.pipeline_type_.structured_pipeline_ : reinterpret_cast<::google::firestore::v1::StructuredPipeline&>(::google::firestore::v1::_StructuredPipeline_default_instance_);
+}
+inline const ::google::firestore::v1::StructuredPipeline& ExecutePipelineRequest::structured_pipeline() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineRequest.structured_pipeline)
+  return _internal_structured_pipeline();
+}
+inline ::google::firestore::v1::StructuredPipeline* ExecutePipelineRequest::unsafe_arena_release_structured_pipeline() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.ExecutePipelineRequest.structured_pipeline)
+  if (pipeline_type_case() == kStructuredPipeline) {
+    clear_has_pipeline_type();
+    auto* temp = _impl_.pipeline_type_.structured_pipeline_;
+    _impl_.pipeline_type_.structured_pipeline_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void ExecutePipelineRequest::unsafe_arena_set_allocated_structured_pipeline(::google::firestore::v1::StructuredPipeline* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_pipeline_type();
+  if (value) {
+    set_has_structured_pipeline();
+    _impl_.pipeline_type_.structured_pipeline_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.ExecutePipelineRequest.structured_pipeline)
+}
+inline ::google::firestore::v1::StructuredPipeline* ExecutePipelineRequest::_internal_mutable_structured_pipeline() {
+  if (pipeline_type_case() != kStructuredPipeline) {
+    clear_pipeline_type();
+    set_has_structured_pipeline();
+    _impl_.pipeline_type_.structured_pipeline_ = CreateMaybeMessage<::google::firestore::v1::StructuredPipeline>(GetArena());
+  }
+  return _impl_.pipeline_type_.structured_pipeline_;
+}
+inline ::google::firestore::v1::StructuredPipeline* ExecutePipelineRequest::mutable_structured_pipeline() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::StructuredPipeline* _msg = _internal_mutable_structured_pipeline();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineRequest.structured_pipeline)
+  return _msg;
+}
+
+// bytes transaction = 5;
+inline bool ExecutePipelineRequest::has_transaction() const {
+  return consistency_selector_case() == kTransaction;
+}
+inline void ExecutePipelineRequest::set_has_transaction() {
+  _impl_._oneof_case_[1] = kTransaction;
+}
+inline void ExecutePipelineRequest::clear_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (consistency_selector_case() == kTransaction) {
+    _impl_.consistency_selector_.transaction_.Destroy();
+    clear_has_consistency_selector();
+  }
+}
+inline const std::string& ExecutePipelineRequest::transaction() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineRequest.transaction)
+  return _internal_transaction();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void ExecutePipelineRequest::set_transaction(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (consistency_selector_case() != kTransaction) {
+    clear_consistency_selector();
+
+    set_has_transaction();
+    _impl_.consistency_selector_.transaction_.InitDefault();
+  }
+  _impl_.consistency_selector_.transaction_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.ExecutePipelineRequest.transaction)
+}
+inline std::string* ExecutePipelineRequest::mutable_transaction() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_transaction();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineRequest.transaction)
+  return _s;
+}
+inline const std::string& ExecutePipelineRequest::_internal_transaction() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  if (consistency_selector_case() != kTransaction) {
+    return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+  }
+  return _impl_.consistency_selector_.transaction_.Get();
+}
+inline void ExecutePipelineRequest::_internal_set_transaction(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (consistency_selector_case() != kTransaction) {
+    clear_consistency_selector();
+
+    set_has_transaction();
+    _impl_.consistency_selector_.transaction_.InitDefault();
+  }
+  _impl_.consistency_selector_.transaction_.Set(value, GetArena());
+}
+inline std::string* ExecutePipelineRequest::_internal_mutable_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (consistency_selector_case() != kTransaction) {
+    clear_consistency_selector();
+
+    set_has_transaction();
+    _impl_.consistency_selector_.transaction_.InitDefault();
+  }
+  return _impl_.consistency_selector_.transaction_.Mutable( GetArena());
+}
+inline std::string* ExecutePipelineRequest::release_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineRequest.transaction)
+  if (consistency_selector_case() != kTransaction) {
+    return nullptr;
+  }
+  clear_has_consistency_selector();
+  return _impl_.consistency_selector_.transaction_.Release();
+}
+inline void ExecutePipelineRequest::set_allocated_transaction(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (has_consistency_selector()) {
+    clear_consistency_selector();
+  }
+  if (value != nullptr) {
+    set_has_transaction();
+    _impl_.consistency_selector_.transaction_.InitAllocated(value, GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ExecutePipelineRequest.transaction)
+}
+
+// .google.firestore.v1.TransactionOptions new_transaction = 6;
+inline bool ExecutePipelineRequest::has_new_transaction() const {
+  return consistency_selector_case() == kNewTransaction;
+}
+inline bool ExecutePipelineRequest::_internal_has_new_transaction() const {
+  return consistency_selector_case() == kNewTransaction;
+}
+inline void ExecutePipelineRequest::set_has_new_transaction() {
+  _impl_._oneof_case_[1] = kNewTransaction;
+}
+inline ::google::firestore::v1::TransactionOptions* ExecutePipelineRequest::release_new_transaction() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineRequest.new_transaction)
+  if (consistency_selector_case() == kNewTransaction) {
+    clear_has_consistency_selector();
+    auto* temp = _impl_.consistency_selector_.new_transaction_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.consistency_selector_.new_transaction_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::TransactionOptions& ExecutePipelineRequest::_internal_new_transaction() const {
+  return consistency_selector_case() == kNewTransaction ? *_impl_.consistency_selector_.new_transaction_ : reinterpret_cast<::google::firestore::v1::TransactionOptions&>(::google::firestore::v1::_TransactionOptions_default_instance_);
+}
+inline const ::google::firestore::v1::TransactionOptions& ExecutePipelineRequest::new_transaction() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineRequest.new_transaction)
+  return _internal_new_transaction();
+}
+inline ::google::firestore::v1::TransactionOptions* ExecutePipelineRequest::unsafe_arena_release_new_transaction() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.ExecutePipelineRequest.new_transaction)
+  if (consistency_selector_case() == kNewTransaction) {
+    clear_has_consistency_selector();
+    auto* temp = _impl_.consistency_selector_.new_transaction_;
+    _impl_.consistency_selector_.new_transaction_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void ExecutePipelineRequest::unsafe_arena_set_allocated_new_transaction(::google::firestore::v1::TransactionOptions* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_consistency_selector();
+  if (value) {
+    set_has_new_transaction();
+    _impl_.consistency_selector_.new_transaction_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.ExecutePipelineRequest.new_transaction)
+}
+inline ::google::firestore::v1::TransactionOptions* ExecutePipelineRequest::_internal_mutable_new_transaction() {
+  if (consistency_selector_case() != kNewTransaction) {
+    clear_consistency_selector();
+    set_has_new_transaction();
+    _impl_.consistency_selector_.new_transaction_ = CreateMaybeMessage<::google::firestore::v1::TransactionOptions>(GetArena());
+  }
+  return _impl_.consistency_selector_.new_transaction_;
+}
+inline ::google::firestore::v1::TransactionOptions* ExecutePipelineRequest::mutable_new_transaction() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::TransactionOptions* _msg = _internal_mutable_new_transaction();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineRequest.new_transaction)
+  return _msg;
+}
+
+// .google.protobuf.Timestamp read_time = 7;
+inline bool ExecutePipelineRequest::has_read_time() const {
+  return consistency_selector_case() == kReadTime;
+}
+inline bool ExecutePipelineRequest::_internal_has_read_time() const {
+  return consistency_selector_case() == kReadTime;
+}
+inline void ExecutePipelineRequest::set_has_read_time() {
+  _impl_._oneof_case_[1] = kReadTime;
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineRequest::release_read_time() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineRequest.read_time)
+  if (consistency_selector_case() == kReadTime) {
+    clear_has_consistency_selector();
+    auto* temp = _impl_.consistency_selector_.read_time_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.consistency_selector_.read_time_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::protobuf::Timestamp& ExecutePipelineRequest::_internal_read_time() const {
+  return consistency_selector_case() == kReadTime ? *_impl_.consistency_selector_.read_time_ : reinterpret_cast<::google::protobuf::Timestamp&>(::google::protobuf::_Timestamp_default_instance_);
+}
+inline const ::google::protobuf::Timestamp& ExecutePipelineRequest::read_time() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineRequest.read_time)
+  return _internal_read_time();
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineRequest::unsafe_arena_release_read_time() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.ExecutePipelineRequest.read_time)
+  if (consistency_selector_case() == kReadTime) {
+    clear_has_consistency_selector();
+    auto* temp = _impl_.consistency_selector_.read_time_;
+    _impl_.consistency_selector_.read_time_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void ExecutePipelineRequest::unsafe_arena_set_allocated_read_time(::google::protobuf::Timestamp* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_consistency_selector();
+  if (value) {
+    set_has_read_time();
+    _impl_.consistency_selector_.read_time_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.ExecutePipelineRequest.read_time)
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineRequest::_internal_mutable_read_time() {
+  if (consistency_selector_case() != kReadTime) {
+    clear_consistency_selector();
+    set_has_read_time();
+    _impl_.consistency_selector_.read_time_ = CreateMaybeMessage<::google::protobuf::Timestamp>(GetArena());
+  }
+  return _impl_.consistency_selector_.read_time_;
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineRequest::mutable_read_time() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::Timestamp* _msg = _internal_mutable_read_time();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineRequest.read_time)
+  return _msg;
+}
+
+inline bool ExecutePipelineRequest::has_pipeline_type() const {
+  return pipeline_type_case() != PIPELINE_TYPE_NOT_SET;
+}
+inline void ExecutePipelineRequest::clear_has_pipeline_type() {
+  _impl_._oneof_case_[0] = PIPELINE_TYPE_NOT_SET;
+}
+inline bool ExecutePipelineRequest::has_consistency_selector() const {
+  return consistency_selector_case() != CONSISTENCY_SELECTOR_NOT_SET;
+}
+inline void ExecutePipelineRequest::clear_has_consistency_selector() {
+  _impl_._oneof_case_[1] = CONSISTENCY_SELECTOR_NOT_SET;
+}
+inline ExecutePipelineRequest::PipelineTypeCase ExecutePipelineRequest::pipeline_type_case() const {
+  return ExecutePipelineRequest::PipelineTypeCase(_impl_._oneof_case_[0]);
+}
+inline ExecutePipelineRequest::ConsistencySelectorCase ExecutePipelineRequest::consistency_selector_case() const {
+  return ExecutePipelineRequest::ConsistencySelectorCase(_impl_._oneof_case_[1]);
+}
+// -------------------------------------------------------------------
+
+// ExecutePipelineResponse
+
+// bytes transaction = 1;
+inline void ExecutePipelineResponse::clear_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.transaction_.ClearToEmpty();
+}
+inline const std::string& ExecutePipelineResponse::transaction() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineResponse.transaction)
+  return _internal_transaction();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void ExecutePipelineResponse::set_transaction(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.transaction_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.ExecutePipelineResponse.transaction)
+}
+inline std::string* ExecutePipelineResponse::mutable_transaction() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_transaction();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineResponse.transaction)
+  return _s;
+}
+inline const std::string& ExecutePipelineResponse::_internal_transaction() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.transaction_.Get();
+}
+inline void ExecutePipelineResponse::_internal_set_transaction(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.transaction_.Set(value, GetArena());
+}
+inline std::string* ExecutePipelineResponse::_internal_mutable_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.transaction_.Mutable( GetArena());
+}
+inline std::string* ExecutePipelineResponse::release_transaction() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineResponse.transaction)
+  return _impl_.transaction_.Release();
+}
+inline void ExecutePipelineResponse::set_allocated_transaction(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.transaction_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.transaction_.IsDefault()) {
+          _impl_.transaction_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ExecutePipelineResponse.transaction)
+}
+
+// repeated .google.firestore.v1.Document results = 2;
+inline int ExecutePipelineResponse::_internal_results_size() const {
+  return _internal_results().size();
+}
+inline int ExecutePipelineResponse::results_size() const {
+  return _internal_results_size();
+}
+inline ::google::firestore::v1::Document* ExecutePipelineResponse::mutable_results(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineResponse.results)
+  return _internal_mutable_results()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Document>* ExecutePipelineResponse::mutable_results()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:google.firestore.v1.ExecutePipelineResponse.results)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_results();
+}
+inline const ::google::firestore::v1::Document& ExecutePipelineResponse::results(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineResponse.results)
+  return _internal_results().Get(index);
+}
+inline ::google::firestore::v1::Document* ExecutePipelineResponse::add_results() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::google::firestore::v1::Document* _add = _internal_mutable_results()->Add();
+  // @@protoc_insertion_point(field_add:google.firestore.v1.ExecutePipelineResponse.results)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Document>& ExecutePipelineResponse::results() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:google.firestore.v1.ExecutePipelineResponse.results)
+  return _internal_results();
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Document>&
+ExecutePipelineResponse::_internal_results() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.results_;
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Document>*
+ExecutePipelineResponse::_internal_mutable_results() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.results_;
+}
+
+// .google.protobuf.Timestamp execution_time = 3;
+inline bool ExecutePipelineResponse::has_execution_time() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.execution_time_ != nullptr);
+  return value;
+}
+inline const ::google::protobuf::Timestamp& ExecutePipelineResponse::_internal_execution_time() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  const ::google::protobuf::Timestamp* p = _impl_.execution_time_;
+  return p != nullptr ? *p : reinterpret_cast<const ::google::protobuf::Timestamp&>(::google::protobuf::_Timestamp_default_instance_);
+}
+inline const ::google::protobuf::Timestamp& ExecutePipelineResponse::execution_time() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineResponse.execution_time)
+  return _internal_execution_time();
+}
+inline void ExecutePipelineResponse::unsafe_arena_set_allocated_execution_time(::google::protobuf::Timestamp* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.execution_time_);
+  }
+  _impl_.execution_time_ = reinterpret_cast<::google::protobuf::Timestamp*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.ExecutePipelineResponse.execution_time)
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineResponse::release_execution_time() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::google::protobuf::Timestamp* released = _impl_.execution_time_;
+  _impl_.execution_time_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  if (GetArena() == nullptr) {
+    delete old;
+  }
+#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArena() != nullptr) {
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return released;
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineResponse::unsafe_arena_release_execution_time() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineResponse.execution_time)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::google::protobuf::Timestamp* temp = _impl_.execution_time_;
+  _impl_.execution_time_ = nullptr;
+  return temp;
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineResponse::_internal_mutable_execution_time() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  if (_impl_.execution_time_ == nullptr) {
+    auto* p = CreateMaybeMessage<::google::protobuf::Timestamp>(GetArena());
+    _impl_.execution_time_ = reinterpret_cast<::google::protobuf::Timestamp*>(p);
+  }
+  return _impl_.execution_time_;
+}
+inline ::google::protobuf::Timestamp* ExecutePipelineResponse::mutable_execution_time() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::Timestamp* _msg = _internal_mutable_execution_time();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineResponse.execution_time)
+  return _msg;
+}
+inline void ExecutePipelineResponse::set_allocated_execution_time(::google::protobuf::Timestamp* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.execution_time_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.execution_time_ = reinterpret_cast<::google::protobuf::Timestamp*>(value);
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ExecutePipelineResponse.execution_time)
+}
+
+// .google.firestore.v1.ExplainStats explain_stats = 4;
+inline bool ExecutePipelineResponse::has_explain_stats() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.explain_stats_ != nullptr);
+  return value;
+}
+inline const ::google::firestore::v1::ExplainStats& ExecutePipelineResponse::_internal_explain_stats() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  const ::google::firestore::v1::ExplainStats* p = _impl_.explain_stats_;
+  return p != nullptr ? *p : reinterpret_cast<const ::google::firestore::v1::ExplainStats&>(::google::firestore::v1::_ExplainStats_default_instance_);
+}
+inline const ::google::firestore::v1::ExplainStats& ExecutePipelineResponse::explain_stats() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExecutePipelineResponse.explain_stats)
+  return _internal_explain_stats();
+}
+inline void ExecutePipelineResponse::unsafe_arena_set_allocated_explain_stats(::google::firestore::v1::ExplainStats* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.explain_stats_);
+  }
+  _impl_.explain_stats_ = reinterpret_cast<::google::firestore::v1::ExplainStats*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000002u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000002u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.ExecutePipelineResponse.explain_stats)
+}
+inline ::google::firestore::v1::ExplainStats* ExecutePipelineResponse::release_explain_stats() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+
+  _impl_._has_bits_[0] &= ~0x00000002u;
+  ::google::firestore::v1::ExplainStats* released = _impl_.explain_stats_;
+  _impl_.explain_stats_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  if (GetArena() == nullptr) {
+    delete old;
+  }
+#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArena() != nullptr) {
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return released;
+}
+inline ::google::firestore::v1::ExplainStats* ExecutePipelineResponse::unsafe_arena_release_explain_stats() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExecutePipelineResponse.explain_stats)
+
+  _impl_._has_bits_[0] &= ~0x00000002u;
+  ::google::firestore::v1::ExplainStats* temp = _impl_.explain_stats_;
+  _impl_.explain_stats_ = nullptr;
+  return temp;
+}
+inline ::google::firestore::v1::ExplainStats* ExecutePipelineResponse::_internal_mutable_explain_stats() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  if (_impl_.explain_stats_ == nullptr) {
+    auto* p = CreateMaybeMessage<::google::firestore::v1::ExplainStats>(GetArena());
+    _impl_.explain_stats_ = reinterpret_cast<::google::firestore::v1::ExplainStats*>(p);
+  }
+  return _impl_.explain_stats_;
+}
+inline ::google::firestore::v1::ExplainStats* ExecutePipelineResponse::mutable_explain_stats() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::ExplainStats* _msg = _internal_mutable_explain_stats();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExecutePipelineResponse.explain_stats)
+  return _msg;
+}
+inline void ExecutePipelineResponse::set_allocated_explain_stats(::google::firestore::v1::ExplainStats* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.explain_stats_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000002u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000002u;
+  }
+
+  _impl_.explain_stats_ = reinterpret_cast<::google::firestore::v1::ExplainStats*>(value);
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ExecutePipelineResponse.explain_stats)
 }
 
 // -------------------------------------------------------------------

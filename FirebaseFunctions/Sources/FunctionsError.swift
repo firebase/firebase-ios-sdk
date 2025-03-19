@@ -180,7 +180,8 @@ struct FunctionsError: CustomNSError {
   ///     }
   ///     ```
   ///   - serializer: The `FunctionsSerializer` used to decode `details` in the error body.
-  init?(httpStatusCode: Int, body: Data?, serializer: FunctionsSerializer) {
+  init?(httpStatusCode: Int, region: String, url: URL, body: Data?,
+        serializer: FunctionsSerializer) {
     // Start with reasonable defaults from the status code.
     var code = FunctionsErrorCode(httpStatusCode: httpStatusCode)
     var description = Self.errorDescription(from: code)
@@ -224,6 +225,8 @@ struct FunctionsError: CustomNSError {
 
     var userInfo = [String: Any]()
     userInfo[NSLocalizedDescriptionKey] = description
+    userInfo["region"] = region
+    userInfo["url"] = url
     if let details {
       userInfo[FunctionsErrorDetailsKey] = details
     }

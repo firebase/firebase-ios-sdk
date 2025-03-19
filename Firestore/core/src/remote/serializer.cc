@@ -175,6 +175,15 @@ FieldPath InvalidFieldPath() {
   return FieldPath::EmptyPath();
 }
 
+absl::optional<SnapshotVersion> NotNoneVersionOrNullOpt(
+    const SnapshotVersion& version) {
+  if (version == SnapshotVersion::None()) {
+    return absl::nullopt;
+  } else {
+    return version;
+  }
+}
+
 }  // namespace
 
 Serializer::Serializer(DatabaseId database_id)
@@ -1197,6 +1206,26 @@ Serializer::DecodeCursorValue(google_firestore_v1_Cursor& cursor) const {
   return index_components;
 }
 
+google_firestore_v1_StructuredPipeline Serializer::EncodePipeline(
+    const api::Pipeline& pipeline) const {
+  google_firestore_v1_StructuredPipeline result;
+  auto* stages =
+      MakeArray<google_firestore_v1_Pipeline_Stage>(pipeline.stages().size());
+
+  size_t i = 0;
+  for (const auto& stage : pipeline.stages()) {
+    stages[i++] = stage->to_proto();
+  }
+
+  result.pipeline.stages_count = pipeline.stages().size();
+  result.pipeline.stages = stages;
+
+  result.options_count = 0;
+  result.options = nullptr;
+
+  return result;
+}
+
 /* static */
 pb_bytes_array_t* Serializer::EncodeFieldPath(const FieldPath& field_path) {
   return EncodeString(field_path.CanonicalString());
@@ -1477,6 +1506,35 @@ bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
   auto resource = ResourcePath::FromStringView(path);
   return IsLocalResourceName(resource) &&
          DocumentKey::IsDocumentKey(resource.PopFirst(5));
+}
+
+api::PipelineSnapshot Serializer::DecodePipelineResponse(
+    util::ReadContext* context,
+    const nanopb::Message<google_firestore_v1_ExecutePipelineResponse>& message)
+    const {
+  auto execution_time = DecodeVersion(context, message->execution_time);
+
+  std::vector<api::PipelineResult> results(message->results_count);
+
+  for (pb_size_t i = 0; i < message->results_count; ++i) {
+    absl::optional<DocumentKey> key;
+    if (message->results[i].name != nullptr) {
+      key = DecodeKey(context, message->results[i].name);
+    }
+
+    auto create_time = DecodeVersion(context, message->results[i].create_time);
+    auto update_time = DecodeVersion(context, message->results[i].update_time);
+
+    auto value = ObjectValue::FromFieldsEntry(message->results[i].fields,
+                                              message->results[i].fields_count);
+    results.push_back({std::move(key),
+                       std::make_shared<ObjectValue>(std::move(value)),
+                       NotNoneVersionOrNullOpt(create_time),
+                       NotNoneVersionOrNullOpt(update_time),
+                       NotNoneVersionOrNullOpt(execution_time)});
+  }
+
+  return api::PipelineSnapshot(std::move(results), execution_time);
 }
 
 }  // namespace remote

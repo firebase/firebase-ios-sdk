@@ -18,9 +18,10 @@ import Foundation
 
 /// Represents a remote Imagen model with the ability to generate images using text prompts.
 ///
-/// See the [Cloud
-/// documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images) for
-/// more details about the image generation capabilities offered by the Imagen model.
+/// See the [generate images
+/// documentation](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+/// for more details about the image generation capabilities offered by the Imagen model in the
+/// Vertex AI in Firebase SDK.
 ///
 /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
 /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
@@ -29,6 +30,9 @@ import Foundation
 public final class ImagenModel {
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
+
+  /// Configuration for the backend API used by this model.
+  let apiConfig: APIConfig
 
   /// The backing service responsible for sending and receiving model requests to the backend.
   let generativeAIService: GenerativeAIService
@@ -42,11 +46,13 @@ public final class ImagenModel {
 
   init(name: String,
        firebaseInfo: FirebaseInfo,
+       apiConfig: APIConfig,
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
     modelResourceName = name
+    self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
       urlSession: urlSession
@@ -123,6 +129,7 @@ public final class ImagenModel {
     -> ImagenGenerationResponse<T> where T: Decodable, T: ImagenImageRepresentable {
     let request = ImagenGenerationRequest<T>(
       model: modelResourceName,
+      apiConfig: apiConfig,
       options: requestOptions,
       instances: [ImageGenerationInstance(prompt: prompt)],
       parameters: parameters

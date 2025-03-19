@@ -36,6 +36,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     addWatermark: nil,
     includeResponsibleAIFilterReason: includeResponsibleAIFilterReason
   )
+  let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
 
   let instance = ImageGenerationInstance(prompt: "test-prompt")
 
@@ -46,6 +47,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   func testInitializeRequest_inlineDataImage() throws {
     let request = ImagenGenerationRequest<ImagenInlineImage>(
       model: modelName,
+      apiConfig: apiConfig,
       options: requestOptions,
       instances: [instance],
       parameters: parameters
@@ -57,13 +59,15 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.parameters, parameters)
     XCTAssertEqual(
       request.url,
-      URL(string: "\(Constants.baseURL)/\(requestOptions.apiVersion)/\(modelName):predict")
+      URL(string:
+        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
   }
 
   func testInitializeRequest_fileDataImage() throws {
     let request = ImagenGenerationRequest<ImagenGCSImage>(
       model: modelName,
+      apiConfig: apiConfig,
       options: requestOptions,
       instances: [instance],
       parameters: parameters
@@ -75,7 +79,8 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.parameters, parameters)
     XCTAssertEqual(
       request.url,
-      URL(string: "\(Constants.baseURL)/\(requestOptions.apiVersion)/\(modelName):predict")
+      URL(string:
+        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
   }
 
@@ -84,6 +89,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   func testEncodeRequest_inlineDataImage() throws {
     let request = ImagenGenerationRequest<ImagenInlineImage>(
       model: modelName,
+      apiConfig: apiConfig,
       options: RequestOptions(),
       instances: [instance],
       parameters: parameters
@@ -112,6 +118,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   func testEncodeRequest_fileDataImage() throws {
     let request = ImagenGenerationRequest<ImagenGCSImage>(
       model: modelName,
+      apiConfig: apiConfig,
       options: RequestOptions(),
       instances: [instance],
       parameters: parameters

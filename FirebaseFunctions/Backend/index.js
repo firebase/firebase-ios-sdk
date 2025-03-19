@@ -16,6 +16,14 @@ const assert = require('assert');
 const functionsV1 = require('firebase-functions/v1');
 const functionsV2 = require('firebase-functions/v2');
 
+// MARK: - Utilities
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// MARK: - Callable Functions
+
 exports.dataTest = functionsV1.https.onRequest((request, response) => {
   assert.deepEqual(request.body, {
     data: {
@@ -121,14 +129,10 @@ exports.timeoutTest = functionsV1.https.onRequest((request, response) => {
 
 const streamData = ["hello", "world", "this", "is", "cool"]
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 async function* generateText() {
   for (const chunk of streamData) {
     yield chunk;
-    await sleep(1000);
+    await sleep(100);
   }
 };
 
@@ -136,7 +140,7 @@ exports.genStream = functionsV2.https.onCall(
   async (request, response) => {
     if (request.acceptsStreaming) {
       for await (const chunk of generateText()) {
-        response.sendChunk({ chunk });
+        response.sendChunk(chunk);
       }
     }
     return streamData.join(" ");
@@ -145,11 +149,81 @@ exports.genStream = functionsV2.https.onCall(
 
 exports.genStreamError = functionsV2.https.onCall(
   async (request, response) => {
+    // Note: The functions backend does not pass the error message to the
+    // client at this time.
+    throw Error("BOOM")
+  }
+);
+
+const weatherForecasts = {
+  Toronto: { conditions: 'snowy', temperature: 25 },
+  London: { conditions: 'rainy', temperature: 50 },
+  Dubai: { conditions: 'sunny', temperature: 75 }
+};
+
+async function* generateForecast(locations) {
+  for (const location of locations) {
+    yield { 'location': location,  ...weatherForecasts[location.name] };
+    await sleep(100);
+  }
+};
+
+exports.genStreamWeather = functionsV2.https.onCall(
+  async (request, response) => {
+    const forecasts = [];
     if (request.acceptsStreaming) {
-      for await (const chunk of generateText()) {
-        response.write({ chunk });
+      for await (const chunk of generateForecast(request.data)) {
+        forecasts.push(chunk)
+        response.sendChunk(chunk);
       }
-      throw Error("BOOM")
     }
+    return { forecasts };
+  }
+);
+
+exports.genStreamWeatherError = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      for await (const chunk of generateForecast(request.data)) {
+        // Remove the location field, since the SDK cannot decode the message
+        // if it's there.
+        delete chunk.location;
+        response.sendChunk(chunk);
+      }
+    }
+    return "Number of forecasts generated: " + request.data.length;
+  }
+);
+
+exports.genStreamEmpty = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      // Send no chunks
+    }
+    // Implicitly return null.
+  }
+);
+
+exports.genStreamResultOnly = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      // Do not send any chunks.
+    }
+    return "Only a result";
+  }
+);
+
+exports.genStreamLargeData = functionsV2.https.onCall(
+  async (request, response) => {
+    if (request.acceptsStreaming) {
+      const largeString = 'A'.repeat(10000);
+      const chunkSize = 1024;
+      for (let i = 0; i < largeString.length; i += chunkSize) {
+        const chunk = largeString.substring(i, i + chunkSize);
+        response.sendChunk(chunk);
+        await sleep(100);
+      }
+    }
+    return "Stream Completed";
   }
 );

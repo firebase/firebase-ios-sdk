@@ -526,14 +526,6 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  VertexSample-*-*)
-    RunXcodebuild \
-      -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
-      -scheme "VertexAISample" \
-      "${xcb_flags[@]}" \
-      build
-    ;;
-
   Sessions-*-integration)
     # Perform "pod install" to install the relevant dependencies
     # ./FirebaseSessions/generate_testapp.sh
@@ -697,6 +689,15 @@ case "$product-$platform-$method" in
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
+      test
+    ;;
+
+  FirebaseDataConnect-*-spm)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
       test
     ;;
 

@@ -2611,11 +2611,19 @@ fileprivate struct _JSONKey : CodingKey {
 //===----------------------------------------------------------------------===//
 
 // NOTE: This value is implicitly lazy and _must_ be lazy. We're compiled against the latest SDK (w/ ISO8601DateFormatter), but linked against whichever Foundation the user has. ISO8601DateFormatter might not exist, so we better not hit this code path on an older OS.
+#if compiler(>=6)
+nonisolated(unsafe) fileprivate var _iso8601Formatter: ISO8601DateFormatter = {
+  let formatter = ISO8601DateFormatter()
+  formatter.formatOptions = .withInternetDateTime
+  return formatter
+}()
+#else
 fileprivate var _iso8601Formatter: ISO8601DateFormatter = {
   let formatter = ISO8601DateFormatter()
   formatter.formatOptions = .withInternetDateTime
   return formatter
 }()
+#endif
 
 //===----------------------------------------------------------------------===//
 // Error Utilities

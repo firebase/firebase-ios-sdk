@@ -143,4 +143,9 @@ open class HTTPSCallable: NSObject {
     try await functions
       .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  func stream(_ data: Any? = nil) -> AsyncThrowingStream<JSONStreamResponse, Error> {
+    functions.stream(at: url, data: data, options: options, timeout: timeoutInterval)
+  }
 }

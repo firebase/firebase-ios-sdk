@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@
 #include "google/protobuf/map_entry.h"
 #include "google/protobuf/map_field_inl.h"
 #include "google/protobuf/unknown_field_set.h"
+#include "google/api/field_behavior.pb.h"
 #include "google/protobuf/struct.pb.h"
 #include "google/protobuf/timestamp.pb.h"
 #include "google/type/latlng.pb.h"
@@ -89,12 +90,27 @@ extern DocumentDefaultTypeInternal _Document_default_instance_;
 class Document_FieldsEntry_DoNotUse;
 struct Document_FieldsEntry_DoNotUseDefaultTypeInternal;
 extern Document_FieldsEntry_DoNotUseDefaultTypeInternal _Document_FieldsEntry_DoNotUse_default_instance_;
+class Function;
+struct FunctionDefaultTypeInternal;
+extern FunctionDefaultTypeInternal _Function_default_instance_;
+class Function_OptionsEntry_DoNotUse;
+struct Function_OptionsEntry_DoNotUseDefaultTypeInternal;
+extern Function_OptionsEntry_DoNotUseDefaultTypeInternal _Function_OptionsEntry_DoNotUse_default_instance_;
 class MapValue;
 struct MapValueDefaultTypeInternal;
 extern MapValueDefaultTypeInternal _MapValue_default_instance_;
 class MapValue_FieldsEntry_DoNotUse;
 struct MapValue_FieldsEntry_DoNotUseDefaultTypeInternal;
 extern MapValue_FieldsEntry_DoNotUseDefaultTypeInternal _MapValue_FieldsEntry_DoNotUse_default_instance_;
+class Pipeline;
+struct PipelineDefaultTypeInternal;
+extern PipelineDefaultTypeInternal _Pipeline_default_instance_;
+class Pipeline_Stage;
+struct Pipeline_StageDefaultTypeInternal;
+extern Pipeline_StageDefaultTypeInternal _Pipeline_Stage_default_instance_;
+class Pipeline_Stage_OptionsEntry_DoNotUse;
+struct Pipeline_Stage_OptionsEntry_DoNotUseDefaultTypeInternal;
+extern Pipeline_Stage_OptionsEntry_DoNotUseDefaultTypeInternal _Pipeline_Stage_OptionsEntry_DoNotUse_default_instance_;
 class Value;
 struct ValueDefaultTypeInternal;
 extern ValueDefaultTypeInternal _Value_default_instance_;
@@ -295,6 +311,256 @@ class ArrayValue final :
   union { Impl_ _impl_; };
   friend struct ::TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto;
 };// -------------------------------------------------------------------
+
+class Function final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.Function) */ {
+ public:
+  inline Function() : Function(nullptr) {}
+  ~Function() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR Function(::google::protobuf::internal::ConstantInitialized);
+
+  inline Function(const Function& from)
+      : Function(nullptr, from) {}
+  Function(Function&& from) noexcept
+    : Function() {
+    *this = ::std::move(from);
+  }
+
+  inline Function& operator=(const Function& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Function& operator=(Function&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Function& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Function* internal_default_instance() {
+    return reinterpret_cast<const Function*>(
+               &_Function_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(Function& a, Function& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Function* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Function* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Function* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Function>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Function& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const Function& from) {
+    Function::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(Function* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "google.firestore.v1.Function";
+  }
+  protected:
+  explicit Function(::google::protobuf::Arena* arena);
+  Function(::google::protobuf::Arena* arena, const Function& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kArgsFieldNumber = 2,
+    kOptionsFieldNumber = 3,
+    kNameFieldNumber = 1,
+  };
+  // repeated .google.firestore.v1.Value args = 2 [(.google.api.field_behavior) = OPTIONAL];
+  int args_size() const;
+  private:
+  int _internal_args_size() const;
+
+  public:
+  void clear_args() ;
+  ::google::firestore::v1::Value* mutable_args(int index);
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Value >*
+      mutable_args();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>& _internal_args() const;
+  ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>* _internal_mutable_args();
+  public:
+  const ::google::firestore::v1::Value& args(int index) const;
+  ::google::firestore::v1::Value* add_args();
+  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Value >&
+      args() const;
+  // map<string, .google.firestore.v1.Value> options = 3 [(.google.api.field_behavior) = OPTIONAL];
+  int options_size() const;
+  private:
+  int _internal_options_size() const;
+
+  public:
+  void clear_options() ;
+  const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& options() const;
+  ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* mutable_options();
+
+  private:
+  const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& _internal_options() const;
+  ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* _internal_mutable_options();
+
+  public:
+  // string name = 1 [(.google.api.field_behavior) = REQUIRED];
+  void clear_name() ;
+  const std::string& name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_name(Arg_&& arg, Args_... args);
+  std::string* mutable_name();
+  PROTOBUF_NODISCARD std::string* release_name();
+  void set_allocated_name(std::string* value);
+
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(
+      const std::string& value);
+  std::string* _internal_mutable_name();
+
+  public:
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.Function)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 3, 3,
+      48, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Value > args_;
+    ::google::protobuf::internal::MapField<Function_OptionsEntry_DoNotUse, std::string, ::google::firestore::v1::Value,
+                      ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+                      ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE>
+        options_;
+    ::google::protobuf::internal::ArenaStringPtr name_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto;
+};// -------------------------------------------------------------------
+
+class Function_OptionsEntry_DoNotUse final
+    : public ::google::protobuf::internal::MapEntry<
+          Function_OptionsEntry_DoNotUse, std::string, ::google::firestore::v1::Value,
+          ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+          ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE> {
+ public:
+  using SuperType = ::google::protobuf::internal::MapEntry<
+      Function_OptionsEntry_DoNotUse, std::string, ::google::firestore::v1::Value,
+      ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+      ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE>;
+  Function_OptionsEntry_DoNotUse();
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Function_OptionsEntry_DoNotUse(
+      ::google::protobuf::internal::ConstantInitialized);
+  explicit Function_OptionsEntry_DoNotUse(::google::protobuf::Arena* arena);
+  static const Function_OptionsEntry_DoNotUse* internal_default_instance() {
+    return reinterpret_cast<const Function_OptionsEntry_DoNotUse*>(
+        &_Function_OptionsEntry_DoNotUse_default_instance_);
+  }
+  static bool ValidateKey(std::string* s) {
+    return ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::google::protobuf::internal::WireFormatLite::PARSE, "google.firestore.v1.Function.OptionsEntry.key");
+ }
+  static bool ValidateValue(void*) { return true; }
+  ::google::protobuf::Metadata GetMetadata() const final;
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto;
+};
+// -------------------------------------------------------------------
 
 class MapValue final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.MapValue) */ {
@@ -508,6 +774,441 @@ class MapValue_FieldsEntry_DoNotUse final
 };
 // -------------------------------------------------------------------
 
+class Pipeline final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.Pipeline) */ {
+ public:
+  inline Pipeline() : Pipeline(nullptr) {}
+  ~Pipeline() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR Pipeline(::google::protobuf::internal::ConstantInitialized);
+
+  inline Pipeline(const Pipeline& from)
+      : Pipeline(nullptr, from) {}
+  Pipeline(Pipeline&& from) noexcept
+    : Pipeline() {
+    *this = ::std::move(from);
+  }
+
+  inline Pipeline& operator=(const Pipeline& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Pipeline& operator=(Pipeline&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Pipeline& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Pipeline* internal_default_instance() {
+    return reinterpret_cast<const Pipeline*>(
+               &_Pipeline_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    10;
+
+  friend void swap(Pipeline& a, Pipeline& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Pipeline* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Pipeline* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Pipeline* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Pipeline>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Pipeline& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const Pipeline& from) {
+    Pipeline::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(Pipeline* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "google.firestore.v1.Pipeline";
+  }
+  protected:
+  explicit Pipeline(::google::protobuf::Arena* arena);
+  Pipeline(::google::protobuf::Arena* arena, const Pipeline& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  using Stage = Pipeline_Stage;
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kStagesFieldNumber = 1,
+  };
+  // repeated .google.firestore.v1.Pipeline.Stage stages = 1 [(.google.api.field_behavior) = REQUIRED];
+  int stages_size() const;
+  private:
+  int _internal_stages_size() const;
+
+  public:
+  void clear_stages() ;
+  ::google::firestore::v1::Pipeline_Stage* mutable_stages(int index);
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Pipeline_Stage >*
+      mutable_stages();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Pipeline_Stage>& _internal_stages() const;
+  ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Pipeline_Stage>* _internal_mutable_stages();
+  public:
+  const ::google::firestore::v1::Pipeline_Stage& stages(int index) const;
+  ::google::firestore::v1::Pipeline_Stage* add_stages();
+  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Pipeline_Stage >&
+      stages() const;
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.Pipeline)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Pipeline_Stage > stages_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto;
+};// -------------------------------------------------------------------
+
+class Pipeline_Stage final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.Pipeline.Stage) */ {
+ public:
+  inline Pipeline_Stage() : Pipeline_Stage(nullptr) {}
+  ~Pipeline_Stage() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR Pipeline_Stage(::google::protobuf::internal::ConstantInitialized);
+
+  inline Pipeline_Stage(const Pipeline_Stage& from)
+      : Pipeline_Stage(nullptr, from) {}
+  Pipeline_Stage(Pipeline_Stage&& from) noexcept
+    : Pipeline_Stage() {
+    *this = ::std::move(from);
+  }
+
+  inline Pipeline_Stage& operator=(const Pipeline_Stage& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Pipeline_Stage& operator=(Pipeline_Stage&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Pipeline_Stage& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Pipeline_Stage* internal_default_instance() {
+    return reinterpret_cast<const Pipeline_Stage*>(
+               &_Pipeline_Stage_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    9;
+
+  friend void swap(Pipeline_Stage& a, Pipeline_Stage& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Pipeline_Stage* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Pipeline_Stage* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Pipeline_Stage* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Pipeline_Stage>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Pipeline_Stage& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const Pipeline_Stage& from) {
+    Pipeline_Stage::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(Pipeline_Stage* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "google.firestore.v1.Pipeline.Stage";
+  }
+  protected:
+  explicit Pipeline_Stage(::google::protobuf::Arena* arena);
+  Pipeline_Stage(::google::protobuf::Arena* arena, const Pipeline_Stage& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kArgsFieldNumber = 2,
+    kOptionsFieldNumber = 3,
+    kNameFieldNumber = 1,
+  };
+  // repeated .google.firestore.v1.Value args = 2 [(.google.api.field_behavior) = OPTIONAL];
+  int args_size() const;
+  private:
+  int _internal_args_size() const;
+
+  public:
+  void clear_args() ;
+  ::google::firestore::v1::Value* mutable_args(int index);
+  ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Value >*
+      mutable_args();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>& _internal_args() const;
+  ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>* _internal_mutable_args();
+  public:
+  const ::google::firestore::v1::Value& args(int index) const;
+  ::google::firestore::v1::Value* add_args();
+  const ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Value >&
+      args() const;
+  // map<string, .google.firestore.v1.Value> options = 3 [(.google.api.field_behavior) = OPTIONAL];
+  int options_size() const;
+  private:
+  int _internal_options_size() const;
+
+  public:
+  void clear_options() ;
+  const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& options() const;
+  ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* mutable_options();
+
+  private:
+  const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& _internal_options() const;
+  ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* _internal_mutable_options();
+
+  public:
+  // string name = 1 [(.google.api.field_behavior) = REQUIRED];
+  void clear_name() ;
+  const std::string& name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_name(Arg_&& arg, Args_... args);
+  std::string* mutable_name();
+  PROTOBUF_NODISCARD std::string* release_name();
+  void set_allocated_name(std::string* value);
+
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(
+      const std::string& value);
+  std::string* _internal_mutable_name();
+
+  public:
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.Pipeline.Stage)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 3, 3,
+      54, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::RepeatedPtrField< ::google::firestore::v1::Value > args_;
+    ::google::protobuf::internal::MapField<Pipeline_Stage_OptionsEntry_DoNotUse, std::string, ::google::firestore::v1::Value,
+                      ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+                      ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE>
+        options_;
+    ::google::protobuf::internal::ArenaStringPtr name_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto;
+};// -------------------------------------------------------------------
+
+class Pipeline_Stage_OptionsEntry_DoNotUse final
+    : public ::google::protobuf::internal::MapEntry<
+          Pipeline_Stage_OptionsEntry_DoNotUse, std::string, ::google::firestore::v1::Value,
+          ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+          ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE> {
+ public:
+  using SuperType = ::google::protobuf::internal::MapEntry<
+      Pipeline_Stage_OptionsEntry_DoNotUse, std::string, ::google::firestore::v1::Value,
+      ::google::protobuf::internal::WireFormatLite::TYPE_STRING,
+      ::google::protobuf::internal::WireFormatLite::TYPE_MESSAGE>;
+  Pipeline_Stage_OptionsEntry_DoNotUse();
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Pipeline_Stage_OptionsEntry_DoNotUse(
+      ::google::protobuf::internal::ConstantInitialized);
+  explicit Pipeline_Stage_OptionsEntry_DoNotUse(::google::protobuf::Arena* arena);
+  static const Pipeline_Stage_OptionsEntry_DoNotUse* internal_default_instance() {
+    return reinterpret_cast<const Pipeline_Stage_OptionsEntry_DoNotUse*>(
+        &_Pipeline_Stage_OptionsEntry_DoNotUse_default_instance_);
+  }
+  static bool ValidateKey(std::string* s) {
+    return ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(s->data(), static_cast<int>(s->size()), ::google::protobuf::internal::WireFormatLite::PARSE, "google.firestore.v1.Pipeline.Stage.OptionsEntry.key");
+ }
+  static bool ValidateValue(void*) { return true; }
+  ::google::protobuf::Metadata GetMetadata() const final;
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Value final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.Value) */ {
  public:
@@ -574,6 +1275,9 @@ class Value final :
     kGeoPointValue = 8,
     kArrayValue = 9,
     kMapValue = 6,
+    kFieldReferenceValue = 19,
+    kFunctionValue = 20,
+    kPipelineValue = 21,
     VALUE_TYPE_NOT_SET = 0,
   };
 
@@ -666,6 +1370,9 @@ class Value final :
     kGeoPointValueFieldNumber = 8,
     kArrayValueFieldNumber = 9,
     kMapValueFieldNumber = 6,
+    kFieldReferenceValueFieldNumber = 19,
+    kFunctionValueFieldNumber = 20,
+    kPipelineValueFieldNumber = 21,
   };
   // .google.protobuf.NullValue null_value = 11;
   bool has_null_value() const;
@@ -838,6 +1545,61 @@ class Value final :
   ::google::firestore::v1::MapValue* _internal_mutable_map_value();
 
   public:
+  // string field_reference_value = 19;
+  bool has_field_reference_value() const;
+  void clear_field_reference_value() ;
+  const std::string& field_reference_value() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_field_reference_value(Arg_&& arg, Args_... args);
+  std::string* mutable_field_reference_value();
+  PROTOBUF_NODISCARD std::string* release_field_reference_value();
+  void set_allocated_field_reference_value(std::string* value);
+
+  private:
+  const std::string& _internal_field_reference_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_field_reference_value(
+      const std::string& value);
+  std::string* _internal_mutable_field_reference_value();
+
+  public:
+  // .google.firestore.v1.Function function_value = 20;
+  bool has_function_value() const;
+  private:
+  bool _internal_has_function_value() const;
+
+  public:
+  void clear_function_value() ;
+  const ::google::firestore::v1::Function& function_value() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::Function* release_function_value();
+  ::google::firestore::v1::Function* mutable_function_value();
+  void set_allocated_function_value(::google::firestore::v1::Function* value);
+  void unsafe_arena_set_allocated_function_value(::google::firestore::v1::Function* value);
+  ::google::firestore::v1::Function* unsafe_arena_release_function_value();
+
+  private:
+  const ::google::firestore::v1::Function& _internal_function_value() const;
+  ::google::firestore::v1::Function* _internal_mutable_function_value();
+
+  public:
+  // .google.firestore.v1.Pipeline pipeline_value = 21;
+  bool has_pipeline_value() const;
+  private:
+  bool _internal_has_pipeline_value() const;
+
+  public:
+  void clear_pipeline_value() ;
+  const ::google::firestore::v1::Pipeline& pipeline_value() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::Pipeline* release_pipeline_value();
+  ::google::firestore::v1::Pipeline* mutable_pipeline_value();
+  void set_allocated_pipeline_value(::google::firestore::v1::Pipeline* value);
+  void unsafe_arena_set_allocated_pipeline_value(::google::firestore::v1::Pipeline* value);
+  ::google::firestore::v1::Pipeline* unsafe_arena_release_pipeline_value();
+
+  private:
+  const ::google::firestore::v1::Pipeline& _internal_pipeline_value() const;
+  ::google::firestore::v1::Pipeline* _internal_mutable_pipeline_value();
+
+  public:
   void clear_value_type();
   ValueTypeCase value_type_case() const;
   // @@protoc_insertion_point(class_scope:google.firestore.v1.Value)
@@ -854,14 +1616,17 @@ class Value final :
   void set_has_geo_point_value();
   void set_has_array_value();
   void set_has_map_value();
+  void set_has_field_reference_value();
+  void set_has_function_value();
+  void set_has_pipeline_value();
 
   inline bool has_value_type() const;
   inline void clear_has_value_type();
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 11, 4,
-      69, 2>
+      0, 14, 6,
+      90, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -891,6 +1656,9 @@ class Value final :
       ::google::type::LatLng* geo_point_value_;
       ::google::firestore::v1::ArrayValue* array_value_;
       ::google::firestore::v1::MapValue* map_value_;
+      ::google::protobuf::internal::ArenaStringPtr field_reference_value_;
+      ::google::firestore::v1::Function* function_value_;
+      ::google::firestore::v1::Pipeline* pipeline_value_;
     } value_type_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -2136,6 +2904,243 @@ inline ::google::firestore::v1::MapValue* Value::mutable_map_value() ABSL_ATTRIB
   return _msg;
 }
 
+// string field_reference_value = 19;
+inline bool Value::has_field_reference_value() const {
+  return value_type_case() == kFieldReferenceValue;
+}
+inline void Value::set_has_field_reference_value() {
+  _impl_._oneof_case_[0] = kFieldReferenceValue;
+}
+inline void Value::clear_field_reference_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() == kFieldReferenceValue) {
+    _impl_.value_type_.field_reference_value_.Destroy();
+    clear_has_value_type();
+  }
+}
+inline const std::string& Value::field_reference_value() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Value.field_reference_value)
+  return _internal_field_reference_value();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Value::set_field_reference_value(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() != kFieldReferenceValue) {
+    clear_value_type();
+
+    set_has_field_reference_value();
+    _impl_.value_type_.field_reference_value_.InitDefault();
+  }
+  _impl_.value_type_.field_reference_value_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Value.field_reference_value)
+}
+inline std::string* Value::mutable_field_reference_value() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_field_reference_value();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Value.field_reference_value)
+  return _s;
+}
+inline const std::string& Value::_internal_field_reference_value() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  if (value_type_case() != kFieldReferenceValue) {
+    return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+  }
+  return _impl_.value_type_.field_reference_value_.Get();
+}
+inline void Value::_internal_set_field_reference_value(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() != kFieldReferenceValue) {
+    clear_value_type();
+
+    set_has_field_reference_value();
+    _impl_.value_type_.field_reference_value_.InitDefault();
+  }
+  _impl_.value_type_.field_reference_value_.Set(value, GetArena());
+}
+inline std::string* Value::_internal_mutable_field_reference_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() != kFieldReferenceValue) {
+    clear_value_type();
+
+    set_has_field_reference_value();
+    _impl_.value_type_.field_reference_value_.InitDefault();
+  }
+  return _impl_.value_type_.field_reference_value_.Mutable( GetArena());
+}
+inline std::string* Value::release_field_reference_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Value.field_reference_value)
+  if (value_type_case() != kFieldReferenceValue) {
+    return nullptr;
+  }
+  clear_has_value_type();
+  return _impl_.value_type_.field_reference_value_.Release();
+}
+inline void Value::set_allocated_field_reference_value(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (has_value_type()) {
+    clear_value_type();
+  }
+  if (value != nullptr) {
+    set_has_field_reference_value();
+    _impl_.value_type_.field_reference_value_.InitAllocated(value, GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Value.field_reference_value)
+}
+
+// .google.firestore.v1.Function function_value = 20;
+inline bool Value::has_function_value() const {
+  return value_type_case() == kFunctionValue;
+}
+inline bool Value::_internal_has_function_value() const {
+  return value_type_case() == kFunctionValue;
+}
+inline void Value::set_has_function_value() {
+  _impl_._oneof_case_[0] = kFunctionValue;
+}
+inline void Value::clear_function_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() == kFunctionValue) {
+    if (GetArena() == nullptr) {
+      delete _impl_.value_type_.function_value_;
+    }
+    clear_has_value_type();
+  }
+}
+inline ::google::firestore::v1::Function* Value::release_function_value() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Value.function_value)
+  if (value_type_case() == kFunctionValue) {
+    clear_has_value_type();
+    auto* temp = _impl_.value_type_.function_value_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.value_type_.function_value_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::Function& Value::_internal_function_value() const {
+  return value_type_case() == kFunctionValue ? *_impl_.value_type_.function_value_ : reinterpret_cast<::google::firestore::v1::Function&>(::google::firestore::v1::_Function_default_instance_);
+}
+inline const ::google::firestore::v1::Function& Value::function_value() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Value.function_value)
+  return _internal_function_value();
+}
+inline ::google::firestore::v1::Function* Value::unsafe_arena_release_function_value() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.Value.function_value)
+  if (value_type_case() == kFunctionValue) {
+    clear_has_value_type();
+    auto* temp = _impl_.value_type_.function_value_;
+    _impl_.value_type_.function_value_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Value::unsafe_arena_set_allocated_function_value(::google::firestore::v1::Function* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_value_type();
+  if (value) {
+    set_has_function_value();
+    _impl_.value_type_.function_value_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.Value.function_value)
+}
+inline ::google::firestore::v1::Function* Value::_internal_mutable_function_value() {
+  if (value_type_case() != kFunctionValue) {
+    clear_value_type();
+    set_has_function_value();
+    _impl_.value_type_.function_value_ = CreateMaybeMessage<::google::firestore::v1::Function>(GetArena());
+  }
+  return _impl_.value_type_.function_value_;
+}
+inline ::google::firestore::v1::Function* Value::mutable_function_value() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::Function* _msg = _internal_mutable_function_value();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Value.function_value)
+  return _msg;
+}
+
+// .google.firestore.v1.Pipeline pipeline_value = 21;
+inline bool Value::has_pipeline_value() const {
+  return value_type_case() == kPipelineValue;
+}
+inline bool Value::_internal_has_pipeline_value() const {
+  return value_type_case() == kPipelineValue;
+}
+inline void Value::set_has_pipeline_value() {
+  _impl_._oneof_case_[0] = kPipelineValue;
+}
+inline void Value::clear_pipeline_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() == kPipelineValue) {
+    if (GetArena() == nullptr) {
+      delete _impl_.value_type_.pipeline_value_;
+    }
+    clear_has_value_type();
+  }
+}
+inline ::google::firestore::v1::Pipeline* Value::release_pipeline_value() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Value.pipeline_value)
+  if (value_type_case() == kPipelineValue) {
+    clear_has_value_type();
+    auto* temp = _impl_.value_type_.pipeline_value_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.value_type_.pipeline_value_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::Pipeline& Value::_internal_pipeline_value() const {
+  return value_type_case() == kPipelineValue ? *_impl_.value_type_.pipeline_value_ : reinterpret_cast<::google::firestore::v1::Pipeline&>(::google::firestore::v1::_Pipeline_default_instance_);
+}
+inline const ::google::firestore::v1::Pipeline& Value::pipeline_value() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Value.pipeline_value)
+  return _internal_pipeline_value();
+}
+inline ::google::firestore::v1::Pipeline* Value::unsafe_arena_release_pipeline_value() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.Value.pipeline_value)
+  if (value_type_case() == kPipelineValue) {
+    clear_has_value_type();
+    auto* temp = _impl_.value_type_.pipeline_value_;
+    _impl_.value_type_.pipeline_value_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Value::unsafe_arena_set_allocated_pipeline_value(::google::firestore::v1::Pipeline* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_value_type();
+  if (value) {
+    set_has_pipeline_value();
+    _impl_.value_type_.pipeline_value_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.Value.pipeline_value)
+}
+inline ::google::firestore::v1::Pipeline* Value::_internal_mutable_pipeline_value() {
+  if (value_type_case() != kPipelineValue) {
+    clear_value_type();
+    set_has_pipeline_value();
+    _impl_.value_type_.pipeline_value_ = CreateMaybeMessage<::google::firestore::v1::Pipeline>(GetArena());
+  }
+  return _impl_.value_type_.pipeline_value_;
+}
+inline ::google::firestore::v1::Pipeline* Value::mutable_pipeline_value() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::Pipeline* _msg = _internal_mutable_pipeline_value();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Value.pipeline_value)
+  return _msg;
+}
+
 inline bool Value::has_value_type() const {
   return value_type_case() != VALUE_TYPE_NOT_SET;
 }
@@ -2230,6 +3235,331 @@ inline ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* Map
 inline ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* MapValue::mutable_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_mutable_map:google.firestore.v1.MapValue.fields)
   return _internal_mutable_fields();
+}
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// Function
+
+// string name = 1 [(.google.api.field_behavior) = REQUIRED];
+inline void Function::clear_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.name_.ClearToEmpty();
+}
+inline const std::string& Function::name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Function.name)
+  return _internal_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Function::set_name(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Function.name)
+}
+inline std::string* Function::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Function.name)
+  return _s;
+}
+inline const std::string& Function::_internal_name() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.name_.Get();
+}
+inline void Function::_internal_set_name(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.name_.Set(value, GetArena());
+}
+inline std::string* Function::_internal_mutable_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.name_.Mutable( GetArena());
+}
+inline std::string* Function::release_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Function.name)
+  return _impl_.name_.Release();
+}
+inline void Function::set_allocated_name(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.name_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.name_.IsDefault()) {
+          _impl_.name_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Function.name)
+}
+
+// repeated .google.firestore.v1.Value args = 2 [(.google.api.field_behavior) = OPTIONAL];
+inline int Function::_internal_args_size() const {
+  return _internal_args().size();
+}
+inline int Function::args_size() const {
+  return _internal_args_size();
+}
+inline void Function::clear_args() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.args_.Clear();
+}
+inline ::google::firestore::v1::Value* Function::mutable_args(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Function.args)
+  return _internal_mutable_args()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>* Function::mutable_args()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:google.firestore.v1.Function.args)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_args();
+}
+inline const ::google::firestore::v1::Value& Function::args(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Function.args)
+  return _internal_args().Get(index);
+}
+inline ::google::firestore::v1::Value* Function::add_args() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::google::firestore::v1::Value* _add = _internal_mutable_args()->Add();
+  // @@protoc_insertion_point(field_add:google.firestore.v1.Function.args)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>& Function::args() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:google.firestore.v1.Function.args)
+  return _internal_args();
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>&
+Function::_internal_args() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.args_;
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>*
+Function::_internal_mutable_args() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.args_;
+}
+
+// map<string, .google.firestore.v1.Value> options = 3 [(.google.api.field_behavior) = OPTIONAL];
+inline int Function::_internal_options_size() const {
+  return _internal_options().size();
+}
+inline int Function::options_size() const {
+  return _internal_options_size();
+}
+inline void Function::clear_options() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.options_.Clear();
+}
+inline const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& Function::_internal_options() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.options_.GetMap();
+}
+inline const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& Function::options() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_map:google.firestore.v1.Function.options)
+  return _internal_options();
+}
+inline ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* Function::_internal_mutable_options() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _impl_.options_.MutableMap();
+}
+inline ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* Function::mutable_options() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_map:google.firestore.v1.Function.options)
+  return _internal_mutable_options();
+}
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// Pipeline_Stage
+
+// string name = 1 [(.google.api.field_behavior) = REQUIRED];
+inline void Pipeline_Stage::clear_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.name_.ClearToEmpty();
+}
+inline const std::string& Pipeline_Stage::name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Pipeline.Stage.name)
+  return _internal_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Pipeline_Stage::set_name(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Pipeline.Stage.name)
+}
+inline std::string* Pipeline_Stage::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Pipeline.Stage.name)
+  return _s;
+}
+inline const std::string& Pipeline_Stage::_internal_name() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.name_.Get();
+}
+inline void Pipeline_Stage::_internal_set_name(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.name_.Set(value, GetArena());
+}
+inline std::string* Pipeline_Stage::_internal_mutable_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  return _impl_.name_.Mutable( GetArena());
+}
+inline std::string* Pipeline_Stage::release_name() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Pipeline.Stage.name)
+  return _impl_.name_.Release();
+}
+inline void Pipeline_Stage::set_allocated_name(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.name_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.name_.IsDefault()) {
+          _impl_.name_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Pipeline.Stage.name)
+}
+
+// repeated .google.firestore.v1.Value args = 2 [(.google.api.field_behavior) = OPTIONAL];
+inline int Pipeline_Stage::_internal_args_size() const {
+  return _internal_args().size();
+}
+inline int Pipeline_Stage::args_size() const {
+  return _internal_args_size();
+}
+inline void Pipeline_Stage::clear_args() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.args_.Clear();
+}
+inline ::google::firestore::v1::Value* Pipeline_Stage::mutable_args(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Pipeline.Stage.args)
+  return _internal_mutable_args()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>* Pipeline_Stage::mutable_args()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:google.firestore.v1.Pipeline.Stage.args)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_args();
+}
+inline const ::google::firestore::v1::Value& Pipeline_Stage::args(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Pipeline.Stage.args)
+  return _internal_args().Get(index);
+}
+inline ::google::firestore::v1::Value* Pipeline_Stage::add_args() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::google::firestore::v1::Value* _add = _internal_mutable_args()->Add();
+  // @@protoc_insertion_point(field_add:google.firestore.v1.Pipeline.Stage.args)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>& Pipeline_Stage::args() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:google.firestore.v1.Pipeline.Stage.args)
+  return _internal_args();
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>&
+Pipeline_Stage::_internal_args() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.args_;
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Value>*
+Pipeline_Stage::_internal_mutable_args() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.args_;
+}
+
+// map<string, .google.firestore.v1.Value> options = 3 [(.google.api.field_behavior) = OPTIONAL];
+inline int Pipeline_Stage::_internal_options_size() const {
+  return _internal_options().size();
+}
+inline int Pipeline_Stage::options_size() const {
+  return _internal_options_size();
+}
+inline void Pipeline_Stage::clear_options() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.options_.Clear();
+}
+inline const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& Pipeline_Stage::_internal_options() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.options_.GetMap();
+}
+inline const ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>& Pipeline_Stage::options() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_map:google.firestore.v1.Pipeline.Stage.options)
+  return _internal_options();
+}
+inline ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* Pipeline_Stage::_internal_mutable_options() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _impl_.options_.MutableMap();
+}
+inline ::google::protobuf::Map<std::string, ::google::firestore::v1::Value>* Pipeline_Stage::mutable_options() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_map:google.firestore.v1.Pipeline.Stage.options)
+  return _internal_mutable_options();
+}
+
+// -------------------------------------------------------------------
+
+// Pipeline
+
+// repeated .google.firestore.v1.Pipeline.Stage stages = 1 [(.google.api.field_behavior) = REQUIRED];
+inline int Pipeline::_internal_stages_size() const {
+  return _internal_stages().size();
+}
+inline int Pipeline::stages_size() const {
+  return _internal_stages_size();
+}
+inline void Pipeline::clear_stages() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.stages_.Clear();
+}
+inline ::google::firestore::v1::Pipeline_Stage* Pipeline::mutable_stages(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Pipeline.stages)
+  return _internal_mutable_stages()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Pipeline_Stage>* Pipeline::mutable_stages()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:google.firestore.v1.Pipeline.stages)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_stages();
+}
+inline const ::google::firestore::v1::Pipeline_Stage& Pipeline::stages(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Pipeline.stages)
+  return _internal_stages().Get(index);
+}
+inline ::google::firestore::v1::Pipeline_Stage* Pipeline::add_stages() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::google::firestore::v1::Pipeline_Stage* _add = _internal_mutable_stages()->Add();
+  // @@protoc_insertion_point(field_add:google.firestore.v1.Pipeline.stages)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Pipeline_Stage>& Pipeline::stages() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:google.firestore.v1.Pipeline.stages)
+  return _internal_stages();
+}
+inline const ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Pipeline_Stage>&
+Pipeline::_internal_stages() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.stages_;
+}
+inline ::google::protobuf::RepeatedPtrField<::google::firestore::v1::Pipeline_Stage>*
+Pipeline::_internal_mutable_stages() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.stages_;
 }
 
 #ifdef __GNUC__

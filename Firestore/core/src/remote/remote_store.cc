@@ -390,6 +390,17 @@ void RemoteStore::RunAggregateQuery(
   }
 }
 
+void RemoteStore::RunPipeline(
+    const api::Pipeline& pipeline,
+    util::StatusOrCallback<api::PipelineSnapshot> result_callback) {
+  if (CanUseNetwork()) {
+    datastore_->RunPipeline(pipeline, std::move(result_callback));
+  } else {
+    result_callback(Status::FromErrno(Error::kErrorUnavailable,
+                                      "Failed to get result from server."));
+  }
+}
+
 // Write Stream
 
 void RemoteStore::FillWritePipeline() {

@@ -13,6 +13,10 @@
 // limitations under the License.
 
 /// Configuration options for generating images with Imagen.
+///
+/// See [Parameters for Imagen
+/// models](https://firebase.google.com/docs/vertex-ai/model-parameters?platform=ios#imagen) to
+/// learn about parameters available for use with Imagen models, including how to configure them.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImagenGenerationConfig {
   /// Specifies elements to exclude from the generated image.

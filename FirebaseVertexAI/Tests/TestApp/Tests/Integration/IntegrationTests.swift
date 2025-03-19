@@ -69,27 +69,6 @@ final class IntegrationTests: XCTestCase {
 
   // MARK: - Generate Content
 
-  func testGenerateContent() async throws {
-    let prompt = "Where is Google headquarters located? Answer with the city name only."
-
-    let response = try await model.generateContent(prompt)
-
-    let text = try XCTUnwrap(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    XCTAssertEqual(text, "Mountain View")
-    let usageMetadata = try XCTUnwrap(response.usageMetadata)
-    XCTAssertEqual(usageMetadata.promptTokenCount, 21)
-    XCTAssertEqual(usageMetadata.candidatesTokenCount, 3, accuracy: tokenCountAccuracy)
-    XCTAssertEqual(usageMetadata.totalTokenCount, 24, accuracy: tokenCountAccuracy)
-    XCTAssertEqual(usageMetadata.promptTokensDetails.count, 1)
-    let promptTokensDetails = try XCTUnwrap(usageMetadata.promptTokensDetails.first)
-    XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, usageMetadata.promptTokenCount)
-    XCTAssertEqual(usageMetadata.candidatesTokensDetails.count, 1)
-    let candidatesTokensDetails = try XCTUnwrap(usageMetadata.candidatesTokensDetails.first)
-    XCTAssertEqual(candidatesTokensDetails.modality, .text)
-    XCTAssertEqual(candidatesTokensDetails.tokenCount, usageMetadata.candidatesTokenCount)
-  }
-
   func testGenerateContentStream() async throws {
     let expectedText = """
     1.  Mercury
@@ -130,7 +109,7 @@ final class IntegrationTests: XCTestCase {
   }
 
   func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
     addTeardownBlock { await app.delete() }
     let vertex = VertexAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
@@ -306,7 +285,7 @@ final class IntegrationTests: XCTestCase {
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: TestAppCheckProviderFactory.notConfiguredName)
+    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
     addTeardownBlock { await app.delete() }
     let vertex = VertexAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")

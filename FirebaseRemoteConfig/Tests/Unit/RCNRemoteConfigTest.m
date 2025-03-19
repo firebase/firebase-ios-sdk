@@ -1834,6 +1834,31 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
 }
 
+- (void)testURLSessionDelegateHandlesChunkedJSON {
+  NSString *testString = @"} {\"testKey\":\"testValue\"}";
+  NSData *testData = [testString dataUsingEncoding:NSUTF8StringEncoding];
+
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] = [self
+        expectationWithDescription:
+            [NSString
+                stringWithFormat:@"Test delegate method handling chunked JSON - instance %d", i]];
+
+    NSURLSession *networkSession = [_configFetch[i] currentNetworkSession];
+    NSURLSessionDataTask *dataTask = [_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
+                                                                    fetchTypeHeader:[OCMArg any]
+                                                                  completionHandler:nil];
+
+    XCTAssertNoThrow([_configRealtime[i] URLSession:networkSession
+                                           dataTask:dataTask
+                                     didReceiveData:testData]);
+    [expectations[i] fulfill];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 - (void)testSetCustomSignals {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];

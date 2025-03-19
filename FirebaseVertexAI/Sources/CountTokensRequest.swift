@@ -23,6 +23,7 @@ struct CountTokensRequest {
   let tools: [Tool]?
   let generationConfig: GenerationConfig?
 
+  let apiConfig: APIConfig
   let options: RequestOptions
 }
 
@@ -31,7 +32,8 @@ extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
   var url: URL {
-    URL(string: "\(Constants.baseURL)/\(options.apiVersion)/\(model):countTokens")!
+    URL(string:
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):countTokens")!
   }
 }
 
@@ -44,7 +46,7 @@ public struct CountTokensResponse {
   /// The total number of billable characters in the text input given to the model as a prompt.
   ///
   /// > Important: This does not include billable image, video or other non-text input. See
-  /// [Vertex AI pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing) for details.
+  /// [Vertex AI pricing](https://firebase.google.com/docs/vertex-ai/pricing) for details.
   public let totalBillableCharacters: Int?
 
   /// The breakdown, by modality, of how many tokens are consumed by the prompt.
