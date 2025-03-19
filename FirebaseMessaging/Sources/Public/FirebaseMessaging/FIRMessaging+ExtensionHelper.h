@@ -32,7 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return An instance of MessagingExtensionHelper that handles the extensions API.
  */
-+ (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension());
++ (FIRMessagingExtensionHelper *)extensionHelper NS_SWIFT_NAME(serviceExtension())
+    NS_SWIFT_SENDABLE;
 
 @end
 

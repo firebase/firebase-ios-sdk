@@ -59,7 +59,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
     // `nonisolated(unsafe)` to disable concurrency-safety checks. The
     // property's access is protected by an external synchronization mechanism
     // (see `instancesLock` property).
-    private nonisolated(unsafe) static var cachedInstances: AtomicBox<
+    private nonisolated(unsafe) static var cachedInstances: FirebaseCoreInternal.AtomicBox<
       [String: WeakContainer<HeartbeatStorage>]
     > = AtomicBox([:])
   #else
