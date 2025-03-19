@@ -27,6 +27,36 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
+final class AtomicBox<T> {
+  private var _value: T
+  private let lock = NSLock()
+
+  public init(_ value: T) {
+    _value = value
+  }
+
+  public func value() -> T {
+    lock.withLock {
+      _value
+    }
+  }
+
+  @discardableResult
+  public func withLock(_ mutatingBody: (_ value: inout T) -> Void) -> T {
+    lock.withLock {
+      mutatingBody(&_value)
+      return _value
+    }
+  }
+
+  @discardableResult
+  public func withLock<R>(_ mutatingBody: (_ value: inout T) throws -> R) rethrows -> R {
+    try lock.withLock {
+      try mutatingBody(&_value)
+    }
+  }
+}
+
 /// File specific constants.
 private enum Constants {
   static let appCheckTokenHeader = "X-Firebase-AppCheck"
@@ -53,10 +83,12 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private static var instances: [String: [Functions]] = [:]
-
-  /// Lock to manage access to the instances array to avoid race conditions.
-  private static var instancesLock: os_unfair_lock = .init()
+  #if compiler(>=6.0)
+    private nonisolated(unsafe) static var instances: AtomicBox<[String: [Functions]]> =
+      AtomicBox([:])
+  #else
+    private static var instances: AtomicBox<[String: [Functions]]> = AtomicBox([:])
+  #endif
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
@@ -304,30 +336,28 @@ enum FunctionsConstants {
     guard let app else {
       fatalError("`FirebaseApp.configure()` needs to be called before using Functions.")
     }
-    os_unfair_lock_lock(&instancesLock)
 
-    // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
-
-    if let associatedInstances = instances[app.name] {
-      for instance in associatedInstances {
-        // Domains may be nil, so handle with care.
-        var equalDomains = false
-        if let instanceCustomDomain = instance.customDomain {
-          equalDomains = instanceCustomDomain == customDomain
-        } else {
-          equalDomains = customDomain == nil
-        }
-        // Check if it's a match.
-        if instance.region == region, equalDomains {
-          return instance
+    return instances.withLock { instances in
+      if let associatedInstances = instances[app.name] {
+        for instance in associatedInstances {
+          // Domains may be nil, so handle with care.
+          var equalDomains = false
+          if let instanceCustomDomain = instance.customDomain {
+            equalDomains = instanceCustomDomain == customDomain
+          } else {
+            equalDomains = customDomain == nil
+          }
+          // Check if it's a match.
+          if instance.region == region, equalDomains {
+            return instance
+          }
         }
       }
+      let newInstance = Functions(app: app, region: region, customDomain: customDomain)
+      let existingInstances = instances[app.name, default: []]
+      instances[app.name] = existingInstances + [newInstance]
+      return newInstance
     }
-    let newInstance = Functions(app: app, region: region, customDomain: customDomain)
-    let existingInstances = instances[app.name, default: []]
-    instances[app.name] = existingInstances + [newInstance]
-    return newInstance
   }
 
   @objc init(projectID: String,
@@ -576,34 +606,65 @@ enum FunctionsConstants {
     }
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  private func callableStreamResult(fromResponseData data: Data,
-                                    endpointURL url: URL) throws -> JSONStreamResponse {
-    let data = try processedData(fromResponseData: data, endpointURL: url)
+  #if compiler(>=6.0)
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+    private func callableStreamResult(fromResponseData data: Data,
+                                      endpointURL url: URL) throws -> sending JSONStreamResponse {
+      let data = try processedData(fromResponseData: data, endpointURL: url)
 
-    let responseJSONObject: Any
-    do {
-      responseJSONObject = try JSONSerialization.jsonObject(with: data)
-    } catch {
-      throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
-    }
+      let responseJSONObject: Any
+      do {
+        responseJSONObject = try JSONSerialization.jsonObject(with: data)
+      } catch {
+        throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
+      }
 
-    guard let responseJSON = responseJSONObject as? [String: Any] else {
-      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-      throw FunctionsError(.dataLoss, userInfo: userInfo)
-    }
+      guard let responseJSON = responseJSONObject as? [String: Any] else {
+        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+        throw FunctionsError(.dataLoss, userInfo: userInfo)
+      }
 
-    if let _ = responseJSON["result"] {
-      return .result(responseJSON)
-    } else if let _ = responseJSON["message"] {
-      return .message(responseJSON)
-    } else {
-      throw FunctionsError(
-        .dataLoss,
-        userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
-      )
+      if let _ = responseJSON["result"] {
+        return .result(responseJSON)
+      } else if let _ = responseJSON["message"] {
+        return .message(responseJSON)
+      } else {
+        throw FunctionsError(
+          .dataLoss,
+          userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+        )
+      }
     }
-  }
+  #else
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+    private func callableStreamResult(fromResponseData data: Data,
+                                      endpointURL url: URL) throws -> JSONStreamResponse {
+      let data = try processedData(fromResponseData: data, endpointURL: url)
+
+      let responseJSONObject: Any
+      do {
+        responseJSONObject = try JSONSerialization.jsonObject(with: data)
+      } catch {
+        throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
+      }
+
+      guard let responseJSON = responseJSONObject as? [String: Any] else {
+        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+        throw FunctionsError(.dataLoss, userInfo: userInfo)
+      }
+
+      if let _ = responseJSON["result"] {
+        return .result(responseJSON)
+      } else if let _ = responseJSON["message"] {
+        return .message(responseJSON)
+      } else {
+        throw FunctionsError(
+          .dataLoss,
+          userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+        )
+      }
+    }
+  #endif // compiler(>=6.0)
 
   private func jsonData(jsonText: String) throws -> Data {
     guard let data = jsonText.data(using: .utf8) else {
