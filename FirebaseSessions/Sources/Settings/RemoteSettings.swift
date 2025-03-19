@@ -14,6 +14,7 @@
 // limitations under the License.
 
 import Foundation
+internal import FirebaseCoreInternal
 
 /// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and
 /// appBuildVersion
@@ -21,7 +22,7 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
-class RemoteSettings: SettingsProvider {
+final class RemoteSettings: SettingsProvider, Sendable {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagSessionsEnabled = "sessions_enabled"
   private static let flagSamplingRate = "sampling_rate"
@@ -30,47 +31,57 @@ class RemoteSettings: SettingsProvider {
   private static let flagSessionsCache = "app_quality"
   private let appInfo: ApplicationInfoProtocol
   private let downloader: SettingsDownloadClient
-  private var cache: SettingsCacheClient
+  private let cache: AtomicBox<SettingsCacheClient>
 
   private var cacheDurationSeconds: TimeInterval {
-    guard let duration = cache.cacheContent[RemoteSettings.flagCacheDuration] as? Double else {
-      return RemoteSettings.cacheDurationSecondsDefault
+    cache.withLock { cache in
+      guard let duration = cache.cacheContent[RemoteSettings.flagCacheDuration] as? Double else {
+        return RemoteSettings.cacheDurationSecondsDefault
+      }
+      return duration
     }
-    return duration
   }
 
   private var sessionsCache: [String: Any] {
-    return cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
+    cache.withLock { cache in
+      return cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
+    }
   }
 
   init(appInfo: ApplicationInfoProtocol,
        downloader: SettingsDownloadClient,
        cache: SettingsCacheClient = SettingsCache()) {
     self.appInfo = appInfo
-    self.cache = cache
+    self.cache = AtomicBox<SettingsCacheClient>(cache)
     self.downloader = downloader
   }
 
   private func fetchAndCacheSettings(currentTime: Date) {
-    // Only fetch if cache is expired, otherwise do nothing
-    guard isCacheExpired(time: currentTime) else {
-      Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
-      return
+    cache.withLock { cache in
+      // Only fetch if cache is expired, otherwise do nothing
+      guard isCacheExpired(cache, time: currentTime) else {
+        Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
+        return
+      }
     }
 
-    downloader.fetch { result in
-      switch result {
-      case let .success(dictionary):
-        // Saves all newly fetched Settings to cache
-        self.cache.cacheContent = dictionary
-        // Saves a "cache-key" which carries TTL metadata about current cache
-        self.cache.cacheKey = CacheKey(
-          createdAt: currentTime,
-          googleAppID: self.appInfo.appID,
-          appVersion: self.appInfo.synthesizedVersion
-        )
+      downloader.fetch { result in
+
+        switch result {
+        case let .success(dictionary):
+          self.cache.withLock { cache in
+            // Saves all newly fetched Settings to cache
+            cache.cacheContent = dictionary
+            // Saves a "cache-key" which carries TTL metadata about current cache
+            cache.cacheKey = CacheKey(
+              createdAt: currentTime,
+              googleAppID: self.appInfo.appID,
+              appVersion: self.appInfo.synthesizedVersion
+            )
+          }
       case let .failure(error):
         Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
+
       }
     }
   }
@@ -102,10 +113,12 @@ extension RemoteSettingsConfigurations {
   }
 
   func isSettingsStale() -> Bool {
-    return isCacheExpired(time: Date())
+    cache.withLock { cache in
+      return isCacheExpired(cache, time: Date())
+    }
   }
 
-  private func isCacheExpired(time: Date) -> Bool {
+  private func isCacheExpired(_ cache: SettingsCacheClient, time: Date) -> Bool {
     guard !cache.cacheContent.isEmpty else {
       cache.removeCache()
       return true
