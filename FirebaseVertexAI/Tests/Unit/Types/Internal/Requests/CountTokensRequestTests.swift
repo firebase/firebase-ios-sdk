@@ -19,22 +19,15 @@ import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CountTokensRequestTests: XCTestCase {
-  let encoder = JSONEncoder()
-
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
-  let developerAPIConfig = APIConfig(
-    service: .developer(endpoint: .firebaseVertexAIProd),
-    version: .v1beta
+  let vertexEncoder = CountTokensRequestTests.encoder(
+    apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+  )
+  let developerEncoder = CountTokensRequestTests.encoder(
+    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIProd), version: .v1beta)
   )
   let requestOptions = RequestOptions()
-
-  override func setUp() {
-    encoder.outputFormatting = .init(
-      arrayLiteral: .prettyPrinted, .sortedKeys, .withoutEscapingSlashes
-    )
-  }
 
   // MARK: CountTokensRequest Encoding
 
@@ -48,13 +41,12 @@ final class CountTokensRequestTests: XCTestCase {
       tools: nil,
       toolConfig: nil,
       systemInstruction: nil,
-      apiConfig: vertexAPIConfig,
       apiMethod: .countTokens,
       options: requestOptions
     )
     let request = CountTokensRequest(generateContentRequest: generateContentRequest)
 
-    let jsonData = try encoder.encode(request)
+    let jsonData = try vertexEncoder.encode(request)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
@@ -82,13 +74,12 @@ final class CountTokensRequestTests: XCTestCase {
       tools: nil,
       toolConfig: nil,
       systemInstruction: nil,
-      apiConfig: developerAPIConfig,
       apiMethod: .countTokens,
       options: requestOptions
     )
     let request = CountTokensRequest(generateContentRequest: generateContentRequest)
 
-    let jsonData = try encoder.encode(request)
+    let jsonData = try developerEncoder.encode(request)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
@@ -107,5 +98,13 @@ final class CountTokensRequestTests: XCTestCase {
       }
     }
     """)
+  }
+
+  static func encoder(apiConfig: APIConfig) -> JSONEncoder {
+    let encoder = JSONEncoder(apiConfig: apiConfig)
+    encoder.outputFormatting = .init(
+      arrayLiteral: .prettyPrinted, .sortedKeys, .withoutEscapingSlashes
+    )
+    return encoder
   }
 }
