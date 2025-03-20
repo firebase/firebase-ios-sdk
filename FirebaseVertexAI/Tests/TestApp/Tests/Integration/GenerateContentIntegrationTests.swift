@@ -115,4 +115,49 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.modality == .text)
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func testGenerateContentStream(_ config: InstanceConfig) async throws {
+    let expectedText = """
+    1. Mercury
+    2. Venus
+    3. Earth
+    4. Mars
+    5. Jupiter
+    6. Saturn
+    7. Uranus
+    8. Neptune
+    """
+    let prompt = """
+    What are the names of the planets in the solar system, ordered from closest to furthest from
+    the sun? Answer with a Markdown numbered list of the names and no other text.
+    """
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let chat = model.startChat()
+
+    let stream = try chat.sendMessageStream(prompt)
+    var textValues = [String]()
+    for try await value in stream {
+      try textValues.append(#require(value.text))
+    }
+
+    let userHistory = try #require(chat.history.first)
+    #expect(userHistory.role == "user")
+    #expect(userHistory.parts.count == 1)
+    let promptTextPart = try #require(userHistory.parts.first as? TextPart)
+    #expect(promptTextPart.text == prompt)
+    let modelHistory = try #require(chat.history.last)
+    #expect(modelHistory.role == "model")
+    #expect(modelHistory.parts.count == 1)
+    let modelTextPart = try #require(modelHistory.parts.first as? TextPart)
+    let modelText = modelTextPart.text.trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(modelText == expectedText)
+    #expect(textValues.count > 1)
+    let text = textValues.joined().trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(text == expectedText)
+  }
 }
