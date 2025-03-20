@@ -18,10 +18,15 @@
 
 #include <memory>
 
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
+#import "Firestore/Source/API/FSTUserDataWriter.h"
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+
+#include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/api/pipeline_result.h"
@@ -33,12 +38,14 @@
 
 using firebase::firestore::api::CollectionSource;
 using firebase::firestore::api::Constant;
+using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Expr;
 using firebase::firestore::api::Field;
 using firebase::firestore::api::FunctionExpr;
 using firebase::firestore::api::Pipeline;
 using firebase::firestore::api::Where;
 using firebase::firestore::util::MakeCallback;
+using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -164,17 +171,86 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface __FIRPipelineSnapshotBridge ()
+
+@property(nonatomic, strong, readwrite) NSArray<__FIRPipelineSnapshotBridge *> *results;
+
+@end
+
 @implementation __FIRPipelineSnapshotBridge {
-  absl::optional<api::PipelineSnapshot> pipeline;
+  absl::optional<api::PipelineSnapshot> snapshot_;
+  NSMutableArray<__FIRPipelineResultBridge *> *results_;
 }
 
 - (id)initWithCppSnapshot:(api::PipelineSnapshot)snapshot {
   self = [super init];
   if (self) {
-    pipeline = std::move(snapshot);
+    snapshot_ = std::move(snapshot);
+    if (!snapshot_.has_value()) {
+      results_ = nil;
+    } else {
+      NSMutableArray<__FIRPipelineResultBridge *> *results = [NSMutableArray array];
+      for (auto &result : snapshot_.value().results()) {
+        [results addObject:[[__FIRPipelineResultBridge alloc]
+                               initWithCppResult:result
+                                              db:snapshot_.value().firestore()]];
+      }
+      results_ = results;
+    }
   }
 
   return self;
+}
+
+- (NSArray<__FIRPipelineResultBridge *> *)results {
+  return results_;
+}
+
+@end
+
+@implementation __FIRPipelineResultBridge {
+  api::PipelineResult _result;
+  std::shared_ptr<api::Firestore> _db;
+}
+
+- (FIRDocumentReference *)reference {
+  if (!_result.internal_key().has_value()) return nil;
+
+  return [[FIRDocumentReference alloc] initWithKey:_result.internal_key().value() firestore:_db];
+}
+
+- (NSString *)documentID {
+  if (!_result.document_id().has_value()) {
+    return nil;
+  }
+
+  return MakeNSString(_result.document_id().value());
+}
+
+- (id)initWithCppResult:(api::PipelineResult)result db:(std::shared_ptr<api::Firestore>)db {
+  self = [super init];
+  if (self) {
+    _result = std::move(result);
+    _db = std::move(db);
+  }
+
+  return self;
+}
+
+- (nullable NSDictionary<NSString *, id> *)data {
+  return [self dataWithServerTimestampBehavior:FIRServerTimestampBehaviorNone];
+}
+
+- (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior {
+  absl::optional<firebase::firestore::google_firestore_v1_Value> data =
+      _result.internal_value()->Get();
+  if (!data) return nil;
+
+  FSTUserDataWriter *dataWriter =
+      [[FSTUserDataWriter alloc] initWithFirestore:_db
+                           serverTimestampBehavior:serverTimestampBehavior];
+  return [dataWriter convertedValue:*data];
 }
 
 @end

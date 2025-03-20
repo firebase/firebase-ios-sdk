@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
 namespace firebase {
@@ -35,7 +36,8 @@ google_firestore_v1_Value Field::to_proto() const {
 }
 
 google_firestore_v1_Value Constant::to_proto() const {
-  return *value_;
+  // Return a copy of the value proto to avoid double delete.
+  return *model::DeepClone(*value_).release();
 }
 
 google_firestore_v1_Value FunctionExpr::to_proto() const {

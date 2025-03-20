@@ -18,6 +18,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRDocumentSnapshot.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(ExprBridge)
@@ -72,6 +74,8 @@ NS_SWIFT_NAME(__PipelineResultBridge)
 @property(nonatomic, copy, readonly) NSString *documentID;
 
 - (nullable NSDictionary<NSString *, id> *)data;
+- (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 
