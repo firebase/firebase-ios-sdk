@@ -22,7 +22,8 @@
 import Foundation
 
 @objc public extension Firestore {
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @nonobjc func pipeline() -> PipelineSource {
-    return PipelineSource(db: self)
+    return PipelineSource(self)
   }
 }

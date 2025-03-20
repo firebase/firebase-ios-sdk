@@ -14,7 +14,7 @@
 
 public class FunctionExpr: Expr, BridgeWrapper, @unchecked Sendable {
   var bridge: ExprBridge
-  
+
   let functionName: String
   let agrs: [Expr]
 

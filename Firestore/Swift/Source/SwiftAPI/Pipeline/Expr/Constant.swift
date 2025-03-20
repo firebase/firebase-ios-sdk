@@ -22,12 +22,12 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   var bridge: ExprBridge
 
   let value: Any?
-  
+
   // Initializer for optional values (including nil)
   public init(_ value: Any?) {
     self.value = value
-    // TODO
-    self.bridge = ConstantBridge(value)
+    // TODO:
+    bridge = ConstantBridge(value)
   }
 
   // Initializer for numbers

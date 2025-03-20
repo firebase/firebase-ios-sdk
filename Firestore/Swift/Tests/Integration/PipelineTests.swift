@@ -23,7 +23,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     try await firestore().collection("foo").document("bar").setData(["foo": "bar", "x": 42])
     let snapshot = try await firestore()
       .pipeline()
-      .collection(path: "/foo")
+      .collection("/foo")
       .where(Field("foo") == Constant("bar"))
       .execute()
 

@@ -16,7 +16,7 @@
 public struct PipelineSource {
   let db: Firestore
 
-  init(db: Firestore) {
+  init(_ db: Firestore) {
     self.db = db
   }
 
@@ -25,26 +25,26 @@ public struct PipelineSource {
   }
 
   public func collectionGroup(_ collectionId: String) -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
   }
 
   public func database() -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
   }
 
   public func documents(_ docs: [DocumentReference]) -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
   }
 
   public func documents(_ paths: [String]) -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
   }
 
   public func create(from query: Query) -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
   }
 
   public func create(from aggregateQuery: AggregateQuery) -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
   }
 }

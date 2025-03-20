@@ -14,7 +14,7 @@
 
 public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, @unchecked Sendable {
   var bridge: ExprBridge
-  
+
   public var alias: String
 
   public let fieldName: String
@@ -22,7 +22,7 @@ public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, @unchecked Send
   public init(_ fieldName: String) {
     self.fieldName = fieldName
     alias = fieldName
-    self.bridge = FieldBridge(alias)
+    bridge = FieldBridge(alias)
   }
 
   public var expr: any Expr {
