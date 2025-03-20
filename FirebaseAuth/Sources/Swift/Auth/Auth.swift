@@ -2348,7 +2348,7 @@ extension Auth: AuthInterop {
 
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
-  var requestConfiguration: AuthRequestConfiguration
+  let requestConfiguration: AuthRequestConfiguration
 
   let backend: AuthBackend
 
@@ -2364,7 +2364,7 @@ extension Auth: AuthInterop {
     var notificationManager: AuthNotificationManager!
 
     /// An object that takes care of presenting URLs via the auth instance.
-    var authURLPresenter: AuthWebViewControllerDelegate
+    let authURLPresenter: AuthWebViewControllerDelegate
 
   #endif // TARGET_OS_IOS
 
