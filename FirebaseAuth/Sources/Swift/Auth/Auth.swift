@@ -2364,7 +2364,7 @@ extension Auth: AuthInterop {
     var notificationManager: AuthNotificationManager!
 
     /// An object that takes care of presenting URLs via the auth instance.
-    let authURLPresenter: AuthWebViewControllerDelegate
+    var authURLPresenter: AuthWebViewControllerDelegate
 
   #endif // TARGET_OS_IOS
 
