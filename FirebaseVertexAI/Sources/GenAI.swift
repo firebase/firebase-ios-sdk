@@ -20,13 +20,9 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-@available(*, deprecated, renamed: "GenAI")
-public typealias VertexAI = GenAI
-
 /// The Firebase GenAI SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class GenAI {
+public final class GenAI: VertexAIProtocol, Sendable {
   // MARK: - Public APIs
 
   /// Creates an instance of `VertexAI`.
@@ -41,7 +37,11 @@ public class GenAI {
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> GenAI {
-    let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
+    let vertexInstance = cachedInstance(
+      app: app,
+      location: location,
+      apiConfig: defaultVertexAIAPIConfig
+    )
     assert(vertexInstance.apiConfig.service == .vertexAI)
     assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
     assert(vertexInstance.apiConfig.version == .v1beta)
@@ -147,7 +147,7 @@ public class GenAI {
 
   static let defaultVertexAIAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
 
-  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> GenAI {
+  static func cachedInstance(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> GenAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }

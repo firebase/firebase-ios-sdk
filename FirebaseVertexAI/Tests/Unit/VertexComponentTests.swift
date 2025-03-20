@@ -19,6 +19,7 @@ import XCTest
 @_implementationOnly import FirebaseCoreExtension
 
 @testable import FirebaseGenAI
+@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 class VertexComponentTests: XCTestCase {
@@ -53,7 +54,7 @@ class VertexComponentTests: XCTestCase {
 
   /// Tests that a vertex instance can be created properly using the default Firebase app.
   func testVertexInstanceCreation_defaultApp() throws {
-    let vertex = VertexAI.vertexAI()
+    let vertex = VertexAI.vertexAI().genAI
 
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
@@ -67,7 +68,7 @@ class VertexComponentTests: XCTestCase {
   /// Tests that a vertex instance can be created properly using the default Firebase app and custom
   /// location.
   func testVertexInstanceCreation_defaultApp_customLocation() throws {
-    let vertex = VertexAI.vertexAI(location: location)
+    let vertex = VertexAI.vertexAI(location: location).genAI
 
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
@@ -80,7 +81,7 @@ class VertexComponentTests: XCTestCase {
 
   /// Tests that a vertex instance can be created properly.
   func testVertexInstanceCreation_customApp() throws {
-    let vertex = VertexAI.vertexAI(app: VertexComponentTests.app, location: location)
+    let vertex = VertexAI.vertexAI(app: VertexComponentTests.app, location: location).genAI
 
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
@@ -95,8 +96,8 @@ class VertexComponentTests: XCTestCase {
   func testSameAppAndLocation_instanceReused() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
 
-    let vertex1 = VertexAI.vertexAI(app: app, location: location)
-    let vertex2 = VertexAI.vertexAI(app: app, location: location)
+    let vertex1 = VertexAI.vertexAI(app: app, location: location).genAI
+    let vertex2 = VertexAI.vertexAI(app: app, location: location).genAI
 
     // Ensure they're the same instance.
     XCTAssert(vertex1 === vertex2)
@@ -135,12 +136,12 @@ class VertexComponentTests: XCTestCase {
   }
 
   func testSameAppAndDifferentAPI_newInstanceCreated() throws {
-    let vertex1 = VertexAI.vertexAI(
+    let vertex1 = GenAI.cachedInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
     )
-    let vertex2 = VertexAI.vertexAI(
+    let vertex2 = GenAI.cachedInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI, version: .v1)
@@ -153,7 +154,7 @@ class VertexComponentTests: XCTestCase {
   /// Test that vertex instances get deallocated.
   func testVertexLifecycle() throws {
     weak var weakApp: FirebaseApp?
-    weak var weakVertex: VertexAI?
+    weak var weakVertex: GenAI?
     try autoreleasepool {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
@@ -161,10 +162,10 @@ class VertexComponentTests: XCTestCase {
       options.apiKey = VertexComponentTests.apiKey
       let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
       weakApp = try XCTUnwrap(app1)
-      let vertex = VertexAI(
+      let vertex = GenAI(
         app: app1,
         location: "transitory location",
-        apiConfig: VertexAI.defaultVertexAIAPIConfig
+        apiConfig: GenAI.defaultVertexAIAPIConfig
       )
       weakVertex = vertex
       XCTAssertNotNil(weakVertex)
@@ -175,7 +176,7 @@ class VertexComponentTests: XCTestCase {
 
   func testModelResourceName_vertexAI() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = VertexAI.vertexAI(app: app, location: location)
+    let vertex = VertexAI.vertexAI(app: app, location: location).genAI
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -191,7 +192,7 @@ class VertexComponentTests: XCTestCase {
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
-    let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = GenAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
 
     let modelResourceName = vertex.modelResourceName(modelName: model)
@@ -205,7 +206,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = GenAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -216,7 +217,7 @@ class VertexComponentTests: XCTestCase {
 
   func testGenerativeModel_vertexAI() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = VertexAI.vertexAI(app: app, location: location)
+    let vertex = VertexAI.vertexAI(app: app, location: location).genAI
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
@@ -227,7 +228,7 @@ class VertexComponentTests: XCTestCase {
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
     XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
-    XCTAssertEqual(generativeModel.apiConfig, VertexAI.defaultVertexAIAPIConfig)
+    XCTAssertEqual(generativeModel.apiConfig, GenAI.defaultVertexAIAPIConfig)
   }
 
   func testGenerativeModel_developerAPI() async throws {
@@ -236,7 +237,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = VertexAI.vertexAI(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = GenAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
