@@ -16,12 +16,12 @@
 public struct PipelineSource {
   let db: Firestore
 
-  init(_ db: Firestore) {
+  init(db: Firestore) {
     self.db = db
   }
 
   public func collection(_ path: String) -> Pipeline {
-    return Pipeline(db)
+    return Pipeline(stages: [CollectionSource(collection: path)], db: db)
   }
 
   public func collectionGroup(_ collectionId: String) -> Pipeline {

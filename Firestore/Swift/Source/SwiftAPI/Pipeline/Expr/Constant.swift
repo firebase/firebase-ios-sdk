@@ -23,7 +23,8 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
 
   let value: Any?
   
-  internal init(_ value: Any?) {
+  // Initializer for optional values (including nil)
+  public init(_ value: Any?) {
     self.value = value
     // TODO
     self.bridge = ConstantBridge(value)
@@ -31,51 +32,41 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
 
   // Initializer for numbers
   public init(_ value: Double) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for strings
   public init(_ value: String) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for boolean values
   public init(_ value: Bool) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for GeoPoint values
   public init(_ value: GeoPoint) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for Timestamp values
   public init(_ value: Timestamp) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for Date values
   public init(_ value: Date) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for DocumentReference
   public init(_ value: DocumentReference) {
-    self.value = value
+    self.init(value as Any)
   }
 
   // Initializer for vector values
   public init(_ value: VectorValue) {
-    self.value = value
-  }
-
-  // Initializer for vector values
-  public init(_ vectorValue: [Double]) {
-    value = vectorValue
-  }
-
-  // Initializer for optional values (including nil)
-  public init(_ value: Any?) {
-    self.value = value
+    self.init(value as Any)
   }
 }

@@ -21,18 +21,26 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct Pipeline {
+  private var stages: [Stage]
+  private var bridge: PipelineBridge
   let db: Firestore
 
-  init(_ db: Firestore) {
+  init(stages: [Stage], db: Firestore) {
+    self.stages = stages
     self.db = db
+    bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   public func execute() async throws -> PipelineSnapshot {
-    return PipelineSnapshot(
-      pipeline: self,
-      results: [],
-      executionTime: Timestamp(seconds: 0, nanoseconds: 0)
-    )
+    return try await withCheckedThrowingContinuation { continuation in
+      self.bridge.execute { result, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: PipelineSnapshot(result!))
+        }
+      }
+    }
   }
 
   /// Adds new fields to outputs from previous stages.
@@ -120,7 +128,7 @@ public struct Pipeline {
   /// - Parameter condition: The `BooleanExpr` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func `where`(_ condition: BooleanExpr) -> Pipeline {
-    return self
+    return Pipeline(stages: stages + [Where(condition: condition)], db: db)
   }
 
   /// Skips the first `offset` number of documents from the results of previous stages.
