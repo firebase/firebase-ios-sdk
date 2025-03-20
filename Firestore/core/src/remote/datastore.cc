@@ -340,20 +340,22 @@ void Datastore::RunPipelineWithCredentials(
   GrpcUnaryCall* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
-  call->Start([this, call, callback = std::move(callback)](
-                  const StatusOr<grpc::ByteBuffer>& result) {
-    LogGrpcCallFinished("ExecutePipeline", call, result.status());
-    HandleCallStatus(result.status());
+  call->Start(
+      [this, db = pipeline.firestore(), call, callback = std::move(callback)](
+          const StatusOr<grpc::ByteBuffer>& result) {
+        LogGrpcCallFinished("ExecutePipeline", call, result.status());
+        HandleCallStatus(result.status());
 
-    if (result.ok()) {
-      callback(datastore_serializer_.DecodeExecutePipelineResponse(
-          result.ValueOrDie()));
-    } else {
-      callback(result.status());
-    }
+        if (result.ok()) {
+          auto response = datastore_serializer_.DecodeExecutePipelineResponse(
+              result.ValueOrDie(), std::move(db));
+          callback(response);
+        } else {
+          callback(result.status());
+        }
 
-    RemoveGrpcCall(call);
-  });
+        RemoveGrpcCall(call);
+      });
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {

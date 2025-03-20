@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/api/stages.h"
 
@@ -30,19 +31,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRExprBridge (Internal)
 
-- (std::shared_ptr<api::Expr>)cpp_expr;
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader;
 
 @end
 
 @interface FIRStageBridge (Internal)
 
-- (std::shared_ptr<api::Stage>)cpp_stage;
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader;
 
 @end
 
 @interface __FIRPipelineSnapshotBridge (Internal)
 
 - (id)initWithCppSnapshot:(api::PipelineSnapshot)snapshot;
+
+@end
+
+@interface __FIRPipelineResultBridge (Internal)
+
+- (id)initWithCppResult:(api::PipelineResult)result db:(std::shared_ptr<api::Firestore>)db;
 
 @end
 

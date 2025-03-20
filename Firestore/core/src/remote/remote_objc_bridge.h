@@ -156,7 +156,8 @@ class DatastoreSerializer {
       const firebase::firestore::api::Pipeline& pipeline) const;
 
   util::StatusOr<api::PipelineSnapshot> DecodeExecutePipelineResponse(
-      const grpc::ByteBuffer& response) const;
+      const grpc::ByteBuffer& response,
+      std::shared_ptr<api::Firestore> db) const;
 
  private:
   Serializer serializer_;
