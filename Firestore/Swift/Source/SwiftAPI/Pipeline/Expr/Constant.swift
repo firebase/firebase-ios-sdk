@@ -26,7 +26,7 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   internal init(_ value: Any?) {
     self.value = value
     // TODO
-    self.bridge = ConstantBridge(value as! NSNumber)
+    self.bridge = ConstantBridge(value)
   }
 
   // Initializer for numbers

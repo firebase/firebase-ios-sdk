@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class FunctionExpr: Expr, @unchecked Sendable {
+public class FunctionExpr: Expr, BridgeWrapper, @unchecked Sendable {
+  var bridge: ExprBridge
+  
   let functionName: String
   let agrs: [Expr]
 
   public init(_ functionName: String, _ agrs: [Expr]) {
     self.functionName = functionName
     self.agrs = agrs
+    bridge = FunctionExprBridge(
+      name: functionName,
+      args: self.agrs.map { ($0 as! (Expr & BridgeWrapper)).bridge
+      }
+    )
   }
 }

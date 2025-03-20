@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expr, Selectable, @unchecked Sendable {
+public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, @unchecked Sendable {
+  var bridge: ExprBridge
+  
   public var alias: String
 
   public let fieldName: String
@@ -20,6 +22,7 @@ public class Field: ExprBridge, Expr, Selectable, @unchecked Sendable {
   public init(_ fieldName: String) {
     self.fieldName = fieldName
     alias = fieldName
+    self.bridge = FieldBridge(alias)
   }
 
   public var expr: any Expr {
