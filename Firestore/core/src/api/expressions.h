@@ -23,9 +23,15 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/model/object_value.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace model {
+ class ObjectValue;
+}
+
 namespace api {
 
 class Expr {
@@ -47,12 +53,12 @@ class Field : public Expr {
 
 class Constant : public Expr {
  public:
-  explicit Constant(double value) : value_(value) {
+  explicit Constant(model::ObjectValue value) : value_(value) {
   }
   google_firestore_v1_Value to_proto() const override;
 
  private:
-  double value_;
+  const model::ObjectValue value_;
 };
 
 class FunctionExpr : public Expr {

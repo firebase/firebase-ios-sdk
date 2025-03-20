@@ -16,20 +16,6 @@
 
 import Foundation
 
-public protocol Expr {
-  var bridge: ExprBridge { get }
-}
-
-public struct Constant: Expr {
-  public var bridge: ExprBridge
-
-  var value: any Numeric
-  init(value: any Numeric) {
-    self.value = value
-    bridge = ConstantBridge(value as! NSNumber)
-  }
-}
-
 public func constant(_ number: any Numeric) -> Constant {
   return Constant(value: number)
 }

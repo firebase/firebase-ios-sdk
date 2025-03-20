@@ -12,8 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct Constant: Expr, @unchecked Sendable {
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
+
+public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
+  var bridge: ExprBridge
+
   let value: Any?
+  
+  internal init(_ value: Any?) {
+    self.value = value
+    // TODO
+    self.bridge = ConstantBridge(value as! NSNumber)
+  }
 
   // Initializer for numbers
   public init(_ value: Double) {

@@ -12,17 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expr, Selectable, @unchecked Sendable {
-  public var alias: String
 
-  public let fieldName: String
-
-  public init(_ fieldName: String) {
-    self.fieldName = fieldName
-    alias = fieldName
-  }
-
-  public var expr: any Expr {
-    return self
-  }
+internal protocol BridgeWrapper {
+  var bridge: ExprBridge { get }
 }
