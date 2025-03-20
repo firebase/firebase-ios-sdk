@@ -16,12 +16,28 @@
 
 import Foundation
 
-public func constant(_ number: any Numeric) -> Constant {
+public protocol Expr {}
+
+protocol BridgeWrapper {
+  var bridge: ExprBridge { get }
+}
+
+public struct Constant: Expr, BridgeWrapper {
+  var bridge: ExprBridge
+
+  var value: Any
+  init(value: Any) {
+    self.value = value
+    bridge = ConstantBridge(value)
+  }
+}
+
+public func constant(_ number: Any) -> Constant {
   return Constant(value: number)
 }
 
-public struct Field: Expr {
-  public var bridge: ExprBridge
+public struct Field: Expr, BridgeWrapper {
+  var bridge: ExprBridge
 
   var name: String
   init(name: String) {
@@ -38,8 +54,8 @@ protocol Function: Expr {
   var name: String { get }
 }
 
-public struct FunctionExpr: Function {
-  public var bridge: ExprBridge
+public struct FunctionExpr: Function, BridgeWrapper {
+  var bridge: ExprBridge
 
   var name: String
   private var args: [Expr]
@@ -47,7 +63,11 @@ public struct FunctionExpr: Function {
   init(name: String, args: [Expr]) {
     self.name = name
     self.args = args
-    bridge = FunctionExprBridge(name: name, args: args.map { $0.bridge })
+    bridge = FunctionExprBridge(
+      name: name,
+      args: args.map { ($0 as! (Expr & BridgeWrapper)).bridge
+      }
+    )
   }
 }
 

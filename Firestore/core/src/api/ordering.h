@@ -14,36 +14,39 @@
  * limitations under the License.
  */
 
-#import "FIRPipelineBridge.h"
+#ifndef FIRESTORE_CORE_SRC_API_ORDERING_H_
+#define FIRESTORE_CORE_SRC_API_ORDERING_H_
 
-#include <memory>
+#include <utility>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/api/pipeline.h"
-#include "Firestore/core/src/api/stages.h"
 
-@class FIRFilter;
+namespace firebase {
+namespace firestore {
+namespace api {
 
-namespace api = firebase::firestore::api;
+class UserDataReader;  // forward declaration
 
-NS_ASSUME_NONNULL_BEGIN
+class Ordering {
+ public:
+  enum Direction {
+    ASCENDING,
+    DESCENDING,
+  };
 
-@interface FIRExprBridge (Internal)
+  Ordering(Field field, Direction direction)
+      : field_(std::move(field)), direction_(direction) {
+  }
 
-- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader;
+  google_firestore_v1_Value to_proto() const;
 
-@end
+ private:
+  Field field_;
+  Direction direction_;
+};
 
-@interface FIRStageBridge (Internal)
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
 
-- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader;
-
-@end
-
-@interface __FIRPipelineSnapshotBridge (Internal)
-
-- (id)initWithCppSnapshot:(api::PipelineSnapshot)snapshot;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#endif  // FIRESTORE_CORE_SRC_API_ORDERING_H_

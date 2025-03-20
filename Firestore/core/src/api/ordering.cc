@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/api/expressions.h"
-
-#include <memory>
+#include "Firestore/core/src/api/ordering.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -25,28 +23,21 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-google_firestore_v1_Value Field::to_proto() const {
+google_firestore_v1_Value Ordering::to_proto() const {
   google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_map_value_tag;
 
-  result.which_value_type = google_firestore_v1_Value_field_reference_value_tag;
-  result.field_reference_value = nanopb::MakeBytesArray(this->name_);
-
-  return result;
-}
-
-google_firestore_v1_Value Constant::to_proto() const {
-  return *value_;
-}
-
-google_firestore_v1_Value FunctionExpr::to_proto() const {
-  google_firestore_v1_Value result;
-
-  result.which_value_type = google_firestore_v1_Value_function_value_tag;
-  result.function_value = google_firestore_v1_Function{};
-  result.function_value.name = nanopb::MakeBytesArray(name_);
-  nanopb::SetRepeatedField(
-      &result.function_value.args, &result.function_value.args_count, args_,
-      [](const std::shared_ptr<Expr>& arg) { return arg->to_proto(); });
+  result.map_value.fields_count = 2;
+  result.map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+  result.map_value.fields[0].key = nanopb::MakeBytesArray("expression");
+  result.map_value.fields[0].value = field_.to_proto();
+  result.map_value.fields[1].key = nanopb::MakeBytesArray("direction");
+  google_firestore_v1_Value direction;
+  direction.which_value_type = google_firestore_v1_Value_string_value_tag;
+  direction.string_value = nanopb::MakeBytesArray(
+      this->direction_ == ASCENDING ? "ascending" : "descending");
+  result.map_value.fields[1].value = direction;
 
   return result;
 }

@@ -31,7 +31,7 @@ NS_SWIFT_NAME(FieldBridge)
 
 NS_SWIFT_NAME(ConstantBridge)
 @interface FIRConstantBridge : FIRExprBridge
-- (id)init:(NSNumber *)value;
+- (id)init:(id)input;
 @end
 
 NS_SWIFT_NAME(FunctionExprBridge)

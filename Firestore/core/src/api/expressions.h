@@ -23,15 +23,10 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
-
-namespace model {
- class ObjectValue;
-}
-
 namespace api {
 
 class Expr {
@@ -41,11 +36,20 @@ class Expr {
   virtual google_firestore_v1_Value to_proto() const = 0;
 };
 
-class Field : public Expr {
+class Selectable : public Expr {
+ public:
+  virtual ~Selectable() = default;
+  virtual const std::string& alias() const = 0;
+};
+
+class Field : public Selectable {
  public:
   explicit Field(std::string name) : name_(std::move(name)) {
   }
   google_firestore_v1_Value to_proto() const override;
+  const std::string& alias() const override {
+    return name_;
+  }
 
  private:
   std::string name_;
@@ -53,12 +57,13 @@ class Field : public Expr {
 
 class Constant : public Expr {
  public:
-  explicit Constant(model::ObjectValue value) : value_(value) {
+  explicit Constant(nanopb::SharedMessage<google_firestore_v1_Value> value)
+      : value_(std::move(value)) {
   }
   google_firestore_v1_Value to_proto() const override;
 
  private:
-  const model::ObjectValue value_;
+  nanopb::SharedMessage<google_firestore_v1_Value> value_;
 };
 
 class FunctionExpr : public Expr {

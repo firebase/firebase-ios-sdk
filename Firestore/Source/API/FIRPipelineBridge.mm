@@ -20,6 +20,7 @@
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/pipeline.h"
@@ -57,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (std::shared_ptr<api::Expr>)cpp_expr {
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
   return field;
 }
 
@@ -65,16 +66,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRConstantBridge {
   std::shared_ptr<Constant> constant;
+  id _input;
+  Boolean isUserDataRead;
 }
-- (id)init:(NSNumber *)value {
+- (id)init:(id)input {
   self = [super init];
-  if (self) {
-    constant = std::make_shared<Constant>(value.doubleValue);
-  }
+  _input = input;
+  isUserDataRead = NO;
   return self;
 }
 
-- (std::shared_ptr<api::Expr>)cpp_expr {
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    constant = std::make_shared<Constant>([reader parsedQueryValue:_input]);
+  }
+
+  isUserDataRead = YES;
   return constant;
 }
 
@@ -82,22 +89,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRFunctionExprBridge {
   std::shared_ptr<FunctionExpr> eq;
+  NSString *_name;
+  NSArray<FIRExprBridge *> *_args;
+  Boolean isUserDataRead;
 }
 
 - (nonnull id)initWithName:(NSString *)name Args:(nonnull NSArray<FIRExprBridge *> *)args {
   self = [super init];
-  if (self) {
-    std::vector<std::shared_ptr<Expr>> cpp_args;
-    for (FIRExprBridge *arg in args) {
-      cpp_args.push_back(arg.cpp_expr);
-    }
-
-    eq = std::make_shared<FunctionExpr>(MakeString(name), std::move(cpp_args));
-  }
+  _name = name;
+  _args = args;
+  isUserDataRead = NO;
   return self;
 }
 
-- (std::shared_ptr<api::Expr>)cpp_expr {
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::vector<std::shared_ptr<Expr>> cpp_args;
+    for (FIRExprBridge *arg in _args) {
+      cpp_args.push_back([arg cppExprWithReader:reader]);
+    }
+    eq = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args));
+  }
+
+  isUserDataRead = YES;
   return eq;
 }
 
@@ -118,25 +132,33 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (std::shared_ptr<api::Stage>)cpp_stage {
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   return collection_source;
 }
 
 @end
 
 @implementation FIRWhereStageBridge {
+  FIRExprBridge *_exprBridge;
+  Boolean isUserDataRead;
   std::shared_ptr<Where> where;
 }
 
 - (id)initWithExpr:(FIRExprBridge *)expr {
   self = [super init];
   if (self) {
-    where = std::make_shared<Where>(expr.cpp_expr);
+    _exprBridge = expr;
+    isUserDataRead = NO;
   }
   return self;
 }
 
-- (std::shared_ptr<api::Stage>)cpp_stage {
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    where = std::make_shared<Where>([_exprBridge cppExprWithReader:reader]);
+  }
+
+  isUserDataRead = YES;
   return where;
 }
 
@@ -158,23 +180,25 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRPipelineBridge {
+  NSArray<FIRStageBridge *> *_stages;
+  FIRFirestore *firestore;
   std::shared_ptr<Pipeline> pipeline;
 }
 
 - (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
-  self = [super init];
-  if (self) {
-    std::vector<std::shared_ptr<firebase::firestore::api::Stage>> cpp_stages;
-    for (FIRStageBridge *stage in stages) {
-      cpp_stages.push_back(stage.cpp_stage);
-    }
-    pipeline = std::make_shared<Pipeline>(cpp_stages, db.wrapped);
-  }
-  return self;
+  _stages = stages;
+  firestore = db;
+  return [super init];
 }
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion {
+  std::vector<std::shared_ptr<firebase::firestore::api::Stage>> cpp_stages;
+  for (FIRStageBridge *stage in _stages) {
+    cpp_stages.push_back([stage cppStageWithReader:firestore.dataReader]);
+  }
+  pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
+
   pipeline->execute([completion](StatusOr<api::PipelineSnapshot> maybe_value) {
     if (maybe_value.ok()) {
       __FIRPipelineSnapshotBridge *bridge = [[__FIRPipelineSnapshotBridge alloc]
