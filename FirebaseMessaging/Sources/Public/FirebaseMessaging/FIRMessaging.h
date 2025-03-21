@@ -154,7 +154,7 @@ NS_SWIFT_NAME(MessagingDelegate)
 /// * Subscribing to any topics.
 - (void)messaging:(FIRMessaging *)messaging
     didReceiveRegistrationToken:(nullable NSString *)fcmToken
-    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:));
+    NS_SWIFT_NAME(messaging(_:didReceiveRegistrationToken:)) NS_SWIFT_UI_ACTOR;
 @end
 
 /**
@@ -174,7 +174,7 @@ NS_SWIFT_NAME(Messaging)
 /**
  * Delegate to handle FCM token refreshes, and remote data messages received via FCM direct channel.
  */
-@property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate;
+@property(nonatomic, weak, nullable) id<FIRMessagingDelegate> delegate NS_SWIFT_UI_ACTOR;
 
 /**
  *  FIRMessaging
@@ -203,7 +203,7 @@ NS_SWIFT_NAME(Messaging)
  *  If you would like to set the type of the APNs token, rather than relying on
  *  automatic detection, see `setAPNSToken(_:type:)`.
  */
-@property(nonatomic, copy, nullable) NSData *APNSToken NS_SWIFT_NAME(apnsToken);
+@property(nonatomic, copy, nullable) NSData *APNSToken NS_SWIFT_NAME(apnsToken) NS_SWIFT_UI_ACTOR;
 
 /**
  *  Set the APNs token for the application. This token will be used to register
@@ -216,7 +216,7 @@ NS_SWIFT_NAME(Messaging)
  *  `MessagingAPNSTokenTypeUnknown` to have the type automatically
  *  detected based on your provisioning profile.
  */
-- (void)setAPNSToken:(NSData *)apnsToken type:(FIRMessagingAPNSTokenType)type;
+- (void)setAPNSToken:(NSData *)apnsToken type:(FIRMessagingAPNSTokenType)type NS_SWIFT_UI_ACTOR;
 
 #pragma mark - FCM Tokens
 
@@ -236,7 +236,7 @@ NS_SWIFT_NAME(Messaging)
  * default (for example, because you want to prompt the user before getting a token),
  * set `FirebaseMessagingAutoInitEnabled` to NO in your application's Info.plist.
  */
-@property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled;
+@property(nonatomic, assign, getter=isAutoInitEnabled) BOOL autoInitEnabled NS_SWIFT_UI_ACTOR;
 
 /**
  * The FCM registration token is used to identify this device so that FCM can send notifications to
@@ -251,7 +251,8 @@ NS_SWIFT_NAME(Messaging)
  * Once you have an FCM registration token, you should send it to your application server, where
  * it can be used to send notifications to your device.
  */
-@property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken);
+@property(nonatomic, readonly, nullable) NSString *FCMToken NS_SWIFT_NAME(fcmToken)
+    NS_SWIFT_UI_ACTOR;
 
 /**
  * Asynchronously gets the default FCM registration token.
@@ -263,9 +264,9 @@ NS_SWIFT_NAME(Messaging)
  *
  * @param completion The completion handler to handle the token request.
  */
-
-- (void)tokenWithCompletion:(void (^)(NSString *_Nullable token,
-                                      NSError *_Nullable error))completion;
+- (void)tokenWithCompletion:
+    (void (^NS_SWIFT_UI_ACTOR)(NSString *_Nullable token, NSError *_Nullable error))completion
+    NS_SWIFT_UI_ACTOR;
 
 /**
  * Asynchronously deletes the default FCM registration token.
@@ -275,8 +276,8 @@ NS_SWIFT_NAME(Messaging)
  *
  * @param completion The completion handler to handle the token deletion.
  */
-
-- (void)deleteTokenWithCompletion:(void (^)(NSError *_Nullable error))completion;
+- (void)deleteTokenWithCompletion:(void (^NS_SWIFT_UI_ACTOR)(NSError *_Nullable error))completion
+    NS_SWIFT_UI_ACTOR;
 
 /**
  *  Retrieves an FCM registration token for a particular Sender ID. This can be used to allow
@@ -298,9 +299,9 @@ NS_SWIFT_NAME(Messaging)
  *  @param completion The completion handler to handle the token request.
  */
 - (void)retrieveFCMTokenForSenderID:(NSString *)senderID
-                         completion:(void (^)(NSString *_Nullable FCMToken,
-                                              NSError *_Nullable error))completion
-    NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:));
+                         completion:(void (^NS_SWIFT_UI_ACTOR)(NSString *_Nullable FCMToken,
+                                                               NSError *_Nullable error))completion
+    NS_SWIFT_NAME(retrieveFCMToken(forSenderID:completion:)) NS_SWIFT_UI_ACTOR;
 
 /**
  * Invalidates an FCM token for a particular Sender ID. That Sender ID cannot no longer send
@@ -311,8 +312,8 @@ NS_SWIFT_NAME(Messaging)
  * @param completion The completion handler to handle the token deletion.
  */
 - (void)deleteFCMTokenForSenderID:(NSString *)senderID
-                       completion:(void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
+                       completion:(void (^NS_SWIFT_UI_ACTOR)(NSError *_Nullable error))completion
+    NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:)) NS_SWIFT_UI_ACTOR;
 
 #pragma mark - Topics
 
@@ -323,7 +324,7 @@ NS_SWIFT_NAME(Messaging)
  *
  * @param topic The name of the topic, for example, @"sports".
  */
-- (void)subscribeToTopic:(NSString *)topic NS_SWIFT_NAME(subscribe(toTopic:));
+- (void)subscribeToTopic:(NSString *)topic NS_SWIFT_NAME(subscribe(toTopic:)) NS_SWIFT_UI_ACTOR;
 
 /**
  * Asynchronously subscribe to the provided topic, retrying on failure. This uses the default FCM
@@ -337,7 +338,8 @@ NS_SWIFT_NAME(Messaging)
  *                    appropriate error object is returned.
  */
 - (void)subscribeToTopic:(nonnull NSString *)topic
-              completion:(void (^_Nullable)(NSError *_Nullable error))completion;
+              completion:(void (^_Nullable NS_SWIFT_UI_ACTOR)(NSError *_Nullable error))completion
+    NS_SWIFT_UI_ACTOR;
 
 /**
  * Asynchronously unsubscribe from a topic.  This uses a FCM Token
@@ -346,7 +348,8 @@ NS_SWIFT_NAME(Messaging)
  *
  * @param topic The name of the topic, for example @"sports".
  */
-- (void)unsubscribeFromTopic:(NSString *)topic NS_SWIFT_NAME(unsubscribe(fromTopic:));
+- (void)unsubscribeFromTopic:(NSString *)topic
+    NS_SWIFT_NAME(unsubscribe(fromTopic:)) NS_SWIFT_UI_ACTOR;
 
 /**
  * Asynchronously unsubscribe from the provided topic, retrying on failure. This uses a FCM Token
@@ -359,7 +362,9 @@ NS_SWIFT_NAME(Messaging)
  *                     appropriate error object is returned.
  */
 - (void)unsubscribeFromTopic:(nonnull NSString *)topic
-                  completion:(void (^_Nullable)(NSError *_Nullable error))completion;
+                  completion:
+                      (void (^_Nullable NS_SWIFT_UI_ACTOR)(NSError *_Nullable error))completion
+    NS_SWIFT_UI_ACTOR;
 
 #pragma mark - Analytics
 
@@ -374,7 +379,7 @@ NS_SWIFT_NAME(Messaging)
  *
  *  @return Information about the downstream message.
  */
-- (FIRMessagingMessageInfo *)appDidReceiveMessage:(NSDictionary *)message;
+- (FIRMessagingMessageInfo *)appDidReceiveMessage:(NSDictionary *)message NS_SWIFT_UI_ACTOR;
 
 #pragma mark - GDPR
 /**
@@ -387,7 +392,8 @@ NS_SWIFT_NAME(Messaging)
  * @param completion A completion handler which is invoked when the operation completes. `error ==
  * nil` indicates success.
  */
-- (void)deleteDataWithCompletion:(void (^)(NSError *__nullable error))completion;
+- (void)deleteDataWithCompletion:(void (^NS_SWIFT_UI_ACTOR)(NSError *__nullable error))completion
+    NS_SWIFT_UI_ACTOR;
 
 @end
 
