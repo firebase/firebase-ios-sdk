@@ -13,7 +13,7 @@
 // limitations under the License.
 
 public class BooleanExpr: FunctionExpr, @unchecked Sendable {
-  override public init(_ functionName: String, _ agrs: [any Expr]) {
+  override public init(_ functionName: String, _ agrs: [Expr]) {
     super.init(functionName, agrs)
   }
 
