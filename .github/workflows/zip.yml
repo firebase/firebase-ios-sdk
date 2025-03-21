@@ -36,8 +36,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: package-release
-    - name: Xcode 16.1
-      run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+    - name: Xcode 16.2
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -511,8 +511,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
     steps:
-      - name: Xcode 16.1
-        run: sudo xcode-select -s /Applications/Xcode_16.1.app/Contents/Developer
+      - name: Xcode 16.2
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - uses: actions/checkout@v4
       - name: Get framework dir
         uses: actions/download-artifact@v4.1.7
