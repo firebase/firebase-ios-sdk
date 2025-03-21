@@ -44,7 +44,7 @@ final class RemoteSettings: SettingsProvider, Sendable {
 
   private var sessionsCache: [String: Any] {
     cache.withLock { cache in
-      return cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
+      cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
     }
   }
 
@@ -65,23 +65,22 @@ final class RemoteSettings: SettingsProvider, Sendable {
       }
     }
 
-      downloader.fetch { result in
+    downloader.fetch { result in
 
-        switch result {
-        case let .success(dictionary):
-          self.cache.withLock { cache in
-            // Saves all newly fetched Settings to cache
-            cache.cacheContent = dictionary
-            // Saves a "cache-key" which carries TTL metadata about current cache
-            cache.cacheKey = CacheKey(
-              createdAt: currentTime,
-              googleAppID: self.appInfo.appID,
-              appVersion: self.appInfo.synthesizedVersion
-            )
-          }
+      switch result {
+      case let .success(dictionary):
+        self.cache.withLock { cache in
+          // Saves all newly fetched Settings to cache
+          cache.cacheContent = dictionary
+          // Saves a "cache-key" which carries TTL metadata about current cache
+          cache.cacheKey = CacheKey(
+            createdAt: currentTime,
+            googleAppID: self.appInfo.appID,
+            appVersion: self.appInfo.synthesizedVersion
+          )
+        }
       case let .failure(error):
         Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
-
       }
     }
   }
@@ -114,7 +113,7 @@ extension RemoteSettingsConfigurations {
 
   func isSettingsStale() -> Bool {
     cache.withLock { cache in
-      return isCacheExpired(cache, time: Date())
+      isCacheExpired(cache, time: Date())
     }
   }
 

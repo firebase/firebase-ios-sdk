@@ -22,7 +22,8 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 protocol SettingsDownloadClient: Sendable {
-  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void)
+  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>)
+    -> Void)
 }
 
 enum SettingsDownloaderError: Error {
@@ -45,7 +46,8 @@ final class SettingsDownloader: SettingsDownloadClient {
     self.installations = installations
   }
 
-  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void) {
+  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>)
+    -> Void) {
     guard let validURL = url else {
       completion(.failure(.URLError("Invalid URL")))
       return

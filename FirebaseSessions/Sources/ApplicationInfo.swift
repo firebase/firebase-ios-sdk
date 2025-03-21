@@ -67,7 +67,10 @@ final class ApplicationInfo: ApplicationInfoProtocol {
 
   private let networkInformation: NetworkInfoProtocol
   private let envParams: [String: String]
-  nonisolated(unsafe) private let infoDict: [String: Any]?
+
+  // Used to hold bundle info, so the `Any` params should also
+  // be Sendable.
+  private nonisolated(unsafe) let infoDict: [String: Any]?
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
        envParams: [String: String] = ProcessInfo.processInfo.environment,
