@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,33 @@
  * limitations under the License.
  */
 
-import Foundation
+public class Ordering: @unchecked Sendable {
+  let expr: Expr
+  let direction: Direction
 
-public class PipelineSource {
-  private let db: Firestore
-  public init(db: Firestore) {
-    self.db = db
+  init(expr: Expr, direction: Direction) {
+    self.expr = expr
+    self.direction = direction
+  }
+}
+
+public struct Direction: Sendable, Equatable, Hashable {
+  let kind: Kind
+
+  enum Kind: String {
+    case ascending
+    case descending
   }
 
-  public func collection(path: String) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: path)], db: db)
+  public static var ascending: Direction {
+    return self.init(kind: .ascending)
+  }
+
+  public static var descending: Direction {
+    return self.init(kind: .descending)
+  }
+
+  init(kind: Kind) {
+    self.kind = kind
   }
 }

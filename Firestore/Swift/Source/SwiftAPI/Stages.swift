@@ -42,6 +42,6 @@ class Where: Stage {
 
   init(condition: Expr) {
     self.condition = condition
-    bridge = WhereStageBridge(expr: condition.bridge)
+    bridge = WhereStageBridge(expr: (condition as! (Expr & BridgeWrapper)).bridge)
   }
 }
