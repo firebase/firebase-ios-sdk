@@ -20,6 +20,9 @@ import Foundation
 /// content based on various input types.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class GenerativeModel: Sendable {
+  /// Model name prefix to identify Gemini models.
+  static let geminiModelNamePrefix = "gemini-"
+
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -71,6 +74,13 @@ public final class GenerativeModel: Sendable {
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
+    if !name.starts(with: GenerativeModel.geminiModelNamePrefix) {
+      VertexLog.warning(code: .unsupportedGeminiModel, """
+      Unsupported Gemini model "\(name)"; see \
+      https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
+      """)
+    }
+
     modelResourceName = name
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
@@ -89,13 +99,6 @@ public final class GenerativeModel: Sendable {
       ModelContent(role: nil, parts: $0.parts)
     }
     self.requestOptions = requestOptions
-
-    if !name.starts(with: "gemini-") {
-      VertexLog.warn(code: .unsupportedModelName, """
-        Unsupported Gemini model "\(name)"; see \
-        https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
-        """)
-    }
 
     if VertexLog.additionalLoggingEnabled() {
       VertexLog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
