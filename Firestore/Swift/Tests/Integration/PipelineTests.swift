@@ -20,10 +20,11 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
   func testCount() async throws {
+    try await firestore().collection("foo").document("bar").setData(["foo": "bar", "x": 42])
     let snapshot = try await firestore()
       .pipeline()
-      .collection(path: "foo")
-      .where(eq(field("foo"), constant(42)))
+      .collection(path: "/foo")
+      .where(eq(field("foo"), constant("bar")))
       .execute()
 
     print(snapshot)

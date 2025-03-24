@@ -14,41 +14,26 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/api/aggregate_expressions.h"
 
-#include <memory>
-
-#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
 namespace firebase {
 namespace firestore {
 namespace api {
 
-google_firestore_v1_Value Field::to_proto() const {
+google_firestore_v1_Value AggregateExpr::to_proto() const {
   google_firestore_v1_Value result;
-
-  result.which_value_type = google_firestore_v1_Value_field_reference_value_tag;
-  result.field_reference_value = nanopb::MakeBytesArray(this->name_);
-
-  return result;
-}
-
-google_firestore_v1_Value Constant::to_proto() const {
-  // Return a copy of the value proto to avoid double delete.
-  return *model::DeepClone(*value_).release();
-}
-
-google_firestore_v1_Value FunctionExpr::to_proto() const {
-  google_firestore_v1_Value result;
-
   result.which_value_type = google_firestore_v1_Value_function_value_tag;
-  result.function_value = google_firestore_v1_Function{};
+
   result.function_value.name = nanopb::MakeBytesArray(name_);
-  nanopb::SetRepeatedField(
-      &result.function_value.args, &result.function_value.args_count, args_,
-      [](const std::shared_ptr<Expr>& arg) { return arg->to_proto(); });
+  result.function_value.args_count = static_cast<pb_size_t>(params_.size());
+  result.function_value.args = nanopb::MakeArray<google_firestore_v1_Value>(
+      result.function_value.args_count);
+
+  for (size_t i = 0; i < params_.size(); ++i) {
+    result.function_value.args[i] = params_[i]->to_proto();
+  }
 
   return result;
 }

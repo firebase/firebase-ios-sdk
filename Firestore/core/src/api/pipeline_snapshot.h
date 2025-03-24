@@ -41,9 +41,18 @@ class PipelineSnapshot {
     return results_;
   }
 
+  const std::shared_ptr<Firestore> firestore() const {
+    return firestore_;
+  }
+
+  void SetFirestore(std::shared_ptr<Firestore> db) {
+    firestore_ = std::move(db);
+  }
+
  private:
   std::vector<PipelineResult> results_;
   model::SnapshotVersion execution_time_;
+  std::shared_ptr<Firestore> firestore_;
 };
 
 }  // namespace api
