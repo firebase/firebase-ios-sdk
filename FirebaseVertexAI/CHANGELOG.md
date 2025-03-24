@@ -1,3 +1,7 @@
+# 11.11.0
+- [added] Emits a warning when attempting to use an incompatible model with
+  `GenerativeModel` or `ImagenModel`. (#14610)
+
 # 11.10.0
 - [feature] The Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
 - [feature] The Vertex AI Sample App now includes an image generation example.
