@@ -116,8 +116,10 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
+  // MARK: Streaming Tests
+
   @Test(arguments: InstanceConfig.allConfigs)
-  func testGenerateContentStream(_ config: InstanceConfig) async throws {
+  func generateContentStream(_ config: InstanceConfig) async throws {
     let expectedText = """
     1. Mercury
     2. Venus
@@ -159,5 +161,35 @@ struct GenerateContentIntegrationTests {
     #expect(textValues.count > 1)
     let text = textValues.joined().trimmingCharacters(in: .whitespacesAndNewlines)
     #expect(text == expectedText)
+  }
+
+  // MARK: - App Check Tests
+
+  @Test(arguments: [
+    InstanceConfig.vertexV1AppCheckNotConfigured,
+    InstanceConfig.vertexV1BetaAppCheckNotConfigured,
+    // App Check is not supported on the Generative Language Developer API endpoint since it
+    // bypasses the Vertex AI in Firebase proxy.
+  ])
+  func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2Flash
+    )
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    try await #require {
+      _ = try await model.generateContent(prompt)
+    } throws: {
+      guard let error = $0 as? GenerateContentError else {
+        Issue.record("Expected a \(GenerateContentError.self); got \($0.self).")
+        return false
+      }
+      guard case let .internalError(underlyingError) = error else {
+        Issue.record("Expected a \(GenerateContentError.internalError.self); got \(error.self).")
+        return false
+      }
+
+      return String(describing: underlyingError).contains("Firebase App Check token is invalid")
+    }
   }
 }

@@ -24,15 +24,14 @@ struct TestApp: App {
     // Configure default Firebase App
     FirebaseApp.configure()
 
+    // Configure a Firebase App that is the same as the default app but without App Check.
+    FirebaseApp.configure(
+      appName: FirebaseAppNames.appCheckNotConfigured,
+      plistName: "GoogleService-Info"
+    )
+
     // Configure a Firebase App without a billing account (i.e., the "Spark" plan).
-    guard let plistPath =
-      Bundle.main.path(forResource: "GoogleService-Info-Spark", ofType: "plist") else {
-      fatalError("The file 'GoogleService-Info-Spark.plist' was not found.")
-    }
-    guard let options = FirebaseOptions(contentsOfFile: plistPath) else {
-      fatalError("Failed to parse options from 'GoogleService-Info-Spark.plist'.")
-    }
-    FirebaseApp.configure(name: FirebaseAppNames.spark, options: options)
+    FirebaseApp.configure(appName: FirebaseAppNames.spark, plistName: "GoogleService-Info-Spark")
   }
 
   var body: some Scene {

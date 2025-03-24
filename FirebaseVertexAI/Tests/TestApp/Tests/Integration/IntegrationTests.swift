@@ -67,23 +67,6 @@ final class IntegrationTests: XCTestCase {
     storage = Storage.storage()
   }
 
-  // MARK: - Generate Content
-
-  func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
-    addTeardownBlock { await app.delete() }
-    let vertex = VertexAI.vertexAI(app: app)
-    let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
-    let prompt = "Where is Google headquarters located? Answer with the city name only."
-
-    do {
-      _ = try await model.generateContent(prompt)
-      XCTFail("Expected a Firebase App Check error; none thrown.")
-    } catch let GenerateContentError.internalError(error) {
-      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
-    }
-  }
-
   // MARK: - Count Tokens
 
   func testCountTokens_text() async throws {
