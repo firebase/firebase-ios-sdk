@@ -15,7 +15,16 @@
 import FirebaseCore
 
 extension FirebaseApp {
+  /// Configures a Firebase app with the specified name and Google Service Info plist file name.
+  ///
+  /// - Parameters:
+  ///   - appName: The Firebase app's name; see ``FirebaseAppNames`` for app names with special
+  ///     meanings in the TestApp.
+  ///   - plistName: The file name of the Google Service Info plist, excluding the file extension;
+  ///     for the default app this is typically called `GoogleService-Info` but any file name may be
+  ///     used for other apps.
   static func configure(appName: String, plistName: String) {
+    assert(!plistName.hasSuffix(".plist"), "The .plist file extension must be omitted.")
     guard let plistPath =
       Bundle.main.path(forResource: plistName, ofType: "plist") else {
       fatalError("The file '\(plistName).plist' was not found.")

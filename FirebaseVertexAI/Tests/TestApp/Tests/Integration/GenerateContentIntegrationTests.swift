@@ -185,7 +185,7 @@ struct GenerateContentIntegrationTests {
         return false
       }
       guard case let .internalError(underlyingError) = error else {
-        Issue.record("Expected a \(GenerateContentError.internalError.self); got \(error.self).")
+        Issue.record("Expected a GenerateContentError.internalError(...); got \(error.self).")
         return false
       }
 
