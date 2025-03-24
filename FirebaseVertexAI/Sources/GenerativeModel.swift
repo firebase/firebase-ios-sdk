@@ -90,6 +90,13 @@ public final class GenerativeModel: Sendable {
     }
     self.requestOptions = requestOptions
 
+    if !name.starts(with: "gemini-") {
+      VertexLog.warn(code: .unsupportedModelName, """
+        Unsupported Gemini model "\(name)"; see \
+        https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
+        """)
+    }
+
     if VertexLog.additionalLoggingEnabled() {
       VertexLog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
     } else {

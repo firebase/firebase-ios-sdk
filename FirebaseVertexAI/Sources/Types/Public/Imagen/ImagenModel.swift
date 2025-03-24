@@ -60,6 +60,13 @@ public final class ImagenModel {
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings
     self.requestOptions = requestOptions
+
+    if !name.starts(with: "imagen-") {
+      VertexLog.warn(code: .unsupportedModelName, """
+        Unsupported Imagen model "\(name)"; see \
+        https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
+        """)
+    }
   }
 
   /// **[Public Preview]** Generates images using the Imagen model and returns them as inline data.
