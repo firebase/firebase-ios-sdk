@@ -33,8 +33,10 @@ enum VertexLog {
 
     // Generative Model Configuration
     case generativeModelInitialized = 1000
+    case unsupportedGeminiModel = 1001
 
     // Imagen Model Configuration
+    case unsupportedImagenModel = 1200
     case imagenInvalidJPEGCompressionQuality = 1201
 
     // Network Errors

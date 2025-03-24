@@ -28,6 +28,9 @@ import Foundation
 /// could change in backwards-incompatible ways.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class ImagenModel {
+  /// Model name prefix to identify Imagen models.
+  static let imagenModelNamePrefix = "imagen-"
+
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -51,6 +54,13 @@ public final class ImagenModel {
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
+    if !name.starts(with: ImagenModel.imagenModelNamePrefix) {
+      VertexLog.warning(code: .unsupportedImagenModel, """
+      Unsupported Imagen model "\(name)"; see \
+      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
+      """)
+    }
+
     modelResourceName = name
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
