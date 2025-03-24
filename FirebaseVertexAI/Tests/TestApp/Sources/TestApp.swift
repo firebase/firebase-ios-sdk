@@ -25,6 +25,7 @@ struct TestApp: App {
     FirebaseApp.configure()
 
     // Configure a Firebase App that is the same as the default app but without App Check.
+    // This is used for tests that should fail when App Check is not configured.
     FirebaseApp.configure(
       appName: FirebaseAppNames.appCheckNotConfigured,
       plistName: "GoogleService-Info"
