@@ -21,16 +21,15 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineResult {
-  init(ref: DocumentReference? = nil,
-       id: String? = nil,
-       createTime: Timestamp? = nil,
-       updateTime: Timestamp? = nil,
-       data: [String: Any] = [:]) {
-    self.ref = ref
-    self.id = id
-    self.createTime = createTime
-    self.updateTime = updateTime
-    self.data = data
+  let bridge: __PipelineResultBridge
+
+  init(_ bridge: __PipelineResultBridge) {
+    self.bridge = bridge
+    ref = self.bridge.reference
+    id = self.bridge.documentID
+    data = self.bridge.data()
+    createTime = self.bridge.create_time
+    updateTime = self.bridge.update_time
   }
 
   /// The reference of the document, if the query returns the `__name__` field.

@@ -12,7 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public protocol Selectable: Sendable {
-  var alias: String { get }
-  var expr: Expr { get }
-}
+public protocol Selectable: Sendable {}

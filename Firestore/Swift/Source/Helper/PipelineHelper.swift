@@ -14,6 +14,9 @@
 
 enum Helper {
   static func valueToDefaultExpr(_ value: Any) -> any Expr {
+    if value is Constant {
+      return value as! Expr
+    }
     return Field("PLACEHOLDER")
   }
 

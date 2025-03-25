@@ -23,9 +23,12 @@ public struct PipelineSnapshot {
   /// The time at which the pipeline producing this result was executed.
   public let executionTime: Timestamp
 
-  init(pipeline: Pipeline, results: [PipelineResult], executionTime: Timestamp) {
+  let bridge: __PipelineSnapshotBridge
+
+  init(_ bridge: __PipelineSnapshotBridge, pipeline: Pipeline) {
+    self.bridge = bridge
     self.pipeline = pipeline
-    self.results = results
-    self.executionTime = executionTime
+    executionTime = self.bridge.execution_time
+    results = self.bridge.results.map { PipelineResult($0) }
   }
 }

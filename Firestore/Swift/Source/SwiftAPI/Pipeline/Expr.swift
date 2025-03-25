@@ -798,7 +798,7 @@ public func <= (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> Boole
 }
 
 public func == (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
-  try BooleanExpr("eq", [lhs, rhs() as! Expr])
+  try BooleanExpr("eq", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
 public func != (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {

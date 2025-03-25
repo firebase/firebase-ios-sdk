@@ -16,6 +16,8 @@
 
 #import "FIRPipelineBridge.h"
 
+#import <FirebaseCore/FIRTimestamp.h>
+
 #include <memory>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -23,6 +25,7 @@
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
+#import "Firestore/Source/API/converters.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 
@@ -42,6 +45,7 @@ using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::Expr;
 using firebase::firestore::api::Field;
 using firebase::firestore::api::FunctionExpr;
+using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::Pipeline;
 using firebase::firestore::api::Where;
 using firebase::firestore::util::MakeCallback;
@@ -173,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface __FIRPipelineSnapshotBridge ()
 
-@property(nonatomic, strong, readwrite) NSArray<__FIRPipelineSnapshotBridge *> *results;
+@property(nonatomic, strong, readwrite) NSArray<__FIRPipelineResultBridge *> *results;
 
 @end
 
@@ -206,6 +210,14 @@ NS_ASSUME_NONNULL_BEGIN
   return results_;
 }
 
+- (FIRTimestamp *)execution_time {
+  if (!snapshot_.has_value()) {
+    return nil;
+  } else {
+    return MakeFIRTimestamp(snapshot_.value().execution_time().timestamp());
+  }
+}
+
 @end
 
 @implementation __FIRPipelineResultBridge {
@@ -213,18 +225,34 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<api::Firestore> _db;
 }
 
-- (FIRDocumentReference *)reference {
+- (nullable FIRDocumentReference *)reference {
   if (!_result.internal_key().has_value()) return nil;
 
   return [[FIRDocumentReference alloc] initWithKey:_result.internal_key().value() firestore:_db];
 }
 
-- (NSString *)documentID {
+- (nullable NSString *)documentID {
   if (!_result.document_id().has_value()) {
     return nil;
   }
 
   return MakeNSString(_result.document_id().value());
+}
+
+- (nullable FIRTimestamp *)create_time {
+  if (!_result.create_time().has_value()) {
+    return nil;
+  }
+
+  return MakeFIRTimestamp(_result.create_time().value().timestamp());
+}
+
+- (nullable FIRTimestamp *)update_time {
+  if (!_result.update_time().has_value()) {
+    return nil;
+  }
+
+  return MakeFIRTimestamp(_result.update_time().value().timestamp());
 }
 
 - (id)initWithCppResult:(api::PipelineResult)result db:(std::shared_ptr<api::Firestore>)db {
@@ -237,15 +265,15 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (nullable NSDictionary<NSString *, id> *)data {
+- (NSDictionary<NSString *, id> *)data {
   return [self dataWithServerTimestampBehavior:FIRServerTimestampBehaviorNone];
 }
 
-- (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+- (NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior {
   absl::optional<firebase::firestore::google_firestore_v1_Value> data =
       _result.internal_value()->Get();
-  if (!data) return nil;
+  if (!data) return [NSDictionary dictionary];
 
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_db

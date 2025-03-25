@@ -20,6 +20,8 @@
 
 #import "FIRDocumentSnapshot.h"
 
+@class FIRTimestamp;
+
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(ExprBridge)
@@ -59,23 +61,30 @@ NS_SWIFT_NAME(WhereStageBridge)
 
 @end
 
-NS_SWIFT_NAME(__PipelineSnapshotBridge)
-@interface __FIRPipelineSnapshotBridge : NSObject
-
-@property(nonatomic, strong, readonly) NSArray<__FIRPipelineSnapshotBridge *> *results;
-
-@end
-
 NS_SWIFT_NAME(__PipelineResultBridge)
 @interface __FIRPipelineResultBridge : NSObject
 
-@property(nonatomic, strong, readonly) FIRDocumentReference *reference;
+@property(nonatomic, strong, readonly, nullable) FIRDocumentReference *reference;
 
-@property(nonatomic, copy, readonly) NSString *documentID;
+@property(nonatomic, copy, readonly, nullable) NSString *documentID;
 
-- (nullable NSDictionary<NSString *, id> *)data;
-- (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+@property(nonatomic, strong, readonly, nullable) FIRTimestamp *create_time;
+
+@property(nonatomic, strong, readonly, nullable) FIRTimestamp *update_time;
+
+- (NSDictionary<NSString *, id> *)data;
+
+- (NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior;
+
+@end
+
+NS_SWIFT_NAME(__PipelineSnapshotBridge)
+@interface __FIRPipelineSnapshotBridge : NSObject
+
+@property(nonatomic, strong, readonly) NSArray<__FIRPipelineResultBridge *> *results;
+
+@property(nonatomic, strong, readonly) FIRTimestamp *execution_time;
 
 @end
 

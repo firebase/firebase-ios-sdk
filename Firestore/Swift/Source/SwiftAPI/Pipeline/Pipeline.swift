@@ -37,7 +37,7 @@ public struct Pipeline {
         if let error {
           continuation.resume(throwing: error)
         } else {
-          continuation.resume(returning: PipelineSnapshot(result!))
+          continuation.resume(returning: PipelineSnapshot(result!, pipeline: self))
         }
       }
     }
@@ -288,9 +288,9 @@ public struct Pipeline {
   /// This stage allows you to emit a map value as a document. Each key of the map becomes a
   /// field on the document that contains the corresponding value.
   ///
-  /// - Parameter field: The `Selectable` field containing the nested map.
+  /// - Parameter field: The `Expr` field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func replace(with field: Selectable) -> Pipeline {
+  public func replace(with expr: Expr) -> Pipeline {
     // Implementation
     return self
   }
@@ -312,9 +312,9 @@ public struct Pipeline {
   /// This stage will filter documents pseudo-randomly. The parameter specifies how number of
   /// documents to be returned.
   ///
-  /// - Parameter documents: The number of documents to sample.
+  /// - Parameter count: The number of documents to sample.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func sample(_ count: Int64) -> Pipeline {
+  public func sample(count: Int64) -> Pipeline {
     // Implementation
     return self
   }
@@ -324,9 +324,9 @@ public struct Pipeline {
   /// This stage will filter documents pseudo-randomly. The `options` parameter specifies how
   /// sampling will be performed. See `SampleOptions` for more information.
   ///
-  /// - Parameter options: The `SampleOptions` specifies how sampling is performed.
+  /// - Parameter percentage: The percentage of documents to sample.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func sample(with option: SampleOption) -> Pipeline {
+  public func sample(percentage: Double) -> Pipeline {
     // Implementation
     return self
   }

@@ -12,20 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct SampleOption {
-  let percentage: Double?
-  let count: Int64?
-
-  private init(percentage: Double?, count: Int64?) {
-    self.percentage = percentage
-    self.count = count
-  }
-
-  public init(percentage: Double) {
-    self.init(percentage: percentage, count: nil)
-  }
-
-  public init(count: Int64) {
-    self.init(percentage: nil, count: count)
-  }
+protocol SelectableInternal: Sendable {
+  var alias: String { get }
+  var expr: Expr { get }
 }

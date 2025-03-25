@@ -219,13 +219,10 @@ final class PipelineTests: FSTIntegrationTestCase {
 
   func testSampleStage() async throws {
     // Sample 25 books, if the collection contains at least 25 documents
-    _ = db.pipeline().collection("books").sample(25)
-
-    // Sample 25 books, if the collection contains at least 25 documents
-    _ = db.pipeline().collection("books").sample(with: SampleOption(count: 10))
+    _ = db.pipeline().collection("books").sample(count: 10)
 
     // Sample 10 percent of the collection of books
-    _ = db.pipeline().collection("books").sample(with: SampleOption(percentage: 10))
+    _ = db.pipeline().collection("books").sample(percentage: 10)
   }
 
   func testUnionStage() async throws {

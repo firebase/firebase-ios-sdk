@@ -15,9 +15,9 @@
 public struct ExprWithAlias: Selectable {
   public var alias: String
 
-  public var expr: any Expr
+  public var expr: Expr
 
-  init(_ expr: some Expr, _ alias: String) {
+  init(_ expr: Expr, _ alias: String) {
     self.alias = alias
     self.expr = expr
   }

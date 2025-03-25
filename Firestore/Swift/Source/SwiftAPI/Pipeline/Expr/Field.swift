@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, @unchecked Sendable {
+public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableInternal,
+  @unchecked Sendable {
   var bridge: ExprBridge
 
-  public var alias: String
+  var alias: String
+
+  var expr: any Expr {
+    return self
+  }
 
   public let fieldName: String
 
@@ -23,9 +28,5 @@ public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, @unchecked Send
     self.fieldName = fieldName
     alias = fieldName
     bridge = FieldBridge(alias)
-  }
-
-  public var expr: any Expr {
-    return self
   }
 }
