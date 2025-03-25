@@ -34,6 +34,15 @@ struct InstanceConfig {
   )
   static let allConfigs = [vertexV1, vertexV1Beta, developerV1, developerV1Beta]
 
+  static let vertexV1AppCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI, version: .v1)
+  )
+  static let vertexV1BetaAppCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+  )
+
   let appName: String?
   let location: String?
   let apiConfig: APIConfig
