@@ -1510,8 +1510,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.10.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "a3a9f67c65c513346dce2d3b26072258ce4d42507d2b4e81db6c9e6869542c66"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.11.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "7f4c24cee332af39d2a93987788ea50212c55d06b1c06794587e7068f96e70c8"
       )
     }
   }()
