@@ -1514,7 +1514,8 @@ api::PipelineSnapshot Serializer::DecodePipelineResponse(
     const {
   auto execution_time = DecodeVersion(context, message->execution_time);
 
-  std::vector<api::PipelineResult> results(message->results_count);
+  std::vector<api::PipelineResult> results;
+  results.reserve(message->results_count);
 
   for (pb_size_t i = 0; i < message->results_count; ++i) {
     absl::optional<DocumentKey> key;
