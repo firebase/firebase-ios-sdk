@@ -85,6 +85,7 @@ public final class GenerativeModel: Sendable {
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
       urlSession: urlSession
     )
     self.generationConfig = generationConfig
@@ -147,7 +148,6 @@ public final class GenerativeModel: Sendable {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
       apiMethod: .generateContent,
       options: requestOptions
     )
@@ -207,7 +207,6 @@ public final class GenerativeModel: Sendable {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
       apiMethod: .streamGenerateContent,
       options: requestOptions
     )
@@ -289,7 +288,6 @@ public final class GenerativeModel: Sendable {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
       apiMethod: .countTokens,
       options: requestOptions
     )
