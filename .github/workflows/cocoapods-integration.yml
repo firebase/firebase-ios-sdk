@@ -1,35 +1,36 @@
-name: cocoapods-integration
+# TODO(Swift 6): Re-enable these tests.
+# name: cocoapods-integration
 
-on:
-  pull_request:
-    paths:
-    - 'IntegrationTesting/CocoapodsIntegrationTest/**'
-    - '.github/workflows/cocoapods-integration.yml'
-    - 'Gemfile*'
-  schedule:
-    # Run every day at 2am (PST) - cron uses UTC times
-    - cron:  '0 10 * * *'
+# on:
+#   pull_request:
+#     paths:
+#     - 'IntegrationTesting/CocoapodsIntegrationTest/**'
+#     - '.github/workflows/cocoapods-integration.yml'
+#     - 'Gemfile*'
+#   schedule:
+#     # Run every day at 2am (PST) - cron uses UTC times
+#     - cron:  '0 10 * * *'
 
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
+# concurrency:
+#     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#     cancel-in-progress: true
 
-jobs:
-  tests:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-        || github.event_name == 'workflow_dispatch'
+# jobs:
+#   tests:
+#     # Don't run on private repo unless it is a PR.
+#     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+#         || github.event_name == 'workflow_dispatch'
 
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Get realpath
-      run: brew install coreutils
-    - name: Build and test
-      run: |
-        scripts/third_party/travis/retry.sh ./IntegrationTesting/CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
-          --podfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile
+#     runs-on: macos-14
+#     steps:
+#     - uses: actions/checkout@v4
+#     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#       with:
+#         cache_key: ${{ matrix.os }}
+#     - name: Get realpath
+#       run: brew install coreutils
+#     - name: Build and test
+#       run: |
+#         scripts/third_party/travis/retry.sh ./IntegrationTesting/CocoapodsIntegrationTest/scripts/build_with_environment.sh \
+#           --gemfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
+#           --podfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile

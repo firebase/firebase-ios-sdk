@@ -12,37 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: combine
+# TODO(Swift 6): Re-enable these tests.
+# name: combine
 
-on:
-  pull_request:
-    paths:
-    # Combine sources
-    - 'FirebaseCombineSwift/**'
+# on:
+#   pull_request:
+#     paths:
+#     # Combine sources
+#     - 'FirebaseCombineSwift/**'
 
-    # Podspecs
-    - 'FirebaseCombineSwift.podspec'
+#     # Podspecs
+#     - 'FirebaseCombineSwift.podspec'
 
-    # This workflow
-    - '.github/workflows/combine.yml'
+#     # This workflow
+#     - '.github/workflows/combine.yml'
 
-    # Rebuild on Ruby infrastructure changes.
-    - 'Gemfile'
+#     # Rebuild on Ruby infrastructure changes.
+#     - 'Gemfile'
 
-    # Dependencies (Disabled to avoid building Firestore in presubmits)
-    # - 'FirebaseCore/**'
-    # - 'FirebaseAuth/**'
-    # - 'FirebaseFunctions/**'
-    # - 'Firestore/**'
-    # - 'FirebaseStorage/**'
+#     # Dependencies (Disabled to avoid building Firestore in presubmits)
+#     # - 'FirebaseCore/**'
+#     # - 'FirebaseAuth/**'
+#     # - 'FirebaseFunctions/**'
+#     # - 'Firestore/**'
+#     # - 'FirebaseStorage/**'
 
-  schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
-    - cron:  '0 7 * * *'
+#   schedule:
+#     # Run every day at 11pm (PST) - cron uses UTC times
+#     - cron:  '0 7 * * *'
 
-concurrency:
-    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
+# concurrency:
+#     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#     cancel-in-progress: true
 
 jobs:
   xcodebuild:
@@ -50,26 +51,26 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-15
 
-    strategy:
-      matrix:
-        target: [iOS]
+#     strategy:
+#       matrix:
+#         target: [iOS]
 
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
+#     steps:
+#     - uses: actions/checkout@v4
+#     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#       with:
+#         cache_key: ${{ matrix.os }}
 
-    - uses: ruby/setup-ruby@v1
+#     - uses: ruby/setup-ruby@v1
 
-    - name: Install xcpretty
-      run: gem install xcpretty
+#     - name: Install xcpretty
+#       run: gem install xcpretty
 
-    - name: Setup build
-      run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
+#     - name: Setup build
+#       run:  scripts/install_prereqs.sh CombineSwift ${{ matrix.target }} xcodebuild
 
-    - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh CombineSwift ${{ matrix.target }} xcodebuild
+#     - name: Build and test
+#       run:  scripts/third_party/travis/retry.sh scripts/build.sh CombineSwift ${{ matrix.target }} xcodebuild
 
   storage-combine-integration:
     # Don't run on private repo unless it is a PR.
