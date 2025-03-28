@@ -44,7 +44,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
@@ -143,7 +143,7 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: catalyst${{ matrix.os }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08
@@ -164,7 +164,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -187,7 +187,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
@@ -223,7 +223,7 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint ABTesting Cron

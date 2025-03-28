@@ -345,7 +345,7 @@ jobs:
       with:
         cache_key: ${{ matrix.target }}
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -373,7 +373,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -424,7 +424,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode

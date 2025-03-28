@@ -38,7 +38,7 @@ jobs:
         cache_key: package-release
     - name: Xcode 15.2
       run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -83,7 +83,7 @@ jobs:
         cache_key: package-head
     - name: Xcode 15.2
       run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -124,7 +124,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -184,7 +184,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -237,7 +237,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -288,7 +288,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -359,7 +359,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -414,7 +414,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -473,7 +473,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -518,7 +518,7 @@ jobs:
         uses: actions/download-artifact@v4.1.7
         with:
           name: Firebase-actions-dir
-      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
       - name: Install xcpretty
@@ -557,7 +557,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -613,7 +613,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -668,7 +668,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
