@@ -28,6 +28,9 @@ import Foundation
 /// could change in backwards-incompatible ways.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class ImagenModel {
+  /// Model name prefix to identify Imagen models.
+  static let imagenModelNamePrefix = "imagen-"
+
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -44,14 +47,14 @@ public final class ImagenModel {
   /// Configuration parameters for sending requests to the backend.
   let requestOptions: RequestOptions
 
-  init(name: String,
+  init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
-    modelResourceName = name
+    self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,

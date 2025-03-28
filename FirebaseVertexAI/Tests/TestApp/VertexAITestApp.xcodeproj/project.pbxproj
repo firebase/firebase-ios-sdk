@@ -21,8 +21,8 @@
 		8692F29A2CC9477800539E8F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F2992CC9477800539E8F /* FirebaseAuth */; };
 		8692F29C2CC9477800539E8F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29B2CC9477800539E8F /* FirebaseStorage */; };
 		8692F29E2CC9477800539E8F /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29D2CC9477800539E8F /* FirebaseVertexAI */; };
-		8698D7462CD3CF3600ABA833 /* FirebaseAppTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8698D7452CD3CF2F00ABA833 /* FirebaseAppTestUtils.swift */; };
 		8698D7482CD4332B00ABA833 /* TestAppCheckProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */; };
+		86CC31352D91EE9E0087E964 /* FirebaseAppUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CC31342D91EE9E0087E964 /* FirebaseAppUtils.swift */; };
 		86D77DFC2D7A5340003D155D /* GenerateContentIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77DFB2D7A5340003D155D /* GenerateContentIntegrationTests.swift */; };
 		86D77DFE2D7B5C86003D155D /* GoogleService-Info-Spark.plist in Resources */ = {isa = PBXBuildFile; fileRef = 86D77DFD2D7B5C86003D155D /* GoogleService-Info-Spark.plist */; };
 		86D77E022D7B63AF003D155D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77E012D7B63AC003D155D /* Constants.swift */; };
@@ -53,8 +53,8 @@
 		868A7C502CCC263300E449DD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		868A7C532CCC26B500E449DD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		868A7C552CCC271300E449DD /* TestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TestApp.entitlements; sourceTree = "<group>"; };
-		8698D7452CD3CF2F00ABA833 /* FirebaseAppTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppTestUtils.swift; sourceTree = "<group>"; };
 		8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppCheckProviderFactory.swift; sourceTree = "<group>"; };
+		86CC31342D91EE9E0087E964 /* FirebaseAppUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAppUtils.swift; sourceTree = "<group>"; };
 		86D77DFB2D7A5340003D155D /* GenerateContentIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateContentIntegrationTests.swift; sourceTree = "<group>"; };
 		86D77DFD2D7B5C86003D155D /* GoogleService-Info-Spark.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Spark.plist"; sourceTree = "<group>"; };
 		86D77E012D7B63AC003D155D /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -129,6 +129,7 @@
 				8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */,
 				8661385D2CC943DD00F4B78E /* ContentView.swift */,
 				86D77E012D7B63AC003D155D /* Constants.swift */,
+				86CC31342D91EE9E0087E964 /* FirebaseAppUtils.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -158,7 +159,6 @@
 			isa = PBXGroup;
 			children = (
 				86D77E032D7B6C95003D155D /* InstanceConfig.swift */,
-				8698D7452CD3CF2F00ABA833 /* FirebaseAppTestUtils.swift */,
 				862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */,
 			);
 			path = Utilities;
@@ -275,6 +275,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				86CC31352D91EE9E0087E964 /* FirebaseAppUtils.swift in Sources */,
 				8661385E2CC943DD00F4B78E /* ContentView.swift in Sources */,
 				8661385C2CC943DD00F4B78E /* TestApp.swift in Sources */,
 				8698D7482CD4332B00ABA833 /* TestAppCheckProviderFactory.swift in Sources */,
@@ -288,7 +289,6 @@
 			files = (
 				8689CDCC2D7F8BD700BF426B /* CountTokensIntegrationTests.swift in Sources */,
 				86D77E042D7B6C9D003D155D /* InstanceConfig.swift in Sources */,
-				8698D7462CD3CF3600ABA833 /* FirebaseAppTestUtils.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
 				864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */,
 				862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */,
