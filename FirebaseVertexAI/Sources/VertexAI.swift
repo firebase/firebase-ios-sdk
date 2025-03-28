@@ -70,8 +70,15 @@ public class VertexAI {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
+    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix) {
+      VertexLog.warning(code: .unsupportedGeminiModel, """
+      Unsupported Gemini model "\(modelName)"; see \
+      https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
+      """)
+    }
+
     return GenerativeModel(
-      name: modelResourceName(modelName: modelName),
+      modelResourceName: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
       generationConfig: generationConfig,
@@ -102,8 +109,15 @@ public class VertexAI {
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
+    if !modelName.starts(with: ImagenModel.imagenModelNamePrefix) {
+      VertexLog.warning(code: .unsupportedImagenModel, """
+      Unsupported Imagen model "\(modelName)"; see \
+      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
+      """)
+    }
+
     return ImagenModel(
-      name: modelResourceName(modelName: modelName),
+      modelResourceName: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
       generationConfig: generationConfig,

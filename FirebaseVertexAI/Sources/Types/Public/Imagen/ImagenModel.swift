@@ -47,21 +47,14 @@ public final class ImagenModel {
   /// Configuration parameters for sending requests to the backend.
   let requestOptions: RequestOptions
 
-  init(name: String,
+  init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
-    if !name.starts(with: ImagenModel.imagenModelNamePrefix) {
-      VertexLog.warning(code: .unsupportedImagenModel, """
-      Unsupported Imagen model "\(name)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
-      """)
-    }
-
-    modelResourceName = name
+    self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
