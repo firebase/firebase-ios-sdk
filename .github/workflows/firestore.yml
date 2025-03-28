@@ -33,7 +33,7 @@ jobs:
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: firestore_src_changes
         with:
           predicate-quantifier: 'every'
@@ -42,7 +42,7 @@ jobs:
               # Firestore sources
               - 'Firestore/**'
               - '!Firestore/**/*.md'
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: related_changes
         with:
           filters: |
@@ -205,7 +205,7 @@ jobs:
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
+      uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2
     - name: Terraform Init
       run: |
         cd Firestore
@@ -345,7 +345,7 @@ jobs:
       with:
         cache_key: ${{ matrix.target }}
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -373,7 +373,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -424,7 +424,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
