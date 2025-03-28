@@ -59,7 +59,7 @@ final class ChatTests: XCTestCase {
                           options: FirebaseOptions(googleAppID: "ignore",
                                                    gcmSenderID: "ignore"))
     let model = GenerativeModel(
-      name: "my-model",
+      modelResourceName: "my-model",
       firebaseInfo: FirebaseInfo(
         projectID: "my-project-id",
         apiKey: "API_KEY",

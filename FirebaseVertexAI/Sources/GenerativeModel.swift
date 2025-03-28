@@ -53,7 +53,8 @@ public final class GenerativeModel: Sendable {
   /// Initializes a new remote model with the given parameters.
   ///
   /// - Parameters:
-  ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
+  ///   - modelResourceName: The resource name of the model to use, for example
+  ///     `"projects/{project-id}/locations/{location-id}/publishers/google/models/{model-name}"`.
   ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
   ///   - apiConfig: Configuration for the backend API used by this model.
   ///   - generationConfig: The content generation parameters your model should use.
@@ -64,7 +65,7 @@ public final class GenerativeModel: Sendable {
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
-  init(name: String,
+  init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: GenerationConfig? = nil,
@@ -74,14 +75,7 @@ public final class GenerativeModel: Sendable {
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
-    if !name.starts(with: GenerativeModel.geminiModelNamePrefix) {
-      VertexLog.warning(code: .unsupportedGeminiModel, """
-      Unsupported Gemini model "\(name)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
-      """)
-    }
-
-    modelResourceName = name
+    self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
@@ -108,7 +102,7 @@ public final class GenerativeModel: Sendable {
       `\(VertexLog.enableArgumentKey)` as a launch argument in Xcode.
       """)
     }
-    VertexLog.debug(code: .generativeModelInitialized, "Model \(name) initialized.")
+    VertexLog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
