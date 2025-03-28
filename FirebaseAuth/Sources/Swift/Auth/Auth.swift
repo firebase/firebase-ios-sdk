@@ -1361,6 +1361,23 @@ extension Auth: AuthInterop {
     }
   }
 
+  public struct AuthState {
+    let auth: Auth
+    let user: FirebaseAuth.User?
+  }
+
+  open var authStateChanges: AsyncStream<AuthState> {
+    return AsyncStream { continuation in
+      let listener = self.addStateDidChangeListener { auth, user in
+        continuation.yield(AuthState(auth: auth, user: user))
+      }
+
+      continuation.onTermination = { _ in
+        self.removeStateDidChangeListener(listener)
+      }
+    }
+  }
+
   /// Unregisters a block as an "auth state did change" listener.
   /// - Parameter listenerHandle: The handle for the listener.
   @objc(removeAuthStateDidChangeListener:)
