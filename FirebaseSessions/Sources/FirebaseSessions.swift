@@ -247,18 +247,39 @@ private enum GoogleDataTransportConfig {
     return SessionDetails(sessionId: sessionGenerator.currentSession?.sessionId)
   }
 
+  // This type is not actually sendable, but works around an issue below.
+  // It's safe only if executed on the main actor.
+  private struct MainActorNotificationCallback: @unchecked Sendable {
+    private let callback: (Notification) -> Void
+
+    init(_ callback: @escaping (Notification) -> Void) {
+      self.callback = callback
+    }
+
+    func invoke(notification: Notification) {
+      dispatchPrecondition(condition: .onQueue(.main))
+      callback(notification)
+    }
+  }
+
   func register(subscriber: SessionsSubscriber) {
     Logger
       .logDebug(
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
       )
 
+    // After bumping to iOS 13, this hack should be replaced with `Task { @MainActor in }`
+    let callback = MainActorNotificationCallback { notification in
+      subscriber.onSessionChanged(self.currentSessionDetails)
+    }
+
+    // Guaranteed to execute its callback on the main queue because of the queue parameter.
     notificationCenter.addObserver(
       forName: Sessions.SessionIDChangedNotificationName,
       object: nil,
-      queue: nil
+      queue: OperationQueue.main
     ) { notification in
-      subscriber.onSessionChanged(self.currentSessionDetails)
+      callback.invoke(notification: notification)
     }
     // Immediately call the callback because the Sessions SDK starts
     // before subscribers, so subscribers will miss the first Notification
@@ -270,7 +291,6 @@ private enum GoogleDataTransportConfig {
   }
 
   // MARK: - Library conformance
-
   static func componentsToRegister() -> [Component] {
     return [Component(SessionsProvider.self,
                       instantiationTiming: .alwaysEager) { container, isCacheable in
