@@ -217,7 +217,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -256,7 +256,7 @@ jobs:
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -293,7 +293,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -339,7 +339,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -376,7 +376,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -419,7 +419,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -458,7 +458,7 @@ jobs:
     # runs-on: macos-12
     # steps:
     # - uses: actions/checkout@v4
-    # - uses: ruby/setup-ruby@v1
+    # - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     # - name: Get token
     #   run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
     #       bot-access.txt "$bot_token_secret"
@@ -499,7 +499,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -538,7 +538,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -575,7 +575,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -611,7 +611,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"
@@ -646,7 +646,7 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/prerelease-testing-token.txt.gpg \
           bot-access.txt "$bot_token_secret"

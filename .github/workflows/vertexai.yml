@@ -86,7 +86,7 @@ jobs:
       run: xcodebuild -downloadPlatform visionOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - uses: nick-fields/retry@v3
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 120
         max_attempts: 3
@@ -152,7 +152,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Clone mock responses
       run: scripts/update_vertexai_responses.sh
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
