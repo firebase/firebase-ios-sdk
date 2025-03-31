@@ -97,7 +97,7 @@ class CountingFunc {
   std::vector<std::string> chunks_;
 
   explicit CountingFunc(std::vector<std::string> chunks);
-  std::string Next(const std::string& cookie);
+  std::string NextFuncReturnValue(const std::string& cookie);
 };
 
 /**
