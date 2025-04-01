@@ -1308,7 +1308,11 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseVertexAI/Sources",
+      swiftSettings: [
+        .enableExperimentalFeature("AccessLevelOnImport"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ]
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
@@ -1323,6 +1327,10 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        .enableExperimentalFeature("AccessLevelOnImport"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
   ] + firestoreTargets(),
