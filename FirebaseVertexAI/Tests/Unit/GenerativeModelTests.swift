@@ -58,7 +58,7 @@ final class GenerativeModelTests: XCTestCase {
   ].sorted()
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  let apiConfig = VertexAI.defaultVertexAIAPIConfig
 
   let vertexSubdirectory = "vertexai"
 

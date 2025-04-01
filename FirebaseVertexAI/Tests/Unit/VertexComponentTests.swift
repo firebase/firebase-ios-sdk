@@ -59,7 +59,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, "us-central1")
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseVertexAIProd))
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
@@ -73,7 +73,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseVertexAIProd))
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
@@ -86,7 +86,7 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseVertexAIProd))
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
@@ -138,12 +138,12 @@ class VertexComponentTests: XCTestCase {
     let vertex1 = VertexAI.vertexAI(
       app: VertexComponentTests.app,
       location: location,
-      apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
     )
     let vertex2 = VertexAI.vertexAI(
       app: VertexComponentTests.app,
       location: location,
-      apiConfig: APIConfig(service: .vertexAI, version: .v1)
+      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
     )
 
     // Ensure they are different instances.
