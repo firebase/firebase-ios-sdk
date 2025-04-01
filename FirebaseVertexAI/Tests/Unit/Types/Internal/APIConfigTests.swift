@@ -19,16 +19,37 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class APIConfigTests: XCTestCase {
   func testInitialize_vertexAI_prod_v1() {
-    let apiConfig = APIConfig(service: .vertexAI, version: .v1)
+    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
 
     XCTAssertEqual(apiConfig.service.endpoint.rawValue, "https://firebasevertexai.googleapis.com")
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
   func testInitialize_vertexAI_prod_v1beta() {
-    let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
+    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
 
     XCTAssertEqual(apiConfig.service.endpoint.rawValue, "https://firebasevertexai.googleapis.com")
+    XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
+  }
+
+  func testInitialize_vertexAI_staging_v1() {
+    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1)
+
+    XCTAssertEqual(
+      apiConfig.service.endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com"
+    )
+    XCTAssertEqual(apiConfig.version.rawValue, "v1")
+  }
+
+  func testInitialize_vertexAI_staging_v1beta() {
+    let apiConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseVertexAIStaging),
+      version: .v1beta
+    )
+
+    XCTAssertEqual(
+      apiConfig.service.endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com"
+    )
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
   }
 

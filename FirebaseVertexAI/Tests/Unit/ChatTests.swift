@@ -66,7 +66,7 @@ final class ChatTests: XCTestCase {
         firebaseAppID: "My app ID",
         firebaseApp: app
       ),
-      apiConfig: APIConfig(service: .vertexAI, version: .v1beta),
+      apiConfig: VertexAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession

@@ -23,7 +23,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  let vertexAPIConfig = VertexAI.defaultVertexAIAPIConfig
   let developerAPIConfig = APIConfig(
     service: .developer(endpoint: .firebaseVertexAIProd),
     version: .v1beta

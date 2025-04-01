@@ -38,7 +38,9 @@ public class VertexAI {
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> VertexAI {
     let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
-    assert(vertexInstance.apiConfig.service == .vertexAI)
+    // Verify that the `VertexAI` instance is always configured with the production endpoint since
+    // this is the public API surface for creating an instance.
+    assert(vertexInstance.apiConfig.service == .vertexAI(endpoint: .firebaseVertexAIProd))
     assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
     assert(vertexInstance.apiConfig.version == .v1beta)
 
@@ -155,7 +157,10 @@ public class VertexAI {
 
   let location: String?
 
-  static let defaultVertexAIAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  static let defaultVertexAIAPIConfig = APIConfig(
+    service: .vertexAI(endpoint: .firebaseVertexAIProd),
+    version: .v1beta
+  )
 
   static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> VertexAI {
     guard let app = app ?? FirebaseApp.app() else {

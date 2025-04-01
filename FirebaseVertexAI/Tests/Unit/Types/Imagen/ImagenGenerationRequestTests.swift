@@ -36,7 +36,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     addWatermark: nil,
     includeResponsibleAIFilterReason: includeResponsibleAIFilterReason
   )
-  let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  let apiConfig = VertexAI.defaultVertexAIAPIConfig
 
   let instance = ImageGenerationInstance(prompt: "test-prompt")
 

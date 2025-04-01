@@ -78,7 +78,9 @@ struct GenerateContentIntegrationTests {
     "Generate an enum and provide a system instruction",
     arguments: [
       InstanceConfig.vertexV1,
+      InstanceConfig.vertexV1Staging,
       InstanceConfig.vertexV1Beta,
+      InstanceConfig.vertexV1BetaStaging,
       /* System instructions are not supported on the v1 Developer API. */
       InstanceConfig.developerV1Beta,
     ]
