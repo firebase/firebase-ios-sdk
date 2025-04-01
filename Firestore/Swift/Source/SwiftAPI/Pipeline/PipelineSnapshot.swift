@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSnapshot {
+public struct PipelineSnapshot: Sendable {
   /// The Pipeline on which `execute()` was called to obtain this `PipelineSnapshot`.
   public let pipeline: Pipeline
 

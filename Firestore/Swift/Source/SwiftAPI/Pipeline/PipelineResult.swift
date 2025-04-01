@@ -20,7 +20,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineResult {
+public struct PipelineResult: @unchecked Sendable {
   let bridge: __PipelineResultBridge
 
   init(_ bridge: __PipelineResultBridge) {

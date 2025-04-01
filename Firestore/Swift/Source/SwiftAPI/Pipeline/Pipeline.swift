@@ -20,7 +20,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct Pipeline {
+public struct Pipeline: @unchecked Sendable {
   private var stages: [Stage]
   private var bridge: PipelineBridge
   let db: Firestore

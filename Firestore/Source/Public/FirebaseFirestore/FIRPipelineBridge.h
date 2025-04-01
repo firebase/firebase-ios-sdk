@@ -24,29 +24,35 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ExprBridge)
 @interface FIRExprBridge : NSObject
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FieldBridge)
 @interface FIRFieldBridge : FIRExprBridge
 - (id)init:(NSString *)name;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ConstantBridge)
 @interface FIRConstantBridge : FIRExprBridge
 - (id)init:(id)input;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FunctionExprBridge)
 @interface FIRFunctionExprBridge : FIRExprBridge
 - (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(StageBridge)
 @interface FIRStageBridge : NSObject
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CollectionSourceStageBridge)
 @interface FIRCollectionSourceStageBridge : FIRStageBridge
 
@@ -54,6 +60,7 @@ NS_SWIFT_NAME(CollectionSourceStageBridge)
 
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(WhereStageBridge)
 @interface FIRWhereStageBridge : FIRStageBridge
 
@@ -61,6 +68,7 @@ NS_SWIFT_NAME(WhereStageBridge)
 
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__PipelineResultBridge)
 @interface __FIRPipelineResultBridge : NSObject
 
@@ -79,6 +87,7 @@ NS_SWIFT_NAME(__PipelineResultBridge)
 
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__PipelineSnapshotBridge)
 @interface __FIRPipelineSnapshotBridge : NSObject
 
@@ -88,6 +97,7 @@ NS_SWIFT_NAME(__PipelineSnapshotBridge)
 
 @end
 
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(PipelineBridge)
 @interface FIRPipelineBridge : NSObject
 

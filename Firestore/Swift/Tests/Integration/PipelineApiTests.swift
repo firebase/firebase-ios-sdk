@@ -308,7 +308,7 @@ final class PipelineTests: FSTIntegrationTestCase {
     let name = Constant("Expressions API")
 
     // Const is a sub-type of Expr, so we can also declare our var of type Expr
-    let nothing: Expr = Constant(nil)
+    let nothing: Expr = Constant.nil
 
     // USAGE: Anywhere an Expr type is accepted
     // Add field `fromTheLibraryOf: 'Rafi'` to every document in the collection.

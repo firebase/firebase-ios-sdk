@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct RealtimePipeline {}
+public struct RealtimePipeline: @unchecked Sendable {}

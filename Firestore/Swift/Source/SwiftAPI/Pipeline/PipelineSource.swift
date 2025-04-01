@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSource {
+public struct PipelineSource: @unchecked Sendable {
   let db: Firestore
 
   init(_ db: Firestore) {

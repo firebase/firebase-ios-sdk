@@ -14,10 +14,15 @@
 
 enum Helper {
   static func valueToDefaultExpr(_ value: Any) -> any Expr {
-    if value is Constant {
+    if value is Expr {
       return value as! Expr
+    } else if value is [String: Any] {
+      return map(value as! [String: Any])
+    } else if value is [Any] {
+      return array(value as! [Any])
+    } else {
+      return Constant(value)
     }
-    return Field("PLACEHOLDER")
   }
 
   static func vectorToExpr(_ value: VectorValue) -> any Expr {
@@ -26,5 +31,21 @@ enum Helper {
 
   static func timeUnitToExpr(_ value: TimeUnit) -> any Expr {
     return Field("PLACEHOLDER")
+  }
+
+  static func map(_ elements: [String: Any]) -> FunctionExpr {
+    var result: [Expr] = []
+    for (key, value) in elements {
+      result.append(Constant(key))
+      result.append(valueToDefaultExpr(value))
+    }
+    return FunctionExpr("map", result)
+  }
+
+  static func array(_ elements: [Any]) -> FunctionExpr {
+    let transformedElements = elements.map { element in
+      valueToDefaultExpr(element)
+    }
+    return FunctionExpr("array", transformedElements)
   }
 }

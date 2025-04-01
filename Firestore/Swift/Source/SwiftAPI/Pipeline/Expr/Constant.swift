@@ -24,7 +24,7 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   let value: Any?
 
   // Initializer for optional values (including nil)
-  public init(_ value: Any?) {
+  init(_ value: Any?) {
     self.value = value
     // TODO:
     bridge = ConstantBridge(value)
@@ -69,4 +69,6 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   public init(_ value: VectorValue) {
     self.init(value as Any)
   }
+
+  public static let `nil` = Constant(nil)
 }
