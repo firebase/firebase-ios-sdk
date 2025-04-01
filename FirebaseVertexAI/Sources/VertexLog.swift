@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreExtension
 import Foundation
 import os.log
-
-@_implementationOnly import FirebaseCoreExtension
 
 enum VertexLog {
   /// Log message codes for the Vertex AI SDK
