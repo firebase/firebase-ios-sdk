@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
-static NSString *defaultDatabaseId = @"(default)";
+static NSString *defaultDatabaseId = @"enterprise";
 static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;

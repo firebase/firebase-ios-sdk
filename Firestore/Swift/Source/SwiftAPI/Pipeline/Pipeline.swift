@@ -141,7 +141,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter offset: The number of documents to skip.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func offset(_ offset: Int32) -> Pipeline {
-    return self
+    return Pipeline(stages: stages + [Offset(offset)], db: db)
   }
 
   /// Limits the maximum number of documents returned by previous stages to `limit`.
@@ -157,7 +157,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter limit: The maximum number of documents to return.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func limit(_ limit: Int32) -> Pipeline {
-    return self
+    return Pipeline(stages: stages + [Limit(limit)], db: db)
   }
 
   /// Returns a set of distinct `Expr` values from the inputs to this stage.

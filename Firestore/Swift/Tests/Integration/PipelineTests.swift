@@ -132,7 +132,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await db
       .pipeline()
-      .collection(collRef.collectionID)
+      .collection("/" + collRef.path)
       .limit(0)
       .execute()
 

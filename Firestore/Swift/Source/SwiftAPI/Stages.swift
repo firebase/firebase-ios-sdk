@@ -34,14 +34,50 @@ class CollectionSource: Stage {
   }
 }
 
+class CollectionGroupSource: Stage {
+  var name: String = "collectionId"
+
+  var bridge: StageBridge
+  private var collectionId: String
+
+  init(collectionId: String) {
+    self.collectionId = collectionId
+    bridge = CollectionGroupSourceStageBridge(collectionId: collectionId)
+  }
+}
+
 class Where: Stage {
   var name: String = "where"
 
   var bridge: StageBridge
-  private var condition: Expr // TODO: should be FilterCondition
+  private var condition: BooleanExpr
 
-  init(condition: Expr) {
+  init(condition: BooleanExpr) {
     self.condition = condition
-    bridge = WhereStageBridge(expr: (condition as! (Expr & BridgeWrapper)).bridge)
+    bridge = WhereStageBridge(expr: condition.bridge)
+  }
+}
+
+class Limit: Stage {
+  var name: String = "limit"
+
+  var bridge: StageBridge
+  private var limit: Int32
+
+  init(_ limit: Int32) {
+    self.limit = limit
+    bridge = LimitStageBridge(limit: NSInteger(limit))
+  }
+}
+
+class Offset: Stage {
+  var name: String = "offset"
+
+  var bridge: StageBridge
+  private var offset: Int32
+
+  init(_ offset: Int32) {
+    self.offset = offset
+    bridge = OffsetStageBridge(offset: NSInteger(offset))
   }
 }

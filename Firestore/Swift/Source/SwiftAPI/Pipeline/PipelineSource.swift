@@ -25,7 +25,10 @@ public struct PipelineSource: @unchecked Sendable {
   }
 
   public func collectionGroup(_ collectionId: String) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
+    return Pipeline(
+      stages: [CollectionGroupSource(collectionId: collectionId)],
+      db: db
+    )
   }
 
   public func database() -> Pipeline {

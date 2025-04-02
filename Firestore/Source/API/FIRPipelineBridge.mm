@@ -39,13 +39,18 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
 
+using firebase::firestore::api::CollectionGroupSource;
 using firebase::firestore::api::CollectionSource;
 using firebase::firestore::api::Constant;
+using firebase::firestore::api::DatabaseSource;
 using firebase::firestore::api::DocumentReference;
+using firebase::firestore::api::DocumentsSource;
 using firebase::firestore::api::Expr;
 using firebase::firestore::api::Field;
 using firebase::firestore::api::FunctionExpr;
+using firebase::firestore::api::LimitStage;
 using firebase::firestore::api::MakeFIRTimestamp;
+using firebase::firestore::api::OffsetStage;
 using firebase::firestore::api::Pipeline;
 using firebase::firestore::api::Where;
 using firebase::firestore::util::MakeCallback;
@@ -149,6 +154,64 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@implementation FIRDatabaseSourceStageBridge {
+  std::shared_ptr<DatabaseSource> database_source;
+}
+
+- (id)init {
+  self = [super init];
+  if (self) {
+    database_source = std::make_shared<DatabaseSource>();
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  return database_source;
+}
+
+@end
+
+@implementation FIRCollectionGroupSourceStageBridge {
+  std::shared_ptr<CollectionGroupSource> collection_group_source;
+}
+
+- (id)initWithCollectionId:(NSString *)id {
+  self = [super init];
+  if (self) {
+    collection_group_source = std::make_shared<CollectionGroupSource>(MakeString(id));
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  return collection_group_source;
+}
+
+@end
+
+@implementation FIRDocumentsSourceStageBridge {
+  std::shared_ptr<DocumentsSource> document_source;
+}
+
+- (id)initWithDocuments:(NSArray<NSString *> *)documents {
+  self = [super init];
+  if (self) {
+    std::vector<std::string> cpp_documents;
+    for (NSString *doc in documents) {
+      cpp_documents.push_back(MakeString(doc));
+    }
+    document_source = std::make_shared<DocumentsSource>(std::move(cpp_documents));
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  return document_source;
+}
+
+@end
+
 @implementation FIRWhereStageBridge {
   FIRExprBridge *_exprBridge;
   Boolean isUserDataRead;
@@ -171,6 +234,58 @@ NS_ASSUME_NONNULL_BEGIN
 
   isUserDataRead = YES;
   return where;
+}
+
+@end
+
+@implementation FIRLimitStageBridge {
+  Boolean isUserDataRead;
+  std::shared_ptr<LimitStage> limit_stage;
+  int32_t limit;
+}
+
+- (id)initWithLimit:(NSInteger)value {
+  self = [super init];
+  if (self) {
+    isUserDataRead = NO;
+    limit = static_cast<int32_t>(value);
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    limit_stage = std::make_shared<LimitStage>(limit);
+  }
+
+  isUserDataRead = YES;
+  return limit_stage;
+}
+
+@end
+
+@implementation FIROffsetStageBridge {
+  Boolean isUserDataRead;
+  std::shared_ptr<OffsetStage> offset_stage;
+  int32_t offset;
+}
+
+- (id)initWithOffset:(NSInteger)value {
+  self = [super init];
+  if (self) {
+    isUserDataRead = NO;
+    offset = static_cast<int32_t>(value);
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    offset_stage = std::make_shared<OffsetStage>(offset);
+  }
+
+  isUserDataRead = YES;
+  return offset_stage;
 }
 
 @end

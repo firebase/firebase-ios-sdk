@@ -169,14 +169,14 @@ class FindNearestStage : public Stage {
 
 class LimitStage : public Stage {
  public:
-  explicit LimitStage(int64_t limit) : limit_(limit) {
+  explicit LimitStage(int32_t limit) : limit_(limit) {
   }
   ~LimitStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  int64_t limit_;
+  int32_t limit_;
 };
 
 class OffsetStage : public Stage {
