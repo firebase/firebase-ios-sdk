@@ -241,13 +241,11 @@ public class VertexAI {
 
   private func developerModelResourceName(modelName: String) -> String {
     switch apiConfig.service.endpoint {
-    case .firebaseVertexAIStaging:
+    case .firebaseVertexAIStaging, .firebaseVertexAIProd:
       let projectID = firebaseInfo.projectID
       return "projects/\(projectID)/models/\(modelName)"
     case .generativeLanguage:
       return "models/\(modelName)"
-    default:
-      fatalError("The Developer API is not supported on '\(apiConfig.service.endpoint)'.")
     }
   }
 

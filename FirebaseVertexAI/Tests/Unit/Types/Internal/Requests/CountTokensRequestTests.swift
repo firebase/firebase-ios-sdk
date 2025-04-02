@@ -52,7 +52,9 @@ final class CountTokensRequestTests: XCTestCase {
       apiMethod: .countTokens,
       options: requestOptions
     )
-    let request = CountTokensRequest(generateContentRequest: generateContentRequest)
+    let request = CountTokensRequest(
+      modelResourceName: modelResourceName, generateContentRequest: generateContentRequest
+    )
 
     let jsonData = try encoder.encode(request)
 
@@ -86,7 +88,9 @@ final class CountTokensRequestTests: XCTestCase {
       apiMethod: .countTokens,
       options: requestOptions
     )
-    let request = CountTokensRequest(generateContentRequest: generateContentRequest)
+    let request = CountTokensRequest(
+      modelResourceName: modelResourceName, generateContentRequest: generateContentRequest
+    )
 
     let jsonData = try encoder.encode(request)
 
