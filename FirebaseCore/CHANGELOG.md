@@ -1,5 +1,5 @@
 # Unreleased
-- [changed] Firebase now requires at least Xcode 16.1. See
+- [changed] Firebase now requires at least Xcode 16.2. See
   https://developer.apple.com/news/?id=9s0rgdy9 for more info.
 
 # Firebase 11.8.0
