@@ -102,7 +102,7 @@ struct CountTokensIntegrationTests {
 
   @Test(arguments: [
     /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.developerV1,
+    InstanceConfig.developerV1Spark,
   ])
   func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
     let model = VertexAI.componentInstance(config).generativeModel(

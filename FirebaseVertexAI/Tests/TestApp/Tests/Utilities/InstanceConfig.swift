@@ -32,11 +32,14 @@ struct InstanceConfig {
   static let vertexV1BetaStaging = InstanceConfig(
     apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1beta)
   )
-  static let developerV1 = InstanceConfig(
+  static let developerV1Beta = InstanceConfig(
+    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  )
+  static let developerV1Spark = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1)
   )
-  static let developerV1Beta = InstanceConfig(
+  static let developerV1BetaSpark = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
   )
@@ -45,8 +48,9 @@ struct InstanceConfig {
     vertexV1Staging,
     vertexV1Beta,
     vertexV1BetaStaging,
-    developerV1,
     developerV1Beta,
+    developerV1Spark,
+    developerV1BetaSpark,
   ]
 
   static let vertexV1AppCheckNotConfigured = InstanceConfig(

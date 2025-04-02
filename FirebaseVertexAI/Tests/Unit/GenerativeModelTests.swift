@@ -56,6 +56,7 @@ final class GenerativeModelTests: XCTestCase {
       blocked: false
     ),
   ].sorted()
+  let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
   let apiConfig = VertexAI.defaultVertexAIAPIConfig
@@ -70,6 +71,7 @@ final class GenerativeModelTests: XCTestCase {
     configuration.protocolClasses = [MockURLProtocol.self]
     urlSession = try XCTUnwrap(URLSession(configuration: configuration))
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
@@ -275,8 +277,8 @@ final class GenerativeModelTests: XCTestCase {
         subdirectory: vertexSubdirectory
       )
     let model = GenerativeModel(
-      // Model name is prefixed with "models/".
-      modelResourceName: "models/test-model",
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
@@ -399,6 +401,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
       apiConfig: apiConfig,
@@ -420,6 +423,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_dataCollectionOff() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken),
                                      privateAppID: true),
@@ -442,6 +446,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
       apiConfig: apiConfig,
@@ -463,6 +468,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_validAuthToken() async throws {
     let authToken = "test-valid-token"
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: authToken)),
       apiConfig: apiConfig,
@@ -483,6 +489,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_auth_nilAuthToken() async throws {
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: nil)),
       apiConfig: apiConfig,
@@ -503,7 +510,8 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_auth_authTokenRefreshError() async throws {
     model = GenerativeModel(
-      modelResourceName: "my-model",
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(error: AuthErrorFake())),
       apiConfig: apiConfig,
       tools: nil,
@@ -900,6 +908,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
@@ -1204,6 +1213,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
       apiConfig: apiConfig,
@@ -1225,6 +1235,7 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContentStream_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
       apiConfig: apiConfig,
@@ -1375,6 +1386,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
@@ -1451,6 +1463,7 @@ final class GenerativeModelTests: XCTestCase {
       parts: "You are a calculator. Use the provided tools."
     )
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
@@ -1511,6 +1524,7 @@ final class GenerativeModelTests: XCTestCase {
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
+      modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
