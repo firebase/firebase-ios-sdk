@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Firebase now requires at least Xcode 16.2. See
+  https://developer.apple.com/news/?id=9s0rgdy9 for more info.
+
 # Firebase 11.8.0
 - [deprecated] The zip and Carthage distributions of the Google Mobile Ads SDK
   with Firebase are deprecated and will be removed in the next major release.
