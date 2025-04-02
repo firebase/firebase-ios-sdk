@@ -309,7 +309,9 @@ public final class GenerativeModel: Sendable {
       apiMethod: .countTokens,
       options: requestOptions
     )
-    let countTokensRequest = CountTokensRequest(generateContentRequest: generateContentRequest)
+    let countTokensRequest = CountTokensRequest(
+      modelResourceName: modelResourceName, generateContentRequest: generateContentRequest
+    )
 
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
