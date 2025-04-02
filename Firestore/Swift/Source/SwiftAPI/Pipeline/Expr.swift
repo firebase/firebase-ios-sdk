@@ -8,7 +8,7 @@
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// WITHOUT WARRANTIES OR CONDITIONS OF Sendable KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
@@ -25,46 +25,46 @@ public protocol Expr: Sendable {
   // MARK: Arithmetic Operators
 
   func add(_ second: Expr, _ others: Expr...) -> FunctionExpr
-  func add(_ second: Any, _ others: Any...) -> FunctionExpr
+  func add(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
 
   func subtract(_ other: Expr) -> FunctionExpr
-  func subtract(_ other: Any) -> FunctionExpr
+  func subtract(_ other: Sendable) -> FunctionExpr
 
   func multiply(_ second: Expr, _ others: Expr...) -> FunctionExpr
-  func multiply(_ second: Any, _ others: Any...) -> FunctionExpr
+  func multiply(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
 
   func divide(_ other: Expr) -> FunctionExpr
-  func divide(_ other: Any) -> FunctionExpr
+  func divide(_ other: Sendable) -> FunctionExpr
 
   func mod(_ other: Expr) -> FunctionExpr
-  func mod(_ other: Any) -> FunctionExpr
+  func mod(_ other: Sendable) -> FunctionExpr
 
   // MARK: Array Operations
 
   func arrayConcat(_ secondArray: Expr, _ otherArrays: Expr...) -> FunctionExpr
-  func arrayConcat(_ secondArray: [Any], _ otherArrays: [Any]...) -> FunctionExpr
+  func arrayConcat(_ secondArray: [Sendable], _ otherArrays: [Sendable]...) -> FunctionExpr
 
   func arrayContains(_ element: Expr) -> BooleanExpr
-  func arrayContains(_ element: Any) -> BooleanExpr
+  func arrayContains(_ element: Sendable) -> BooleanExpr
 
   func arrayContainsAll(_ values: Expr...) -> BooleanExpr
-  func arrayContainsAll(_ values: Any...) -> BooleanExpr
+  func arrayContainsAll(_ values: Sendable...) -> BooleanExpr
 
-  func arrayContainsAny(_ values: Expr...) -> BooleanExpr
-  func arrayContainsAny(_ values: Any...) -> BooleanExpr
+  func arrayContainsSendable(_ values: Expr...) -> BooleanExpr
+  func arrayContainsSendable(_ values: Sendable...) -> BooleanExpr
 
   func arrayLength() -> FunctionExpr
 
   func arrayOffset(_ offset: Int) -> FunctionExpr
   func arrayOffset(_ offsetExpr: Expr) -> FunctionExpr
 
-  // MARK: Equality with Any
+  // MARK: Equality with Sendable
 
-  func eqAny(_ others: Expr...) -> BooleanExpr
-  func eqAny(_ others: Any...) -> BooleanExpr
+  func eqSendable(_ others: Expr...) -> BooleanExpr
+  func eqSendable(_ others: Sendable...) -> BooleanExpr
 
-  func notEqAny(_ others: Expr...) -> BooleanExpr
-  func notEqAny(_ others: Any...) -> BooleanExpr
+  func notEqSendable(_ others: Expr...) -> BooleanExpr
+  func notEqSendable(_ others: Sendable...) -> BooleanExpr
 
   // MARK: Checks
 
@@ -120,7 +120,7 @@ public protocol Expr: Sendable {
   func mapGet(_ subfield: String) -> FunctionExpr
   func mapRemove(_ key: String) -> FunctionExpr
   func mapRemove(_ keyExpr: Expr) -> FunctionExpr
-  func mapMerge(_ secondMap: [String: Any], _ otherMaps: [String: Any]...) -> FunctionExpr
+  func mapMerge(_ secondMap: [String: Sendable], _ otherMaps: [String: Sendable]...) -> FunctionExpr
   func mapMerge(_ secondMap: Expr, _ otherMaps: Expr...) -> FunctionExpr
 
   // MARK: Aggregations
@@ -134,10 +134,10 @@ public protocol Expr: Sendable {
   // MARK: Logical min/max
 
   func logicalMaximum(_ second: Expr, _ others: Expr...) -> FunctionExpr
-  func logicalMaximum(_ second: Any, _ others: Any...) -> FunctionExpr
+  func logicalMaximum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
 
   func logicalMinimum(_ second: Expr, _ others: Expr...) -> FunctionExpr
-  func logicalMinimum(_ second: Any, _ others: Any...) -> FunctionExpr
+  func logicalMinimum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
 
   // MARK: Vector Operations
 
@@ -195,7 +195,7 @@ public protocol Expr: Sendable {
   func bitRightShift(_ numberExpr: Expr) -> FunctionExpr
 
   func ifError(_ catchExpr: Expr) -> FunctionExpr
-  func ifError(_ catchValue: Any) -> FunctionExpr
+  func ifError(_ catchValue: Sendable) -> FunctionExpr
 
   // MARK: Sorting
 
@@ -214,7 +214,7 @@ public extension Expr {
     return BooleanExpr("eq", [self, other])
   }
 
-  func eq(_ other: Any) -> BooleanExpr {
+  func eq(_ other: Sendable) -> BooleanExpr {
     return BooleanExpr("eq", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -222,7 +222,7 @@ public extension Expr {
     return BooleanExpr("neq", [self, other])
   }
 
-  func neq(_ other: Any) -> BooleanExpr {
+  func neq(_ other: Sendable) -> BooleanExpr {
     return BooleanExpr("neq", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -230,7 +230,7 @@ public extension Expr {
     return BooleanExpr("lt", [self, other])
   }
 
-  func lt(_ other: Any) -> BooleanExpr {
+  func lt(_ other: Sendable) -> BooleanExpr {
     return BooleanExpr("lt", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -238,7 +238,7 @@ public extension Expr {
     return BooleanExpr("lte", [self, other])
   }
 
-  func lte(_ other: Any) -> BooleanExpr {
+  func lte(_ other: Sendable) -> BooleanExpr {
     return BooleanExpr("lte", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -246,7 +246,7 @@ public extension Expr {
     return BooleanExpr("gt", [self, other])
   }
 
-  func gt(_ other: Any) -> BooleanExpr {
+  func gt(_ other: Sendable) -> BooleanExpr {
     return BooleanExpr("gt", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -254,7 +254,7 @@ public extension Expr {
     return BooleanExpr("gte", [self, other])
   }
 
-  func gte(_ other: Any) -> BooleanExpr {
+  func gte(_ other: Sendable) -> BooleanExpr {
     return BooleanExpr("gte", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -264,7 +264,7 @@ public extension Expr {
     return FunctionExpr("add", [self, second] + others)
   }
 
-  func add(_ second: Any, _ others: Any...) -> FunctionExpr {
+  func add(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
     let exprs = [self] + [Helper.valueToDefaultExpr(second)] + others
       .map { Helper.valueToDefaultExpr($0) }
     return FunctionExpr("add", exprs)
@@ -274,7 +274,7 @@ public extension Expr {
     return FunctionExpr("subtract", [self, other])
   }
 
-  func subtract(_ other: Any) -> FunctionExpr {
+  func subtract(_ other: Sendable) -> FunctionExpr {
     return FunctionExpr("subtract", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -282,7 +282,7 @@ public extension Expr {
     return FunctionExpr("multiply", [self, second] + others)
   }
 
-  func multiply(_ second: Any, _ others: Any...) -> FunctionExpr {
+  func multiply(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
     let exprs = [self] + [Helper.valueToDefaultExpr(second)] + others
       .map { Helper.valueToDefaultExpr($0) }
     return FunctionExpr("multiply", exprs)
@@ -292,7 +292,7 @@ public extension Expr {
     return FunctionExpr("divide", [self, other])
   }
 
-  func divide(_ other: Any) -> FunctionExpr {
+  func divide(_ other: Sendable) -> FunctionExpr {
     return FunctionExpr("divide", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -300,7 +300,7 @@ public extension Expr {
     return FunctionExpr("mod", [self, other])
   }
 
-  func mod(_ other: Any) -> FunctionExpr {
+  func mod(_ other: Sendable) -> FunctionExpr {
     return FunctionExpr("mod", [self, Helper.valueToDefaultExpr(other)])
   }
 
@@ -310,7 +310,7 @@ public extension Expr {
     return FunctionExpr("array_concat", [self, secondArray] + otherArrays)
   }
 
-  func arrayConcat(_ secondArray: [Any], _ otherArrays: [Any]...) -> FunctionExpr {
+  func arrayConcat(_ secondArray: [Sendable], _ otherArrays: [Sendable]...) -> FunctionExpr {
     let exprs = [self] + [Helper.valueToDefaultExpr(secondArray)] + otherArrays
       .map { Helper.valueToDefaultExpr($0) }
     return FunctionExpr("array_concat", exprs)
@@ -320,7 +320,7 @@ public extension Expr {
     return BooleanExpr("array_contains", [self, element])
   }
 
-  func arrayContains(_ element: Any) -> BooleanExpr {
+  func arrayContains(_ element: Sendable) -> BooleanExpr {
     return BooleanExpr("array_contains", [self, Helper.valueToDefaultExpr(element)])
   }
 
@@ -328,18 +328,18 @@ public extension Expr {
     return BooleanExpr("array_contains_all", [self] + values)
   }
 
-  func arrayContainsAll(_ values: Any...) -> BooleanExpr {
+  func arrayContainsAll(_ values: Sendable...) -> BooleanExpr {
     let exprValues = values.map { Helper.valueToDefaultExpr($0) }
     return BooleanExpr("array_contains_all", [self] + exprValues)
   }
 
-  func arrayContainsAny(_ values: Expr...) -> BooleanExpr {
-    return BooleanExpr("array_contains_any", [self] + values)
+  func arrayContainsSendable(_ values: Expr...) -> BooleanExpr {
+    return BooleanExpr("array_contains_Sendable", [self] + values)
   }
 
-  func arrayContainsAny(_ values: Any...) -> BooleanExpr {
+  func arrayContainsSendable(_ values: Sendable...) -> BooleanExpr {
     let exprValues = values.map { Helper.valueToDefaultExpr($0) }
-    return BooleanExpr("array_contains_any", [self] + exprValues)
+    return BooleanExpr("array_contains_Sendable", [self] + exprValues)
   }
 
   func arrayLength() -> FunctionExpr {
@@ -354,24 +354,24 @@ public extension Expr {
     return FunctionExpr("array_offset", [self, offsetExpr])
   }
 
-  // MARK: Equality with Any
+  // MARK: Equality with Sendable
 
-  func eqAny(_ others: Expr...) -> BooleanExpr {
-    return BooleanExpr("eq_any", [self] + others)
+  func eqSendable(_ others: Expr...) -> BooleanExpr {
+    return BooleanExpr("eq_Sendable", [self] + others)
   }
 
-  func eqAny(_ others: Any...) -> BooleanExpr {
+  func eqSendable(_ others: Sendable...) -> BooleanExpr {
     let exprOthers = others.map { Helper.valueToDefaultExpr($0) }
-    return BooleanExpr("eq_any", [self] + exprOthers)
+    return BooleanExpr("eq_Sendable", [self] + exprOthers)
   }
 
-  func notEqAny(_ others: Expr...) -> BooleanExpr {
-    return BooleanExpr("not_eq_any", [self] + others)
+  func notEqSendable(_ others: Expr...) -> BooleanExpr {
+    return BooleanExpr("not_eq_Sendable", [self] + others)
   }
 
-  func notEqAny(_ others: Any...) -> BooleanExpr {
+  func notEqSendable(_ others: Sendable...) -> BooleanExpr {
     let exprOthers = others.map { Helper.valueToDefaultExpr($0) }
-    return BooleanExpr("not_eq_any", [self] + exprOthers)
+    return BooleanExpr("not_eq_Sendable", [self] + exprOthers)
   }
 
   // MARK: Checks
@@ -541,7 +541,8 @@ public extension Expr {
     return FunctionExpr("map_remove", [self, keyExpr])
   }
 
-  func mapMerge(_ secondMap: [String: Any], _ otherMaps: [String: Any]...) -> FunctionExpr {
+  func mapMerge(_ secondMap: [String: Sendable],
+                _ otherMaps: [String: Sendable]...) -> FunctionExpr {
     let secondMapExpr = Helper.valueToDefaultExpr(secondMap)
     let otherMapExprs = otherMaps.map { Helper.valueToDefaultExpr($0) }
     return FunctionExpr("map_merge", [self, secondMapExpr] + otherMapExprs)
@@ -579,7 +580,7 @@ public extension Expr {
     return FunctionExpr("logical_maximum", [self, second] + others)
   }
 
-  func logicalMaximum(_ second: Any, _ others: Any...) -> FunctionExpr {
+  func logicalMaximum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
     let exprs = [self] + [Helper.valueToDefaultExpr(second)] + others
       .map { Helper.valueToDefaultExpr($0) }
     return FunctionExpr("logical_maximum", exprs)
@@ -589,7 +590,7 @@ public extension Expr {
     return FunctionExpr("logical_min", [self, second] + others)
   }
 
-  func logicalMinimum(_ second: Any, _ others: Any...) -> FunctionExpr {
+  func logicalMinimum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
     let exprs = [self] + [Helper.valueToDefaultExpr(second)] + others
       .map { Helper.valueToDefaultExpr($0) }
     return FunctionExpr("logical_min", exprs)
@@ -763,7 +764,7 @@ public extension Expr {
     return FunctionExpr("if_error", [self, catchExpr])
   }
 
-  func ifError(_ catchValue: Any) -> FunctionExpr {
+  func ifError(_ catchValue: Sendable) -> FunctionExpr {
     return FunctionExpr("if_error", [self, Helper.valueToDefaultExpr(catchValue)])
   }
 
@@ -781,26 +782,26 @@ public extension Expr {
 // protocal cannot overwrite operator, since every inheritated class will have this function
 // it will lead to error: Generic parameter 'Self' could not be inferred
 
-public func > (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+public func > (lhs: Expr, rhs: @autoclosure () throws -> Sendable) rethrows -> BooleanExpr {
   try BooleanExpr("gt", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
-public func >= (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+public func >= (lhs: Expr, rhs: @autoclosure () throws -> Sendable) rethrows -> BooleanExpr {
   try BooleanExpr("gte", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
-public func < (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+public func < (lhs: Expr, rhs: @autoclosure () throws -> Sendable) rethrows -> BooleanExpr {
   try BooleanExpr("lt", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
-public func <= (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+public func <= (lhs: Expr, rhs: @autoclosure () throws -> Sendable) rethrows -> BooleanExpr {
   try BooleanExpr("lte", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
-public func == (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+public func == (lhs: Expr, rhs: @autoclosure () throws -> Sendable) rethrows -> BooleanExpr {
   try BooleanExpr("eq", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
 
-public func != (lhs: Expr, rhs: @autoclosure () throws -> Any) rethrows -> BooleanExpr {
+public func != (lhs: Expr, rhs: @autoclosure () throws -> Sendable) rethrows -> BooleanExpr {
   try BooleanExpr("neq", [lhs, Helper.valueToDefaultExpr(rhs())])
 }
