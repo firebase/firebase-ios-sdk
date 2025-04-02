@@ -80,6 +80,7 @@ public class VertexAI {
     }
 
     return GenerativeModel(
+      modelName: modelName,
       modelResourceName: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
