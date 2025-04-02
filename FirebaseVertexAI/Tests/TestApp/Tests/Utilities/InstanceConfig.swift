@@ -20,9 +20,17 @@ import VertexAITestApp
 @testable import class FirebaseVertexAI.VertexAI
 
 struct InstanceConfig {
-  static let vertexV1 = InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1))
+  static let vertexV1 = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
+  )
+  static let vertexV1Staging = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1)
+  )
   static let vertexV1Beta = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  )
+  static let vertexV1BetaStaging = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1beta)
   )
   static let developerV1 = InstanceConfig(
     appName: FirebaseAppNames.spark,
@@ -32,7 +40,23 @@ struct InstanceConfig {
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
   )
-  static let allConfigs = [vertexV1, vertexV1Beta, developerV1, developerV1Beta]
+  static let allConfigs = [
+    vertexV1,
+    vertexV1Staging,
+    vertexV1Beta,
+    vertexV1BetaStaging,
+    developerV1,
+    developerV1Beta,
+  ]
+
+  static let vertexV1AppCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
+  )
+  static let vertexV1BetaAppCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  )
 
   let appName: String?
   let location: String?

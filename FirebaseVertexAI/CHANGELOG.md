@@ -1,3 +1,7 @@
+# 11.11.0
+- [added] Emits a warning when attempting to use an incompatible model with
+  `GenerativeModel` or `ImagenModel`. (#14610)
+
 # 11.10.0
 - [feature] The Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
 - [feature] The Vertex AI Sample App now includes an image generation example.
@@ -7,12 +11,12 @@
   are required. (#14558)
 
 # 11.9.0
-- [feature] **Public Preview**: Added support for generating images using the
-  Imagen 3 model.
+- [feature] **Public Preview**: Added support for
+  [generating images](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+  using the Imagen 3 models.
   <br /><br />
-  Note: This feature is in Public Preview, which means that the it is not
-  subject to any SLA or deprecation policy and could change in
-  backwards-incompatible ways.
+  Note: This feature is in Public Preview, which means that it is not subject to
+  any SLA or deprecation policy and could change in backwards-incompatible ways.
 - [feature] Added support for modality-based token count. (#14406)
 
 # 11.6.0

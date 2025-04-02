@@ -20,6 +20,9 @@ import Foundation
 /// content based on various input types.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class GenerativeModel: Sendable {
+  /// Model name prefix to identify Gemini models.
+  static let geminiModelNamePrefix = "gemini-"
+
   /// The resource name of the model in the backend; has the format "models/model-name".
   let modelResourceName: String
 
@@ -50,7 +53,8 @@ public final class GenerativeModel: Sendable {
   /// Initializes a new remote model with the given parameters.
   ///
   /// - Parameters:
-  ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
+  ///   - modelResourceName: The resource name of the model to use, for example
+  ///     `"projects/{project-id}/locations/{location-id}/publishers/google/models/{model-name}"`.
   ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
   ///   - apiConfig: Configuration for the backend API used by this model.
   ///   - generationConfig: The content generation parameters your model should use.
@@ -61,7 +65,7 @@ public final class GenerativeModel: Sendable {
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
-  init(name: String,
+  init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: GenerationConfig? = nil,
@@ -71,7 +75,7 @@ public final class GenerativeModel: Sendable {
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = .shared) {
-    modelResourceName = name
+    self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
@@ -98,7 +102,7 @@ public final class GenerativeModel: Sendable {
       `\(VertexLog.enableArgumentKey)` as a launch argument in Xcode.
       """)
     }
-    VertexLog.debug(code: .generativeModelInitialized, "Model \(name) initialized.")
+    VertexLog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are

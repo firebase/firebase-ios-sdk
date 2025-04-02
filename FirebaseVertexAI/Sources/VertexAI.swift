@@ -38,7 +38,9 @@ public class VertexAI {
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> VertexAI {
     let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
-    assert(vertexInstance.apiConfig.service == .vertexAI)
+    // Verify that the `VertexAI` instance is always configured with the production endpoint since
+    // this is the public API surface for creating an instance.
+    assert(vertexInstance.apiConfig.service == .vertexAI(endpoint: .firebaseVertexAIProd))
     assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
     assert(vertexInstance.apiConfig.version == .v1beta)
 
@@ -70,8 +72,15 @@ public class VertexAI {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
+    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix) {
+      VertexLog.warning(code: .unsupportedGeminiModel, """
+      Unsupported Gemini model "\(modelName)"; see \
+      https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
+      """)
+    }
+
     return GenerativeModel(
-      name: modelResourceName(modelName: modelName),
+      modelResourceName: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
       generationConfig: generationConfig,
@@ -102,8 +111,15 @@ public class VertexAI {
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
+    if !modelName.starts(with: ImagenModel.imagenModelNamePrefix) {
+      VertexLog.warning(code: .unsupportedImagenModel, """
+      Unsupported Imagen model "\(modelName)"; see \
+      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
+      """)
+    }
+
     return ImagenModel(
-      name: modelResourceName(modelName: modelName),
+      modelResourceName: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
       generationConfig: generationConfig,
@@ -141,7 +157,10 @@ public class VertexAI {
 
   let location: String?
 
-  static let defaultVertexAIAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  static let defaultVertexAIAPIConfig = APIConfig(
+    service: .vertexAI(endpoint: .firebaseVertexAIProd),
+    version: .v1beta
+  )
 
   static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> VertexAI {
     guard let app = app ?? FirebaseApp.app() else {

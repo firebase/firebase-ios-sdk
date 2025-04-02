@@ -81,7 +81,7 @@ CountingFunc::CountingFunc(std::vector<std::string> chunks)
 std::function<std::shared_ptr<std::string>()> CountingFunc::func(
     std::string cookie) {
   return [this, cookie = std::move(cookie)] {
-    return std::make_shared<std::string>(Next(cookie));
+    return std::make_shared<std::string>(NextFuncReturnValue(cookie));
   };
 }
 
@@ -89,7 +89,7 @@ int CountingFunc::invocation_count() const {
   return count_.load(std::memory_order_acquire);
 }
 
-std::string CountingFunc::Next(const std::string& cookie) {
+std::string CountingFunc::NextFuncReturnValue(const std::string& cookie) {
   const int id = count_.fetch_add(1, std::memory_order_acq_rel);
   std::ostringstream ss;
   for (const std::string& chunk : chunks_) {

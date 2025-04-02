@@ -2348,7 +2348,7 @@ extension Auth: AuthInterop {
 
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
-  var requestConfiguration: AuthRequestConfiguration
+  let requestConfiguration: AuthRequestConfiguration
 
   let backend: AuthBackend
 

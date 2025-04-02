@@ -78,7 +78,9 @@ struct GenerateContentIntegrationTests {
     "Generate an enum and provide a system instruction",
     arguments: [
       InstanceConfig.vertexV1,
+      InstanceConfig.vertexV1Staging,
       InstanceConfig.vertexV1Beta,
+      InstanceConfig.vertexV1BetaStaging,
       /* System instructions are not supported on the v1 Developer API. */
       InstanceConfig.developerV1Beta,
     ]
@@ -114,5 +116,82 @@ struct GenerateContentIntegrationTests {
     let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
     #expect(candidatesTokensDetails.modality == .text)
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+  }
+
+  // MARK: Streaming Tests
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateContentStream(_ config: InstanceConfig) async throws {
+    let expectedText = """
+    1. Mercury
+    2. Venus
+    3. Earth
+    4. Mars
+    5. Jupiter
+    6. Saturn
+    7. Uranus
+    8. Neptune
+    """
+    let prompt = """
+    What are the names of the planets in the solar system, ordered from closest to furthest from
+    the sun? Answer with a Markdown numbered list of the names and no other text.
+    """
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let chat = model.startChat()
+
+    let stream = try chat.sendMessageStream(prompt)
+    var textValues = [String]()
+    for try await value in stream {
+      try textValues.append(#require(value.text))
+    }
+
+    let userHistory = try #require(chat.history.first)
+    #expect(userHistory.role == "user")
+    #expect(userHistory.parts.count == 1)
+    let promptTextPart = try #require(userHistory.parts.first as? TextPart)
+    #expect(promptTextPart.text == prompt)
+    let modelHistory = try #require(chat.history.last)
+    #expect(modelHistory.role == "model")
+    #expect(modelHistory.parts.count == 1)
+    let modelTextPart = try #require(modelHistory.parts.first as? TextPart)
+    let modelText = modelTextPart.text.trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(modelText == expectedText)
+    #expect(textValues.count > 1)
+    let text = textValues.joined().trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(text == expectedText)
+  }
+
+  // MARK: - App Check Tests
+
+  @Test(arguments: [
+    InstanceConfig.vertexV1AppCheckNotConfigured,
+    InstanceConfig.vertexV1BetaAppCheckNotConfigured,
+    // App Check is not supported on the Generative Language Developer API endpoint since it
+    // bypasses the Vertex AI in Firebase proxy.
+  ])
+  func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2Flash
+    )
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    try await #require {
+      _ = try await model.generateContent(prompt)
+    } throws: {
+      guard let error = $0 as? GenerateContentError else {
+        Issue.record("Expected a \(GenerateContentError.self); got \($0.self).")
+        return false
+      }
+      guard case let .internalError(underlyingError) = error else {
+        Issue.record("Expected a GenerateContentError.internalError(...); got \(error.self).")
+        return false
+      }
+
+      return String(describing: underlyingError).contains("Firebase App Check token is invalid")
+    }
   }
 }

@@ -59,14 +59,14 @@ final class ChatTests: XCTestCase {
                           options: FirebaseOptions(googleAppID: "ignore",
                                                    gcmSenderID: "ignore"))
     let model = GenerativeModel(
-      name: "my-model",
+      modelResourceName: "my-model",
       firebaseInfo: FirebaseInfo(
         projectID: "my-project-id",
         apiKey: "API_KEY",
         firebaseAppID: "My app ID",
         firebaseApp: app
       ),
-      apiConfig: APIConfig(service: .vertexAI, version: .v1beta),
+      apiConfig: VertexAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
