@@ -1308,7 +1308,13 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseVertexAI/Sources",
+      swiftSettings: [
+        // TODO(#14638): Remove "AccessLevelOnImport" experimental feature declaration after
+        // upgrading to `swift-tools-version:6.0`, where it is on by default.
+        .enableExperimentalFeature("AccessLevelOnImport"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ]
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
@@ -1323,6 +1329,12 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        // TODO(#14638): Remove "AccessLevelOnImport" experimental feature declaration after
+        // upgrading to `swift-tools-version:6.0`, where it is on by default.
+        .enableExperimentalFeature("AccessLevelOnImport"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
   ] + firestoreTargets(),
