@@ -135,7 +135,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_16.2
             swift_version: 5.9
-            warnings: --allow-warnings
+            warnings:
           - os: macos-15
             xcode: Xcode_16.2
             swift_version: 5.9
