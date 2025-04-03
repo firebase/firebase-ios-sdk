@@ -27,36 +27,6 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
 
-final class AtomicBox<T> {
-  private var _value: T
-  private let lock = NSLock()
-
-  public init(_ value: T) {
-    _value = value
-  }
-
-  public func value() -> T {
-    lock.withLock {
-      _value
-    }
-  }
-
-  @discardableResult
-  public func withLock(_ mutatingBody: (_ value: inout T) -> Void) -> T {
-    lock.withLock {
-      mutatingBody(&_value)
-      return _value
-    }
-  }
-
-  @discardableResult
-  public func withLock<R>(_ mutatingBody: (_ value: inout T) throws -> R) rethrows -> R {
-    try lock.withLock {
-      try mutatingBody(&_value)
-    }
-  }
-}
-
 /// File specific constants.
 private enum Constants {
   static let appCheckTokenHeader = "X-Firebase-AppCheck"
@@ -83,12 +53,8 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  #if compiler(>=6.0)
-    private nonisolated(unsafe) static var instances: AtomicBox<[String: [Functions]]> =
-      AtomicBox([:])
-  #else
-    private static var instances: AtomicBox<[String: [Functions]]> = AtomicBox([:])
-  #endif
+  private nonisolated(unsafe) static var instances: FirebaseCoreInternal.FIRAllocatedUnfairLock<[String: [Functions]]> =
+    FirebaseCoreInternal.FIRAllocatedUnfairLock([:])
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?

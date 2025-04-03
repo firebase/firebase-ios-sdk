@@ -137,20 +137,17 @@ public class VertexAI {
 
   let apiConfig: APIConfig
 
+  /// Lock to manage access to the `instances` array to avoid race conditions.
+  private static let instancesLock = FirebaseCoreInternal.FIRAllocatedUnfairLock<Void>()
+
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
     private nonisolated(unsafe) static var instances: [InstanceKey: VertexAI] = [:]
-
-    /// Lock to manage access to the `instances` array to avoid race conditions.
-    private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
   #else
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
     private static var instances: [InstanceKey: VertexAI] = [:]
-
-    /// Lock to manage access to the `instances` array to avoid race conditions.
-    private static var instancesLock: os_unfair_lock = .init()
   #endif
 
   let location: String?
@@ -162,10 +159,10 @@ public class VertexAI {
       fatalError("No instance of the default Firebase app was found.")
     }
 
-    os_unfair_lock_lock(&instancesLock)
+    instancesLock.lock()
 
     // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
+    defer { instancesLock.unlock() }
 
     let instanceKey = InstanceKey(appName: app.name, location: location, apiConfig: apiConfig)
     if let instance = instances[instanceKey] {

@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+
 # 11.1.0
 - [fixed] Fix a potential data race in Storage initialization. (#13369)
 

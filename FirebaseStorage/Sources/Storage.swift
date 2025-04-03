@@ -249,13 +249,13 @@ import FirebaseCore
     private var instances: [String: Storage] = [:]
 
     /// Lock to manage access to the instances array to avoid race conditions.
-    private var instancesLock: os_unfair_lock = .init()
+    private let instancesLock = FirebaseCoreInternal.FIRAllocatedUnfairLock<Void>()
 
     private init() {}
 
     func storage(app: FirebaseApp, bucket: String) -> Storage {
-      os_unfair_lock_lock(&instancesLock)
-      defer { os_unfair_lock_unlock(&instancesLock) }
+      instancesLock.lock()
+      defer { instancesLock.unlock() }
 
       if let instance = instances[bucket] {
         return instance
