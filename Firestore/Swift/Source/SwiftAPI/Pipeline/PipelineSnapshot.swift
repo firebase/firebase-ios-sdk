@@ -12,13 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
+import Foundation
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineSnapshot: Sendable {
   /// The Pipeline on which `execute()` was called to obtain this `PipelineSnapshot`.
   public let pipeline: Pipeline
 
   /// An array of all the results in the `PipelineSnapshot`.
-  public let results: [PipelineResult]
+  let results_cache: [PipelineResult<[String: Sendable]>]
 
   /// The time at which the pipeline producing this result was executed.
   public let executionTime: Timestamp
@@ -29,6 +36,19 @@ public struct PipelineSnapshot: Sendable {
     self.bridge = bridge
     self.pipeline = pipeline
     executionTime = self.bridge.execution_time
-    results = self.bridge.results.map { PipelineResult($0) }
+    results_cache = self.bridge.results.map { PipelineResult($0) }
+  }
+
+  public func results() -> [PipelineResult<[String: Sendable]>] {
+    return results_cache
+  }
+
+  public func results<T: Decodable>(decodeAsType: T.Type = T.self,
+                                    decoder: Firestore
+                                      .Decoder = .init()) async throws -> [PipelineResult<
+    T
+  >] {
+    return try decoder
+      .decode(T.self, from: results, in: nil as DocumentReference?) as! [PipelineResult<T>]
   }
 }

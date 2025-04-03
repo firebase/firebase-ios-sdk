@@ -136,6 +136,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(0)
       .execute()
 
-    XCTAssertTrue(snapshot.results.isEmpty)
+    XCTAssertTrue(snapshot.results().isEmpty)
+
+    struct MyStruct: Decodable {}
+    let pplResult: [PipelineResult<MyStruct>] = try await snapshot
+      .results(decodeAsType: MyStruct.self)
   }
 }

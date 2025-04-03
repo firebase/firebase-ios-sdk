@@ -20,14 +20,14 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineResult: @unchecked Sendable {
+public struct PipelineResult<T>: @unchecked Sendable {
   let bridge: __PipelineResultBridge
 
   init(_ bridge: __PipelineResultBridge) {
     self.bridge = bridge
     ref = self.bridge.reference
     id = self.bridge.documentID
-    data = self.bridge.data()
+    data = self.bridge.data() as! T
     createTime = self.bridge.create_time
     updateTime = self.bridge.update_time
   }
@@ -45,12 +45,12 @@ public struct PipelineResult: @unchecked Sendable {
   public let updateTime: Timestamp?
 
   /// Retrieves all fields in the result as a dictionary.
-  public let data: [String: Any]
+  public let data: T
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
-  public func get(_ fieldPath: Any) -> Any? {
+  public func get(_ fieldPath: Any) -> Sendable? {
     return "PLACEHOLDER"
   }
 }
