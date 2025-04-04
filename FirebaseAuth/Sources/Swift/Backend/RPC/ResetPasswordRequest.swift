@@ -27,7 +27,7 @@ private let kCurrentPasswordKey = "newPassword"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
+class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = ResetPasswordResponse
 
   /// The oobCode sent in the request.

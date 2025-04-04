@@ -21,7 +21,11 @@ import Foundation
   /// The identifier of this second factor is "phone".
   ///
   /// This class is available on iOS only.
-  @objc(FIRPhoneMultiFactorInfo) open class PhoneMultiFactorInfo: MultiFactorInfo {
+  @objc(FIRPhoneMultiFactorInfo) public final class PhoneMultiFactorInfo: MultiFactorInfo, @unchecked Sendable {
+    // In order for this class to remain safely Sendable, all of its parameters must be immutable
+    // Sendable types. If you add a parameter here that is either mutable or not Sendable, please
+    // update the unchecked Sendable above.
+
     /// The string identifier for using phone as a second factor.
     @objc(FIRPhoneMultiFactorID) public static let PhoneMultiFactorID = "phone"
 
@@ -29,7 +33,7 @@ import Foundation
     @objc(FIRTOTPMultiFactorID) public static let TOTPMultiFactorID = "totp"
 
     /// This is the phone number associated with the current second factor.
-    @objc open var phoneNumber: String
+    @objc final let phoneNumber: String
 
     init(proto: AuthProtoMFAEnrollment) {
       guard let phoneInfo = proto.phoneInfo else {

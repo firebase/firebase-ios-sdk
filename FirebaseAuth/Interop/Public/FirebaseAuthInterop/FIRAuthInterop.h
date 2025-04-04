@@ -34,8 +34,7 @@ NS_SWIFT_NAME(AuthInterop)
 /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh
                   withCallback:
-                      (void (^)(NSString *_Nullable_result token, NSError *_Nullable error))callback
-    NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
+                      (void (^NS_SWIFT_UI_ACTOR)(NSString *_Nullable_result token, NSError *_Nullable error))callback NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
 
 /// Get the current Auth user's UID. Returns nil if there is no user signed in.
 - (nullable NSString *)getUserID;

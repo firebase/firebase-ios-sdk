@@ -17,7 +17,7 @@ import Foundation
 
 /// Utility class for constructing OAuth Sign In credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider {
+@objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider, @unchecked Sendable /* TODO: sendable */ {
   @objc public static let id = "OAuth"
 
   /// Array used to configure the OAuth scopes.
@@ -268,7 +268,7 @@ import Foundation
     /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
     /// thread when the mobile web flow is completed.
     open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
-                                completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+                                completion: (@MainActor (AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
             AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: urlTypes) else {
@@ -281,11 +281,9 @@ import Foundation
         let eventID = AuthWebUtils.randomString(withLength: 10)
         let sessionID = AuthWebUtils.randomString(withLength: 10)
 
-        let callbackOnMainThread: ((AuthCredential?, Error?) -> Void) = { credential, error in
+        let callbackOnMainThread: (@MainActor (AuthCredential?, Error?) -> Void) = { credential, error in
           if let completion {
-            DispatchQueue.main.async {
-              completion(credential, error)
-            }
+            completion(credential, error)
           }
         }
         Task {
@@ -296,13 +294,13 @@ import Foundation
                 "FirebaseAuth Internal Error: Both error and headfulLiteURL return are nil"
               )
             }
-            let callbackMatcher: (URL?) -> Bool = { callbackURL in
+            let callbackMatcher: @Sendable (URL?) -> Bool = { callbackURL in
               AuthWebUtils.isExpectedCallbackURL(callbackURL,
                                                  eventID: eventID,
                                                  authType: "signInWithRedirect",
                                                  callbackScheme: self.callbackScheme)
             }
-            self.auth.authURLPresenter.present(headfulLiteURL,
+            await self.auth.authURLPresenter.present(headfulLiteURL,
                                                uiDelegate: uiDelegate,
                                                callbackMatcher: callbackMatcher) { callbackURL, error in
               if let error {
@@ -328,7 +326,7 @@ import Foundation
               callbackOnMainThread(credential, nil)
             }
           } catch {
-            callbackOnMainThread(nil, error)
+            await callbackOnMainThread(nil, error)
           }
         }
       }

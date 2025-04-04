@@ -45,7 +45,7 @@ private let kReturnSecureTokenKey = "returnSecureToken"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
+class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = SignUpNewUserResponse
 
   /// The email of the user.

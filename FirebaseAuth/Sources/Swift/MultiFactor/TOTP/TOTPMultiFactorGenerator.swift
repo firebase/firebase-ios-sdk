@@ -30,7 +30,7 @@ import Foundation
     /// - Parameter completion: Completion block
     @objc(generateSecretWithMultiFactorSession:completion:)
     open class func generateSecret(with session: MultiFactorSession,
-                                   completion: @escaping (TOTPSecret?, Error?) -> Void) {
+                                   completion: @escaping @Sendable (sending TOTPSecret?, Error?) -> Void) {
       guard let currentUser = session.currentUser, let auth = currentUser.auth else {
         let error = AuthErrorUtils.error(code: AuthErrorCode.internalError,
                                          userInfo: [NSLocalizedDescriptionKey:

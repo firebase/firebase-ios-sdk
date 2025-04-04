@@ -49,7 +49,7 @@ enum CodeIdentity: Equatable {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
+class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = SendVerificationCodeResponse
 
   /// The phone number to which the verification code should be sent.

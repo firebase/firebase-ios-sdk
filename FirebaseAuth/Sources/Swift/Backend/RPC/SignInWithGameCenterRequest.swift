@@ -18,7 +18,7 @@ private let kSignInWithGameCenterEndPoint = "signInWithGameCenter"
 
 /// The request to sign in with Game Center account
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
+class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable {
   typealias Response = SignInWithGameCenterResponse
 
   /// The playerID to verify.

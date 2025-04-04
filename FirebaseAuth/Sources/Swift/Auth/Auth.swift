@@ -17,6 +17,7 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
 import FirebaseCoreExtension
 #if COCOAPODS
   @_implementationOnly import GoogleUtilities
@@ -81,7 +82,7 @@ extension Auth: AuthInterop {
   /// This method is not for public use. It is for Firebase clients of AuthInterop.
   @objc(getTokenForcingRefresh:withCallback:)
   public func getToken(forcingRefresh forceRefresh: Bool,
-                       completion callback: @escaping (String?, Error?) -> Void) {
+                       completion callback: @escaping @MainActor @Sendable (String?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async { [weak self] in
       if let strongSelf = self {
         // Enable token auto-refresh if not already enabled.
@@ -226,14 +227,14 @@ extension Auth: AuthInterop {
   ///   - user: The user object to be set as the current user of the calling Auth instance.
   ///   - completion: Optionally; a block invoked after the user of the calling Auth instance has
   ///             been updated or an error was encountered.
-  @objc open func updateCurrentUser(_ user: User?, completion: ((Error?) -> Void)? = nil) {
+  @objc open func updateCurrentUser(_ user: User?, completion: (@MainActor (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       guard let user else {
         let error = AuthErrorUtils.nullUserError(message: nil)
         Auth.wrapMainAsync(completion, error)
         return
       }
-      let updateUserBlock: (User) -> Void = { user in
+      let updateUserBlock: @Sendable (User) -> Void = { user in
         do {
           try self.updateCurrentUser(user, byForce: true, savingToDisk: true)
           Auth.wrapMainAsync(completion, nil)
@@ -293,7 +294,7 @@ extension Auth: AuthInterop {
     )
   #endif // !FIREBASE_CI
   @objc open func fetchSignInMethods(forEmail email: String,
-                                     completion: (([String]?, Error?) -> Void)? = nil) {
+                                     completion: (@MainActor ([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http://www.google.com/",
@@ -357,7 +358,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          password: String,
-                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                         completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       Task {
@@ -456,7 +457,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          link: String,
-                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                         completion: (@MainActor (AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let credential = EmailAuthCredential(withEmail: email, link: link)
@@ -535,7 +536,7 @@ extension Auth: AuthInterop {
     @objc(signInWithProvider:UIDelegate:completion:)
     open func signIn(with provider: FederatedAuthProvider,
                      uiDelegate: AuthUIDelegate?,
-                     completion: ((AuthDataResult?, Error?) -> Void)?) {
+                     completion: (@Sendable (AuthDataResult?, Error?) -> Void)?) {
       kAuthGlobalWorkQueue.async {
         Task {
           let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
@@ -636,7 +637,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc(signInWithCredential:completion:)
   open func signIn(with credential: AuthCredential,
-                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                   completion: (@MainActor (AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       Task {
@@ -706,7 +707,9 @@ extension Auth: AuthInterop {
   /// not enabled. Enable them in the Auth section of the Firebase console.
   /// - Parameter completion: Optionally; a block which is invoked when the sign in finishes, or is
   /// canceled. Invoked asynchronously on the main thread in the future.
-  @objc open func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc open func signInAnonymously(
+    completion: (@MainActor (AuthDataResult?, Error?) -> Void)? = nil
+  ) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       if let currentUser = self._currentUser, currentUser.isAnonymous {
@@ -773,7 +776,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the sign in finishes, or is
   ///    canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withCustomToken token: String,
-                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                         completion: (@MainActor (AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let request = VerifyCustomTokenRequest(token: token,
@@ -843,7 +846,7 @@ extension Auth: AuthInterop {
   /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func createUser(withEmail email: String,
                              password: String,
-                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                             completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
     guard password.count > 0 else {
       if let completion {
         completion(nil, AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing password"))
@@ -957,7 +960,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
   /// Invoked asynchronously on the main thread in the future.
   @objc open func confirmPasswordReset(withCode code: String, newPassword: String,
-                                       completion: @escaping (Error?) -> Void) {
+                                       completion: @MainActor @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
@@ -997,7 +1000,7 @@ extension Auth: AuthInterop {
   /// Invoked
   /// asynchronously on the main thread in the future.
   @objc open func checkActionCode(_ code: String,
-                                  completion: @escaping (ActionCodeInfo?, Error?) -> Void) {
+                                  completion: @MainActor @escaping (ActionCodeInfo?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: nil,
@@ -1042,7 +1045,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
   /// Invoked asynchronously on the main thread in the future.
   @objc open func verifyPasswordResetCode(_ code: String,
-                                          completion: @escaping (String?, Error?) -> Void) {
+                                          completion: @escaping @MainActor (String?, Error?) -> Void) {
     checkActionCode(code) { info, error in
       if let error {
         completion(nil, error)
@@ -1075,7 +1078,10 @@ extension Auth: AuthInterop {
   /// - Parameter code: The out of band code to be applied.
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
   /// Invoked asynchronously on the main thread in the future.
-  @objc open func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
+  @objc open func applyActionCode(
+    _ code: String,
+    completion: @escaping @MainActor (Error?) -> Void
+  ) {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
@@ -1120,7 +1126,7 @@ extension Auth: AuthInterop {
   /// Invoked
   /// asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
-                                    completion: ((Error?) -> Void)? = nil) {
+                                    completion: (@MainActor (Error?) -> Void)? = nil) {
     sendPasswordReset(withEmail: email, actionCodeSettings: nil, completion: completion)
   }
 
@@ -1153,7 +1159,7 @@ extension Auth: AuthInterop {
   /// Invoked asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
                                     actionCodeSettings: ActionCodeSettings?,
-                                    completion: ((Error?) -> Void)? = nil) {
+                                    completion: (@MainActor (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
         email: email,
@@ -1222,7 +1228,7 @@ extension Auth: AuthInterop {
   /// Invoked asynchronously on the main thread in the future.
   @objc open func sendSignInLink(toEmail email: String,
                                  actionCodeSettings: ActionCodeSettings,
-                                 completion: ((Error?) -> Void)? = nil) {
+                                 completion: (@MainActor (Error?) -> Void)? = nil) {
     if !actionCodeSettings.handleCodeInApp {
       fatalError("The handleCodeInApp flag in ActionCodeSettings must be true for Email-link " +
         "Authentication.")
@@ -1347,7 +1353,7 @@ extension Auth: AuthInterop {
   /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
   @objc(addAuthStateDidChangeListener:)
-  open func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  open func addStateDidChangeListener(_ listener: @escaping @MainActor (Auth, User?) -> Void)
     -> NSObjectProtocol {
     var firstInvocation = true
     var previousUserID: String?
@@ -1387,15 +1393,19 @@ extension Auth: AuthInterop {
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
   /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
-  @objc open func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  @objc open func addIDTokenDidChangeListener(_ listener: @MainActor @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
+
     let handle = NotificationCenter.default.addObserver(
       forName: Auth.authStateDidChangeNotification,
       object: self,
       queue: OperationQueue.main
     ) { notification in
       if let auth = notification.object as? Auth {
-        listener(auth, auth._currentUser)
+        // MainActor is guaranteed by the queue parameter above.
+        MainActor.assumeIsolated {
+          listener(auth, auth._currentUser)
+        }
       }
     }
     objc_sync_enter(Auth.self)
@@ -1443,7 +1453,7 @@ extension Auth: AuthInterop {
   /// - Parameter completion: (Optional) the block invoked when the request to revoke the token is
   /// complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
-                              completion: ((Error?) -> Void)? = nil) {
+                              completion: (@MainActor (Error?) -> Void)? = nil) {
     _currentUser?.internalGetToken(backend: backend) { idToken, error in
       if let error {
         Auth.wrapMainAsync(completion, error)
@@ -1605,13 +1615,11 @@ extension Auth: AuthInterop {
     /// so the caller should ignore the URL from further processing, and `false` means the
     /// the URL is for the app (or another library) so the caller should continue handling
     /// this URL as usual.
-    @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
-      kAuthGlobalWorkQueue.sync {
-        guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
-          return false
-        }
-        return authURLPresenter.canHandle(url: url)
+    @MainActor @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
+      guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
+        return false
       }
+      return authURLPresenter.canHandle(url: url)
     }
   #endif
 
@@ -1819,22 +1827,23 @@ extension Auth: AuthInterop {
   /// This map is needed for looking up the keychain service name after the FirebaseApp instance
   /// is deleted, to remove the associated keychain item. Accessing should occur within a
   /// @synchronized([FIRAuth class]) context.
-  fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
+  fileprivate static let gKeychainServiceNameForAppName =
+    FIRAllocatedUnfairLock<[String: String]>(initialState: [:])
 
   /// Gets the keychain service name global data for the particular app by
   /// name, creating an entry for one if it does not exist.
   /// - Parameter app: The Firebase app to get the keychain service name for.
   /// - Returns: The keychain service name for the given app.
   static func keychainServiceName(for app: FirebaseApp) -> String {
-    objc_sync_enter(Auth.self)
-    defer { objc_sync_exit(Auth.self) }
-    let appName = app.name
-    if let serviceName = gKeychainServiceNameForAppName[appName] {
-      return serviceName
-    } else {
-      let serviceName = "firebase_auth_\(app.options.googleAppID)"
-      gKeychainServiceNameForAppName[appName] = serviceName
-      return serviceName
+    return gKeychainServiceNameForAppName.withLock { map in
+      let appName = app.name
+      if let serviceName = map[appName] {
+        return serviceName
+      } else {
+        let serviceName = "firebase_auth_\(app.options.googleAppID)"
+        map[appName] = serviceName
+        return serviceName
+      }
     }
   }
 
@@ -1842,13 +1851,13 @@ extension Auth: AuthInterop {
   /// - Parameter appName: The name of the Firebase app to delete keychain service name for.
   /// - Returns: The deleted keychain service name, if any.
   static func deleteKeychainServiceNameForAppName(_ appName: String) -> String? {
-    objc_sync_enter(Auth.self)
-    defer { objc_sync_exit(Auth.self) }
-    guard let serviceName = gKeychainServiceNameForAppName[appName] else {
-      return nil
+    return gKeychainServiceNameForAppName.withLock { map in
+      guard let serviceName = map[appName] else {
+        return nil
+      }
+      map.removeValue(forKey: appName)
+      return serviceName
     }
-    gKeychainServiceNameForAppName.removeValue(forKey: appName)
-    return serviceName
   }
 
   func signOutByForce(withUserID userID: String) throws {
@@ -1872,17 +1881,17 @@ extension Auth: AuthInterop {
       // Schedule new refresh task after successful attempt.
       scheduleAutoTokenRefresh()
     }
-    var internalNotificationParameters: [String: Any] = [:]
-    if let app = app {
-      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = app
-    }
-    if let token, token.count > 0 {
-      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token
-    }
-    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = _currentUser?
-      .uid
-    let notifications = NotificationCenter.default
     DispatchQueue.main.async {
+      var internalNotificationParameters: [String: Any] = [:]
+      if let app = self.app {
+        internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = app
+      }
+      if let token, token.count > 0 {
+        internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token
+      }
+      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = self._currentUser?
+        .uid
+      let notifications = NotificationCenter.default
       notifications.post(name: NSNotification.Name.FIRAuthStateDidChangeInternal,
                          object: self,
                          userInfo: internalNotificationParameters)
@@ -2242,7 +2251,7 @@ extension Auth: AuthInterop {
   /// Invoked asynchronously on the main thread in the future.
   /// - Returns: Returns a block that updates the current user.
   func signInFlowAuthDataResultCallback(byDecorating callback:
-    ((AuthDataResult?, Error?) -> Void)?) -> (Result<AuthDataResult, Error>) -> Void {
+    (@MainActor (AuthDataResult?, Error?) -> Void)?) -> @Sendable (Result<AuthDataResult, Error>) -> Void {
     return { result in
       switch result {
       case let .success(authResult):
@@ -2258,7 +2267,10 @@ extension Auth: AuthInterop {
     }
   }
 
-  private func wrapAsyncRPCTask(_ request: any AuthRPCRequest, _ callback: ((Error?) -> Void)?) {
+  private func wrapAsyncRPCTask(
+    _ request: any AuthRPCRequest,
+    _ callback: (@MainActor (Error?) -> Void)?
+  ) {
     Task {
       do {
         let _ = try await self.backend.call(with: request)
@@ -2269,7 +2281,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  class func wrapMainAsync(_ callback: ((Error?) -> Void)?, _ error: Error?) {
+  class func wrapMainAsync(_ callback: (@MainActor (Error?) -> Void)?, _ error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback(error)
@@ -2277,7 +2289,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  class func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
+  class func wrapMainAsync<T: Sendable>(callback: (@MainActor (T?, Error?) -> Void)?,
                                    with result: Result<T, Error>) -> Void {
     guard let callback else { return }
     DispatchQueue.main.async {

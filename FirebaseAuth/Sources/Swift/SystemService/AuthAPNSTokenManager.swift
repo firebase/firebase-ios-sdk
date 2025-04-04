@@ -23,7 +23,7 @@
   #endif // COCOAPODS
 
   // Protocol to help with unit tests.
-  protocol AuthAPNSTokenApplication {
+  @MainActor protocol AuthAPNSTokenApplication {
     func registerForRemoteNotifications()
   }
 
@@ -31,7 +31,7 @@
 
   /// A class to manage APNs token in memory.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  class AuthAPNSTokenManager {
+class AuthAPNSTokenManager: @unchecked Sendable /* TODO: sendable */ {
     /// The timeout for registering for remote notification.
     ///
     /// Only tests should access this property.
@@ -40,7 +40,7 @@
     /// Initializes the instance.
     /// - Parameter application: The  `UIApplication` to request the token from.
     /// - Returns: The initialized instance.
-    init(withApplication application: AuthAPNSTokenApplication) {
+    init(withApplication application: sending AuthAPNSTokenApplication) {
       self.application = application
     }
 
@@ -49,7 +49,7 @@
     /// token becomes available, or when timeout occurs, whichever happens earlier.
     ///
     /// This function is internal to make visible for tests.
-    func getTokenInternal(callback: @escaping (Result<AuthAPNSToken, Error>) -> Void) {
+    func getTokenInternal(callback: @escaping @Sendable (Result<AuthAPNSToken, Error>) -> Void) {
       if let token = tokenStore {
         callback(.success(token))
         return

@@ -22,17 +22,17 @@
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthURLPresenter: NSObject,
-    SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
+                          @preconcurrency SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
     /// Presents an URL to interact with user.
     /// - Parameter url: The URL to present.
     /// - Parameter uiDelegate: The UI delegate to present view controller.
     /// - Parameter completion: A block to be called either synchronously if the presentation fails
     /// to start, or asynchronously in future on an unspecified thread once the presentation
     /// finishes.
-    func present(_ url: URL,
+    @MainActor func present(_ url: URL,
                  uiDelegate: AuthUIDelegate?,
-                 callbackMatcher: @escaping (URL?) -> Bool,
-                 completion: @escaping (URL?, Error?) -> Void) {
+                 callbackMatcher: @Sendable @escaping (URL?) -> Bool,
+                 completion: @MainActor @escaping (URL?, Error?) -> Void) {
       if isPresenting {
         // Unable to start a new presentation on top of another.
         // Invoke the new completion closure and leave the old one as-is
@@ -74,7 +74,7 @@
     /// Determines if a URL was produced by the currently presented URL.
     /// - Parameter url: The URL to handle.
     /// - Returns: Whether the URL could be handled or not.
-    func canHandle(url: URL) -> Bool {
+    @MainActor func canHandle(url: URL) -> Bool {
       if isPresenting,
          let callbackMatcher = callbackMatcher,
          callbackMatcher(url) {
@@ -86,45 +86,37 @@
 
     // MARK: SFSafariViewControllerDelegate
 
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-      kAuthGlobalWorkQueue.async {
-        if controller == self.safariViewController {
-          self.safariViewController = nil
-          // TODO: Ensure that the SFSafariViewController is actually removed from the screen
-          // before invoking finishPresentation
-          self.finishPresentation(withURL: nil,
-                                  error: AuthErrorUtils.webContextCancelledError(message: nil))
-        }
+    @MainActor func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+      if controller == self.safariViewController {
+        self.safariViewController = nil
+        // TODO: Ensure that the SFSafariViewController is actually removed from the screen
+        // before invoking finishPresentation
+        self.finishPresentation(withURL: nil,
+                                error: AuthErrorUtils.webContextCancelledError(message: nil))
       }
     }
 
     // MARK: AuthWebViewControllerDelegate
 
-    func webViewControllerDidCancel(_ controller: AuthWebViewController) {
-      kAuthGlobalWorkQueue.async {
-        if self.webViewController == controller {
-          self.finishPresentation(withURL: nil,
-                                  error: AuthErrorUtils.webContextCancelledError(message: nil))
-        }
+    @MainActor func webViewControllerDidCancel(_ controller: AuthWebViewController) {
+      if self.webViewController == controller {
+        self.finishPresentation(withURL: nil,
+                                error: AuthErrorUtils.webContextCancelledError(message: nil))
       }
     }
 
-    func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool {
+    @MainActor func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool {
       var result = false
-      kAuthGlobalWorkQueue.sync {
-        if self.webViewController == controller {
-          result = self.canHandle(url: url)
-        }
+      if self.webViewController == controller {
+        result = self.canHandle(url: url)
       }
       return result
     }
 
-    func webViewController(_ controller: AuthWebViewController,
+    @MainActor func webViewController(_ controller: AuthWebViewController,
                            didFailWithError error: Error) {
-      kAuthGlobalWorkQueue.async {
-        if self.webViewController == controller {
-          self.finishPresentation(withURL: nil, error: error)
-        }
+      if self.webViewController == controller {
+        self.finishPresentation(withURL: nil, error: error)
       }
     }
 
@@ -159,7 +151,7 @@
 
     // MARK: Private methods
 
-    private func finishPresentation(withURL url: URL?, error: Error?) {
+    @MainActor private func finishPresentation(withURL url: URL?, error: Error?) {
       callbackMatcher = nil
       let uiDelegate = self.uiDelegate
       self.uiDelegate = nil
@@ -170,12 +162,10 @@
       let webViewController = self.webViewController
       self.webViewController = nil
       if safariViewController != nil || webViewController != nil {
-        DispatchQueue.main.async {
-          uiDelegate?.dismiss(animated: true) {
-            self.isPresenting = false
-            if let completion {
-              completion(url, error)
-            }
+        uiDelegate?.dismiss(animated: true) {
+          self.isPresenting = false
+          if let completion {
+            completion(url, error)
           }
         }
       } else {

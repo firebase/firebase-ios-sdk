@@ -20,14 +20,14 @@
   /// A protocol to handle user interface interactions for Firebase Auth.
   ///
   /// This protocol is available on iOS, macOS Catalyst, and tvOS only.
-  @objc(FIRAuthUIDelegate) public protocol AuthUIDelegate: NSObjectProtocol {
+  @objc(FIRAuthUIDelegate) public protocol AuthUIDelegate: NSObjectProtocol, Sendable {
     /// If implemented, this method will be invoked when Firebase Auth needs to display a view
     /// controller.
     /// - Parameter viewControllerToPresent: The view controller to be presented.
     /// - Parameter flag: Decides whether the view controller presentation should be animated.
     /// - Parameter completion: The block to execute after the presentation finishes.
     /// This block has no return value and takes no parameters.
-    @objc(presentViewController:animated:completion:)
+    @MainActor @objc(presentViewController:animated:completion:)
     func present(_ viewControllerToPresent: UIViewController,
                  animated flag: Bool,
                  completion: (() -> Void)?)
@@ -37,19 +37,19 @@
     /// - Parameter flag: Decides whether removing the view controller should be animated or not.
     /// - Parameter completion: The block to execute after the presentation finishes.
     /// This block has no return value and takes no parameters.
-    @objc(dismissViewControllerAnimated:completion:)
+    @MainActor @objc(dismissViewControllerAnimated:completion:)
     func dismiss(animated flag: Bool, completion: (() -> Void)?)
   }
 
   // Extension to support default argument variations.
   extension AuthUIDelegate {
-    func present(_ viewControllerToPresent: UIViewController,
+    @MainActor func present(_ viewControllerToPresent: UIViewController,
                  animated flag: Bool,
                  completion: (() -> Void)? = nil) {
       return present(viewControllerToPresent, animated: flag, completion: nil)
     }
 
-    func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+    @MainActor func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
       return dismiss(animated: flag, completion: nil)
     }
   }

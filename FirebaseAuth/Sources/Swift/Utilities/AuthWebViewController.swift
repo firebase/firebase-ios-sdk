@@ -23,17 +23,17 @@
   protocol AuthWebViewControllerDelegate: AnyObject {
     /// Notifies the delegate that the web view controller is being cancelled by the user.
     /// - Parameter webViewController: The web view controller in question.
-    func webViewControllerDidCancel(_ controller: AuthWebViewController)
+    @MainActor func webViewControllerDidCancel(_ controller: AuthWebViewController)
 
     /// Determines if a URL should be handled by the delegate.
     /// - Parameter url: The URL to handle.
     /// - Returns: Whether the URL could be handled or not.
-    func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
+    @MainActor func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
 
     /// Notifies the delegate that the web view controller failed to load a page.
     /// - Parameter webViewController: The web view controller in question.
     /// - Parameter error: The error that has occurred.
-    func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
+    @MainActor func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
 
     /// Presents an URL to interact with user.
     /// - Parameter url: The URL to present.
@@ -41,10 +41,10 @@
     /// - Parameter completion: A block to be called either synchronously if the presentation fails
     /// to start, or asynchronously in future on an unspecified thread once the presentation
     /// finishes.
-    func present(_ url: URL,
+    @MainActor func present(_ url: URL,
                  uiDelegate: AuthUIDelegate?,
-                 callbackMatcher: @escaping (URL?) -> Bool,
-                 completion: @escaping (URL?, Error?) -> Void)
+                 callbackMatcher: @Sendable @escaping (URL?) -> Bool,
+                 completion: @MainActor @escaping (URL?, Error?) -> Void)
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

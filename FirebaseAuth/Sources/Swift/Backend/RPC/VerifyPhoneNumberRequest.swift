@@ -57,7 +57,7 @@ extension AuthOperationType {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
+class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = VerifyPhoneNumberResponse
 
   /// The verification ID obtained from the response of `sendVerificationCode`.

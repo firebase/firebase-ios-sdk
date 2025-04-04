@@ -26,7 +26,7 @@
   ///
   /// This class should be used in the case that a UIDelegate was expected and necessary to
   /// continue a given flow, but none was provided.
-  final class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
+  final class AuthDefaultUIDelegate: NSObject, AuthUIDelegate, Sendable {
     /// Returns a default AuthUIDelegate object.
     /// - Returns: The default AuthUIDelegate object.
     @MainActor static func defaultUIDelegate() -> AuthUIDelegate? {
@@ -76,12 +76,12 @@
       self.viewController = viewController
     }
 
-    func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
+    @MainActor func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
                  completion: (() -> Void)? = nil) {
       viewController?.present(viewControllerToPresent, animated: flag, completion: completion)
     }
 
-    func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+    @MainActor func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
       viewController?.dismiss(animated: flag, completion: completion)
     }
 

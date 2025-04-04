@@ -19,7 +19,7 @@ import Foundation
 ///
 /// This class is available on iOS only.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject {
+@objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject, @unchecked Sendable /* TODO: sendable */ {
   /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
   private static let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
@@ -56,7 +56,7 @@ import Foundation
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                completion: (@Sendable (_: String?, _: Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
                         multiFactorSession: nil,
@@ -75,7 +75,7 @@ import Foundation
     open func verifyPhoneNumber(_ phoneNumber: String,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession? = nil,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                completion: (@Sendable (String?, Error?) -> Void)?) {
       Task {
         do {
           let verificationID = try await verifyPhoneNumber(
@@ -135,7 +135,7 @@ import Foundation
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                 uiDelegate: AuthUIDelegate? = nil,
                                 multiFactorSession: MultiFactorSession?,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                completion: (@Sendable (String?, Error?) -> Void)?) {
       Task {
         do {
           let verificationID = try await verifyPhoneNumber(
@@ -531,7 +531,7 @@ import Foundation
           "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"
         )
       }
-      let callbackMatcher: (URL?) -> Bool = { callbackURL in
+      let callbackMatcher: @Sendable (URL?) -> Bool = { callbackURL in
         AuthWebUtils.isExpectedCallbackURL(
           callbackURL,
           eventID: eventID,
@@ -540,17 +540,19 @@ import Foundation
         )
       }
 
-      return try await withUnsafeThrowingContinuation { continuation in
-        self.auth.authURLPresenter.present(url,
-                                           uiDelegate: uiDelegate,
-                                           callbackMatcher: callbackMatcher) { callbackURL, error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else {
-            do {
-              try continuation.resume(returning: self.reCAPTCHAToken(forURL: callbackURL))
-            } catch {
+      return try await withCheckedThrowingContinuation { continuation in
+        DispatchQueue.main.async {
+          self.auth.authURLPresenter.present(url,
+                                             uiDelegate: uiDelegate,
+                                             callbackMatcher: callbackMatcher) { callbackURL, error in
+            if let error {
               continuation.resume(throwing: error)
+            } else {
+              do {
+                try continuation.resume(returning: self.reCAPTCHAToken(forURL: callbackURL))
+              } catch {
+                continuation.resume(throwing: error)
+              }
             }
           }
         }

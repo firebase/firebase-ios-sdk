@@ -33,7 +33,7 @@ import Foundation
     /// - Parameter completion: A block with the session identifier for a second factor enrollment
     /// operation.
     @objc(getSessionWithCompletion:)
-    open func getSessionWithCompletion(_ completion: ((MultiFactorSession?, Error?) -> Void)?) {
+    open func getSessionWithCompletion(_ completion: ((sending MultiFactorSession?, Error?) -> Void)?) {
       let session = MultiFactorSession.session(for: user)
       if let completion {
         completion(session, nil)
@@ -65,7 +65,7 @@ import Foundation
     @objc(enrollWithAssertion:displayName:completion:)
     open func enroll(with assertion: MultiFactorAssertion,
                      displayName: String?,
-                     completion: ((Error?) -> Void)?) {
+                     completion: (@Sendable (Error?) -> Void)?) {
       // TODO: Refactor classes so this duplicated code isn't necessary for phone and totp.
 
       guard
@@ -185,7 +185,7 @@ import Foundation
     /// complete, or fails.
     @objc(unenrollWithInfo:completion:)
     open func unenroll(with factorInfo: MultiFactorInfo,
-                       completion: ((Error?) -> Void)?) {
+                       completion: (@Sendable (Error?) -> Void)?) {
       unenroll(withFactorUID: factorInfo.uid, completion: completion)
     }
 
@@ -202,7 +202,7 @@ import Foundation
     /// complete, or fails.
     @objc(unenrollWithFactorUID:completion:)
     open func unenroll(withFactorUID factorUID: String,
-                       completion: ((Error?) -> Void)?) {
+                       completion: (@Sendable (Error?) -> Void)?) {
       guard let user = user, let auth = user.auth else {
         fatalError("Internal Auth error: failed to get user unenrolling in MultiFactor")
       }

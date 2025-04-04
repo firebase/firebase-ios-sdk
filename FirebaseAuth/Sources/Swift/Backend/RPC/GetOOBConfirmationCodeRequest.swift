@@ -112,7 +112,7 @@ protocol SuppressWarning {
 extension ActionCodeSettings: SuppressWarning {}
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
+class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = GetOOBConfirmationCodeResponse
 
   /// The types of OOB Confirmation Code to request.

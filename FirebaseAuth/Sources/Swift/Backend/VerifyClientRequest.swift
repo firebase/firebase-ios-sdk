@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
+class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = VerifyClientResponse
 
   /// The endpoint for the verifyClient request.

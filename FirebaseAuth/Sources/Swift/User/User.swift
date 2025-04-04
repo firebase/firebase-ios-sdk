@@ -27,7 +27,7 @@ extension User: NSSecureCoding {}
 ///
 /// This class is thread-safe.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRUser) open class User: NSObject, UserInfo {
+@objc(FIRUser) open class User: NSObject, UserInfo, @unchecked Sendable /* TODO: unchecked */ {
   /// Indicates the user represents an anonymous user.
   @objc public internal(set) var isAnonymous: Bool
 
@@ -101,7 +101,7 @@ extension User: NSSecureCoding {}
     )
   #endif // !FIREBASE_CI
   @objc(updateEmail:completion:)
-  open func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
+  open func updateEmail(to email: String, completion: (@Sendable (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.updateEmail(email: email, password: nil) { error in
         User.callInMainThreadWithError(callback: completion, error: error)
@@ -173,7 +173,7 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the user profile change has
   /// finished.
   @objc(updatePassword:completion:)
-  open func updatePassword(to password: String, completion: ((Error?) -> Void)? = nil) {
+  open func updatePassword(to password: String, completion: (@Sendable (Error?) -> Void)? = nil) {
     guard password.count > 0 else {
       if let completion {
         completion(AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing Password"))
@@ -234,7 +234,7 @@ extension User: NSSecureCoding {}
     /// finished.
     @objc(updatePhoneNumberCredential:completion:)
     open func updatePhoneNumber(_ credential: PhoneAuthCredential,
-                                completion: ((Error?) -> Void)? = nil) {
+                                completion: (@Sendable (Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
         self.internalUpdateOrLinkPhoneNumber(credential: credential,
                                              isLinkOperation: false) { error in
@@ -303,7 +303,7 @@ extension User: NSSecureCoding {}
   /// `updateEmail(to:)`.
   /// - Parameter completion: Optionally; the block invoked when the reload has finished. Invoked
   ///   asynchronously on the main thread in the future.
-  @objc open func reload(completion: ((Error?) -> Void)? = nil) {
+  @objc open func reload(completion: (@Sendable (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.getAccountInfoRefreshingCache { user, error in
         User.callInMainThreadWithError(callback: completion, error: error)
@@ -361,7 +361,7 @@ extension User: NSSecureCoding {}
   /// finished. Invoked asynchronously on the main thread in the future.
   @objc(reauthenticateWithCredential:completion:)
   open func reauthenticate(with credential: AuthCredential,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                           completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       Task {
         do {
@@ -463,7 +463,7 @@ extension User: NSSecureCoding {}
     @objc(reauthenticateWithProvider:UIDelegate:completion:)
     open func reauthenticate(with provider: FederatedAuthProvider,
                              uiDelegate: AuthUIDelegate?,
-                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                             completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
         Task {
           do {
@@ -507,7 +507,7 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the token is available. Invoked
   ///    asynchronously on the main thread in the future.
   @objc(getIDTokenWithCompletion:)
-  open func getIDToken(completion: ((String?, Error?) -> Void)?) {
+  open func getIDToken(completion: (@Sendable (String?, Error?) -> Void)?) {
     // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
     // global work queue here.
     getIDTokenForcingRefresh(false, completion: completion)
@@ -523,7 +523,7 @@ extension User: NSSecureCoding {}
   ///    asynchronously on the main thread in the future.
   @objc(getIDTokenForcingRefresh:completion:)
   open func getIDTokenForcingRefresh(_ forceRefresh: Bool,
-                                     completion: ((String?, Error?) -> Void)?) {
+                                     completion: (@Sendable (String?, Error?) -> Void)?) {
     getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
       if let completion {
         DispatchQueue.main.async {
@@ -563,7 +563,7 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the token is available. Invoked
   ///    asynchronously on the main thread in the future.
   @objc(getIDTokenResultWithCompletion:)
-  open func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
+  open func getIDTokenResult(completion: (@Sendable (AuthTokenResult?, Error?) -> Void)?) {
     getIDTokenResult(forcingRefresh: false) { tokenResult, error in
       if let completion {
         DispatchQueue.main.async {
@@ -584,7 +584,7 @@ extension User: NSSecureCoding {}
   /// asynchronously on the main thread in the future.
   @objc(getIDTokenResultForcingRefresh:completion:)
   open func getIDTokenResult(forcingRefresh: Bool,
-                             completion: ((AuthTokenResult?, Error?) -> Void)?) {
+                             completion: (@Sendable (AuthTokenResult?, Error?) -> Void)?) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken(forceRefresh: forcingRefresh, backend: self.backend) { token, error in
         var tokenResult: AuthTokenResult?
@@ -660,7 +660,7 @@ extension User: NSSecureCoding {}
   /// fails.
   @objc(linkWithCredential:completion:)
   open func link(with credential: AuthCredential,
-                 completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                 completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.providerDataRaw[credential.provider] != nil {
         User.callInMainThreadWithAuthDataResultAndError(
@@ -747,7 +747,7 @@ extension User: NSSecureCoding {}
     @objc(linkWithProvider:UIDelegate:completion:)
     open func link(with provider: FederatedAuthProvider,
                    uiDelegate: AuthUIDelegate?,
-                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                   completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
         Task {
           do {
@@ -801,7 +801,7 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the unlinking is complete, or
   /// fails.
   @objc open func unlink(fromProvider provider: String,
-                         completion: ((User?, Error?) -> Void)? = nil) {
+                         completion: (@Sendable (User?, Error?) -> Void)? = nil) {
     Task {
       do {
         let user = try await unlink(fromProvider: provider)
@@ -847,7 +847,7 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the request to send an email
   /// verification is complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc(sendEmailVerificationWithCompletion:)
-  open func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
+  open func __sendEmailVerification(withCompletion completion: (@Sendable (Error?) -> Void)?) {
     sendEmailVerification(completion: completion)
   }
 
@@ -867,7 +867,7 @@ extension User: NSSecureCoding {}
   /// verification is complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc(sendEmailVerificationWithActionCodeSettings:completion:)
   open func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
-                                  completion: ((Error?) -> Void)? = nil) {
+                                  completion: (@Sendable (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken(backend: self.backend) { accessToken, error in
         if let error {
@@ -932,7 +932,7 @@ extension User: NSSecureCoding {}
   /// `reauthenticate(with:)`.
   /// - Parameter completion: Optionally; the block invoked when the request to delete the account
   /// is complete, or fails. Invoked asynchronously on the main thread in the future.
-  @objc open func delete(completion: ((Error?) -> Void)? = nil) {
+  @objc open func delete(completion: (@Sendable (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken(backend: self.backend) { accessToken, error in
         if let error {
@@ -985,7 +985,7 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the request to send the
   /// verification email is complete, or fails.
   @objc(sendEmailVerificationBeforeUpdatingEmail:completion:)
-  open func __sendEmailVerificationBeforeUpdating(email: String, completion: ((Error?) -> Void)?) {
+  open func __sendEmailVerificationBeforeUpdating(email: String, completion: (@Sendable (Error?) -> Void)?) {
     sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
   }
 
@@ -997,7 +997,7 @@ extension User: NSSecureCoding {}
   /// verification email is complete, or fails.
   @objc open func sendEmailVerification(beforeUpdatingEmail email: String,
                                         actionCodeSettings: ActionCodeSettings? = nil,
-                                        completion: ((Error?) -> Void)? = nil) {
+                                        completion: (@Sendable (Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken(backend: self.backend) { accessToken, error in
         if let error {
@@ -1156,7 +1156,7 @@ extension User: NSSecureCoding {}
 
   private func updateEmail(email: String?,
                            password: String?,
-                           callback: @escaping (Error?) -> Void) {
+                           callback: @escaping @Sendable (Error?) -> Void) {
     let hadEmailPasswordCredential = hasEmailPasswordCredential
     executeUserUpdateWithChanges(changeBlock: { user, request in
       if let email {
@@ -1232,9 +1232,9 @@ extension User: NSSecureCoding {}
   /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
   /// the auth global work queue in the future.
-  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponse.User,
+  func executeUserUpdateWithChanges(changeBlock: @escaping @Sendable (GetAccountInfoResponse.User,
                                                             SetAccountInfoRequest) -> Void,
-                                    callback: @escaping (Error?) -> Void) {
+                                    callback: @escaping @Sendable (Error?) -> Void) {
     Task {
       do {
         try await userProfileUpdate.executeUserUpdateWithChanges(user: self,
@@ -1253,7 +1253,7 @@ extension User: NSSecureCoding {}
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
-  func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponse.User?,
+  func getAccountInfoRefreshingCache(callback: @escaping @Sendable (GetAccountInfoResponse.User?,
                                                           Error?) -> Void) {
     Task {
       do {
@@ -1317,7 +1317,7 @@ extension User: NSSecureCoding {}
     /// finished.
     private func internalUpdateOrLinkPhoneNumber(credential: PhoneAuthCredential,
                                                  isLinkOperation: Bool,
-                                                 completion: @escaping (Error?) -> Void) {
+                                                 completion: @escaping @Sendable (Error?) -> Void) {
       internalGetToken(backend: backend) { accessToken, error in
         if let error {
           completion(error)
@@ -1379,7 +1379,7 @@ extension User: NSSecureCoding {}
   private func link(withEmail email: String,
                     password: String,
                     authResult: AuthDataResult,
-                    _ completion: ((AuthDataResult?, Error?) -> Void)?) {
+                    _ completion: (@Sendable (AuthDataResult?, Error?) -> Void)?) {
     internalGetToken(backend: backend) { accessToken, error in
       guard let requestConfiguration = self.auth?.requestConfiguration else {
         fatalError("Internal auth error: missing auth on User")
@@ -1427,7 +1427,7 @@ extension User: NSSecureCoding {}
   }
 
   private func link(withEmailCredential emailCredential: EmailAuthCredential,
-                    completion: ((AuthDataResult?, Error?) -> Void)?) {
+                    completion: (@Sendable (AuthDataResult?, Error?) -> Void)?) {
     if hasEmailPasswordCredential {
       User.callInMainThreadWithAuthDataResultAndError(
         callback: completion,
@@ -1488,7 +1488,7 @@ extension User: NSSecureCoding {}
 
   #if !os(watchOS)
     private func link(withGameCenterCredential gameCenterCredential: GameCenterAuthCredential,
-                      completion: ((AuthDataResult?, Error?) -> Void)?) {
+                      completion: (@Sendable (AuthDataResult?, Error?) -> Void)?) {
       internalGetToken(backend: backend) { accessToken, error in
         guard let requestConfiguration = self.auth?.requestConfiguration,
               let publicKeyURL = gameCenterCredential.publicKeyURL,
@@ -1536,7 +1536,7 @@ extension User: NSSecureCoding {}
 
   #if os(iOS)
     private func link(withPhoneCredential phoneCredential: PhoneAuthCredential,
-                      completion: ((AuthDataResult?, Error?) -> Void)?) {
+                      completion: (@Sendable (AuthDataResult?, Error?) -> Void)?) {
       internalUpdateOrLinkPhoneNumber(credential: phoneCredential,
                                       isLinkOperation: true) { error in
         if let error {
@@ -1590,7 +1590,7 @@ extension User: NSSecureCoding {}
   /// on the  global work thread in the future.
   func internalGetToken(forceRefresh: Bool = false,
                         backend: AuthBackend,
-                        callback: @escaping (String?, Error?) -> Void) {
+                        callback: @escaping @Sendable (String?, Error?) -> Void) {
     Task {
       do {
         let token = try await internalGetTokenAsync(forceRefresh: forceRefresh, backend: backend)
@@ -1635,7 +1635,7 @@ extension User: NSSecureCoding {}
   /// - Parameter callback: The callback to be called in main thread.
   /// - Parameter error: The error to pass to callback.
 
-  class func callInMainThreadWithError(callback: ((Error?) -> Void)?, error: Error?) {
+  class func callInMainThreadWithError(callback: (@MainActor (Error?) -> Void)?, error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback(error)
@@ -1647,7 +1647,7 @@ extension User: NSSecureCoding {}
   /// - Parameter callback: The callback to be called in main thread.
   /// - Parameter user: The user to pass to callback if there is no error.
   /// - Parameter error: The error to pass to callback.
-  private class func callInMainThreadWithUserAndError(callback: ((User?, Error?) -> Void)?,
+  private class func callInMainThreadWithUserAndError(callback: (@MainActor (User?, Error?) -> Void)?,
                                                       user: User,
                                                       error: Error?) {
     if let callback {
@@ -1660,7 +1660,7 @@ extension User: NSSecureCoding {}
   /// Calls a callback in main thread with user and error.
   /// - Parameter callback: The callback to be called in main thread.
   private class func callInMainThreadWithAuthDataResultAndError(callback: (
-    (AuthDataResult?, Error?) -> Void
+    @MainActor (AuthDataResult?, Error?) -> Void
   )?,
   result: AuthDataResult? = nil,
   error: Error? = nil) {
