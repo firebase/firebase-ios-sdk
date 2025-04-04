@@ -18,7 +18,8 @@ import Foundation
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = GetProjectConfigResponse
 
   init(requestConfiguration: AuthRequestConfiguration) {

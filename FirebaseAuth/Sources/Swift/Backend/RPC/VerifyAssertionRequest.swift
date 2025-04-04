@@ -80,7 +80,8 @@ private let kLastNameKey = "lastName"
 /// Represents the parameters for the verifyAssertion endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = VerifyAssertionResponse
 
   /// The URI to which the IDP redirects the user back. It may contain federated login result

@@ -26,7 +26,8 @@ private let kIDTokenKey = "idToken"
 private let kLocalIDKey = "localId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = DeleteAccountResponse
 
   /// The STS Access Token of the authenticated user.

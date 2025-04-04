@@ -32,7 +32,8 @@ private let kRecaptchaVersion = "recaptchaVersion"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-final class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+final class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   // This and the other request classes could be made into structs, which would make
   // Sendable conformance easier.
 

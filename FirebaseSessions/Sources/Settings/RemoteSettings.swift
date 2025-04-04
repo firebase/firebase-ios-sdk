@@ -33,13 +33,12 @@ final class RemoteSettings: SettingsProvider, Sendable {
   private let downloader: SettingsDownloadClient
   private let cache: FIRAllocatedUnfairLock<SettingsCacheClient>
 
-  private var cacheDurationSeconds: TimeInterval {
-    cache.withLock { cache in
-      guard let duration = cache.cacheContent[RemoteSettings.flagCacheDuration] as? Double else {
-        return RemoteSettings.cacheDurationSecondsDefault
-      }
-      return duration
+  private func cacheDuration(_ cache: SettingsCacheClient) -> TimeInterval {
+    guard let duration = cache.cacheContent[RemoteSettings.flagCacheDuration] as? Double else {
+      return RemoteSettings.cacheDurationSecondsDefault
     }
+    print("Duration: \(duration)")
+    return duration
   }
 
   private var sessionsCache: [String: Any] {
@@ -57,30 +56,33 @@ final class RemoteSettings: SettingsProvider, Sendable {
   }
 
   private func fetchAndCacheSettings(currentTime: Date) {
-    cache.withLock { cache in
+    let shouldFetch = cache.withLock { cache in
       // Only fetch if cache is expired, otherwise do nothing
       guard isCacheExpired(cache, time: currentTime) else {
         Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
-        return
+        return false
       }
+      return true
     }
 
-    downloader.fetch { result in
+    if shouldFetch {
+      downloader.fetch { result in
 
-      switch result {
-      case let .success(dictionary):
-        self.cache.withLock { cache in
-          // Saves all newly fetched Settings to cache
-          cache.cacheContent = dictionary
-          // Saves a "cache-key" which carries TTL metadata about current cache
-          cache.cacheKey = CacheKey(
-            createdAt: currentTime,
-            googleAppID: self.appInfo.appID,
-            appVersion: self.appInfo.synthesizedVersion
-          )
+        switch result {
+        case let .success(dictionary):
+          self.cache.withLock { cache in
+            // Saves all newly fetched Settings to cache
+            cache.cacheContent = dictionary
+            // Saves a "cache-key" which carries TTL metadata about current cache
+            cache.cacheKey = CacheKey(
+              createdAt: currentTime,
+              googleAppID: self.appInfo.appID,
+              appVersion: self.appInfo.synthesizedVersion
+            )
+          }
+        case let .failure(error):
+          Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
         }
-      case let .failure(error):
-        Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
       }
     }
   }
@@ -133,7 +135,7 @@ extension RemoteSettingsConfigurations {
       cache.removeCache()
       return true
     }
-    if time.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
+    if time.timeIntervalSince(cacheKey.createdAt) > cacheDuration(cache) {
       Logger.logDebug("[Settings] Cache TTL expired")
       return true
     }

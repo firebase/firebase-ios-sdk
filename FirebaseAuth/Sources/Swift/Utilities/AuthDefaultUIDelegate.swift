@@ -77,7 +77,7 @@
     }
 
     @MainActor func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
-                 completion: (() -> Void)? = nil) {
+                            completion: (() -> Void)? = nil) {
       viewController?.present(viewControllerToPresent, animated: flag, completion: completion)
     }
 

@@ -25,7 +25,8 @@ import Foundation
   ///
   /// This class is available on iOS only.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRMultiFactorSession) open class MultiFactorSession: NSObject, @unchecked Sendable /* TODO: Sendable */ {
+  @objc(FIRMultiFactorSession) open class MultiFactorSession: NSObject,
+    @unchecked Sendable /* TODO: Sendable */ {
     /// The ID token for an enroll flow. This has to be retrieved after recent authentication.
     var idToken: String?
 

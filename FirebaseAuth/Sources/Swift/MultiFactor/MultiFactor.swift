@@ -33,7 +33,8 @@ import Foundation
     /// - Parameter completion: A block with the session identifier for a second factor enrollment
     /// operation.
     @objc(getSessionWithCompletion:)
-    open func getSessionWithCompletion(_ completion: ((sending MultiFactorSession?, Error?) -> Void)?) {
+    open func getSessionWithCompletion(_ completion: ((sending MultiFactorSession?, Error?)
+        -> Void)?) {
       let session = MultiFactorSession.session(for: user)
       if let completion {
         completion(session, nil)

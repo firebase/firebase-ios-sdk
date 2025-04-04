@@ -16,7 +16,7 @@
   import Foundation
 
   /// A data structure for an APNs token.
-final class AuthAPNSToken: Sendable {
+  final class AuthAPNSToken: Sendable {
     let data: Data
     let type: AuthAPNSTokenType
 

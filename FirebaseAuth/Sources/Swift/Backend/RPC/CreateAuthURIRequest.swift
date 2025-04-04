@@ -44,7 +44,8 @@ private let kTenantIDKey = "tenantId"
 /// Represents the parameters for the createAuthUri endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = CreateAuthURIResponse
 
   /// The email or federated ID of the user.

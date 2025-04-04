@@ -23,7 +23,7 @@ import Foundation
 
 @testable import FirebaseSessions
 
-class MockApplicationInfo: ApplicationInfoProtocol {
+class MockApplicationInfo: ApplicationInfoProtocol, @unchecked Sendable {
   var appID: String = ""
 
   var bundleID: String = ""

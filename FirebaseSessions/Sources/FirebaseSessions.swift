@@ -291,6 +291,7 @@ private enum GoogleDataTransportConfig {
   }
 
   // MARK: - Library conformance
+
   static func componentsToRegister() -> [Component] {
     return [Component(SessionsProvider.self,
                       instantiationTiming: .alwaysEager) { container, isCacheable in

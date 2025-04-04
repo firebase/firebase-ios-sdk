@@ -22,7 +22,8 @@
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthURLPresenter: NSObject,
-                          @preconcurrency SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
+    @preconcurrency SFSafariViewControllerDelegate,
+    AuthWebViewControllerDelegate {
     /// Presents an URL to interact with user.
     /// - Parameter url: The URL to present.
     /// - Parameter uiDelegate: The UI delegate to present view controller.
@@ -30,9 +31,9 @@
     /// to start, or asynchronously in future on an unspecified thread once the presentation
     /// finishes.
     @MainActor func present(_ url: URL,
-                 uiDelegate: AuthUIDelegate?,
-                 callbackMatcher: @Sendable @escaping (URL?) -> Bool,
-                 completion: @MainActor @escaping (URL?, Error?) -> Void) {
+                            uiDelegate: AuthUIDelegate?,
+                            callbackMatcher: @Sendable @escaping (URL?) -> Bool,
+                            completion: @MainActor @escaping (URL?, Error?) -> Void) {
       if isPresenting {
         // Unable to start a new presentation on top of another.
         // Invoke the new completion closure and leave the old one as-is
@@ -87,36 +88,37 @@
     // MARK: SFSafariViewControllerDelegate
 
     @MainActor func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-      if controller == self.safariViewController {
-        self.safariViewController = nil
+      if controller == safariViewController {
+        safariViewController = nil
         // TODO: Ensure that the SFSafariViewController is actually removed from the screen
         // before invoking finishPresentation
-        self.finishPresentation(withURL: nil,
-                                error: AuthErrorUtils.webContextCancelledError(message: nil))
+        finishPresentation(withURL: nil,
+                           error: AuthErrorUtils.webContextCancelledError(message: nil))
       }
     }
 
     // MARK: AuthWebViewControllerDelegate
 
     @MainActor func webViewControllerDidCancel(_ controller: AuthWebViewController) {
-      if self.webViewController == controller {
-        self.finishPresentation(withURL: nil,
-                                error: AuthErrorUtils.webContextCancelledError(message: nil))
+      if webViewController == controller {
+        finishPresentation(withURL: nil,
+                           error: AuthErrorUtils.webContextCancelledError(message: nil))
       }
     }
 
-    @MainActor func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool {
+    @MainActor func webViewController(_ controller: AuthWebViewController,
+                                      canHandle url: URL) -> Bool {
       var result = false
-      if self.webViewController == controller {
-        result = self.canHandle(url: url)
+      if webViewController == controller {
+        result = canHandle(url: url)
       }
       return result
     }
 
     @MainActor func webViewController(_ controller: AuthWebViewController,
-                           didFailWithError error: Error) {
-      if self.webViewController == controller {
-        self.finishPresentation(withURL: nil, error: error)
+                                      didFailWithError error: Error) {
+      if webViewController == controller {
+        finishPresentation(withURL: nil, error: error)
       }
     }
 

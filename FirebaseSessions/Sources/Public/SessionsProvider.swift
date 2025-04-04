@@ -17,7 +17,6 @@ import Foundation
 
 // Sessions Provider is the Session SDK's internal
 // interface for other 1P SDKs to talk to.
-@MainActor
 @objc(FIRSessionsProvider)
 public protocol SessionsProvider {
   @objc func register(subscriber: SessionsSubscriber)

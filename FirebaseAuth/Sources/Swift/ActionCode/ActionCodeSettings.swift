@@ -15,7 +15,8 @@
 import Foundation
 
 /// Used to set and retrieve settings related to handling action codes.
-@objc(FIRActionCodeSettings) open class ActionCodeSettings: NSObject, @unchecked Sendable /* TODO: sendable */ {
+@objc(FIRActionCodeSettings) open class ActionCodeSettings: NSObject,
+  @unchecked Sendable /* TODO: sendable */ {
   /// This URL represents the state/Continue URL in the form of a universal link.
   ///
   /// This URL can should be constructed as a universal link that would either directly open

@@ -33,7 +33,8 @@ private let kIDTokenKey = "idToken"
 ///
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = RevokeTokenResponse
 
   /// The provider that issued the token to revoke.

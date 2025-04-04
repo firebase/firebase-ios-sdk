@@ -19,7 +19,8 @@ import Foundation
 /// Properties are marked as being part of a profile update when they are set. Setting a
 /// property value to nil is not the same as leaving the property unassigned.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRUserProfileChangeRequest) open class UserProfileChangeRequest: NSObject, @unchecked Sendable /* TODO: sendable */ {
+@objc(FIRUserProfileChangeRequest) open class UserProfileChangeRequest: NSObject,
+  @unchecked Sendable /* TODO: sendable */ {
   /// The name of the user.
   @objc open var displayName: String? {
     get { return _displayName }

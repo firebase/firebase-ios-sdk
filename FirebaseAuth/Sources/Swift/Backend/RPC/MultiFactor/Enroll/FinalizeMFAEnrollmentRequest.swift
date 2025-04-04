@@ -20,7 +20,8 @@ private let kFinalizeMFAEnrollmentEndPoint = "accounts/mfaEnrollment:finalize"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = FinalizeMFAEnrollmentResponse
 
   let idToken: String?

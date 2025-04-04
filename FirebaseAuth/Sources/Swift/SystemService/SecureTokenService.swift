@@ -123,6 +123,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     get { _requestConfiguration.withLock { $0 } }
     set { _requestConfiguration.withLock { $0 = newValue } }
   }
+
   let _requestConfiguration: FIRAllocatedUnfairLock<AuthRequestConfiguration?>
 
   /// The cached access token.
@@ -137,6 +138,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     get { _accessToken.withLock { $0 } }
     set { _accessToken.withLock { $0 = newValue } }
   }
+
   private let _accessToken: FIRAllocatedUnfairLock<String>
 
   /// The refresh token for the user, or `nil` if the user has yet completed sign-in flow.
@@ -146,6 +148,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     get { _refreshToken.withLock { $0 } }
     set { _refreshToken.withLock { $0 = newValue } }
   }
+
   private let _refreshToken: FIRAllocatedUnfairLock<String?>
 
   /// The expiration date of the cached access token.
@@ -153,6 +156,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     get { _accessTokenExpirationDate.withLock { $0 } }
     set { _accessTokenExpirationDate.withLock { $0 = newValue } }
   }
+
   private let _accessTokenExpirationDate: FIRAllocatedUnfairLock<Date?>
 
   /// Creates a `SecureTokenService` with access and refresh tokens.

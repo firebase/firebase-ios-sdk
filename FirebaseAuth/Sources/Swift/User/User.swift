@@ -985,7 +985,8 @@ extension User: NSSecureCoding {}
   /// - Parameter completion: Optionally; the block invoked when the request to send the
   /// verification email is complete, or fails.
   @objc(sendEmailVerificationBeforeUpdatingEmail:completion:)
-  open func __sendEmailVerificationBeforeUpdating(email: String, completion: (@Sendable (Error?) -> Void)?) {
+  open func __sendEmailVerificationBeforeUpdating(email: String,
+                                                  completion: (@Sendable (Error?) -> Void)?) {
     sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
   }
 
@@ -1233,8 +1234,9 @@ extension User: NSSecureCoding {}
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
   /// the auth global work queue in the future.
   func executeUserUpdateWithChanges(changeBlock: @escaping @Sendable (GetAccountInfoResponse.User,
-                                                            SetAccountInfoRequest) -> Void,
-                                    callback: @escaping @Sendable (Error?) -> Void) {
+                                                                      SetAccountInfoRequest)
+      -> Void,
+    callback: @escaping @Sendable (Error?) -> Void) {
     Task {
       do {
         try await userProfileUpdate.executeUserUpdateWithChanges(user: self,
@@ -1254,7 +1256,7 @@ extension User: NSSecureCoding {}
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
   /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
   func getAccountInfoRefreshingCache(callback: @escaping @Sendable (GetAccountInfoResponse.User?,
-                                                          Error?) -> Void) {
+                                                                    Error?) -> Void) {
     Task {
       do {
         let responseUser = try await userProfileUpdate.getAccountInfoRefreshingCache(self)
@@ -1647,9 +1649,10 @@ extension User: NSSecureCoding {}
   /// - Parameter callback: The callback to be called in main thread.
   /// - Parameter user: The user to pass to callback if there is no error.
   /// - Parameter error: The error to pass to callback.
-  private class func callInMainThreadWithUserAndError(callback: (@MainActor (User?, Error?) -> Void)?,
-                                                      user: User,
-                                                      error: Error?) {
+  private class func callInMainThreadWithUserAndError(callback: (@MainActor (User?, Error?)
+                                                        -> Void)?,
+  user: User,
+  error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback((error != nil) ? nil : user, error)

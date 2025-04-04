@@ -17,7 +17,8 @@ import Foundation
 
 /// Utility class for constructing OAuth Sign In credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider, @unchecked Sendable /* TODO: sendable */ {
+@objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider,
+  @unchecked Sendable /* TODO: sendable */ {
   @objc public static let id = "OAuth"
 
   /// Array used to configure the OAuth scopes.
@@ -281,11 +282,12 @@ import Foundation
         let eventID = AuthWebUtils.randomString(withLength: 10)
         let sessionID = AuthWebUtils.randomString(withLength: 10)
 
-        let callbackOnMainThread: (@MainActor (AuthCredential?, Error?) -> Void) = { credential, error in
-          if let completion {
-            completion(credential, error)
+        let callbackOnMainThread: (@MainActor (AuthCredential?, Error?) -> Void) =
+          { credential, error in
+            if let completion {
+              completion(credential, error)
+            }
           }
-        }
         Task {
           do {
             guard let headfulLiteURL = try await self.getHeadfulLiteUrl(eventID: eventID,
@@ -301,8 +303,8 @@ import Foundation
                                                  callbackScheme: self.callbackScheme)
             }
             await self.auth.authURLPresenter.present(headfulLiteURL,
-                                               uiDelegate: uiDelegate,
-                                               callbackMatcher: callbackMatcher) { callbackURL, error in
+                                                     uiDelegate: uiDelegate,
+                                                     callbackMatcher: callbackMatcher) { callbackURL, error in
               if let error {
                 callbackOnMainThread(nil, error)
                 return

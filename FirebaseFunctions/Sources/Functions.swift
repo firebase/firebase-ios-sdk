@@ -53,7 +53,8 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private nonisolated(unsafe) static var instances: FirebaseCoreInternal.FIRAllocatedUnfairLock<[String: [Functions]]> =
+  private nonisolated(unsafe) static var instances: FirebaseCoreInternal
+    .FIRAllocatedUnfairLock<[String: [Functions]]> =
     FirebaseCoreInternal.FIRAllocatedUnfairLock([:])
 
   /// The custom domain to use for all functions references (optional).

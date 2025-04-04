@@ -19,7 +19,8 @@ import Foundation
 ///
 /// This class is available on iOS only.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject, @unchecked Sendable /* TODO: sendable */ {
+@objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject,
+  @unchecked Sendable /* TODO: sendable */ {
   /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
   private static let recaptchaVersion = "RECAPTCHA_ENTERPRISE"

@@ -44,8 +44,8 @@
   // Extension to support default argument variations.
   extension AuthUIDelegate {
     @MainActor func present(_ viewControllerToPresent: UIViewController,
-                 animated flag: Bool,
-                 completion: (() -> Void)? = nil) {
+                            animated flag: Bool,
+                            completion: (() -> Void)? = nil) {
       return present(viewControllerToPresent, animated: flag, completion: nil)
     }
 

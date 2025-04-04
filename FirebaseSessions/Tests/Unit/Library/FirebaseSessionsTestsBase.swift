@@ -71,11 +71,11 @@ class FirebaseSessionsTestsBase: XCTestCase {
   /// is a good place for Subscribers to call register on the Sessions SDK
   ///  - `postLogEvent` is called whenever an event is logged via the Sessions SDK. This is where
   /// most assertions will happen.
-  func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
-                      preSessionsInit: (MockSettingsProtocol) -> Void,
-                      postSessionsInit: () -> Void,
-                      postLogEvent: @escaping (Result<Void, FirebaseSessionsError>,
-                                               [SessionsSubscriber]) -> Void) {
+  @MainActor func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
+                                 preSessionsInit: (MockSettingsProtocol) -> Void,
+                                 postSessionsInit: () -> Void,
+                                 postLogEvent: @escaping (Result<Void, FirebaseSessionsError>,
+                                                          [SessionsSubscriber]) -> Void) {
     // This class is static, so we need to clear global state
     SessionsDependencies.removeAll()
 

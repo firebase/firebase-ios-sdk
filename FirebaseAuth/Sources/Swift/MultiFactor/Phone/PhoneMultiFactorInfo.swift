@@ -21,7 +21,8 @@ import Foundation
   /// The identifier of this second factor is "phone".
   ///
   /// This class is available on iOS only.
-  @objc(FIRPhoneMultiFactorInfo) public final class PhoneMultiFactorInfo: MultiFactorInfo, @unchecked Sendable {
+  @objc(FIRPhoneMultiFactorInfo) public final class PhoneMultiFactorInfo: MultiFactorInfo,
+    @unchecked Sendable {
     // In order for this class to remain safely Sendable, all of its parameters must be immutable
     // Sendable types. If you add a parameter here that is either mutable or not Sendable, please
     // update the unchecked Sendable above.

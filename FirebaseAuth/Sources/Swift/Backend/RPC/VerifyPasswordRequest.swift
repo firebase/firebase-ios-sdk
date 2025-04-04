@@ -47,7 +47,8 @@ private let kTenantIDKey = "tenantId"
 /// Represents the parameters for the verifyPassword endpoint.
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
+class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest,
+  @unchecked Sendable /* TODO: sendable */ {
   typealias Response = VerifyPasswordResponse
 
   /// The email of the user.
