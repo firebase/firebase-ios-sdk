@@ -22,12 +22,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.4
           - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-16
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -71,12 +69,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.4
           - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-16
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -95,7 +91,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -110,7 +106,7 @@ jobs:
   appdistribution-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [ios]
