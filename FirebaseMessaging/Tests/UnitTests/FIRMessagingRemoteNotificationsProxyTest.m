@@ -152,7 +152,7 @@
     OCMStub([_mockUserNotificationCenter currentNotificationCenter])
         .andDo(^(NSInvocation *invocation) {
           __autoreleasing UNUserNotificationCenter *currentNotificationCenter =
-              _currentNotificationCenter;
+          self->_currentNotificationCenter;
           [invocation setReturnValue:&currentNotificationCenter];
         });
   }
