@@ -28,6 +28,9 @@ jobs:
             xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.2
+          # TODO: Add Xcode matrix when Xcode 16 is ubiquitous on CI runners.
+#          - os: macos-15
+#            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -42,7 +45,7 @@ jobs:
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
@@ -70,8 +73,12 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
+        # TODO: Add Xcode matrix when Xcode 16 is ubiquitous on CI runners.
         include:
           - os: macos-14
+            xcode: Xcode_16.2
+            target: iOS
+          - os: macos-15
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
