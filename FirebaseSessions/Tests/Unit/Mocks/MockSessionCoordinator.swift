@@ -16,7 +16,7 @@
 @testable import FirebaseSessions
 import XCTest
 
-class MockSessionCoordinator: SessionCoordinatorProtocol {
+class MockSessionCoordinator: SessionCoordinatorProtocol, @unchecked Sendable {
   var loggedEvent: FirebaseSessions.SessionStartEvent?
 
   func attemptLoggingSessionStart(event: FirebaseSessions.SessionStartEvent,

@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+
 # 11.11.0
 - [added] Emits a warning when attempting to use an incompatible model with
   `GenerativeModel` or `ImagenModel`. (#14610)

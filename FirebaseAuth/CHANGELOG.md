@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+
 # 11.9.0
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
   Enterprise 18.7.0 or later.

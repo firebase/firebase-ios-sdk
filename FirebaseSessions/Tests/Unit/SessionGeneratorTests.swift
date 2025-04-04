@@ -53,6 +53,7 @@ class SessionGeneratorTests: XCTestCase {
       localOverrides: localOverrideSettings,
       remoteSettings: remoteSettings
     )
+
     generator = SessionGenerator(collectEvents: Sessions
       .shouldCollectEvents(settings: sessionSettings))
   }

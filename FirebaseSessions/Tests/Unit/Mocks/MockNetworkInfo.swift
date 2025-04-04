@@ -23,7 +23,7 @@ import Foundation
 
 @testable import FirebaseSessions
 
-class MockNetworkInfo: NetworkInfoProtocol {
+class MockNetworkInfo: NetworkInfoProtocol, @unchecked Sendable {
   var mobileCountryCode: String?
   var mobileNetworkCode: String?
   var networkType: GULNetworkType = .WIFI

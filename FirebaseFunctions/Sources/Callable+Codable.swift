@@ -282,7 +282,7 @@ public extension Callable where Request: Sendable, Response: Sendable {
               // `StreamResponseProtocol`, we know the `Response` generic argument
               // is `StreamResponse<_, _>`.
               let responseJSON = switch response {
-              case .message(let json), .result(let json): json
+              case let .message(json), let .result(json): json
               }
               let response = try decoder.decode(Response.self, from: responseJSON)
               if response is StreamResponseProtocol {
