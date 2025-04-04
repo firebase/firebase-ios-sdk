@@ -43,11 +43,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
           - os: macos-14
-            xcode: Xcode_15.4
+            xcode: Xcode_16.2
             target: iOS
           - os: macos-15
             xcode: Xcode_16.2
@@ -136,9 +133,9 @@ jobs:
       matrix:
         include:
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_16.2
             swift_version: 5.9
-            warnings: --allow-warnings
+            warnings:
           - os: macos-15
             xcode: Xcode_16.2
             swift_version: 5.9
