@@ -19,6 +19,10 @@ import FirebaseVertexAI
 import Testing
 import VertexAITestApp
 
+#if canImport(UIKit)
+  import UIKit
+#endif // canImport(UIKit)
+
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
@@ -116,6 +120,38 @@ struct GenerateContentIntegrationTests {
     let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
     #expect(candidatesTokensDetails.modality == .text)
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+  }
+
+  @Test(arguments: [InstanceConfig.vertexV1Beta])
+  func generateImage(_ config: InstanceConfig) async throws {
+    let generationConfig = GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseModalities: [.text, .image]
+    )
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashExperimental,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    Generate an image of a cute cartoon kitten playing with a ball of yarn. Do not respond with any
+    text.
+    """
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let inlineDataPart = try #require(candidate.content.parts
+      .first { $0 is InlineDataPart } as? InlineDataPart)
+    #expect(inlineDataPart.mimeType == "image/png")
+    #expect(inlineDataPart.data.count > 0)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      #expect(uiImage.size.width == 1024.0)
+      #expect(uiImage.size.height == 1024.0)
+    #endif // canImport(UIKit)
   }
 
   // MARK: Streaming Tests
