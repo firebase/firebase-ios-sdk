@@ -128,6 +128,7 @@
 @property(nonatomic, strong) id mockProxyClass;
 @property(nonatomic, strong) id mockMessaging;
 @property(nonatomic, strong) id mockUserNotificationCenter;
+@property(nonatomic, strong) UNUserNotificationCenter *currentNotificationCenter;
 
 @end
 
@@ -147,8 +148,13 @@
   OCMStub([_mockProxyClass sharedProxy]).andReturn(self.proxy);
   if (@available(macOS 10.14, iOS 10.0, *)) {
     _mockUserNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
+    _currentNotificationCenter = _mockUserNotificationCenter;
     OCMStub([_mockUserNotificationCenter currentNotificationCenter])
-        .andReturn(_mockUserNotificationCenter);
+        .andDo(^(NSInvocation *invocation) {
+          __autoreleasing UNUserNotificationCenter *currentNotificationCenter =
+              _currentNotificationCenter;
+          [invocation setReturnValue:&currentNotificationCenter];
+        });
   }
 }
 
