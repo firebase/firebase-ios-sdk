@@ -48,6 +48,9 @@ public struct GenerationConfig: Sendable {
   /// Output schema of the generated candidate text.
   let responseSchema: Schema?
 
+  /// Supported modalities of the response.
+  let responseModalities: [ResponseModality]?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -140,11 +143,12 @@ public struct GenerationConfig: Sendable {
   ///     [Generate structured
   ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
   ///     for more details.
+  ///   - responseModalities: Supported modalities of the response.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
-              responseSchema: Schema? = nil) {
+              responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -157,6 +161,7 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
+    self.responseModalities = responseModalities
   }
 }
 
@@ -175,5 +180,6 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
+    case responseModalities
   }
 }
