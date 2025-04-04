@@ -89,29 +89,26 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
           - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-          - os: macos-15
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -169,7 +166,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
@@ -199,11 +196,11 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.3
-            tests: --skip-tests
           - os: macos-15
             xcode: Xcode_16.2
+            tests: --skip-tests
+          - os: macos-15
+            xcode: Xcode_16.3
             tests: --test-specs=unit
     runs-on: ${{ matrix.build-env.os }}
     steps:
@@ -228,9 +225,9 @@ jobs:
         target: [ios, tvos, macos, watchos]
         build-env:
           - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     needs: pod-lib-lint
     steps:
