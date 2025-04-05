@@ -1,0 +1,13 @@
+# These owners will be the default owners for everything in the repo.
+* @firebase/firebase-ios-sdk-admin
+
+# Firestore Code
+FirebaseFirestore.podspec @ehsannas @cherylEnkidu @wu-hui @dconeybe
+Firestore/ @ehsannas @cherylEnkidu @wu-hui @dconeybe
+.github/workflows/firestore.yml @ehsannas @cherylEnkidu @wu-hui @dconeybe
+.github/workflows/firestore-nightly.yml @ehsannas @cherylEnkidu @wu-hui @dconeybe
+
+# Crashlytics Code
+FirebaseCrashlytics.podspec @samedson @themiswang @tejasd
+Crashlytics/ @samedson @themiswang @tejasd
+.github/workflows/crashlytics.yml @samedson @themiswang @tejasd
