@@ -70,9 +70,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-15
+          - os: macos-14
             xcode: Xcode_16.2
-          - os: macos-16
+          - os: macos-15
             xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     steps:
