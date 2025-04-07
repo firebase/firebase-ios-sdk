@@ -122,7 +122,10 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
-  @Test(arguments: [InstanceConfig.vertexV1Beta])
+  @Test(arguments: [
+    InstanceConfig.vertexV1Beta,
+    InstanceConfig.developerV1Beta,
+  ])
   func generateImage(_ config: InstanceConfig) async throws {
     let generationConfig = GenerationConfig(
       temperature: 0.0,

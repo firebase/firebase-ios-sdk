@@ -143,7 +143,15 @@ public struct GenerationConfig: Sendable {
   ///     [Generate structured
   ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
   ///     for more details.
-  ///   - responseModalities: Supported modalities of the response.
+  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
+  ///
+  ///     See the [multimodal
+  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
+  ///     documentation for more details.
+  ///
+  ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
+  ///     > that it is not subject to any SLA or deprecation policy and could change in
+  ///     > backwards-incompatible ways.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
