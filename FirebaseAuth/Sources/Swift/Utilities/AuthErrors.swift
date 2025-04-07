@@ -380,7 +380,7 @@ import Foundation
     case .noSuchProvider:
       return kErrorNoSuchProvider
     case .invalidUserToken:
-      return "The provided user token is invalid."
+      return kErrorInvalidUserToken
     case .networkError:
       return kErrorNetworkError
     case .keychainError:
