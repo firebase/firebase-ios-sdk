@@ -15,7 +15,7 @@
 
 import Foundation
 
-@_implementationOnly import GoogleDataTransport
+internal import GoogleDataTransport
 
 enum GoogleDataTransportProtocolErrors: Error {
   case writeFailure
