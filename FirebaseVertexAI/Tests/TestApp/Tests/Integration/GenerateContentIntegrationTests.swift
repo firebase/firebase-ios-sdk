@@ -138,10 +138,7 @@ struct GenerateContentIntegrationTests {
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
-    let prompt = """
-    Generate an image of a cute cartoon kitten playing with a ball of yarn. Do not respond with any
-    text.
-    """
+    let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn."
 
     let response = try await model.generateContent(prompt)
 
@@ -152,6 +149,7 @@ struct GenerateContentIntegrationTests {
     #expect(inlineDataPart.data.count > 0)
     #if canImport(UIKit)
       let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      // Gemini 2.0 Flash Experimental returns 1024x1024 sized images.
       #expect(uiImage.size.width == 1024.0)
       #expect(uiImage.size.height == 1024.0)
     #endif // canImport(UIKit)
