@@ -1081,7 +1081,7 @@ extension User: NSSecureCoding {}
                           anonymous: Bool) async throws -> User {
     guard let accessToken = accessToken,
           let refreshToken = refreshToken else {
-      throw AuthErrorUtils.invalidUserTokenError(message: "Invalid user token")
+      throw AuthErrorUtils.invalidUserTokenError(message: "Invalid user token: accessToken or refreshToken is nil")
     }
     let tokenService = SecureTokenService(withRequestConfiguration: auth.requestConfiguration,
                                           accessToken: accessToken,
