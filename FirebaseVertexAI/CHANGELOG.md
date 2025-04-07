@@ -1,3 +1,7 @@
+# Unreleased
+- [added] Added support for specifiying the minimum and maximum number of items
+  (`minItems` / `maxItems`) to generate in an array `Schema`.
+
 # 11.11.0
 - [added] Emits a warning when attempting to use an incompatible model with
   `GenerativeModel` or `ImagenModel`. (#14610)
