@@ -200,7 +200,7 @@ jobs:
             xcode: Xcode_16.2
             tests: --skip-tests
           - os: macos-15
-            xcode: Xcode_16.3
+            xcode: Xcode_16.2
             tests: --test-specs=unit
     runs-on: ${{ matrix.build-env.os }}
     steps:
@@ -227,7 +227,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_16.2
           - os: macos-15
-            xcode: Xcode_16.3
+            xcode: Xcode_16.2
     runs-on: ${{ matrix.build-env.os }}
     needs: pod-lib-lint
     steps:
