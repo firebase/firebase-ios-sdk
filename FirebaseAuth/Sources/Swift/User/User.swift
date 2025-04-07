@@ -1081,7 +1081,7 @@ extension User: NSSecureCoding {}
                           anonymous: Bool) async throws -> User {
     guard let accessToken = accessToken,
           let refreshToken = refreshToken else {
-      fatalError("Internal FirebaseAuth Error: nil token")
+        throw AuthErrorUtils.invalidUserToken
     }
     let tokenService = SecureTokenService(withRequestConfiguration: auth.requestConfiguration,
                                           accessToken: accessToken,

@@ -2454,4 +2454,14 @@ class AuthTests: RPCBaseTests {
     XCTAssertTrue(user.isAnonymous)
     XCTAssertEqual(user.providerData.count, 0)
   }
+    func testRetrieveUserWithInvalidToken() async throws {
+        let auth = try XCTUnwrap(self.auth)
+        do {
+            _ = try await User.retrieveUser(withAuth: auth, accessToken: nil, accessTokenExpirationDate: nil, refreshToken: nil, anonymous: false)
+            XCTFail("Expected an error to be thrown")
+        } catch let error as NSError {
+            XCTAssertEqual(error.domain, AuthErrors.domain)
+            XCTAssertEqual(error.code, AuthErrorCode.invalidUserToken.rawValue)
+        }
+    }
 }

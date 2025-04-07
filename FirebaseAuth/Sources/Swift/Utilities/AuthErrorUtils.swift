@@ -123,8 +123,8 @@ class AuthErrorUtils {
     error(code: .requiresRecentLogin, message: message)
   }
 
-  static func invalidUserTokenError(message: String?) -> Error {
-    error(code: .invalidUserToken, message: message)
+  static func invalidUserTokenError() -> Error {
+    error(code: .invalidUserToken)
   }
 
   static func invalidEmailError(message: String?) -> Error {
