@@ -1560,9 +1560,10 @@ class UserTests: RPCBaseTests {
       _ = try await User.retrieveUser(
         withAuth: auth,
         accessToken: nil,
-        accessTokenExpirationDate: nil,
+        accessTokenExpirationDate: Date(),
         refreshToken: nil,
         anonymous: false
+      )
       )
       XCTFail("Expected an error to be thrown")
     } catch let error as NSError {
