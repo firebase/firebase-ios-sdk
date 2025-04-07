@@ -1564,7 +1564,6 @@ class UserTests: RPCBaseTests {
         refreshToken: nil,
         anonymous: false
       )
-      )
       XCTFail("Expected an error to be thrown")
     } catch let error as NSError {
       XCTAssertEqual(error.domain, AuthErrors.domain)
