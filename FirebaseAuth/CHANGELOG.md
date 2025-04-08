@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fix a `fatalError` unenrolling from MFA. An invalid user token now throws an
+  `invalidUserToken` error instead of crashing. (#14663)
+
 # 11.9.0
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
   Enterprise 18.7.0 or later.
