@@ -15,16 +15,16 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseCore
+internal import FirebaseCore
 
 #if SWIFT_PACKAGE
   import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_Environment
 #else
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Development environment for the application.
