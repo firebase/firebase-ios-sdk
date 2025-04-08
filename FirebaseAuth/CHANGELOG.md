@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix the parameter from "languageCode" to "lang" in ActionCodeURL
+
 # 11.9.0
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
   Enterprise 18.7.0 or later.
