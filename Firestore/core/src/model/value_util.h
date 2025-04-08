@@ -203,6 +203,10 @@ google_firestore_v1_Value NaNValue();
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
+google_firestore_v1_Value TrueValue();
+
+google_firestore_v1_Value FalseValue();
+
 google_firestore_v1_Value MinBoolean();
 
 google_firestore_v1_Value MinNumber();
