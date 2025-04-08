@@ -76,19 +76,15 @@ open class HTTPSCallable: NSObject {
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
-                                                   completion: @escaping (HTTPSCallableResult?,
+                                                   completion: @escaping @MainActor (HTTPSCallableResult?,
                                                                           Error?) -> Void) {
     if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
       Task {
         do {
           let result = try await call(data)
-          await MainActor.run {
-            completion(result, nil)
-          }
+          await completion(result, nil)
         } catch {
-          await MainActor.run {
-            completion(nil, error)
-          }
+          await completion(nil, error)
         }
       }
     } else {
@@ -102,9 +98,13 @@ open class HTTPSCallable: NSObject {
       ) { result in
         switch result {
         case let .success(callableResult):
-          completion(callableResult, nil)
+          DispatchQueue.main.async {
+            completion(callableResult, nil)
+          }
         case let .failure(error):
-          completion(nil, error)
+          DispatchQueue.main.async {
+            completion(nil, error)
+          }
         }
       }
     }
