@@ -16,13 +16,26 @@
 
 #include "Firestore/core/src/api/stages.h"
 
+#include <algorithm>
+#include <memory>
+#include <stdexcept>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/core/expressions_eval.h"
+#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -459,6 +472,62 @@ google_firestore_v1_Pipeline_Stage RawStage::to_proto() const {
       });
 
   return result;
+}
+
+model::PipelineInputOutputVector CollectionSource::Evaluate(
+    const EvaluateContext& /*context*/,
+    const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector results;
+  std::copy_if(inputs.begin(), inputs.end(), std::back_inserter(results),
+               [this](const model::MutableDocument& doc) {
+                 return doc.is_found_document() &&
+                        doc.key().path().PopLast().CanonicalString() == path_;
+               });
+  return results;
+}
+
+model::PipelineInputOutputVector DatabaseSource::Evaluate(
+    const EvaluateContext& /*context*/,
+    const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector results;
+  std::copy_if(inputs.begin(), inputs.end(), std::back_inserter(results),
+               [](const model::MutableDocument& doc) {
+                 return doc.is_found_document();
+               });
+  return results;
+}
+
+model::PipelineInputOutputVector Where::Evaluate(
+    const EvaluateContext& context,
+    const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector results;
+  const auto evaluable_expr = expr_->ToEvaluable();
+  const auto true_value = model::TrueValue();
+
+  for (const auto& doc : inputs) {
+    auto result = evaluable_expr->Evaluate(context, doc);
+    if (!result.IsErrorOrUnset() &&
+        model::Equals(*result.value(), true_value)) {
+      results.push_back(doc);
+    }
+  }
+
+  return results;
+}
+
+model::PipelineInputOutputVector LimitStage::Evaluate(
+    const EvaluateContext& /*context*/,
+    const model::PipelineInputOutputVector& inputs) const {
+  if (limit_ < 0) {
+    // Or handle as error? Assuming non-negative limit.
+    return {};
+  }
+  size_t count = static_cast<size_t>(limit_);
+  if (count > inputs.size()) {
+    count = inputs.size();
+  }
+  return model::PipelineInputOutputVector(inputs.begin(),
+                                          inputs.begin() + count);
 }
 
 }  // namespace api
