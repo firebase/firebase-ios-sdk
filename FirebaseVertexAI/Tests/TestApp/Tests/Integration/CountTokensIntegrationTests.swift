@@ -121,4 +121,46 @@ struct CountTokensIntegrationTests {
       }
     )
   }
+
+  @Test(arguments: [
+    InstanceConfig.vertexV1,
+    InstanceConfig.vertexV1Staging,
+    InstanceConfig.vertexV1Beta,
+    InstanceConfig.vertexV1BetaStaging,
+    /* System instructions are not supported on the v1 Developer API. */
+    InstanceConfig.developerV1Beta,
+  ])
+  func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2Flash,
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: Schema.object(properties: [
+          "startDate": .string(format: .custom("date-time")),
+          "yearsSince": .integer(format: .custom("int32")),
+          "hoursSince": .integer(format: .int32),
+          "minutesSince": .integer(format: .int64),
+        ])
+      ),
+      safetySettings: safetySettings
+    )
+    let prompt = "It is 2050-01-01, how many years, hours and minutes since 2000-01-01?"
+
+    let response = try await model.countTokens(prompt)
+
+    switch config.apiConfig.service {
+    case .vertexAI:
+      #expect(response.totalTokens == 65)
+      #expect(response.totalBillableCharacters == 165)
+    case .developer:
+      // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
+      // in a lower total count than Vertex AI.
+      #expect(response.totalTokens == 34)
+      #expect(response.totalBillableCharacters == nil)
+    }
+    #expect(response.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(response.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == response.totalTokens)
+  }
 }
