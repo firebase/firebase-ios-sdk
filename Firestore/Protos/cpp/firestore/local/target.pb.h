@@ -370,6 +370,7 @@ class Target final :
   enum TargetTypeCase {
     kQuery = 5,
     kDocuments = 6,
+    kPipelineQuery = 13,
     TARGET_TYPE_NOT_SET = 0,
   };
 
@@ -458,6 +459,7 @@ class Target final :
     kTargetIdFieldNumber = 1,
     kQueryFieldNumber = 5,
     kDocumentsFieldNumber = 6,
+    kPipelineQueryFieldNumber = 13,
   };
   // bytes resume_token = 3;
   void clear_resume_token() ;
@@ -563,6 +565,25 @@ class Target final :
   ::google::firestore::v1::Target_DocumentsTarget* _internal_mutable_documents();
 
   public:
+  // .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+  bool has_pipeline_query() const;
+  private:
+  bool _internal_has_pipeline_query() const;
+
+  public:
+  void clear_pipeline_query() ;
+  const ::google::firestore::v1::Target_PipelineQueryTarget& pipeline_query() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::Target_PipelineQueryTarget* release_pipeline_query();
+  ::google::firestore::v1::Target_PipelineQueryTarget* mutable_pipeline_query();
+  void set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* value);
+  void unsafe_arena_set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* value);
+  ::google::firestore::v1::Target_PipelineQueryTarget* unsafe_arena_release_pipeline_query();
+
+  private:
+  const ::google::firestore::v1::Target_PipelineQueryTarget& _internal_pipeline_query() const;
+  ::google::firestore::v1::Target_PipelineQueryTarget* _internal_mutable_pipeline_query();
+
+  public:
   void clear_target_type();
   TargetTypeCase target_type_case() const;
   // @@protoc_insertion_point(class_scope:firestore.client.Target)
@@ -570,13 +591,14 @@ class Target final :
   class _Internal;
   void set_has_query();
   void set_has_documents();
+  void set_has_pipeline_query();
 
   inline bool has_target_type() const;
   inline void clear_has_target_type();
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 7, 4,
+      3, 8, 5,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -605,6 +627,7 @@ class Target final :
         ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::google::firestore::v1::Target_QueryTarget* query_;
       ::google::firestore::v1::Target_DocumentsTarget* documents_;
+      ::google::firestore::v1::Target_PipelineQueryTarget* pipeline_query_;
     } target_type_;
     ::uint32_t _oneof_case_[1];
 
@@ -951,6 +974,73 @@ inline ::google::firestore::v1::Target_DocumentsTarget* Target::_internal_mutabl
 inline ::google::firestore::v1::Target_DocumentsTarget* Target::mutable_documents() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::firestore::v1::Target_DocumentsTarget* _msg = _internal_mutable_documents();
   // @@protoc_insertion_point(field_mutable:firestore.client.Target.documents)
+  return _msg;
+}
+
+// .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+inline bool Target::has_pipeline_query() const {
+  return target_type_case() == kPipelineQuery;
+}
+inline bool Target::_internal_has_pipeline_query() const {
+  return target_type_case() == kPipelineQuery;
+}
+inline void Target::set_has_pipeline_query() {
+  _impl_._oneof_case_[0] = kPipelineQuery;
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::release_pipeline_query() {
+  // @@protoc_insertion_point(field_release:firestore.client.Target.pipeline_query)
+  if (target_type_case() == kPipelineQuery) {
+    clear_has_target_type();
+    auto* temp = _impl_.target_type_.pipeline_query_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.target_type_.pipeline_query_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::Target_PipelineQueryTarget& Target::_internal_pipeline_query() const {
+  return target_type_case() == kPipelineQuery ? *_impl_.target_type_.pipeline_query_ : reinterpret_cast<::google::firestore::v1::Target_PipelineQueryTarget&>(::google::firestore::v1::_Target_PipelineQueryTarget_default_instance_);
+}
+inline const ::google::firestore::v1::Target_PipelineQueryTarget& Target::pipeline_query() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:firestore.client.Target.pipeline_query)
+  return _internal_pipeline_query();
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::unsafe_arena_release_pipeline_query() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:firestore.client.Target.pipeline_query)
+  if (target_type_case() == kPipelineQuery) {
+    clear_has_target_type();
+    auto* temp = _impl_.target_type_.pipeline_query_;
+    _impl_.target_type_.pipeline_query_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Target::unsafe_arena_set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_target_type();
+  if (value) {
+    set_has_pipeline_query();
+    _impl_.target_type_.pipeline_query_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:firestore.client.Target.pipeline_query)
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::_internal_mutable_pipeline_query() {
+  if (target_type_case() != kPipelineQuery) {
+    clear_target_type();
+    set_has_pipeline_query();
+    _impl_.target_type_.pipeline_query_ = CreateMaybeMessage<::google::firestore::v1::Target_PipelineQueryTarget>(GetArena());
+  }
+  return _impl_.target_type_.pipeline_query_;
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::mutable_pipeline_query() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::Target_PipelineQueryTarget* _msg = _internal_mutable_pipeline_query();
+  // @@protoc_insertion_point(field_mutable:firestore.client.Target.pipeline_query)
   return _msg;
 }
 

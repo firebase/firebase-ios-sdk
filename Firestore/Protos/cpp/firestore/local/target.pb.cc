@@ -110,10 +110,12 @@ const ::uint32_t TableStruct_firestore_2flocal_2ftarget_2eproto::offsets[] PROTO
     PROTOBUF_FIELD_OFFSET(::firestore::client::Target, _impl_.last_listen_sequence_number_),
     ::_pbi::kInvalidFieldOffsetTag,
     ::_pbi::kInvalidFieldOffsetTag,
+    ::_pbi::kInvalidFieldOffsetTag,
     PROTOBUF_FIELD_OFFSET(::firestore::client::Target, _impl_.last_limbo_free_snapshot_version_),
     PROTOBUF_FIELD_OFFSET(::firestore::client::Target, _impl_.target_type_),
     ~0u,
     0,
+    ~0u,
     ~0u,
     ~0u,
     ~0u,
@@ -139,8 +141,8 @@ const ::uint32_t TableStruct_firestore_2flocal_2ftarget_2eproto::offsets[] PROTO
 
 static const ::_pbi::MigrationSchema
     schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 16, -1, sizeof(::firestore::client::Target)},
-        {23, 35, -1, sizeof(::firestore::client::TargetGlobal)},
+        {0, 17, -1, sizeof(::firestore::client::Target)},
+        {25, 37, -1, sizeof(::firestore::client::TargetGlobal)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -150,22 +152,24 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_firestore_2flocal_2ftarget_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
     "\n\034firestore/local/target.proto\022\020firestor"
     "e.client\032#google/firestore/v1/firestore."
-    "proto\032\037google/protobuf/timestamp.proto\"\335"
-    "\002\n\006Target\022\021\n\ttarget_id\030\001 \001(\005\0224\n\020snapshot"
+    "proto\032\037google/protobuf/timestamp.proto\"\250"
+    "\003\n\006Target\022\021\n\ttarget_id\030\001 \001(\005\0224\n\020snapshot"
     "_version\030\002 \001(\0132\032.google.protobuf.Timesta"
     "mp\022\024\n\014resume_token\030\003 \001(\014\022#\n\033last_listen_"
     "sequence_number\030\004 \001(\003\0228\n\005query\030\005 \001(\0132\'.g"
     "oogle.firestore.v1.Target.QueryTargetH\000\022"
     "@\n\tdocuments\030\006 \001(\0132+.google.firestore.v1"
-    ".Target.DocumentsTargetH\000\022D\n last_limbo_"
-    "free_snapshot_version\030\007 \001(\0132\032.google.pro"
-    "tobuf.TimestampB\r\n\013target_type\"\251\001\n\014Targe"
-    "tGlobal\022\031\n\021highest_target_id\030\001 \001(\005\022&\n\036hi"
-    "ghest_listen_sequence_number\030\002 \001(\003\022@\n\034la"
-    "st_remote_snapshot_version\030\003 \001(\0132\032.googl"
-    "e.protobuf.Timestamp\022\024\n\014target_count\030\004 \001"
-    "(\005B/\n#com.google.firebase.firestore.prot"
-    "oP\001\242\002\005FSTPBb\006proto3"
+    ".Target.DocumentsTargetH\000\022I\n\016pipeline_qu"
+    "ery\030\r \001(\0132/.google.firestore.v1.Target.P"
+    "ipelineQueryTargetH\000\022D\n last_limbo_free_"
+    "snapshot_version\030\007 \001(\0132\032.google.protobuf"
+    ".TimestampB\r\n\013target_type\"\251\001\n\014TargetGlob"
+    "al\022\031\n\021highest_target_id\030\001 \001(\005\022&\n\036highest"
+    "_listen_sequence_number\030\002 \001(\003\022@\n\034last_re"
+    "mote_snapshot_version\030\003 \001(\0132\032.google.pro"
+    "tobuf.Timestamp\022\024\n\014target_count\030\004 \001(\005B/\n"
+    "#com.google.firebase.firestore.protoP\001\242\002"
+    "\005FSTPBb\006proto3"
 };
 static const ::_pbi::DescriptorTable* const descriptor_table_firestore_2flocal_2ftarget_2eproto_deps[2] =
     {
@@ -176,7 +180,7 @@ static ::absl::once_flag descriptor_table_firestore_2flocal_2ftarget_2eproto_onc
 const ::_pbi::DescriptorTable descriptor_table_firestore_2flocal_2ftarget_2eproto = {
     false,
     false,
-    699,
+    774,
     descriptor_table_protodef_firestore_2flocal_2ftarget_2eproto,
     "firestore/local/target.proto",
     &descriptor_table_firestore_2flocal_2ftarget_2eproto_once,
@@ -225,6 +229,7 @@ class Target::_Internal {
   }
   static const ::google::firestore::v1::Target_QueryTarget& query(const Target* msg);
   static const ::google::firestore::v1::Target_DocumentsTarget& documents(const Target* msg);
+  static const ::google::firestore::v1::Target_PipelineQueryTarget& pipeline_query(const Target* msg);
   static const ::google::protobuf::Timestamp& last_limbo_free_snapshot_version(const Target* msg);
   static void set_has_last_limbo_free_snapshot_version(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
@@ -239,6 +244,9 @@ const ::google::firestore::v1::Target_QueryTarget& Target::_Internal::query(cons
 }
 const ::google::firestore::v1::Target_DocumentsTarget& Target::_Internal::documents(const Target* msg) {
   return *msg->_impl_.target_type_.documents_;
+}
+const ::google::firestore::v1::Target_PipelineQueryTarget& Target::_Internal::pipeline_query(const Target* msg) {
+  return *msg->_impl_.target_type_.pipeline_query_;
 }
 const ::google::protobuf::Timestamp& Target::_Internal::last_limbo_free_snapshot_version(const Target* msg) {
   return *msg->_impl_.last_limbo_free_snapshot_version_;
@@ -288,6 +296,28 @@ void Target::clear_documents() {
   if (target_type_case() == kDocuments) {
     if (GetArena() == nullptr) {
       delete _impl_.target_type_.documents_;
+    }
+    clear_has_target_type();
+  }
+}
+void Target::set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* pipeline_query) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  clear_target_type();
+  if (pipeline_query) {
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::google::protobuf::MessageLite*>(pipeline_query)->GetArena();
+    if (message_arena != submessage_arena) {
+      pipeline_query = ::google::protobuf::internal::GetOwnedMessage(message_arena, pipeline_query, submessage_arena);
+    }
+    set_has_pipeline_query();
+    _impl_.target_type_.pipeline_query_ = pipeline_query;
+  }
+  // @@protoc_insertion_point(field_set_allocated:firestore.client.Target.pipeline_query)
+}
+void Target::clear_pipeline_query() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (target_type_case() == kPipelineQuery) {
+    if (GetArena() == nullptr) {
+      delete _impl_.target_type_.pipeline_query_;
     }
     clear_has_target_type();
   }
@@ -343,6 +373,9 @@ Target::Target(
       case kDocuments:
         _impl_.target_type_.documents_ = CreateMaybeMessage<::google::firestore::v1::Target_DocumentsTarget>(arena, *from._impl_.target_type_.documents_);
         break;
+      case kPipelineQuery:
+        _impl_.target_type_.pipeline_query_ = CreateMaybeMessage<::google::firestore::v1::Target_PipelineQueryTarget>(arena, *from._impl_.target_type_.pipeline_query_);
+        break;
   }
 
   // @@protoc_insertion_point(copy_constructor:firestore.client.Target)
@@ -396,6 +429,12 @@ void Target::clear_target_type() {
       }
       break;
     }
+    case kPipelineQuery: {
+      if (GetArena() == nullptr) {
+        delete _impl_.target_type_.pipeline_query_;
+      }
+      break;
+    }
     case TARGET_TYPE_NOT_SET: {
       break;
     }
@@ -439,16 +478,16 @@ const char* Target::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 7, 4, 0, 2> Target::_table_ = {
+const ::_pbi::TcParseTable<3, 8, 5, 0, 2> Target::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(Target, _impl_._has_bits_),
     0, // no _extensions_
-    7, 56,  // max_field_number, fast_idx_mask
+    13, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967168,  // skipmap
+    4294963072,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    7,  // num_field_entries
-    4,  // num_aux_entries
+    8,  // num_field_entries
+    5,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     &_Target_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
@@ -495,11 +534,15 @@ const ::_pbi::TcParseTable<3, 7, 4, 0, 2> Target::_table_ = {
     // .google.protobuf.Timestamp last_limbo_free_snapshot_version = 7;
     {PROTOBUF_FIELD_OFFSET(Target, _impl_.last_limbo_free_snapshot_version_), _Internal::kHasBitsOffset + 1, 3,
     (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+    // .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+    {PROTOBUF_FIELD_OFFSET(Target, _impl_.target_type_.pipeline_query_), _Internal::kOneofCaseOffset + 0, 4,
+    (0 | ::_fl::kFcOneof | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
     {::_pbi::TcParser::GetTable<::google::protobuf::Timestamp>()},
     {::_pbi::TcParser::GetTable<::google::firestore::v1::Target_QueryTarget>()},
     {::_pbi::TcParser::GetTable<::google::firestore::v1::Target_DocumentsTarget>()},
     {::_pbi::TcParser::GetTable<::google::protobuf::Timestamp>()},
+    {::_pbi::TcParser::GetTable<::google::firestore::v1::Target_PipelineQueryTarget>()},
   }}, {{
   }},
 };
@@ -560,6 +603,13 @@ const ::_pbi::TcParseTable<3, 7, 4, 0, 2> Target::_table_ = {
     target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
         7, _Internal::last_limbo_free_snapshot_version(this),
         _Internal::last_limbo_free_snapshot_version(this).GetCachedSize(), target, stream);
+  }
+
+  // .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+  if (target_type_case() == kPipelineQuery) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        13, _Internal::pipeline_query(this),
+        _Internal::pipeline_query(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -625,6 +675,12 @@ const ::_pbi::TcParseTable<3, 7, 4, 0, 2> Target::_table_ = {
           1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.target_type_.documents_);
       break;
     }
+    // .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+    case kPipelineQuery: {
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.target_type_.pipeline_query_);
+      break;
+    }
     case TARGET_TYPE_NOT_SET: {
       break;
     }
@@ -677,6 +733,11 @@ void Target::MergeImpl(::google::protobuf::Message& to_msg, const ::google::prot
     case kDocuments: {
       _this->_internal_mutable_documents()->::google::firestore::v1::Target_DocumentsTarget::MergeFrom(
           from._internal_documents());
+      break;
+    }
+    case kPipelineQuery: {
+      _this->_internal_mutable_pipeline_query()->::google::firestore::v1::Target_PipelineQueryTarget::MergeFrom(
+          from._internal_pipeline_query());
       break;
     }
     case TARGET_TYPE_NOT_SET: {
