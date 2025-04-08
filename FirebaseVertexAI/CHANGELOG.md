@@ -3,7 +3,7 @@
   in `GenerationConfig`. This includes **public experimental** support for image
   generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
   <br /><br />
-  Note: This feature is in Public Preview (and relies on experimental models),
+  Note: This feature is in Public Preview and relies on experimental models,
   which means that it is not subject to any SLA or deprecation policy and could
   change in backwards-incompatible ways.
 
