@@ -79,12 +79,16 @@ open class HTTPSCallable: NSObject {
                                                    completion: @escaping (HTTPSCallableResult?,
                                                                           Error?) -> Void) {
     if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
-      Task { @MainActor in
+      Task {
         do {
           let result = try await call(data)
-          completion(result, nil)
+          await MainActor.run {
+            completion(result, nil)
+          }
         } catch {
-          completion(nil, error)
+          await MainActor.run {
+            completion(nil, error)
+          }
         }
       }
     } else {
