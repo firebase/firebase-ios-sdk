@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Fix the parameter from "languageCode" to "lang" in ActionCodeURL
+- [fixed] Fix the parameter from "languageCode" to "lang" in ActionCodeURL (#14664)
 
 # 11.9.0
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
