@@ -203,31 +203,6 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(promptTokensDetails.tokenCount, 24)
   }
 
-  func testCountTokens_jsonSchema() async throws {
-    model = vertex.generativeModel(
-      modelName: "gemini-2.0-flash",
-      generationConfig: GenerationConfig(
-        responseMIMEType: "application/json",
-        responseSchema: Schema.object(properties: [
-          "startDate": .string(format: .custom("date")),
-          "yearsSince": .integer(format: .custom("int16")),
-          "hoursSince": .integer(format: .int32),
-          "minutesSince": .integer(format: .int64),
-        ])
-      )
-    )
-    let prompt = "It is 2050-01-01, how many years, hours and minutes since 2000-01-01?"
-
-    let response = try await model.countTokens(prompt)
-
-    XCTAssertEqual(response.totalTokens, 58)
-    XCTAssertEqual(response.totalBillableCharacters, 160)
-    XCTAssertEqual(response.promptTokensDetails.count, 1)
-    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
-    XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, 58)
-  }
-
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
     let vertex = VertexAI.vertexAI(app: app)

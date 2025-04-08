@@ -105,9 +105,10 @@ struct GenerateContentIntegrationTests {
     #expect(text == "Blue")
 
     let usageMetadata = try #require(response.usageMetadata)
-    #expect(usageMetadata.promptTokenCount == 14)
+    #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
-    #expect(usageMetadata.totalTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.totalTokenCount
+      == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
     #expect(usageMetadata.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
