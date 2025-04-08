@@ -44,6 +44,8 @@ class FieldPath : public impl::BasePath<FieldPath>,
  public:
   /** The field path string that represents the document's key. */
   static constexpr const char* kDocumentKeyPath = "__name__";
+  static constexpr const char* kUpdateTimePath = "__update_time__";
+  static constexpr const char* kCreateTimePath = "__create_time__";
 
   // Note: Xcode 8.2 requires explicit specification of the constructor.
   FieldPath() : impl::BasePath<FieldPath>() {
