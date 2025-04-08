@@ -131,6 +131,9 @@ using TransformMap =
     std::map<FieldPath,
              absl::optional<nanopb::Message<google_firestore_v1_Value>>>;
 
+using PipelineInputOutput = MutableDocument;
+using PipelineInputOutputVector = std::vector<PipelineInputOutput>;
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

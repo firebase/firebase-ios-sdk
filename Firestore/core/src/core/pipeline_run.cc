@@ -14,47 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_API_ORDERING_H_
-#define FIRESTORE_CORE_SRC_API_ORDERING_H_
-
-#include <utility>
+#include "Firestore/core/src/core/pipeline_run.h"
 
 #include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/remote/serializer.h"
 
 namespace firebase {
 namespace firestore {
-namespace api {
+namespace core {
 
-class UserDataReader;  // forward declaration
-
-class Ordering {
- public:
-  enum Direction {
-    ASCENDING,
-    DESCENDING,
-  };
-
-  Ordering(std::unique_ptr<Expr> expr, Direction direction)
-      : expr_(std::move(expr)), direction_(direction) {
+std::vector<model::MutableDocument> RunPipeline(
+    api::RealtimePipeline& pipeline,
+    const std::vector<model::MutableDocument>& inputs) {
+  auto& current = const_cast<std::vector<model::MutableDocument>&>(inputs);
+  for (const auto& stage : pipeline.stages()) {
+    current = stage->Evaluate(pipeline.evaluate_context(), current);
   }
 
-  const Expr& expr() const {
-    return *expr_;
-  }
+  return current;
+}
 
-  Direction direction() const {
-    return direction_;
-  }
-
-  google_firestore_v1_Value to_proto() const;
-
- private:
-  std::unique_ptr<Expr> expr_;
-  Direction direction_;
-};
-
-}  // namespace api
+}  // namespace core
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_API_ORDERING_H_
