@@ -23,6 +23,8 @@ import VertexAITestApp
   import UIKit
 #endif // canImport(UIKit)
 
+@testable import struct FirebaseVertexAI.BackendError
+
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
@@ -140,8 +142,17 @@ struct GenerateContentIntegrationTests {
     )
     let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn."
 
-    let response = try await model.generateContent(prompt)
+    var response: GenerateContentResponse?
+    try await withKnownIssue(
+      "Backend may fail with a 503 - Service Unavailable error when overloaded",
+      isIntermittent: true
+    ) {
+      response = try await model.generateContent(prompt)
+    } matching: { issue in
+      (issue.error as? BackendError).map { $0.httpResponseCode == 503 } ?? false
+    }
 
+    guard let response else { return }
     let candidate = try #require(response.candidates.first)
     let inlineDataPart = try #require(candidate.content.parts
       .first { $0 is InlineDataPart } as? InlineDataPart)
@@ -149,9 +160,12 @@ struct GenerateContentIntegrationTests {
     #expect(inlineDataPart.data.count > 0)
     #if canImport(UIKit)
       let uiImage = try #require(UIImage(data: inlineDataPart.data))
-      // Gemini 2.0 Flash Experimental returns 1024x1024 sized images.
-      #expect(uiImage.size.width == 1024.0)
-      #expect(uiImage.size.height == 1024.0)
+      // Gemini 2.0 Flash Experimental returns images sized to fit within a 1024x1024 pixel box but
+      // dimensions may vary depending on the aspect ratio.
+      #expect(uiImage.size.width <= 1024)
+      #expect(uiImage.size.width >= 500)
+      #expect(uiImage.size.height <= 1024)
+      #expect(uiImage.size.height >= 500)
     #endif // canImport(UIKit)
   }
 
