@@ -867,6 +867,38 @@ class IntegrationTests: XCTestCase {
       XCTAssertEqual(response, expected)
     }
   }
+
+  func testFunctionsReturnsOnMainThread() {
+    let expectation = expectation(description: #function)
+    functions.httpsCallable(
+      "scalarTest",
+      requestAs: Int16.self,
+      responseAs: Int.self
+    ).call(17) { result in
+      guard case .success = result else {
+        return XCTFail("Unexpected failure.")
+      }
+      XCTAssert(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  func testFunctionsThrowsOnMainThread() {
+    let expectation = expectation(description: #function)
+    functions.httpsCallable(
+      "httpErrorTest",
+      requestAs: [Int].self,
+      responseAs: Int.self
+    ).call([]) { result in
+      guard case .failure = result else {
+        return XCTFail("Unexpected failure.")
+      }
+      XCTAssert(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
 }
 
 // MARK: - Streaming

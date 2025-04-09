@@ -1,3 +1,12 @@
+# Unreleased
+- [added] **Public Preview**: Added support for specifying response modalities
+  in `GenerationConfig`. This includes **public experimental** support for image
+  generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
+  <br /><br />
+  Note: This feature is in Public Preview and relies on experimental models,
+  which means that it is not subject to any SLA or deprecation policy and could
+  change in backwards-incompatible ways.
+
 # 11.11.0
 - [added] Emits a warning when attempting to use an incompatible model with
   `GenerativeModel` or `ImagenModel`. (#14610)
