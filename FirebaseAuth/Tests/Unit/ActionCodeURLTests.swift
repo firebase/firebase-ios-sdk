@@ -16,7 +16,10 @@
 import Foundation
 import XCTest
 
+/// Unit tests for ActionCodeURL
 class ActionCodeURLTests: XCTestCase {
+
+  /// Tests parsing a valid URL with resetPassword mode.
   func testParseURL() {
     let urlString = "https://www.example.com?apiKey=API_KEY&mode=resetPassword&oobCode=OOB_CODE"
     let actionCodeURL = ActionCodeURL(link: urlString)
@@ -26,18 +29,21 @@ class ActionCodeURLTests: XCTestCase {
     XCTAssertEqual(actionCodeURL?.code, "OOB_CODE")
   }
 
+  /// Tests parsing an invalid URL.
   func testParseInvalidURL() {
     let urlString = "invalid_url"
     let actionCodeURL = ActionCodeURL(link: urlString)
     XCTAssertNil(actionCodeURL)
   }
 
+  /// Tests parsing a URL with missing parameters.
   func testParseURLMissingParameters() {
     let urlString = "https://www.example.com"
     let actionCodeURL = ActionCodeURL(link: urlString)
     XCTAssertNil(actionCodeURL)
   }
 
+  // Tests parsing a URL with an operation and a code.
   func testParseURLDifferentMode() {
     let urlString = "https://www.example.com?apiKey=API_KEY&mode=verifyEmail&oobCode=OOB_CODE"
     let actionCodeURL = ActionCodeURL(link: urlString)
@@ -47,6 +53,7 @@ class ActionCodeURLTests: XCTestCase {
     XCTAssertEqual(actionCodeURL?.code, "OOB_CODE")
   }
 
+  /// Tests parsing a URL with all properties.
   func testParseURLWithAllProperties() {
     let urlString =
       "https://www.example.com?apiKey=API_KEY&mode=recoverEmail&oobCode=OOB_CODE&continueUrl=https://www.continue.com&lang=en"
@@ -59,18 +66,22 @@ class ActionCodeURLTests: XCTestCase {
     XCTAssertEqual(actionCodeURL?.languageCode, "en")
   }
 
+  /// Tests parsing a URL with missing oobCode.
   func testParseURLMissingOobCode() {
     let urlString = "https://www.example.com?apiKey=API_KEY&mode=resetPassword"
     let actionCodeURL = ActionCodeURL(link: urlString)
     XCTAssertNil(actionCodeURL?.code)
   }
 
+  /// Tests parsing a URL with invalid mode.
   func testParseURLInvalidMode() {
     let urlString = "https://www.example.com?apiKey=API_KEY&mode=invalidMode&oobCode=OOB_CODE"
     let actionCodeURL = ActionCodeURL(link: urlString)
     XCTAssertEqual(actionCodeURL?.operation, .unknown)
+    XCTAssertEqual(actionCodeURL?.apiKey, nil)
   }
 
+  /// Tests parsing a URL with language code.
   func testActionCodeURL_languageCode() {
     let urlString = "https://example.com?lang=fr"
     let actionCodeURL = ActionCodeURL(link: urlString)
