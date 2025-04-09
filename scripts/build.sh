@@ -175,7 +175,7 @@ else
     -sdk 'iphonesimulator'
     # Avoid iOS 18.4's networking issues:
     # - https://developer.apple.com/forums/thread/777999
-    -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3'
+    -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1'
   )
     watchos_flags=(
     -sdk 'watchsimulator'
