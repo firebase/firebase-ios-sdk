@@ -1,6 +1,7 @@
 name: crashlytics
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'Crashlytics**'

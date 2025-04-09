@@ -1,6 +1,7 @@
 name: cocoapods-integration
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'IntegrationTesting/CocoapodsIntegrationTest/**'

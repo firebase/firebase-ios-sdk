@@ -1,6 +1,7 @@
 name: appdistribution
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseAppDistribution**'

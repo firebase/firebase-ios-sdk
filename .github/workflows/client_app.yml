@@ -1,6 +1,7 @@
 name: client_app
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - ".github/workflows/client_app.yml"
