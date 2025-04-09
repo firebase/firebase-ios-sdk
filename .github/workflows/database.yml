@@ -1,6 +1,7 @@
 name: database
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseDatabase**'

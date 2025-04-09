@@ -3,6 +3,7 @@ name: firebasepod
 # Verify that the Firebase.podspec will successfully `pod install`.
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - '*.podspec'

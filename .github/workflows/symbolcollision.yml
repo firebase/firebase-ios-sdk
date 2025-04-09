@@ -3,6 +3,7 @@ name: symbolcollision
 # Tests the Pods listed in SymbolCollisionTest/Podfile for symbol collisions.
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - '.github/workflows/symbolcollision.yml'
