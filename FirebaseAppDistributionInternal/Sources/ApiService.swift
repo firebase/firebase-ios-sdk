@@ -17,8 +17,7 @@ import FirebaseInstallations
 import Foundation
 import UIKit
 
-// Avoids exposing internal APIs to Swift users
-@_implementationOnly import FirebaseCoreInternal
+internal import FirebaseCoreInternal
 
 enum Strings {
   static let errorDomain = "com.firebase.appdistribution.api"
