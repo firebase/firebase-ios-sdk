@@ -15,6 +15,7 @@
 name: combine
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     # Combine sources

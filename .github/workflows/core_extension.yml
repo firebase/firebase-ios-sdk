@@ -1,6 +1,7 @@
 name: core_extension
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseCoreExtension.podspec'
