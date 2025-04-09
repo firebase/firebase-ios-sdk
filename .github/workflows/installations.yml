@@ -1,6 +1,7 @@
 name: installations
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseInstallations**'

@@ -1,6 +1,7 @@
 name: spm
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - '.github/workflows/spm.yml'

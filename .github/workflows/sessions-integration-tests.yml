@@ -3,6 +3,7 @@
 name: sessions-integration-tests
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     # This configuration file.

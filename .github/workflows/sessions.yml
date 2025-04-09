@@ -1,6 +1,7 @@
 name: sessions
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseSessions**'
