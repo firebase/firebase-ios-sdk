@@ -26,6 +26,9 @@ jobs:
             xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.2
+          # TODO: Enable when Xcode 16 is ubiquitous on CI runners.
+#          - os: macos-15
+#            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -40,7 +43,7 @@ jobs:
   core-internal-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [ios, tvos, macos]

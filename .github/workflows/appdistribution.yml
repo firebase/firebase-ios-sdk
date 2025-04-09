@@ -23,12 +23,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-          - os: macos-14
-            xcode: Xcode_15.4
           - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-16
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -72,12 +70,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.4
-          - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -113,7 +109,7 @@ jobs:
   appdistribution-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [ios]
