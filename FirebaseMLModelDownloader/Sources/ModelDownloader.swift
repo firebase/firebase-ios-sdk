@@ -16,9 +16,9 @@ import FirebaseCore
 import FirebaseInstallations
 import Foundation
 #if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_UserDefaults
+  internal import GoogleUtilities_UserDefaults
 #else
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Possible ways to get a custom model.
