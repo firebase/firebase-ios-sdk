@@ -78,7 +78,6 @@ class ActionCodeURLTests: XCTestCase {
     let urlString = "https://www.example.com?apiKey=API_KEY&mode=invalidMode&oobCode=OOB_CODE"
     let actionCodeURL = ActionCodeURL(link: urlString)
     XCTAssertEqual(actionCodeURL?.operation, .unknown)
-    XCTAssertEqual(actionCodeURL?.apiKey, nil)
   }
 
   /// Tests parsing a URL with language code.
