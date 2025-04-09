@@ -14,11 +14,22 @@
 
 import Foundation
 
+/// A namespace providing `URLSession` instances.
 enum GenAIURLSession {
+  /// The default `URLSession` instance for the SDK; returns `URLSession.shared` by default.
+  ///
+  /// - Important: On affected simulators (iOS 18.4+, visionOS 2.4+), this returns an ephemeral
+  ///   `URLSession` instance as a workaround for a known system bug.
   static let `default` = {
     #if targetEnvironment(simulator)
-      if #available(iOS 18.4, *) {
-        return URLSession(configuration: .ephemeral)
+      // The iOS 18.4 and visionOS 2.4 simulators (included in Xcode 16.3) contain a bug in
+      // `URLSession` causing requests to fail. The following workaround, using an ephemeral session
+      // resolves the issue. See https://developer.apple.com/forums/thread/777999 for more details.
+      //
+      // Note: This bug only impacts the simulator, not real devices, and does not impact watchOS
+      // or tvOS.
+      if #available(iOS 18.4, tvOS 100.0, watchOS 100.0, visionOS 2.4, *) {
+        return URLSession(configuration: URLSessionConfiguration.ephemeral)
       }
     #endif // targetEnvironment(simulator)
 
