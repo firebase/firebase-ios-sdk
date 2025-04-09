@@ -151,6 +151,7 @@ function CheckUnexpectedFailures() {
   fi
 }
 
+# TODO(ncooke3): Xcode 16 – remove -lt 15 after migration
 if [[ "$xcode_major" -lt 15 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
@@ -172,7 +173,9 @@ elif [[ "$xcode_major" -lt 16 ]]; then
 else
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 16'
+    # Avoid iOS 18.4's networking issues:
+    # - https://developer.apple.com/forums/thread/777999
+    -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3'
   )
     watchos_flags=(
     -sdk 'watchsimulator'
