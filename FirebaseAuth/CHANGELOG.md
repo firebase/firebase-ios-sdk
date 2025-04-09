@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix the parameters for requestType in ActionCodeOperation. (#14665)
+
 # 11.9.0
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
   Enterprise 18.7.0 or later.
