@@ -6,6 +6,8 @@
   Note: This feature is in Public Preview and relies on experimental models,
   which means that it is not subject to any SLA or deprecation policy and could
   change in backwards-incompatible ways.
+- [fixed] Fixed an issue where network requests would fail in the iOS 18.4
+  simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14696)
 
 # 11.11.0
 - [added] Emits a warning when attempting to use an incompatible model with
