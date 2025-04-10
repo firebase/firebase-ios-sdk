@@ -104,7 +104,11 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 
 /// Firebase Storage errors
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public enum StorageError: Error, CustomNSError {
+public enum StorageError: Error, CustomNSError, @unchecked Sendable {
+  // It would be nice to make this type a checked sendable,
+  // but the Any params we get from NSErrors are not easily
+  // castable to Sendable even though they're all Foundation types
+  // and should be Sendable.
   case unknown(message: String, serverError: [String: Any])
   case objectNotFound(object: String, serverError: [String: Any])
   case bucketNotFound(bucket: String)

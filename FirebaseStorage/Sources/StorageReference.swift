@@ -18,7 +18,8 @@ import Foundation
 /// upload and download objects, as well as get/set object metadata, and delete an object at the
 /// path. See the [Cloud docs](https://cloud.google.com/storage/)  for more details.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRStorageReference) open class StorageReference: NSObject {
+@objc(FIRStorageReference) open class StorageReference: NSObject,
+  @unchecked Sendable /* TODO: sendable */ {
   // MARK: - Public APIs
 
   /// The `Storage` service object which created this reference.
@@ -235,7 +236,7 @@ import Foundation
   /// - Parameter completion: A completion block that either returns the URL on success,
   ///     or an error on failure.
   @objc(downloadURLWithCompletion:)
-  open func downloadURL(completion: @escaping ((_: URL?, _: Error?) -> Void)) {
+  open func downloadURL(completion: @escaping (@Sendable (_: URL?, _: Error?) -> Void)) {
     StorageGetDownloadURLTask.getDownloadURLTask(reference: self,
                                                  queue: storage.dispatchQueue,
                                                  completion: completion)
@@ -435,7 +436,7 @@ import Foundation
   /// - Parameter completion: A completion block which returns the object metadata on success,
   ///   or an error on failure.
   @objc(metadataWithCompletion:)
-  open func getMetadata(completion: @escaping ((_: StorageMetadata?, _: Error?) -> Void)) {
+  open func getMetadata(completion: @escaping @Sendable (_: StorageMetadata?, _: Error?) -> Void) {
     StorageGetMetadataTask.getMetadataTask(reference: self,
                                            queue: storage.dispatchQueue,
                                            completion: completion)
@@ -459,7 +460,7 @@ import Foundation
   ///     or an error on failure.
   @objc(updateMetadata:completion:)
   open func updateMetadata(_ metadata: StorageMetadata,
-                           completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
+                           completion: (@Sendable (_: StorageMetadata?, _: Error?) -> Void)?) {
     StorageUpdateMetadataTask.updateMetadataTask(reference: self,
                                                  queue: storage.dispatchQueue,
                                                  metadata: metadata,

@@ -146,8 +146,7 @@ extension Auth: AuthInterop {
 ///
 /// This class is thread-safe.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@preconcurrency
-@objc(FIRAuth) open class Auth: NSObject {
+@objc(FIRAuth) open class Auth: NSObject, @unchecked Sendable /* TODO: sendable */ {
   /// Gets the auth object for the default Firebase app.
   ///
   /// The default Firebase app must have already been configured or an exception will be raised.
@@ -888,7 +887,10 @@ extension Auth: AuthInterop {
 
   func internalCreateUserWithEmail(request: SignUpNewUserRequest,
                                    inResponse: SignUpNewUserResponse? = nil,
-                                   decoratedCallback: @escaping (Result<AuthDataResult, Error>)
+                                   decoratedCallback: @escaping @Sendable (Result<
+                                     AuthDataResult,
+                                     Error
+                                   >)
                                      -> Void) {
     Task {
       do {
@@ -1311,7 +1313,7 @@ extension Auth: AuthInterop {
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
     @objc(initializeRecaptchaConfigWithCompletion:)
-    open func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
+    open func initializeRecaptchaConfig(completion: (@Sendable (Error?) -> Void)?) {
       Task {
         do {
           try await initializeRecaptchaConfig()
@@ -2304,7 +2306,7 @@ extension Auth: AuthInterop {
   #if os(iOS)
     private func wrapInjectRecaptcha<T: AuthRPCRequest>(request: T,
                                                         action: AuthRecaptchaAction,
-                                                        _ callback: @escaping (
+                                                        _ callback: @escaping @Sendable (
                                                           (T.Response?, Error?) -> Void
                                                         )) {
       Task {

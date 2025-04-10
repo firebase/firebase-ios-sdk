@@ -28,8 +28,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable_result token, NSError *_Nul
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Common methods for Auth interoperability.
-NS_SWIFT_NAME(AuthInterop)
-@protocol FIRAuthInterop
+NS_SWIFT_NAME(AuthInterop) NS_SWIFT_SENDABLE @protocol FIRAuthInterop
 
 /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh

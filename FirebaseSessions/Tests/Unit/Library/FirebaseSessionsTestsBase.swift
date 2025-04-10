@@ -74,8 +74,10 @@ class FirebaseSessionsTestsBase: XCTestCase {
   @MainActor func runSessionsSDK(subscriberSDKs: [SessionsSubscriber],
                                  preSessionsInit: (MockSettingsProtocol) -> Void,
                                  postSessionsInit: () -> Void,
-                                 postLogEvent: @escaping (Result<Void, FirebaseSessionsError>,
-                                                          [SessionsSubscriber]) -> Void) {
+                                 postLogEvent: @escaping @MainActor (Result<Void,
+                                   FirebaseSessionsError>,
+                                 [SessionsSubscriber])
+                                   -> Void) {
     // This class is static, so we need to clear global state
     SessionsDependencies.removeAll()
 
@@ -109,12 +111,13 @@ class FirebaseSessionsTestsBase: XCTestCase {
                         initiator: initiator,
                         appInfo: mockAppInfo,
                         settings: mockSettings) { result in
+      DispatchQueue.main.async {
+        // Provide the result for tests to test against
+        postLogEvent(result, subscriberSDKs)
 
-      // Provide the result for tests to test against
-      postLogEvent(result, subscriberSDKs)
-
-      // Fulfil the expectation so the test can continue
-      loggedEventExpectation.fulfill()
+        // Fulfil the expectation so the test can continue
+        loggedEventExpectation.fulfill()
+      }
     }
 
     // Execute test cases after Sessions is initialized. This is a good

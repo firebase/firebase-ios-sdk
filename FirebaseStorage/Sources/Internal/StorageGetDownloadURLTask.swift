@@ -19,7 +19,7 @@ import Foundation
 enum StorageGetDownloadURLTask {
   static func getDownloadURLTask(reference: StorageReference,
                                  queue: DispatchQueue,
-                                 completion: ((_: URL?, _: Error?) -> Void)?) {
+                                 completion: (@Sendable (_: URL?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
                         queue: queue,
                         httpMethod: "GET",

@@ -19,7 +19,7 @@ import Foundation
 enum StorageGetMetadataTask {
   static func getMetadataTask(reference: StorageReference,
                               queue: DispatchQueue,
-                              completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
+                              completion: (@Sendable (_: StorageMetadata?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
                         queue: queue,
                         httpMethod: "GET",

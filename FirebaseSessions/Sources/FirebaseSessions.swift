@@ -135,10 +135,10 @@ private enum GoogleDataTransportConfig {
   }
 
   // Initializes the SDK and begins the process of listening for lifecycle events and logging
-  // events
+  // events. `logEventCallback` is invoked on a global background queue.
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
-       loggedEventCallback: @escaping (Result<Void, FirebaseSessionsError>) -> Void) {
+       loggedEventCallback: @escaping @Sendable (Result<Void, FirebaseSessionsError>) -> Void) {
     self.appID = appID
 
     self.sessionGenerator = sessionGenerator

@@ -14,63 +14,85 @@
 
 import Foundation
 
-import FirebaseAppCheckInterop
+@preconcurrency import FirebaseAppCheckInterop /* TODO: sendable */
 import FirebaseAuthInterop
 import FirebaseCore
 @_implementationOnly import FirebaseCoreExtension
 
 #if COCOAPODS
-  import GTMSessionFetcher
+  @preconcurrency import GTMSessionFetcher
 #else
-  import GTMSessionFetcherCore
+  @preconcurrency import GTMSessionFetcherCore
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
+final class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer, Sendable {
   func authorizeRequest(_ request: NSMutableURLRequest?,
-                        completionHandler handler: @escaping (Error?) -> Void) {
+                        completionHandler handler: @escaping @Sendable (Error?) -> Void) {
+    if let request = request {
+      Task {
+        do {
+          try await self._authorizeRequest(request)
+          handler(nil)
+        } catch {
+          handler(error)
+        }
+      }
+    }
+  }
+
+  private func _authorizeRequest(_ request: NSMutableURLRequest) async throws {
     // Set version header on each request
     let versionString = "ios/\(FirebaseVersion())"
-    request?.setValue(versionString, forHTTPHeaderField: "x-firebase-storage-version")
+    request.setValue(versionString, forHTTPHeaderField: "x-firebase-storage-version")
 
     // Set GMP ID on each request
-    request?.setValue(googleAppID, forHTTPHeaderField: "x-firebase-gmpid")
+    request.setValue(googleAppID, forHTTPHeaderField: "x-firebase-gmpid")
 
-    var tokenError: NSError?
-    let fetchTokenGroup = DispatchGroup()
     if let auth {
-      fetchTokenGroup.enter()
-      auth.getToken(forcingRefresh: false) { token, error in
-        if let error = error as? NSError {
-          var errorDictionary = error.userInfo
-          errorDictionary["ResponseErrorDomain"] = error.domain
-          errorDictionary["ResponseErrorCode"] = error.code
-          tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
-        } else if let token {
-          let firebaseToken = "Firebase \(token)"
-          request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
+      let token: String = try await withCheckedThrowingContinuation { continuation in
+        auth.getToken(forcingRefresh: false) { token, error in
+          if let error = error as? NSError {
+            var errorDictionary = error.userInfo
+            errorDictionary["ResponseErrorDomain"] = error.domain
+            errorDictionary["ResponseErrorCode"] = error.code
+            let wrappedError = StorageError.unauthenticated(serverError: errorDictionary) as Error
+            continuation.resume(throwing: wrappedError)
+          } else if let token {
+            let firebaseToken = "Firebase \(token)"
+            continuation.resume(returning: firebaseToken)
+          } else {
+            let underlyingError: [String: Any]
+            if let error = error {
+              underlyingError = [NSUnderlyingErrorKey: error]
+            } else {
+              underlyingError = [:]
+            }
+            let unknownError = StorageError.unknown(
+              message: "Auth token fetch returned no token or error: \(token ?? "nil")",
+              serverError: underlyingError
+            ) as Error
+            continuation.resume(throwing: unknownError)
+          }
         }
-        fetchTokenGroup.leave()
       }
+      request.setValue(token, forHTTPHeaderField: "Authorization")
     }
     if let appCheck {
-      fetchTokenGroup.enter()
-      appCheck.getToken(forcingRefresh: false) { tokenResult in
-        request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-
-        if let error = tokenResult.error {
-          FirebaseLogger.log(
-            level: .debug,
-            service: "[FirebaseStorage]",
-            code: "I-STR000001",
-            message: "Failed to fetch AppCheck token. Error: \(error)"
-          )
+      let token = await withCheckedContinuation { continuation in
+        appCheck.getToken(forcingRefresh: false) { tokenResult in
+          if let error = tokenResult.error {
+            FirebaseLogger.log(
+              level: .debug,
+              service: "[FirebaseStorage]",
+              code: "I-STR000001",
+              message: "Failed to fetch AppCheck token. Error: \(error)"
+            )
+          }
+          continuation.resume(returning: tokenResult.token)
         }
-        fetchTokenGroup.leave()
       }
-    }
-    fetchTokenGroup.notify(queue: callbackQueue) {
-      handler(tokenError)
+      request.setValue(token, forHTTPHeaderField: "X-Firebase-AppCheck")
     }
   }
 
@@ -98,7 +120,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     return authHeader.hasPrefix("Firebase")
   }
 
-  var userEmail: String?
+  let userEmail: String?
 
   let callbackQueue: DispatchQueue
   private let googleAppID: String

@@ -17,6 +17,7 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension
@@ -249,7 +250,7 @@ import FirebaseCore
     private var instances: [String: Storage] = [:]
 
     /// Lock to manage access to the instances array to avoid race conditions.
-    private let instancesLock = FirebaseCoreInternal.FIRAllocatedUnfairLock<Void>()
+    private let instancesLock = FIRAllocatedUnfairLock<Void>()
 
     private init() {}
 
