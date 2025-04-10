@@ -80,6 +80,12 @@ public final class Schema: Sendable {
   /// Schema of the elements of type `"ARRAY"`.
   public let items: Schema?
 
+  /// The minimum number of items (elements) in a schema of type `"ARRAY"`.
+  public let minItems: Int?
+
+  /// The maximum number of items (elements) in a schema of type `"ARRAY"`.
+  public let maxItems: Int?
+
   /// Properties of type `"OBJECT"`.
   public let properties: [String: Schema]?
 
@@ -88,6 +94,7 @@ public final class Schema: Sendable {
 
   required init(type: DataType, format: String? = nil, description: String? = nil,
                 nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
+                minItems: Int? = nil, maxItems: Int? = nil,
                 properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
     dataType = type
     self.format = format
@@ -95,6 +102,8 @@ public final class Schema: Sendable {
     self.nullable = nullable
     self.enumValues = enumValues
     self.items = items
+    self.minItems = minItems
+    self.maxItems = maxItems
     self.properties = properties
     self.requiredProperties = requiredProperties
   }
@@ -256,12 +265,23 @@ public final class Schema: Sendable {
   /// - Parameters:
   ///   - items: The `Schema` of the elements that the array will hold.
   ///   - description: An optional description of what the array should contain or represent; may
-  ///   use Markdown format.
+  ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an array;
-  ///   defaults to `false`, enforcing that an array is returned.
-  public static func array(items: Schema, description: String? = nil,
-                           nullable: Bool = false) -> Schema {
-    return self.init(type: .array, description: description, nullable: nullable, items: items)
+  ///     defaults to `false`, enforcing that an array is returned.
+  ///   - minItems: Instructs the model to produce at least the specified minimum number of elements
+  ///     in the array; defaults to `nil`, meaning any number.
+  ///   - maxItems: Instructs the model to produce at most the specified maximum number of elements
+  ///     in the array.
+  public static func array(items: Schema, description: String? = nil, nullable: Bool = false,
+                           minItems: Int? = nil, maxItems: Int? = nil) -> Schema {
+    return self.init(
+      type: .array,
+      description: description,
+      nullable: nullable,
+      items: items,
+      minItems: minItems,
+      maxItems: maxItems
+    )
   }
 
   /// Returns a `Schema` representing an object.
@@ -327,6 +347,8 @@ extension Schema: Encodable {
     case nullable
     case enumValues = "enum"
     case items
+    case minItems
+    case maxItems
     case properties
     case requiredProperties = "required"
   }
