@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
+
 # 11.11.0
 - [fixed] Fixed the customized priority queue compare function used cache index manager. (#14496)
 
