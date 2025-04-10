@@ -48,12 +48,7 @@ final class IntegrationTests: XCTestCase {
   var userID1 = ""
 
   override func setUp() async throws {
-    let authResult = try await Auth.auth().signIn(
-      withEmail: Credentials.emailAddress1,
-      password: Credentials.emailPassword1
-    )
-    userID1 = authResult.user.uid
-
+    userID1 = try await TestHelpers.getUserID()
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
       modelName: "gemini-2.0-flash",
