@@ -560,6 +560,10 @@
 
   [self checkOnlineAndOfflineQuery:[collection queryWhereField:@"zip" isNotEqualTo:@(NAN)]
                      matchesResult:@[ @"b", @"c", @"d", @"e", @"f", @"g", @"h" ]];
+
+  [self checkOnlineAndOfflineQuery:[collection queryWhereField:@"zip"
+                                                  isNotEqualTo:@[ [NSNull null] ]]
+                     matchesResult:@[ @"a", @"b", @"c", @"d", @"e", @"f", @"g", @"h" ]];
 }
 
 - (void)testQueriesCanUseArrayContainsFilters {
