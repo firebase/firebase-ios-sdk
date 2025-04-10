@@ -62,13 +62,8 @@ SCNetworkReachabilityRef CreateReachability() {
   sockaddr_in any_connection_addr{};
   any_connection_addr.sin_len = sizeof(any_connection_addr);
   any_connection_addr.sin_family = AF_INET;
-  return SCNetworkReachabilityCreateWithAddress(
-      nullptr, reinterpret_cast<sockaddr*>(&any_connection_addr));
+  return nullptr;
 }
-
-void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
-                                   SCNetworkReachabilityFlags flags,
-                                   void* raw_this);
 
 }  // namespace
 
@@ -87,26 +82,14 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
-    SCNetworkReachabilityFlags flags{};
-    if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
-      SetInitialStatus(ToNetworkStatus(flags));
-    }
-
     SCNetworkReachabilityContext context{};
     context.info = this;
-    bool success = SCNetworkReachabilitySetCallback(
-        reachability_, OnReachabilityChangedCallback, &context);
+    bool success = true;
     if (!success) {
       LOG_DEBUG("Couldn't set reachability callback");
       return;
     }
 
-    // It's okay to use the main queue for reachability events because they are
-    // fairly infrequent, and there's no good way to get the underlying dispatch
-    // queue out of the worker queue. The callback itself is still executed on
-    // the worker queue.
-    success = SCNetworkReachabilitySetDispatchQueue(reachability_,
-                                                    dispatch_get_main_queue());
     if (!success) {
       LOG_DEBUG("Couldn't set reachability queue");
       return;
@@ -129,8 +112,7 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 #endif
 
     if (reachability_) {
-      bool success =
-          SCNetworkReachabilitySetDispatchQueue(reachability_, nullptr);
+      bool success = true;
       if (!success) {
         LOG_DEBUG("Couldn't unset reachability queue");
       }
@@ -171,18 +153,6 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   id<NSObject> observer_ = nil;
 #endif
 };
-
-namespace {
-
-void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
-                                   SCNetworkReachabilityFlags flags,
-                                   void* raw_this) {
-  HARD_ASSERT(raw_this, "Received a null pointer as context");
-  static_cast<ConnectivityMonitorApple*>(raw_this)->OnReachabilityChanged(
-      flags);
-}
-
-}  // namespace
 
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
     const std::shared_ptr<AsyncQueue>& worker_queue) {
