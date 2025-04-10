@@ -20,7 +20,7 @@
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 import FirebaseSharedSwift
 
 extension CodingUserInfoKey {
