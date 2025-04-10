@@ -99,6 +99,8 @@ jobs:
         include:
           - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
     env:
