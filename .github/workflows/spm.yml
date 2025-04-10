@@ -1,6 +1,7 @@
 name: spm
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - '.github/workflows/spm.yml'
@@ -33,6 +34,8 @@ jobs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -59,7 +62,7 @@ jobs:
             xcode: Xcode_16.2
             test: spm
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16.2
             test: spm
     runs-on: ${{ matrix.os }}
     steps:
@@ -93,7 +96,7 @@ jobs:
       matrix:
         include:
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.2
     runs-on: ${{ matrix.os }}
@@ -126,7 +129,7 @@ jobs:
           - os: macos-15
             xcode: Xcode_16.2
           - os: macos-14
-            xcode: Xcode_15.3
+            xcode: Xcode_16.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

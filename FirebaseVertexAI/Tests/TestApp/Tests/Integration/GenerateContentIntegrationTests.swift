@@ -19,6 +19,12 @@ import FirebaseVertexAI
 import Testing
 import VertexAITestApp
 
+#if canImport(UIKit)
+  import UIKit
+#endif // canImport(UIKit)
+
+@testable import struct FirebaseVertexAI.BackendError
+
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
@@ -37,12 +43,7 @@ struct GenerateContentIntegrationTests {
   let userID1: String
 
   init() async throws {
-    let authResult = try await Auth.auth().signIn(
-      withEmail: Credentials.emailAddress1,
-      password: Credentials.emailPassword1
-    )
-    userID1 = authResult.user.uid
-
+    userID1 = try await TestHelpers.getUserID()
     storage = Storage.storage()
   }
 
@@ -117,6 +118,51 @@ struct GenerateContentIntegrationTests {
     let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
     #expect(candidatesTokensDetails.modality == .text)
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+  }
+
+  @Test(arguments: [
+    InstanceConfig.vertexV1Beta,
+    InstanceConfig.developerV1Beta,
+  ])
+  func generateImage(_ config: InstanceConfig) async throws {
+    let generationConfig = GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseModalities: [.text, .image]
+    )
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashExperimental,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn."
+
+    var response: GenerateContentResponse?
+    try await withKnownIssue(
+      "Backend may fail with a 503 - Service Unavailable error when overloaded",
+      isIntermittent: true
+    ) {
+      response = try await model.generateContent(prompt)
+    } matching: { issue in
+      (issue.error as? BackendError).map { $0.httpResponseCode == 503 } ?? false
+    }
+
+    guard let response else { return }
+    let candidate = try #require(response.candidates.first)
+    let inlineDataPart = try #require(candidate.content.parts
+      .first { $0 is InlineDataPart } as? InlineDataPart)
+    #expect(inlineDataPart.mimeType == "image/png")
+    #expect(inlineDataPart.data.count > 0)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      // Gemini 2.0 Flash Experimental returns images sized to fit within a 1024x1024 pixel box but
+      // dimensions may vary depending on the aspect ratio.
+      #expect(uiImage.size.width <= 1024)
+      #expect(uiImage.size.width >= 500)
+      #expect(uiImage.size.height <= 1024)
+      #expect(uiImage.size.height >= 500)
+    #endif // canImport(UIKit)
   }
 
   // MARK: Streaming Tests

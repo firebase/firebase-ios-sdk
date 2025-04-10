@@ -1,6 +1,7 @@
 name: health-metrics-presubmit
 
 on:
+  workflow_dispatch:
   pull_request:
     # open will be triggered when a pull request is created.
     # synchronize will be triggered when a pull request has new commits.

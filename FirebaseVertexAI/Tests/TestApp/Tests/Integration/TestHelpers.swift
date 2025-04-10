@@ -1,5 +1,4 @@
-//
-// Copyright 2022 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import FirebaseAuth
+import FirebaseCore
 
-#if SWIFT_PACKAGE
-  internal import GoogleUtilities_Environment
-#else
-  internal import GoogleUtilities
-#endif // SWIFT_PACKAGE
-
-@testable import FirebaseSessions
-
-class MockNetworkInfo: NetworkInfoProtocol {
-  var mobileCountryCode: String?
-  var mobileNetworkCode: String?
-  var networkType: GULNetworkType = .WIFI
-  var mobileSubtype: String = ""
+enum TestHelpers {
+  static func getUserID() async throws -> String {
+    if let user = Auth.auth().currentUser {
+      return user.uid
+    } else {
+      let authResult = try await Auth.auth().signIn(
+        withEmail: Credentials.emailAddress1,
+        password: Credentials.emailPassword1
+      )
+      return authResult.user.uid
+    }
+  }
 }

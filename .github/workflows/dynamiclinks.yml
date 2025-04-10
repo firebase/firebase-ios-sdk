@@ -1,6 +1,7 @@
 name: dynamiclinks
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseDynamicLinks**'

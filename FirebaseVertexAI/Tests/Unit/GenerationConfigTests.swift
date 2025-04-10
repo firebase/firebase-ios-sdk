@@ -61,7 +61,8 @@ final class GenerationConfigTests: XCTestCase {
       frequencyPenalty: frequencyPenalty,
       stopSequences: stopSequences,
       responseMIMEType: responseMIMEType,
-      responseSchema: .array(items: .string())
+      responseSchema: .array(items: .string()),
+      responseModalities: [.text, .image]
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -74,6 +75,10 @@ final class GenerationConfigTests: XCTestCase {
       "maxOutputTokens" : \(maxOutputTokens),
       "presencePenalty" : \(presencePenalty),
       "responseMimeType" : "\(responseMIMEType)",
+      "responseModalities" : [
+        "TEXT",
+        "IMAGE"
+      ],
       "responseSchema" : {
         "items" : {
           "nullable" : false,

@@ -1,6 +1,7 @@
 name: inappmessaging
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseInAppMessaging**'
