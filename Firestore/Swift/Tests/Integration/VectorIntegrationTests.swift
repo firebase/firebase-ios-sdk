@@ -146,7 +146,11 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
       docIds.append(docRef.documentID)
     }
 
-    checkOnlineAndOfflineQuery(collection.order(by: "embedding"), matchesResult: docIds)
+    checkOnlineAndOfflineCollection(
+      collection,
+      query: collection.order(by: "embedding"),
+      matchesResult: docIds
+    )
   }
 
   func testSdkFiltersVectorFieldSameWayOnlineAndOffline() async throws {
@@ -176,16 +180,14 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
       docIds.append(docRef.documentID)
     }
 
-    checkOnlineAndOfflineQuery(
+    checkOnlineAndOfflineCollection(collection, query:
       collection.order(by: "embedding")
         .whereField("embedding", isLessThan: FieldValue.vector([1, 2, 100, 4, 4.0])),
-      matchesResult: Array(docIds[2 ... 10])
-    )
-    checkOnlineAndOfflineQuery(
+      matchesResult: Array(docIds[2 ... 10]))
+    checkOnlineAndOfflineCollection(collection, query:
       collection.order(by: "embedding")
         .whereField("embedding", isGreaterThanOrEqualTo: FieldValue.vector([1, 2, 100, 4, 4.0])),
-      matchesResult: Array(docIds[11 ... 12])
-    )
+      matchesResult: Array(docIds[11 ... 12]))
   }
 
   func testQueryVectorValueWrittenByCodable() async throws {

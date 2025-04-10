@@ -130,7 +130,9 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs;
+- (void)checkOnlineAndOfflineCollection:(FIRCollectionReference *)collection
+                                  query:(FIRQuery *)query
+                          matchesResult:(NSArray *)expectedDocs;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.
