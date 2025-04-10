@@ -86,6 +86,12 @@ public final class Schema: Sendable {
   /// The maximum number of items (elements) in a schema of type `"ARRAY"`.
   public let maxItems: Int?
 
+  /// The minimum length of a string value.
+  public let minLength: Int?
+
+  /// The maximum length of a string value.
+  public let maxLength: Int?
+
   /// Properties of type `"OBJECT"`.
   public let properties: [String: Schema]?
 
@@ -94,8 +100,9 @@ public final class Schema: Sendable {
 
   required init(type: DataType, format: String? = nil, description: String? = nil,
                 nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                minItems: Int? = nil, maxItems: Int? = nil,
-                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
+                minItems: Int? = nil, maxItems: Int? = nil, minLength: Int? = nil,
+                maxLength: Int? = nil, properties: [String: Schema]? = nil,
+                requiredProperties: [String]? = nil) {
     dataType = type
     self.format = format
     self.description = description
@@ -104,6 +111,8 @@ public final class Schema: Sendable {
     self.items = items
     self.minItems = minItems
     self.maxItems = maxItems
+    self.minLength = minLength
+    self.maxLength = maxLength
     self.properties = properties
     self.requiredProperties = requiredProperties
   }
@@ -127,13 +136,18 @@ public final class Schema: Sendable {
   ///     ``StringFormat/custom(_:)``, for example `.custom("email")` or `.custom("byte")`; these
   ///     provide additional hints for how the model should respond but are not guaranteed to be
   ///     adhered to.
+  ///   - minLength: An optional minimum length for the string.
+  ///   - maxLength: An optional maximum length for the string.
   public static func string(description: String? = nil, nullable: Bool = false,
-                            format: StringFormat? = nil) -> Schema {
+                            format: StringFormat? = nil, minLength: Int? = nil,
+                            maxLength: Int? = nil) -> Schema {
     return self.init(
       type: .string,
       format: format?.rawValue,
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minLength: minLength,
+      maxLength: maxLength
     )
   }
 
@@ -349,6 +363,8 @@ extension Schema: Encodable {
     case items
     case minItems
     case maxItems
+    case minLength
+    case maxLength
     case properties
     case requiredProperties = "required"
   }
