@@ -1310,9 +1310,6 @@ let package = Package(
       ],
       path: "FirebaseVertexAI/Sources",
       swiftSettings: [
-        // TODO(#14638): Remove "AccessLevelOnImport" experimental feature declaration after
-        // upgrading to `swift-tools-version:6.0`, where it is on by default.
-        .enableExperimentalFeature("AccessLevelOnImport"),
         .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
@@ -1331,9 +1328,6 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        // TODO(#14638): Remove "AccessLevelOnImport" experimental feature declaration after
-        // upgrading to `swift-tools-version:6.0`, where it is on by default.
-        .enableExperimentalFeature("AccessLevelOnImport"),
         .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),

@@ -13,13 +13,16 @@
 // limitations under the License.
 
 import CoreGraphics
-import CoreImage
 import UniformTypeIdentifiers
 
 #if canImport(UIKit)
   public import UIKit // For UIImage extensions.
 #elseif canImport(AppKit)
   public import AppKit // For NSImage extensions.
+#endif
+
+#if canImport(CoreImage)
+  import CoreImage
 #endif
 
 private let imageCompressionQuality: CGFloat = 0.8
