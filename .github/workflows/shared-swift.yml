@@ -1,6 +1,7 @@
 name: shared-swift
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseSharedSwift**'

@@ -24,8 +24,7 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-// Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 final class AtomicBox<T> {
   private var _value: T

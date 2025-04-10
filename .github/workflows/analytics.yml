@@ -1,6 +1,7 @@
 name: analytics
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseAnalytics**'
@@ -23,12 +24,12 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-        os: [macos-14, macos-13]
+        os: [macos-14, macos-15]
         include:
           - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-13
-            xcode: Xcode_15.2
+            xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
 
     steps:

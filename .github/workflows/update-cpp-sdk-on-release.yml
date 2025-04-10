@@ -4,6 +4,7 @@
 # changed.
 name: update-cpp-sdk-on-release
 on:
+  workflow_dispatch:
   release:
     types: [ published ]
 

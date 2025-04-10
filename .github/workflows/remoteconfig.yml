@@ -1,6 +1,7 @@
 name: remoteconfig
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseRemoteConfig**'

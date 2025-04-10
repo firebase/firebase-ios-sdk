@@ -1,6 +1,7 @@
 name: functions
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseFunctions**'
@@ -56,6 +57,8 @@ jobs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -78,7 +81,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-14]
-        xcode: [Xcode_15.4]
+        xcode: [Xcode_16.2]
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -108,11 +111,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
           - os: macos-14
-            xcode: Xcode_15.4
+            xcode: Xcode_16.2
             target: iOS
           - os: macos-15
             xcode: Xcode_16.2
@@ -228,6 +228,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Integration Test Server
