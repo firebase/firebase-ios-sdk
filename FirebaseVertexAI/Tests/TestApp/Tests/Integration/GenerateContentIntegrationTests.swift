@@ -165,15 +165,7 @@ struct GenerateContentIntegrationTests {
     #endif // canImport(UIKit)
   }
 
-  @Test(
-    arguments: [
-      InstanceConfig.vertexV1,
-      InstanceConfig.vertexV1Staging,
-      InstanceConfig.vertexV1Beta,
-      InstanceConfig.vertexV1BetaStaging,
-      InstanceConfig.developerV1Beta,
-    ]
-  )
+  @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
   func generateContentSchemaItems(_ config: InstanceConfig) async throws {
     let model = VertexAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
@@ -194,8 +186,8 @@ struct GenerateContentIntegrationTests {
     let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     let jsonData = try #require(text.data(using: .utf8))
     let decodedJSON = try JSONDecoder().decode([String].self, from: jsonData)
-    #expect(decodedJSON.count >= 3)
-    #expect(decodedJSON.count <= 5)
+    #expect(decodedJSON.count >= 3, "Expected at least 3 cities, but got \(decodedJSON.count)")
+    #expect(decodedJSON.count <= 5, "Expected at most 5 cities, but got \(decodedJSON.count)")
   }
 
   // MARK: Streaming Tests
