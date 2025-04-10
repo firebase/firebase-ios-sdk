@@ -62,7 +62,10 @@ bool NotInFilter::Rep::Matches(const Document& doc) const {
     return false;
   }
   absl::optional<google_firestore_v1_Value> maybe_lhs = doc->field(field());
-  return maybe_lhs && !Contains(array_value, *maybe_lhs);
+  return maybe_lhs &&
+         maybe_lhs->which_value_type !=
+             google_firestore_v1_Value_null_value_tag &&
+         !Contains(array_value, *maybe_lhs);
 }
 
 }  // namespace core

@@ -537,6 +537,31 @@
                         (@[ testDocs[@"ab"], testDocs[@"ba"], testDocs[@"bb"] ]));
 }
 
+- (void)testSDKUsesNotEqualFiltersSameAsServer {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @(NAN)},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98101},
+    @"d" : @{@"zip" : @"98101"},
+    @"e" : @{@"zip" : @[ @98101 ]},
+    @"f" : @{@"zip" : @[ @98101, @98102 ]},
+    @"g" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"h" : @{@"zip" : @{@"code" : @500}},
+    @"i" : @{@"zip" : [NSNull null]},
+    @"j" : @{@"code" : @500},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // populate cache with all documents first to ensure getDocsFromCache() scans all docs
+  [self readDocumentSetForRef:collection];
+
+  [self checkOnlineAndOfflineQuery:[collection queryWhereField:@"zip" isNotEqualTo:@98101]
+                     matchesResult:@[ @"a", @"b", @"d", @"e", @"f", @"g", @"h" ]];
+
+  [self checkOnlineAndOfflineQuery:[collection queryWhereField:@"zip" isNotEqualTo:@(NAN)]
+                     matchesResult:@[ @"b", @"c", @"d", @"e", @"f", @"g", @"h" ]];
+}
+
 - (void)testQueriesCanUseArrayContainsFilters {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
@@ -692,6 +717,33 @@
       [self readDocumentSetForRef:[collection queryWhereFieldPath:[FIRFieldPath documentID]
                                                             notIn:@[ @"aa", @"ab" ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"ba"], testDocs[@"bb"] ]));
+}
+
+- (void)testSDKUsesNotInFiltersSameAsServer {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @(NAN)},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98101},
+    @"d" : @{@"zip" : @"98101"},
+    @"e" : @{@"zip" : @[ @98101 ]},
+    @"f" : @{@"zip" : @[ @98101, @98102 ]},
+    @"g" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"h" : @{@"zip" : @{@"code" : @500}},
+    @"i" : @{@"zip" : [NSNull null]},
+    @"j" : @{@"code" : @500},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // populate cache with all documents first to ensure getDocsFromCache() scans all docs
+  [self readDocumentSetForRef:collection];
+
+  [self checkOnlineAndOfflineQuery:[collection
+                                       queryWhereField:@"zip"
+                                                 notIn:@[ @98101, @98103, @[ @98101, @98102 ] ]]
+                     matchesResult:@[ @"a", @"b", @"d", @"e", @"g", @"h" ]];
+
+  [self checkOnlineAndOfflineQuery:[collection queryWhereField:@"zip" notIn:@[ [NSNull null] ]]
+                     matchesResult:@[]];
 }
 
 - (void)testQueriesCanUseArrayContainsAnyFilters {
