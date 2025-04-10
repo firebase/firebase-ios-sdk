@@ -26,7 +26,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       USE_REAL_CONSOLE: true
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [iOS]
@@ -47,6 +47,8 @@ jobs:
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
           FirebaseRemoteConfig/Tests/Swift/AccessToken.json)
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
     - name: IntegrationTest
@@ -65,9 +67,9 @@ jobs:
         podspec: [FirebaseRemoteConfig.podspec]
         build-env:
           - os: macos-14
-            xcode: Xcode_15.3
-            # TODO(#13078): Fix testing infra to enforce warnings again.
-            tests: --allow-warnings
+            xcode: Xcode_16.2
+#            # TODO(#13078): Fix testing infra to enforce warnings again.
+#            tests: --allow-warnings
           # Flaky tests on CI
           - os: macos-15
             xcode: Xcode_16.2
@@ -93,6 +95,8 @@ jobs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -115,12 +119,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-            test: spm
           - os: macos-14
-            xcode: Xcode_15.4
+            xcode: Xcode_16.2
             target: iOS
             test: spm
           - os: macos-15
@@ -193,6 +193,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
@@ -232,7 +234,7 @@ jobs:
   sample-build-test:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -242,7 +244,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Prereqs
       run: scripts/install_prereqs.sh RemoteConfigSample iOS
     - name: Build
@@ -251,7 +253,7 @@ jobs:
   remoteconfig-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -262,6 +264,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint RemoteConfig Cron
