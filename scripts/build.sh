@@ -113,8 +113,7 @@ function RunXcodebuild() {
   xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
   result=0
-  # xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-  xcodebuild "$@" \
+  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
     && CheckUnexpectedFailures xcodebuild.log \
     || result=$?
 
