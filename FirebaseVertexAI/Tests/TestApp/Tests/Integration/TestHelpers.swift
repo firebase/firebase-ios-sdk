@@ -1,5 +1,4 @@
-//
-// Copyright 2022 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,23 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAuth
 import FirebaseCore
-import FirebaseSessions
-import SwiftUI
 
-@main
-struct AppQualityDevAppApp: App {
-  init() {
-    // In other Product SDKs, this is called via `+ load`, but
-    // we're faking that here because Swift doesn't have `+ load`
-    MockSubscriberSDK.addDependency()
-
-    FirebaseApp.configure()
-  }
-
-  var body: some Scene {
-    WindowGroup {
-      ContentView()
+enum TestHelpers {
+  static func getUserID() async throws -> String {
+    if let user = Auth.auth().currentUser {
+      return user.uid
+    } else {
+      let authResult = try await Auth.auth().signIn(
+        withEmail: Credentials.emailAddress1,
+        password: Credentials.emailPassword1
+      )
+      return authResult.user.uid
     }
   }
 }

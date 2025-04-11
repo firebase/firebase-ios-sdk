@@ -104,6 +104,7 @@ final class GenerationConfigTests: XCTestCase {
       responseMIMEType: mimeType,
       responseSchema: .object(properties: [
         "firstName": .string(),
+        "middleNames": .array(items: .string(), minItems: 0, maxItems: 3),
         "lastName": .string(),
         "age": .integer(),
       ])
@@ -129,12 +130,23 @@ final class GenerationConfigTests: XCTestCase {
           "lastName" : {
             "nullable" : false,
             "type" : "STRING"
+          },
+          "middleNames" : {
+            "items" : {
+              "nullable" : false,
+              "type" : "STRING"
+            },
+            "maxItems" : 3,
+            "minItems" : 0,
+            "nullable" : false,
+            "type" : "ARRAY"
           }
         },
         "required" : [
           "age",
           "firstName",
-          "lastName"
+          "lastName",
+          "middleNames"
         ],
         "type" : "OBJECT"
       }

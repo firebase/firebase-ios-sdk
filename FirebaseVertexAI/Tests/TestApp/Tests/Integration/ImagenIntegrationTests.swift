@@ -39,12 +39,7 @@ struct ImagenIntegrationTests {
   var userID1: String
 
   init() async throws {
-    let authResult = try await Auth.auth().signIn(
-      withEmail: Credentials.emailAddress1,
-      password: Credentials.emailPassword1
-    )
-    userID1 = authResult.user.uid
-
+    userID1 = try await TestHelpers.getUserID()
     vertex = VertexAI.vertexAI()
     storage = Storage.storage()
   }

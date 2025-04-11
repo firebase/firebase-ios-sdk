@@ -151,6 +151,7 @@ function CheckUnexpectedFailures() {
   fi
 }
 
+# TODO(ncooke3): Xcode 16 – remove -lt 15 after migration
 if [[ "$xcode_major" -lt 15 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
@@ -440,7 +441,7 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)' \
+        -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)' \
         build
     fi
     ;;
@@ -572,10 +573,12 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
+      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-integration" \
-        "${ios_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         "${xcb_flags[@]}" \
         test
     fi
@@ -591,10 +594,12 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
+      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-ObjCIntegration" \
-        "${ios_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         "${xcb_flags[@]}" \
         test
       fi
