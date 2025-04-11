@@ -68,7 +68,9 @@ public final class Schema: Sendable {
   /// The format of the data.
   public let format: String?
 
-  /// A brief description of the parameter.
+  /// A human-readable explanation of the purpose of the schema or property. While not strictly
+  /// enforced on the value itself, good descriptions significantly help the model understand the
+  /// context and generate more relevant and accurate output.
   public let description: String?
 
   /// A human-readable name/summary for the schema or a specific property. This helps document the
@@ -82,13 +84,15 @@ public final class Schema: Sendable {
   /// Possible values of the element of type "STRING" with "enum" format.
   public let enumValues: [String]?
 
-  /// Schema of the elements of type `"ARRAY"`.
+  /// Defines the schema for the elements within the `"ARRAY"`. All items in the generated array
+  /// must conform to this schema definition. This can be a simple type (like .string) or a complex
+  /// nested object schema.
   public let items: Schema?
 
-  /// The minimum number of items (elements) in a schema of type `"ARRAY"`.
+  /// An integer specifying the minimum number of items the generated `"ARRAY"` must contain.
   public let minItems: Int?
 
-  /// The maximum number of items (elements) in a schema of type `"ARRAY"`.
+  /// An integer specifying the maximum number of items the generated `"ARRAY"` must contain.
   public let maxItems: Int?
 
   /// The minimum value of a numeric type.
@@ -97,10 +101,14 @@ public final class Schema: Sendable {
   /// The maximum value of a numeric type.
   public let maximum: Double?
 
-  /// Properties of type `"OBJECT"`.
+  /// Defines the members (key-value pairs) expected within an object. It's a dictionary where keys
+  /// are the property names (strings) and values are nested `Schema` definitions describing each
+  /// property's type and constraints.
   public let properties: [String: Schema]?
 
-  /// Required properties of type `"OBJECT"`.
+  /// An array of strings, where each string is the name of a property defined in the `properties`
+  /// dictionary that must be present in the generated object. If a property is listed here, the
+  /// model must include it in the output.
   public let requiredProperties: [String]?
 
   /// A specific hint provided to the Gemini model, suggesting the order in which the keys should
@@ -111,7 +119,8 @@ public final class Schema: Sendable {
   /// serialization.
   public let propertyOrdering: [String]?
 
-  required init(type: DataType, format: String? = nil, description: String? = nil, title: String? = nil,
+  required init(type: DataType, format: String? = nil, description: String? = nil,
+                title: String? = nil,
                 nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
                 minItems: Int? = nil, maxItems: Int? = nil, minimum: Double? = nil,
                 maximum: Double? = nil, properties: [String: Schema]? = nil,
