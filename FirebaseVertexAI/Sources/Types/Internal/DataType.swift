@@ -33,6 +33,8 @@ enum DataType: String {
 
   /// An object type.
   case object = "OBJECT"
+
+  case anyOf = "ANY_OF"
 }
 
 // MARK: - Codable Conformance
