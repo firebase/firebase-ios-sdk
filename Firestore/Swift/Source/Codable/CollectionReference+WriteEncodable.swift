@@ -44,4 +44,36 @@ public extension CollectionReference {
     let encoded = try encoder.encode(value)
     return addDocument(data: encoded, completion: completion)
   }
+
+  /// Encodes an instance of `Encodable` and adds a new document to this collection
+  /// with the encoded data, assigning it a document ID automatically.
+  ///
+  /// See `Firestore.Encoder` for more details about the encoding process.
+  ///
+  /// - Parameters:
+  ///   - value: An instance of `Encodable` to be encoded to a document.
+  ///   - encoder: An encoder instance to use to run the encoding.
+  /// - Throws: `Error` if the backend rejected the write.
+  /// - Returns: A `DocumentReference` pointing to the newly created document.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
+  func addDocument<T: Encodable>(from value: T,
+                                 encoder: Firestore.Encoder = Firestore.Encoder()) async throws
+    -> DocumentReference {
+    return try await withCheckedThrowingContinuation { continuation in
+      var document: DocumentReference?
+      do {
+        document = try self.addDocument(from: value, encoder: encoder) { error in
+          if let error {
+            continuation.resume(throwing: error)
+          } else {
+            // Our callbacks guarantee that we either return an error or a document.
+            continuation.resume(returning: document!)
+          }
+        }
+      } catch {
+        continuation.resume(throwing: error)
+      }
+    }
+  }
 }
