@@ -89,13 +89,15 @@ public final class Schema: Sendable {
   /// Properties of type `"OBJECT"`.
   public let properties: [String: Schema]?
 
+  public let anyOf: [Schema]?
+
   /// Required properties of type `"OBJECT"`.
   public let requiredProperties: [String]?
 
   required init(type: DataType, format: String? = nil, description: String? = nil,
-                nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                minItems: Int? = nil, maxItems: Int? = nil,
-                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
+                nullable: Bool? = nil, enumValues: [String]? = nil, items: Schema? = nil,
+                minItems: Int? = nil, maxItems: Int? = nil, properties: [String: Schema]? = nil,
+                anyOf: [Schema]? = nil, requiredProperties: [String]? = nil) {
     dataType = type
     self.format = format
     self.description = description
@@ -105,7 +107,12 @@ public final class Schema: Sendable {
     self.minItems = minItems
     self.maxItems = maxItems
     self.properties = properties
+    self.anyOf = anyOf
     self.requiredProperties = requiredProperties
+  }
+
+  public static func anyOf(schemas: [Schema]) -> Schema {
+    return self.init(type: .anyOf, anyOf: schemas)
   }
 
   /// Returns a `Schema` representing a string value.
@@ -350,6 +357,27 @@ extension Schema: Encodable {
     case minItems
     case maxItems
     case properties
+    case anyOf
     case requiredProperties = "required"
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    switch dataType {
+    case .anyOf:
+      break
+    default:
+      try container.encode(dataType, forKey: .dataType)
+    }
+    try container.encodeIfPresent(format, forKey: .format)
+    try container.encodeIfPresent(description, forKey: .description)
+    try container.encodeIfPresent(nullable, forKey: .nullable)
+    try container.encodeIfPresent(enumValues, forKey: .enumValues)
+    try container.encodeIfPresent(items, forKey: .items)
+    try container.encodeIfPresent(minItems, forKey: .minItems)
+    try container.encodeIfPresent(maxItems, forKey: .maxItems)
+    try container.encodeIfPresent(properties, forKey: .properties)
+    try container.encodeIfPresent(anyOf, forKey: .anyOf)
+    try container.encodeIfPresent(requiredProperties, forKey: .requiredProperties)
   }
 }

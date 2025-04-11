@@ -190,6 +190,52 @@ struct GenerateContentIntegrationTests {
     #expect(decodedJSON.count <= 5, "Expected at most 5 cities, but got \(decodedJSON.count)")
   }
 
+  @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
+  func generateContentAnyOfSchema(_ config: InstanceConfig) async throws {
+    let canadianAddressSchema = Schema.object(
+      properties: [
+        "streetAddress": .string(description:
+          "The civic number and street name, for example, '123 Main Street'."),
+        "city": .string(description: "The name of the city."),
+        "province": .string(description:
+          "The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'."),
+        "postalCode": .string(description: "The postal code, for example, 'A1A 1A1'."),
+      ],
+      description: "A Canadian mailing address",
+    )
+    let americanAddressSchema = Schema.object(
+      properties: [
+        "streetAddress": .string(description:
+          "The civic number and street name, for example, '123 Main Street'."),
+        "city": .string(description: "The name of the city."),
+        "state": .string(description:
+          "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'."),
+        "zipCode": .string(description: "The 5-digit ZIP code, for example, '12345'."),
+      ],
+      description: "A U.S. mailing address",
+    )
+    let model = VertexAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2Flash,
+      generationConfig: GenerationConfig(
+        temperature: 0.0,
+        topP: 0.0,
+        topK: 1,
+        responseMIMEType: "application/json",
+        responseSchema: .array(items: .anyOf(
+          schemas: [canadianAddressSchema, americanAddressSchema]
+        ))
+      ),
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    What are the mailing addresses for the University of Waterloo, UC Berkeley and UBC?
+    """
+    let response = try await model.generateContent(prompt)
+    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    // TODO: Test that the JSON can be decoded.
+    print("JSON: \(text)")
+  }
+
   // MARK: Streaming Tests
 
   @Test(arguments: InstanceConfig.allConfigs)
