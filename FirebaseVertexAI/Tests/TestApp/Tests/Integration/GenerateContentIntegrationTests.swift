@@ -192,27 +192,28 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
   func generateContentAnyOfSchema(_ config: InstanceConfig) async throws {
+    let streetSchema = Schema.string(description:
+      "The civic number and street name, for example, '123 Main Street'.")
+    let citySchema = Schema.string(description: "The name of the city.")
     let canadianAddressSchema = Schema.object(
       properties: [
-        "streetAddress": .string(description:
-          "The civic number and street name, for example, '123 Main Street'."),
-        "city": .string(description: "The name of the city."),
+        "streetAddress": streetSchema,
+        "city": citySchema,
         "province": .string(description:
           "The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'."),
         "postalCode": .string(description: "The postal code, for example, 'A1A 1A1'."),
       ],
-      description: "A Canadian mailing address",
+      description: "A Canadian mailing address"
     )
     let americanAddressSchema = Schema.object(
       properties: [
-        "streetAddress": .string(description:
-          "The civic number and street name, for example, '123 Main Street'."),
-        "city": .string(description: "The name of the city."),
+        "streetAddress": streetSchema,
+        "city": citySchema,
         "state": .string(description:
           "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'."),
         "zipCode": .string(description: "The 5-digit ZIP code, for example, '12345'."),
       ],
-      description: "A U.S. mailing address",
+      description: "A U.S. mailing address"
     )
     let model = VertexAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
