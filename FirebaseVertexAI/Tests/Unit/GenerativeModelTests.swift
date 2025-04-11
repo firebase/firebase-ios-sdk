@@ -1691,7 +1691,7 @@ struct AppCheckErrorFake: Error {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Swift.Comparable {
-  static func < (lhs: SafetyRating, rhs: SafetyRating) -> Bool {
+  public static func < (lhs: SafetyRating, rhs: SafetyRating) -> Bool {
     return lhs.category.rawValue < rhs.category.rawValue
   }
 }
