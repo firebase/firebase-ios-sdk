@@ -30,14 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// specified in the notification body via the `image` parameter. Images and other
 /// rich content can be populated manually without the use of this class. See the
 /// `UNNotificationServiceExtension` type for more details.
-__OSX_AVAILABLE(10.14) @interface FIRMessagingExtensionHelper : NSObject
+__OSX_AVAILABLE(10.14) NS_SWIFT_SENDABLE @interface FIRMessagingExtensionHelper : NSObject
 
 /// Call this API to complete your notification content modification. If you like to
 /// overwrite some properties of the content instead of using the default payload,
-/// make sure to make your customized motification to the content before passing it to
-/// this call.
-- (void)populateNotificationContent:(UNMutableNotificationContent *)content
-                 withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
+/// make sure to make your customized modification to the content before passing it to
+/// this call. The content returned in the content handler after populating will be a
+/// different instance than the value passed in to `content`.
+- (void)populateNotificationContent:(UNNotificationContent *)content
+                 withContentHandler:
+                     (void (^NS_SWIFT_SENDABLE)(UNNotificationContent *_Nonnull))contentHandler
+    NS_SWIFT_SENDABLE;
 
 /// Exports delivery metrics to BigQuery. Call this API to enable logging delivery of alert
 /// notification or background notification and export to BigQuery.

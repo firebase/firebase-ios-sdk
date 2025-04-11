@@ -41,9 +41,9 @@ import Foundation
 ///
 class SessionInitiator {
   let currentTime: () -> Date
-  var settings: SettingsProtocol
-  var backgroundTime = Date.distantFuture
-  var initiateSessionStart: () -> Void = {}
+  let settings: SettingsProtocol
+  private var backgroundTime = Date.distantFuture
+  private var initiateSessionStart: () -> Void = {}
 
   init(settings: SettingsProtocol, currentTimeProvider: @escaping () -> Date = Date.init) {
     currentTime = currentTimeProvider

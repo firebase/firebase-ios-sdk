@@ -20,7 +20,8 @@ enum StorageUpdateMetadataTask {
   static func updateMetadataTask(reference: StorageReference,
                                  queue: DispatchQueue,
                                  metadata: StorageMetadata,
-                                 completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
+                                 completion: (@Sendable (_: StorageMetadata?, _: Error?)
+                                   -> Void)?) {
     var request = StorageUtils.defaultRequestForReference(reference: reference)
     let updateData = try? JSONSerialization.data(withJSONObject: metadata.updatedMetadata())
     request.httpBody = updateData

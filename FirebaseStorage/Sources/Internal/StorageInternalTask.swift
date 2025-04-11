@@ -15,15 +15,15 @@
 import Foundation
 
 #if COCOAPODS
-  import GTMSessionFetcher
+  @preconcurrency import GTMSessionFetcher
 #else
-  import GTMSessionFetcherCore
+  @preconcurrency import GTMSessionFetcherCore
 #endif
 
 /// Implement StorageTasks that are not directly exposed via the public API.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @preconcurrency
-class StorageInternalTask: StorageTask {
+class StorageInternalTask: StorageTask, @unchecked Sendable /* TODO: sendable */ {
   private var fetcher: GTMSessionFetcher?
 
   @discardableResult
@@ -32,7 +32,7 @@ class StorageInternalTask: StorageTask {
        request: URLRequest? = nil,
        httpMethod: String,
        fetcherComment: String,
-       completion: ((_: Data?, _: Error?) -> Void)?) {
+       completion: (@Sendable (_: Data?, _: Error?) -> Void)?) {
     super.init(reference: reference, queue: queue)
 
     // Prepare a task and begins execution.

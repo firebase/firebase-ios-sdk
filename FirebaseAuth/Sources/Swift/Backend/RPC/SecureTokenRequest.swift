@@ -66,7 +66,7 @@ private let kCodeKey = "code"
 
 /// Represents the parameters for the token endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class SecureTokenRequest: AuthRPCRequest {
+class SecureTokenRequest: AuthRPCRequest, @unchecked Sendable /* TODO: sendable */ {
   typealias Response = SecureTokenResponse
 
   /// The type of grant requested.

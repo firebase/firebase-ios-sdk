@@ -18,7 +18,7 @@ import Foundation
 /// Sessions Subscriber is an interface that dependent SDKs
 /// must implement.
 @objc(FIRSessionsSubscriber)
-public protocol SessionsSubscriber {
+public protocol SessionsSubscriber: Sendable {
   func onSessionChanged(_ session: SessionDetails)
   var isDataCollectionEnabled: Bool { get }
   var sessionsSubscriberName: SessionsSubscriberName { get }

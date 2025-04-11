@@ -23,7 +23,7 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendProtocol: Sendable {
-  func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response
+  func call<T: AuthRPCRequest>(with request: sending T) async throws -> T.Response
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -48,7 +48,7 @@ final class AuthBackend: AuthBackendProtocol {
   /// * See FIRAuthInternalErrorCodeRPCResponseDecodingError
   /// - Parameter request: The request.
   /// - Returns: The response.
-  func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+  func call<T: AuthRPCRequest>(with request: sending T) async throws -> T.Response {
     let response = try await callInternal(with: request)
     if let auth = request.requestConfiguration().auth,
        let mfaError = Self.generateMFAError(response: response, auth: auth) {
