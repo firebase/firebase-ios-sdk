@@ -28,6 +28,7 @@
 		86D77E022D7B63AF003D155D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77E012D7B63AC003D155D /* Constants.swift */; };
 		86D77E042D7B6C9D003D155D /* InstanceConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77E032D7B6C95003D155D /* InstanceConfig.swift */; };
 		DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */; };
+		DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		86D77E012D7B63AC003D155D /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		86D77E032D7B6C95003D155D /* InstanceConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanceConfig.swift; sourceTree = "<group>"; };
 		DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +141,7 @@
 		868A7C572CCC27AF00E449DD /* Integration */ = {
 			isa = PBXGroup;
 			children = (
+				DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */,
 				DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */,
 				8689CDCB2D7F8BCF00BF426B /* CountTokensIntegrationTests.swift */,
 				868A7C4D2CCC1F4700E449DD /* Credentials.swift */,
@@ -292,6 +295,7 @@
 			files = (
 				8689CDCC2D7F8BD700BF426B /* CountTokensIntegrationTests.swift in Sources */,
 				86D77E042D7B6C9D003D155D /* InstanceConfig.swift in Sources */,
+				DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */,
 				DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
 				864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */,
