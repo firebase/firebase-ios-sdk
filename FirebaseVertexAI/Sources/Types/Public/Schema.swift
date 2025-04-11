@@ -86,6 +86,12 @@ public final class Schema: Sendable {
   /// The maximum number of items (elements) in a schema of type `"ARRAY"`.
   public let maxItems: Int?
 
+  /// The minimum value of a numeric type.
+  public let minimum: Double?
+
+  /// The maximum value of a numeric type.
+  public let maximum: Double?
+
   /// Properties of type `"OBJECT"`.
   public let properties: [String: Schema]?
 
@@ -94,8 +100,9 @@ public final class Schema: Sendable {
 
   required init(type: DataType, format: String? = nil, description: String? = nil,
                 nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                minItems: Int? = nil, maxItems: Int? = nil,
-                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
+                minItems: Int? = nil, maxItems: Int? = nil, minimum: Double? = nil,
+                maximum: Double? = nil, properties: [String: Schema]? = nil,
+                requiredProperties: [String]? = nil) {
     dataType = type
     self.format = format
     self.description = description
@@ -104,6 +111,8 @@ public final class Schema: Sendable {
     self.items = items
     self.minItems = minItems
     self.maxItems = maxItems
+    self.minimum = minimum
+    self.maximum = maximum
     self.properties = properties
     self.requiredProperties = requiredProperties
   }
@@ -184,12 +193,19 @@ public final class Schema: Sendable {
   ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may generate `null` instead of a number;
   ///     defaults to `false`, enforcing that a number is generated.
-  public static func float(description: String? = nil, nullable: Bool = false) -> Schema {
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
+  public static func float(description: String? = nil, nullable: Bool = false,
+                           minimum: Double? = nil, maximum: Double? = nil) -> Schema {
     return self.init(
       type: .number,
       format: "float",
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minimum: minimum,
+      maximum: maximum
     )
   }
 
@@ -203,11 +219,18 @@ public final class Schema: Sendable {
   ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of a number;
   ///     defaults to `false`, enforcing that a number is returned.
-  public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
+  public static func double(description: String? = nil, nullable: Bool = false,
+                            minimum: Double? = nil, maximum: Double? = nil) -> Schema {
     return self.init(
       type: .number,
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minimum: minimum,
+      maximum: maximum
     )
   }
 
@@ -232,12 +255,15 @@ public final class Schema: Sendable {
   ///     formats ``IntegerFormat/int32`` and ``IntegerFormat/int64`` are supported; custom values
   ///     may be specified using ``IntegerFormat/custom(_:)`` but may be ignored by the model.
   public static func integer(description: String? = nil, nullable: Bool = false,
-                             format: IntegerFormat? = nil) -> Schema {
+                             format: IntegerFormat? = nil,
+                             minimum: Int? = nil, maximum: Int? = nil) -> Schema {
     return self.init(
       type: .integer,
       format: format?.rawValue,
       description: description,
-      nullable: nullable
+      nullable: nullable.self,
+      minimum: minimum != nil ? Double(minimum!) : nil,
+      maximum: maximum != nil ? Double(maximum!) : nil
     )
   }
 
@@ -349,6 +375,8 @@ extension Schema: Encodable {
     case items
     case minItems
     case maxItems
+    case minimum
+    case maximum
     case properties
     case requiredProperties = "required"
   }
