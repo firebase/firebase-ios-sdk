@@ -198,7 +198,7 @@ public final class Schema: Sendable {
   ///   - maximum: If specified, instructs the model that the value should be less than or equal
   ///     to the specified maximum.
   public static func float(description: String? = nil, nullable: Bool = false,
-                            minimum: Double? = nil, maximum: Double? = nil) -> Schema {
+                           minimum: Double? = nil, maximum: Double? = nil) -> Schema {
     return self.init(
       type: .number,
       format: "float",
@@ -224,7 +224,7 @@ public final class Schema: Sendable {
   ///   - maximum: If specified, instructs the model that the value should be less than or equal
   ///     to the specified maximum.
   public static func double(description: String? = nil, nullable: Bool = false,
-                             minimum: Double? = nil, maximum: Double? = nil) -> Schema {
+                            minimum: Double? = nil, maximum: Double? = nil) -> Schema {
     return self.init(
       type: .number,
       description: description,
@@ -255,12 +255,15 @@ public final class Schema: Sendable {
   ///     formats ``IntegerFormat/int32`` and ``IntegerFormat/int64`` are supported; custom values
   ///     may be specified using ``IntegerFormat/custom(_:)`` but may be ignored by the model.
   public static func integer(description: String? = nil, nullable: Bool = false,
-                             format: IntegerFormat? = nil) -> Schema {
+                             format: IntegerFormat? = nil,
+                             minimum: Int? = nil, maximum: Int? = nil) -> Schema {
     return self.init(
       type: .integer,
       format: format?.rawValue,
       description: description,
-      nullable: nullable
+      nullable: nullable.self,
+      minimum: minimum != nil ? Double(minimum!) : nil,
+      maximum: maximum != nil ? Double(maximum!) : nil
     )
   }
 
