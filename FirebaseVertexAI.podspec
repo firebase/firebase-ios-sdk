@@ -49,6 +49,10 @@ Firebase SDK.
   s.dependency 'FirebaseCore', '~> 11.12.0'
   s.dependency 'FirebaseCoreExtension', '~> 11.12.0'
 
+  s.pod_target_xcconfig = {
+    'SWIFT_UPCOMING_FEATURE_INTERNAL_IMPORTS_BY_DEFAULT' => 'YES',
+  }
+
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'
     unit_tests.scheme = { :code_coverage => true }
