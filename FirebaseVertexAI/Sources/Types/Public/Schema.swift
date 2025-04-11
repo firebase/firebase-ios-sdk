@@ -71,6 +71,11 @@ public final class Schema: Sendable {
   /// A brief description of the parameter.
   public let description: String?
 
+  /// A human-readable name/summary for the schema or a specific property. This helps document the
+  /// schema's purpose but doesn't typically constrain the generated value. It can subtly guide the
+  /// model by clarifying the intent of a field.
+  public let title: String?
+
   /// Indicates if the value may be null.
   public let nullable: Bool?
 
@@ -98,14 +103,23 @@ public final class Schema: Sendable {
   /// Required properties of type `"OBJECT"`.
   public let requiredProperties: [String]?
 
-  required init(type: DataType, format: String? = nil, description: String? = nil,
+  /// A specific hint provided to the Gemini model, suggesting the order in which the keys should
+  /// appear in the generated JSON string. Important: Standard JSON objects are inherently unordered
+  /// collections of key-value pairs. While the model will try to respect propertyOrdering in its
+  /// textual JSON output, subsequent parsing into native Swift objects (like Dictionaries or
+  /// Structs) might not preserve this order. This parameter primarily affects the raw JSON string
+  /// serialization.
+  public let propertyOrdering: [String]?
+
+  required init(type: DataType, format: String? = nil, description: String? = nil, title: String? = nil,
                 nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
                 minItems: Int? = nil, maxItems: Int? = nil, minimum: Double? = nil,
                 maximum: Double? = nil, properties: [String: Schema]? = nil,
-                requiredProperties: [String]? = nil) {
+                requiredProperties: [String]? = nil, propertyOrdering: [String]? = nil) {
     dataType = type
     self.format = format
     self.description = description
+    self.title = title
     self.nullable = nullable
     self.enumValues = enumValues
     self.items = items
@@ -115,6 +129,7 @@ public final class Schema: Sendable {
     self.maximum = maximum
     self.properties = properties
     self.requiredProperties = requiredProperties
+    self.propertyOrdering = propertyOrdering
   }
 
   /// Returns a `Schema` representing a string value.
@@ -343,7 +358,9 @@ public final class Schema: Sendable {
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an object;
   ///   defaults to `false`, enforcing that an object is returned.
   public static func object(properties: [String: Schema], optionalProperties: [String] = [],
-                            description: String? = nil, nullable: Bool = false) -> Schema {
+                            propertyOrdering: [String]? = nil,
+                            description: String? = nil, title: String? = nil,
+                            nullable: Bool = false) -> Schema {
     var requiredProperties = Set(properties.keys)
     for optionalProperty in optionalProperties {
       guard properties.keys.contains(optionalProperty) else {
@@ -355,9 +372,11 @@ public final class Schema: Sendable {
     return self.init(
       type: .object,
       description: description,
+      title: title,
       nullable: nullable,
       properties: properties,
-      requiredProperties: requiredProperties.sorted()
+      requiredProperties: requiredProperties.sorted(),
+      propertyOrdering: propertyOrdering
     )
   }
 }
@@ -370,6 +389,7 @@ extension Schema: Encodable {
     case dataType = "type"
     case format
     case description
+    case title
     case nullable
     case enumValues = "enum"
     case items
@@ -379,5 +399,6 @@ extension Schema: Encodable {
     case maximum
     case properties
     case requiredProperties = "required"
+    case propertyOrdering
   }
 }

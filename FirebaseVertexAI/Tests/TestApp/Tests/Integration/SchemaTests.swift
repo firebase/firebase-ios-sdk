@@ -127,6 +127,8 @@ struct SchemaTests {
               maximum: 5
             ),
           ],
+          propertyOrdering: ["salePrice", "rating", "price", "productName"],
+          title: "ProductInfo"
         ),
       ),
       safetySettings: safetySettings
