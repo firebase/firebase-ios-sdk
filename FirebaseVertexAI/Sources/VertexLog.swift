@@ -15,7 +15,7 @@
 import Foundation
 import os.log
 
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 enum VertexLog {
   /// Log message codes for the Vertex AI SDK
