@@ -13,10 +13,9 @@
 // limitations under the License.
 
 @preconcurrency import FirebaseCore
+internal import FirebaseCoreExtension
 import Foundation
 import XCTest
-
-@_implementationOnly import FirebaseCoreExtension
 
 @testable import FirebaseVertexAI
 
