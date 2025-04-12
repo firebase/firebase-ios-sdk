@@ -79,10 +79,10 @@ struct SchemaTests {
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
-        responseSchema: .double(
+        responseSchema: .integer(
           description: "A number",
-          minimum: 110.0,
-          maximum: 120.0
+          minimum: 110,
+          maximum: 120
         )
       ),
       safetySettings: safetySettings
