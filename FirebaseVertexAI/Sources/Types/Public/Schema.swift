@@ -286,8 +286,8 @@ public final class Schema: Sendable {
       format: format?.rawValue,
       description: description,
       nullable: nullable.self,
-      minimum: minimum != nil ? Double(minimum!) : nil,
-      maximum: maximum != nil ? Double(maximum!) : nil
+      minimum: minimum.map { Double($0) },
+      maximum: maximum.map { Double($0) }
     )
   }
 
