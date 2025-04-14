@@ -222,7 +222,7 @@ public final class Schema: Sendable {
   ///   - maximum: If specified, instructs the model that the value should be less than or equal
   ///     to the specified maximum.
   public static func float(description: String? = nil, nullable: Bool = false,
-                           minimum: Double? = nil, maximum: Double? = nil) -> Schema {
+                           minimum: Float? = nil, maximum: Float? = nil) -> Schema {
     return self.init(
       type: .number,
       format: "float",
