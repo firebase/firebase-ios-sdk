@@ -228,8 +228,8 @@ public final class Schema: Sendable {
       format: "float",
       description: description,
       nullable: nullable,
-      minimum: minimum,
-      maximum: maximum
+      minimum: minimum.map { Double($0) },
+      maximum: maximum.map { Double($0) }
     )
   }
 
