@@ -68,8 +68,15 @@ public final class Schema: Sendable {
   /// The format of the data.
   public let format: String?
 
-  /// A brief description of the parameter.
+  /// A human-readable explanation of the purpose of the schema or property. While not strictly
+  /// enforced on the value itself, good descriptions significantly help the model understand the
+  /// context and generate more relevant and accurate output.
   public let description: String?
+
+  /// A human-readable name/summary for the schema or a specific property. This helps document the
+  /// schema's purpose but doesn't typically constrain the generated value. It can subtly guide the
+  /// model by clarifying the intent of a field.
+  public let title: String?
 
   /// Indicates if the value may be null.
   public let nullable: Bool?
@@ -77,35 +84,61 @@ public final class Schema: Sendable {
   /// Possible values of the element of type "STRING" with "enum" format.
   public let enumValues: [String]?
 
-  /// Schema of the elements of type `"ARRAY"`.
+  /// Defines the schema for the elements within the `"ARRAY"`. All items in the generated array
+  /// must conform to this schema definition. This can be a simple type (like .string) or a complex
+  /// nested object schema.
   public let items: Schema?
 
-  /// The minimum number of items (elements) in a schema of type `"ARRAY"`.
+  /// An integer specifying the minimum number of items the generated `"ARRAY"` must contain.
   public let minItems: Int?
 
-  /// The maximum number of items (elements) in a schema of type `"ARRAY"`.
+  /// An integer specifying the maximum number of items the generated `"ARRAY"` must contain.
   public let maxItems: Int?
 
-  /// Properties of type `"OBJECT"`.
+  /// The minimum value of a numeric type.
+  public let minimum: Double?
+
+  /// The maximum value of a numeric type.
+  public let maximum: Double?
+
+  /// Defines the members (key-value pairs) expected within an object. It's a dictionary where keys
+  /// are the property names (strings) and values are nested `Schema` definitions describing each
+  /// property's type and constraints.
   public let properties: [String: Schema]?
 
-  /// Required properties of type `"OBJECT"`.
+  /// An array of strings, where each string is the name of a property defined in the `properties`
+  /// dictionary that must be present in the generated object. If a property is listed here, the
+  /// model must include it in the output.
   public let requiredProperties: [String]?
 
+  /// A specific hint provided to the Gemini model, suggesting the order in which the keys should
+  /// appear in the generated JSON string. Important: Standard JSON objects are inherently unordered
+  /// collections of key-value pairs. While the model will try to respect propertyOrdering in its
+  /// textual JSON output, subsequent parsing into native Swift objects (like Dictionaries or
+  /// Structs) might not preserve this order. This parameter primarily affects the raw JSON string
+  /// serialization.
+  public let propertyOrdering: [String]?
+
   required init(type: DataType, format: String? = nil, description: String? = nil,
+                title: String? = nil,
                 nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                minItems: Int? = nil, maxItems: Int? = nil,
-                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
+                minItems: Int? = nil, maxItems: Int? = nil, minimum: Double? = nil,
+                maximum: Double? = nil, properties: [String: Schema]? = nil,
+                requiredProperties: [String]? = nil, propertyOrdering: [String]? = nil) {
     dataType = type
     self.format = format
     self.description = description
+    self.title = title
     self.nullable = nullable
     self.enumValues = enumValues
     self.items = items
     self.minItems = minItems
     self.maxItems = maxItems
+    self.minimum = minimum
+    self.maximum = maximum
     self.properties = properties
     self.requiredProperties = requiredProperties
+    self.propertyOrdering = propertyOrdering
   }
 
   /// Returns a `Schema` representing a string value.
@@ -184,12 +217,19 @@ public final class Schema: Sendable {
   ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may generate `null` instead of a number;
   ///     defaults to `false`, enforcing that a number is generated.
-  public static func float(description: String? = nil, nullable: Bool = false) -> Schema {
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
+  public static func float(description: String? = nil, nullable: Bool = false,
+                           minimum: Float? = nil, maximum: Float? = nil) -> Schema {
     return self.init(
       type: .number,
       format: "float",
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minimum: minimum.map { Double($0) },
+      maximum: maximum.map { Double($0) }
     )
   }
 
@@ -203,11 +243,18 @@ public final class Schema: Sendable {
   ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of a number;
   ///     defaults to `false`, enforcing that a number is returned.
-  public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
+  public static func double(description: String? = nil, nullable: Bool = false,
+                            minimum: Double? = nil, maximum: Double? = nil) -> Schema {
     return self.init(
       type: .number,
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minimum: minimum,
+      maximum: maximum
     )
   }
 
@@ -232,12 +279,15 @@ public final class Schema: Sendable {
   ///     formats ``IntegerFormat/int32`` and ``IntegerFormat/int64`` are supported; custom values
   ///     may be specified using ``IntegerFormat/custom(_:)`` but may be ignored by the model.
   public static func integer(description: String? = nil, nullable: Bool = false,
-                             format: IntegerFormat? = nil) -> Schema {
+                             format: IntegerFormat? = nil,
+                             minimum: Int? = nil, maximum: Int? = nil) -> Schema {
     return self.init(
       type: .integer,
       format: format?.rawValue,
       description: description,
-      nullable: nullable
+      nullable: nullable.self,
+      minimum: minimum.map { Double($0) },
+      maximum: maximum.map { Double($0) }
     )
   }
 
@@ -317,7 +367,9 @@ public final class Schema: Sendable {
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an object;
   ///   defaults to `false`, enforcing that an object is returned.
   public static func object(properties: [String: Schema], optionalProperties: [String] = [],
-                            description: String? = nil, nullable: Bool = false) -> Schema {
+                            propertyOrdering: [String]? = nil,
+                            description: String? = nil, title: String? = nil,
+                            nullable: Bool = false) -> Schema {
     var requiredProperties = Set(properties.keys)
     for optionalProperty in optionalProperties {
       guard properties.keys.contains(optionalProperty) else {
@@ -329,9 +381,11 @@ public final class Schema: Sendable {
     return self.init(
       type: .object,
       description: description,
+      title: title,
       nullable: nullable,
       properties: properties,
-      requiredProperties: requiredProperties.sorted()
+      requiredProperties: requiredProperties.sorted(),
+      propertyOrdering: propertyOrdering
     )
   }
 }
@@ -344,12 +398,16 @@ extension Schema: Encodable {
     case dataType = "type"
     case format
     case description
+    case title
     case nullable
     case enumValues = "enum"
     case items
     case minItems
     case maxItems
+    case minimum
+    case maximum
     case properties
     case requiredProperties = "required"
+    case propertyOrdering
   }
 }
