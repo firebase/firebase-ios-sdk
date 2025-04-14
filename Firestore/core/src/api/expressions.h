@@ -36,18 +36,12 @@ class Expr {
   virtual google_firestore_v1_Value to_proto() const = 0;
 };
 
-class Selectable : public Expr {
- public:
-  virtual ~Selectable() = default;
-  virtual const std::string& alias() const = 0;
-};
-
-class Field : public Selectable {
+class Field : public Expr {
  public:
   explicit Field(std::string name) : name_(std::move(name)) {
   }
   google_firestore_v1_Value to_proto() const override;
-  const std::string& alias() const override {
+  const std::string& alias() const {
     return name_;
   }
 

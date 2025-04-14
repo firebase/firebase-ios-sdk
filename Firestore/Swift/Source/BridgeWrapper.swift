@@ -15,3 +15,7 @@
 protocol BridgeWrapper {
   var bridge: ExprBridge { get }
 }
+
+protocol AggregateBridgeWrapper {
+  var bridge: AggregateFunctionBridge { get }
+}

@@ -21,6 +21,8 @@
 #import "FIRDocumentSnapshot.h"
 
 @class FIRTimestamp;
+@class FIRVectorValue;
+@class FIRPipelineBridge;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,6 +47,18 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FunctionExprBridge)
 @interface FIRFunctionExprBridge : FIRExprBridge
 - (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(AggregateFunctionBridge)
+@interface FIRAggregateFunctionBridge : NSObject
+- (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(OrderingBridge)
+@interface FIROrderingBridge : NSObject
+- (id)initWithExpr:(FIRExprBridge *)expr Direction:(NSString *)direction;
 @end
 
 NS_SWIFT_SENDABLE
@@ -106,6 +120,87 @@ NS_SWIFT_NAME(OffsetStageBridge)
 
 - (id)initWithOffset:(NSInteger)value;
 
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(AddFieldsStageBridge)
+@interface FIRAddFieldsStageBridge : FIRStageBridge
+- (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RemoveFieldsStageBridge)
+@interface FIRRemoveFieldsStageBridge : FIRStageBridge
+- (id)initWithFields:(NSArray<NSString *> *)fields;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SelectStageBridge)
+@interface FIRSelectStageBridge : FIRStageBridge
+- (id)initWithSelections:(NSDictionary<NSString *, FIRExprBridge *> *)selections;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(DistinctStageBridge)
+@interface FIRDistinctStageBridge : FIRStageBridge
+- (id)initWithGroups:(NSDictionary<NSString *, FIRExprBridge *> *)groups;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(AggregateStageBridge)
+@interface FIRAggregateStageBridge : FIRStageBridge
+- (id)initWithAccumulators:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)accumulators
+                    groups:(NSDictionary<NSString *, FIRExprBridge *> *)groups;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(FindNearestStageBridge)
+@interface FIRFindNearestStageBridge : FIRStageBridge
+- (id)initWithField:(FIRFieldBridge *)field
+        vectorValue:(FIRVectorValue *)vectorValue
+    distanceMeasure:(NSString *)distanceMeasure
+              limit:(NSNumber *_Nullable)limit
+      distanceField:(NSString *_Nullable)distanceField;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SortStageBridge)
+@interface FIRSorStageBridge : FIRStageBridge
+- (id)initWithOrderings:(NSArray<id> *)orderings;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(ReplaceWithStageBridge)
+@interface FIRReplaceWithStageBridge : FIRStageBridge
+- (id)initWithExpr:(FIRExprBridge *)expr;
+- (id)initWithFieldName:(NSString *)fieldName;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SampleStageBridge)
+@interface FIRSampleStageBridge : FIRStageBridge
+- (id)initWithCount:(int64_t)count;
+- (id)initWithPercentage:(double)percentage;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(UnionStageBridge)
+@interface FIRUnionStageBridge : FIRStageBridge
+- (id)initWithOther:(FIRPipelineBridge *)other;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(UnnestStageBridge)
+@interface FIRUnnestStageBridge : FIRStageBridge
+- (id)initWithField:(FIRExprBridge *)field indexField:(NSString *_Nullable)indexField;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(GenericStageBridge)
+@interface FIRGenericStageBridge : FIRStageBridge
+- (id)initWithName:(NSString *)name
+            params:(NSArray<FIRExprBridge *> *)params
+           options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE

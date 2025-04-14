@@ -25,9 +25,11 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/aggregate_expressions.h"
+#include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/ordering.h"
 #include "Firestore/core/src/nanopb/message.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -89,7 +91,8 @@ class DocumentsSource : public Stage {
 
 class AddFields : public Stage {
  public:
-  explicit AddFields(std::vector<std::shared_ptr<Selectable>> fields)
+  explicit AddFields(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> fields)
       : fields_(std::move(fields)) {
   }
   ~AddFields() override = default;
@@ -97,21 +100,23 @@ class AddFields : public Stage {
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  std::vector<std::shared_ptr<Selectable>> fields_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
 };
 
 class AggregateStage : public Stage {
  public:
-  AggregateStage(std::unordered_map<std::string, std::shared_ptr<AggregateExpr>>
-                     accumulators,
-                 std::unordered_map<std::string, std::shared_ptr<Expr>> groups)
+  AggregateStage(
+      std::unordered_map<std::string, std::shared_ptr<AggregateFunction>>
+          accumulators,
+      std::unordered_map<std::string, std::shared_ptr<Expr>> groups)
       : accumulators_(std::move(accumulators)), groups_(std::move(groups)) {
   }
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  std::unordered_map<std::string, std::shared_ptr<AggregateExpr>> accumulators_;
+  std::unordered_map<std::string, std::shared_ptr<AggregateFunction>>
+      accumulators_;
   std::unordered_map<std::string, std::shared_ptr<Expr>> groups_;
 };
 
@@ -129,22 +134,10 @@ class Where : public Stage {
 
 class FindNearestStage : public Stage {
  public:
-  class DistanceMeasure {
-   public:
-    enum Measure { EUCLIDEAN, COSINE, DOT_PRODUCT };
-
-    explicit DistanceMeasure(Measure measure) : measure_(measure) {
-    }
-    google_firestore_v1_Value proto() const;
-
-   private:
-    Measure measure_;
-  };
-
   FindNearestStage(
       std::shared_ptr<Expr> property,
       nanopb::SharedMessage<google_firestore_v1_Value> vector,
-      DistanceMeasure distance_measure,
+      std::string distance_measure,
       std::unordered_map<std::string,
                          nanopb::SharedMessage<google_firestore_v1_Value>>
           options)
@@ -161,7 +154,7 @@ class FindNearestStage : public Stage {
  private:
   std::shared_ptr<Expr> property_;
   nanopb::SharedMessage<google_firestore_v1_Value> vector_;
-  DistanceMeasure distance_measure_;
+  std::string distance_measure_;
   std::unordered_map<std::string,
                      nanopb::SharedMessage<google_firestore_v1_Value>>
       options_;
@@ -193,7 +186,8 @@ class OffsetStage : public Stage {
 
 class SelectStage : public Stage {
  public:
-  explicit SelectStage(std::vector<std::shared_ptr<Selectable>> fields)
+  explicit SelectStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> fields)
       : fields_(std::move(fields)) {
   }
   ~SelectStage() override = default;
@@ -201,12 +195,12 @@ class SelectStage : public Stage {
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  std::vector<std::shared_ptr<Selectable>> fields_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
 };
 
 class SortStage : public Stage {
  public:
-  explicit SortStage(std::vector<Ordering> orders)
+  explicit SortStage(std::vector<std::shared_ptr<Ordering>> orders)
       : orders_(std::move(orders)) {
   }
   ~SortStage() override = default;
@@ -214,12 +208,13 @@ class SortStage : public Stage {
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  std::vector<Ordering> orders_;
+  std::vector<std::shared_ptr<Ordering>> orders_;
 };
 
 class DistinctStage : public Stage {
  public:
-  explicit DistinctStage(std::vector<std::shared_ptr<Selectable>> groups)
+  explicit DistinctStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> groups)
       : groups_(std::move(groups)) {
   }
   ~DistinctStage() override = default;
@@ -227,7 +222,7 @@ class DistinctStage : public Stage {
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  std::vector<std::shared_ptr<Selectable>> groups_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> groups_;
 };
 
 class RemoveFieldsStage : public Stage {
@@ -241,6 +236,81 @@ class RemoveFieldsStage : public Stage {
 
  private:
   std::vector<Field> fields_;
+};
+
+// TBD
+/**
+ * A stage that replaces the document with a new value.
+ */
+class ReplaceWith : public Stage {
+ public:
+  explicit ReplaceWith(std::shared_ptr<Expr> expr);
+  explicit ReplaceWith(std::string field_name);
+  ~ReplaceWith() override = default;
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+ private:
+  std::shared_ptr<Expr> expr_;
+  absl::optional<std::string> field_name_;
+};
+
+/**
+ * A stage that samples documents.
+ */
+class Sample : public Stage {
+ public:
+  Sample(std::string type, int64_t count, double percentage_);
+  ~Sample() override = default;
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+ private:
+  std::string type_;
+  int64_t count_;
+  double percentage_;
+};
+
+/**
+ * A stage that unions documents from another pipeline.
+ */
+class Union : public Stage {
+ public:
+  explicit Union(std::shared_ptr<Pipeline> other);
+  ~Union() override = default;
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+ private:
+  std::shared_ptr<Pipeline> other_;
+};
+
+/**
+ * A stage that unnests an array.
+ */
+class Unnest : public Stage {
+ public:
+  Unnest(std::shared_ptr<Expr> field, absl::optional<std::string> index_field);
+  ~Unnest() override = default;
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+ private:
+  std::shared_ptr<Expr> field_;
+  absl::optional<std::string> index_field_;
+};
+
+/**
+ * A stage that is a generic stage.
+ */
+class GenericStage : public Stage {
+ public:
+  GenericStage(std::string name,
+               std::vector<std::shared_ptr<Expr>> params,
+               std::unordered_map<std::string, std::shared_ptr<Expr>> options);
+  ~GenericStage() override = default;
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+ private:
+  std::string name_;
+  std::vector<std::shared_ptr<Expr>> params_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
 };
 
 }  // namespace api

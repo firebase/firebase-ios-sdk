@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/util/exception.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,14 +35,20 @@ class Ordering {
     DESCENDING,
   };
 
-  Ordering(Field field, Direction direction)
-      : field_(std::move(field)), direction_(direction) {
+  static Direction DirectionFromString(const std::string& str) {
+    if (str == "ascending") return ASCENDING;
+    if (str == "descending") return DESCENDING;
+    util::ThrowInvalidArgument("Unknown direction: '%s' ", str);
+  }
+
+  Ordering(std::shared_ptr<api::Expr> expr, Direction direction)
+      : expr_(expr), direction_(direction) {
   }
 
   google_firestore_v1_Value to_proto() const;
 
  private:
-  Field field_;
+  std::shared_ptr<api::Expr> expr_;
   Direction direction_;
 };
 

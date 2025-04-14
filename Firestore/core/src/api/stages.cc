@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
@@ -108,9 +109,9 @@ google_firestore_v1_Pipeline_Stage AddFields::to_proto() const {
   result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
   nanopb::SetRepeatedField(
       &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
-      fields_, [](const std::shared_ptr<Selectable>& entry) {
+      fields_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
         return _google_firestore_v1_MapValue_FieldsEntry{
-            nanopb::MakeBytesArray(entry->alias()), entry->to_proto()};
+            nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
       });
 
   result.options_count = 0;
@@ -130,7 +131,8 @@ google_firestore_v1_Pipeline_Stage AggregateStage::to_proto() const {
   nanopb::SetRepeatedField(
       &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
       this->accumulators_,
-      [](const std::pair<std::string, std::shared_ptr<AggregateExpr>>& entry) {
+      [](const std::pair<std::string, std::shared_ptr<AggregateFunction>>&
+             entry) {
         return _google_firestore_v1_MapValue_FieldsEntry{
             nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
       });
@@ -165,23 +167,6 @@ google_firestore_v1_Pipeline_Stage Where::to_proto() const {
   return result;
 }
 
-google_firestore_v1_Value FindNearestStage::DistanceMeasure::proto() const {
-  google_firestore_v1_Value result;
-  result.which_value_type = google_firestore_v1_Value_string_value_tag;
-  switch (measure_) {
-    case EUCLIDEAN:
-      result.string_value = nanopb::MakeBytesArray("euclidean");
-      break;
-    case COSINE:
-      result.string_value = nanopb::MakeBytesArray("cosine");
-      break;
-    case DOT_PRODUCT:
-      result.string_value = nanopb::MakeBytesArray("dot_product");
-      break;
-  }
-  return result;
-}
-
 google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("find_nearest");
@@ -190,7 +175,8 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(3);
   result.args[0] = property_->to_proto();
   result.args[1] = *vector_;
-  result.args[2] = distance_measure_.proto();
+  result.args[2].which_value_type = google_firestore_v1_Value_string_value_tag;
+  result.args[2].string_value = nanopb::MakeBytesArray(distance_measure_);
 
   nanopb::SetRepeatedField(
       &result.options, &result.options_count, options_,
@@ -242,9 +228,9 @@ google_firestore_v1_Pipeline_Stage SelectStage::to_proto() const {
   result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
   nanopb::SetRepeatedField(
       &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
-      fields_, [](const std::shared_ptr<Selectable>& entry) {
+      fields_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
         return _google_firestore_v1_MapValue_FieldsEntry{
-            nanopb::MakeBytesArray(entry->alias()), entry->to_proto()};
+            nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
       });
 
   result.options_count = 0;
@@ -260,7 +246,7 @@ google_firestore_v1_Pipeline_Stage SortStage::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
 
   for (size_t i = 0; i < orders_.size(); ++i) {
-    result.args[i] = orders_[i].to_proto();
+    result.args[i] = orders_[i]->to_proto();
   }
 
   result.options_count = 0;
@@ -278,9 +264,9 @@ google_firestore_v1_Pipeline_Stage DistinctStage::to_proto() const {
   result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
   nanopb::SetRepeatedField(
       &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
-      groups_, [](const std::shared_ptr<Selectable>& entry) {
+      groups_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
         return _google_firestore_v1_MapValue_FieldsEntry{
-            nanopb::MakeBytesArray(entry->alias()), entry->to_proto()};
+            nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
       });
 
   result.options_count = 0;
@@ -301,6 +287,135 @@ google_firestore_v1_Pipeline_Stage RemoveFieldsStage::to_proto() const {
 
   result.options_count = 0;
   result.options = nullptr;
+  return result;
+}
+
+// TBD
+
+google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray("replace_with");
+
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  if (expr_) {
+    result.args[0] = expr_->to_proto();
+  } else {
+    result.args[0].which_value_type =
+        google_firestore_v1_Value_string_value_tag;
+    result.args[0].string_value = nanopb::MakeBytesArray(field_name_.value());
+  }
+
+  result.options_count = 0;
+  result.options = nullptr;
+  return result;
+}
+
+ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr)
+    : expr_(std::move(expr)), field_name_(absl::nullopt) {
+}
+ReplaceWith::ReplaceWith(std::string field_name)
+    : expr_(nullptr), field_name_(std::move(field_name)) {
+}
+
+Sample::Sample(std::string type, int64_t count, double percentage_)
+    : type_(type), count_(count), percentage_(percentage_) {
+}
+
+google_firestore_v1_Pipeline_Stage Sample::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray("sample");
+
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  if (type_ == "count") {
+    result.args[0].which_value_type =
+        google_firestore_v1_Value_integer_value_tag;
+    result.args[0].integer_value = count_;
+  } else {
+    result.args[0].which_value_type =
+        google_firestore_v1_Value_double_value_tag;
+    result.args[0].double_value = percentage_;
+  }
+
+  result.options_count = 0;
+  result.options = nullptr;
+  return result;
+}
+
+Union::Union(std::shared_ptr<Pipeline> other) : other_(std::move(other)) {
+}
+
+google_firestore_v1_Pipeline_Stage Union::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray("union");
+
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args[0] = other_->to_proto();
+
+  result.options_count = 0;
+  result.options = nullptr;
+  return result;
+}
+
+Unnest::Unnest(std::shared_ptr<Expr> field,
+               absl::optional<std::string> index_field)
+    : field_(std::move(field)), index_field_(std::move(index_field)) {
+}
+
+google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray("unnest");
+
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args[0] = field_->to_proto();
+
+  if (index_field_.has_value()) {
+    result.options_count = 1;
+    result.options =
+        nanopb::MakeArray<google_firestore_v1_Pipeline_Stage_OptionsEntry>(1);
+    result.options[0].key = nanopb::MakeBytesArray("index_field");
+    result.options[0].value.which_value_type =
+        google_firestore_v1_Value_string_value_tag;
+    result.options[0].value.string_value =
+        nanopb::MakeBytesArray(index_field_.value());
+  } else {
+    result.options_count = 0;
+    result.options = nullptr;
+  }
+
+  return result;
+}
+
+GenericStage::GenericStage(
+    std::string name,
+    std::vector<std::shared_ptr<Expr>> params,
+    std::unordered_map<std::string, std::shared_ptr<Expr>> options)
+    : name_(std::move(name)),
+      params_(std::move(params)),
+      options_(std::move(options)) {
+}
+
+google_firestore_v1_Pipeline_Stage GenericStage::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray(name_);
+
+  result.args_count = static_cast<pb_size_t>(params_.size());
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
+
+  for (size_t i = 0; i < result.args_count; i++) {
+    result.args[i] = params_[i]->to_proto();
+  }
+
+  nanopb::SetRepeatedField(
+      &result.options, &result.options_count, options_,
+      [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+        return _google_firestore_v1_Pipeline_Stage_OptionsEntry{
+            nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
+      });
+
   return result;
 }
 

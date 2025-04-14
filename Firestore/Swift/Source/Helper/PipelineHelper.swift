@@ -13,38 +13,52 @@
 // limitations under the License.
 
 enum Helper {
-  static func valueToDefaultExpr(_ value: Any) -> any Expr {
+  static func sendableToExpr(_ value: Sendable) -> Expr {
     if value is Expr {
       return value as! Expr
-    } else if value is [String: Any] {
-      return map(value as! [String: Any])
-    } else if value is [Any] {
-      return array(value as! [Any])
+    } else if value is [String: Sendable] {
+      return map(value as! [String: Sendable])
+    } else if value is [Sendable] {
+      return array(value as! [Sendable])
     } else {
       return Constant(value)
     }
   }
 
-  static func vectorToExpr(_ value: VectorValue) -> any Expr {
+  static func selectablesToMap(selectables: [Any]) -> [String: Expr] {
+    var result = [String: Expr]()
+    for selectable in selectables {
+      if let stringSelectable = selectable as? String {
+        result[stringSelectable] = Field(stringSelectable)
+      } else if let fieldSelectable = selectable as? Field {
+        result[fieldSelectable.alias] = fieldSelectable.expr
+      } else if let exprAliasSelectable = selectable as? ExprWithAlias {
+        result[exprAliasSelectable.alias] = exprAliasSelectable.expr
+      }
+    }
+    return result
+  }
+
+  static func vectorToExpr(_ value: VectorValue) -> Expr {
     return Field("PLACEHOLDER")
   }
 
-  static func timeUnitToExpr(_ value: TimeUnit) -> any Expr {
+  static func timeUnitToExpr(_ value: TimeUnit) -> Expr {
     return Field("PLACEHOLDER")
   }
 
-  static func map(_ elements: [String: Any]) -> FunctionExpr {
+  static func map(_ elements: [String: Sendable]) -> FunctionExpr {
     var result: [Expr] = []
     for (key, value) in elements {
       result.append(Constant(key))
-      result.append(valueToDefaultExpr(value))
+      result.append(sendableToExpr(value))
     }
     return FunctionExpr("map", result)
   }
 
-  static func array(_ elements: [Any]) -> FunctionExpr {
+  static func array(_ elements: [Sendable]) -> FunctionExpr {
     let transformedElements = elements.map { element in
-      valueToDefaultExpr(element)
+      sendableToExpr(element)
     }
     return FunctionExpr("array", transformedElements)
   }

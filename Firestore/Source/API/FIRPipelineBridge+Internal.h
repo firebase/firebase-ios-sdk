@@ -35,6 +35,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface FIROrderingBridge (Internal)
+
+- (std::shared_ptr<api::Ordering>)cppOrderingWithReader:(FSTUserDataReader *)reader;
+
+@end
+
 @interface FIRStageBridge (Internal)
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader;
@@ -50,6 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface __FIRPipelineResultBridge (Internal)
 
 - (id)initWithCppResult:(api::PipelineResult)result db:(std::shared_ptr<api::Firestore>)db;
+
+@end
+
+@interface FIRPipelineBridge (Internal)
+
+- (std::shared_ptr<api::Pipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader;
 
 @end
 

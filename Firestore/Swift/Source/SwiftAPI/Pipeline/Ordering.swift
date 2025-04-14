@@ -17,15 +17,18 @@
 public class Ordering: @unchecked Sendable {
   let expr: Expr
   let direction: Direction
+  var bridge: OrderingBridge
 
   init(expr: Expr, direction: Direction) {
     self.expr = expr
     self.direction = direction
+    bridge = OrderingBridge(expr: expr.exprToExprBridge(), direction: direction.rawValue)
   }
 }
 
 public struct Direction: Sendable, Equatable, Hashable {
   let kind: Kind
+  let rawValue: String
 
   enum Kind: String {
     case ascending
@@ -33,14 +36,15 @@ public struct Direction: Sendable, Equatable, Hashable {
   }
 
   public static var ascending: Direction {
-    return self.init(kind: .ascending)
+    return self.init(kind: .ascending, rawValue: "ascending")
   }
 
   public static var descending: Direction {
-    return self.init(kind: .descending)
+    return self.init(kind: .descending, rawValue: "descending")
   }
 
-  init(kind: Kind) {
+  init(kind: Kind, rawValue: String) {
     self.kind = kind
+    self.rawValue = rawValue
   }
 }

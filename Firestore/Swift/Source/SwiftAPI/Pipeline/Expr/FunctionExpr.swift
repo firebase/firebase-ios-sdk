@@ -23,7 +23,7 @@ public class FunctionExpr: Expr, BridgeWrapper, @unchecked Sendable {
     self.agrs = agrs
     bridge = FunctionExprBridge(
       name: functionName,
-      args: self.agrs.map { ($0 as! (Expr & BridgeWrapper)).bridge
+      args: self.agrs.map { ($0 as! BridgeWrapper).bridge
       }
     )
   }

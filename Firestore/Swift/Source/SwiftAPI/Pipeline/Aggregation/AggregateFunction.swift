@@ -12,13 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class AggregateFunction: @unchecked Sendable {
+public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
+  var bridge: AggregateFunctionBridge
+
   let functionName: String
   let agrs: [Expr]
 
   public init(_ functionName: String, _ agrs: [Expr]) {
     self.functionName = functionName
     self.agrs = agrs
+    bridge = AggregateFunctionBridge(
+      name: functionName,
+      args: self.agrs.map { ($0 as! BridgeWrapper).bridge
+      }
+    )
   }
 
   public func `as`(_ name: String) -> AggregateWithAlias {

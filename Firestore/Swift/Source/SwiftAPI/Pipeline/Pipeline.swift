@@ -22,7 +22,7 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct Pipeline: @unchecked Sendable {
   private var stages: [Stage]
-  private var bridge: PipelineBridge
+  var bridge: PipelineBridge
   let db: Firestore
 
   init(stages: [Stage], db: Firestore) {
@@ -57,21 +57,28 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter fields: The fields to add to the documents, specified as `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func addFields(_ field: Selectable, _ additionalFields: Selectable...) -> Pipeline {
-    return self
+    let fields = [field] + additionalFields
+    return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
   }
 
   /// Remove fields from outputs of previous stages.
   /// - Parameter fields: The fields to remove.
   /// - Returns: A new Pipeline object with this stage appended to the stage list.
   public func removeFields(_ field: Field, _ additionalFields: Field...) -> Pipeline {
-    return self
+    return Pipeline(
+      stages: stages + [RemoveFieldsStage(fields: [field] + additionalFields)],
+      db: db
+    )
   }
 
   /// Remove fields from outputs of previous stages.
   /// - Parameter fields: The fields to remove.
   /// - Returns: A new Pipeline object with this stage appended to the stage list.
   public func removeFields(_ field: String, _ additionalFields: String...) -> Pipeline {
-    return self
+    return Pipeline(
+      stages: stages + [RemoveFieldsStage(fields: [field] + additionalFields)],
+      db: db
+    )
   }
 
   /// Selects or creates a set of fields from the outputs of previous stages.
@@ -89,8 +96,11 @@ public struct Pipeline: @unchecked Sendable {
   /// `Selectable` expressions.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func select(_ selection: Selectable, _ additionalSelections: Selectable...) -> Pipeline {
-    // Implementation
-    return self
+    let selections = [selection] + additionalSelections
+    return Pipeline(
+      stages: stages + [Select(selections: selections + additionalSelections)],
+      db: db
+    )
   }
 
   /// Selects or creates a set of fields from the outputs of previous stages.
@@ -107,8 +117,11 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selections: `String` values representing field names.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func select(_ selection: String, _ additionalSelections: String...) -> Pipeline {
-    // Implementation
-    return self
+    let selections = [selection] + additionalSelections
+    return Pipeline(
+      stages: stages + [Select(selections: selections + additionalSelections)],
+      db: db
+    )
   }
 
   /// Filters the documents from previous stages to only include those matching the specified
@@ -175,7 +188,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selections: The fields to include in the output documents, specified as
   ///  `String` values representing field names.
   public func distinct(_ group: String, _ additionalGroups: String...) -> Pipeline {
-    return self
+    let groups = [group] + additionalGroups
+    return Pipeline(stages: stages + [Distinct(groups: groups + additionalGroups)], db: db)
   }
 
   /// Returns a set of distinct `Expr` values from the inputs to this stage.
@@ -193,7 +207,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selections: The fields to include in the output documents, specified as
   /// `Selectable` expressions.
   public func distinct(_ group: Selectable, _ additionalGroups: Selectable...) -> Pipeline {
-    return self
+    let groups = [group] + additionalGroups
+    return Pipeline(stages: stages + [Distinct(groups: groups + additionalGroups)], db: db)
   }
 
   /// Performs aggregation operations on the documents from previous stages.
@@ -207,7 +222,13 @@ public struct Pipeline: @unchecked Sendable {
   ///   `Accumulator` and assigning a name to the accumulated results.
   public func aggregate(_ accumulator: AggregateWithAlias,
                         _ additionalAccumulators: AggregateWithAlias...) -> Pipeline {
-    return self
+    return Pipeline(
+      stages: stages + [Aggregate(
+        accumulators: [accumulator] + additionalAccumulators,
+        groups: nil
+      )],
+      db: db
+    )
   }
 
   /// Performs optionally grouped aggregation operations on the documents from previous stages.
@@ -231,7 +252,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func aggregate(_ accumulator: [AggregateWithAlias],
                         groups: [Selectable]? = nil) -> Pipeline {
-    return self
+    return Pipeline(stages: stages + [Aggregate(accumulators: accumulator, groups: groups)], db: db)
   }
 
   /// Performs optionally grouped aggregation operations on the documents from previous stages.
@@ -255,7 +276,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func aggregate(_ accumulator: [AggregateWithAlias],
                         groups: [String]? = nil) -> Pipeline {
-    return self
+    return Pipeline(stages: stages + [Aggregate(accumulators: accumulator, groups: groups)], db: db)
   }
 
   /// Performs a vector similarity search, ordering the result set by most similar to least
@@ -265,7 +286,18 @@ public struct Pipeline: @unchecked Sendable {
                           distanceMeasure: DistanceMeasure,
                           limit: Int? = nil,
                           distanceField: String? = nil) -> Pipeline {
-    return self
+    return Pipeline(
+      stages: stages + [
+        FindNearest(
+          field: field,
+          vectorValue: vectorValue,
+          distanceMeasure: distanceMeasure,
+          limit: limit,
+          distanceField: distanceField
+        ),
+      ],
+      db: db
+    )
   }
 
   /// Sorts the documents from previous stages based on one or more `Ordering` criteria.
@@ -279,8 +311,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter orderings: One or more `Ordering` instances specifying the sorting criteria.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func sort(_ ordering: Ordering, _ additionalOrdering: Ordering...) -> Pipeline {
-    // Implementation
-    return self
+    let orderings = [ordering] + additionalOrdering
+    return Pipeline(stages: stages + [Sort(orderings: orderings)], db: db)
   }
 
   /// Fully overwrites all fields in a document with those coming from a nested map.
@@ -291,8 +323,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter field: The `Expr` field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func replace(with expr: Expr) -> Pipeline {
-    // Implementation
-    return self
+    return Pipeline(stages: stages + [ReplaceWith(expr: expr)], db: db)
   }
 
   /// Fully overwrites all fields in a document with those coming from a nested map.
@@ -303,8 +334,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter fieldName: The field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func replace(with fieldName: String) -> Pipeline {
-    // Implementation
-    return self
+    return Pipeline(stages: stages + [ReplaceWith(fieldName: fieldName)], db: db)
   }
 
   /// Performs a pseudo-random sampling of the input documents.
@@ -315,8 +345,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter count: The number of documents to sample.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func sample(count: Int64) -> Pipeline {
-    // Implementation
-    return self
+    return Pipeline(stages: stages + [Sample(count: count)], db: db)
   }
 
   /// Performs a pseudo-random sampling of the input documents.
@@ -327,8 +356,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter percentage: The percentage of documents to sample.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func sample(percentage: Double) -> Pipeline {
-    // Implementation
-    return self
+    return Pipeline(stages: stages + [Sample(percentage: percentage)], db: db)
   }
 
   /// Performs union of all documents from two pipelines, including duplicates.
@@ -340,8 +368,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter other: The other `Pipeline` that is part of union.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func union(_ other: Pipeline) -> Pipeline {
-    // Implementation
-    return self
+    return Pipeline(stages: stages + [Union(other: other)], db: db)
   }
 
   /// Takes an array field from the input documents and outputs a document for each element
@@ -360,8 +387,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter indexField: Optional.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func unnest(_ field: Selectable, indexField: String? = nil) -> Pipeline {
-    // Implementation
-    return self
+    return Pipeline(stages: stages + [Unnest(field: field, indexField: indexField)], db: db)
   }
 
   /// Adds a stage to the pipeline by specifying the stage name as an argument. This does
@@ -375,8 +401,11 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter params: A list of ordered parameters to configure the stage's behavior.
   /// - Parameter options: A list of optional, named parameters to configure the stage's behavior.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
-  public func genericStage(name: String, params: [Any], options: [String: Any]? = nil) -> Pipeline {
-    // Implementation
-    return self
+  public func genericStage(name: String, params: [Sendable],
+                           options: [String: Sendable]? = nil) -> Pipeline {
+    return Pipeline(
+      stages: stages + [GenericStage(name: name, params: params, options: options)],
+      db: db
+    )
   }
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct ExprWithAlias: Selectable, Sendable {
+public struct ExprWithAlias: Selectable, SelectableInternal, Sendable {
   public var alias: String
 
   public var expr: Expr
