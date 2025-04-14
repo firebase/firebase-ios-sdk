@@ -136,9 +136,147 @@ class CoreConstant : public EvaluableExpr {
   std::unique_ptr<api::Expr> expr_;
 };
 
-class CoreEq : public EvaluableExpr {
+/** Base class for binary comparison expressions (==, !=, <, <=, >, >=). */
+class ComparisonBase : public EvaluableExpr {
  public:
-  explicit CoreEq(const api::FunctionExpr& expr)
+  explicit ComparisonBase(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  /**
+   * Performs the specific comparison logic after operands have been evaluated
+   * and basic checks (Error, Unset, Null) have passed.
+   */
+  virtual EvaluateResult CompareToResult(const EvaluateResult& left,
+                                         const EvaluateResult& right) const = 0;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreEq : public ComparisonBase {
+ public:
+  explicit CoreEq(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  }
+
+ protected:
+  EvaluateResult CompareToResult(const EvaluateResult& left,
+                                 const EvaluateResult& right) const override;
+};
+
+class CoreNeq : public ComparisonBase {
+ public:
+  explicit CoreNeq(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  }
+
+ protected:
+  EvaluateResult CompareToResult(const EvaluateResult& left,
+                                 const EvaluateResult& right) const override;
+};
+
+class CoreLt : public ComparisonBase {
+ public:
+  explicit CoreLt(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  }
+
+ protected:
+  EvaluateResult CompareToResult(const EvaluateResult& left,
+                                 const EvaluateResult& right) const override;
+};
+
+class CoreLte : public ComparisonBase {
+ public:
+  explicit CoreLte(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  }
+
+ protected:
+  EvaluateResult CompareToResult(const EvaluateResult& left,
+                                 const EvaluateResult& right) const override;
+};
+
+class CoreGt : public ComparisonBase {
+ public:
+  explicit CoreGt(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  }
+
+ protected:
+  EvaluateResult CompareToResult(const EvaluateResult& left,
+                                 const EvaluateResult& right) const override;
+};
+
+class CoreGte : public ComparisonBase {
+ public:
+  explicit CoreGte(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  }
+
+ protected:
+  EvaluateResult CompareToResult(const EvaluateResult& left,
+                                 const EvaluateResult& right) const override;
+};
+
+class CoreAdd : public EvaluableExpr {
+ public:
+  explicit CoreAdd(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreSubtract : public EvaluableExpr {
+ public:
+  explicit CoreSubtract(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreMultiply : public EvaluableExpr {
+ public:
+  explicit CoreMultiply(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreDivide : public EvaluableExpr {
+ public:
+  explicit CoreDivide(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreMod : public EvaluableExpr {
+ public:
+  explicit CoreMod(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
 
