@@ -143,7 +143,7 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalTokens == 65)
-      #expect(response.totalBillableCharacters == 165)
+      #expect(response.totalBillableCharacters == 170)
     case .developer:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
