@@ -106,6 +106,14 @@ public final class Schema: Sendable {
   /// property's type and constraints.
   public let properties: [String: Schema]?
 
+  /// An array of `Schema` objects. The generated data must be valid against *any* (one or more)
+  /// of the schemas listed in this array. This allows specifying multiple possible structures or
+  /// types for a single field.
+  ///
+  /// For example, a value could be either a `String` or an `Integer`:
+  /// ```
+  /// Schema.anyOf(schemas: [.string(), .integer()])
+  /// ```
   public let anyOf: [Schema]?
 
   /// An array of strings, where each string is the name of a property defined in the `properties`
@@ -392,7 +400,36 @@ public final class Schema: Sendable {
     )
   }
 
+  /// Returns a `Schema` representing a value that must conform to *any* (one or more) of the
+  /// provided sub-schemas.
+  ///
+  /// This schema instructs the model to produce data that is valid against at least one of the
+  /// schemas listed in the `schemas` array. This is useful when a field can accept multiple
+  /// distinct types or structures.
+  ///
+  /// **Example:** A field that can hold either a simple user ID (integer) or a detailed user
+  /// object.
+  /// ```
+  /// Schema.anyOf(schemas: [
+  ///   .integer(description: "User ID"),
+  ///   .object(properties: [
+  ///     "userId": .integer(),
+  ///     "userName": .string()
+  ///   ], description: "Detailed User Object")
+  /// ])
+  /// ```
+  /// The generated data could be decoded based on which schema it matches.
+  ///
+  /// - Parameter schemas: An array of `Schema` objects. The generated data must be valid against
+  ///   at least one of these schemas. The array must not be empty.
+  /// - Returns: A `Schema` configured with the `anyOf` constraint.
   public static func anyOf(schemas: [Schema]) -> Schema {
+    guard !schemas.isEmpty else {
+      fatalError("The `anyOf` schemas array cannot be empty.")
+    }
+    // Note: The 'type' for an 'anyOf' schema is implicitly defined by the presence of the
+    // 'anyOf' keyword and doesn't have a specific explicit type like "OBJECT" or "STRING".
+    // We use a placeholder internal type `.anyOf` which is filtered out during encoding.
     return self.init(type: .anyOf, anyOf: schemas)
   }
 }
@@ -421,10 +458,13 @@ extension Schema: Encodable {
 
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
+    // Only encode the 'type' key if it's *not* an 'anyOf' schema.
+    // The presence of the 'anyOf' key implies the type constraint.
     switch dataType {
     case .anyOf:
-      break
+      break // Do not encode 'type' for 'anyOf'.
     default:
+      // Encode 'type' for all other standard schema types.
       try container.encode(dataType, forKey: .dataType)
     }
     try container.encodeIfPresent(format, forKey: .format)
@@ -440,6 +480,6 @@ extension Schema: Encodable {
     try container.encodeIfPresent(anyOf, forKey: .anyOf)
     try container.encodeIfPresent(properties, forKey: .properties)
     try container.encodeIfPresent(requiredProperties, forKey: .requiredProperties)
-    try container.encodeIfPresent(propertyOrdering, forKey: .requiredProperties)
+    try container.encodeIfPresent(propertyOrdering, forKey: .propertyOrdering)
   }
 }
