@@ -151,25 +151,9 @@ function CheckUnexpectedFailures() {
   fi
 }
 
-# TODO(ncooke3): Xcode 16 – remove -lt 15 after migration
-if [[ "$xcode_major" -lt 15 ]]; then
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 14'
-  )
-  watchos_flags=(
-    -sdk 'watchsimulator'
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
-  )
-elif [[ "$xcode_major" -lt 16 ]]; then
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 15'
-  )
-  watchos_flags=(
-    -sdk 'watchsimulator'
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
-  )
+if [[ "$xcode_major" -lt 16 ]]; then
+  echo "Unsupported Xcode major version being used: $xcode_major"
+  exit 1
 else
   ios_flags=(
     -sdk 'iphonesimulator'
