@@ -138,14 +138,10 @@ public final class Schema: Sendable {
     self.maxItems = maxItems
     self.minimum = minimum
     self.maximum = maximum
-    self.properties = properties
     self.anyOf = anyOf
+    self.properties = properties
     self.requiredProperties = requiredProperties
     self.propertyOrdering = propertyOrdering
-  }
-
-  public static func anyOf(schemas: [Schema]) -> Schema {
-    return self.init(type: .anyOf, anyOf: schemas)
   }
 
   /// Returns a `Schema` representing a string value.
@@ -395,6 +391,10 @@ public final class Schema: Sendable {
       propertyOrdering: propertyOrdering
     )
   }
+
+  public static func anyOf(schemas: [Schema]) -> Schema {
+    return self.init(type: .anyOf, anyOf: schemas)
+  }
 }
 
 // MARK: - Codable Conformance
@@ -413,8 +413,8 @@ extension Schema: Encodable {
     case maxItems
     case minimum
     case maximum
-    case properties
     case anyOf
+    case properties
     case requiredProperties = "required"
     case propertyOrdering
   }
@@ -429,13 +429,17 @@ extension Schema: Encodable {
     }
     try container.encodeIfPresent(format, forKey: .format)
     try container.encodeIfPresent(description, forKey: .description)
+    try container.encodeIfPresent(title, forKey: .title)
     try container.encodeIfPresent(nullable, forKey: .nullable)
     try container.encodeIfPresent(enumValues, forKey: .enumValues)
     try container.encodeIfPresent(items, forKey: .items)
     try container.encodeIfPresent(minItems, forKey: .minItems)
     try container.encodeIfPresent(maxItems, forKey: .maxItems)
-    try container.encodeIfPresent(properties, forKey: .properties)
+    try container.encodeIfPresent(minimum, forKey: .minimum)
+    try container.encodeIfPresent(maximum, forKey: .maximum)
     try container.encodeIfPresent(anyOf, forKey: .anyOf)
+    try container.encodeIfPresent(properties, forKey: .properties)
     try container.encodeIfPresent(requiredProperties, forKey: .requiredProperties)
+    try container.encodeIfPresent(propertyOrdering, forKey: .requiredProperties)
   }
 }
