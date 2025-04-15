@@ -192,6 +192,27 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
   func generateContentAnyOfSchema(_ config: InstanceConfig) async throws {
+    struct MailingAddress: Decodable {
+      let streetAddress: String
+      let city: String
+
+      // Canadian-specific
+      let province: String?
+      let postalCode: String?
+
+      // U.S.-specific
+      let state: String?
+      let zipCode: String?
+
+      var isCanadian: Bool {
+        return province != nil && postalCode != nil && state == nil && zipCode == nil
+      }
+
+      var isAmerican: Bool {
+        return province == nil && postalCode == nil && state != nil && zipCode != nil
+      }
+    }
+
     let streetSchema = Schema.string(description:
       "The civic number and street name, for example, '123 Main Street'.")
     let citySchema = Schema.string(description: "The name of the city.")
@@ -229,12 +250,28 @@ struct GenerateContentIntegrationTests {
       safetySettings: safetySettings
     )
     let prompt = """
-    What are the mailing addresses for the University of Waterloo, UC Berkeley and UBC?
+    What are the mailing addresses for the University of Waterloo, UC Berkeley and Queen's U?
     """
     let response = try await model.generateContent(prompt)
-    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    // TODO: Test that the JSON can be decoded.
-    print("JSON: \(text)")
+    let text = try #require(response.text)
+    let jsonData = try #require(text.data(using: .utf8))
+    let decodedAddresses = try JSONDecoder().decode([MailingAddress].self, from: jsonData)
+    try #require(decodedAddresses.count == 3, "Expected 3 JSON addresses, got \(text).")
+    let waterlooAddress = decodedAddresses[0]
+    #expect(
+      waterlooAddress.isCanadian,
+      "Expected Canadian University of Waterloo address, got \(waterlooAddress)."
+    )
+    let berkeleyAddress = decodedAddresses[1]
+    #expect(
+      berkeleyAddress.isAmerican,
+      "Expected American UC Berkeley address, got \(berkeleyAddress)."
+    )
+    let queensAddress = decodedAddresses[2]
+    #expect(
+      queensAddress.isCanadian,
+      "Expected Canadian Queen's University address, got \(queensAddress)."
+    )
   }
 
   // MARK: Streaming Tests
