@@ -246,7 +246,10 @@ def export_log(xcresult_path, log_id):
     The logged output, as a string.
   """
   # Note: --legacy is required for Xcode 16.
-  contents = xcresulttool_json('get', '--path', xcresult_path, '--id', log_id, '--legacy')
+  contents = xcresulttool_json(
+    'get', '--path', xcresult_path, '--id', log_id, '--legacy'
+  )
+
 
   result = []
   collect_log_output(contents, result)
