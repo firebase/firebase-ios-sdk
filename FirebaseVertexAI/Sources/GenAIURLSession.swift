@@ -15,7 +15,7 @@
 import Foundation
 
 /// A namespace providing `URLSession` instances.
-enum GenAIURLSession {
+enum FirebaseAIURLSession {
   /// The default `URLSession` instance for the SDK; returns `URLSession.shared` by default.
   ///
   /// - Important: On affected simulators (iOS 18.4+, visionOS 2.4+), this returns an ephemeral

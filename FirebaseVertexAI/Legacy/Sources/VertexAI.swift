@@ -102,9 +102,9 @@ public class VertexAI: VertexAIProtocol {
 
   // MARK: - Private
 
-  let genAI: GenAI
+  let genAI: FirebaseAI
 
   private init(app: FirebaseApp?, location: String) {
-    genAI = GenAI.vertexAI(app: app, location: location)
+    genAI = FirebaseAI.vertexAI(app: app, location: location)
   }
 }

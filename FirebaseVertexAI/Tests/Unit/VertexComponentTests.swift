@@ -135,12 +135,12 @@ class VertexComponentTests: XCTestCase {
   }
 
   func testSameAppAndDifferentAPI_newInstanceCreated() throws {
-    let vertex1 = GenAI.cachedInstance(
+    let vertex1 = FirebaseAI.cachedInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
     )
-    let vertex2 = GenAI.cachedInstance(
+    let vertex2 = FirebaseAI.cachedInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
@@ -153,7 +153,7 @@ class VertexComponentTests: XCTestCase {
   /// Test that vertex instances get deallocated.
   func testVertexLifecycle() throws {
     weak var weakApp: FirebaseApp?
-    weak var weakVertex: GenAI?
+    weak var weakVertex: FirebaseAI?
     try autoreleasepool {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
@@ -161,10 +161,10 @@ class VertexComponentTests: XCTestCase {
       options.apiKey = VertexComponentTests.apiKey
       let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
       weakApp = try XCTUnwrap(app1)
-      let vertex = GenAI(
+      let vertex = FirebaseAI(
         app: app1,
         location: "transitory location",
-        apiConfig: GenAI.defaultVertexAIAPIConfig
+        apiConfig: FirebaseAI.defaultVertexAIAPIConfig
       )
       weakVertex = vertex
       XCTAssertNotNil(weakVertex)
@@ -191,7 +191,7 @@ class VertexComponentTests: XCTestCase {
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
-    let vertex = GenAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = FirebaseAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
 
     let modelResourceName = vertex.modelResourceName(modelName: model)
@@ -205,7 +205,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = GenAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = FirebaseAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -227,7 +227,7 @@ class VertexComponentTests: XCTestCase {
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
     XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
-    XCTAssertEqual(generativeModel.apiConfig, GenAI.defaultVertexAIAPIConfig)
+    XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultVertexAIAPIConfig)
   }
 
   func testGenerativeModel_developerAPI() async throws {
@@ -236,7 +236,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = GenAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = FirebaseAI.cachedInstance(app: app, location: nil, apiConfig: apiConfig)
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 

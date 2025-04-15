@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // This package-internal protocol ensures that the methods `generativeModel(...)` and
-// `imagenModel(...)` do no diverge between the `VertexAI` and `GenAI` implementations.
+// `imagenModel(...)` do no diverge between the `VertexAI` and `FirebaseAI` implementations.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 package protocol VertexAIProtocol {
   func generativeModel(modelName: String, generationConfig: GenerationConfig?,

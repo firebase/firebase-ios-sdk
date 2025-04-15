@@ -20,9 +20,9 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
-/// The Firebase GenAI SDK provides access to Gemini models directly from your app.
+/// The Firebase AI SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public final class GenAI: VertexAIProtocol, Sendable {
+public final class FirebaseAI: VertexAIProtocol, Sendable {
   // MARK: - Public APIs
 
   /// Creates an instance of `VertexAI`.
@@ -36,7 +36,7 @@ public final class GenAI: VertexAIProtocol, Sendable {
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
-                              location: String = "us-central1") -> GenAI {
+                              location: String = "us-central1") -> FirebaseAI {
     let vertexInstance = cachedInstance(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
     // Verify that the `VertexAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
@@ -143,7 +143,7 @@ public final class GenAI: VertexAIProtocol, Sendable {
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
-    private nonisolated(unsafe) static var instances: [InstanceKey: GenAI] = [:]
+    private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
 
     /// Lock to manage access to the `instances` array to avoid race conditions.
     private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
@@ -163,7 +163,7 @@ public final class GenAI: VertexAIProtocol, Sendable {
     version: .v1beta
   )
 
-  static func cachedInstance(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> GenAI {
+  static func cachedInstance(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -177,7 +177,7 @@ public final class GenAI: VertexAIProtocol, Sendable {
     if let instance = instances[instanceKey] {
       return instance
     }
-    let newInstance = GenAI(app: app, location: location, apiConfig: apiConfig)
+    let newInstance = FirebaseAI(app: app, location: location, apiConfig: apiConfig)
     instances[instanceKey] = newInstance
     return newInstance
   }

@@ -184,7 +184,7 @@ final class VertexAIAPITests: XCTestCase {
 
   /*
    let pngData = Data() // ....
-   let contents = [GenAIContent(role: "user",
+   let contents = [FirebaseAIContent(role: "user",
                                 parts: [
                                  .text("Is it a cat?"),
                                  .png(pngData)
@@ -192,14 +192,14 @@ final class VertexAIAPITests: XCTestCase {
 
    // Turns into...
 
-   let contents = GenAIContent {
+   let contents = FirebaseAIContent {
      Role("user") {
        Text("Is this a cat?")
        Image(png: pngData)
      }
    }
 
-   GenAIContent {
+   FirebaseAIContent {
      ForEach(myInput) { input in
        Role(input.role) {
          input.contents
