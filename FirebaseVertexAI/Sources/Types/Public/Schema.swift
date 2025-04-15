@@ -289,6 +289,10 @@ public final class Schema: Sendable {
   ///   - format: An optional modifier describing the expected format of the integer. Currently the
   ///     formats ``IntegerFormat/int32`` and ``IntegerFormat/int64`` are supported; custom values
   ///     may be specified using ``IntegerFormat/custom(_:)`` but may be ignored by the model.
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
   public static func integer(description: String? = nil, nullable: Bool = false,
                              format: IntegerFormat? = nil,
                              minimum: Int? = nil, maximum: Int? = nil) -> Schema {
@@ -373,8 +377,11 @@ public final class Schema: Sendable {
   ///   - optionalProperties: A list of property names that may be be omitted in objects generated
   ///   by the model; these names must correspond to the keys provided in the `properties`
   ///   dictionary and may be an empty list.
+  ///   - propertyOrdering: An optional hint to the model suggesting the order for keys in the
+  ///   generated JSON string. See ``propertyOrdering`` for details.
   ///   - description: An optional description of what the object should contain or represent; may
   ///   use Markdown format.
+  ///   - title: An optional human-readable name/summary for the object schema.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an object;
   ///   defaults to `false`, enforcing that an object is returned.
   public static func object(properties: [String: Schema], optionalProperties: [String] = [],
@@ -420,9 +427,9 @@ public final class Schema: Sendable {
   /// ```
   /// The generated data could be decoded based on which schema it matches.
   ///
-  /// - Parameter schemas: An array of `Schema` objects. The generated data must be valid against
-  ///   at least one of these schemas. The array must not be empty.
-  /// - Returns: A `Schema` configured with the `anyOf` constraint.
+  /// - Parameters:
+  ///   - schemas: An array of `Schema` objects. The generated data must be valid against at least
+  ///     one of these schemas. The array must not be empty.
   public static func anyOf(schemas: [Schema]) -> Schema {
     guard !schemas.isEmpty else {
       fatalError("The `anyOf` schemas array cannot be empty.")
