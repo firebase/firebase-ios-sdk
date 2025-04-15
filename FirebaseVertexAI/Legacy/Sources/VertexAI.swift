@@ -14,8 +14,8 @@
 
 import FirebaseCore
 
-// Publicly exports the `FirebaseGenAI` module for developers that have imported `FirebaseVertexAI`.
-@_exported import FirebaseGenAI
+// Publicly exports the `FirebaseAI` module for developers that have imported `FirebaseVertexAI`.
+@_exported import FirebaseAI
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)

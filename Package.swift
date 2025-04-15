@@ -124,13 +124,13 @@ let package = Package(
     .library(
       name: "FirebaseVertexAI",
       targets: [
-        "FirebaseGenAI",
+        "FirebaseAI",
         "FirebaseVertexAI",
       ]
     ),
     .library(
-      name: "FirebaseGenAI",
-      targets: ["FirebaseGenAI"]
+      name: "FirebaseAI",
+      targets: ["FirebaseAI"]
     ),
   ],
   dependencies: [
@@ -1310,12 +1310,12 @@ let package = Package(
     .target(
       name: "FirebaseVertexAI",
       dependencies: [
-        "FirebaseGenAI",
+        "FirebaseAI",
       ],
       path: "FirebaseVertexAI/Legacy/Sources"
     ),
     .target(
-      name: "FirebaseGenAI",
+      name: "FirebaseAI",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",

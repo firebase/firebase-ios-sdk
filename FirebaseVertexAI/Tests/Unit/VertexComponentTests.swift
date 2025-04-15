@@ -17,7 +17,7 @@ internal import FirebaseCoreExtension
 import Foundation
 import XCTest
 
-@testable import FirebaseGenAI
+@testable import FirebaseAI
 @testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
