@@ -77,14 +77,8 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "Generate an enum and provide a system instruction",
-    arguments: [
-      InstanceConfig.vertexV1,
-      InstanceConfig.vertexV1Staging,
-      InstanceConfig.vertexV1Beta,
-      InstanceConfig.vertexV1BetaStaging,
-      /* System instructions are not supported on the v1 Developer API. */
-      InstanceConfig.developerV1Beta,
-    ]
+    /* System instructions are not supported on the v1 Developer API. */
+    arguments: InstanceConfig.allConfigsExceptDeveloperV1
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = VertexAI.componentInstance(config).generativeModel(
@@ -122,7 +116,8 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.vertexV1Beta,
-    InstanceConfig.developerV1Beta,
+    // Temporarily disabled due to Firebase Proxy issues.
+    // InstanceConfig.developerV1Beta,
   ])
   func generateImage(_ config: InstanceConfig) async throws {
     let generationConfig = GenerationConfig(

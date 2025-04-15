@@ -35,6 +35,9 @@ struct InstanceConfig {
   static let developerV1Beta = InstanceConfig(
     apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIProd), version: .v1beta)
   )
+  static let developerV1BetaStaging = InstanceConfig(
+    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIStaging), version: .v1beta)
+  )
   static let developerV1Spark = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1)
@@ -48,7 +51,9 @@ struct InstanceConfig {
     vertexV1Staging,
     vertexV1Beta,
     vertexV1BetaStaging,
-    developerV1Beta,
+    // Temporarily disabled due to Firebase Proxy issues:
+    // developerV1Beta,
+    // developerV1BetaStaging,
     developerV1Spark,
     developerV1BetaSpark,
   ]
@@ -58,6 +63,9 @@ struct InstanceConfig {
     vertexV1Staging,
     vertexV1Beta,
     vertexV1BetaStaging,
+    // Temporarily disabled due to Firebase Proxy issues:
+    // developerV1Beta,
+    // developerV1BetaStaging,
     developerV1BetaSpark,
   ]
 
