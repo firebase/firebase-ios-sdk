@@ -37,7 +37,7 @@ public final class GenAI: VertexAIProtocol, Sendable {
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> GenAI {
-    let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
+    let vertexInstance = cachedInstance(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
     // Verify that the `VertexAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
     assert(vertexInstance.apiConfig.service == .vertexAI(endpoint: .firebaseVertexAIProd))
