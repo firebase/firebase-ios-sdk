@@ -59,7 +59,7 @@ final class GenerativeModelTests: XCTestCase {
   let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = VertexAI.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
   let vertexSubdirectory = "vertexai"
 
