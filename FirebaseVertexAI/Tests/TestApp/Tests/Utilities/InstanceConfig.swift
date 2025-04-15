@@ -58,6 +58,7 @@ struct InstanceConfig {
     vertexV1Staging,
     vertexV1Beta,
     vertexV1BetaStaging,
+    developerV1Beta,
     developerV1BetaSpark,
   ]
 
