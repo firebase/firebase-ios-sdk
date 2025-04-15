@@ -69,7 +69,7 @@ final class VertexAIAPITests: XCTestCase {
     )
 
     // All arguments passed.
-    let genAI = vertexAI.generativeModel(
+    let firebaseAI = vertexAI.generativeModel(
       modelName: "gemini-1.0-pro",
       generationConfig: config, // Optional
       safetySettings: filters, // Optional
@@ -88,35 +88,35 @@ final class VertexAIAPITests: XCTestCase {
     )]
 
     do {
-      let response = try await genAI.generateContent(contents)
+      let response = try await firebaseAI.generateContent(contents)
       print(response.text ?? "Couldn't get text... check status")
     } catch {
       print("Error generating content: \(error)")
     }
 
     // Content input combinations.
-    let _ = try await genAI.generateContent("Constant String")
+    let _ = try await firebaseAI.generateContent("Constant String")
     let str = "String Variable"
-    let _ = try await genAI.generateContent(str)
-    let _ = try await genAI.generateContent([str])
-    let _ = try await genAI.generateContent(str, "abc", "def")
-    let _ = try await genAI.generateContent(
+    let _ = try await firebaseAI.generateContent(str)
+    let _ = try await firebaseAI.generateContent([str])
+    let _ = try await firebaseAI.generateContent(str, "abc", "def")
+    let _ = try await firebaseAI.generateContent(
       str,
       FileDataPart(uri: "gs://test-bucket/image.jpg", mimeType: "image/jpeg")
     )
     #if canImport(UIKit)
-      _ = try await genAI.generateContent(UIImage())
-      _ = try await genAI.generateContent([UIImage()])
-      _ = try await genAI.generateContent([str, UIImage(), TextPart(str)])
-      _ = try await genAI.generateContent(str, UIImage(), "def", UIImage())
-      _ = try await genAI.generateContent([str, UIImage(), "def", UIImage()])
-      _ = try await genAI.generateContent([ModelContent(parts: "def", UIImage()),
+      _ = try await firebaseAI.generateContent(UIImage())
+      _ = try await firebaseAI.generateContent([UIImage()])
+      _ = try await firebaseAI.generateContent([str, UIImage(), TextPart(str)])
+      _ = try await firebaseAI.generateContent(str, UIImage(), "def", UIImage())
+      _ = try await firebaseAI.generateContent([str, UIImage(), "def", UIImage()])
+      _ = try await firebaseAI.generateContent([ModelContent(parts: "def", UIImage()),
                                            ModelContent(parts: "def", UIImage())])
     #elseif canImport(AppKit)
-      _ = try await genAI.generateContent(NSImage())
-      _ = try await genAI.generateContent([NSImage()])
-      _ = try await genAI.generateContent(str, NSImage(), "def", NSImage())
-      _ = try await genAI.generateContent([str, NSImage(), "def", NSImage()])
+      _ = try await firebaseAI.generateContent(NSImage())
+      _ = try await firebaseAI.generateContent([NSImage()])
+      _ = try await firebaseAI.generateContent(str, NSImage(), "def", NSImage())
+      _ = try await firebaseAI.generateContent([str, NSImage(), "def", NSImage()])
     #endif
 
     // PartsRepresentable combinations.
@@ -147,19 +147,19 @@ final class VertexAIAPITests: XCTestCase {
     #endif
 
     // countTokens API
-    let _: CountTokensResponse = try await genAI.countTokens("What color is the Sky?")
+    let _: CountTokensResponse = try await firebaseAI.countTokens("What color is the Sky?")
     #if canImport(UIKit)
-      let _: CountTokensResponse = try await genAI.countTokens("What color is the Sky?",
+      let _: CountTokensResponse = try await firebaseAI.countTokens("What color is the Sky?",
                                                                UIImage())
-      let _: CountTokensResponse = try await genAI.countTokens([
+      let _: CountTokensResponse = try await firebaseAI.countTokens([
         ModelContent(parts: "What color is the Sky?", UIImage()),
         ModelContent(parts: UIImage(), "What color is the Sky?", UIImage()),
       ])
     #endif
 
     // Chat
-    _ = genAI.startChat()
-    _ = genAI.startChat(history: [ModelContent(parts: "abc")])
+    _ = firebaseAI.startChat()
+    _ = firebaseAI.startChat(history: [ModelContent(parts: "abc")])
   }
 
   // Public API tests for GenerateContentResponse.

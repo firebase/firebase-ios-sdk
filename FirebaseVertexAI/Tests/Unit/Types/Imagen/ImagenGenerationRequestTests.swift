@@ -36,7 +36,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     addWatermark: nil,
     includeResponsibleAIFilterReason: includeResponsibleAIFilterReason
   )
-  let apiConfig = VertexAI.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
   let instance = ImageGenerationInstance(prompt: "test-prompt")
 

@@ -62,7 +62,7 @@ public class VertexAI: VertexAIProtocol {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    return genAI.generativeModel(
+    return firebaseAI.generativeModel(
       modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
@@ -92,7 +92,7 @@ public class VertexAI: VertexAIProtocol {
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
-    return genAI.imagenModel(
+    return firebaseAI.imagenModel(
       modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
@@ -102,9 +102,9 @@ public class VertexAI: VertexAIProtocol {
 
   // MARK: - Private
 
-  let genAI: FirebaseAI
+  let firebaseAI: FirebaseAI
 
   private init(app: FirebaseApp?, location: String) {
-    genAI = FirebaseAI.vertexAI(app: app, location: location)
+    firebaseAI = FirebaseAI.vertexAI(app: app, location: location)
   }
 }
