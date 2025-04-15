@@ -151,7 +151,7 @@ function CheckUnexpectedFailures() {
   fi
 }
 
-if [[ "$xcode_major" -lt 16 ]]; then
+if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
   echo "Unsupported Xcode major version being used: $xcode_major"
   exit 1
 else
