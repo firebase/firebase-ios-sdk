@@ -83,7 +83,7 @@ public final class GenerativeModel: Sendable {
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
-       urlSession: URLSession = .shared) {
+       urlSession: URLSession = GenAIURLSession.default) {
     self.modelName = modelName
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig

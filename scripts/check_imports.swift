@@ -88,7 +88,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
       .forEach { lineNum, line in
         logger
           .importLog(
-            "Use `@_implementationOnly import FirebaseCoreExtension` when importing `FirebaseCoreExtension`.",
+            "Use `internal import FirebaseCoreExtension` when importing `FirebaseCoreExtension`.",
             file, lineNum
           )
       }

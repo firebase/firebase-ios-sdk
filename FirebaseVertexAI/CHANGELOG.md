@@ -8,6 +8,8 @@
   change in backwards-incompatible ways.
 - [added] Added support for specifying the minimum and maximum number of items
   (`minItems` / `maxItems`) to generate in an array `Schema`. (#14671)
+- [fixed] Fixed an issue where network requests would fail in the iOS 18.4
+  simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14677)
 
 # 11.11.0
 - [added] Emits a warning when attempting to use an incompatible model with

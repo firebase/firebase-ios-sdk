@@ -47,22 +47,22 @@ jobs:
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
@@ -98,7 +98,7 @@ jobs:
         os: [macos-15]
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
     env:
@@ -137,11 +137,11 @@ jobs:
             swift_version: 5.9
             warnings:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             swift_version: 5.9
             warnings:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             swift_version: 6.0
             warnings:
     runs-on: ${{ matrix.os }}
