@@ -23,7 +23,7 @@ import VertexAITestApp
   import UIKit
 #endif // canImport(UIKit)
 
-@testable import struct FirebaseVertexAI.BackendError
+@testable import struct FirebaseAI.BackendError
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
@@ -49,7 +49,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: InstanceConfig.allConfigs)
   func generateContent(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings
@@ -81,7 +81,7 @@ struct GenerateContentIntegrationTests {
     arguments: InstanceConfig.allConfigsExceptDeveloperV1
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "text/x.enum", // Not supported on the v1 Developer API
@@ -126,7 +126,7 @@ struct GenerateContentIntegrationTests {
       topK: 1,
       responseModalities: [.text, .image]
     )
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashExperimental,
       generationConfig: generationConfig,
       safetySettings: safetySettings
@@ -178,7 +178,7 @@ struct GenerateContentIntegrationTests {
     What are the names of the planets in the solar system, ordered from closest to furthest from
     the sun? Answer with a Markdown numbered list of the names and no other text.
     """
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings
@@ -216,7 +216,7 @@ struct GenerateContentIntegrationTests {
     // bypasses the Vertex AI in Firebase proxy.
   ])
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."

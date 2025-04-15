@@ -19,7 +19,7 @@ import FirebaseVertexAI
 import Testing
 import VertexAITestApp
 
-@testable import struct FirebaseVertexAI.APIConfig
+@testable import struct FirebaseAI.APIConfig
 
 @Suite(.serialized)
 struct CountTokensIntegrationTests {
@@ -48,7 +48,7 @@ struct CountTokensIntegrationTests {
   @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text(_ config: InstanceConfig) async throws {
     let prompt = "Why is the sky blue?"
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings
@@ -74,7 +74,7 @@ struct CountTokensIntegrationTests {
     arguments: InstanceConfig.allConfigsExceptDeveloperV1
   )
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
@@ -101,7 +101,7 @@ struct CountTokensIntegrationTests {
     InstanceConfig.developerV1Spark,
   ])
   func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       systemInstruction: systemInstruction // Not supported on the v1 Developer API
     )
@@ -123,7 +123,7 @@ struct CountTokensIntegrationTests {
     arguments: InstanceConfig.allConfigsExceptDeveloperV1
   )
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
