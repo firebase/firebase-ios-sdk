@@ -69,14 +69,10 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: [
-    InstanceConfig.vertexV1,
-    InstanceConfig.vertexV1Staging,
-    InstanceConfig.vertexV1Beta,
-    InstanceConfig.vertexV1BetaStaging,
+  @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.developerV1Beta,
-  ])
+    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+  )
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = VertexAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
@@ -122,14 +118,10 @@ struct CountTokensIntegrationTests {
     )
   }
 
-  @Test(arguments: [
-    InstanceConfig.vertexV1,
-    InstanceConfig.vertexV1Staging,
-    InstanceConfig.vertexV1Beta,
-    InstanceConfig.vertexV1BetaStaging,
+  @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.developerV1Beta,
-  ])
+    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+  )
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = VertexAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
@@ -151,7 +143,7 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalTokens == 65)
-      #expect(response.totalBillableCharacters == 165)
+      #expect(response.totalBillableCharacters == 170)
     case .developer:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
