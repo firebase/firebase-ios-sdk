@@ -77,6 +77,10 @@ inline std::shared_ptr<Expr> SharedConstant(double value) {
   return std::make_shared<Constant>(Value(value));
 }
 
+inline std::shared_ptr<Expr> SharedConstant(std::nullptr_t) {
+  return std::make_shared<Constant>(Value(nullptr));
+}
+
 inline std::shared_ptr<Expr> SharedConstant(const char* value) {
   return std::make_shared<Constant>(Value(value));
 }
@@ -196,16 +200,131 @@ inline std::shared_ptr<Expr> GteExpr(
       "gte", std::vector<std::shared_ptr<Expr>>(params));
 }
 
-// --- Comparison Test Data ---
+// --- Array Expression Helpers ---
 
-// Defines pairs of expressions for comparison testing.
-using ExprPair = std::pair<std::shared_ptr<Expr>, std::shared_ptr<Expr>>;
+inline std::shared_ptr<Expr> ArrayContainsAllExpr(
+    std::initializer_list<std::shared_ptr<Expr>> params) {
+  return std::make_shared<FunctionExpr>(
+      "array_contains_all", std::vector<std::shared_ptr<Expr>>(params));
+}
 
-namespace {
+inline std::shared_ptr<Expr> ArrayContainsAnyExpr(
+    std::initializer_list<std::shared_ptr<Expr>> params) {
+  return std::make_shared<FunctionExpr>(
+      "array_contains_any", std::vector<std::shared_ptr<Expr>>(params));
+}
+
+inline std::shared_ptr<Expr> ArrayContainsExpr(
+    std::initializer_list<std::shared_ptr<Expr>> params) {
+  return std::make_shared<FunctionExpr>(
+      "array_contains", std::vector<std::shared_ptr<Expr>>(params));
+}
+
+inline std::shared_ptr<Expr> ArrayLengthExpr(std::shared_ptr<Expr> array_expr) {
+  return std::make_shared<FunctionExpr>(
+      "array_length", std::vector<std::shared_ptr<Expr>>{array_expr});
+}
+
+// TODO(wuandy): Add ArrayConcatExpr, ArrayReverseExpr, ArrayElementExpr when
+// needed.
+
+// --- Logical Expression Helpers ---
+
+inline std::shared_ptr<Expr> AndExpr(
+    std::vector<std::shared_ptr<Expr>> operands) {
+  return std::make_shared<FunctionExpr>("and", std::move(operands));
+}
+
+inline std::shared_ptr<Expr> OrExpr(
+    std::vector<std::shared_ptr<Expr>> operands) {
+  return std::make_shared<FunctionExpr>("or", std::move(operands));
+}
+
+inline std::shared_ptr<Expr> XorExpr(
+    std::vector<std::shared_ptr<Expr>> operands) {
+  return std::make_shared<FunctionExpr>("xor", std::move(operands));
+}
+
+// Note: NotExpr already exists below in Debugging section, reusing that one.
+
+inline std::shared_ptr<Expr> CondExpr(std::shared_ptr<Expr> condition,
+                                      std::shared_ptr<Expr> true_case,
+                                      std::shared_ptr<Expr> false_case) {
+  return std::make_shared<FunctionExpr>(
+      "cond",
+      std::vector<std::shared_ptr<Expr>>{
+          std::move(condition), std::move(true_case), std::move(false_case)});
+}
+
+inline std::shared_ptr<Expr> EqAnyExpr(std::shared_ptr<Expr> search,
+                                       std::shared_ptr<Expr> values) {
+  std::vector<std::shared_ptr<Expr>> operands;
+  operands.push_back(std::move(search));
+  operands.push_back(std::move(values));
+  return std::make_shared<FunctionExpr>("eq_any", std::move(operands));
+}
+
+inline std::shared_ptr<Expr> NotEqAnyExpr(std::shared_ptr<Expr> search,
+                                          std::shared_ptr<Expr> values) {
+  std::vector<std::shared_ptr<Expr>> operands;
+  operands.push_back(std::move(search));
+  operands.push_back(std::move(values));
+  return std::make_shared<FunctionExpr>("not_eq_any", std::move(operands));
+}
+
+inline std::shared_ptr<Expr> IsNanExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "is_nan", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> IsNotNanExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "is_not_nan", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> IsNullExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "is_null", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> IsNotNullExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "is_not_null", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> IsErrorExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "is_error", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> LogicalMaxExpr(
+    std::vector<std::shared_ptr<Expr>> operands) {
+  return std::make_shared<FunctionExpr>("logical_maximum", std::move(operands));
+}
+
+inline std::shared_ptr<Expr> LogicalMinExpr(
+    std::vector<std::shared_ptr<Expr>> operands) {
+  return std::make_shared<FunctionExpr>("logical_minimum", std::move(operands));
+}
+
+// --- Debugging Expression Helpers ---
+
+inline std::shared_ptr<Expr> ExistsExpr(std::shared_ptr<Expr> param) {
+  return std::make_shared<FunctionExpr>(
+      "exists", std::vector<std::shared_ptr<Expr>>{param});
+}
+
+// Note: NotExpr defined here, used by logical tests as well.
+inline std::shared_ptr<Expr> NotExpr(std::shared_ptr<Expr> param) {
+  // Corrected to use FunctionExpr consistently
+  return std::make_shared<FunctionExpr>(
+      "not", std::vector<std::shared_ptr<Expr>>{std::move(param)});
+}
+
 // Helper to check if two expressions (assumed Constants) have comparable types.
 // Assuming Constant::value() returns the nanopb::Message<Value> object.
-bool IsTypeComparable(const std::shared_ptr<Expr>& left,
-                      const std::shared_ptr<Expr>& right) {
+inline bool IsTypeComparable(const std::shared_ptr<Expr>& left,
+                             const std::shared_ptr<Expr>& right) {
   auto left_const = std::dynamic_pointer_cast<const Constant>(left);
   auto right_const = std::dynamic_pointer_cast<const Constant>(right);
   HARD_ASSERT(left_const && right_const,
@@ -214,7 +333,11 @@ bool IsTypeComparable(const std::shared_ptr<Expr>& left,
   return GetTypeOrder(left_const->to_proto()) ==
          GetTypeOrder(right_const->to_proto());
 }
-}  // namespace
+
+// --- Comparison Test Data ---
+
+// Defines pairs of expressions for comparison testing.
+using ExprPair = std::pair<std::shared_ptr<Expr>, std::shared_ptr<Expr>>;
 
 struct ComparisonValueTestData {
  private:
