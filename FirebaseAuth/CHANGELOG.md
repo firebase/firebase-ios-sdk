@@ -1,4 +1,4 @@
-# Unreleased
+# 11.12.0
 - [fixed] Fix a `fatalError` unenrolling from MFA. An invalid user token now throws an
   `invalidUserToken` error instead of crashing. (#14663)
 - [fixed] Fix the parameter from "languageCode" to "lang" in ActionCodeURL. (#14664)

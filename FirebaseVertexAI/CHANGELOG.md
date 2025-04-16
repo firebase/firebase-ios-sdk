@@ -1,4 +1,4 @@
-# Unreleased
+# 11.12.0
 - [added] **Public Preview**: Added support for specifying response modalities
   in `GenerationConfig`. This includes **public experimental** support for image
   generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
