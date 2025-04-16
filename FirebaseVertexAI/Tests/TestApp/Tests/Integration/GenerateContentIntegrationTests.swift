@@ -116,8 +116,9 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.vertexV1Beta,
-    // Temporarily disabled due to Firebase Proxy issues.
+    // TODO(andrewheard): Prod config temporarily disabled due to backend issue.
     // InstanceConfig.developerV1Beta,
+    InstanceConfig.developerV1BetaStaging, // Remove after re-enabling `developerV1Beta` config.
   ])
   func generateImage(_ config: InstanceConfig) async throws {
     let generationConfig = GenerationConfig(
