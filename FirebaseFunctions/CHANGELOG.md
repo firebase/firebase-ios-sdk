@@ -1,4 +1,4 @@
-# Unreleased
+# 11.12.0
 - [fixed] Fix regression from 11.6.0 where `HTTPSCallable` did not invoke
   completion block on main thread (#14653).
 
