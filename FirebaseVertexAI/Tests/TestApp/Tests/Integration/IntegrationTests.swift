@@ -82,34 +82,34 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(prompt)
 
-    XCTAssertEqual(response.totalTokens, 14)
-    XCTAssertEqual(response.totalBillableCharacters, 51)
-    XCTAssertEqual(response.promptTokensDetails.count, 1)
-    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
-    XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, 14)
+    #expect(response.totalTokens == 14)
+    #expect(response.totalBillableCharacters == 51)
+    #expect(response.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(response.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == 14)
   }
 
   #if canImport(UIKit)
     func testCountTokens_image_inlineData() async throws {
       guard let image = UIImage(systemName: "cloud") else {
-        XCTFail("Image not found.")
+        Issue.record("Image not found.")
         return
       }
 
       let response = try await model.countTokens(image)
 
-      XCTAssertEqual(response.totalTokens, 266)
-      XCTAssertEqual(response.totalBillableCharacters, 35)
-      XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
-      let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
+      #expect(response.totalTokens == 266)
+      #expect(response.totalBillableCharacters == 35)
+      #expect(response.promptTokensDetails.count == 2, "Expected image prompt and system instruction")
+      let textPromptTokensDetails = try #require(response.promptTokensDetails.first {
         $0.modality == .text
       }) // System instruction
-      XCTAssertEqual(textPromptTokensDetails.tokenCount, 8)
-      let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
+      #expect(textPromptTokensDetails.tokenCount == 8)
+      let imagePromptTokenDetails = try #require(response.promptTokensDetails.first {
         $0.modality == .image
       })
-      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
+      #expect(imagePromptTokenDetails.tokenCount == 258)
     }
   #endif // canImport(UIKit)
 
@@ -119,17 +119,17 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
-    XCTAssertEqual(response.totalBillableCharacters, 35)
-    XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
-    let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
+    #expect(response.totalTokens == 266)
+    #expect(response.totalBillableCharacters == 35)
+    #expect(response.promptTokensDetails.count == 2, "Expected image prompt and system instruction")
+    let textPromptTokensDetails = try #require(response.promptTokensDetails.first {
       $0.modality == .text
     }) // System instruction
-    XCTAssertEqual(textPromptTokensDetails.tokenCount, 8)
-    let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
+    #expect(textPromptTokensDetails.tokenCount == 8)
+    let imagePromptTokenDetails = try #require(response.promptTokensDetails.first {
       $0.modality == .image
     })
-    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
+    #expect(imagePromptTokenDetails.tokenCount == 258)
   }
 
   func testCountTokens_image_fileData_requiresAuth_signedIn() async throws {
@@ -138,8 +138,8 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
-    XCTAssertEqual(response.totalBillableCharacters, 35)
+    #expect(response.totalTokens == 266)
+    #expect(response.totalBillableCharacters == 35)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_userSignedIn() async throws {
@@ -149,8 +149,8 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
-    XCTAssertEqual(response.totalBillableCharacters, 35)
+    #expect(response.totalTokens == 266)
+    #expect(response.totalBillableCharacters == 35)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
@@ -159,13 +159,13 @@ final class IntegrationTests: XCTestCase {
 
     let fileData = FileDataPart(uri: storageRef.gsURI, mimeType: "image/webp")
 
-    do {
-      _ = try await model.countTokens(fileData)
-      XCTFail("Expected to throw an error.")
-    } catch {
+    // Expect a permission denied error (403).
+    await #expect(throws: VertexAIError.self) {
+        try await model.countTokens(fileData)
+    } is: { error in
       let errorDescription = String(describing: error)
-      XCTAssertTrue(errorDescription.contains("403"))
-      XCTAssertTrue(errorDescription.contains("The caller does not have permission"))
+      #expect(errorDescription.contains("403"))
+      #expect(errorDescription.contains("The caller does not have permission"))
     }
   }
 
@@ -190,25 +190,26 @@ final class IntegrationTests: XCTestCase {
       ModelContent(role: "function", parts: sumResponse),
     ])
 
-    XCTAssertEqual(response.totalTokens, 24)
-    XCTAssertEqual(response.totalBillableCharacters, 71)
-    XCTAssertEqual(response.promptTokensDetails.count, 1)
-    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
-    XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, 24)
+    #expect(response.totalTokens == 24)
+    #expect(response.totalBillableCharacters == 71)
+    #expect(response.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(response.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == 24)
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
-    let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
+    let app = try #require(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
     let vertex = VertexAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
     let prompt = "Why is the sky blue?"
 
-    do {
-      _ = try await model.countTokens(prompt)
-      XCTFail("Expected a Firebase App Check error; none thrown.")
-    } catch {
-      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
+    // Expect an App Check error.
+    await #expect(throws: VertexAIError.self) {
+        try await model.countTokens(prompt)
+    } is: { error in
+      let errorDescription = String(describing: error)
+      #expect(errorDescription.contains("Firebase App Check token is invalid"))
     }
   }
 }
