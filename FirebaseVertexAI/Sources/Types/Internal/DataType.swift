@@ -33,11 +33,6 @@ enum DataType: String {
 
   /// An object type.
   case object = "OBJECT"
-
-  /// One or more other types.
-  ///
-  /// This is a special case and is not encoded directly as a type string in `Schema`.
-  case anyOf = "ANY_OF"
 }
 
 // MARK: - Codable Conformance

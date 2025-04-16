@@ -60,10 +60,11 @@ public final class Schema: Sendable {
     let rawValue: String
   }
 
-  let dataType: DataType
+  // May only be nil for `anyOf` schemas, which do not have an explicit `type` in the OpenAPI spec.
+  let dataType: DataType?
 
   /// The data type.
-  public var type: String { dataType.rawValue }
+  public var type: String { dataType?.rawValue ?? "UNSPECIFIED" }
 
   /// The format of the data.
   public let format: String?
@@ -129,12 +130,14 @@ public final class Schema: Sendable {
   /// serialization.
   public let propertyOrdering: [String]?
 
-  required init(type: DataType, format: String? = nil, description: String? = nil,
+  required init(type: DataType?, format: String? = nil, description: String? = nil,
                 title: String? = nil, nullable: Bool? = nil, enumValues: [String]? = nil,
                 items: Schema? = nil, minItems: Int? = nil, maxItems: Int? = nil,
                 minimum: Double? = nil, maximum: Double? = nil, anyOf: [Schema]? = nil,
                 properties: [String: Schema]? = nil, requiredProperties: [String]? = nil,
                 propertyOrdering: [String]? = nil) {
+    precondition(type != nil || anyOf != nil,
+                 "A schema must have either a `type` or an `anyOf` array of sub-schemas.")
     dataType = type
     self.format = format
     self.description = description
@@ -436,8 +439,7 @@ public final class Schema: Sendable {
     }
     // Note: The 'type' for an 'anyOf' schema is implicitly defined by the presence of the
     // 'anyOf' keyword and doesn't have a specific explicit type like "OBJECT" or "STRING".
-    // We use a placeholder internal type `.anyOf` which is filtered out during encoding.
-    return self.init(type: .anyOf, anyOf: schemas)
+    return self.init(type: nil, anyOf: schemas)
   }
 }
 
@@ -461,32 +463,5 @@ extension Schema: Encodable {
     case properties
     case requiredProperties = "required"
     case propertyOrdering
-  }
-
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    // Only encode the 'type' key if it's *not* an 'anyOf' schema.
-    // The presence of the 'anyOf' key implies the type constraint.
-    switch dataType {
-    case .anyOf:
-      break // Do not encode 'type' for 'anyOf'.
-    default:
-      // Encode 'type' for all other standard schema types.
-      try container.encode(dataType, forKey: .dataType)
-    }
-    try container.encodeIfPresent(format, forKey: .format)
-    try container.encodeIfPresent(description, forKey: .description)
-    try container.encodeIfPresent(title, forKey: .title)
-    try container.encodeIfPresent(nullable, forKey: .nullable)
-    try container.encodeIfPresent(enumValues, forKey: .enumValues)
-    try container.encodeIfPresent(items, forKey: .items)
-    try container.encodeIfPresent(minItems, forKey: .minItems)
-    try container.encodeIfPresent(maxItems, forKey: .maxItems)
-    try container.encodeIfPresent(minimum, forKey: .minimum)
-    try container.encodeIfPresent(maximum, forKey: .maximum)
-    try container.encodeIfPresent(anyOf, forKey: .anyOf)
-    try container.encodeIfPresent(properties, forKey: .properties)
-    try container.encodeIfPresent(requiredProperties, forKey: .requiredProperties)
-    try container.encodeIfPresent(propertyOrdering, forKey: .propertyOrdering)
   }
 }
