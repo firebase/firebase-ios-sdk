@@ -431,8 +431,8 @@ public final class Schema: Sendable {
   ///   - schemas: An array of `Schema` objects. The generated data must be valid against at least
   ///     one of these schemas. The array must not be empty.
   public static func anyOf(schemas: [Schema]) -> Schema {
-    guard !schemas.isEmpty else {
-      fatalError("The `anyOf` schemas array cannot be empty.")
+    if schemas.isEmpty {
+      VertexLog.error(code: .invalidSchemaFormat, "The `anyOf` schemas array cannot be empty.")
     }
     // Note: The 'type' for an 'anyOf' schema is implicitly defined by the presence of the
     // 'anyOf' keyword and doesn't have a specific explicit type like "OBJECT" or "STRING".

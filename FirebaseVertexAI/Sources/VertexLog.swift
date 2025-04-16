@@ -34,6 +34,7 @@ enum VertexLog {
     // Generative Model Configuration
     case generativeModelInitialized = 1000
     case unsupportedGeminiModel = 1001
+    case invalidSchemaFormat = 1002
 
     // Imagen Model Configuration
     case unsupportedImagenModel = 1200
