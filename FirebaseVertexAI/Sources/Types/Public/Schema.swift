@@ -130,11 +130,11 @@ public final class Schema: Sendable {
   public let propertyOrdering: [String]?
 
   required init(type: DataType, format: String? = nil, description: String? = nil,
-                title: String? = nil,
-                nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                minItems: Int? = nil, maxItems: Int? = nil, minimum: Double? = nil,
-                maximum: Double? = nil, anyOf: [Schema]? = nil, properties: [String: Schema]? = nil,
-                requiredProperties: [String]? = nil, propertyOrdering: [String]? = nil) {
+                title: String? = nil, nullable: Bool? = nil, enumValues: [String]? = nil,
+                items: Schema? = nil, minItems: Int? = nil, maxItems: Int? = nil,
+                minimum: Double? = nil, maximum: Double? = nil, anyOf: [Schema]? = nil,
+                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil,
+                propertyOrdering: [String]? = nil) {
     dataType = type
     self.format = format
     self.description = description
