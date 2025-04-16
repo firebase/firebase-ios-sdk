@@ -37,7 +37,11 @@ public final class FirebaseAI: VertexAIProtocol, Sendable {
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> FirebaseAI {
-    let vertexInstance = cachedInstance(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
+    let vertexInstance = cachedInstance(
+      app: app,
+      location: location,
+      apiConfig: defaultVertexAIAPIConfig
+    )
     // Verify that the `VertexAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
     assert(vertexInstance.apiConfig.service == .vertexAI(endpoint: .firebaseVertexAIProd))
@@ -163,7 +167,8 @@ public final class FirebaseAI: VertexAIProtocol, Sendable {
     version: .v1beta
   )
 
-  static func cachedInstance(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> FirebaseAI {
+  static func cachedInstance(app: FirebaseApp?, location: String?,
+                             apiConfig: APIConfig) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }

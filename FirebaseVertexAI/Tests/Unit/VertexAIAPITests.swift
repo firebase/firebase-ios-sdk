@@ -111,7 +111,7 @@ final class VertexAIAPITests: XCTestCase {
       _ = try await firebaseAI.generateContent(str, UIImage(), "def", UIImage())
       _ = try await firebaseAI.generateContent([str, UIImage(), "def", UIImage()])
       _ = try await firebaseAI.generateContent([ModelContent(parts: "def", UIImage()),
-                                           ModelContent(parts: "def", UIImage())])
+                                                ModelContent(parts: "def", UIImage())])
     #elseif canImport(AppKit)
       _ = try await firebaseAI.generateContent(NSImage())
       _ = try await firebaseAI.generateContent([NSImage()])
@@ -150,7 +150,7 @@ final class VertexAIAPITests: XCTestCase {
     let _: CountTokensResponse = try await firebaseAI.countTokens("What color is the Sky?")
     #if canImport(UIKit)
       let _: CountTokensResponse = try await firebaseAI.countTokens("What color is the Sky?",
-                                                               UIImage())
+                                                                    UIImage())
       let _: CountTokensResponse = try await firebaseAI.countTokens([
         ModelContent(parts: "What color is the Sky?", UIImage()),
         ModelContent(parts: UIImage(), "What color is the Sky?", UIImage()),
