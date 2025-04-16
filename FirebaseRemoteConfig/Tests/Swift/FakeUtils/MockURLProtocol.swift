@@ -14,52 +14,49 @@
 
 import Foundation
 
-#if SWIFT_PACKAGE
-  import RemoteConfigFakeConsoleObjC
-#endif
+class MockURLProtocol: URLProtocol {
+  #if compiler(>=6)
+    nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (
+      Data,
+      HTTPURLResponse
+    ))?
+  #else
+    static var requestHandler: ((URLRequest) throws -> (
+      Data,
+      HTTPURLResponse
+    ))?
+  #endif
 
-// Create a partial mock by subclassing the URLSessionDataTask.
-class URLSessionDataTaskMock: URLSessionDataTask, @unchecked Sendable {
-  private let closure: () -> Void
-
-  init(closure: @escaping () -> Void) {
-    self.closure = closure
+  override class func canInit(with request: URLRequest) -> Bool {
+    #if os(watchOS)
+      print("MockURLProtocol cannot be used on watchOS.")
+      return false
+    #else
+      return true
+    #endif // os(watchOS)
   }
 
-  override func resume() {
-    closure()
-  }
-}
-
-class URLSessionMock: URLSession, @unchecked Sendable {
-  typealias CompletionHandler = (Data?, URLResponse?, Error?) -> Void
-
-  private let fakeConsole: FakeConsole
-  init(with fakeConsole: FakeConsole) {
-    self.fakeConsole = fakeConsole
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    return request
   }
 
-  // Properties to control what gets returned to the URLSession callback.
-  // error could also be added here.
-  var data: Data?
-  var response: URLResponse?
-  var etag = ""
-
-  override func dataTask(with request: URLRequest,
-                         completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void)
-    -> URLSessionDataTask {
-    let consoleValues = fakeConsole.get()
-    if etag == "" || consoleValues["state"] as! String == RCNFetchResponseKeyStateUpdate {
-      // Time string in microseconds to insure a different string from previous change.
-      etag = String(NSDate().timeIntervalSince1970)
+  override func startLoading() {
+    guard let requestHandler = MockURLProtocol.requestHandler else {
+      fatalError("`requestHandler` is nil.")
     }
-    let jsonData = try! JSONSerialization.data(withJSONObject: consoleValues)
-    let response = HTTPURLResponse(url: URL(fileURLWithPath: "fakeURL"),
-                                   statusCode: 200,
-                                   httpVersion: nil,
-                                   headerFields: ["etag": etag])
-    return URLSessionDataTaskMock {
-      completionHandler(jsonData, response, nil)
+    guard let client = client else {
+      fatalError("`client` is nil.")
+    }
+
+    do {
+      let (data, respopnse) = try requestHandler(request)
+      client.urlProtocol(self, didReceive: respopnse, cacheStoragePolicy: .notAllowed)
+      client.urlProtocol(self, didLoad: data)
+      client.urlProtocolDidFinishLoading(self)
+    } catch {
+      client.urlProtocol(self, didFailWithError: error)
     }
   }
+
+  override func stopLoading() {}
 }
