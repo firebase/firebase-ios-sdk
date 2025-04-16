@@ -1308,7 +1308,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseAI/Sources"
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
@@ -1316,7 +1316,7 @@ let package = Package(
         "FirebaseVertexAI",
         "FirebaseStorage",
       ],
-      path: "FirebaseVertexAI/Tests/Unit",
+      path: "FirebaseAI/Tests/Unit",
       resources: [
         .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
         .process("Resources"),
