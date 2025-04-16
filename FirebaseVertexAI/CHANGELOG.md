@@ -1,4 +1,4 @@
-# Unreleased
+# 11.12.0
 - [added] **Public Preview**: Added support for specifying response modalities
   in `GenerationConfig`. This includes **public experimental** support for image
   generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
@@ -6,17 +6,9 @@
   Note: This feature is in Public Preview and relies on experimental models,
   which means that it is not subject to any SLA or deprecation policy and could
   change in backwards-incompatible ways.
-- [added] Added support for multiple new `Schema` fields. (#14671)
-  - `minItems` / `maxItems`: Specifies the minimum and maximum number of items
-    to generate in an array `Schema`.
-  - `title`: A human-readable name/summary for the schema, helping to document
-    its purpose.
-  - `minimum` / `maximum`: Specifies the minimum or maximum values for numeric
-    types (`integer`, `float`, `double`).
-  - `anyOf`: Allows specifying that the generated data may be *any* of the
-    provided sub-schemas.
-  - `propertyOrdering`: Specifies the order for keys in the generated JSON
-    output for object schemas.
+- [added] Added support for more `Schema` fields: `minItems`/`maxItems` (array
+  size limits), `title` (schema name), `minimum`/`maximum` (numeric ranges),
+  `anyOf` (select from sub-schemas), and `propertyOrdering` (JSON key order). (#14647)
 - [fixed] Fixed an issue where network requests would fail in the iOS 18.4
   simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14677)
 
