@@ -60,10 +60,11 @@ public final class Schema: Sendable {
     let rawValue: String
   }
 
-  let dataType: DataType
+  // May only be nil for `anyOf` schemas, which do not have an explicit `type` in the OpenAPI spec.
+  let dataType: DataType?
 
   /// The data type.
-  public var type: String { dataType.rawValue }
+  public var type: String { dataType?.rawValue ?? "UNSPECIFIED" }
 
   /// The format of the data.
   public let format: String?
@@ -106,6 +107,16 @@ public final class Schema: Sendable {
   /// property's type and constraints.
   public let properties: [String: Schema]?
 
+  /// An array of `Schema` objects. The generated data must be valid against *any* (one or more)
+  /// of the schemas listed in this array. This allows specifying multiple possible structures or
+  /// types for a single field.
+  ///
+  /// For example, a value could be either a `String` or an `Integer`:
+  /// ```
+  /// Schema.anyOf(schemas: [.string(), .integer()])
+  /// ```
+  public let anyOf: [Schema]?
+
   /// An array of strings, where each string is the name of a property defined in the `properties`
   /// dictionary that must be present in the generated object. If a property is listed here, the
   /// model must include it in the output.
@@ -119,12 +130,14 @@ public final class Schema: Sendable {
   /// serialization.
   public let propertyOrdering: [String]?
 
-  required init(type: DataType, format: String? = nil, description: String? = nil,
-                title: String? = nil,
-                nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                minItems: Int? = nil, maxItems: Int? = nil, minimum: Double? = nil,
-                maximum: Double? = nil, properties: [String: Schema]? = nil,
-                requiredProperties: [String]? = nil, propertyOrdering: [String]? = nil) {
+  required init(type: DataType?, format: String? = nil, description: String? = nil,
+                title: String? = nil, nullable: Bool? = nil, enumValues: [String]? = nil,
+                items: Schema? = nil, minItems: Int? = nil, maxItems: Int? = nil,
+                minimum: Double? = nil, maximum: Double? = nil, anyOf: [Schema]? = nil,
+                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil,
+                propertyOrdering: [String]? = nil) {
+    precondition(type != nil || anyOf != nil,
+                 "A schema must have either a `type` or an `anyOf` array of sub-schemas.")
     dataType = type
     self.format = format
     self.description = description
@@ -136,6 +149,7 @@ public final class Schema: Sendable {
     self.maxItems = maxItems
     self.minimum = minimum
     self.maximum = maximum
+    self.anyOf = anyOf
     self.properties = properties
     self.requiredProperties = requiredProperties
     self.propertyOrdering = propertyOrdering
@@ -278,6 +292,10 @@ public final class Schema: Sendable {
   ///   - format: An optional modifier describing the expected format of the integer. Currently the
   ///     formats ``IntegerFormat/int32`` and ``IntegerFormat/int64`` are supported; custom values
   ///     may be specified using ``IntegerFormat/custom(_:)`` but may be ignored by the model.
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
   public static func integer(description: String? = nil, nullable: Bool = false,
                              format: IntegerFormat? = nil,
                              minimum: Int? = nil, maximum: Int? = nil) -> Schema {
@@ -362,8 +380,11 @@ public final class Schema: Sendable {
   ///   - optionalProperties: A list of property names that may be be omitted in objects generated
   ///   by the model; these names must correspond to the keys provided in the `properties`
   ///   dictionary and may be an empty list.
+  ///   - propertyOrdering: An optional hint to the model suggesting the order for keys in the
+  ///   generated JSON string. See ``propertyOrdering`` for details.
   ///   - description: An optional description of what the object should contain or represent; may
   ///   use Markdown format.
+  ///   - title: An optional human-readable name/summary for the object schema.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an object;
   ///   defaults to `false`, enforcing that an object is returned.
   public static func object(properties: [String: Schema], optionalProperties: [String] = [],
@@ -388,6 +409,38 @@ public final class Schema: Sendable {
       propertyOrdering: propertyOrdering
     )
   }
+
+  /// Returns a `Schema` representing a value that must conform to *any* (one or more) of the
+  /// provided sub-schemas.
+  ///
+  /// This schema instructs the model to produce data that is valid against at least one of the
+  /// schemas listed in the `schemas` array. This is useful when a field can accept multiple
+  /// distinct types or structures.
+  ///
+  /// **Example:** A field that can hold either a simple user ID (integer) or a detailed user
+  /// object.
+  /// ```
+  /// Schema.anyOf(schemas: [
+  ///   .integer(description: "User ID"),
+  ///   .object(properties: [
+  ///     "userId": .integer(),
+  ///     "userName": .string()
+  ///   ], description: "Detailed User Object")
+  /// ])
+  /// ```
+  /// The generated data could be decoded based on which schema it matches.
+  ///
+  /// - Parameters:
+  ///   - schemas: An array of `Schema` objects. The generated data must be valid against at least
+  ///     one of these schemas. The array must not be empty.
+  public static func anyOf(schemas: [Schema]) -> Schema {
+    if schemas.isEmpty {
+      VertexLog.error(code: .invalidSchemaFormat, "The `anyOf` schemas array cannot be empty.")
+    }
+    // Note: The 'type' for an 'anyOf' schema is implicitly defined by the presence of the
+    // 'anyOf' keyword and doesn't have a specific explicit type like "OBJECT" or "STRING".
+    return self.init(type: nil, anyOf: schemas)
+  }
 }
 
 // MARK: - Codable Conformance
@@ -406,6 +459,7 @@ extension Schema: Encodable {
     case maxItems
     case minimum
     case maximum
+    case anyOf
     case properties
     case requiredProperties = "required"
     case propertyOrdering

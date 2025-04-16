@@ -6,8 +6,9 @@
   Note: This feature is in Public Preview and relies on experimental models,
   which means that it is not subject to any SLA or deprecation policy and could
   change in backwards-incompatible ways.
-- [added] Added support for specifying the minimum and maximum number of items
-  (`minItems` / `maxItems`) to generate in an array `Schema`. (#14671)
+- [added] Added support for more `Schema` fields: `minItems`/`maxItems` (array
+  size limits), `title` (schema name), `minimum`/`maximum` (numeric ranges),
+  `anyOf` (select from sub-schemas), and `propertyOrdering` (JSON key order). (#14647)
 - [fixed] Fixed an issue where network requests would fail in the iOS 18.4
   simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14677)
 
