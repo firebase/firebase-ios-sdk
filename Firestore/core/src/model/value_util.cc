@@ -17,11 +17,8 @@
 #include "Firestore/core/src/model/value_util.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
-#include <memory>
 #include <type_traits>
-#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/model/database_id.h"
@@ -955,6 +952,20 @@ Message<google_firestore_v1_Value> RefValue(
   return result;
 }
 
+Message<google_firestore_v1_Value> StringValue(const std::string& value) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->reference_value = nanopb::MakeBytesArray(value);
+  return result;
+}
+
+Message<google_firestore_v1_Value> StringValue(absl::string_view value) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->reference_value = nanopb::MakeBytesArray(value.data(), value.size());
+  return result;
+}
+
 Message<google_firestore_v1_Value> ArrayValue(
     std::vector<Message<google_firestore_v1_Value>> values) {
   google_firestore_v1_Value result;
@@ -1035,6 +1046,34 @@ absl::optional<int64_t> GetInteger(const google_firestore_v1_Value& value) {
     return value.integer_value;
   }
   return absl::nullopt;
+}
+
+namespace {
+struct MapEntryKeyCompare {
+  bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
+                  absl::string_view segment) const {
+    return nanopb::MakeStringView(entry.key) < segment;
+  }
+  bool operator()(absl::string_view segment,
+                  const google_firestore_v1_MapValue_FieldsEntry& entry) const {
+    return segment < nanopb::MakeStringView(entry.key);
+  }
+};
+}  // namespace
+
+google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+    const google_firestore_v1_Value& value, absl::string_view field) {
+  if (!IsMap(value)) {
+    return nullptr;
+  }
+  const google_firestore_v1_MapValue& map_value = value.map_value;
+  for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+    if (nanopb::MakeStringView(map_value.fields[i].key) == field) {
+      return &map_value.fields[i];
+    }
+  }
+
+  return nullptr;
 }
 
 namespace {
