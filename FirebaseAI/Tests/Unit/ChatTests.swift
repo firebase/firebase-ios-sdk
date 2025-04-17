@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCore
 import Foundation
 import XCTest
 
-import FirebaseCore
-@testable import FirebaseVertexAI
+@testable import FirebaseAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ChatTests: XCTestCase {

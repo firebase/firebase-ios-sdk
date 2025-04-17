@@ -12,25 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
-@testable import FirebaseAI
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class RequestOptionsTests: XCTestCase {
-  let defaultTimeout: TimeInterval = 180.0
-
-  func testInitialize_defaultValues() {
-    let requestOptions = RequestOptions()
-
-    XCTAssertEqual(requestOptions.timeout, defaultTimeout)
-  }
-
-  func testInitialize_timeout() {
-    let expectedTimeout = 60.0
-
-    let requestOptions = RequestOptions(timeout: expectedTimeout)
-
-    XCTAssertEqual(requestOptions.timeout, expectedTimeout)
-  }
-}
+@_exported public import FirebaseAI
