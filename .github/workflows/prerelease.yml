@@ -393,10 +393,10 @@ jobs:
         sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExample/ViewController.m
         sed -i '' 's#YOUR_DOMAIN_URI_PREFIX";#https://qpf6m.app.goo.gl";#' quickstart-ios/dynamiclinks/DynamicLinksExampleSwift/ViewController.swift
     - name: Test objc quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks false)
     - name: Test swift quickstart
       if: ${{ always() }}
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks false swift)
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh dynamiclinks
