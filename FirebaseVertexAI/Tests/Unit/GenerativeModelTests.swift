@@ -17,7 +17,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import XCTest
 
-@testable public import FirebaseVertexAI
+@testable import FirebaseAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerativeModelTests: XCTestCase {
@@ -59,7 +59,7 @@ final class GenerativeModelTests: XCTestCase {
   let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = VertexAI.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
   let vertexSubdirectory = "vertexai"
 

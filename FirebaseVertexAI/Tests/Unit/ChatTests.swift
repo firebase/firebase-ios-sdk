@@ -15,8 +15,8 @@
 import Foundation
 import XCTest
 
+@testable import FirebaseAI
 import FirebaseCore
-@testable import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ChatTests: XCTestCase {
@@ -70,7 +70,7 @@ final class ChatTests: XCTestCase {
         firebaseAppID: "My app ID",
         firebaseApp: app
       ),
-      apiConfig: VertexAI.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
