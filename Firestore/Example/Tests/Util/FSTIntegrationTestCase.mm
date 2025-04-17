@@ -623,21 +623,44 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
 /**
  * Checks that running the query while online (against the backend/emulator) results in the same
- * documents as running the query while offline. It also checks that both online and offline
- * query result is equal to the expected documents.
+ * documents as running the query while offline. If `expectedDocs` is provided, it also checks
+ * that both online and offline query result is equal to the expected documents.
  *
- * @param query The query to check.
- * @param expectedDocs Array of document keys that are expected to match the query.
+ * This function first performs a "get" for the entire COLLECTION from the server.
+ * It then performs the QUERY from CACHE which, results in `executeFullCollectionScan()`
+ * It then performs the QUERY from SERVER.
+ * It then performs the QUERY from CACHE again, which results in `performQueryUsingRemoteKeys()`.
+ * It then ensure that all the above QUERY results are the same.
+ *
+ * @param collection The collection on which the query is performed.
+ * @param query The query to check
+ * @param expectedDocs Ordered list of document keys that are expected to match the query
  */
-- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
+- (void)checkOnlineAndOfflineCollection:(FIRCollectionReference *)collection
+                                  query:(FIRQuery *)query
+                          matchesResult:(NSArray *)expectedDocs {
+  // Note: Order matters. The following has to be done in the specific order:
+
+  // 1- Pre-populate the cache with the entire collection.
+  [self readDocumentSetForRef:collection source:FIRFirestoreSourceServer];
+
+  // 2- This performs the query against the cache using full collection scan.
+  FIRQuerySnapshot *docsFromCacheFullCollectionScan =
+      [self readDocumentSetForRef:query source:FIRFirestoreSourceCache];
+
+  // 3- This goes to the server (backend/emulator).
   FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
                                                           source:FIRFirestoreSourceServer];
-  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
-                                                         source:FIRFirestoreSourceCache];
+
+  // 4- This performs the query against the cache using remote keys.
+  FIRQuerySnapshot *docsFromCacheUsingRemoteKeys =
+      [self readDocumentSetForRef:query source:FIRFirestoreSourceCache];
 
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
-                        FIRQuerySnapshotGetIDs(docsFromCache));
-  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
+                        FIRQuerySnapshotGetIDs(docsFromCacheFullCollectionScan));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
+                        FIRQuerySnapshotGetIDs(docsFromCacheUsingRemoteKeys));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer), expectedDocs);
 }
 
 - (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
