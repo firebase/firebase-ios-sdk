@@ -21,7 +21,7 @@ enum StorageListTask {
                        queue: DispatchQueue,
                        pageSize: Int64?,
                        previousPageToken: String?,
-                       completion: ((_: StorageListResult?, _: Error?) -> Void)?) {
+                       completion: (@Sendable (_: StorageListResult?, _: Error?) -> Void)?) {
     var queryParams = [String: String]()
 
     let prefix = reference.fullPath

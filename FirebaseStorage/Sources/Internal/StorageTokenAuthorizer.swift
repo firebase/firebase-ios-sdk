@@ -28,7 +28,7 @@ import FirebaseCore
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer, Sendable {
   func authorizeRequest(_ request: NSMutableURLRequest?,
-                        completionHandler handler: @escaping @Sendable (Error?) -> Void) {
+                        completionHandler handler: @escaping (Error?) -> Void) {
     if let request = request {
       Task {
         do {
@@ -120,7 +120,8 @@ final class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer, Senda
     return authHeader.hasPrefix("Firebase")
   }
 
-  let userEmail: String?
+  // Used for protocol conformance only.
+  let userEmail: String? = nil
 
   let callbackQueue: DispatchQueue
   private let googleAppID: String
