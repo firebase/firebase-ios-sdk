@@ -44,6 +44,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseDatabase.podspec --test-specs=unit --platforms=${{ matrix.target }}
 
   integration:
+    # TODO: Remove this comment after testing.
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-15
