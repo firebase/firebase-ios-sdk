@@ -132,10 +132,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await db
       .pipeline()
-      .collection("/" + collRef.path)
+      .collection(collRef.path)
       .limit(0)
       .execute()
 
     XCTAssertTrue(snapshot.results().isEmpty)
+  }
+
+  func testFullResults() async throws {
+    let collRef = collectionRef(
+      withDocuments: bookDocs
+    )
+    let db = collRef.firestore
+
+    let snapshot = try await db
+      .pipeline()
+      .collection(collRef.path)
+      .execute()
+
+    let results = snapshot.results()
+    XCTAssertEqual(results.count, 10)
+
+    let actualIDs = Set(results.map { $0.id })
+    let expectedIDs = Set([
+      "book1", "book2", "book3", "book4", "book5",
+      "book6", "book7", "book8", "book9", "book10",
+    ])
+    XCTAssertEqual(actualIDs, expectedIDs)
   }
 }

@@ -21,7 +21,8 @@ public struct PipelineSource: @unchecked Sendable {
   }
 
   public func collection(_ path: String) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: path)], db: db)
+    let normalizedPath = path.hasPrefix("/") ? path : "/" + path
+    return Pipeline(stages: [CollectionSource(collection: normalizedPath)], db: db)
   }
 
   public func collectionGroup(_ collectionId: String) -> Pipeline {

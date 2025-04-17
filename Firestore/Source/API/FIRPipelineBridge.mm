@@ -570,9 +570,18 @@ NS_ASSUME_NONNULL_BEGIN
                              [reader parsedQueryValue:_distanceField])));
     }
 
-    find_nearest = std::make_shared<FindNearestStage>([_field cppExprWithReader:reader],
-                                                      [reader parsedQueryValue:_vectorValue],
-                                                      MakeString(_distanceMeasure), optional_value);
+    FindNearestStage::DistanceMeasure::Measure measure_enum;
+    if ([_distanceMeasure isEqualToString:@"cosine"]) {
+      measure_enum = FindNearestStage::DistanceMeasure::COSINE;
+    } else if ([_distanceMeasure isEqualToString:@"dot_product"]) {
+      measure_enum = FindNearestStage::DistanceMeasure::DOT_PRODUCT;
+    } else {
+      measure_enum = FindNearestStage::DistanceMeasure::EUCLIDEAN;
+    }
+
+    find_nearest = std::make_shared<FindNearestStage>(
+        [_field cppExprWithReader:reader], [reader parsedQueryValue:_vectorValue],
+        FindNearestStage::DistanceMeasure(measure_enum), optional_value);
   }
 
   isUserDataRead = YES;
