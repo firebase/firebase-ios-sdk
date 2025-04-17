@@ -42,12 +42,12 @@ final class APITests: XCTestCase {
     let _ = RequestOptions(timeout: 30.0)
 
     // Instantiate Vertex AI SDK - Default App
-    let vertexAI = VertexAI.vertexAI()
-    let _ = VertexAI.vertexAI(location: "my-location")
+    let vertexAI = FirebaseAI.vertexAI()
+    let _ = FirebaseAI.vertexAI(location: "my-location")
 
     // Instantiate Vertex AI SDK - Custom App
-    let _ = VertexAI.vertexAI(app: app!)
-    let _ = VertexAI.vertexAI(app: app!, location: "my-location")
+    let _ = FirebaseAI.vertexAI(app: app!)
+    let _ = FirebaseAI.vertexAI(app: app!, location: "my-location")
 
     // Permutations without optional arguments.
 

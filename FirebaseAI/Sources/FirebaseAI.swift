@@ -22,7 +22,7 @@ internal import FirebaseCoreExtension
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class VertexAI {
+public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
 
   /// Creates an instance of `VertexAI`.
@@ -36,7 +36,7 @@ public class VertexAI {
   ///     for a list of supported locations.
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
-                              location: String = "us-central1") -> VertexAI {
+                              location: String = "us-central1") -> FirebaseAI {
     let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
     // Verify that the `VertexAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
@@ -143,7 +143,7 @@ public class VertexAI {
   #if compiler(>=6)
     /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
     /// the format `appName:location`.
-    private nonisolated(unsafe) static var instances: [InstanceKey: VertexAI] = [:]
+    private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
 
     /// Lock to manage access to the `instances` array to avoid race conditions.
     private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
@@ -163,7 +163,7 @@ public class VertexAI {
     version: .v1beta
   )
 
-  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> VertexAI {
+  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -177,7 +177,7 @@ public class VertexAI {
     if let instance = instances[instanceKey] {
       return instance
     }
-    let newInstance = VertexAI(app: app, location: location, apiConfig: apiConfig)
+    let newInstance = FirebaseAI(app: app, location: location, apiConfig: apiConfig)
     instances[instanceKey] = newInstance
     return newInstance
   }
