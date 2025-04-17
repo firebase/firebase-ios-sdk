@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAI
 import FirebaseCore
-import FirebaseVertexAI
 import XCTest
 
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory

@@ -14,9 +14,9 @@
 
 #if SWIFT_PACKAGE // The FirebaseStorage dependency has only been added in Package.swift.
 
+  import FirebaseAI
   import FirebaseCore
   import FirebaseStorage
-  import FirebaseVertexAI
 
   // These CloudStorageSnippets are not currently runnable due to the GCS upload paths but are used
   // as compilation tests.
