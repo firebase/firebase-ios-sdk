@@ -122,7 +122,7 @@ class AggregateStage : public Stage {
 
 class Where : public Stage {
  public:
-  explicit Where(std::shared_ptr<Expr> expr) : expr_(std::move(expr)) {
+  explicit Where(std::shared_ptr<Expr> expr) : expr_(expr) {
   }
   ~Where() override = default;
 
@@ -134,10 +134,22 @@ class Where : public Stage {
 
 class FindNearestStage : public Stage {
  public:
+  class DistanceMeasure {
+   public:
+    enum Measure { EUCLIDEAN, COSINE, DOT_PRODUCT };
+
+    explicit DistanceMeasure(Measure measure) : measure_(measure) {
+    }
+    google_firestore_v1_Value proto() const;
+
+   private:
+    Measure measure_;
+  };
+
   FindNearestStage(
       std::shared_ptr<Expr> property,
       nanopb::SharedMessage<google_firestore_v1_Value> vector,
-      std::string distance_measure,
+      DistanceMeasure distance_measure,
       std::unordered_map<std::string,
                          nanopb::SharedMessage<google_firestore_v1_Value>>
           options)
@@ -154,7 +166,7 @@ class FindNearestStage : public Stage {
  private:
   std::shared_ptr<Expr> property_;
   nanopb::SharedMessage<google_firestore_v1_Value> vector_;
-  std::string distance_measure_;
+  DistanceMeasure distance_measure_;
   std::unordered_map<std::string,
                      nanopb::SharedMessage<google_firestore_v1_Value>>
       options_;
@@ -238,10 +250,6 @@ class RemoveFieldsStage : public Stage {
   std::vector<Field> fields_;
 };
 
-// TBD
-/**
- * A stage that replaces the document with a new value.
- */
 class ReplaceWith : public Stage {
  public:
   explicit ReplaceWith(std::shared_ptr<Expr> expr);
@@ -254,9 +262,6 @@ class ReplaceWith : public Stage {
   absl::optional<std::string> field_name_;
 };
 
-/**
- * A stage that samples documents.
- */
 class Sample : public Stage {
  public:
   Sample(std::string type, int64_t count, double percentage_);
@@ -269,9 +274,6 @@ class Sample : public Stage {
   double percentage_;
 };
 
-/**
- * A stage that unions documents from another pipeline.
- */
 class Union : public Stage {
  public:
   explicit Union(std::shared_ptr<Pipeline> other);
@@ -282,9 +284,6 @@ class Union : public Stage {
   std::shared_ptr<Pipeline> other_;
 };
 
-/**
- * A stage that unnests an array.
- */
 class Unnest : public Stage {
  public:
   Unnest(std::shared_ptr<Expr> field, absl::optional<std::string> index_field);
@@ -296,9 +295,6 @@ class Unnest : public Stage {
   absl::optional<std::string> index_field_;
 };
 
-/**
- * A stage that is a generic stage.
- */
 class GenericStage : public Stage {
  public:
   GenericStage(std::string name,

@@ -167,6 +167,23 @@ google_firestore_v1_Pipeline_Stage Where::to_proto() const {
   return result;
 }
 
+google_firestore_v1_Value FindNearestStage::DistanceMeasure::proto() const {
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_string_value_tag;
+  switch (measure_) {
+    case EUCLIDEAN:
+      result.string_value = nanopb::MakeBytesArray("euclidean");
+      break;
+    case COSINE:
+      result.string_value = nanopb::MakeBytesArray("cosine");
+      break;
+    case DOT_PRODUCT:
+      result.string_value = nanopb::MakeBytesArray("dot_product");
+      break;
+  }
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("find_nearest");
@@ -175,8 +192,7 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(3);
   result.args[0] = property_->to_proto();
   result.args[1] = *vector_;
-  result.args[2].which_value_type = google_firestore_v1_Value_string_value_tag;
-  result.args[2].string_value = nanopb::MakeBytesArray(distance_measure_);
+  result.args[2] = distance_measure_.proto();
 
   nanopb::SetRepeatedField(
       &result.options, &result.options_count, options_,
