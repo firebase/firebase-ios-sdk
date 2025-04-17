@@ -245,10 +245,7 @@ def export_log(xcresult_path, log_id):
   Returns:
     The logged output, as a string.
   """
-  # Note: --legacy is required for Xcode 16.
-  contents = xcresulttool_json(
-      'get', '--path', xcresult_path, '--id', log_id, '--legacy'
-  )
+  contents = xcresulttool_json('get', '--path', xcresult_path, '--id', log_id)
 
   result = []
   collect_log_output(contents, result)
@@ -284,7 +281,8 @@ def xcresulttool(*args):
 
 def xcresulttool_json(*args):
   """Runs xcresulttool and its output as parsed JSON."""
-  args = list(args) + ['--format', 'json']
+  # Note: --legacy is required for Xcode 16.
+  args = list(args) + ['--format', 'json', '--legacy']
   contents = xcresulttool(*args)
   return json.loads(contents)
 
