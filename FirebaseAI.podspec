@@ -1,11 +1,10 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseVertexAI'
+  s.name             = 'FirebaseAI'
   s.version          = '11.12.0'
-  s.summary          = 'Vertex AI in Firebase SDK'
+  s.summary          = 'Firebase AI SDK'
 
   s.description      = <<-DESC
-Build AI-powered apps and features with the Gemini API using the Vertex AI in
-Firebase SDK.
+Build AI-powered apps and features with the Gemini API using the Firebase AI SDK.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -33,7 +32,7 @@ Firebase SDK.
   s.prefix_header_file = false
 
   s.source_files = [
-    'FirebaseVertexAI/Sources/**/*.swift',
+    'FirebaseAI/Sources/**/*.swift',
   ]
 
   s.swift_version = '5.9'
@@ -44,10 +43,13 @@ Firebase SDK.
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAI', '~> 11.12.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 11.4'
+  s.dependency 'FirebaseAuthInterop', '~> 11.4'
+  s.dependency 'FirebaseCore', '~> 11.12.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.12.0'
 
   s.test_spec 'unit' do |unit_tests|
-    unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'
+    unit_tests_dir = 'FirebaseAI/Tests/Unit/'
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
       :ios => ios_deployment_target,
@@ -56,6 +58,13 @@ Firebase SDK.
     }
     unit_tests.source_files = [
       unit_tests_dir + '**/*.swift',
+    ]
+    unit_tests.exclude_files = [
+      unit_tests_dir + 'Snippets/**/*.swift',
+    ]
+    unit_tests.resources = [
+      unit_tests_dir + 'vertexai-sdk-test-data/mock-responses/vertexai',
+      unit_tests_dir + 'Resources/**/*',
     ]
   end
 end
