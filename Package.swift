@@ -1298,25 +1298,25 @@ let package = Package(
       ]
     ),
 
-    // MARK: - Firebase Vertex AI
+    // MARK: - Firebase AI
 
     .target(
-      name: "FirebaseVertexAI",
+      name: "FirebaseAI",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseVertexAI/Sources"
+      path: "FirebaseAI/Sources"
     ),
     .testTarget(
       name: "FirebaseVertexAIUnit",
       dependencies: [
-        "FirebaseVertexAI",
+        "FirebaseAI",
         "FirebaseStorage",
       ],
-      path: "FirebaseVertexAI/Tests/Unit",
+      path: "FirebaseAI/Tests/Unit",
       resources: [
         .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
         .process("Resources"),
@@ -1324,6 +1324,16 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../../"),
       ]
+    ),
+
+    // MARK: - Firebase Vertex AI
+
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAI",
+      ],
+      path: "FirebaseVertexAI/Sources"
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,

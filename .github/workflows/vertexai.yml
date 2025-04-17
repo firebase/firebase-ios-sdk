@@ -3,7 +3,7 @@ name: vertexai
 on:
   pull_request:
     paths:
-    - 'FirebaseVertexAI**'
+    - 'FirebaseAI**'
     - '.github/workflows/vertexai.yml'
     - 'Gemfile*'
   schedule:
@@ -114,13 +114,13 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
-        FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
+        FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
     - name: Install Secret GoogleService-Info-Spark.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info-Spark.plist.gpg \
-        FirebaseVertexAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist "$secrets_passphrase"
+        FirebaseAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist "$secrets_passphrase"
     - name: Install Secret Credentials.swift
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-Credentials.swift.gpg \
-        FirebaseVertexAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
+        FirebaseAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Run IntegrationTests
@@ -155,6 +155,6 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Set Swift swift_version
-      run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseVertexAI.podspec
+      run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseAI.podspec
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseVertexAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}

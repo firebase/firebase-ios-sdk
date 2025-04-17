@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseCore
-import Foundation
+@_exported public import FirebaseAI
 
-// Avoids exposing internal FirebaseCore APIs to Swift users.
-internal import FirebaseCoreExtension
+import FirebaseCore
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -37,14 +33,8 @@ public class VertexAI {
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> VertexAI {
-    let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
-    // Verify that the `VertexAI` instance is always configured with the production endpoint since
-    // this is the public API surface for creating an instance.
-    assert(vertexInstance.apiConfig.service == .vertexAI(endpoint: .firebaseVertexAIProd))
-    assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
-    assert(vertexInstance.apiConfig.version == .v1beta)
-
-    return vertexInstance
+    let firebaseAI = FirebaseAI.vertexAI(app: app, location: location)
+    return VertexAI(firebaseAI: firebaseAI)
   }
 
   /// Initializes a generative model with the given parameters.
@@ -72,18 +62,8 @@ public class VertexAI {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix) {
-      VertexLog.warning(code: .unsupportedGeminiModel, """
-      Unsupported Gemini model "\(modelName)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
-      """)
-    }
-
-    return GenerativeModel(
+    return firebaseAI.generativeModel(
       modelName: modelName,
-      modelResourceName: modelResourceName(modelName: modelName),
-      firebaseInfo: firebaseInfo,
-      apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
@@ -112,149 +92,19 @@ public class VertexAI {
   public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
-    if !modelName.starts(with: ImagenModel.imagenModelNamePrefix) {
-      VertexLog.warning(code: .unsupportedImagenModel, """
-      Unsupported Imagen model "\(modelName)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
-      """)
-    }
-
-    return ImagenModel(
-      modelResourceName: modelResourceName(modelName: modelName),
-      firebaseInfo: firebaseInfo,
-      apiConfig: apiConfig,
+    return firebaseAI.imagenModel(
+      modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       requestOptions: requestOptions
     )
   }
 
-  /// Class to enable VertexAI to register via the Objective-C based Firebase component system
-  /// to include VertexAI in the userAgent.
-  @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
+  // MARK: - Internal APIs
 
-  // MARK: - Private
+  let firebaseAI: FirebaseAI
 
-  /// Firebase data relevant to Vertex AI.
-  let firebaseInfo: FirebaseInfo
-
-  let apiConfig: APIConfig
-
-  #if compiler(>=6)
-    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
-    /// the format `appName:location`.
-    private nonisolated(unsafe) static var instances: [InstanceKey: VertexAI] = [:]
-
-    /// Lock to manage access to the `instances` array to avoid race conditions.
-    private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
-  #else
-    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
-    /// the format `appName:location`.
-    private static var instances: [InstanceKey: VertexAI] = [:]
-
-    /// Lock to manage access to the `instances` array to avoid race conditions.
-    private static var instancesLock: os_unfair_lock = .init()
-  #endif
-
-  let location: String?
-
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseVertexAIProd),
-    version: .v1beta
-  )
-
-  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> VertexAI {
-    guard let app = app ?? FirebaseApp.app() else {
-      fatalError("No instance of the default Firebase app was found.")
-    }
-
-    os_unfair_lock_lock(&instancesLock)
-
-    // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
-
-    let instanceKey = InstanceKey(appName: app.name, location: location, apiConfig: apiConfig)
-    if let instance = instances[instanceKey] {
-      return instance
-    }
-    let newInstance = VertexAI(app: app, location: location, apiConfig: apiConfig)
-    instances[instanceKey] = newInstance
-    return newInstance
-  }
-
-  init(app: FirebaseApp, location: String?, apiConfig: APIConfig) {
-    guard let projectID = app.options.projectID else {
-      fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
-    }
-    guard let apiKey = app.options.apiKey else {
-      fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
-    }
-    firebaseInfo = FirebaseInfo(
-      appCheck: ComponentType<AppCheckInterop>.instance(
-        for: AppCheckInterop.self,
-        in: app.container
-      ),
-      auth: ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container),
-      projectID: projectID,
-      apiKey: apiKey,
-      firebaseAppID: app.options.googleAppID,
-      firebaseApp: app
-    )
-    self.apiConfig = apiConfig
-    self.location = location
-  }
-
-  func modelResourceName(modelName: String) -> String {
-    guard !modelName.isEmpty && modelName
-      .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
-      fatalError("""
-      Invalid model name "\(modelName)" specified; see \
-      https://firebase.google.com/docs/vertex-ai/gemini-model#available-models for a list of \
-      available models.
-      """)
-    }
-
-    switch apiConfig.service {
-    case .vertexAI:
-      return vertexAIModelResourceName(modelName: modelName)
-    case .developer:
-      return developerModelResourceName(modelName: modelName)
-    }
-  }
-
-  private func vertexAIModelResourceName(modelName: String) -> String {
-    guard let location else {
-      fatalError("Location must be specified for the Vertex AI service.")
-    }
-    guard !location.isEmpty && location
-      .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
-      fatalError("""
-      Invalid location "\(location)" specified; see \
-      https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations \
-      for a list of available locations.
-      """)
-    }
-
-    let projectID = firebaseInfo.projectID
-    return "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelName)"
-  }
-
-  private func developerModelResourceName(modelName: String) -> String {
-    switch apiConfig.service.endpoint {
-    case .firebaseVertexAIStaging, .firebaseVertexAIProd:
-      let projectID = firebaseInfo.projectID
-      return "projects/\(projectID)/models/\(modelName)"
-    case .generativeLanguage:
-      return "models/\(modelName)"
-    }
-  }
-
-  /// Identifier for a unique instance of ``VertexAI``.
-  ///
-  /// This type is `Hashable` so that it can be used as a key in the `instances` dictionary.
-  private struct InstanceKey: Sendable, Hashable {
-    let appName: String
-    let location: String?
-    let apiConfig: APIConfig
+  init(firebaseAI: FirebaseAI) {
+    self.firebaseAI = firebaseAI
   }
 }
