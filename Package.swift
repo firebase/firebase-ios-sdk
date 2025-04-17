@@ -13,7 +13,7 @@
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
+// See the License for specific language governing permissions and
 // limitations under the License.
 
 import class Foundation.ProcessInfo
@@ -117,6 +117,12 @@ let package = Package(
       name: "FirebaseRemoteConfig",
       targets: ["FirebaseRemoteConfig"]
     ),
+    // START: RemoteConfigRewrite Product
+    .library(
+      name: "RemoteConfigRewrite", // As requested
+      targets: ["RemoteConfigRewrite"]
+    ),
+    // END: RemoteConfigRewrite Product
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
@@ -915,8 +921,8 @@ let package = Package(
       path: "FirebasePerformance/Tests/Unit",
       resources: [
         .process("FPRURLFilterTests-Info.plist"),
-        .process("Server/smallDownloadFile"),
-        .process("Server/bigDownloadFile"),
+        .copy("Server/smallDownloadFile"),
+        .copy("Server/bigDownloadFile"),
       ],
       cSettings: [
         .headerSearchPath("../../.."),
@@ -1031,6 +1037,94 @@ let package = Package(
         .headerSearchPath("../../"),
       ]
     ),
+    // START: RemoteConfigRewrite Target
+    // MARK: - Remote Config Rewrite Target
+    .target(
+      name: "RemoteConfigRewrite",
+      dependencies: [
+        // Core Firebase dependencies
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseInstallations",
+        // Potential internal dependencies (check imports in Swift files)
+        "FirebaseABTesting", // Was imported by RCNConfigSettings.m
+        "FirebaseRemoteConfigInterop", // Keep for potential internal usage
+        // GoogleUtilities used by dependencies or potentially direct Swift usage
+        .product(name: "GULNSData", package: "GoogleUtilities"), // For NSData+Gzip bridging?
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+        // Add Promises if needed by async operations eventually?
+        // Add SQLite3 if RCNConfigDBManager used C interop (skipped for now)
+        // Add nanopb if protos used directly (unlikely)
+      ],
+      path: "FirebaseRemoteConfig/Sources",
+      // Explicitly list Swift sources ONLY
+      sources: [
+        "RemoteConfig.swift",
+        "RemoteConfigSettings.swift",
+        "RemoteConfigValue.swift",
+        "RemoteConfigUpdate.swift",
+        "ConfigUpdateListenerRegistration.swift",
+        "RCNConfigSettingsInternal.swift",
+        "RCNUserDefaultsManager.swift",
+        "RCNConfigContent.swift",
+        "RCNConfigFetch.swift",
+        // Add RCNConfigDBManager.swift here IF/WHEN it's created
+        // Add RCNConfigExperiment.swift etc. as they are created
+      ],
+      // Exclude ALL ObjC files to prevent conflicts
+      exclude: [
+        "Public/", // Exclude Public ObjC Headers folder
+        "Private/", // Exclude Private ObjC Headers folder
+        "FIRRemoteConfig.m",
+        "FIRConfigValue.m",
+        "FIRRemoteConfigComponent.m",
+        "FIRRemoteConfigUpdate.m",
+        "RCNConfigConstants.h", // Exclude constants file
+        "RCNConfigContent.m",
+        "RCNConfigContent.h",
+        "RCNConfigDBManager.m",
+        "RCNConfigDBManager.h",
+        "RCNConfigDefines.h", // Exclude defines file
+        "RCNConfigExperiment.m",
+        "RCNConfigExperiment.h",
+        "RCNConfigFetch.m",
+        "RCNConfigRealtime.m",
+        "RCNConfigRealtime.h",
+        "RCNConfigSettings.m",
+        "RCNConfigValue_Internal.h",
+        "RCNConstants3P.m",
+        "RCNDevice.h",
+        "RCNDevice.m",
+        "RCNPersonalization.h",
+        "RCNPersonalization.m",
+        "RCNUserDefaultsManager.m",
+        "RCNUserDefaultsManager.h"
+        // Add any other .h/.m files if missed
+      ],
+      publicHeadersPath: ".", // Avoid exporting ObjC headers
+      cSettings: [
+        .headerSearchPath("../../"), // Keep consistent with other targets
+      ]
+      // No resources specified unless needed
+    ),
+    // START: RemoteConfigRewrite Test Target
+    .testTarget(
+      name: "RemoteConfigRewriteTests",
+      dependencies: [
+        "RemoteConfigRewrite", // Depend on the new Swift target
+        "SharedTestUtilities", // Common test utilities
+        "FirebaseCore", // Often needed for test setup
+        .product(name: "OCMock", package: "ocmock") // For ObjC test compatibility/mocking
+      ],
+      path: "FirebaseRemoteConfig/Tests/Swift", // New path for tests - Adjust if needed
+      // resources: [], // Add if test resources are needed
+      cSettings: [
+        .headerSearchPath("../../../"), // Point to root for finding dependency headers
+      ]
+    ),
+    // END: RemoteConfigRewrite Test Target
+    // END: RemoteConfigRewrite Target
 
     // MARK: - Firebase Sessions
 
