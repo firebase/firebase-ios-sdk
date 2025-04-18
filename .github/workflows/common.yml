@@ -6,7 +6,7 @@ on:
       target:
         required: true
         type: string
-  
+
 jobs:
   spm-package-resolved:
     env:
@@ -49,9 +49,6 @@ jobs:
             platform: iOS
           - os: macos-15
             xcode: Xcode_16.2
-            platform: iOS
-          - os: macos-15
-            xcode: Xcode_16.2
             platform: tvOS
           - os: macos-15
             xcode: Xcode_16.2
@@ -79,5 +76,10 @@ jobs:
       run: xcodebuild -downloadPlatform visionOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ inputs.target }} ${{ matrix.platform }} spm
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: ./scripts/build.sh ${{ inputs.target }} ${{ matrix.platform }} spm
