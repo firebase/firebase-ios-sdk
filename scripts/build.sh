@@ -116,6 +116,11 @@ function RunXcodebuild() {
   xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 | "${xcbeautify_cmd[@]}" \
     && CheckUnexpectedFailures xcodebuild.log \
     || result=$?
+  if [ "$GITHUB_ACTIONS" = true ]; then
+    echo "::group::xcodebuild log"
+    cat xcodebuild.log
+    echo "::endgroup::"
+  fi
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -127,6 +132,11 @@ function RunXcodebuild() {
     xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 | "${xcbeautify_cmd[@]}" \
       && CheckUnexpectedFailures xcodebuild.log \
       || result=$?
+    if [ "$GITHUB_ACTIONS" = true ]; then
+      echo "::group::xcodebuild log"
+      cat xcodebuild.log
+      echo "::endgroup::"
+    fi
   fi
 
   if [[ $result != 0 ]]; then
@@ -139,12 +149,6 @@ function RunXcodebuild() {
 
 # Exports any logs output captured in the xcresult
 function ExportLogs() {
-  if [ "$GITHUB_ACTIONS" = true ]; then
-    echo "::group::xcodebuild log"
-    cat xcodebuild.log
-    echo "::endgroup::"
-  fi
-
   python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
