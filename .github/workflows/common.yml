@@ -39,29 +39,13 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        # TODO: Add Xcode matrix when Xcode 16 is ubiquitous on CI runners.
+        os: macos-15
+        xcode: Xcode_16.2
+        platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
         include:
           - os: macos-14
             xcode: Xcode_16.2
             platform: iOS
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: iOS
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: tvOS
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: macOS
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: watchOS
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: catalyst
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: visionOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
