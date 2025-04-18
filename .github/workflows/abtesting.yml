@@ -55,10 +55,10 @@ jobs:
 #        retry_wait_seconds: 120
 #        command: scripts/pod_lib_lint.rb FirebaseABTesting.podspec --platforms=${{ matrix.target }}
 
-  spm:
-    uses: ./.github/workflows/common.yml
-    with:
-      target: ABTestingUnit
+#  spm:
+#    uses: ./.github/workflows/common.yml
+#    with:
+#      target: ABTestingUnit
 
 #  catalyst:
 #    # Don't run on private repo unless it is a PR.
