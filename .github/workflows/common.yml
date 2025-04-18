@@ -42,10 +42,10 @@ jobs:
         os: [macos-15]
         xcode: [Xcode_16.2]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
-#        include:
-#          - os: macos-14
-#            xcode: Xcode_16.2
-#            platform: iOS
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+            platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
