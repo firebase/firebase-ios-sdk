@@ -335,6 +335,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         "${xcb_flags[@]}" \
         test
     ;;
