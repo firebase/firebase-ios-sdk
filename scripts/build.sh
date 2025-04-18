@@ -139,6 +139,12 @@ function RunXcodebuild() {
 
 # Exports any logs output captured in the xcresult
 function ExportLogs() {
+  if [ "$GITHUB_ACTIONS" = true ]; then
+    echo "::group::xcodebuild log"
+    cat xcodebuild.log
+    echo "::endgroup::"
+  fi
+
   python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
