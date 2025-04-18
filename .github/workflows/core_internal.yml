@@ -13,6 +13,10 @@ on:
     - cron:  '0 10 * * *'
 
 jobs:
+  spm:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: FirebaseCoreInternalTests
 #  pod-lib-lint:
 #    # Don't run on private repo unless it is a PR.
 #    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -41,11 +45,6 @@ jobs:
 #      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseCoreInternal.podspec
 #    - name: Build and test
 #      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCoreInternal.podspec --platforms=${{ matrix.target }}
-
-  spm:
-    uses: ./.github/workflows/common.yml
-    with:
-      target: FirebaseCoreInternalTests
 
 #  catalyst:
 #    # Don't run on private repo unless it is a PR.

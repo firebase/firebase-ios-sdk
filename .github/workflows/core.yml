@@ -16,6 +16,10 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  spm:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: CoreUnit
 #  pod-lib-lint:
 #    # Don't run on private repo unless it is a PR.
 #    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -66,11 +70,6 @@ jobs:
 #        with:
 #          path: .build
 #          key: ${{ steps.generate_cache_key.outputs.cache_key }}
-
-#  spm:
-#    uses: ./.github/workflows/common.yml
-#    with:
-#      target: CoreUnit
 
 #  catalyst:
 #    # Don't run on private repo unless it is a PR.

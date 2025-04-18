@@ -21,6 +21,14 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  spm:
+    strategy:
+      matrix:
+        target: [DatabaseUnit, DatabaseUnitSwift]
+    uses: ./.github/workflows/common.yml
+    with:
+      target: ${{  matrix.target }}
+ 
 #  pod-lib-lint:
 #    # Don't run on private repo unless it is a PR.
 #    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -62,14 +70,6 @@ jobs:
 #    - name: IntegrationTest
 #      # Only iOS to mitigate flakes.
 #      run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
-
-  spm:
-    strategy:
-      matrix:
-        target: [DatabaseUnit, DatabaseUnitSwift]
-    uses: ./.github/workflows/common.yml
-    with:
-      target: ${{  matrix.target }}
 
 #  catalyst:
 #    # Don't run on private repo unless it is a PR.
