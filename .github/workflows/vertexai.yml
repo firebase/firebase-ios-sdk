@@ -92,6 +92,7 @@ jobs:
         command: scripts/build.sh FirebaseVertexAIUnit ${{ matrix.target }} spm
 
   testapp-integration:
+    # Run tests
     strategy:
       matrix:
         target: [iOS]

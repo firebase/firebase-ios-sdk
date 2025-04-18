@@ -113,9 +113,14 @@ function RunXcodebuild() {
   xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
+  xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 | "${xcbeautify_cmd[@]}" \
     && CheckUnexpectedFailures xcodebuild.log \
     || result=$?
+  if [ "$GITHUB_ACTIONS" = true ]; then
+    echo "::group::xcodebuild log"
+    cat xcodebuild.log
+    echo "::endgroup::"
+  fi
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -124,9 +129,14 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
+    xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 | "${xcbeautify_cmd[@]}" \
       && CheckUnexpectedFailures xcodebuild.log \
       || result=$?
+    if [ "$GITHUB_ACTIONS" = true ]; then
+      echo "::group::xcodebuild log"
+      cat xcodebuild.log
+      echo "::endgroup::"
+    fi
   fi
 
   if [[ $result != 0 ]]; then
