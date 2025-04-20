@@ -216,6 +216,12 @@ extension Auth: AuthInterop {
   /// The tenant ID of the auth instance. `nil` if none is available.
   @objc open var tenantID: String?
 
+  /// When true, route all RPCs to identityplatform.googleapis.com (R‑GCIP).
+  @objc open var useIdentityPlatform: Bool = false
+
+  /// Regional prefix (e.g. "us‑east4") for R‑GCIP endpoints.
+  @objc open var location: String?
+
   /// The custom authentication domain used to handle all sign-in redirects.
   /// End-users will see
   /// this domain when signing in. This domain must be allowlisted in the Firebase Console.
@@ -2424,4 +2430,37 @@ extension Auth: AuthInterop {
   ///
   /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
+}
+
+extension Auth {
+  /// Exchange a third‑party OIDC token for a short‑lived Firebase STS token.
+  @objc open func exchangeToken(
+    _ idpConfigID: String,
+    _ ciamOidcToken: String,
+    completion: @escaping (String?, Error?) -> Void
+  ) {
+    // Must have opted into R‑GCIP
+    guard useIdentityPlatform,
+          let _ = location,
+          let _ = tenantID
+    else {
+      completion(nil, AuthErrorUtils.operationNotAllowedError(
+        message: "Set useIdentityPlatform=true, location & tenantID first"))
+      return
+    }
+
+    let req = ExchangeOIDCTokenRequest(
+      idpConfigID: idpConfigID,
+      idToken: ciamOidcToken,
+      cfg: requestConfiguration
+    )
+    Task {
+      do {
+        let resp = try await backend.call(with: req)
+        DispatchQueue.main.async { completion(resp.firebaseToken, nil) }
+      } catch {
+        DispatchQueue.main.async { completion(nil, error) }
+      }
+    }
+  }
 }
