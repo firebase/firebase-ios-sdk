@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
+  omitted; this occurs when the count is 0. (#14745)
+
 # 11.12.0
 - [added] **Public Preview**: Added support for specifying response modalities
   in `GenerationConfig`. This includes **public experimental** support for image
