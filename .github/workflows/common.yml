@@ -8,8 +8,15 @@ on:
         type: string
         required: true
       # By default, all platforms will be tested (see matrix in `spm` job).
-      # To build instead of test, pass a comma/space separated string of
-      # platforms (e.g. "macos tvos").
+      # To build instead of test, pass a comma or space separated string of
+      # platforms.
+      #
+      # Platform options: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+      #
+      # Examples:
+      # - build only for macOS: `macOS`
+      # - build only for macOS and tvOS: `macOS, tvOS`
+      # - build only for all platforms: `all`
       buildonly_platforms:
        type: string
        required: false
@@ -74,4 +81,8 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: ./scripts/build.sh ${{ inputs.target }} ${{ matrix.platform }} ${{ contains(inputs.buildonly_platforms, matrix.platform) && 'spmbuildonly' || 'spm' }}
+        command: |
+          ./scripts/build.sh \
+            ${{ inputs.target }} \
+            ${{ matrix.platform }} \
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
