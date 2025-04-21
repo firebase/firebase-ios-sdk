@@ -63,7 +63,7 @@ jobs:
       matrix:
         os: [macos-15]
         xcode: [Xcode_16.2]
-        platform: ${{ inputs.platforms == 'all' && ['iOS', 'tvOS', 'macOS', 'watchOS', 'catalyst', 'visionOS'] || join(inputs.platforms) }}
+        platform: ${{ inputs.platforms == 'all' && [iOS, tvOS, macOS, watchOS, catalyst, visionOS] || join(inputs.platforms) }}
         include:
           - os: macos-14
             xcode: Xcode_16.2
