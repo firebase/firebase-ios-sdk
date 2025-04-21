@@ -28,7 +28,7 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       target: PerformanceUnit
-      platforms: [iOS, tvOS]
+      platforms: iOS, tvOS
 
   # Build and run the unit tests for Firebase performance SDK.
   performance:
