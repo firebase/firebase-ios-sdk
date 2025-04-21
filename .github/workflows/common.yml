@@ -3,9 +3,17 @@ name: common
 on:
   workflow_call:
     inputs:
+      # The target scheme to be tested.
       target:
-        required: true
         type: string
+        required: true
+      # By default, all platforms will be tested (see matrix in `spm` job).
+      # To build instead of test, pass a comma/space separated string of
+      # platforms (e.g. "macos tvos").
+      buildonly_platforms:
+       type: string
+       required: false
+       default: ""
 
 jobs:
   spm-package-resolved:
@@ -66,4 +74,4 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: ./scripts/build.sh ${{ inputs.target }} ${{ matrix.platform }} spm
+        command: ./scripts/build.sh ${{ inputs.target }} ${{ matrix.platform }} ${{ contains(inputs.buildonly_platforms, matrix.platform) && 'spmbuildonly' || 'spm' }}
