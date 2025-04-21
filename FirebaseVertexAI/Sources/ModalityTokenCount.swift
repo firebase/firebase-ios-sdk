@@ -68,7 +68,7 @@ extension ModalityTokenCount: Decodable {
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.modality = try container.decode(ContentModality.self, forKey: .modality)
-    self.tokenCount = try container.decodeIfPresent(Int.self, forKey: .tokenCount) ?? 0
+    modality = try container.decode(ContentModality.self, forKey: .modality)
+    tokenCount = try container.decodeIfPresent(Int.self, forKey: .tokenCount) ?? 0
   }
 }
