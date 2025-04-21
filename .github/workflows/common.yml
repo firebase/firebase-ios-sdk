@@ -7,6 +7,13 @@ on:
       target:
         type: string
         required: true
+
+      # The platforms to build on. Defaults to all.
+      platforms:
+        type: string
+        required: false
+        default: all
+
       # By default, all platforms will be tested (see matrix in `spm` job).
       # To build instead of test, pass a comma or space separated string of
       # platforms.
@@ -56,7 +63,7 @@ jobs:
       matrix:
         os: [macos-15]
         xcode: [Xcode_16.2]
-        platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+        platform: ${{ inputs.platforms == 'all' && ['iOS', 'tvOS', 'macOS', 'watchOS', 'catalyst', 'visionOS'] || join(inputs.platforms) }}
         include:
           - os: macos-14
             xcode: Xcode_16.2
