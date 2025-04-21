@@ -54,7 +54,7 @@ jobs:
         retry_on: error
         retry_wait_seconds: 120
         command: scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} ${{ matrix.tests }}
-        
+
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
