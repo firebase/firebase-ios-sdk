@@ -1311,7 +1311,7 @@ let package = Package(
       path: "FirebaseAI/Sources"
     ),
     .testTarget(
-      name: "FirebaseVertexAIUnit",
+      name: "FirebaseAIUnit",
       dependencies: [
         "FirebaseAI",
         "FirebaseStorage",
@@ -1334,6 +1334,16 @@ let package = Package(
         "FirebaseAI",
       ],
       path: "FirebaseVertexAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: [
+        "FirebaseVertexAI",
+      ],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("Resources"),
+      ],
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
