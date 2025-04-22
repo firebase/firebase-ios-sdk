@@ -18,6 +18,8 @@
 #
 # Builds the given product for the given platform using the given build method
 
+# Trigger CI to demonstrate CMake issue
+
 function pod_gen() {
   # Call pod gen with a podspec and additional optional arguments.
   bundle exec pod gen --local-sources=./ --sources=https://github.com/firebase/SpecsDev.git,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/ "$@"
