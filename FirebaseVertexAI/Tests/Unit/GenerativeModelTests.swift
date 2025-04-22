@@ -1543,7 +1543,7 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentResponse_inlineDataParts_success() throws {
     // 1. Create mock parts
     let imageData = Data("sample image data".utf8) // Placeholder data
-    let inlineDataPart = InlineDataPart(mimeType: "image/png", data: imageData)
+    let inlineDataPart = InlineDataPart(data: imageData, mimeType: "image/png")
     let textPart = TextPart("This is the text part.")
 
     // 2. Create ModelContent
@@ -1574,55 +1574,60 @@ final class GenerativeModelTests: XCTestCase {
     XCTAssertEqual(response.text, "This is the text part.")
 
     // 7. Assertion for function calls (ensure it's empty)
-     XCTAssertTrue(response.functionCalls.isEmpty, "functionCalls should be empty.")
+    XCTAssertTrue(response.functionCalls.isEmpty, "functionCalls should be empty.")
   }
 
   func testGenerateContentResponse_inlineDataParts_noInlineData() throws {
-     // 1. Create mock parts (only text)
-     let textPart = TextPart("This is the text part.")
-     let funcCallPart = FunctionCallPart(name: "testFunc", args: nil) // Add another part type
+    // 1. Create mock parts (only text)
+    let textPart = TextPart("This is the text part.")
+    let funcCallPart = FunctionCallPart(name: "testFunc", args: [:]) // Add another part type
 
-     // 2. Create ModelContent
-     let modelContent = ModelContent(parts: [textPart, funcCallPart])
+    // 2. Create ModelContent
+    let modelContent = ModelContent(parts: [textPart, funcCallPart])
 
-     // 3. Create Candidate
-     let candidate = Candidate(
-       content: modelContent,
-       safetyRatings: [],
-       finishReason: .stop,
-       citationMetadata: nil
-     )
+    // 3. Create Candidate
+    let candidate = Candidate(
+      content: modelContent,
+      safetyRatings: [],
+      finishReason: .stop,
+      citationMetadata: nil
+    )
 
-     // 4. Create GenerateContentResponse
-     let response = GenerateContentResponse(candidates: [candidate])
+    // 4. Create GenerateContentResponse
+    let response = GenerateContentResponse(candidates: [candidate])
 
-     // 5. Assertions for inlineDataParts
-     let inlineParts = response.inlineDataParts
-     XCTAssertTrue(inlineParts.isEmpty, "inlineDataParts should be empty.")
+    // 5. Assertions for inlineDataParts
+    let inlineParts = response.inlineDataParts
+    XCTAssertTrue(inlineParts.isEmpty, "inlineDataParts should be empty.")
 
-     // 6. Assertion for text
-     XCTAssertEqual(response.text, "This is the text part.")
+    // 6. Assertion for text
+    XCTAssertEqual(response.text, "This is the text part.")
 
-     // 7. Assertion for function calls
-     XCTAssertEqual(response.functionCalls.count, 1)
-     XCTAssertEqual(response.functionCalls.first?.name, "testFunc")
+    // 7. Assertion for function calls
+    XCTAssertEqual(response.functionCalls.count, 1)
+    XCTAssertEqual(response.functionCalls.first?.name, "testFunc")
   }
 
   func testGenerateContentResponse_inlineDataParts_noCandidates() throws {
-      // 1. Create GenerateContentResponse with no candidates
-      let response = GenerateContentResponse(candidates: [])
+    // 1. Create GenerateContentResponse with no candidates
+    let response = GenerateContentResponse(candidates: [])
 
-      // 2. Assertions for inlineDataParts
-      let inlineParts = response.inlineDataParts
-      XCTAssertTrue(inlineParts.isEmpty, "inlineDataParts should be empty when there are no candidates.")
+    // 2. Assertions for inlineDataParts
+    let inlineParts = response.inlineDataParts
+    XCTAssertTrue(
+      inlineParts.isEmpty,
+      "inlineDataParts should be empty when there are no candidates."
+    )
 
-      // 3. Assertion for text
-       XCTAssertNil(response.text, "Text should be nil when there are no candidates.")
+    // 3. Assertion for text
+    XCTAssertNil(response.text, "Text should be nil when there are no candidates.")
 
-      // 4. Assertion for function calls
-       XCTAssertTrue(response.functionCalls.isEmpty, "functionCalls should be empty when there are no candidates.")
+    // 4. Assertion for function calls
+    XCTAssertTrue(
+      response.functionCalls.isEmpty,
+      "functionCalls should be empty when there are no candidates."
+    )
   }
-
 
   // MARK: - Helpers
 

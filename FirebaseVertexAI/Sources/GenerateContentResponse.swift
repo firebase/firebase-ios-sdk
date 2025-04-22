@@ -105,12 +105,6 @@ public struct GenerateContentResponse: Sendable {
         return nil
       }
     }
-    if inlineData.isEmpty {
-       VertexLog.warning(
-         code: .generateContentResponseNoInlineData,
-         "Could not find any inline data parts in the first candidate."
-       )
-    }
     return inlineData
   }
 
