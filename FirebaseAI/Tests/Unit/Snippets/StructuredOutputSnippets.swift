@@ -50,7 +50,7 @@ final class StructuredOutputSnippets: XCTestCase {
 
     // Initialize the Vertex AI service and the generative model.
     // Use a model that supports `responseSchema`, like one of the Gemini 1.5 models.
-    let model = VertexAI.vertexAI().generativeModel(
+    let model = FirebaseAI.vertexAI().generativeModel(
       modelName: "gemini-1.5-flash",
       // In the generation config, set the `responseMimeType` to `application/json`
       // and pass the JSON schema object into `responseSchema`.
@@ -73,7 +73,7 @@ final class StructuredOutputSnippets: XCTestCase {
 
     // Initialize the Vertex AI service and the generative model.
     // Use a model that supports `responseSchema`, like one of the Gemini 1.5 models.
-    let model = VertexAI.vertexAI().generativeModel(
+    let model = FirebaseAI.vertexAI().generativeModel(
       modelName: "gemini-1.5-flash",
       // In the generation config, set the `responseMimeType` to `text/x.enum`
       // and pass the enum schema object into `responseSchema`.

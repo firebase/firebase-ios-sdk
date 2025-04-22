@@ -67,7 +67,7 @@ final class FunctionCallingSnippets: XCTestCase {
 
     // Initialize the Vertex AI service and the generative model.
     // Use a model that supports function calling, like a Gemini 1.5 model.
-    let model = VertexAI.vertexAI().generativeModel(
+    let model = FirebaseAI.vertexAI().generativeModel(
       modelName: "gemini-1.5-flash",
       // Provide the function declaration to the model.
       tools: [.functionDeclarations([fetchWeatherTool])]

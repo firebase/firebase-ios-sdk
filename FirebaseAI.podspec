@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAI'
-  s.version          = '11.12.0'
+  s.version          = '11.13.0'
   s.summary          = 'Firebase AI SDK'
 
   s.description      = <<-DESC
