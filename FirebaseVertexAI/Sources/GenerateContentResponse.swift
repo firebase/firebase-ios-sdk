@@ -97,15 +97,7 @@ public struct GenerateContentResponse: Sendable {
       )
       return []
     }
-    let inlineDataParts: [InlineDataPart] = candidate.content.parts.compactMap { part in
-      switch part {
-      case let inlineDataPart as InlineDataPart:
-        return inlineDataPart
-      default:
-        return nil
-      }
-    }
-    return inlineDataParts
+    return candidate.content.parts.compactMap { $0 as? InlineDataPart }
   }
 
   /// Initializer for SwiftUI previews or tests.
