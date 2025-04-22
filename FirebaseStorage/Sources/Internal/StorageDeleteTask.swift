@@ -25,7 +25,7 @@ import Foundation
 enum StorageDeleteTask {
   static func deleteTask(reference: StorageReference,
                          queue: DispatchQueue,
-                         completion: ((_: Data?, _: Error?) -> Void)?) {
+                         completion: (@Sendable (_: Data?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
                         queue: queue,
                         httpMethod: "DELETE",

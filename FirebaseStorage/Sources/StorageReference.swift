@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+import FirebaseCoreInternal
 
 /// `StorageReference` represents a reference to a Google Cloud Storage object. Developers can
 /// upload and download objects, as well as get/set object metadata, and delete an object at the
@@ -313,19 +313,23 @@ import Foundation
   /// under
   ///       the current `StorageReference`.
   @objc(listAllWithCompletion:)
-  open func listAll(completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
-    var prefixes = [StorageReference]()
-    var items = [StorageReference]()
+  open func listAll(completion: @escaping @Sendable (_: StorageListResult?, _: Error?) -> Void) {
 
     weak var weakSelf = self
 
-    var paginatedCompletion: ((_: StorageListResult?, _: Error?) -> Void)?
+    let optionalSelf: FIRNonisolatedUnsafe<StorageReference?> =
+        FIRNonisolatedUnsafe(initialState: self)
+
+    var paginatedCompletion: (@Sendable (_: StorageListResult?, _: Error?) -> Void)?
     paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
+      var prefixes = [StorageReference]()
+      var items = [StorageReference]()
+
       if let error {
         completion(nil, error)
         return
       }
-      guard let strongSelf = weakSelf else { return }
+      guard let strongSelf = optionalSelf else { return }
       guard let listResult = listResult else {
         fatalError("internal error: both listResult and error are nil")
       }
@@ -333,11 +337,13 @@ import Foundation
       items.append(contentsOf: listResult.items)
 
       if let pageToken = listResult.pageToken {
-        StorageListTask.listTask(reference: strongSelf,
-                                 queue: strongSelf.storage.dispatchQueue,
-                                 pageSize: nil,
-                                 previousPageToken: pageToken,
-                                 completion: paginatedCompletion)
+        strongSelf.withNonisolatedUnsafeState { state in
+          StorageListTask.listTask(reference: state,
+                                   queue: state.storage.dispatchQueue,
+                                   pageSize: nil,
+                                   previousPageToken: pageToken,
+                                   completion: paginatedCompletion)
+        }
       } else {
         let result = StorageListResult(withPrefixes: prefixes, items: items, pageToken: nil)
 

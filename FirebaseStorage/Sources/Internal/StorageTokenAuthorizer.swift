@@ -17,6 +17,7 @@ import Foundation
 @preconcurrency import FirebaseAppCheckInterop /* TODO: sendable */
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
 @_implementationOnly import FirebaseCoreExtension
 
 #if COCOAPODS
@@ -27,16 +28,90 @@ import FirebaseCore
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer, Sendable {
-  func authorizeRequest(_ request: NSMutableURLRequest?,
-                        completionHandler handler: @escaping (Error?) -> Void) {
-    if let request = request {
-      Task {
-        do {
-          try await self._authorizeRequest(request)
-          handler(nil)
-        } catch {
-          handler(error)
+
+  // A hack to get around Swift complaining that we're mutating `request` across multiple
+  // threads, which is thread-unsafe. It is thread-unsafe generally. This code is
+  // only thread-safe because GTMSessionFetcher creates and provides a mutable request
+  // and does not perform any other external operations on it. In an ideal world,
+  // GTMSessionFetcher would label the parameter as `sending`.
+  private nonisolated(unsafe) var request: NSMutableURLRequest!
+
+  func authorizeRequest(_ incomingRequest: NSMutableURLRequest?,
+                        completionHandler handler: @escaping @Sendable (Error?) -> Void) {
+    guard let _request = incomingRequest else {
+      handler(nil)
+      return
+    }
+    let request = FIRNonisolatedUnsafe(initialState: _request)
+
+    // Set version header on each request
+    let versionString = "ios/\(FirebaseVersion())"
+
+    request.withNonisolatedUnsafeState { state in
+      state.setValue(versionString, forHTTPHeaderField: "x-firebase-storage-version")
+
+      // Set GMP ID on each request
+      state.setValue(googleAppID, forHTTPHeaderField: "x-firebase-gmpid")
+    }
+
+    // If there's no Auth to authorize the request, pass it back with just header changes.
+    guard let auth = auth else {
+      handler(nil)
+      return
+    }
+
+    auth.getToken(forcingRefresh: false) { token, error in
+      let firebaseToken: String
+
+      if let token {
+        firebaseToken = "Firebase \(token)"
+      } else if let error = error as? NSError {
+        var errorDictionary = error.userInfo
+        errorDictionary["ResponseErrorDomain"] = error.domain
+        errorDictionary["ResponseErrorCode"] = error.code
+        let wrappedError = StorageError.unauthenticated(serverError: errorDictionary) as Error
+        handler(wrappedError)
+        return
+      } else {
+        let underlyingError: [String: Any]
+        if let error = error {
+          underlyingError = [NSUnderlyingErrorKey: error]
+        } else {
+          underlyingError = [:]
         }
+        let unknownError = StorageError.unknown(
+          message: "Auth token fetch returned no token or error: \(token ?? "nil")",
+          serverError: underlyingError
+        ) as Error
+        handler(unknownError)
+        return
+      }
+
+      request.withNonisolatedUnsafeState { state in
+        state.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
+      }
+
+      guard let appCheck = self.appCheck else {
+        handler(nil)
+        return
+      }
+
+      appCheck.getToken(forcingRefresh: false) { tokenResult in
+        if let error = tokenResult.error {
+          FirebaseLogger.log(
+            level: .debug,
+            service: "[FirebaseStorage]",
+            code: "I-STR000001",
+            message: "Failed to fetch AppCheck token. Error: \(error)"
+          )
+          // Don't bubble the error up to the authorizer if we successfully
+          // got an auth token earlier.
+        }
+
+        request.withNonisolatedUnsafeState { state in
+          state.setValue(token, forHTTPHeaderField: "X-Firebase-AppCheck")
+        }
+        handler(nil)
       }
     }
   }
