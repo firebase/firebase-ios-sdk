@@ -1,10 +1,10 @@
-name: vertexai
+name: firebaseai
 
 on:
   pull_request:
     paths:
     - 'FirebaseAI**'
-    - '.github/workflows/vertexai.yml'
+    - '.github/workflows/firebaseai.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
