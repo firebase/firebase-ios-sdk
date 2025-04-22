@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAI
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseVertexAI
 import Testing
 import VertexAITestApp
 
@@ -23,7 +23,7 @@ import VertexAITestApp
   import UIKit
 #endif // canImport(UIKit)
 
-@testable import struct FirebaseVertexAI.BackendError
+@testable import struct FirebaseAI.BackendError
 
 @Suite(.serialized)
 /// Test the schema fields.
@@ -50,7 +50,7 @@ struct SchemaTests {
 
   @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
   func generateContentSchemaItems(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
@@ -75,7 +75,7 @@ struct SchemaTests {
 
   @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
   func generateContentSchemaNumberRange(_ config: InstanceConfig) async throws {
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
@@ -104,7 +104,7 @@ struct SchemaTests {
       let price: Double // Will correspond to .double in schema
       let salePrice: Float // Will correspond to .float in schema
     }
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
@@ -195,7 +195,7 @@ struct SchemaTests {
       ],
       description: "A U.S. mailing address"
     )
-    let model = VertexAI.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: GenerationConfig(
         temperature: 0.0,

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAI
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseVertexAI
 import VertexAITestApp
 import XCTest
 
@@ -42,14 +42,14 @@ final class IntegrationTests: XCTestCase {
   // Candidates and total token counts may differ slightly between runs due to whitespace tokens.
   let tokenCountAccuracy = 1
 
-  var vertex: VertexAI!
+  var vertex: FirebaseAI!
   var model: GenerativeModel!
   var storage: Storage!
   var userID1 = ""
 
   override func setUp() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = VertexAI.vertexAI()
+    vertex = FirebaseAI.vertexAI()
     model = vertex.generativeModel(
       modelName: "gemini-2.0-flash",
       generationConfig: generationConfig,
@@ -200,7 +200,7 @@ final class IntegrationTests: XCTestCase {
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
-    let vertex = VertexAI.vertexAI(app: app)
+    let vertex = FirebaseAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
     let prompt = "Why is the sky blue?"
 
