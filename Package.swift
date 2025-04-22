@@ -1343,7 +1343,7 @@ let package = Package(
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
         .process("Resources"),
-      ],
+      ]
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
