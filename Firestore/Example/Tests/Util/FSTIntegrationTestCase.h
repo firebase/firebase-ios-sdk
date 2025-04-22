@@ -130,7 +130,7 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (void)checkOnlineAndOfflineCollection:(FIRCollectionReference *)collection
+- (void)checkOnlineAndOfflineCollection:(FIRQuery *)collection
                                   query:(FIRQuery *)query
                           matchesResult:(NSArray *)expectedDocs;
 

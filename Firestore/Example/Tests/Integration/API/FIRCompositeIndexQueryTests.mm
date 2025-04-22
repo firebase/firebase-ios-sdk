@@ -125,7 +125,11 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 - (void)assertOnlineAndOfflineResultsMatch:(FIRCollectionReference *)collection
                                  withQuery:(FIRQuery *)query
                               expectedDocs:(NSArray<NSString *> *)expectedDocs {
-  [self checkOnlineAndOfflineCollection:collection
+  // `checkOnlineAndOfflineCollection` first makes sure all documents needed for
+  // `query` are in the cache. It does so making a `get` on the first argument.
+  // Since *all* composite index tests use the same collection, this is very inefficient to do.
+  // Therefore, we should only do so for tests where `TEST_ID_FIELD` matches the current test.
+  [self checkOnlineAndOfflineCollection:[self compositeIndexQuery:collection]
                                   query:query
                           matchesResult:[self toHashedIds:expectedDocs]];
 }

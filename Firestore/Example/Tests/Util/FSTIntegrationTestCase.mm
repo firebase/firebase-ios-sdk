@@ -636,7 +636,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
  * @param query The query to check
  * @param expectedDocs Ordered list of document keys that are expected to match the query
  */
-- (void)checkOnlineAndOfflineCollection:(FIRCollectionReference *)collection
+- (void)checkOnlineAndOfflineCollection:(FIRQuery *)collection
                                   query:(FIRQuery *)query
                           matchesResult:(NSArray *)expectedDocs {
   // Note: Order matters. The following has to be done in the specific order:
