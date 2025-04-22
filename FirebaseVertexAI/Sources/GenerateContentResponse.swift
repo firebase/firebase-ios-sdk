@@ -88,6 +88,32 @@ public struct GenerateContentResponse: Sendable {
     }
   }
 
+  /// Returns inline data parts found in any `Part`s of the first candidate of the response, if any.
+  public var inlineDataParts: [InlineDataPart] {
+    guard let candidate = candidates.first else {
+      VertexLog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get inline data parts from a response that had no candidates."
+      )
+      return []
+    }
+    let inlineData: [InlineDataPart] = candidate.content.parts.compactMap { part in
+      switch part {
+      case let inlineDataPart as InlineDataPart:
+        return inlineDataPart
+      default:
+        return nil
+      }
+    }
+    if inlineData.isEmpty {
+       VertexLog.warning(
+         code: .generateContentResponseNoInlineData,
+         "Could not find any inline data parts in the first candidate."
+       )
+    }
+    return inlineData
+  }
+
   /// Initializer for SwiftUI previews or tests.
   public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {
