@@ -93,7 +93,7 @@ public struct GenerateContentResponse: Sendable {
     guard let candidate = candidates.first else {
       VertexLog.error(
         code: .generateContentResponseNoCandidates,
-        "Could not get inline data parts from a response that had no candidates."
+        "Could not get inline data parts because the response has no candidates. The accessor only checks the first candidate."
       )
       return []
     }
