@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,7 @@
 		EAD122EF2DB97E10004D64C9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */; };
 		EAD122F12DB98BD0004D64C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD122F02DB98BCC004D64C9 /* ContentView.swift */; };
 		EAD122F32DB9920D004D64C9 /* AppCheckTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */; };
+		EAD122F62DB9940E004D64C9 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = EAD122F52DB9940E004D64C9 /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAD122F62DB9940E004D64C9 /* FirebaseAppCheck in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,6 +115,9 @@
 				Base,
 			);
 			mainGroup = 9AC7C26F2541C7E500F5DD80;
+			packageReferences = (
+				EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */,
+			);
 			productRefGroup = 9AC7C2792541C7E500F5DD80 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -341,6 +346,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		EAD122F42DB9940E004D64C9 /* XCLocalSwiftPackageReference "../../../../firebase-ios-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../../firebase-ios-sdk";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EAD122F52DB9940E004D64C9 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAppCheck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9AC7C2702541C7E500F5DD80 /* Project object */;
 }
