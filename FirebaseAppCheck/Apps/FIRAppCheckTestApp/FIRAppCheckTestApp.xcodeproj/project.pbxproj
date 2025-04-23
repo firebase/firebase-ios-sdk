@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -39,19 +39,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		30221A668C12ED048788DFEB /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		9AC7C26F2541C7E500F5DD80 = {
 			isa = PBXGroup;
 			children = (
 				9AC7C27A2541C7E500F5DD80 /* FIRAppCheckTestApp */,
 				9AC7C2792541C7E500F5DD80 /* Products */,
-				30221A668C12ED048788DFEB /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
