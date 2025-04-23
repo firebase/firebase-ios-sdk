@@ -41,6 +41,7 @@ jobs:
     - name: FirebaseInAppMessaging
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec}}
 
+# TODO(#14760): Re-enable after addressing flakes.
 #   tests:
 #     # Don't run on private repo unless it is a PR.
 #     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
