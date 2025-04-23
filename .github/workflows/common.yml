@@ -57,7 +57,7 @@ jobs:
 
   spm:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
-    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(['pull_request', 'workflow_dispatch'], github.event_name)
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     needs: [spm-package-resolved]
     strategy:
       matrix:
