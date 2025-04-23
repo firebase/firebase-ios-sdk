@@ -149,6 +149,10 @@ struct GenerateContentIntegrationTests {
     let candidate = try #require(response.candidates.first)
     let inlineDataPart = try #require(candidate.content.parts
       .first { $0 is InlineDataPart } as? InlineDataPart)
+    let inlineDataPartsViaAccessor = response.inlineDataParts
+    #expect(inlineDataPartsViaAccessor.count == 1)
+    let inlineDataPartViaAccessor = try #require(inlineDataPartsViaAccessor.first)
+    #expect(inlineDataPart == inlineDataPartViaAccessor)
     #expect(inlineDataPart.mimeType == "image/png")
     #expect(inlineDataPart.data.count > 0)
     #if canImport(UIKit)
