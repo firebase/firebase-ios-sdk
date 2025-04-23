@@ -1298,15 +1298,40 @@ let package = Package(
       ]
     ),
 
-    // MARK: - Firebase Vertex AI
+    // MARK: - Firebase AI
 
     .target(
-      name: "FirebaseVertexAI",
+      name: "FirebaseAI",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+      ],
+      path: "FirebaseAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseAIUnit",
+      dependencies: [
+        "FirebaseAI",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseAI/Tests/Unit",
+      resources: [
+        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
+        .process("Resources"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+
+    // MARK: - Firebase Vertex AI
+
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAI",
       ],
       path: "FirebaseVertexAI/Sources"
     ),
@@ -1314,15 +1339,10 @@ let package = Package(
       name: "FirebaseVertexAIUnit",
       dependencies: [
         "FirebaseVertexAI",
-        "FirebaseStorage",
       ],
       path: "FirebaseVertexAI/Tests/Unit",
       resources: [
-        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
         .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
       ]
     ),
   ] + firestoreTargets(),
