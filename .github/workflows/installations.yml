@@ -43,7 +43,7 @@ jobs:
             xcode: Xcode_16.2
             test-specs: unit,integration
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             test-specs: unit
     runs-on: ${{ matrix.build-env.os }}
     steps:
