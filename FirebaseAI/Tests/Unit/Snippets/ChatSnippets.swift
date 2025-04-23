@@ -21,7 +21,7 @@ import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ChatSnippets: XCTestCase {
-  lazy var model = FirebaseAI.vertexAI().generativeModel(modelName: "gemini-1.5-flash")
+  lazy var model = FirebaseAI.firebaseAI().generativeModel(modelName: "gemini-2.0-flash")
 
   override func setUpWithError() throws {
     try FirebaseApp.configureDefaultAppForSnippets()
