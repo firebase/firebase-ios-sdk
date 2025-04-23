@@ -3,29 +3,29 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9A07E0572541D1B50076D8F5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9A07E0562541D1B50076D8F5 /* GoogleService-Info.plist */; };
 		9AC7C27C2541C7E500F5DD80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */; };
 		9AC7C27E2541C7E500F5DD80 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */; };
-		9AC7C2802541C7E500F5DD80 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC7C27F2541C7E500F5DD80 /* ViewController.swift */; };
-		9AC7C2832541C7E500F5DD80 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2812541C7E500F5DD80 /* Main.storyboard */; };
 		9AC7C2852541C7E600F5DD80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2842541C7E600F5DD80 /* Assets.xcassets */; };
 		9AC7C2882541C7E600F5DD80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9AC7C2862541C7E600F5DD80 /* LaunchScreen.storyboard */; };
+		EAD122EF2DB97E10004D64C9 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */; };
+		EAD122F12DB98BD0004D64C9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD122F02DB98BCC004D64C9 /* ContentView.swift */; };
+		EAD122F32DB9920D004D64C9 /* AppCheckTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9A07E0562541D1B50076D8F5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		9AC7C2782541C7E500F5DD80 /* FIRAppCheckTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FIRAppCheckTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		9AC7C27F2541C7E500F5DD80 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		9AC7C2822541C7E500F5DD80 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		9AC7C2842541C7E600F5DD80 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9AC7C2872541C7E600F5DD80 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9AC7C2892541C7E600F5DD80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EAD122F02DB98BCC004D64C9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCheckTestApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,14 +66,14 @@
 		9AC7C27A2541C7E500F5DD80 /* FIRAppCheckTestApp */ = {
 			isa = PBXGroup;
 			children = (
+				EAD122EE2DB97E10004D64C9 /* GoogleService-Info.plist */,
 				9AC7C27B2541C7E500F5DD80 /* AppDelegate.swift */,
 				9AC7C27D2541C7E500F5DD80 /* SceneDelegate.swift */,
-				9AC7C27F2541C7E500F5DD80 /* ViewController.swift */,
-				9AC7C2812541C7E500F5DD80 /* Main.storyboard */,
+				EAD122F02DB98BCC004D64C9 /* ContentView.swift */,
+				EAD122F22DB99206004D64C9 /* AppCheckTestApp.swift */,
 				9AC7C2842541C7E600F5DD80 /* Assets.xcassets */,
 				9AC7C2862541C7E600F5DD80 /* LaunchScreen.storyboard */,
 				9AC7C2892541C7E600F5DD80 /* Info.plist */,
-				9A07E0562541D1B50076D8F5 /* GoogleService-Info.plist */,
 			);
 			path = FIRAppCheckTestApp;
 			sourceTree = "<group>";
@@ -136,9 +136,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AC7C2882541C7E600F5DD80 /* LaunchScreen.storyboard in Resources */,
+				EAD122EF2DB97E10004D64C9 /* GoogleService-Info.plist in Resources */,
 				9AC7C2852541C7E600F5DD80 /* Assets.xcassets in Resources */,
-				9AC7C2832541C7E500F5DD80 /* Main.storyboard in Resources */,
-				9A07E0572541D1B50076D8F5 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,8 +148,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AC7C2802541C7E500F5DD80 /* ViewController.swift in Sources */,
+				EAD122F32DB9920D004D64C9 /* AppCheckTestApp.swift in Sources */,
 				9AC7C27C2541C7E500F5DD80 /* AppDelegate.swift in Sources */,
+				EAD122F12DB98BD0004D64C9 /* ContentView.swift in Sources */,
 				9AC7C27E2541C7E500F5DD80 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -158,14 +158,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		9AC7C2812541C7E500F5DD80 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9AC7C2822541C7E500F5DD80 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		9AC7C2862541C7E600F5DD80 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
