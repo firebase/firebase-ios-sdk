@@ -314,14 +314,9 @@ import FirebaseCoreInternal
   ///       the current `StorageReference`.
   @objc(listAllWithCompletion:)
   open func listAll(completion: @escaping @Sendable (_: StorageListResult?, _: Error?) -> Void) {
-
-    weak var weakSelf = self
-
-    let optionalSelf: FIRNonisolatedUnsafe<StorageReference?> =
-        FIRNonisolatedUnsafe(initialState: self)
-
-    var paginatedCompletion: (@Sendable (_: StorageListResult?, _: Error?) -> Void)?
-    paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
+    // Making this a closure changes its self-capture semantics, which causes
+    // a compiler error.
+    @Sendable func paginatedCompletion(_ listResult: StorageListResult?, _ error: Error?) {
       var prefixes = [StorageReference]()
       var items = [StorageReference]()
 
@@ -329,7 +324,6 @@ import FirebaseCoreInternal
         completion(nil, error)
         return
       }
-      guard let strongSelf = optionalSelf else { return }
       guard let listResult = listResult else {
         fatalError("internal error: both listResult and error are nil")
       }
@@ -337,18 +331,13 @@ import FirebaseCoreInternal
       items.append(contentsOf: listResult.items)
 
       if let pageToken = listResult.pageToken {
-        strongSelf.withNonisolatedUnsafeState { state in
-          StorageListTask.listTask(reference: state,
-                                   queue: state.storage.dispatchQueue,
-                                   pageSize: nil,
-                                   previousPageToken: pageToken,
-                                   completion: paginatedCompletion)
-        }
+        StorageListTask.listTask(reference: self,
+                                 queue: self.storage.dispatchQueue,
+                                 pageSize: nil,
+                                 previousPageToken: pageToken,
+                                 completion: paginatedCompletion)
       } else {
         let result = StorageListResult(withPrefixes: prefixes, items: items, pageToken: nil)
-
-        // Break the retain cycle we set up indirectly by passing the callback to `nextPage`.
-        paginatedCompletion = nil
         completion(result, nil)
       }
     }
@@ -389,7 +378,7 @@ import FirebaseCoreInternal
   ///       prefixes under the current `StorageReference`.
   @objc(listWithMaxResults:completion:)
   open func list(maxResults: Int64,
-                 completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
+                 completion: @escaping (@Sendable (_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
       completion(nil, StorageError.invalidArgument(
         message: "Argument 'maxResults' must be between 1 and 1000 inclusive."
@@ -422,7 +411,7 @@ import FirebaseCoreInternal
   @objc(listWithMaxResults:pageToken:completion:)
   open func list(maxResults: Int64,
                  pageToken: String,
-                 completion: @escaping ((_: StorageListResult?, _: Error?) -> Void)) {
+                 completion: @escaping (@Sendable (_: StorageListResult?, _: Error?) -> Void)) {
     if maxResults <= 0 || maxResults > 1000 {
       completion(nil, StorageError.invalidArgument(
         message: "Argument 'maxResults' must be between 1 and 1000 inclusive."
@@ -490,8 +479,8 @@ import FirebaseCoreInternal
   /// Deletes the object at the current path.
   /// - Parameter completion: A completion block which returns a nonnull error on failure.
   @objc(deleteWithCompletion:)
-  open func delete(completion: ((_: Error?) -> Void)?) {
-    let completionWrap = { (_: Data?, error: Error?) in
+  open func delete(completion: (@Sendable (_: Error?) -> Void)?) {
+    let completionWrap: @Sendable (Data?, Error?) -> Void = { (_: Data?, error: Error?) in
       if let completion {
         completion(error)
       }

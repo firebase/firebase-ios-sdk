@@ -29,13 +29,6 @@ import FirebaseCoreInternal
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer, Sendable {
 
-  // A hack to get around Swift complaining that we're mutating `request` across multiple
-  // threads, which is thread-unsafe. It is thread-unsafe generally. This code is
-  // only thread-safe because GTMSessionFetcher creates and provides a mutable request
-  // and does not perform any other external operations on it. In an ideal world,
-  // GTMSessionFetcher would label the parameter as `sending`.
-  private nonisolated(unsafe) var request: NSMutableURLRequest!
-
   func authorizeRequest(_ incomingRequest: NSMutableURLRequest?,
                         completionHandler handler: @escaping @Sendable (Error?) -> Void) {
     guard let _request = incomingRequest else {

@@ -68,7 +68,7 @@ public final class FIRAllocatedUnfairLock<State>: @unchecked Sendable {
 // This class is used to get around a limitation where local variables cannot be
 // declared nonisolated for things like capture and mutation in escaping closures.
 public final class FIRNonisolatedUnsafe<State>: @unchecked Sendable {
-  private var state: State
+  public private(set) var state: State
 
   public init(initialState: State) {
     state = initialState
