@@ -3,24 +3,24 @@ name: common_catalyst
 permissions:
   contents: read
 
-  on:
-    workflow_call:
-      inputs:
-        # The product to test be tested (e.g. `FirebaseABTesting`).
-        product:
-          type: string
-          required: true
-
-        # The target scheme to be tested (e.g. `FirebaseABTesting-Unit-unit`.
-        target:
-          type: string
-          required: true
-
-        # Whether to build-only. Defaults to false.
-        buildonly:
-          type: boolean
-          required: false
-          default: false
+on:
+  workflow_call:
+    inputs:
+      # The product to test be tested (e.g. `FirebaseABTesting`).
+      product:
+        type: string
+        required: true
+  
+      # The target scheme to be tested (e.g. `FirebaseABTesting-Unit-unit`.
+      target:
+        type: string
+        required: true
+  
+      # Whether to build-only. Defaults to false.
+      buildonly:
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   # TODO: Can this be built via SPM?
