@@ -10,12 +10,12 @@ on:
       product:
         type: string
         required: true
-  
+
       # The target scheme to be tested (e.g. `FirebaseABTesting-Unit-unit`.
       target:
         type: string
         required: true
-  
+
       # Whether to build-only. Defaults to false.
       buildonly:
         type: boolean
