@@ -12,6 +12,12 @@ on:
         required: true
 
       # The platforms to build on. Defaults to all.
+      # To target specific platforms, pass a comma or space separated string of
+      # platforms.
+      #
+      # Examples:
+      # - build/test only for macOS: `macOS`
+      # - build/test only for macOS and tvOS: `macOS, tvOS`
       platforms:
         type: string
         required: false
@@ -22,6 +28,9 @@ on:
       # platforms.
       #
       # Platform options: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+      #
+      # Note: Build-only platforms must be represented in the `platforms` input
+      # (which defaults to all platforms) in order to take effect.
       #
       # Examples:
       # - build only for macOS: `macOS`
