@@ -37,7 +37,7 @@ jobs:
         language: [Swift, ObjC]
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: ${{ matrix.os }}
