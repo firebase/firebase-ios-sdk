@@ -23,8 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
-    UIView.setAnimationsEnabled(false)
-    print("Animations disabled in `AppDelegate` to reduce UI test flakiness.")
     return true
   }
 
