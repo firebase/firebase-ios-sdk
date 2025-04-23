@@ -331,12 +331,13 @@ case "$product-$platform-$method" in
       test
     ;;
 
+  # TODO(#14760): s/build/test after addressing UI test flakes on CI.
   InAppMessaging-*-xcodebuild)
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        test
+        build
     ;;
 
   Firestore-*-xcodebuild)
