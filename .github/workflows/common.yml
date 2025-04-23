@@ -56,9 +56,8 @@ jobs:
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
   spm:
-    if: |
-      (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || \
-      contains(['pull_request', 'workflow_dispatch'], github.event_name)
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(['pull_request', 'workflow_dispatch'], github.event_name)
     needs: [spm-package-resolved]
     strategy:
       matrix:
