@@ -38,11 +38,15 @@ class RealtimePipeline {
   RealtimePipeline AddingStage(std::shared_ptr<EvaluableStage> stage);
 
   const std::vector<std::shared_ptr<EvaluableStage>>& stages() const;
+  const std::vector<std::shared_ptr<EvaluableStage>>& rewritten_stages() const;
+
+  void SetRewrittentStages(std::vector<std::shared_ptr<EvaluableStage>>);
 
   EvaluateContext evaluate_context();
 
  private:
   std::vector<std::shared_ptr<EvaluableStage>> stages_;
+  std::vector<std::shared_ptr<EvaluableStage>> rewritten_stages_;
   remote::Serializer serializer_;
 };
 
