@@ -44,6 +44,16 @@ const std::vector<std::shared_ptr<EvaluableStage>>& RealtimePipeline::stages()
   return this->stages_;
 }
 
+const std::vector<std::shared_ptr<EvaluableStage>>&
+RealtimePipeline::rewritten_stages() const {
+  return this->rewritten_stages_;
+}
+
+void RealtimePipeline::SetRewrittenStages(
+    std::vector<std::shared_ptr<EvaluableStage>> stages) {
+  this->rewritten_stages_ = std::move(stages);
+}
+
 EvaluateContext RealtimePipeline::evaluate_context() {
   return EvaluateContext(&serializer_);
 }

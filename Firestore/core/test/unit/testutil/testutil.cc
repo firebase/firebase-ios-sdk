@@ -189,6 +189,34 @@ ObjectValue WrapObject(Message<google_firestore_v1_Value> value) {
   return ObjectValue{std::move(value)};
 }
 
+nanopb::Message<google_firestore_v1_ArrayValue> ArrayFromVector(
+    const std::vector<google_firestore_v1_Value>& values) {
+  nanopb::Message<google_firestore_v1_ArrayValue> array_value;
+  array_value->values_count = nanopb::CheckedSize(values.size());
+  array_value->values =
+      nanopb::MakeArray<google_firestore_v1_Value>(array_value->values_count);
+  for (size_t i = 0; i < values.size(); ++i) {
+    array_value->values[i] = *model::DeepClone(values[i]).release();
+  }
+  return array_value;
+}
+
+nanopb::Message<google_firestore_v1_Value> MapFromPairs(
+    const std::vector<std::pair<std::string, google_firestore_v1_Value>>&
+        pairs) {
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  nanopb::SetRepeatedField(
+      &value.map_value.fields, &value.map_value.fields_count, pairs,
+      [](std::pair<std::string, google_firestore_v1_Value> entry) {
+        return google_firestore_v1_MapValue_FieldsEntry{
+            nanopb::MakeBytesArray(entry.first),
+            *model::DeepClone(entry.second).release()};
+      });
+
+  return nanopb::MakeMessage(value);
+}
+
 model::DocumentKey Key(absl::string_view path) {
   return model::DocumentKey::FromPathString(std::string(path));
 }

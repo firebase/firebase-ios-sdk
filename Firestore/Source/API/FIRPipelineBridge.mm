@@ -211,7 +211,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @end
 
 @implementation FIROrderingBridge {
-  std::shared_ptr<Ordering> cpp_ordering;
+  std::unique_ptr<Ordering> cpp_ordering;
   NSString *_direction;
   FIRExprBridge *_expr;
   Boolean isUserDataRead;
@@ -224,14 +224,14 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return self;
 }
 
-- (std::shared_ptr<Ordering>)cppOrderingWithReader:(FSTUserDataReader *)reader {
+- (Ordering)cppOrderingWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    cpp_ordering = std::make_shared<Ordering>(
+    cpp_ordering = std::make_unique<Ordering>(
         [_expr cppExprWithReader:reader], Ordering::DirectionFromString(MakeString(_direction)));
   }
 
   isUserDataRead = YES;
-  return cpp_ordering;
+  return *cpp_ordering;
 }
 
 @end
@@ -650,7 +650,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    std::vector<std::shared_ptr<Ordering>> cpp_orderings;
+    std::vector<Ordering> cpp_orderings;
     for (FIROrderingBridge *ordering in _orderings) {
       cpp_orderings.push_back([ordering cppOrderingWithReader:reader]);
     }
