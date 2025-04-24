@@ -25,26 +25,22 @@ internal import FirebaseCoreExtension
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
 
-  /// Creates an instance of `VertexAI`.
+  /// Creates an instance of `FirebaseAI`.
   ///
   ///  - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
   ///     ``FirebaseApp``.
-  ///   - location: The region identifier, defaulting to `us-central1`; see
-  ///     [Vertex AI locations]
-  ///     (https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
-  ///     for a list of supported locations.
-  /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
-  public static func vertexAI(app: FirebaseApp? = nil,
-                              location: String = "us-central1") -> FirebaseAI {
-    let vertexInstance = vertexAI(app: app, location: location, apiConfig: defaultVertexAIAPIConfig)
-    // Verify that the `VertexAI` instance is always configured with the production endpoint since
+  ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
+  ///     ``Backend/googleAI()`` (Gemini Developer API).
+  /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
+  public static func firebaseAI(app: FirebaseApp? = nil,
+                                backend: Backend = .googleAI()) -> FirebaseAI {
+    let instance = firebaseAI(app: app, location: backend.location, apiConfig: backend.apiConfig)
+    // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
-    assert(vertexInstance.apiConfig.service == .vertexAI(endpoint: .firebaseVertexAIProd))
-    assert(vertexInstance.apiConfig.service.endpoint == .firebaseVertexAIProd)
-    assert(vertexInstance.apiConfig.version == .v1beta)
-
-    return vertexInstance
+    assert(instance.apiConfig.service.endpoint == .firebaseVertexAIProd)
+    assert(instance.apiConfig.version == .v1beta)
+    return instance
   }
 
   /// Initializes a generative model with the given parameters.
@@ -163,7 +159,7 @@ public final class FirebaseAI: Sendable {
     version: .v1beta
   )
 
-  static func vertexAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> FirebaseAI {
+  static func firebaseAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }

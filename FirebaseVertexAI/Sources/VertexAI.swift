@@ -33,7 +33,7 @@ public class VertexAI {
   /// - Returns: A `VertexAI` instance, configured with the custom `FirebaseApp`.
   public static func vertexAI(app: FirebaseApp? = nil,
                               location: String = "us-central1") -> VertexAI {
-    let firebaseAI = FirebaseAI.vertexAI(app: app, location: location)
+    let firebaseAI = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
     return VertexAI(firebaseAI: firebaseAI)
   }
 
