@@ -14,32 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline_run.h"
+#include "Firestore/core/test/unit/core/pipeline/utils.h"
 
-#include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/api/realtime_pipeline.h"
-#include "Firestore/core/src/api/stages.h"
-#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/api/firestore.h"
+#include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/serializer.h"
-#include "pipeline_util.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-std::vector<model::MutableDocument> RunPipeline(
-    api::RealtimePipeline& pipeline,
-    const std::vector<model::MutableDocument>& inputs) {
-  if (pipeline.rewritten_stages().empty()) {
-    pipeline.SetRewrittentStages(RewriteStages(pipeline.stages()));
-  }
-
-  auto current = std::vector<model::MutableDocument>(inputs);
-  for (const auto& stage : pipeline.rewritten_stages()) {
-    current = stage->Evaluate(pipeline.evaluate_context(), current);
-  }
-
-  return current;
+remote::Serializer TestSerializer() {
+  static remote::Serializer serializer(model::DatabaseId("test-project"));
+  return serializer;
 }
 
 }  // namespace core
