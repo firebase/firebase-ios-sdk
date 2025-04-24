@@ -51,7 +51,7 @@ jobs:
       run: scripts/configure_test_keychain.sh
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
@@ -76,7 +76,7 @@ jobs:
             xcode: Xcode_16.2
             tests: --test-specs=unit
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             tests: --skip-tests
     runs-on: ${{ matrix.build-env.os }}
     steps:

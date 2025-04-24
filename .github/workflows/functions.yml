@@ -33,7 +33,7 @@ jobs:
         target: [ios, tvos, macos, watchos]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -80,8 +80,8 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        os: [macos-14]
-        xcode: [Xcode_16.2]
+        os: [macos-15]
+        xcode: [Xcode_16.3]
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -115,22 +115,22 @@ jobs:
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:

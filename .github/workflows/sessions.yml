@@ -41,7 +41,7 @@ jobs:
             tests:
           # Flaky tests on CI
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             tests: --skip-tests
     runs-on: ${{ matrix.build-env.os }}
     steps:
