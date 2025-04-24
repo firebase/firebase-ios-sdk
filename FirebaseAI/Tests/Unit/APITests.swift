@@ -41,36 +41,40 @@ final class APITests: XCTestCase {
     let requestOptions = RequestOptions()
     let _ = RequestOptions(timeout: 30.0)
 
-    // Instantiate Vertex AI SDK - Default App
-    let vertexAI = FirebaseAI.vertexAI()
-    let _ = FirebaseAI.vertexAI(location: "my-location")
+    // Instantiate Firebase AI SDK - Default App
+    let firebaseAI = FirebaseAI.firebaseAI()
+    let _ = FirebaseAI.firebaseAI(backend: .googleAI())
+    let _ = FirebaseAI.firebaseAI(backend: .vertexAI())
+    let _ = FirebaseAI.firebaseAI(backend: .vertexAI(location: "my-location"))
 
-    // Instantiate Vertex AI SDK - Custom App
-    let _ = FirebaseAI.vertexAI(app: app!)
-    let _ = FirebaseAI.vertexAI(app: app!, location: "my-location")
+    // Instantiate Firebase AI SDK - Custom App
+    let _ = FirebaseAI.firebaseAI(app: app!)
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .googleAI())
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI())
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI(location: "my-location"))
 
     // Permutations without optional arguments.
 
-    let _ = vertexAI.generativeModel(modelName: "gemini-1.0-pro")
+    let _ = firebaseAI.generativeModel(modelName: "gemini-2.0-flash")
 
-    let _ = vertexAI.generativeModel(
-      modelName: "gemini-1.0-pro",
+    let _ = firebaseAI.generativeModel(
+      modelName: "gemini-2.0-flash",
       safetySettings: filters
     )
 
-    let _ = vertexAI.generativeModel(
-      modelName: "gemini-1.0-pro",
+    let _ = firebaseAI.generativeModel(
+      modelName: "gemini-2.0-flash",
       generationConfig: config
     )
 
-    let _ = vertexAI.generativeModel(
-      modelName: "gemini-1.0-pro",
+    let _ = firebaseAI.generativeModel(
+      modelName: "gemini-2.0-flash",
       systemInstruction: systemInstruction
     )
 
     // All arguments passed.
-    let genAI = vertexAI.generativeModel(
-      modelName: "gemini-1.0-pro",
+    let model = firebaseAI.generativeModel(
+      modelName: "gemini-2.0-flash",
       generationConfig: config, // Optional
       safetySettings: filters, // Optional
       systemInstruction: systemInstruction, // Optional
@@ -88,35 +92,35 @@ final class APITests: XCTestCase {
     )]
 
     do {
-      let response = try await genAI.generateContent(contents)
+      let response = try await model.generateContent(contents)
       print(response.text ?? "Couldn't get text... check status")
     } catch {
       print("Error generating content: \(error)")
     }
 
     // Content input combinations.
-    let _ = try await genAI.generateContent("Constant String")
+    let _ = try await model.generateContent("Constant String")
     let str = "String Variable"
-    let _ = try await genAI.generateContent(str)
-    let _ = try await genAI.generateContent([str])
-    let _ = try await genAI.generateContent(str, "abc", "def")
-    let _ = try await genAI.generateContent(
+    let _ = try await model.generateContent(str)
+    let _ = try await model.generateContent([str])
+    let _ = try await model.generateContent(str, "abc", "def")
+    let _ = try await model.generateContent(
       str,
       FileDataPart(uri: "gs://test-bucket/image.jpg", mimeType: "image/jpeg")
     )
     #if canImport(UIKit)
-      _ = try await genAI.generateContent(UIImage())
-      _ = try await genAI.generateContent([UIImage()])
-      _ = try await genAI.generateContent([str, UIImage(), TextPart(str)])
-      _ = try await genAI.generateContent(str, UIImage(), "def", UIImage())
-      _ = try await genAI.generateContent([str, UIImage(), "def", UIImage()])
-      _ = try await genAI.generateContent([ModelContent(parts: "def", UIImage()),
+      _ = try await model.generateContent(UIImage())
+      _ = try await model.generateContent([UIImage()])
+      _ = try await model.generateContent([str, UIImage(), TextPart(str)])
+      _ = try await model.generateContent(str, UIImage(), "def", UIImage())
+      _ = try await model.generateContent([str, UIImage(), "def", UIImage()])
+      _ = try await model.generateContent([ModelContent(parts: "def", UIImage()),
                                            ModelContent(parts: "def", UIImage())])
     #elseif canImport(AppKit)
-      _ = try await genAI.generateContent(NSImage())
-      _ = try await genAI.generateContent([NSImage()])
-      _ = try await genAI.generateContent(str, NSImage(), "def", NSImage())
-      _ = try await genAI.generateContent([str, NSImage(), "def", NSImage()])
+      _ = try await model.generateContent(NSImage())
+      _ = try await model.generateContent([NSImage()])
+      _ = try await model.generateContent(str, NSImage(), "def", NSImage())
+      _ = try await model.generateContent([str, NSImage(), "def", NSImage()])
     #endif
 
     // PartsRepresentable combinations.
@@ -147,19 +151,19 @@ final class APITests: XCTestCase {
     #endif
 
     // countTokens API
-    let _: CountTokensResponse = try await genAI.countTokens("What color is the Sky?")
+    let _: CountTokensResponse = try await model.countTokens("What color is the Sky?")
     #if canImport(UIKit)
-      let _: CountTokensResponse = try await genAI.countTokens("What color is the Sky?",
+      let _: CountTokensResponse = try await model.countTokens("What color is the Sky?",
                                                                UIImage())
-      let _: CountTokensResponse = try await genAI.countTokens([
+      let _: CountTokensResponse = try await model.countTokens([
         ModelContent(parts: "What color is the Sky?", UIImage()),
         ModelContent(parts: UIImage(), "What color is the Sky?", UIImage()),
       ])
     #endif
 
     // Chat
-    _ = genAI.startChat()
-    _ = genAI.startChat(history: [ModelContent(parts: "abc")])
+    _ = model.startChat()
+    _ = model.startChat(history: [ModelContent(parts: "abc")])
   }
 
   // Public API tests for GenerateContentResponse.
@@ -179,35 +183,4 @@ final class APITests: XCTestCase {
     let _: String? = response.text
     let _: [FunctionCallPart] = response.functionCalls
   }
-
-  // Result builder alternative
-
-  /*
-   let pngData = Data() // ....
-   let contents = [GenAIContent(role: "user",
-                                parts: [
-                                 .text("Is it a cat?"),
-                                 .png(pngData)
-                                ])]
-
-   // Turns into...
-
-   let contents = GenAIContent {
-     Role("user") {
-       Text("Is this a cat?")
-       Image(png: pngData)
-     }
-   }
-
-   GenAIContent {
-     ForEach(myInput) { input in
-       Role(input.role) {
-         input.contents
-       }
-     }
-   }
-
-   // Thoughts: this looks great from a code demo, but since I assume most content will be
-   // user generated, the result builder may not be the best API.
-   */
 }

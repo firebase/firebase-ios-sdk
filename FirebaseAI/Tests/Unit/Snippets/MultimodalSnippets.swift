@@ -26,7 +26,9 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class MultimodalSnippets: XCTestCase {
   let bundle = BundleTestUtil.bundle()
-  lazy var model = FirebaseAI.vertexAI().generativeModel(modelName: "gemini-2.0-flash")
+  lazy var model = FirebaseAI.firebaseAI(backend: .vertexAI()).generativeModel(
+    modelName: "gemini-2.0-flash"
+  )
   lazy var videoURL = {
     guard let url = bundle.url(forResource: "animals", withExtension: "mp4") else {
       fatalError("Video file animals.mp4 not found in Resources.")
