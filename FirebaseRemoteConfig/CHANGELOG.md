@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fix an issue where network requests would fail in the iOS 18.4
-  simulator due to a URLSession bug introduced in Xcode 16.3. (#14768)
+  simulator due to a URLSession bug introduced in Xcode 16.3. (#14728)
 
 # 11.10.0
 - [fixed] Fix intermittent `RCNConfigRealtime` crash due to incorrect parsing of fragmented JSON. (#14518)
