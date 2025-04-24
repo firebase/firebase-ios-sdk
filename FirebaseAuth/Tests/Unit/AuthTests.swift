@@ -538,7 +538,7 @@ class AuthTests: RPCBaseTests {
    */
   func testCheckActionCodeSuccess() throws {
     let kNewEmail = "newEmail@example.com"
-    let verifyEmailRequestType = "VERIFY_EMAIL"
+    let verifyEmailRequestType = "verifyEmail"
     let expectation = self.expectation(description: #function)
 
     // 1. Setup respond block to test and fake send request.

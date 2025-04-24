@@ -60,16 +60,24 @@ public final class Schema: Sendable {
     let rawValue: String
   }
 
-  let dataType: DataType
+  // May only be nil for `anyOf` schemas, which do not have an explicit `type` in the OpenAPI spec.
+  let dataType: DataType?
 
   /// The data type.
-  public var type: String { dataType.rawValue }
+  public var type: String { dataType?.rawValue ?? "UNSPECIFIED" }
 
   /// The format of the data.
   public let format: String?
 
-  /// A brief description of the parameter.
+  /// A human-readable explanation of the purpose of the schema or property. While not strictly
+  /// enforced on the value itself, good descriptions significantly help the model understand the
+  /// context and generate more relevant and accurate output.
   public let description: String?
+
+  /// A human-readable name/summary for the schema or a specific property. This helps document the
+  /// schema's purpose but doesn't typically constrain the generated value. It can subtly guide the
+  /// model by clarifying the intent of a field.
+  public let title: String?
 
   /// Indicates if the value may be null.
   public let nullable: Bool?
@@ -77,26 +85,74 @@ public final class Schema: Sendable {
   /// Possible values of the element of type "STRING" with "enum" format.
   public let enumValues: [String]?
 
-  /// Schema of the elements of type `"ARRAY"`.
+  /// Defines the schema for the elements within the `"ARRAY"`. All items in the generated array
+  /// must conform to this schema definition. This can be a simple type (like .string) or a complex
+  /// nested object schema.
   public let items: Schema?
 
-  /// Properties of type `"OBJECT"`.
+  /// An integer specifying the minimum number of items the generated `"ARRAY"` must contain.
+  public let minItems: Int?
+
+  /// An integer specifying the maximum number of items the generated `"ARRAY"` must contain.
+  public let maxItems: Int?
+
+  /// The minimum value of a numeric type.
+  public let minimum: Double?
+
+  /// The maximum value of a numeric type.
+  public let maximum: Double?
+
+  /// Defines the members (key-value pairs) expected within an object. It's a dictionary where keys
+  /// are the property names (strings) and values are nested `Schema` definitions describing each
+  /// property's type and constraints.
   public let properties: [String: Schema]?
 
-  /// Required properties of type `"OBJECT"`.
+  /// An array of `Schema` objects. The generated data must be valid against *any* (one or more)
+  /// of the schemas listed in this array. This allows specifying multiple possible structures or
+  /// types for a single field.
+  ///
+  /// For example, a value could be either a `String` or an `Integer`:
+  /// ```
+  /// Schema.anyOf(schemas: [.string(), .integer()])
+  /// ```
+  public let anyOf: [Schema]?
+
+  /// An array of strings, where each string is the name of a property defined in the `properties`
+  /// dictionary that must be present in the generated object. If a property is listed here, the
+  /// model must include it in the output.
   public let requiredProperties: [String]?
 
-  required init(type: DataType, format: String? = nil, description: String? = nil,
-                nullable: Bool = false, enumValues: [String]? = nil, items: Schema? = nil,
-                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil) {
+  /// A specific hint provided to the Gemini model, suggesting the order in which the keys should
+  /// appear in the generated JSON string. Important: Standard JSON objects are inherently unordered
+  /// collections of key-value pairs. While the model will try to respect propertyOrdering in its
+  /// textual JSON output, subsequent parsing into native Swift objects (like Dictionaries or
+  /// Structs) might not preserve this order. This parameter primarily affects the raw JSON string
+  /// serialization.
+  public let propertyOrdering: [String]?
+
+  required init(type: DataType?, format: String? = nil, description: String? = nil,
+                title: String? = nil, nullable: Bool? = nil, enumValues: [String]? = nil,
+                items: Schema? = nil, minItems: Int? = nil, maxItems: Int? = nil,
+                minimum: Double? = nil, maximum: Double? = nil, anyOf: [Schema]? = nil,
+                properties: [String: Schema]? = nil, requiredProperties: [String]? = nil,
+                propertyOrdering: [String]? = nil) {
+    precondition(type != nil || anyOf != nil,
+                 "A schema must have either a `type` or an `anyOf` array of sub-schemas.")
     dataType = type
     self.format = format
     self.description = description
+    self.title = title
     self.nullable = nullable
     self.enumValues = enumValues
     self.items = items
+    self.minItems = minItems
+    self.maxItems = maxItems
+    self.minimum = minimum
+    self.maximum = maximum
+    self.anyOf = anyOf
     self.properties = properties
     self.requiredProperties = requiredProperties
+    self.propertyOrdering = propertyOrdering
   }
 
   /// Returns a `Schema` representing a string value.
@@ -175,12 +231,19 @@ public final class Schema: Sendable {
   ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may generate `null` instead of a number;
   ///     defaults to `false`, enforcing that a number is generated.
-  public static func float(description: String? = nil, nullable: Bool = false) -> Schema {
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
+  public static func float(description: String? = nil, nullable: Bool = false,
+                           minimum: Float? = nil, maximum: Float? = nil) -> Schema {
     return self.init(
       type: .number,
       format: "float",
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minimum: minimum.map { Double($0) },
+      maximum: maximum.map { Double($0) }
     )
   }
 
@@ -194,11 +257,18 @@ public final class Schema: Sendable {
   ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of a number;
   ///     defaults to `false`, enforcing that a number is returned.
-  public static func double(description: String? = nil, nullable: Bool = false) -> Schema {
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
+  public static func double(description: String? = nil, nullable: Bool = false,
+                            minimum: Double? = nil, maximum: Double? = nil) -> Schema {
     return self.init(
       type: .number,
       description: description,
-      nullable: nullable
+      nullable: nullable,
+      minimum: minimum,
+      maximum: maximum
     )
   }
 
@@ -222,13 +292,20 @@ public final class Schema: Sendable {
   ///   - format: An optional modifier describing the expected format of the integer. Currently the
   ///     formats ``IntegerFormat/int32`` and ``IntegerFormat/int64`` are supported; custom values
   ///     may be specified using ``IntegerFormat/custom(_:)`` but may be ignored by the model.
+  ///   - minimum: If specified, instructs the model that the value should be greater than or
+  ///     equal to the specified minimum.
+  ///   - maximum: If specified, instructs the model that the value should be less than or equal
+  ///     to the specified maximum.
   public static func integer(description: String? = nil, nullable: Bool = false,
-                             format: IntegerFormat? = nil) -> Schema {
+                             format: IntegerFormat? = nil,
+                             minimum: Int? = nil, maximum: Int? = nil) -> Schema {
     return self.init(
       type: .integer,
       format: format?.rawValue,
       description: description,
-      nullable: nullable
+      nullable: nullable.self,
+      minimum: minimum.map { Double($0) },
+      maximum: maximum.map { Double($0) }
     )
   }
 
@@ -256,12 +333,23 @@ public final class Schema: Sendable {
   /// - Parameters:
   ///   - items: The `Schema` of the elements that the array will hold.
   ///   - description: An optional description of what the array should contain or represent; may
-  ///   use Markdown format.
+  ///     use Markdown format.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an array;
-  ///   defaults to `false`, enforcing that an array is returned.
-  public static func array(items: Schema, description: String? = nil,
-                           nullable: Bool = false) -> Schema {
-    return self.init(type: .array, description: description, nullable: nullable, items: items)
+  ///     defaults to `false`, enforcing that an array is returned.
+  ///   - minItems: Instructs the model to produce at least the specified minimum number of elements
+  ///     in the array; defaults to `nil`, meaning any number.
+  ///   - maxItems: Instructs the model to produce at most the specified maximum number of elements
+  ///     in the array.
+  public static func array(items: Schema, description: String? = nil, nullable: Bool = false,
+                           minItems: Int? = nil, maxItems: Int? = nil) -> Schema {
+    return self.init(
+      type: .array,
+      description: description,
+      nullable: nullable,
+      items: items,
+      minItems: minItems,
+      maxItems: maxItems
+    )
   }
 
   /// Returns a `Schema` representing an object.
@@ -292,12 +380,17 @@ public final class Schema: Sendable {
   ///   - optionalProperties: A list of property names that may be be omitted in objects generated
   ///   by the model; these names must correspond to the keys provided in the `properties`
   ///   dictionary and may be an empty list.
+  ///   - propertyOrdering: An optional hint to the model suggesting the order for keys in the
+  ///   generated JSON string. See ``propertyOrdering`` for details.
   ///   - description: An optional description of what the object should contain or represent; may
   ///   use Markdown format.
+  ///   - title: An optional human-readable name/summary for the object schema.
   ///   - nullable: If `true`, instructs the model that it may return `null` instead of an object;
   ///   defaults to `false`, enforcing that an object is returned.
   public static func object(properties: [String: Schema], optionalProperties: [String] = [],
-                            description: String? = nil, nullable: Bool = false) -> Schema {
+                            propertyOrdering: [String]? = nil,
+                            description: String? = nil, title: String? = nil,
+                            nullable: Bool = false) -> Schema {
     var requiredProperties = Set(properties.keys)
     for optionalProperty in optionalProperties {
       guard properties.keys.contains(optionalProperty) else {
@@ -309,10 +402,44 @@ public final class Schema: Sendable {
     return self.init(
       type: .object,
       description: description,
+      title: title,
       nullable: nullable,
       properties: properties,
-      requiredProperties: requiredProperties.sorted()
+      requiredProperties: requiredProperties.sorted(),
+      propertyOrdering: propertyOrdering
     )
+  }
+
+  /// Returns a `Schema` representing a value that must conform to *any* (one or more) of the
+  /// provided sub-schemas.
+  ///
+  /// This schema instructs the model to produce data that is valid against at least one of the
+  /// schemas listed in the `schemas` array. This is useful when a field can accept multiple
+  /// distinct types or structures.
+  ///
+  /// **Example:** A field that can hold either a simple user ID (integer) or a detailed user
+  /// object.
+  /// ```
+  /// Schema.anyOf(schemas: [
+  ///   .integer(description: "User ID"),
+  ///   .object(properties: [
+  ///     "userId": .integer(),
+  ///     "userName": .string()
+  ///   ], description: "Detailed User Object")
+  /// ])
+  /// ```
+  /// The generated data could be decoded based on which schema it matches.
+  ///
+  /// - Parameters:
+  ///   - schemas: An array of `Schema` objects. The generated data must be valid against at least
+  ///     one of these schemas. The array must not be empty.
+  public static func anyOf(schemas: [Schema]) -> Schema {
+    if schemas.isEmpty {
+      VertexLog.error(code: .invalidSchemaFormat, "The `anyOf` schemas array cannot be empty.")
+    }
+    // Note: The 'type' for an 'anyOf' schema is implicitly defined by the presence of the
+    // 'anyOf' keyword and doesn't have a specific explicit type like "OBJECT" or "STRING".
+    return self.init(type: nil, anyOf: schemas)
   }
 }
 
@@ -324,10 +451,17 @@ extension Schema: Encodable {
     case dataType = "type"
     case format
     case description
+    case title
     case nullable
     case enumValues = "enum"
     case items
+    case minItems
+    case maxItems
+    case minimum
+    case maximum
+    case anyOf
     case properties
     case requiredProperties = "required"
+    case propertyOrdering
   }
 }

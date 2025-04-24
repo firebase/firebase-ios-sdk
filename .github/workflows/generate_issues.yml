@@ -1,6 +1,7 @@
 name: generate_issues
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - '.github/workflows/generate_issues.yml'

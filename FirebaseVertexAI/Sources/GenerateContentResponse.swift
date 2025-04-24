@@ -88,6 +88,18 @@ public struct GenerateContentResponse: Sendable {
     }
   }
 
+  /// Returns inline data parts found in any `Part`s of the first candidate of the response, if any.
+  public var inlineDataParts: [InlineDataPart] {
+    guard let candidate = candidates.first else {
+      VertexLog.error(code: .generateContentResponseNoCandidates, """
+      Could not get inline data parts because the response has no candidates. The accessor only \
+      checks the first candidate.
+      """)
+      return []
+    }
+    return candidate.content.parts.compactMap { $0 as? InlineDataPart }
+  }
+
   /// Initializer for SwiftUI previews or tests.
   public init(candidates: [Candidate], promptFeedback: PromptFeedback? = nil,
               usageMetadata: UsageMetadata? = nil) {

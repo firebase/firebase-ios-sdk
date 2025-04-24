@@ -23,7 +23,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  let vertexAPIConfig = VertexAI.defaultVertexAIAPIConfig
   let developerAPIConfig = APIConfig(
     service: .developer(endpoint: .firebaseVertexAIProd),
     version: .v1beta
@@ -52,7 +52,9 @@ final class CountTokensRequestTests: XCTestCase {
       apiMethod: .countTokens,
       options: requestOptions
     )
-    let request = CountTokensRequest(generateContentRequest: generateContentRequest)
+    let request = CountTokensRequest(
+      modelResourceName: modelResourceName, generateContentRequest: generateContentRequest
+    )
 
     let jsonData = try encoder.encode(request)
 
@@ -86,7 +88,9 @@ final class CountTokensRequestTests: XCTestCase {
       apiMethod: .countTokens,
       options: requestOptions
     )
-    let request = CountTokensRequest(generateContentRequest: generateContentRequest)
+    let request = CountTokensRequest(
+      modelResourceName: modelResourceName, generateContentRequest: generateContentRequest
+    )
 
     let jsonData = try encoder.encode(request)
 

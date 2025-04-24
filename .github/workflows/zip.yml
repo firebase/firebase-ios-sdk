@@ -36,9 +36,9 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: package-release
-    - name: Xcode 15.2
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
-    - uses: ruby/setup-ruby@v1
+    - name: Xcode 16.2
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -61,8 +61,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
-    - name: Xcode 15.2
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+    - name: Xcode 16.2
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Build
       run: |
         cd ReleaseTooling
@@ -81,9 +81,9 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: package-head
-    - name: Xcode 15.2
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
-    - uses: ruby/setup-ruby@v1
+    - name: Xcode 16.2
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -113,10 +113,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -124,7 +124,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -184,7 +184,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -226,10 +226,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -237,7 +237,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -277,10 +277,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -288,7 +288,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -350,7 +350,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-14]
-        xcode: [Xcode_15.2]
+        xcode: [Xcode_16.2]
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
     runs-on: ${{ matrix.os }}
     steps:
@@ -359,7 +359,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -403,10 +403,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -414,7 +414,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -462,10 +462,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -473,7 +473,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -511,14 +511,14 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
     steps:
-      - name: Xcode 15.2
-        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+      - name: Xcode 16.2
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - uses: actions/checkout@v4
       - name: Get framework dir
         uses: actions/download-artifact@v4.1.7
         with:
           name: Firebase-actions-dir
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
       - name: Install xcpretty
@@ -546,10 +546,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -557,7 +557,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -602,10 +602,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -613,7 +613,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -657,10 +657,10 @@ jobs:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
             xcode: Xcode_16.2
+          # - os: macos-15
+          #   xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -668,7 +668,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks

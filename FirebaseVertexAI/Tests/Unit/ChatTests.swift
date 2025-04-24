@@ -20,6 +20,9 @@ import FirebaseCore
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ChatTests: XCTestCase {
+  let modelName = "test-model-name"
+  let modelResourceName = "projects/my-project/locations/us-central1/models/test-model-name"
+
   var urlSession: URLSession!
 
   override func setUp() {
@@ -59,14 +62,15 @@ final class ChatTests: XCTestCase {
                           options: FirebaseOptions(googleAppID: "ignore",
                                                    gcmSenderID: "ignore"))
     let model = GenerativeModel(
-      name: "my-model",
+      modelName: modelName,
+      modelResourceName: modelResourceName,
       firebaseInfo: FirebaseInfo(
         projectID: "my-project-id",
         apiKey: "API_KEY",
         firebaseAppID: "My app ID",
         firebaseApp: app
       ),
-      apiConfig: APIConfig(service: .vertexAI, version: .v1beta),
+      apiConfig: VertexAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession

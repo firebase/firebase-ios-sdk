@@ -20,19 +20,63 @@ import VertexAITestApp
 @testable import class FirebaseVertexAI.VertexAI
 
 struct InstanceConfig {
-  static let vertexV1 = InstanceConfig(apiConfig: APIConfig(service: .vertexAI, version: .v1))
-  static let vertexV1Beta = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI, version: .v1beta)
+  static let vertexV1 = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
   )
-  static let developerV1 = InstanceConfig(
+  static let vertexV1Staging = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1)
+  )
+  static let vertexV1Beta = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  )
+  static let vertexV1BetaStaging = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1beta)
+  )
+  static let developerV1Beta = InstanceConfig(
+    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  )
+  static let developerV1BetaStaging = InstanceConfig(
+    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIStaging), version: .v1beta)
+  )
+  static let developerV1Spark = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1)
   )
-  static let developerV1Beta = InstanceConfig(
+  static let developerV1BetaSpark = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
   )
-  static let allConfigs = [vertexV1, vertexV1Beta, developerV1, developerV1Beta]
+  static let allConfigs = [
+    vertexV1,
+    vertexV1Staging,
+    vertexV1Beta,
+    vertexV1BetaStaging,
+    // TODO(andrewheard): Configs temporarily disabled due to backend issue:
+    // developerV1Beta,
+    // developerV1BetaStaging,
+    developerV1Spark,
+    developerV1BetaSpark,
+  ]
+
+  static let allConfigsExceptDeveloperV1 = [
+    vertexV1,
+    vertexV1Staging,
+    vertexV1Beta,
+    vertexV1BetaStaging,
+    // TODO(andrewheard): Configs temporarily disabled due to backend issue:
+    // developerV1Beta,
+    // developerV1BetaStaging,
+    developerV1BetaSpark,
+  ]
+
+  static let vertexV1AppCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
+  )
+  static let vertexV1BetaAppCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  )
 
   let appName: String?
   let location: String?
