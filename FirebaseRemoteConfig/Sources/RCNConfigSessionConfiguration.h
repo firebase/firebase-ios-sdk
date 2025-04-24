@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface RCNConfigURLSession : NSObject
+@interface RCNConfigSessionConfiguration : NSObject
 
 /// Returns an `NSURLSessionConfiguration` instance suitable for Remote Config requests.
 ///
@@ -24,6 +24,6 @@
 /// configuration as a workaround for a network request failure bug. See
 /// https://developer.apple.com/forums/thread/777999 for details. For all other environments, the
 /// default session configuration is returned.
-+ (NSURLSessionConfiguration *)RemoteConfigURLSession;
++ (NSURLSessionConfiguration *)remoteConfigSessionConfiguration;
 
 @end

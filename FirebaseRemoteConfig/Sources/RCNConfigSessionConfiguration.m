@@ -16,17 +16,17 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigURLSession.h"
 
-@implementation RCNConfigURLSession
+@implementation RCNConfigSessionConfiguration
 
-+ (NSURLSessionConfiguration *)RemoteConfigURLSession {
++ (NSURLSessionConfiguration *)remoteConfigSessionConfiguration {
   // Check if the current operating system version meets the criteria of the affected simulators.
   if (@available(iOS 18.4, tvOS 100.0, watchOS 100.0, visionOS 2.4, *)) {
     // If the app is running on one of the affected simulator versions (or later for iOS and
     // visionOS), use an ephemeral session configuration. Ephemeral sessions do not persist caches,
     // cookies, or credential data to disk, which circumvents the known bug.
-    return [[NSURLSessionConfiguration ephemeralSessionConfiguration] copy];
+    return [NSURLSessionConfiguration ephemeralSessionConfiguration];
   }
-  return [[NSURLSessionConfiguration defaultSessionConfiguration] copy];
+  return [NSURLSessionConfiguration defaultSessionConfiguration];
 }
 
 @end
