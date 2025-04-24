@@ -33,7 +33,7 @@ import FirebaseCoreInternal
 /// If you provide a custom instance of `FirebaseApp`,
 /// the storage location will be specified via the `FirebaseOptions.storageBucket` property.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRStorage) open class Storage: NSObject {
+@objc(FIRStorage) open class Storage: NSObject, @unchecked Sendable /* TODO: sendable */ {
   // MARK: - Public APIs
 
   /// The default `Storage` instance.

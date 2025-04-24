@@ -17,8 +17,8 @@ import Foundation
 @preconcurrency import FirebaseAppCheckInterop /* TODO: sendable */
 import FirebaseAuthInterop
 import FirebaseCore
-import FirebaseCoreInternal
 @_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreInternal
 
 #if COCOAPODS
   @preconcurrency import GTMSessionFetcher
@@ -28,7 +28,6 @@ import FirebaseCoreInternal
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer, Sendable {
-
   func authorizeRequest(_ incomingRequest: NSMutableURLRequest?,
                         completionHandler handler: @escaping @Sendable (Error?) -> Void) {
     guard let _request = incomingRequest else {

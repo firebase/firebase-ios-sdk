@@ -14,6 +14,7 @@
 
 import FirebaseAuth
 import FirebaseCore
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import XCTest
 
@@ -41,7 +42,7 @@ import XCTest
   }
  */
 
-class StorageResultTests: StorageIntegrationCommon {
+@MainActor class StorageResultTests: StorageIntegrationCommon, @unchecked Sendable {
   func testGetMetadata() {
     let expectation = self.expectation(description: "testGetMetadata")
     let ref = storage.reference().child("ios/public/1mb")
@@ -137,7 +138,7 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
-  func testNoDeadlocks() throws {
+  @MainActor func testNoDeadlocks() throws {
     let storage2 = Storage.storage(url: "")
 
     let expectation1 = expectation(description: #function)
@@ -282,7 +283,7 @@ class StorageResultTests: StorageIntegrationCommon {
                              "Failed to load file")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
-    var progressCount = 0
+    let progressCount = FIRNonisolatedUnsafe(initialState: 0)
 
     try data.write(to: fileURL, options: .atomicWrite)
 
@@ -290,7 +291,7 @@ class StorageResultTests: StorageIntegrationCommon {
     storage.uploadChunkSizeBytes = 256_000
 
     let task = ref.putFile(from: fileURL) { result in
-      XCTAssertGreaterThanOrEqual(progressCount, 4)
+      XCTAssertGreaterThanOrEqual(progressCount.state, 4)
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
     }
@@ -309,7 +310,9 @@ class StorageResultTests: StorageIntegrationCommon {
         XCTFail("Failed to get snapshot.progress")
         return
       }
-      progressCount = progressCount + 1
+      progressCount.withNonisolatedUnsafeState {
+        $0 += 1
+      }
       XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
       uploadedBytes = progress.completedUnitCount
     }
@@ -331,7 +334,7 @@ class StorageResultTests: StorageIntegrationCommon {
                              "Failed to load file")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
     let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
-    var progressCount = 0
+    let progressCount = FIRNonisolatedUnsafe(initialState: 0)
 
     try data.write(to: fileURL, options: .atomicWrite)
 
@@ -340,8 +343,8 @@ class StorageResultTests: StorageIntegrationCommon {
     storage.uploadChunkSizeBytes = 1
 
     let task = ref.putFile(from: fileURL) { result in
-      XCTAssertGreaterThanOrEqual(progressCount, 4)
-      XCTAssertLessThanOrEqual(progressCount, 6)
+      XCTAssertGreaterThanOrEqual(progressCount.state, 4)
+      XCTAssertLessThanOrEqual(progressCount.state, 6)
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
     }
@@ -360,7 +363,9 @@ class StorageResultTests: StorageIntegrationCommon {
         XCTFail("Failed to get snapshot.progress")
         return
       }
-      progressCount = progressCount + 1
+      progressCount.withNonisolatedUnsafeState {
+        $0 += 1
+      }
       XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
       uploadedBytes = progress.completedUnitCount
     }
@@ -613,9 +618,9 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
-  private func assertMetadata(actualMetadata: StorageMetadata,
-                              expectedContentType: String,
-                              expectedCustomMetadata: [String: String]) {
+  private nonisolated func assertMetadata(actualMetadata: StorageMetadata,
+                                          expectedContentType: String,
+                                          expectedCustomMetadata: [String: String]) {
     XCTAssertEqual(actualMetadata.cacheControl, "cache-control")
     XCTAssertEqual(actualMetadata.contentDisposition, "content-disposition")
     XCTAssertEqual(actualMetadata.contentEncoding, "gzip")
@@ -627,7 +632,7 @@ class StorageResultTests: StorageIntegrationCommon {
     }
   }
 
-  private func assertMetadataNil(actualMetadata: StorageMetadata) {
+  private nonisolated func assertMetadataNil(actualMetadata: StorageMetadata) {
     XCTAssertNil(actualMetadata.cacheControl)
     XCTAssertNil(actualMetadata.contentDisposition)
     XCTAssertEqual(actualMetadata.contentEncoding, "identity")
@@ -827,7 +832,7 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
-  func testListAllFiles() {
+  @MainActor func testListAllFiles() {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
@@ -855,8 +860,9 @@ class StorageResultTests: StorageIntegrationCommon {
                         })
   }
 
-  private func assertResultSuccess<T>(_ result: Result<T, Error>,
-                                      file: StaticString = #file, line: UInt = #line) {
+  private nonisolated func assertResultSuccess<T>(_ result: Result<T, Error>,
+                                                  file: StaticString = #filePath,
+                                                  line: UInt = #line) {
     switch result {
     case let .success(value):
       XCTAssertNotNil(value, file: file, line: line)
@@ -865,8 +871,9 @@ class StorageResultTests: StorageIntegrationCommon {
     }
   }
 
-  private func assertResultFailure<T>(_ result: Result<T, Error>,
-                                      file: StaticString = #file, line: UInt = #line) {
+  private nonisolated func assertResultFailure<T>(_ result: Result<T, Error>,
+                                                  file: StaticString = #filePath,
+                                                  line: UInt = #line) {
     switch result {
     case let .success(value):
       XCTFail("Unexpected success with value: \(value)")
