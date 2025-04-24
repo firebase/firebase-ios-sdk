@@ -46,16 +46,10 @@ private final class AtomicBox<T> {
 /// dependent SDKs
 @objc(FIRSessionsDependencies)
 public class SessionsDependencies: NSObject {
-  #if compiler(>=6)
-    private nonisolated(unsafe) static let _dependencies: AtomicBox<Set<SessionsSubscriberName>> =
-      AtomicBox(
-        Set()
-      )
-  #else
-    private static let _dependencies: AtomicBox<Set<SessionsSubscriberName>> = AtomicBox(
+  private nonisolated(unsafe) static let _dependencies: AtomicBox<Set<SessionsSubscriberName>> =
+    AtomicBox(
       Set()
     )
-  #endif
 
   static var dependencies: Set<SessionsSubscriberName> {
     _dependencies.value()
