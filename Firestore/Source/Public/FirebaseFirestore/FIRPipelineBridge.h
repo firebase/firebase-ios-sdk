@@ -220,6 +220,8 @@ NS_SWIFT_NAME(__PipelineResultBridge)
 - (NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
     (FIRServerTimestampBehavior)serverTimestampBehavior;
 
+- (nullable id)get:(id)field;
+
 @end
 
 NS_SWIFT_SENDABLE

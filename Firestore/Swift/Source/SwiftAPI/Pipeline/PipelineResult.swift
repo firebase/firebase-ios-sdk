@@ -51,20 +51,20 @@ public struct PipelineResult: @unchecked Sendable {
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldName: String) -> Sendable? {
-    return data[fieldName]
+    return bridge.get(fieldName)
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldPath: FieldPath) -> Sendable? {
-    return "PLACEHOLDER"
+    return bridge.get(fieldPath)
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ field: Field) -> Sendable? {
-    return data[field.fieldName]
+    return bridge.get(field.fieldName)
   }
 }

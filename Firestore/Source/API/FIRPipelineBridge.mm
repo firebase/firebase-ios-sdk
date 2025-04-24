@@ -21,6 +21,7 @@
 #include <memory>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
@@ -70,10 +71,12 @@ using firebase::firestore::api::SortStage;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
 using firebase::firestore::api::Where;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::nanopb::SharedMessage;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -915,6 +918,29 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTUserDataWriter alloc] initWithFirestore:_db
                            serverTimestampBehavior:serverTimestampBehavior];
   return [dataWriter convertedValue:*data];
+}
+
+- (nullable id)get:(id)field {
+  return [self get:field serverTimestampBehavior:FIRServerTimestampBehaviorNone];
+}
+
+- (nullable id)get:(id)field
+    serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+  FieldPath fieldPath;
+  if ([field isKindOfClass:[NSString class]]) {
+    fieldPath = FieldPath::FromDotSeparatedString(MakeString(field));
+  } else if ([field isKindOfClass:[FIRFieldPath class]]) {
+    fieldPath = ((FIRFieldPath *)field).internalValue;
+  } else {
+    ThrowInvalidArgument("Subscript key must be an NSString or FIRFieldPath.");
+  }
+  absl::optional<firebase::firestore::google_firestore_v1_Value> fieldValue =
+      _result.internal_value()->Get(fieldPath);
+  if (!fieldValue) return nil;
+  FSTUserDataWriter *dataWriter =
+      [[FSTUserDataWriter alloc] initWithFirestore:_db
+                           serverTimestampBehavior:serverTimestampBehavior];
+  return [dataWriter convertedValue:*fieldValue];
 }
 
 @end
