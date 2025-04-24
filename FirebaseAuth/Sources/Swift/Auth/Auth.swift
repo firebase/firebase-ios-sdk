@@ -2309,12 +2309,14 @@ extension Auth: AuthInterop {
                                                         _ callback: @escaping @Sendable (
                                                           (T.Response?, Error?) -> Void
                                                         )) {
+      // Avoids a compiler error saying `callback` can race.
+      let wrappedClosure = FIRNonisolatedUnsafe(initialState: callback)
       Task {
         do {
           let response = try await injectRecaptcha(request: request, action: action)
-          callback(response, nil)
+          wrappedClosure.state(response, nil)
         } catch {
-          callback(nil, error)
+          wrappedClosure.state(nil, error)
         }
       }
     }
