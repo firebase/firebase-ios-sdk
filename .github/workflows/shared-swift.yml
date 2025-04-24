@@ -37,7 +37,7 @@ jobs:
             xcode: Xcode_16.2
             swift_version: 5.9
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             swift_version: 6.0
     runs-on: ${{ matrix.build-env.os }}
     steps:

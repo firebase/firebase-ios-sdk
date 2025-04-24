@@ -59,7 +59,7 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             test: spm
           - os: macos-14
             xcode: Xcode_16.2

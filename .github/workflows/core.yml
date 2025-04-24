@@ -21,6 +21,12 @@ jobs:
     with:
       target: CoreUnit
 
+  catalyst:
+    uses: ./.github/workflows/common_catalyst.yml
+    with:
+      product: FirebaseCore
+      target: FirebaseCore-Unit-unit
+
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -71,24 +77,6 @@ jobs:
         with:
           path: .build
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
-
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-    - name: Setup project and Build Catalyst
-      run: scripts/test_catalyst.sh FirebaseCore test FirebaseCore-Unit-unit
 
   core-cron-only:
     # Don't run on private repo.
