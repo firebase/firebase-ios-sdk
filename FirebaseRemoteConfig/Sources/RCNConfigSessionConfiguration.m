@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigURLSession.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigSessionConfiguration.h"
 
 @implementation RCNConfigSessionConfiguration
 
