@@ -48,5 +48,3 @@ public struct Backend {
     self.location = location
   }
 }
-
-extension Backend: Equatable {}
